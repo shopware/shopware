@@ -1,4 +1,4 @@
-{% set filterItemId = 'filter-' ~ name ~ '-' ~ loop.index %}
+{% set filterItemId = 'filter-' ~ name ~ '-' ~ random() %}
 
 {% if pluginSelector is not defined %}
     {% set pluginSelector = 'filter-multi-select' %}

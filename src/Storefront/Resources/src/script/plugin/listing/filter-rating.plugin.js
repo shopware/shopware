@@ -10,7 +10,7 @@ export default class FilterRatingPlugin extends FilterBasePlugin {
         ratingSystemSelector: '.filter-rating-container',
         radioSelector: '.product-detail-review-form-radio',
         snippets: {
-            activeFilterLabelText: '',
+            filterRatingActiveLabel: '',
         },
     });
 
@@ -80,7 +80,7 @@ export default class FilterRatingPlugin extends FilterBasePlugin {
 
         if (currentRating) {
             labels.push({
-                label: `${currentRating} ${this.options.snippets.activeFilterLabelText}`,
+                label: `${currentRating} ${this.options.snippets.filterRatingActiveLabel}`,
                 id: 'rating',
             });
         } else {

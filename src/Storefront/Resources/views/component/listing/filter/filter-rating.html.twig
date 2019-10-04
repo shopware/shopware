@@ -1,11 +1,11 @@
-{% set filterItemId = 'filter-' ~ name ~ '-' ~ loop.index %}
+{% set filterItemId = 'filter-' ~ name ~ '-' ~ random() %}
 
 {% if maxPoints is not defined %}
     {% set maxPoints = 5 %}
 {% endif %}
 
-{% if activeFilterLabelText is not defined %}
-    {% set activeFilterLabelText = 'or more stars' %}
+{% if filterRatingActiveLabel is not defined %}
+    {% set filterRatingActiveLabel = 'listing.filterRatingActiveLabel'|trans %}
 {% endif %}
 
 {% block component_filter_rating %}
@@ -15,7 +15,7 @@
             "name": "{{ name }}",
             "maxPoints": "{{ maxPoints }}",
             "snippets": {
-                "activeFilterLabelText": "{{ activeFilterLabelText }}"
+                "filterRatingActiveLabel": "{{ filterRatingActiveLabel }}"
             }
          }'>
 

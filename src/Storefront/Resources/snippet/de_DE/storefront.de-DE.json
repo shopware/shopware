@@ -330,8 +330,11 @@
         "filterPriceDisplayName": "Preis",
         "filterManufacturerDisplayName": "Hersteller",
         "filterRatingDisplayName": "Bewertung",
+        "filterRatingActiveLabel": "Sterne",
         "filterRangeMinLabel": "Minimal",
         "filterRangeMaxLabel": "Maximal",
+        "filterRangeActiveMinLabel": "Preis ab",
+        "filterRangeActiveMaxLabel": "Preis bis",
         "filterSubmitText": "Filter"
     },
     "newsletter": {

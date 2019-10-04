@@ -1,15 +1,15 @@
-{% set filterItemId = 'filter-' ~ name ~ '-' ~ loop.index %}
+{% set filterItemId = 'filter-' ~ name ~ '-' ~ random() %}
 
 {% if currencySymbol is not defined %}
     {% set currencySymbol = page.header.activeCurrency.symbol %}
 {% endif %}
 
-{% if minLabelActiveFilter is not defined %}
-    {% set minLabelActiveFilter = 'Price from' %}
+{% if filterRangeActiveMinLabel is not defined %}
+    {% set filterRangeActiveMinLabel = 'listing.filterRangeActiveMinLabel'|trans %}
 {% endif %}
 
-{% if maxLabelActiveFilter is not defined %}
-    {% set maxLabelActiveFilter = 'Price to' %}
+{% if filterRangeActiveMaxLabel is not defined %}
+    {% set filterRangeActiveMaxLabel = 'listing.filterRangeActiveMaxLabel'|trans %}
 {% endif %}
 
 {% block component_filter_range %}
@@ -21,8 +21,8 @@
              "maxKey": "{{ maxKey }}",
              "currencySymbol": "{{ currencySymbol }}",
              "snippets": {
-                "minLabelActiveFilter": "{{ minLabelActiveFilter }}",
-                "maxLabelActiveFilter": "{{ maxLabelActiveFilter }}"
+                "filterRangeActiveMinLabel": "{{ filterRangeActiveMinLabel }}",
+                "filterRangeActiveMaxLabel": "{{ filterRangeActiveMaxLabel }}"
              }
          }'>
 

@@ -21,13 +21,6 @@ This filter item should only be used inside a filter panel.
     width: 100%;
 }
 
-.is-hide-title {
-    .filter-multi-select-list {
-        display: flex;
-        flex-wrap: wrap;
-    }
-
-    .filter-multi-select-list-item {
-        padding: 10px;
-    }
+.filter-multi-select-count {
+    margin-left: 3px;
 }

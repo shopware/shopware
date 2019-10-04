@@ -247,12 +247,9 @@ Cypress.Commands.add('createGuestOrder', (productId, userData) => {
  * @function
  */
 Cypress.Commands.add('setToInitialState', () => {
-    const fixture = new Fixture();
-
     return cy.log('Cleaning, please wait a little bit.').then(() => {
         return cy.cleanUpPreviousState();
     }).then(() => {
-        //return fixture.clearCache();
         return cy.clearCacheAdminApi('DELETE', 'api/v1/_action/cache');
     }).then(() => {
         return cy.setLocaleToEnGb();

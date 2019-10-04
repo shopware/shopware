@@ -109,12 +109,7 @@ Cypress.Commands.add('clearCacheAdminApi', (method, url) => {
             method: method,
             url: url
         };
-        console.log('req')
         return cy.request(requestConfig);
-    }).then((response) => {
-        console.log('res')
-        console.log(response)
-        return response;
     });
 });
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Serializer;
 
+use Shopware\Core\Framework\Api\Converter\ConverterRegistry;
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -21,18 +22,28 @@ class JsonApiEncoder
     private $caseCache = [];
 
     /**
-     * @var array[string]array[string]Record
+     * @var array[string]array[string]array[int]Record
      */
     private $serializeCache = [];
+
+    /**
+     * @var ConverterRegistry
+     */
+    private $converterRegistry;
+
+    public function __construct(ConverterRegistry $converterRegistry)
+    {
+        $this->converterRegistry = $converterRegistry;
+    }
 
     /**
      * @param EntityCollection|Entity|null $data
      *
      * @throws UnsupportedEncoderInputException
      */
-    public function encode(EntityDefinition $definition, $data, string $baseUrl, array $metaData = []): string
+    public function encode(EntityDefinition $definition, $data, string $baseUrl, int $apiVersion, array $metaData = []): string
     {
-        $result = new JsonApiEncodingResult($baseUrl);
+        $result = new JsonApiEncodingResult($baseUrl, $apiVersion);
 
         if (!$data instanceof EntityCollection && !$data instanceof Entity) {
             throw new UnsupportedEncoderInputException();
@@ -133,8 +144,8 @@ class JsonApiEncoder
 
     private function createSerializedEntity(EntityDefinition $definition, JsonApiEncodingResult $result): Record
     {
-        if (isset($this->serializeCache[$definition->getClass()][$result->getBaseUrl()])) {
-            return clone $this->serializeCache[$definition->getClass()][$result->getBaseUrl()];
+        if (isset($this->serializeCache[$definition->getClass()][$result->getBaseUrl()][$result->getApiVersion()])) {
+            return clone $this->serializeCache[$definition->getClass()][$result->getBaseUrl()][$result->getApiVersion()];
         }
 
         $serialized = new Record();
@@ -149,6 +160,10 @@ class JsonApiEncoder
             $readProtected = $field->getFlag(ReadProtected::class);
 
             if ($readProtected && !$readProtected->isBaseUrlAllowed($result->getBaseUrl())) {
+                continue;
+            }
+
+            if (!$this->converterRegistry->isFieldInResponseAllowed($definition->getEntityName(), $propertyName, $result->getApiVersion())) {
                 continue;
             }
 
@@ -192,7 +207,7 @@ class JsonApiEncoder
             }
         }
 
-        return $this->serializeCache[$definition->getClass()][$result->getBaseUrl()] = $serialized;
+        return $this->serializeCache[$definition->getClass()][$result->getBaseUrl()][$result->getApiVersion()] = $serialized;
     }
 
     private function formatToJson(JsonApiEncodingResult $result): string

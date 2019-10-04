@@ -41,7 +41,7 @@ class JsonEntityEncoderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->encoder = new JsonEntityEncoder($this->getContainer()->get('serializer'));
+        $this->encoder = $this->getContainer()->get(JsonEntityEncoder::class);
     }
 
     public function emptyInputProvider(): array
@@ -63,7 +63,7 @@ class JsonEntityEncoderTest extends TestCase
     {
         $this->expectException(UnsupportedEncoderInputException::class);
 
-        $this->encoder->encode($this->getContainer()->get(ProductDefinition::class), $input, SerializationFixture::API_BASE_URL);
+        $this->encoder->encode($this->getContainer()->get(ProductDefinition::class), $input, SerializationFixture::API_BASE_URL, SerializationFixture::API_VERSION);
     }
 
     public function complexStructsProvider(): array
@@ -84,7 +84,7 @@ class JsonEntityEncoderTest extends TestCase
      */
     public function testEncodeComplexStructs(EntityDefinition $definition, SerializationFixture $fixture): void
     {
-        $actual = $this->encoder->encode($definition, $fixture->getInput(), SerializationFixture::API_BASE_URL);
+        $actual = $this->encoder->encode($definition, $fixture->getInput(), SerializationFixture::API_BASE_URL, SerializationFixture::API_VERSION);
 
         static::assertEquals($fixture->getAdminJsonFixtures(), $actual);
     }
@@ -103,7 +103,7 @@ class JsonEntityEncoderTest extends TestCase
         $extendableDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
         $fixture = new TestBasicWithExtension();
 
-        $actual = $this->encoder->encode($extendableDefinition, $fixture->getInput(), SerializationFixture::API_BASE_URL);
+        $actual = $this->encoder->encode($extendableDefinition, $fixture->getInput(), SerializationFixture::API_BASE_URL, SerializationFixture::API_VERSION);
 
         static::assertEquals($fixture->getAdminJsonFixtures(), $actual);
     }

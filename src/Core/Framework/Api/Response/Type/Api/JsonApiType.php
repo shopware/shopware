@@ -50,6 +50,7 @@ class JsonApiType extends JsonFactoryBase
             $definition,
             $entity,
             $this->getApiBaseUrl($request),
+            $request->attributes->getInt('version'),
             $rootNode
         );
 
@@ -83,6 +84,7 @@ class JsonApiType extends JsonFactoryBase
             $definition,
             $searchResult,
             $this->getApiBaseUrl($request),
+            $request->attributes->getInt('version'),
             $rootNode
         );
 

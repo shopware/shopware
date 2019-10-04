@@ -40,7 +40,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->encoder = new JsonApiEncoder();
+        $this->encoder = $this->getContainer()->get(JsonApiEncoder::class);
     }
 
     public function emptyInputProvider(): array
@@ -64,7 +64,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
     {
         $this->expectException(UnsupportedEncoderInputException::class);
 
-        $this->encoder->encode($this->getContainer()->get(ProductDefinition::class), $input, SerializationFixture::SALES_CHANNEL_API_BASE_URL);
+        $this->encoder->encode($this->getContainer()->get(ProductDefinition::class), $input, SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
     }
 
     public function complexStructsProvider(): array
@@ -85,7 +85,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
      */
     public function testEncodeComplexStructs(EntityDefinition $definition, SerializationFixture $fixture): void
     {
-        $actual = $this->encoder->encode($definition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL);
+        $actual = $this->encoder->encode($definition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
 
         $actual = json_decode($actual, true);
 
@@ -110,7 +110,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         $extendableDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
         $fixture = new TestBasicWithExtension();
 
-        $actual = $this->encoder->encode($extendableDefinition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL);
+        $actual = $this->encoder->encode($extendableDefinition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
 
         // check that empty "links" object is an object and not array: https://jsonapi.org/format/#document-links
         static::assertStringNotContainsString('"links":[]', $actual);

@@ -71,7 +71,7 @@ export default class FilterRatingPlugin extends FilterBasePlugin {
                 this.currentRating = params[key];
                 this._updateCount();
 
-                // ToDo: set rating system state
+                this.ratingSystem.setRating(this.currentRating);
                 stateChanged = true;
             }
         });

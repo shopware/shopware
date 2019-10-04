@@ -1,6 +1,6 @@
 {% block component_pagination_nav %}
     {% set currentPage = ((criteria.offset + 1) / criteria.limit )|round(0, 'ceil') %}
-    {% set totalPages = (searchResult.total / criteria.limit)|round(0, 'ceil') %}
+    {% set totalPages = (entities.total / criteria.limit)|round(0, 'ceil') %}
 
     <nav aria-label="pagination" class="pagination-nav">
         {% block component_pagination %}

@@ -238,7 +238,10 @@
 																{% endfor %}
 															{% endif %}
 
-                                                            {% sw_include '@Storefront/component/pagination.html.twig' %}
+                                                            {% sw_include '@Storefront/component/pagination.html.twig' with {
+                                                                entities: page.reviews,
+                                                                criteria: page.reviews.criteria
+                                                            }  %}
 														</form>
 													</div>
                                                 {% endif %}

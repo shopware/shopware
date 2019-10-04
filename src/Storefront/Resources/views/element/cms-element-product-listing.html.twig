@@ -41,7 +41,10 @@
                 {% block element_product_listing_pagination_nav_actions %}
                     <div class="cms-element-product-listing-actions">
                         {% block element_product_listing_pagination_nav_top %}
-                            {% sw_include '@Storefront/component/pagination.html.twig' with { criteria: searchResult.criteria } %}
+                            {% sw_include '@Storefront/component/pagination.html.twig' with {
+                                entities: searchResult,
+                                criteria: searchResult.criteria
+                            } %}
                         {% endblock %}
 
                         {% block element_product_listing_sorting %}
@@ -70,7 +73,10 @@
 
             {% if searchResult.total > 0 %}
                 {% block element_product_listing_pagination_nav_bottom %}
-                    {% sw_include '@Storefront/component/pagination.html.twig' with { criteria: searchResult.criteria } %}
+                    {% sw_include '@Storefront/component/pagination.html.twig' with {
+                        entities: searchResult,
+                        criteria: searchResult.criteria
+                    } %}
                 {% endblock %}
             {% endif %}
         </div>

@@ -34,12 +34,7 @@ export default class FilterRatingPlugin extends FilterBasePlugin {
      * @private
      */
     _registerEvents() {
-        const dropdownMenu = DomAccess.querySelector(this.el, '.filter-panel-item-dropdown');
         const radios = DomAccess.querySelectorAll(this.el, this.options.radioSelector);
-
-        dropdownMenu.addEventListener('click', (event) => {
-            event.stopPropagation();
-        });
 
         radios.forEach((radio) => {
             radio.addEventListener('change', this._onChangeRating.bind(this));

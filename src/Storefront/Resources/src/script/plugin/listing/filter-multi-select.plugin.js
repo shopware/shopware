@@ -8,7 +8,6 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
     static options = deepmerge(FilterBasePlugin.options, {
         checkboxSelector: '.filter-multi-select-checkbox',
         countSelector: '.filter-multi-select-count',
-        dropDownSelector: '.filter-multi-select-dropdown',
     });
 
     init() {
@@ -23,14 +22,9 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
      */
     _registerEvents() {
         const checkboxes = DomAccess.querySelectorAll(this.el, this.options.checkboxSelector);
-        const dropdownMenu = DomAccess.querySelector(this.el, this.options.dropDownSelector);
 
         Iterator.iterate(checkboxes, (checkbox) => {
             checkbox.addEventListener('change', this._onChangeFilter.bind(this));
-        });
-
-        dropdownMenu.addEventListener('click', (event) => {
-            event.stopPropagation();
         });
     }
 

@@ -1,9 +1,11 @@
 import Plugin from 'src/script/plugin-system/plugin.class';
+import DomAccess from 'src/script/helper/dom-access.helper';
 
 export default class FilterBasePlugin extends Plugin {
 
     static options = {
         parentFilterPanelSelector: '.cms-element-product-listing-wrapper',
+        dropdownSelector: '.filter-panel-item-dropdown',
     };
 
     _init() {
@@ -11,7 +13,7 @@ export default class FilterBasePlugin extends Plugin {
 
         this._validateMethods();
 
-        const parentFilterPanelElement = document.querySelector(this.options.parentFilterPanelSelector);
+        const parentFilterPanelElement = DomAccess.querySelector(document, this.options.parentFilterPanelSelector);
 
         this.listing = window.PluginManager.getPluginInstanceFromElement(
             parentFilterPanelElement,
@@ -19,6 +21,20 @@ export default class FilterBasePlugin extends Plugin {
         );
 
         this.listing.registerFilter(this);
+
+        this._preventDropdownClose();
+    }
+
+    _preventDropdownClose() {
+        const dropdownMenu = DomAccess.querySelector(this.el, this.options.dropdownSelector, false);
+
+        if (!dropdownMenu) {
+            return;
+        }
+
+        dropdownMenu.addEventListener('click', (event) => {
+            event.stopPropagation();
+        });
     }
 
     _validateMethods() {

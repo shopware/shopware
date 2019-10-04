@@ -137,9 +137,16 @@ Component.register('sw-seo-url-template-card', {
         createVariablesStore(id, data) {
             const storeOptions = [];
 
-            Object.keys(data).forEach((property) => {
+            Object.entries(data).forEach(([property, value]) => {
                 storeOptions.push({ id: property, name: `${property}` });
+
+                if (value instanceof Object) {
+                    Object.keys(value).forEach((innerProperty) => {
+                        storeOptions.push({ id: `${property}.${innerProperty}`, name: `${property}.${innerProperty}` });
+                    });
+                }
             });
+
 
             this.$set(this.variableStores, id, new LocalStore(storeOptions));
         },
@@ -201,8 +208,7 @@ Component.register('sw-seo-url-template-card', {
                         this.seoUrlTemplateRepository.schema.entity,
                         this.context, new Criteria()
                     );
-                    this.createdComponent();
-                    this.$refs.salesChannelSelect.changeToNewSalesChannel(this.salesChannelId);
+                    this.fetchSeoUrlTemplates(this.salesChannelId);
                     this.createSaveSuccessNotification();
                 });
             }).catch(() => {

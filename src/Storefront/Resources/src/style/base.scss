@@ -54,9 +54,16 @@ https://sass-guidelin.es/#the-7-1-pattern
 @import 'component/cms-element';
 @import 'component/forms';
 @import 'component/address-editor';
+@import 'component/sorting';
 @import 'component/delivery-status';
 @import 'component/quickview-modal';
 @import 'component/payment-method';
+@import 'component/filter-panel';
+@import 'component/filter-multi-select';
+@import 'component/filter-property-select';
+@import 'component/filter-boolean';
+@import 'component/filter-range';
+@import 'component/filter-rating';
 
 /*
  * Layout-related sections

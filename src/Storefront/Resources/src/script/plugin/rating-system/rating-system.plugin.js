@@ -23,25 +23,34 @@ export default class RatingSystemPlugin extends Plugin {
         this._registerEvents();
     }
 
+    /**
+     * @private
+     */
     _registerEvents() {
         Iterator.iterate(this._ratingPoints, point => {
-            point.addEventListener('click', this._setRating.bind(this));
+            point.addEventListener('click', this._onClickRating.bind(this));
         });
+    }
+
+    /**
+     * @private
+     * @param {Event} event
+     */
+    _onClickRating(event) {
+        this.setRating(event.currentTarget.getAttribute(this.options.reviewPointAttr));
     }
 
     /**
      * set icon class to display the current rating
      *
-     * @param {Event} event
-     *
-     * @private
+     * @public
+     * @param points
      */
-    _setRating(event){
+    setRating(points){
         Iterator.iterate(this._ratingPoints, radio => {
             const radioValue = radio.getAttribute(this.options.reviewPointAttr);
-            const targetValue = event.currentTarget.getAttribute(this.options.reviewPointAttr);
 
-            if (radioValue <= targetValue) {
+            if (radioValue <= points) {
                 radio.classList.add(this.options.activeClass);
 
             } else {
@@ -50,6 +59,33 @@ export default class RatingSystemPlugin extends Plugin {
 
             radio.addEventListener('click', this._showInfoText.bind(this));
         });
+    }
+
+    /**
+     * reset the current rating
+     *
+     * @public
+     */
+    resetRating() {
+        Iterator.iterate(this._ratingPoints, radio => {
+            radio.classList.remove(this.options.activeClass);
+        });
+    }
+
+    /**
+     * get the current rating
+     *
+     * @public
+     * @return {number}
+     */
+    getRating() {
+        const points = DomAccess.querySelectorAll(
+            this.el,
+            `[${this.options.reviewPointAttr}].${this.options.activeClass}`,
+            false
+        );
+
+        return points ? points.length : 0;
     }
 
     /**

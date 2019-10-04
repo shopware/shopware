@@ -68,7 +68,7 @@ export default class CmsSlotReloadService {
         const url = this._getUrl();
 
         let data = {
-            elements: Object.keys(this._options.elements),
+            slots: Object.keys(this._options.elements),
         };
 
         if (this._data) {
@@ -105,7 +105,7 @@ export default class CmsSlotReloadService {
 
         document.$emitter.publish('CmsSlot/removeLoadingIndicators');
     }
-    
+
     /**
      * iterates over cms elements
      *

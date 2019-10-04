@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Product\Events;
 
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,11 +21,11 @@ class ProductListingResultEvent extends NestedEvent
     protected $context;
 
     /**
-     * @var EntitySearchResult
+     * @var ProductListingResult
      */
     protected $result;
 
-    public function __construct(Request $request, EntitySearchResult $result, SalesChannelContext $context)
+    public function __construct(Request $request, ProductListingResult $result, SalesChannelContext $context)
     {
         $this->request = $request;
         $this->context = $context;
@@ -47,7 +47,7 @@ class ProductListingResultEvent extends NestedEvent
         return $this->context;
     }
 
-    public function getResult(): EntitySearchResult
+    public function getResult(): ProductListingResult
     {
         return $this->result;
     }

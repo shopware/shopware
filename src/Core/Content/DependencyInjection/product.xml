@@ -173,6 +173,10 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSortingRegistry">
+            <argument type="tagged" tag="shopware.sales_channel.product_listing.sorting" />
+        </service>
+
         <service id="Shopware\Core\Content\Product\Cms\ProductBoxCmsElementResolver">
             <tag name="shopware.cms.data_resolver" />
         </service>
@@ -193,6 +197,8 @@
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber">
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="property_group_option.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSortingRegistry"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestGateway">
@@ -217,6 +223,42 @@
         <service id="Shopware\Core\Content\Product\SalesChannel\ProductReviewService">
             <argument type="service" id="product_review.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+        </service>
+
+        <service id="product_listing.sorting.name_ascending" class="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSorting">
+            <argument>name-asc</argument>
+            <argument>filter.sortByNameAscending</argument>
+            <argument type="collection">
+                <argument key="product.name">asc</argument>
+            </argument>
+            <tag name="shopware.sales_channel.product_listing.sorting" />
+        </service>
+
+        <service id="product_listing.sorting.name_descending" class="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSorting">
+            <argument>name-desc</argument>
+            <argument>filter.sortByNameDescending</argument>
+            <argument type="collection">
+                <argument key="product.name">desc</argument>
+            </argument>
+            <tag name="shopware.sales_channel.product_listing.sorting" />
+        </service>
+
+        <service id="product_listing.sorting.price_ascending" class="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSorting">
+            <argument>price-asc</argument>
+            <argument>filter.sortByPriceAscending</argument>
+            <argument type="collection">
+                <argument key="product.listingPrices">asc</argument>
+            </argument>
+            <tag name="shopware.sales_channel.product_listing.sorting" />
+        </service>
+
+        <service id="product_listing.sorting.price_descending" class="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSorting">
+            <argument>price-desc</argument>
+            <argument>filter.sortByPriceDescending</argument>
+            <argument type="collection">
+                <argument key="product.listingPrices">desc</argument>
+            </argument>
+            <tag name="shopware.sales_channel.product_listing.sorting" />
         </service>
     </services>
 </container>

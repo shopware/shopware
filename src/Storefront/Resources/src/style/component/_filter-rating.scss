@@ -1,0 +1,30 @@
+/*
+Filter rating
+==============================================
+Styling for rating filter item.
+This filter item should only be used inside a filter panel.
+*/
+
+.filter-rating-dropdown {
+    padding: 10px;
+    overflow: hidden;
+}
+
+.filter-rating-container {
+    display: flex;
+    align-items: center;
+}
+
+.filter-rating-star {
+    cursor: pointer;
+    margin-right: 4px;
+    margin-bottom: 0;
+
+    &.is-active .icon-star {
+        color: $icon-review-color;
+    }
+}
+
+.filter-rating-count {
+    margin-left: 3px;
+}

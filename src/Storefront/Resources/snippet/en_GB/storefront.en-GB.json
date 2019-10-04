@@ -324,7 +324,18 @@
         "listingTextSite": "Page",
         "listingTextFrom": "from",
         "boxAddProduct": "Add to shopping cart",
-        "boxProductDetails": "Details"
+        "boxProductDetails": "Details",
+        "filterPanelResetAll": "Reset all",
+        "filterFreeShippingDisplayName": "Free shipping",
+        "filterPriceDisplayName": "Price",
+        "filterManufacturerDisplayName": "Manufacturer",
+        "filterRatingDisplayName": "Rating",
+        "filterRatingActiveLabel": "Stars",
+        "filterRangeMinLabel": "Minimum",
+        "filterRangeMaxLabel": "Maximum",
+        "filterRangeActiveMinLabel": "Price from",
+        "filterRangeActiveMaxLabel": "Price to",
+        "filterSubmitText": "Filter"
     },
     "newsletter": {
         "headline": "Subscribe to newsletter",

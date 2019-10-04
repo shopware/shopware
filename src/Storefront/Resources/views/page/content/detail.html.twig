@@ -5,6 +5,7 @@
             {% set sectionBgColor = section.backgroundColor %}
             {% set sectionBgImg = section.backgroundMedia|sw_encode_media_url %}
             {% set sectionBgImgMode = section.backgroundMediaMode %}
+            {% set sectionType = section.type %}
 
             {% set sectionClasses = [layout, section.cssClass, 'pos-' ~ section.position, 'cms-section-' ~ section.type] %}
 

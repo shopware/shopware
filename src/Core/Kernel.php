@@ -8,6 +8,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\Api\Controller\FallbackController;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
@@ -139,7 +140,11 @@ class Kernel extends HttpKernel
 
     public function getCacheDir(): string
     {
-        $pluginHash = md5(implode('', array_keys($this->pluginLoader->getPluginInstances()->getActives())));
+        $pluginFeatures = array_map(function (Plugin $plugin): string {
+            return $plugin->getClassName() . ($plugin->getChangedAt() ? $plugin->getChangedAt()->getTimestamp() : '');
+        }, $this->pluginLoader->getPluginInstances()->getActives());
+        sort($pluginFeatures);
+        $pluginHash = md5(implode($pluginFeatures));
 
         return sprintf(
             '%s/var/cache/%s_k%s_p%s',

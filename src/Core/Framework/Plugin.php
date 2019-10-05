@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework;
 
 use Composer\Autoload\ClassLoader;
+use DateTimeInterface;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
@@ -22,8 +23,17 @@ abstract class Plugin extends Bundle
      */
     private $basePath;
 
-    final public function __construct(bool $active, string $basePath, ?string $projectDir = null)
-    {
+    /**
+     * @var DateTimeInterface|null
+     */
+    private $changedAt;
+
+    final public function __construct(
+        bool $active,
+        string $basePath,
+        ?string $projectDir = null,
+        ?DateTimeInterface $changedAt = null
+    ) {
         $this->active = $active;
         $this->basePath = $basePath;
 
@@ -32,11 +42,17 @@ abstract class Plugin extends Bundle
         }
 
         $this->path = $this->computePluginClassPath();
+        $this->changedAt = $changedAt;
     }
 
     final public function isActive(): bool
     {
         return $this->active;
+    }
+
+    final public function getChangedAt(): ?DateTimeInterface
+    {
+        return $this->changedAt;
     }
 
     public function install(InstallContext $installContext): void

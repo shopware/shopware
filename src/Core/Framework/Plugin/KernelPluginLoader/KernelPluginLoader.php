@@ -248,7 +248,12 @@ abstract class KernelPluginLoader extends Bundle
             }
 
             /** @var Plugin $plugin */
-            $plugin = new $className((bool) $pluginData['active'], $pluginData['path'], $projectDir);
+            $plugin = new $className(
+                (bool) $pluginData['active'],
+                $pluginData['path'],
+                $projectDir,
+                $pluginData['changedAt'] ?? null
+            );
 
             if (!$plugin instanceof Plugin) {
                 $reason = sprintf('Plugin class "%s" must extend "%s"', \get_class($plugin), Plugin::class);

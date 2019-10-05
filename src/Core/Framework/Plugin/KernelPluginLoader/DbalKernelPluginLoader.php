@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Plugin\KernelPluginLoader;
 
 use Composer\Autoload\ClassLoader;
+use DateTime;
 use Doctrine\DBAL\Connection;
 
 class DbalKernelPluginLoader extends KernelPluginLoader
@@ -22,7 +23,13 @@ class DbalKernelPluginLoader extends KernelPluginLoader
     protected function loadPluginInfos(): void
     {
         $sql = <<<SQL
-            SELECT `base_class` AS baseClass, IF(`active` = 1 AND `installed_at` IS NOT NULL, 1, 0) AS active, `path`, `autoload`, `managed_by_composer` AS managedByComposer 
+            SELECT
+                `base_class` AS baseClass,
+                IF(`active` = 1 AND `installed_at` IS NOT NULL, 1, 0) AS active,
+                `path`,
+                `autoload`,
+                `managed_by_composer` AS managedByComposer,
+                COALESCE(`updated_at`, `installed_at`, `created_at`) `changedAt`
             FROM `plugin`
 SQL;
 
@@ -31,6 +38,7 @@ SQL;
             $plugins[$i]['active'] = (bool) $plugin['active'];
             $plugins[$i]['managedByComposer'] = (bool) $plugin['managedByComposer'];
             $plugins[$i]['autoload'] = json_decode($plugin['autoload'], true);
+            $plugins[$i]['changedAt'] = empty($plugin['changedAt']) ? null : new DateTime($plugin['changedAt']);
         }
 
         $this->pluginInfos = $plugins;

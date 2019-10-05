@@ -104,7 +104,10 @@ Component.register('sw-settings-customer-group-detail', {
                 return;
             }
 
-            this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {
+                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            }
+
             this.customerGroup = this.customerGroupRepository.create(this.context);
             this.isLoading = false;
         },

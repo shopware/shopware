@@ -110,7 +110,10 @@ Component.register('sw-manufacturer-detail', {
                 return;
             }
 
-            this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {
+                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            }
+
             this.manufacturer = this.manufacturerRepository.create(this.context);
         },
 

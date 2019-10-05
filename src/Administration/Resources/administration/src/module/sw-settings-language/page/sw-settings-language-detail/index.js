@@ -113,7 +113,10 @@ Component.register('sw-settings-language-detail', {
     methods: {
         createdComponent() {
             if (!this.languageId) {
-                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+                if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {
+                    this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+                }
+
                 this.language = this.languageRepository.create(this.context);
             } else {
                 this.loadEntityData();

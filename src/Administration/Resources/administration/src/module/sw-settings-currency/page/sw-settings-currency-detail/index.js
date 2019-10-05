@@ -96,7 +96,10 @@ Component.register('sw-settings-currency-detail', {
                 return;
             }
 
-            this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {
+                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            }
+
             this.currency = this.currencyRepository.create(this.context);
             this.isLoading = false;
         },

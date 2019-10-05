@@ -117,7 +117,10 @@ Component.register('sw-settings-salutation-detail', {
                 return;
             }
 
-            this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {
+                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            }
+
             this.salutation = this.salutationRepository.create(this.context);
             this.isLoading = false;
         },

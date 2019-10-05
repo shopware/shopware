@@ -141,7 +141,10 @@ Component.register('sw-promotion-detail', {
         createdComponent() {
             this.isLoading = true;
             if (!this.promotionId) {
-                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+                if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {
+                    this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+                }
+
                 this.promotion = this.promotionRepository.create(this.context);
                 // hydrate and extend promotion with additional data
                 entityHydrator.hydrate(this.promotion);

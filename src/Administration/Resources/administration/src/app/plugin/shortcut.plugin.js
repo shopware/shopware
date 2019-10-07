@@ -75,16 +75,22 @@ export default {
                     const combinedKey = `${systemKeyPressed ? 'SYSTEMKEY+' : ''}${key.toUpperCase()}`;
                     const matchedShortcut = activeShortcuts.find((shortcut) => shortcut.key.toUpperCase() === combinedKey);
 
-                    // check for editable elements
-                    const isEditableDiv = event.target.tagName === 'DIV' && event.target.isContentEditable;
+                    let shouldNotTrigger = false;
 
-                    // check for restricted elements
-                    const restrictedTags = /INPUT|TEXTAREA|SELECT/;
-                    const isRestrictedTag = restrictedTags.test(event.target.tagName);
+                    // SYSTEMKEY shortcuts combinations should always trigger
+                    if (matchedShortcut && /SYSTEMKEY/.test(matchedShortcut.key) === false) {
+                        // check for editable elements
+                        const isEditableDiv = event.target.tagName === 'DIV' && event.target.isContentEditable;
+
+                        // check for restricted elements
+                        const restrictedTags = /INPUT|TEXTAREA|SELECT/;
+                        const isRestrictedTag = restrictedTags.test(event.target.tagName);
+
+                        shouldNotTrigger = isEditableDiv || isRestrictedTag;
+                    }
 
                     // check for situations where the shortcut should not trigger
-                    if (isEditableDiv ||
-                        isRestrictedTag ||
+                    if (shouldNotTrigger ||
                         !matchedShortcut ||
                         !matchedShortcut.instance ||
                         !matchedShortcut.functionName) {

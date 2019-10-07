@@ -194,7 +194,8 @@ class CacheStore implements StoreInterface
      */
     private function generateCacheKey(Request $request): string
     {
-        $uri = $request->getUri() . $request->attributes->get(RequestTransformer::SALES_CHANNEL_BASE_URL);
+        $uri = $this->getRequestUri($request);
+
         $hash = 'md' . hash('sha256', $uri);
 
         if ($request->cookies->has(CacheResponseSubscriber::CONTEXT_CACHE_COOKIE)) {
@@ -210,5 +211,30 @@ class CacheStore implements StoreInterface
         }
 
         return $hash;
+    }
+
+    private function getRequestUri(Request $request): string
+    {
+        $params = $request->query->all();
+        if (count($params) === 0) {
+            return sprintf(
+                '%s%s%s',
+                $request->getSchemeAndHttpHost(),
+                $request->attributes->get(RequestTransformer::SALES_CHANNEL_BASE_URL),
+                $request->getPathInfo()
+            );
+        }
+
+        $params = $request->query->all();
+        ksort($params);
+        $params = http_build_query($params);
+
+        return sprintf(
+            '%s%s%s%s',
+            $request->getSchemeAndHttpHost(),
+            $request->attributes->get(RequestTransformer::SALES_CHANNEL_BASE_URL),
+            $request->getPathInfo(),
+            '?' . $params
+        );
     }
 }

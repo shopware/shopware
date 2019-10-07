@@ -5,7 +5,10 @@ namespace Shopware\Core\Framework\Test\Api\Converter;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Converter\ConverterRegistry;
+use Shopware\Core\Framework\Api\Converter\ConverterService;
 use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionException;
+use Shopware\Core\Framework\Api\Converter\Exceptions\QueryDeprecatedFieldException;
+use Shopware\Core\Framework\Api\Converter\Exceptions\QueryFutureFieldException;
 use Shopware\Core\Framework\Api\Converter\Exceptions\WriteDeprecatedFieldException;
 use Shopware\Core\Framework\Api\Converter\Exceptions\WriteFutureFieldException;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
@@ -25,7 +28,7 @@ use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
 use Symfony\Component\HttpFoundation\Request;
 
-class ConverterRegistryTest extends TestCase
+class ConverterServiceTest extends TestCase
 {
     use KernelTestBehaviour;
 
@@ -34,16 +37,23 @@ class ConverterRegistryTest extends TestCase
      */
     private $converterRegistry;
 
+    /**
+     * @var ConverterService
+     */
+    private $converterService;
+
     public function setUp(): void
     {
         $this->converterRegistry = new ConverterRegistry([
             new DeprecatedConverter()
         ]);
+
+        $this->converterService = new ConverterService($this->converterRegistry);
     }
 
     public function testNewFieldIsNotInOldResponseForJsonApi(): void
     {
-        $jsonApiEncoder = new JsonApiEncoder($this->converterRegistry);
+        $jsonApiEncoder = new JsonApiEncoder($this->converterService);
 
         $deprecatedDefinition = new DeprecatedDefinition();
         $deprecatedDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
@@ -65,7 +75,7 @@ class ConverterRegistryTest extends TestCase
 
     public function testDeprecatedFieldIsNotInNewResponseForJsonApi(): void
     {
-        $jsonApiEncoder = new JsonApiEncoder($this->converterRegistry);
+        $jsonApiEncoder = new JsonApiEncoder($this->converterService);
 
         $deprecatedDefinition = new DeprecatedDefinition();
         $deprecatedDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
@@ -87,7 +97,7 @@ class ConverterRegistryTest extends TestCase
 
     public function testNewFieldIsNotInOldResponseForJson(): void
     {
-        $jsonEntityEncoder = new JsonEntityEncoder($this->getContainer()->get('serializer'), $this->converterRegistry);
+        $jsonEntityEncoder = new JsonEntityEncoder($this->getContainer()->get('serializer'), $this->converterService);
 
         $deprecatedDefinition = new DeprecatedDefinition();
         $deprecatedDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
@@ -107,7 +117,7 @@ class ConverterRegistryTest extends TestCase
 
     public function testDeprecatedFieldIsNotInNewResponseForJson(): void
     {
-        $jsonEntityEncoder = new JsonEntityEncoder($this->getContainer()->get('serializer'), $this->converterRegistry);
+        $jsonEntityEncoder = new JsonEntityEncoder($this->getContainer()->get('serializer'), $this->converterService);
 
         $deprecatedDefinition = new DeprecatedDefinition();
         $deprecatedDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
@@ -145,7 +155,7 @@ class ConverterRegistryTest extends TestCase
         $deprecatedDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
 
         $conversionException = new ApiConversionException();
-        $this->converterRegistry->convertPayload($deprecatedDefinition, $payload, 1, $conversionException);
+        $this->converterService->convertPayload($deprecatedDefinition, $payload, 1, $conversionException);
 
         static::assertCount(1, $conversionException->getErrors());
         $error = $conversionException->getErrors()->current();
@@ -173,7 +183,7 @@ class ConverterRegistryTest extends TestCase
         $deprecatedDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
 
         $conversionException = new ApiConversionException();
-        $this->converterRegistry->convertPayload($deprecatedDefinition, $payload, 2, $conversionException);
+        $this->converterService->convertPayload($deprecatedDefinition, $payload, 2, $conversionException);
 
         $errors = iterator_to_array($conversionException->getErrors());
         static::assertCount(3, $errors);
@@ -205,7 +215,7 @@ class ConverterRegistryTest extends TestCase
         $deprecatedDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
 
         $conversionException = new ApiConversionException();
-        $payload = $this->converterRegistry->convertPayload($deprecatedDefinition, $payload, 1, $conversionException);
+        $payload = $this->converterService->convertPayload($deprecatedDefinition, $payload, 1, $conversionException);
 
         static::assertCount(0, $conversionException->getErrors());
 
@@ -234,8 +244,8 @@ class ConverterRegistryTest extends TestCase
             ]
         ];
 
-        $this->expectException(WriteDeprecatedFieldException::class);
-        $this->converterRegistry->validateEntityPath($entityPath, 2);
+        $this->expectException(QueryDeprecatedFieldException::class);
+        $this->converterService->validateEntityPath($entityPath, 2);
     }
 
     public function testFuturePathIsRequestedLeadsToException(): void
@@ -259,8 +269,8 @@ class ConverterRegistryTest extends TestCase
             ]
         ];
 
-        $this->expectException(WriteFutureFieldException::class);
-        $this->converterRegistry->validateEntityPath($entityPath, 1);
+        $this->expectException(QueryFutureFieldException::class);
+        $this->converterService->validateEntityPath($entityPath, 1);
     }
 
     public function testCriteriaWithDeprecatedFieldThrowsException(): void
@@ -270,7 +280,7 @@ class ConverterRegistryTest extends TestCase
 
         $searchCriteriaBuilder = new RequestCriteriaBuilder(
             new AggregationParser(),
-            $this->converterRegistry,
+            $this->converterService,
             $this->getContainer()->getParameter('shopware.api.max_limit')
         );
 
@@ -318,7 +328,7 @@ class ConverterRegistryTest extends TestCase
 
         $searchCriteriaBuilder = new RequestCriteriaBuilder(
             new AggregationParser(),
-            $this->converterRegistry,
+            $this->converterService,
             $this->getContainer()->getParameter('shopware.api.max_limit')
         );
 

@@ -96,7 +96,7 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ConverterRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ConverterService"/>
             <argument>%shopware.api.max_limit%</argument>
             <argument>%shopware.api.allowed_limits%</argument>
         </service>

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\Api\Converter\ConverterRegistry;
+use Shopware\Core\Framework\Api\Converter\ConverterService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException;
@@ -42,16 +43,16 @@ class RequestCriteriaBuilder
     private $aggregationParser;
 
     /**
-     * @var ConverterRegistry
+     * @var ConverterService
      */
-    private $converterRegistry;
+    private $converterService;
 
-    public function __construct(AggregationParser $aggregationParser, ConverterRegistry $converterRegistry, int $maxLimit, array $availableLimits = [])
+    public function __construct(AggregationParser $aggregationParser, ConverterService $converterService, int $maxLimit, array $availableLimits = [])
     {
         $this->maxLimit = $maxLimit;
         $this->allowedLimits = $availableLimits;
         $this->aggregationParser = $aggregationParser;
-        $this->converterRegistry = $converterRegistry;
+        $this->converterService = $converterService;
     }
 
     public function handleRequest(Request $request, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
@@ -159,7 +160,7 @@ class RequestCriteriaBuilder
             }
         }
 
-        $this->converterRegistry->convertCriteria($definition, $criteria, $apiVerison, $searchException);
+        $this->converterService->convertCriteria($definition, $criteria, $apiVerison, $searchException);
 
         $searchException->tryToThrow();
 

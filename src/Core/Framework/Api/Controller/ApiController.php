@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Acl\Resource\AclResourceDefinition;
 use Shopware\Core\Framework\Api\Converter\ConverterRegistry;
+use Shopware\Core\Framework\Api\Converter\ConverterService;
 use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionException;
 use Shopware\Core\Framework\Api\Exception\InvalidVersionNameException;
 use Shopware\Core\Framework\Api\Exception\NoEntityClonedException;
@@ -78,22 +79,22 @@ class ApiController extends AbstractController
     private $compositeEntitySearcher;
 
     /**
-     * @var ConverterRegistry
+     * @var ConverterService
      */
-    private $converterRegistry;
+    private $converterService;
 
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         Serializer $serializer,
         RequestCriteriaBuilder $searchCriteriaBuilder,
         CompositeEntitySearcher $compositeEntitySearcher,
-        ConverterRegistry $converterRegistry
+        ConverterService $converterService
     ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->serializer = $serializer;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->compositeEntitySearcher = $compositeEntitySearcher;
-        $this->converterRegistry = $converterRegistry;
+        $this->converterService = $converterService;
     }
 
     /**
@@ -744,7 +745,7 @@ class ApiController extends AbstractController
         $repository = $this->definitionRegistry->getRepository($entity->getEntityName());
 
         $conversionException = new ApiConversionException();
-        $payload = $this->converterRegistry->convertPayload($entity, $payload, $apiVersion, $conversionException);
+        $payload = $this->converterService->convertPayload($entity, $payload, $apiVersion, $conversionException);
         $conversionException->tryToThrow();
 
         if ($type === self::WRITE_CREATE) {
@@ -854,7 +855,7 @@ class ApiController extends AbstractController
             ];
         }
 
-        $this->converterRegistry->validateEntityPath($entities, $apiVersion);
+        $this->converterService->validateEntityPath($entities, $apiVersion);
 
         return $entities;
     }

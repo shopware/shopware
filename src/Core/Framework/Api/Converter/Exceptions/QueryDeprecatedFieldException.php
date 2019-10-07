@@ -9,11 +9,12 @@ class QueryDeprecatedFieldException extends ShopwareHttpException
 {
     public function __construct(string $field, string $entityName, int $apiVersion)
     {
-        parent::__construct('The field "{{ field }}" on entity "{{ entityName }}" is deprecated in v{{ apiVersion }} of the API and cannot be used as criteria or in the path',
+        parent::__construct(
+            'The field "{{ field }}" on entity "{{ entityName }}" is deprecated in v{{ apiVersion }} of the API and cannot be used as criteria or in the path',
             [
                 'field' => $field,
                 'entityName' => $entityName,
-                'apiVersion' => $apiVersion
+                'apiVersion' => $apiVersion,
             ]
         );
     }

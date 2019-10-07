@@ -7,10 +7,10 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Converter\ConverterRegistry;
 use Shopware\Core\Framework\Api\Converter\ConverterService;
 use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionException;
+use Shopware\Core\Framework\Api\Converter\Exceptions\QueryDeprecatedEntityException;
 use Shopware\Core\Framework\Api\Converter\Exceptions\QueryDeprecatedFieldException;
+use Shopware\Core\Framework\Api\Converter\Exceptions\QueryFutureEntityException;
 use Shopware\Core\Framework\Api\Converter\Exceptions\QueryFutureFieldException;
-use Shopware\Core\Framework\Api\Converter\Exceptions\WriteDeprecatedFieldException;
-use Shopware\Core\Framework\Api\Converter\Exceptions\WriteFutureFieldException;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
@@ -22,6 +22,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Test\Api\Converter\fixtures\DeprecatedConverter;
 use Shopware\Core\Framework\Test\Api\Converter\fixtures\DeprecatedDefinition;
 use Shopware\Core\Framework\Test\Api\Converter\fixtures\DeprecatedEntity;
+use Shopware\Core\Framework\Test\Api\Converter\fixtures\DeprecatedEntityDefinition;
+use Shopware\Core\Framework\Test\Api\Converter\fixtures\NewEntityDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -45,7 +47,7 @@ class ConverterServiceTest extends TestCase
     public function setUp(): void
     {
         $this->converterRegistry = new ConverterRegistry([
-            new DeprecatedConverter()
+            new DeprecatedConverter(),
         ]);
 
         $this->converterService = new ConverterService($this->converterRegistry);
@@ -144,11 +146,11 @@ class ConverterServiceTest extends TestCase
             'tax' => [
                 'id' => Uuid::randomHex(),
                 'name' => '19%',
-                'taxRate' => 19
+                'taxRate' => 19,
             ],
             'prices' => [
-                10
-            ]
+                10,
+            ],
         ];
 
         $deprecatedDefinition = new DeprecatedDefinition();
@@ -172,11 +174,11 @@ class ConverterServiceTest extends TestCase
             'tax' => [
                 'id' => Uuid::randomHex(),
                 'name' => '19%',
-                'taxRate' => 19
+                'taxRate' => 19,
             ],
             'prices' => [
-                10
-            ]
+                10,
+            ],
         ];
 
         $deprecatedDefinition = new DeprecatedDefinition();
@@ -207,8 +209,8 @@ class ConverterServiceTest extends TestCase
             'tax' => [
                 'id' => Uuid::randomHex(),
                 'name' => '19%',
-                'taxRate' => 19
-            ]
+                'taxRate' => 19,
+            ],
         ];
 
         $deprecatedDefinition = new DeprecatedDefinition();
@@ -234,17 +236,36 @@ class ConverterServiceTest extends TestCase
                 'entity' => 'deprecated',
                 'value' => Uuid::randomHex(),
                 'definition' => $deprecatedDefinition,
-                'field' => null
+                'field' => null,
             ],
             [
                 'entity' => 'tax',
                 'value' => null,
                 'definition' => $this->getContainer()->get(TaxDefinition::class),
-                'field' => $deprecatedDefinition->getField('tax')
-            ]
+                'field' => $deprecatedDefinition->getField('tax'),
+            ],
         ];
 
         $this->expectException(QueryDeprecatedFieldException::class);
+        $this->converterService->validateEntityPath($entityPath, 2);
+    }
+
+    public function testDeprecatedEntityPathIsRequestedLeadsToException(): void
+    {
+        $deprecatedEntityDefinition = new DeprecatedEntityDefinition();
+        $deprecatedEntityDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+
+        // path = "deprecated-entity"
+        $entityPath = [
+            [
+                'entity' => 'deprecated_entity',
+                'value' => null,
+                'definition' => $deprecatedEntityDefinition,
+                'field' => null,
+            ],
+        ];
+
+        $this->expectException(QueryDeprecatedEntityException::class);
         $this->converterService->validateEntityPath($entityPath, 2);
     }
 
@@ -259,17 +280,36 @@ class ConverterServiceTest extends TestCase
                 'entity' => 'deprecated',
                 'value' => Uuid::randomHex(),
                 'definition' => $deprecatedDefinition,
-                'field' => null
+                'field' => null,
             ],
             [
                 'entity' => 'product',
                 'value' => null,
                 'definition' => $this->getContainer()->get(ProductDefinition::class),
-                'field' => $deprecatedDefinition->getField('product')
-            ]
+                'field' => $deprecatedDefinition->getField('product'),
+            ],
         ];
 
         $this->expectException(QueryFutureFieldException::class);
+        $this->converterService->validateEntityPath($entityPath, 1);
+    }
+
+    public function testNewEntityPathIsRequestedLeadsToException(): void
+    {
+        $newEntityDefinition = new NewEntityDefinition();
+        $newEntityDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+
+        // path = "new-entity"
+        $entityPath = [
+            [
+                'entity' => 'new_entity',
+                'value' => null,
+                'definition' => $newEntityDefinition,
+                'field' => null,
+            ],
+        ];
+
+        $this->expectException(QueryFutureEntityException::class);
         $this->converterService->validateEntityPath($entityPath, 1);
     }
 
@@ -289,12 +329,12 @@ class ConverterServiceTest extends TestCase
                 ['type' => 'equals', 'field' => 'price', 'value' => '10'],
             ],
             'grouping' => [
-                'taxId'
+                'taxId',
             ],
             'sort' => [[
                 'field' => 'tax',
-                'order' => 'desc'
-            ]]
+                'order' => 'desc',
+            ]],
         ];
 
         $request = new Request($query, [], ['version' => 2]);
@@ -337,12 +377,12 @@ class ConverterServiceTest extends TestCase
                 ['type' => 'equals', 'field' => 'prices', 'value' => '10'],
             ],
             'grouping' => [
-                'productId'
+                'productId',
             ],
             'sort' => [[
                 'field' => 'product',
-                'order' => 'desc'
-            ]]
+                'order' => 'desc',
+            ]],
         ];
 
         $request = new Request($query, [], ['version' => 1]);

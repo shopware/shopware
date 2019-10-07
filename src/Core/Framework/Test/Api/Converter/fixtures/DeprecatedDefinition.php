@@ -17,9 +17,11 @@ use Shopware\Core\System\Tax\TaxDefinition;
 
 class DeprecatedDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'deprecated';
+
     public function getEntityName(): string
     {
-        return 'deprecated';
+        return self::ENTITY_NAME;
     }
 
     protected function defineFields(): FieldCollection
@@ -31,7 +33,7 @@ class DeprecatedDefinition extends EntityDefinition
             (new FkField('tax_id', 'taxId', TaxDefinition::class))->addFlags(new Deprecated('6.1.0', '6.2.0')),
             (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class))->addFlags(new Deprecated('6.1.0', '6.2.0')),
             new FkField('product_id', 'productId', ProductDefinition::class),
-            new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class)
+            new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class),
         ]);
     }
 }

@@ -5,14 +5,13 @@ namespace Shopware\Core\Framework\Api\Converter\Exceptions;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-class WriteFutureFieldException extends ShopwareHttpException
+class QueryFutureEntityException extends ShopwareHttpException
 {
-    public function __construct(string $field, string $entityName, int $apiVersion)
+    public function __construct(string $entityName, int $apiVersion)
     {
         parent::__construct(
-            'The field "{{ field }}" on entity "{{ entityName }}" is not available in v{{ apiVersion }} of the API and cannot be written',
+            'The entity "{{ entityName }}" is not available in v{{ apiVersion }} of the API and cannot be used as criteria or in the path',
             [
-                'field' => $field,
                 'entityName' => $entityName,
                 'apiVersion' => $apiVersion,
             ]
@@ -26,6 +25,6 @@ class WriteFutureFieldException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
-        return 'FRAMEWORK__WRITE_FUTURE_FIELD';
+        return 'FRAMEWORK__QUERY_FUTURE_ENTITY';
     }
 }

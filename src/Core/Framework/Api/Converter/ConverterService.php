@@ -3,7 +3,9 @@
 namespace Shopware\Core\Framework\Api\Converter;
 
 use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionException;
+use Shopware\Core\Framework\Api\Converter\Exceptions\QueryDeprecatedEntityException;
 use Shopware\Core\Framework\Api\Converter\Exceptions\QueryDeprecatedFieldException;
+use Shopware\Core\Framework\Api\Converter\Exceptions\QueryFutureEntityException;
 use Shopware\Core\Framework\Api\Converter\Exceptions\QueryFutureFieldException;
 use Shopware\Core\Framework\Api\Converter\Exceptions\WriteDeprecatedFieldException;
 use Shopware\Core\Framework\Api\Converter\Exceptions\WriteFutureFieldException;
@@ -26,22 +28,19 @@ class ConverterService
 
     public function __construct(ConverterRegistry $converterRegistry)
     {
-
         $this->converterRegistry = $converterRegistry;
     }
 
     public function isFieldInResponseAllowed(string $entityName, string $fieldName, int $apiVersion): bool
     {
-        foreach ($this->converterRegistry->getLegacyConverters($entityName, $apiVersion) as $converter) {
-            if ($converter->isFieldFromFuture($fieldName)) {
-                return false;
-            }
+        $futureConverter = $this->converterRegistry->getFutureConverter($apiVersion);
+        if ($futureConverter->isFromFuture($entityName, $fieldName)) {
+            return false;
         }
 
-        foreach ($this->converterRegistry->getCurrentConverters($entityName, $apiVersion) as $converter) {
-            if ($converter->isFieldDeprecated($fieldName)) {
-                return false;
-            }
+        $deprecatedConverter = $this->converterRegistry->getDeprecationConverter($apiVersion);
+        if ($deprecatedConverter->isDeprecated($entityName, $fieldName)) {
+            return false;
         }
 
         return true;
@@ -49,13 +48,7 @@ class ConverterService
 
     public function convertPayload(EntityDefinition $entity, array $payload, int $apiVersion, ApiConversionException $conversionException, string $pointer = ''): array
     {
-        if (\count($this->converterRegistry->getLegacyConverters($entity->getEntityName(), $apiVersion)) > 0 || \count($this->converterRegistry->getCurrentConverters($entity->getEntityName(), $apiVersion)) > 0) {
-            $this->validateFields($entity, $payload, $apiVersion, $conversionException, $pointer);
-
-            foreach ($this->converterRegistry->getLegacyConverters($entity->getEntityName(), $apiVersion) as $converter) {
-                $payload = $converter->convertEntityPayloadToCurrentVersion($payload);
-            }
-        }
+        $payload = $this->validateFields($entity, $payload, $apiVersion, $conversionException, $pointer);
 
         $toOneFields = $entity->getFields()->filter(function (Field $field) {
             return $field instanceof OneToOneAssociationField || $field instanceof ManyToOneAssociationField;
@@ -98,23 +91,28 @@ class ConverterService
 
     public function validateEntityPath(array $entities, int $apiVersion): void
     {
-        $rootEntity = array_shift($entities);
+        $rootEntity = $entities[0];
 
         /** @var EntityDefinition $rootDefinition */
         $rootDefinition = $rootEntity['definition'];
-        // ToDo handle deprecation of whole entities and endpoints
 
         foreach ($entities as $entity) {
-            foreach ($this->converterRegistry->getLegacyConverters($rootDefinition->getEntityName(), $apiVersion) as $converter) {
-                if ($converter->isFieldFromFuture($entity['entity'])) {
-                    throw new QueryFutureFieldException($entity['entity'], $rootDefinition->getEntityName(), $apiVersion);
-                }
+            $futureConverter = $this->converterRegistry->getFutureConverter($apiVersion);
+            if ($futureConverter->isFromFuture($rootDefinition->getEntityName())) {
+                throw new QueryFutureEntityException($rootDefinition->getEntityName(), $apiVersion);
             }
 
-            foreach ($this->converterRegistry->getCurrentConverters($rootDefinition->getEntityName(), $apiVersion) as $converter) {
-                if ($converter->isFieldDeprecated($entity['entity'])) {
-                    throw new QueryDeprecatedFieldException($entity['entity'], $rootDefinition->getEntityName(), $apiVersion);
-                }
+            if ($futureConverter->isFromFuture($rootDefinition->getEntityName(), $entity['entity'])) {
+                throw new QueryFutureFieldException($entity['entity'], $rootDefinition->getEntityName(), $apiVersion);
+            }
+
+            $deprecatedConverter = $this->converterRegistry->getDeprecationConverter($apiVersion);
+            if ($deprecatedConverter->isDeprecated($rootDefinition->getEntityName())) {
+                throw new QueryDeprecatedEntityException($rootDefinition->getEntityName(), $apiVersion);
+            }
+
+            if ($deprecatedConverter->isDeprecated($rootDefinition->getEntityName(), $entity['entity'])) {
+                throw new QueryDeprecatedFieldException($entity['entity'], $rootDefinition->getEntityName(), $apiVersion);
             }
 
             $rootDefinition = $entity['field'] instanceof ManyToManyAssociationField ? $entity['field']->getToManyReferenceDefinition() : $entity['definition'];
@@ -128,34 +126,36 @@ class ConverterService
         }
     }
 
-    private function validateFields(EntityDefinition $entity, array $payload, int $apiVersion, ApiConversionException $conversionException, string $pointer): void
+    private function validateFields(EntityDefinition $entity, array $payload, int $apiVersion, ApiConversionException $conversionException, string $pointer): array
     {
+        $converted = $payload;
         foreach ($payload as $field => $value) {
-            foreach ($this->converterRegistry->getLegacyConverters($entity->getEntityName(), $apiVersion) as $converter) {
-                if ($converter->isFieldFromFuture($field)) {
-                    $conversionException->add(
-                        new WriteFutureFieldException($field, $entity->getEntityName(), $apiVersion),
-                        $pointer . '/' . $field
-                    );
+            $futureConverter = $this->converterRegistry->getFutureConverter($apiVersion);
+            if ($futureConverter->isFromFuture($entity->getEntityName(), $field)) {
+                $conversionException->add(
+                    new WriteFutureFieldException($field, $entity->getEntityName(), $apiVersion),
+                    $pointer . '/' . $field
+                );
 
-                    break;
-                }
+                continue;
             }
+            $converted = $futureConverter->convertField($entity->getEntityName(), $field, $converted);
 
-            foreach ($this->converterRegistry->getCurrentConverters($entity->getEntityName(), $apiVersion) as $converter) {
-                if ($converter->isFieldDeprecated($field)) {
-                    $conversionException->add(
-                        new WriteDeprecatedFieldException($field, $entity->getEntityName(), $apiVersion),
-                        $pointer . '/' . $field
-                    );
+            $deprecatedConverter = $this->converterRegistry->getDeprecationConverter($apiVersion);
+            if ($deprecatedConverter->isDeprecated($entity->getEntityName(), $field)) {
+                $conversionException->add(
+                    new WriteDeprecatedFieldException($field, $entity->getEntityName(), $apiVersion),
+                    $pointer . '/' . $field
+                );
 
-                    break;
-                }
+                continue;
             }
         }
+
+        return $converted;
     }
 
-    private function validateQueryField(EntityDefinition $entity, string $concatenatedFields, int $apiVersion, SearchRequestException $searchException, string $pointer = '')
+    private function validateQueryField(EntityDefinition $entity, string $concatenatedFields, int $apiVersion, SearchRequestException $searchException, string $pointer = ''): void
     {
         $parts = explode('.', $concatenatedFields);
         $fieldName = array_shift($parts);
@@ -163,27 +163,20 @@ class ConverterService
             $fieldName = array_shift($parts);
         }
 
-
-        foreach ($this->converterRegistry->getLegacyConverters($entity->getEntityName(), $apiVersion) as $converter) {
-            if ($converter->isFieldFromFuture($fieldName)) {
-                $searchException->add(
-                    new QueryFutureFieldException($fieldName, $entity->getEntityName(), $apiVersion),
-                    $pointer . '/' . $fieldName
-                );
-
-                break;
-            }
+        $futureConverter = $this->converterRegistry->getFutureConverter($apiVersion);
+        if ($futureConverter->isFromFuture($entity->getEntityName(), $fieldName)) {
+            $searchException->add(
+                new QueryFutureFieldException($fieldName, $entity->getEntityName(), $apiVersion),
+                $pointer . '/' . $fieldName
+            );
         }
 
-        foreach ($this->converterRegistry->getCurrentConverters($entity->getEntityName(), $apiVersion) as $converter) {
-            if ($converter->isFieldDeprecated($fieldName)) {
-                $searchException->add(
-                    new QueryDeprecatedFieldException($fieldName, $entity->getEntityName(), $apiVersion),
-                    $pointer . '/' . $fieldName
-                );
-
-                break;
-            }
+        $deprecatedConverter = $this->converterRegistry->getDeprecationConverter($apiVersion);
+        if ($deprecatedConverter->isDeprecated($entity->getEntityName(), $fieldName)) {
+            $searchException->add(
+                new QueryDeprecatedFieldException($fieldName, $entity->getEntityName(), $apiVersion),
+                $pointer . '/' . $fieldName
+            );
         }
 
         if (count($parts) === 0) {

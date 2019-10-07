@@ -9,11 +9,12 @@ class WriteDeprecatedFieldException extends ShopwareHttpException
 {
     public function __construct(string $field, string $entityName, int $apiVersion)
     {
-        parent::__construct('The field "{{ field }}" on entity "{{ entityName }}" is deprecated in v{{ apiVersion }} of the API and cannot be written',
+        parent::__construct(
+            'The field "{{ field }}" on entity "{{ entityName }}" is deprecated in v{{ apiVersion }} of the API and cannot be written',
             [
                 'field' => $field,
                 'entityName' => $entityName,
-                'apiVersion' => $apiVersion
+                'apiVersion' => $apiVersion,
             ]
         );
     }

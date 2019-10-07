@@ -11,7 +11,6 @@ abstract class SerializationFixture
     public const SALES_CHANNEL_API_BASE_URL = 'http://localhost/sales-channel-api/v1';
     public const API_VERSION = 1;
 
-
     /**
      * @return EntityCollection|Entity
      */

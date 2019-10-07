@@ -5,37 +5,25 @@ namespace Shopware\Core\Framework\Api\Converter;
 class ConverterRegistry
 {
     /**
-     * @var array[int]array[string]ApiConverterInterface
+     * @var ApiConverter[]
      */
-    private $currentConverters;
-
-    /**
-     * @var array[int]array[string]ApiConverterInterface
-     */
-    private $legacyConverters;
+    private $converters;
 
     public function __construct(iterable $converters)
     {
-        /** @var ApiConverterInterface $converter */
+        /** @var ApiConverter $converter */
         foreach ($converters as $converter) {
-            $this->currentConverters[$converter->getDeprecatedApiVersion()][$converter->getProcessedEntityName()][] = $converter;
-            $this->legacyConverters[$converter->getDeprecatedApiVersion() - 1][$converter->getProcessedEntityName()][] = $converter;
+            $this->converters[$converter->getApiVersion()] = $converter;
         }
     }
 
-    /**
-     * @return ApiConverterInterface[]
-     */
-    public function getCurrentConverters(string $entity, int $apiVersion): array
+    public function getDeprecationConverter(int $apiVersion): ApiConverter
     {
-        return $this->currentConverters[$apiVersion][$entity] ?? [];
+        return $this->converters[$apiVersion] ?? new NullApiConverter();
     }
 
-    /**
-     * @return ApiConverterInterface[]
-     */
-    public function getLegacyConverters(string $entity, int $apiVersion): array
+    public function getFutureConverter(int $apiVersion): ApiConverter
     {
-        return $this->legacyConverters[$apiVersion][$entity] ?? [];
+        return $this->converters[$apiVersion + 1] ?? new NullApiConverter();
     }
 }

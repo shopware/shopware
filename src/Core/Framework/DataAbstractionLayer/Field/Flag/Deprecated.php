@@ -21,7 +21,6 @@ class Deprecated extends Flag
 
     public function __construct(string $deprecatedSince, string $willBeRemovedIn, ?string $replacedBy = null)
     {
-
         $this->deprecatedSince = $deprecatedSince;
         $this->willBeRemovedIn = $willBeRemovedIn;
         $this->replacedBy = $replacedBy;
@@ -32,7 +31,7 @@ class Deprecated extends Flag
         yield 'deprecated' => [
             'deprecated_since' => $this->deprecatedSince,
             'will_be_removed_in' => $this->willBeRemovedIn,
-            'replaced_by' => $this->replacedBy
+            'replaced_by' => $this->replacedBy,
         ];
     }
 }

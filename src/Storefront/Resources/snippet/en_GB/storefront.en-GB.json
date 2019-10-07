@@ -325,6 +325,7 @@
         "listingTextFrom": "from",
         "boxAddProduct": "Add to shopping cart",
         "boxProductDetails": "Details",
+        "emptyResultMessage": "No products could be found.",
         "filterPanelResetAll": "Reset all",
         "filterFreeShippingDisplayName": "Free shipping",
         "filterPriceDisplayName": "Price",

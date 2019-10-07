@@ -325,6 +325,7 @@
         "listingTextFrom": "von",
         "boxAddProduct": "In den Warenkorb",
         "boxProductDetails": "Details",
+        "emptyResultMessage": "Es konnten keine Produkte gefunden werden.",
         "filterPanelResetAll": "Alle zurücksetzen",
         "filterFreeShippingDisplayName": "Versandkostenfrei",
         "filterPriceDisplayName": "Preis",

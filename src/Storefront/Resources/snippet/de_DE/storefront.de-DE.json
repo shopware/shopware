@@ -330,7 +330,7 @@
         "filterFreeShippingDisplayName": "Versandkostenfrei",
         "filterPriceDisplayName": "Preis",
         "filterManufacturerDisplayName": "Hersteller",
-        "filterRatingDisplayName": "Bewertung",
+        "filterRatingDisplayName": "Bewertung mind.",
         "filterRatingActiveLabelStart": "Mindestens",
         "filterRatingActiveLabelEnd": "Sterne",
         "filterRangeMinLabel": "Minimal",

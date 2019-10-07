@@ -330,7 +330,7 @@
         "filterFreeShippingDisplayName": "Free shipping",
         "filterPriceDisplayName": "Price",
         "filterManufacturerDisplayName": "Manufacturer",
-        "filterRatingDisplayName": "Rating",
+        "filterRatingDisplayName": "Rating min.",
         "filterRatingActiveLabelStart": "Minimum",
         "filterRatingActiveLabelEnd": "stars",
         "filterRangeMinLabel": "Minimum",

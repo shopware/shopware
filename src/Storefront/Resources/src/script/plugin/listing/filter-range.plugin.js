@@ -48,9 +48,9 @@ export default class FilterRangePlugin extends FilterBasePlugin {
             if (this._isInputInvalid()) {
                 this._setError();
             } else {
-                this.listing.changeListing();
                 this._removeError();
             }
+            this.listing.changeListing();
         }, this.options.inputTimeout);
     }
 

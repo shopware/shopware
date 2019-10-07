@@ -205,8 +205,8 @@ Component.register('sw-sales-channel-detail', {
             this.isSaveSuccessful = false;
         },
 
-        setInvalidFileName($invalidFileName) {
-            this.invalidFileName = $invalidFileName;
+        setInvalidFileName(invalidFileName) {
+            this.invalidFileName = invalidFileName;
         },
 
         onSave() {

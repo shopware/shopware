@@ -212,7 +212,8 @@ This interface will automatically force you to implement the two methods `extend
 Simply return the FQCN to the extended definition here.
 
 The `extendFields` method though provides you with a `FieldCollection` parameter, which contains all fields from the original definition class.
-Add the `ManyToManyAssociationField` here as well, quite similar to the same field in your `BundleDefinition`, of course with adjusted parameters to be passed to the constructor:
+Add the `ManyToManyAssociationField` here as well, quite similar to the same field in your `BundleDefinition`, of course with adjusted parameters to be passed to the constructor.
+Also note that you have to mark the association as an Inherited field, otherwise it would not work for variant products.
 
 ```php
 <?php declare(strict_types=1);
@@ -221,6 +222,7 @@ namespace Swag\BundleExample\Core\Content\Product;
 
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Swag\BundleExample\Core\Content\Bundle\Aggregate\BundleProduct\BundleProductDefinition;
@@ -231,7 +233,13 @@ class ProductExtension implements EntityExtensionInterface
     public function extendFields(FieldCollection $collection): void
     {
         $collection->add(
-            new ManyToManyAssociationField('bundles', BundleDefinition::class, BundleProductDefinition::class, 'product_id', 'bundle_id')
+            (new ManyToManyAssociationField(
+                'bundles', 
+                BundleDefinition::class,
+                BundleProductDefinition::class, 
+                'product_id', 
+                'bundle_id'
+            ))->addFlags(new Inherited())
         );
     }
 
@@ -239,6 +247,33 @@ class ProductExtension implements EntityExtensionInterface
     {
         return ProductDefinition::class;
     }
+}
+```
+
+For every inherited field you have to add a binary column to the entity, which is used for saving the inherited information in a read optimized manner.
+We can use the `InheritanceUpdaterTrait` for this purpose, so add the following lines to your migration:
+
+```php
+<?php declare(strict_types=1);
+
+namespace Swag\BundleExample\Migration;
+
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Migration\InheritanceUpdaterTrait;
+use Shopware\Core\Framework\Migration\MigrationStep;
+
+class Migration1554708925Bundle extends MigrationStep
+{
+    use InheritanceUpdaterTrait;
+
+    public function update(Connection $connection): void
+    {
+        ...
+
+        $this->updateInheritance($connection, 'product', 'bundles');
+    }
+
+    ...
 }
 ```
 

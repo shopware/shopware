@@ -78,6 +78,7 @@
       "labelBlockCategorySidebar": "Sidebar",
       "labelBlockCategoryImage": "Bilder",
       "labelBlockCategoryCommerce": "Commerce",
+      "labelBlockCategorySidebar": "Sidebar",
       "titleElementSettingsModal": "Element-Einstellungen",
       "labelButtonElementSettingsConfirm": "Fertig",
       "titleElementChangeModal": "Element austauschen",
@@ -114,7 +115,8 @@
       "notificationMessageMissingElements": "Bitte konfiguriere alle Elemente Deines Layouts.",
       "alertTitleTranslations": "Übersetzungen zurzeit nicht verfügbar!",
       "alertContentTranslations": "Ein Layout kann aktuell nur in der Systemstandardsprache bearbeitet werden.",
-      "addBlocks": "Füge Blöcke per Drag & Drop hinzu"
+      "addBlocks": "Füge Blöcke per Drag & Drop hinzu",
+      "labelNavigation": "Navigation"
     },
     "elements": {
       "captionMediaUpload": "Lade ein Bild hoch",

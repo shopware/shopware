@@ -14,7 +14,7 @@ use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -77,12 +77,14 @@ class ProductController extends StorefrontController
     }
 
     /**
-     * @Route("/detail/{productId}/switch", name="frontend.detail.switch", methods={"POST"})
+     * @HttpCache()
+     * @Route("/detail/{productId}/switch", name="frontend.detail.switch", methods={"GET"}, defaults={"XmlHttpRequest": true})
      */
-    public function switch(string $productId, RequestDataBag $data, SalesChannelContext $context): RedirectResponse
+    public function switch(string $productId, Request $request, SalesChannelContext $context): JsonResponse
     {
-        $switchedOption = $data->get('switched');
-        $newOptions = json_decode($data->get('options'), true);
+        $switchedOption = $request->query->get('switched');
+
+        $newOptions = json_decode($request->query->get('options'), true);
 
         $redirect = $this->combinationFinder->find($productId, $switchedOption, $newOptions, $context);
 
@@ -91,13 +93,15 @@ class ProductController extends StorefrontController
         $product = $this->productRepository->search($criteria, $context)->get($redirect->getVariantId());
 
         if (!$product->hasExtension('canonicalUrl')) {
-            return $this->redirectToRoute('frontend.detail.page', ['productId' => $redirect->getVariantId()]);
+            $url = $this->generateUrl('frontend.detail.page', ['productId' => $redirect->getVariantId()]);
+
+            return new JsonResponse($url);
         }
 
         /** @var SeoUrlEntity $canonical */
         $canonical = $product->getExtension('canonicalUrl');
 
-        return $this->redirect($canonical->getUrl());
+        return new JsonResponse($canonical->getUrl());
     }
 
     /**

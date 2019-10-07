@@ -1,6 +1,8 @@
 import Plugin from 'src/script/plugin-system/plugin.class';
 import PageLoadingIndicatorUtil from 'src/script/utility/loading-indicator/page-loading-indicator.util';
 import Iterator from 'src/script/helper/iterator.helper';
+import HttpClient from 'src/script/service/http-client.service';
+import queryString from 'query-string';
 
 /**
  * this plugin submits the variant form
@@ -8,7 +10,13 @@ import Iterator from 'src/script/helper/iterator.helper';
  */
 export default class VariantSwitchPlugin extends Plugin {
 
+    static options = {
+        url: '',
+    };
+
     init() {
+        this.httpClient = new HttpClient(window.accessKey, window.contextToken);
+
         this._ensureFormElement();
         this._preserveCurrentValues();
         this._registerEvents();
@@ -137,15 +145,14 @@ export default class VariantSwitchPlugin extends Plugin {
      * @private
      */
     _submitForm(data) {
-        this._disableFields();
-        this.el.insertAdjacentHTML('beforeend', `<input type="hidden" name="switched" value="${data.switched}">`);
-        this.el.insertAdjacentHTML('beforeend', `<input type="hidden" name="options" value='${JSON.stringify(data.options)}'>`);
         PageLoadingIndicatorUtil.create();
 
-        this.$emitter.publish('beforeSubmitForm');
+        data.options = JSON.stringify(data.options);
 
-        this.el.submit();
+        const url = this.options.url + '?' + queryString.stringify(data);
 
-        this.$emitter.publish('afterSubmitForm');
+        this.httpClient.get(`${url}`, (response) => {
+            window.location.replace(JSON.parse(response));
+        });
     }
 }

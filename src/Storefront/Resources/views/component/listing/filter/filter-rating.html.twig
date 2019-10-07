@@ -4,8 +4,12 @@
     {% set maxPoints = 5 %}
 {% endif %}
 
-{% if filterRatingActiveLabel is not defined %}
-    {% set filterRatingActiveLabel = 'listing.filterRatingActiveLabel'|trans %}
+{% if filterRatingActiveLabelStart is not defined %}
+    {% set filterRatingActiveLabelStart = 'listing.filterRatingActiveLabelStart'|trans %}
+{% endif %}
+
+{% if filterRatingActiveLabelEnd is not defined %}
+    {% set filterRatingActiveLabelEnd = 'listing.filterRatingActiveLabelEnd'|trans %}
 {% endif %}
 
 {% block component_filter_rating %}
@@ -15,7 +19,8 @@
             "name": "{{ name }}",
             "maxPoints": "{{ maxPoints }}",
             "snippets": {
-                "filterRatingActiveLabel": "{{ filterRatingActiveLabel }}"
+                "filterRatingActiveLabelStart": "{{ filterRatingActiveLabelStart }}",
+                "filterRatingActiveLabelEnd": "{{ filterRatingActiveLabelEnd }}"
             }
          }'>
 

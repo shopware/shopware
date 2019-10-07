@@ -335,6 +335,7 @@
         "filterRangeMaxLabel": "Maximum",
         "filterRangeActiveMinLabel": "Price from",
         "filterRangeActiveMaxLabel": "Price to",
+        "filterRangeErrorMessage": "The minimum price should not be higher than the maximum price.",
         "filterSubmitText": "Filter"
     },
     "newsletter": {

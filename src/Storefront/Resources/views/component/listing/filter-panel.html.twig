@@ -1,5 +1,5 @@
 {% block component_filter_panel %}
-    {% set sidebar = sectionType == 'sidebar' ? true : false %}
+    {% set sidebar = block.sectionPosition == 'sidebar' ? true : false %}
 
     {% block component_filter_panel_element %}
         <div class="filter-panel{% if sidebar %} is--sidebar{% endif %}">

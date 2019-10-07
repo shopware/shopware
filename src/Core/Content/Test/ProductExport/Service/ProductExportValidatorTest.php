@@ -48,8 +48,12 @@ class ProductExportValidatorTest extends TestCase
     public function testValidXmlExport(): void
     {
         $productExportId = $this->createTestEntity();
+
+        $criteria = new Criteria([$productExportId]);
+        $criteria->addAssociation('salesChannelDomain.language');
+
         /** @var ProductExportEntity $productExport */
-        $productExport = $this->repository->search(new Criteria([$productExportId]), $this->context)->first();
+        $productExport = $this->repository->search($criteria, $this->context)->first();
 
         $exportResult = $this->service->generate($productExport, new ExportBehavior());
 
@@ -59,8 +63,11 @@ class ProductExportValidatorTest extends TestCase
     public function testInvalidXmlExport(): void
     {
         $productExportId = $this->createTestEntity();
-        /** @var ProductExportEntity $productExport */
-        $productExport = $this->repository->search(new Criteria([$productExportId]), $this->context)->first();
+
+        $criteria = new Criteria([$productExportId]);
+        $criteria->addAssociation('salesChannelDomain.language');
+
+        $productExport = $this->repository->search($criteria, $this->context)->first();
         $productExport->setFooterTemplate('');
 
         $exportResult = $this->service->generate($productExport, new ExportBehavior());
@@ -106,7 +113,7 @@ class ProductExportValidatorTest extends TestCase
                 'bodyTemplate' => '<name>{{ product.name }}</name>',
                 'footerTemplate' => '</export>',
                 'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
-                'storefrontSalesChannelId' => Defaults::SALES_CHANNEL,
+                'storefrontSalesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
                 'salesChannelId' => $this->getSalesChannelId(),
                 'salesChannelDomainId' => $this->getSalesChannelDomainId(),
                 'generateByCronjob' => false,

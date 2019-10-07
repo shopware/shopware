@@ -106,7 +106,12 @@ describe('Category: Create several categories', () => {
             `${page.elements.categoryTreeItem}:nth-of-type(1)`
         );
         cy.get(`${page.elements.categoryTreeItem}__content input`).type('Categorian');
-        cy.get(`${page.elements.categoryTreeItem}__content input`).type('{enter}');
+        cy.get(`${page.elements.categoryTreeItem}__content input`).then(($btn) => {
+            if ($btn) {
+                cy.get(`${page.elements.categoryTreeItem}__content input`).should('be.visible');
+                cy.get(`${page.elements.categoryTreeItem}__content input`).type('{enter}');
+            }
+        });
 
         // Save and verify category
         cy.wait('@saveData').then((xhr) => {

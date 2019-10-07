@@ -95,6 +95,7 @@ Cypress.Commands.add('clearTypeAndCheck', {
 }, (subject, value) => {
     cy.wrap(subject).should('be.visible');
     cy.wrap(subject).clear();
+    cy.wrap(subject).clear(); // To make sure it's cleared
     cy.wrap(subject).type(value).should('have.value', value);
 });
 

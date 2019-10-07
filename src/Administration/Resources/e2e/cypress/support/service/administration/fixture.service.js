@@ -39,6 +39,13 @@ export default class AdminFixtureService {
     mergeFixtureWithData(...args) {
         return _.merge({}, ...args);
     }
+
+    clearCache() {
+        return this.apiClient.delete('/v1/_action/cache').catch((err) => {
+            console.log('Cache could not be cleared')
+        });
+    }
+
 }
 
 global.AdminFixtureService = new AdminFixtureService();

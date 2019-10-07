@@ -95,6 +95,25 @@ Cypress.Commands.add('requestAdminApi', (method, url, requestData = {}) => {
 });
 
 /**
+ * Handling API requests
+ * @memberOf Cypress.Chainable#
+ * @name clearCacheAdminApi
+ * @function
+ */
+Cypress.Commands.add('clearCacheAdminApi', (method, url) => {
+    return cy.authenticate().then((result) => {
+        const requestConfig = {
+            headers: {
+                Authorization: `Bearer ${result.access}`
+            },
+            method: method,
+            url: url
+        };
+        return cy.request(requestConfig);
+    });
+});
+
+/**
  * Updates an existing entity using Shopware API at the given endpoint
  * @memberOf Cypress.Chainable#
  * @name updateViaAdminApi

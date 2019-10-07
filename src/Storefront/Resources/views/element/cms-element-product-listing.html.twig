@@ -56,7 +56,7 @@
 
             {% block element_product_listing_row %}
                 <div class="row cms-listing-row js-listing-wrapper">
-                    {% if searchResult.entities.elements %}
+                    {% if searchResult.total > 0 %}
                         {% block element_product_listing_col %}
                             {% for product in searchResult %}
                                 <div class="cms-listing-col {{ listingColumns }}">

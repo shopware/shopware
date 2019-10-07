@@ -107,8 +107,12 @@ class SeoUrlPlaceholderHandler
 
         /** @var SeoUrlEntity $seoUrl */
         foreach ($seoUrls as $seoUrl) {
+            $seoPathInfo = trim($seoUrl->getSeoPathInfo());
+            if ($seoPathInfo === '') {
+                continue;
+            }
             $key = self::DOMAIN_PLACEHOLDER . $seoUrl->getPathInfo() . '#';
-            $mapping[$key] = $seoUrl->getSeoPathInfo();
+            $mapping[$key] = $seoPathInfo;
         }
 
         return $mapping;

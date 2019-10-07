@@ -148,7 +148,8 @@ class SeoActionControllerTest extends TestCase
 
         $data = json_decode($response->getContent(), true);
 
-        static::assertEquals('B/', $data[2]['seoPathInfo']);
+        static::assertCount(1, $data);
+        static::assertEquals('B/', $data[0]['seoPathInfo']);
     }
 
     public function testUnknownRoute(): void

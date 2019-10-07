@@ -122,7 +122,7 @@ class SeoUrlGenerator
 
                 $seoPathInfo = $this->getSeoPathInfo($mapping, $config);
 
-                if ($seoPathInfo === null) {
+                if ($seoPathInfo === null || $seoPathInfo === '') {
                     continue;
                 }
 
@@ -142,7 +142,7 @@ class SeoUrlGenerator
     private function getSeoPathInfo(SeoUrlMapping $mapping, SeoUrlRouteConfig $config): ?string
     {
         try {
-            return $this->twig->render('template', $mapping->getSeoPathInfoContext());
+            return trim($this->twig->render('template', $mapping->getSeoPathInfoContext()));
         } catch (Error $error) {
             if (!$config->getSkipInvalid()) {
                 throw $error;

@@ -284,7 +284,7 @@ class SeoUrlExtensionTest extends TestCase
         // to change, while all other urls will be recreated in an asynch worker task.
         $this->updateSalesChannelNavigationEntryPoint($salesChannelId, $rootId);
         $casesBeforeUpdate = [
-            ['expected' => '', 'categoryId' => $rootId],
+            ['expected' => null, 'categoryId' => $rootId],
             ['expected' => 'root/b', 'categoryId' => $childBId],
             ['expected' => 'root/b/2/y', 'categoryId' => $childB1ZId],
         ];
@@ -292,7 +292,7 @@ class SeoUrlExtensionTest extends TestCase
 
         $this->runWorker();
         $casesRoot = [
-            ['expected' => '', 'categoryId' => $rootId],
+            ['expected' => null, 'categoryId' => $rootId],
             ['expected' => 'b', 'categoryId' => $childBId],
             ['expected' => 'b/2/y', 'categoryId' => $childB1ZId],
             ['expected' => 'a', 'categoryId' => $childAId],
@@ -303,6 +303,7 @@ class SeoUrlExtensionTest extends TestCase
         $this->updateSalesChannelNavigationEntryPoint($salesChannelId, $childAId);
         $this->runWorker();
         $casesA = [
+            ['expected' => null, 'categoryId' => $rootId],
             ['expected' => '1', 'categoryId' => $childA1Id],
             ['expected' => '1/z', 'categoryId' => $childA1ZId],
         ];
@@ -494,7 +495,12 @@ class SeoUrlExtensionTest extends TestCase
             $seoUrls = $category->getExtension('seoUrls');
             static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
             $seoUrls = $seoUrls->filterByProperty('salesChannelId', $salesChannelId);
-            static::assertCount(1, $seoUrls->filterByProperty('isCanonical', true));
+            $expectedCount = $case['expected'] === null ? 0 : 1;
+            static::assertCount($expectedCount, $seoUrls->filterByProperty('isCanonical', true));
+
+            if ($expectedCount === 0) {
+                continue;
+            }
 
             /** @var SeoUrlEntity $canonicalUrl */
             $canonicalUrl = $seoUrls

@@ -49,10 +49,10 @@ class ProductExportRenderer implements ProductExportRendererInterface
 
         try {
             return $this->templateRenderer->render(
-                    $productExport->getHeaderTemplate(),
-                    $headerContext->getContext(),
-                    $salesChannelContext->getContext()
-                ) . PHP_EOL;
+                $productExport->getHeaderTemplate(),
+                $headerContext->getContext(),
+                $salesChannelContext->getContext()
+            ) . PHP_EOL;
         } catch (StringTemplateRenderingException $exception) {
             $renderHeaderException = new RenderHeaderException($exception->getMessage());
             $this->logException($salesChannelContext->getContext(), $renderHeaderException);
@@ -79,10 +79,10 @@ class ProductExportRenderer implements ProductExportRendererInterface
 
         try {
             return $this->templateRenderer->render(
-                    $productExport->getFooterTemplate(),
-                    $footerContext->getContext(),
-                    $salesChannelContext->getContext()
-                ) . PHP_EOL;
+                $productExport->getFooterTemplate(),
+                $footerContext->getContext(),
+                $salesChannelContext->getContext()
+            ) . PHP_EOL;
         } catch (StringTemplateRenderingException $exception) {
             $renderFooterException = new RenderFooterException($exception->getMessage());
             $this->logException($salesChannelContext->getContext(), $renderFooterException);
@@ -97,10 +97,10 @@ class ProductExportRenderer implements ProductExportRendererInterface
     ): string {
         try {
             return $this->templateRenderer->render(
-                    $productExport->getBodyTemplate(),
-                    $data,
-                    $salesChannelContext->getContext()
-                ) . PHP_EOL;
+                $productExport->getBodyTemplate(),
+                $data,
+                $salesChannelContext->getContext()
+            ) . PHP_EOL;
         } catch (StringTemplateRenderingException $exception) {
             $renderProductException = new RenderProductException($exception->getMessage());
             $this->logException($salesChannelContext->getContext(), $renderProductException);

@@ -72,7 +72,14 @@ class ProductExportValidator implements EventSubscriberInterface
             $parameters = ['{{ fileName }}' => $payload['file_name']];
             $msg = 'The file name for product comparisons has to be unique.';
             $violation = new ConstraintViolation(
-                $msg, $msgTpl, $parameters, null, null, $payload['file_name'], null, self::VIOLATION_DUPLICATE_FILENAME
+                $msg,
+                $msgTpl,
+                $parameters,
+                null,
+                null,
+                $payload['file_name'],
+                null,
+                self::VIOLATION_DUPLICATE_FILENAME
             );
 
             $violations->add($violation);

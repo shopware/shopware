@@ -30,8 +30,8 @@ class ProductExportLoggingEvent extends Event implements BusinessEventInterface,
         Context $context,
         ?string $name,
         ?int $logLevel,
-        ?\Throwable $throwable = null)
-    {
+        ?\Throwable $throwable = null
+    ) {
         $this->context = $context;
         $this->name = $name;
         $this->logLevel = $logLevel;

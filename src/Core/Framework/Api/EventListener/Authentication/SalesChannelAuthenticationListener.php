@@ -44,7 +44,7 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
             return;
         }
 
-        if (stripos($request->getPathInfo(), self::$routePrefix) !== 0) {
+        if (mb_stripos($request->getPathInfo(), self::$routePrefix) !== 0) {
             return;
         }
 

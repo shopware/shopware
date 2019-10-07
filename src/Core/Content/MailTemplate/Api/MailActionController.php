@@ -43,7 +43,7 @@ class MailActionController extends AbstractController
     {
         $message = $this->mailService->send($post->all(), $context);
 
-        return new JsonResponse(['size' => strlen($message ? $message->toString() : '')]);
+        return new JsonResponse(['size' => mb_strlen($message ? $message->toString() : '')]);
     }
 
     /**

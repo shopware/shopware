@@ -68,7 +68,8 @@ class DocsParsedownExtra extends \ParsedownExtra
     {
         $includeParts = explode('#', $parts[1]);
 
-        $includeFile = \dirname($this->sourceFile->getRealPath()) . substr($includeParts[0], 1);
+        $includeFile = \dirname($this->sourceFile->getRealPath()) . mb_substr($includeParts[0], 1);
+
         $namespace = $includeParts[1];
 
         if (!file_exists($includeFile)) {
@@ -92,11 +93,11 @@ class DocsParsedownExtra extends \ParsedownExtra
         $lines = file($includeFile);
 
         foreach ($lines as $lineNumber => $line) {
-            if (strpos($line, sprintf(self::START_MARK, $namespace)) === 0) {
+            if (mb_strpos($line, sprintf(self::START_MARK, $namespace)) === 0) {
                 $start = 1 + $lineNumber;
             }
 
-            if ($start !== false && $stop === false && strpos($line, self::STOPMARK) === 0) {
+            if ($start !== false && $stop === false && mb_strpos($line, self::STOPMARK) === 0) {
                 $stop = $lineNumber;
             }
         }
@@ -115,7 +116,7 @@ class DocsParsedownExtra extends \ParsedownExtra
     protected function docsRenderIncludeContents(array $slicedLines): void
     {
         $reIntendedLines = array_map(static function (string $line) {
-            return substr($line, 4);
+            return mb_substr($line, 4);
         }, $slicedLines);
 
         $implodedLines = implode('', $reIntendedLines);

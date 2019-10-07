@@ -51,8 +51,8 @@ class PluginFromFileSystemStruct extends Struct
     {
         $baseClass = $this->baseClass;
 
-        $pos = strrpos($baseClass, '\\');
+        $pos = mb_strrpos($baseClass, '\\');
 
-        return $pos === false ? $this->baseClass : substr($this->baseClass, $pos + 1);
+        return $pos === false ? $this->baseClass : mb_substr($this->baseClass, $pos + 1);
     }
 }

@@ -39,7 +39,7 @@ class DocumentConfigurationFactory
                 if ($key === 'custom' && is_array($value)) {
                     $baseConfig->__set('custom', array_merge($baseConfig->__get('custom'), $value));
                 } elseif (strncmp($key, 'custom.', 7) === 0) {
-                    $customKey = substr($key, 7);
+                    $customKey = mb_substr($key, 7);
                     $baseConfig->__set('custom', array_merge($baseConfig->__get('custom'), [$customKey => $value]));
                 } else {
                     $baseConfig->__set($key, $value);

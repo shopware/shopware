@@ -55,7 +55,7 @@ class TestDataCollection
     {
         $ids = [];
         foreach ($this->ids as $key => $id) {
-            if (strpos($key, $prefix) === 0) {
+            if (mb_strpos($key, $prefix) === 0) {
                 $ids[$key] = $id;
             }
         }

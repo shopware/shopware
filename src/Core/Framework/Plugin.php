@@ -27,7 +27,7 @@ abstract class Plugin extends Bundle
         $this->active = $active;
         $this->basePath = $basePath;
 
-        if ($projectDir && strpos($this->basePath, '/') !== 0) {
+        if ($projectDir && mb_strpos($this->basePath, '/') !== 0) {
             $this->basePath = $projectDir . '/' . $this->basePath;
         }
 

@@ -269,7 +269,7 @@ class Criteria extends Struct
 
         $criteria = $this;
         foreach ($parts as $part) {
-            if (\strtolower($part) === 'extensions') {
+            if (\mb_strtolower($part) === 'extensions') {
                 continue;
             }
 

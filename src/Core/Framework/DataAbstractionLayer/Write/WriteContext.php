@@ -59,11 +59,11 @@ class WriteContext
     public function getLanguageId(string $identifier): ?string
     {
         if (Uuid::isValid($identifier)) {
-            return $this->getLanguages()[strtolower($identifier)]['id'] ?? null;
+            return $this->getLanguages()[mb_strtolower($identifier)]['id'] ?? null;
         }
         $mapping = $this->getLanguageCodeToIdMapping();
 
-        return $mapping[strtolower($identifier)] ?? null;
+        return $mapping[mb_strtolower($identifier)] ?? null;
     }
 
     public static function createFromContext(Context $context): self
@@ -141,7 +141,7 @@ class WriteContext
             if (!$language['code']) {
                 continue;
             }
-            $mapping[strtolower($language['code'])] = $language['id'];
+            $mapping[mb_strtolower($language['code'])] = $language['id'];
         }
 
         return $this->languageCodeIdMapping = $mapping;

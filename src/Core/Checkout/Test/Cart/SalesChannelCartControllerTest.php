@@ -568,7 +568,7 @@ class SalesChannelCartControllerTest extends TestCase
 
     public function testGetCartWithoutAccessKey(): void
     {
-        $accessHeader = 'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
+        $accessHeader = 'HTTP_' . str_replace('-', '_', mb_strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
         $this->getSalesChannelBrowser()->setServerParameter($accessHeader, '');
 
         $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/checkout/cart');

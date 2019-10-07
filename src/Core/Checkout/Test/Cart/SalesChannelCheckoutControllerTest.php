@@ -543,7 +543,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
     {
         $expectedOrder = $this->createGuestOrder();
 
-        $accessHeader = 'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
+        $accessHeader = 'HTTP_' . str_replace('-', '_', mb_strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
         $this->getSalesChannelBrowser()->setServerParameter($accessHeader, '');
 
         $orderId = $expectedOrder['data']['id'];

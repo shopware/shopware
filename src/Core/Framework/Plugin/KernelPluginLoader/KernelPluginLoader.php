@@ -48,7 +48,7 @@ abstract class KernelPluginLoader extends Bundle
     final public function getPluginDir(string $projectDir): string
     {
         // absolute path
-        if (strpos($this->pluginDir, '/') === 0) {
+        if (mb_strpos($this->pluginDir, '/') === 0) {
             return $this->pluginDir;
         }
 
@@ -210,7 +210,7 @@ abstract class KernelPluginLoader extends Bundle
 
         $absolutePluginRootPath = $this->getAbsolutePluginRootPath($projectDir, $pluginRootPath);
 
-        if (strpos($absolutePluginRootPath, $projectDir) !== 0) {
+        if (mb_strpos($absolutePluginRootPath, $projectDir) !== 0) {
             throw new KernelPluginLoaderException(
                 $plugin,
                 sprintf('Plugin dir %s needs to be a sub-directory of the project dir %s', $pluginRootPath, $projectDir)
@@ -227,7 +227,7 @@ abstract class KernelPluginLoader extends Bundle
     private function getAbsolutePluginRootPath(string $projectDir, string $pluginRootPath): string
     {
         // is relative path
-        if (strpos($pluginRootPath, '/') !== 0) {
+        if (mb_strpos($pluginRootPath, '/') !== 0) {
             $pluginRootPath = $projectDir . '/' . $pluginRootPath;
         }
 

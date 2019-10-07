@@ -142,7 +142,7 @@ class RequestTransformer implements RequestTransformerInterface
         $pathInfo = rtrim($pathInfo, '/') . '/';
 
         foreach ($this->whitelist as $prefix) {
-            if (strpos($pathInfo, $prefix) === 0) {
+            if (mb_strpos($pathInfo, $prefix) === 0) {
                 return false;
             }
         }
@@ -196,7 +196,7 @@ class RequestTransformer implements RequestTransformerInterface
 
         // reduce shops to which base url is the beginning of the request
         $domains = array_filter($domains, function ($baseUrl) use ($requestUrl) {
-            return strpos($requestUrl, $baseUrl) === 0;
+            return mb_strpos($requestUrl, $baseUrl) === 0;
         }, ARRAY_FILTER_USE_KEY);
 
         if (empty($domains)) {
@@ -208,7 +208,7 @@ class RequestTransformer implements RequestTransformerInterface
         $bestMatch = current($domains);
         /** @var string $baseUrl */
         foreach ($domains as $baseUrl => $urlConfig) {
-            if (\strlen($baseUrl) > \strlen($lastBaseUrl)) {
+            if (\mb_strlen($baseUrl) > \mb_strlen($lastBaseUrl)) {
                 $bestMatch = $urlConfig;
             }
 
@@ -231,8 +231,8 @@ class RequestTransformer implements RequestTransformerInterface
 
         $baseUrl = rtrim($baseUrl, '/') . '/';
 
-        if (!empty($baseUrl) && strpos($seoPathInfo, $baseUrl) === 0) {
-            $seoPathInfo = substr($seoPathInfo, strlen($baseUrl));
+        if (!empty($baseUrl) && mb_strpos($seoPathInfo, $baseUrl) === 0) {
+            $seoPathInfo = mb_substr($seoPathInfo, mb_strlen($baseUrl));
         }
 
         $resolved = (new SeoResolver($this->connection))

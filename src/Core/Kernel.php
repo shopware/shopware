@@ -145,8 +145,8 @@ class Kernel extends HttpKernel
             '%s/var/cache/%s_k%s_p%s',
             $this->getProjectDir(),
             $this->getEnvironment(),
-            substr($this->shopwareVersionRevision, 0, 8),
-            substr($pluginHash, 0, 8)
+            mb_substr($this->shopwareVersionRevision, 0, 8),
+            mb_substr($pluginHash, 0, 8)
         );
     }
 

@@ -25,7 +25,7 @@ class SearchTermInterpreter
         }
 
         foreach ($terms as $part) {
-            $percent = \strlen($part) / \strlen($term);
+            $percent = \mb_strlen($part) / \mb_strlen($term);
             $pattern->addTerm(new SearchTerm($part, $percent));
         }
 

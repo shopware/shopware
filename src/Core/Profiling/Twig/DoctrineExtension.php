@@ -43,29 +43,29 @@ class DoctrineExtension extends AbstractExtension
 
         // Check if we can match the query against any of the major types
         switch (true) {
-            case stripos($query, 'SELECT') !== false:
+            case mb_stripos($query, 'SELECT') !== false:
                 $keywords = ['SELECT', 'FROM', 'WHERE', 'HAVING', 'ORDER BY', 'LIMIT'];
                 $required = 2;
                 break;
 
-            case stripos($query, 'DELETE') !== false:
+            case mb_stripos($query, 'DELETE') !== false:
                 $keywords = ['DELETE', 'FROM', 'WHERE', 'ORDER BY', 'LIMIT'];
                 $required = 2;
                 break;
 
-            case stripos($query, 'UPDATE') !== false:
+            case mb_stripos($query, 'UPDATE') !== false:
                 $keywords = ['UPDATE', 'SET', 'WHERE', 'ORDER BY', 'LIMIT'];
                 $required = 2;
                 break;
 
-            case stripos($query, 'INSERT') !== false:
+            case mb_stripos($query, 'INSERT') !== false:
                 $keywords = ['INSERT', 'INTO', 'VALUE', 'VALUES'];
                 $required = 2;
                 break;
 
             // If there's no match so far just truncate it to the maximum allowed by the interface
             default:
-                $result = substr($query, 0, $this->maxCharWidth);
+                $result = mb_substr($query, 0, $this->maxCharWidth);
         }
 
         // If we had a match then we should minify it
@@ -89,7 +89,7 @@ class DoctrineExtension extends AbstractExtension
         switch (true) {
             // Check if result is non-unicode string using PCRE_UTF8 modifier
             case \is_string($result) && !preg_match('//u', $result):
-                $result = '0x' . strtoupper(bin2hex($result));
+                $result = '0x' . mb_strtoupper(bin2hex($result));
                 break;
 
             case \is_string($result):
@@ -142,7 +142,7 @@ class DoctrineExtension extends AbstractExtension
         return preg_replace_callback(
             '/\?|((?<!:):[a-z0-9_]+)/i',
             static function ($matches) use ($values, &$i) {
-                $key = substr($matches[0], 1);
+                $key = mb_substr($matches[0], 1);
                 if (!\array_key_exists($i, $values) && (!$key || !\array_key_exists($key, $values))) {
                     return $matches[0];
                 }
@@ -251,7 +251,7 @@ class DoctrineExtension extends AbstractExtension
         foreach ($parameters as $key => $value) {
             $isLarger = false;
 
-            if (\strlen($value) > $maxLength) {
+            if (\mb_strlen($value) > $maxLength) {
                 $value = wordwrap($value, $maxLength, "\n", true);
                 $value = explode("\n", $value);
                 $value = $value[0];
@@ -261,7 +261,7 @@ class DoctrineExtension extends AbstractExtension
             $value = self::escapeFunction($value);
 
             if (!is_numeric($value)) {
-                $value = substr($value, 1, -1);
+                $value = mb_substr($value, 1, -1);
             }
 
             if ($isLarger) {
@@ -312,6 +312,6 @@ class DoctrineExtension extends AbstractExtension
         }
 
         // Fallback in case we didn't managed to find any good match (can we actually have that happen?!)
-        return substr($query, 0, $this->maxCharWidth);
+        return mb_substr($query, 0, $this->maxCharWidth);
     }
 }

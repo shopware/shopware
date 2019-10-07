@@ -40,7 +40,7 @@ class EntityDefinitionQueryHelper
 
     public static function escape(string $string): string
     {
-        if (strpos($string, '`') !== false) {
+        if (mb_strpos($string, '`') !== false) {
             throw new \InvalidArgumentException('Backtick not allowed in identifier');
         }
 
@@ -106,15 +106,15 @@ class EntityDefinitionQueryHelper
         $original = $fieldName;
         $prefix = $root . '.';
 
-        if (strpos($fieldName, $prefix) === 0) {
-            $fieldName = substr($fieldName, \strlen($prefix));
+        if (mb_strpos($fieldName, $prefix) === 0) {
+            $fieldName = mb_substr($fieldName, \mb_strlen($prefix));
         } else {
             $original = $prefix . $original;
         }
 
         $fields = $definition->getFields();
 
-        $isAssociation = strpos($fieldName, '.') !== false;
+        $isAssociation = mb_strpos($fieldName, '.') !== false;
 
         if (!$isAssociation && $fields->has($fieldName)) {
             return $fields->get($fieldName);
@@ -169,8 +169,8 @@ class EntityDefinitionQueryHelper
         $original = $fieldName;
         $prefix = $root . '.';
 
-        if (strpos($fieldName, $prefix) === 0) {
-            $fieldName = substr($fieldName, \strlen($prefix));
+        if (mb_strpos($fieldName, $prefix) === 0) {
+            $fieldName = mb_substr($fieldName, \mb_strlen($prefix));
         } else {
             $original = $prefix . $original;
         }
@@ -316,8 +316,8 @@ class EntityDefinitionQueryHelper
         $original = $fieldName;
         $prefix = $root . '.';
 
-        if (strpos($fieldName, $prefix) === 0) {
-            $fieldName = substr($fieldName, \strlen($prefix));
+        if (mb_strpos($fieldName, $prefix) === 0) {
+            $fieldName = mb_substr($fieldName, \mb_strlen($prefix));
         } else {
             $original = $prefix . $original;
         }
@@ -546,8 +546,8 @@ class EntityDefinitionQueryHelper
         $original = $fieldName;
         $prefix = $root . '.';
 
-        if (strpos($fieldName, $prefix) === 0) {
-            $fieldName = substr($fieldName, \strlen($prefix));
+        if (mb_strpos($fieldName, $prefix) === 0) {
+            $fieldName = mb_substr($fieldName, \mb_strlen($prefix));
         }
 
         $fields = $definition->getFields();

@@ -128,8 +128,8 @@ class Migration1554199340AddImportExportProfile extends MigrationStep
     {
         $result = [];
         foreach ($connection->fetchAll('SELECT * FROM payment_method') as $row) {
-            $key = substr(strrchr($row['handler_identifier'], '\\'), 1);
-            $key = str_replace('payment', '', strtolower($key));
+            $key = mb_substr(mb_strrchr($row['handler_identifier'], '\\'), 1);
+            $key = str_replace('payment', '', mb_strtolower($key));
             $result[$key] = Uuid::fromBytesToHex($row['id']);
         }
 

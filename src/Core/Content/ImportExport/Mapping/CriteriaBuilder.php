@@ -31,7 +31,7 @@ class CriteriaBuilder
         /** @var FieldDefinition $fieldDefinition */
         foreach ($this->fieldDefinitions as $fieldDefinition) {
             // Finds only direct associations by using the string until the first dot character
-            $assocFieldName = strstr($fieldDefinition->getEntityField(), '.', true);
+            $assocFieldName = mb_strstr($fieldDefinition->getEntityField(), '.', true);
             if (!is_string($assocFieldName)) {
                 continue;
             }

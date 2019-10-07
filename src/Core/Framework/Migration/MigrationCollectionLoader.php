@@ -51,7 +51,7 @@ class MigrationCollectionLoader
     {
         $insertQuery = new MultiInsertQueryQueue($this->connection, 250, true);
         foreach ($migrations as $className => $migration) {
-            if (strpos($className, $identifier) !== false) {
+            if (mb_strpos($className, $identifier) !== false) {
                 $insertQuery->addInsert('migration', [
                     '`class`' => $className,
                     '`creation_timestamp`' => $migration->getCreationTimestamp(),

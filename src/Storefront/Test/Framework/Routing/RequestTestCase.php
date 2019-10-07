@@ -49,7 +49,7 @@ class RequestTestCase
     public function createRequest(): Request
     {
         $server = [
-            'REQUEST_METHOD' => strtoupper($this->method),
+            'REQUEST_METHOD' => mb_strtoupper($this->method),
             'SCRIPT_FILENAME' => $this->scriptFilename,
             'SCRIPT_NAME' => $this->scriptName,
             'HTTPS' => $this->https,

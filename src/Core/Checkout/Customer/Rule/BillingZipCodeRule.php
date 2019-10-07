@@ -45,10 +45,10 @@ class BillingZipCodeRule extends Rule
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                return \in_array(strtolower($zipCode), $this->zipCodes, true);
+                return \in_array(mb_strtolower($zipCode), $this->zipCodes, true);
 
             case self::OPERATOR_NEQ:
-                return !\in_array(strtolower($zipCode), $this->zipCodes, true);
+                return !\in_array(mb_strtolower($zipCode), $this->zipCodes, true);
 
             default:
                 throw new UnsupportedOperatorException($this->operator, __CLASS__);

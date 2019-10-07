@@ -858,10 +858,10 @@ class ApiController extends AbstractController
     private function getRequestBody(Request $request): array
     {
         $contentType = $request->headers->get('CONTENT_TYPE', '');
-        $semicolonPosition = strpos($contentType, ';');
+        $semicolonPosition = mb_strpos($contentType, ';');
 
         if ($semicolonPosition !== false) {
-            $contentType = substr($contentType, 0, $semicolonPosition);
+            $contentType = mb_substr($contentType, 0, $semicolonPosition);
         }
 
         try {

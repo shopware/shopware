@@ -254,7 +254,7 @@ class PromotionValidator implements EventSubscriberInterface
 
             // if our code length is greater than the trimmed one,
             // this means we have leading or trailing whitespaces
-            if (strlen($code) > strlen($trimmedCode)) {
+            if (mb_strlen($code) > mb_strlen($trimmedCode)) {
                 $violationList->add($this->buildViolation(
                     'Code may not have any leading or ending whitespaces',
                     $code,

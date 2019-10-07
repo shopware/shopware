@@ -25,7 +25,7 @@ class ClassNamespaceTest extends TestCase
 
             $namespace = rtrim('namespace Shopware\\' . implode('\\', $parts), '\\');
 
-            if (strpos($file->getContents(), $namespace) === false) {
+            if (mb_strpos($file->getContents(), $namespace) === false) {
                 $relativePath = str_replace($basePath, '', $file->getPathname());
                 $errors['src/' . $relativePath] = $namespace;
             }

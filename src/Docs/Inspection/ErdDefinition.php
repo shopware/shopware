@@ -61,7 +61,7 @@ class ErdDefinition
     {
         $parts = explode('\\', $this->definition->getClass());
 
-        if (strpos($this->definition->getClass(), 'Shopware\\Core') === 0) {
+        if (mb_strpos($this->definition->getClass(), 'Shopware\\Core') === 0) {
             $moduleName = implode('\\', \array_slice($parts, 0, 4));
         } else {
             $moduleName = implode('\\', \array_slice($parts, 0, 2));

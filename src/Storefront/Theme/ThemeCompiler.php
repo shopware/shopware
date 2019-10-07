@@ -119,8 +119,8 @@ class ThemeCompiler
         }
 
         foreach ($configuration->getAssetPaths() as $asset) {
-            if (strpos($asset, '@') === 0) {
-                $name = substr($asset, 1);
+            if (mb_strpos($asset, '@') === 0) {
+                $name = mb_substr($asset, 1);
                 $config = $configurationCollection->getByTechnicalName($name);
                 if (!$config) {
                     throw new InvalidThemeException($name);
@@ -147,7 +147,7 @@ class ThemeCompiler
                 $content = file_get_contents($asset . DIRECTORY_SEPARATOR . $relativePathname);
 
                 $this->publicFilesystem->put(
-                    'bundles' . DIRECTORY_SEPARATOR . strtolower($configuration->getTechnicalName()) . DIRECTORY_SEPARATOR . $assetDir . DIRECTORY_SEPARATOR . $relativePathname,
+                    'bundles' . DIRECTORY_SEPARATOR . mb_strtolower($configuration->getTechnicalName()) . DIRECTORY_SEPARATOR . $assetDir . DIRECTORY_SEPARATOR . $relativePathname,
                     $content
                 );
 
@@ -167,8 +167,8 @@ class ThemeCompiler
         $this->scssCompiler->addImportPath(function ($originalPath) use ($resolveMappings) {
             foreach ($resolveMappings as $resolve => $resolvePath) {
                 $resolve = '~' . $resolve;
-                if (strpos($originalPath, $resolve) === 0) {
-                    $dirname = $resolvePath . dirname(substr($originalPath, strlen($resolve)));
+                if (mb_strpos($originalPath, $resolve) === 0) {
+                    $dirname = $resolvePath . dirname(mb_substr($originalPath, mb_strlen($resolve)));
                     $filename = basename($originalPath);
                     $extension = pathinfo($filename, PATHINFO_EXTENSION) === '' ? '.scss' : '';
                     $path = $dirname . DIRECTORY_SEPARATOR . $filename . $extension;

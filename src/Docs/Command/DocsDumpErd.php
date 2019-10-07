@@ -132,7 +132,7 @@ class DocsDumpErd extends Command
 
     private function toFileName($moduleName): string
     {
-        return strtolower(str_replace('\\', '-', $moduleName));
+        return mb_strtolower(str_replace('\\', '-', $moduleName));
     }
 
     /**

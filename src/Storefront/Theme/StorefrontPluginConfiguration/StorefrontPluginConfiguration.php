@@ -313,7 +313,7 @@ class StorefrontPluginConfiguration
     private static function addBasePathToCollection(FileCollection $fileCollection, string $basePath): FileCollection
     {
         foreach ($fileCollection as $file) {
-            if (strpos($file->getFilepath(), '@') === 0) {
+            if (mb_strpos($file->getFilepath(), '@') === 0) {
                 continue;
             }
             $file->setFilepath(self::addBasePath($file->getFilepath(), $basePath));
@@ -325,7 +325,7 @@ class StorefrontPluginConfiguration
     private static function addBasePathToArray(array $files, string $basePath): array
     {
         array_walk($files, function (&$path) use ($basePath): void {
-            if (strpos($path, '@') === 0) {
+            if (mb_strpos($path, '@') === 0) {
                 return;
             }
             $path = self::addBasePath($path, $basePath);

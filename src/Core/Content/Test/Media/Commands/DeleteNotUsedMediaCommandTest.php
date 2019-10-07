@@ -51,7 +51,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         $commandTester->execute([]);
 
         $string = $commandTester->getDisplay();
-        static::assertIsInt(strpos($string, 'No unused media files found.'));
+        static::assertIsInt(mb_strpos($string, 'No unused media files found.'));
     }
 
     public function testExecuteWithConfirm(): void
@@ -80,7 +80,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
 
         $string = $commandTester->getDisplay();
 
-        static::assertIsInt(strpos($string, 'Successfully deleted 2 media files.'));
+        static::assertIsInt(mb_strpos($string, 'Successfully deleted 2 media files.'));
 
         $this->runWorker();
 
@@ -132,7 +132,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         $this->runWorker();
 
         $string = $commandTester->getDisplay();
-        static::assertIsInt(strpos($string, 'Aborting due to user input.'));
+        static::assertIsInt(mb_strpos($string, 'Aborting due to user input.'));
 
         $result = $this->mediaRepository->search(
             new Criteria([

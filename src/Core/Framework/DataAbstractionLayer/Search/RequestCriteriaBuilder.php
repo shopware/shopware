@@ -190,12 +190,12 @@ class RequestCriteriaBuilder
 
         $sorting = [];
         foreach ($parts as $part) {
-            $first = substr($part, 0, 1);
+            $first = mb_substr($part, 0, 1);
 
             $direction = $first === '-' ? FieldSorting::DESCENDING : FieldSorting::ASCENDING;
 
             if ($direction === FieldSorting::DESCENDING) {
-                $part = substr($part, 1);
+                $part = mb_substr($part, 1);
             }
 
             $sorting[] = new FieldSorting($this->buildFieldName($definition, $part), $direction);
@@ -371,7 +371,7 @@ class RequestCriteriaBuilder
     {
         $prefix = $definition->getEntityName() . '.';
 
-        if (strpos($fieldName, $prefix) === false) {
+        if (mb_strpos($fieldName, $prefix) === false) {
             return $prefix . $fieldName;
         }
 

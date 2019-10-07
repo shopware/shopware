@@ -61,7 +61,7 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
             '$2$3',
             $path
         );
-        $subPath = substr($path, strlen($fieldName) + 1);
+        $subPath = mb_substr($path, mb_strlen($fieldName) + 1);
 
         foreach ($fields as $field) {
             if ($field->getPropertyName() !== $fieldName) {

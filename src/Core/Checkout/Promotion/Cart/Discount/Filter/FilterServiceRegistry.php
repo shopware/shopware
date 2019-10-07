@@ -35,7 +35,7 @@ class FilterServiceRegistry
     {
         /** @var FilterSorterInterface $sorter */
         foreach ($this->sorters as $sorter) {
-            if (strtolower($sorter->getKey()) === strtolower($key)) {
+            if (mb_strtolower($sorter->getKey()) === mb_strtolower($key)) {
                 return $sorter;
             }
         }

@@ -64,7 +64,7 @@ class FieldValueParser
 
             $result = [];
             foreach (explode('|', $value['id']) as $id) {
-                if (strlen($id) > 0) {
+                if (mb_strlen($id) > 0) {
                     $result[] = ['id' => $id];
                 }
             }

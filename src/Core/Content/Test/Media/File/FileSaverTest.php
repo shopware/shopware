@@ -274,7 +274,7 @@ class FileSaverTest extends TestCase
     public function testPersistFileToMediaWorksWithMoreThan255Characters(): void
     {
         $longFileName = '';
-        while (strlen($longFileName) < 512) {
+        while (mb_strlen($longFileName) < 512) {
             $longFileName .= 'Word';
         }
 

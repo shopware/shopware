@@ -29,7 +29,7 @@ class ArrayOfTypeValidator extends ConstraintValidator
         }
 
         foreach ($values as $value) {
-            $type = strtolower($constraint->type);
+            $type = mb_strtolower($constraint->type);
             $type = $type === 'boolean' ? 'bool' : $constraint->type;
             $isFunction = 'is_' . $type;
             $ctypeFunction = 'ctype_' . $type;

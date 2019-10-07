@@ -111,7 +111,7 @@ class ConvertMarkdownDocsCommand extends Command
         foreach ($files as $file) {
             foreach ($blacklist as $blacklistedFile) {
                 $blacklistedFile = trim($blacklistedFile);
-                if (strpos($file->getRelativePathname(), $blacklistedFile) === 0) {
+                if (mb_strpos($file->getRelativePathname(), $blacklistedFile) === 0) {
                     echo 'Blacklisted ' . $file->getRelativePathname() . "\n";
                     continue 2;
                 }

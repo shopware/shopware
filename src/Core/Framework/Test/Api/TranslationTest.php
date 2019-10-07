@@ -566,7 +566,7 @@ class TranslationTest extends TestCase
 
     private function getLangHeaderName(): string
     {
-        return 'HTTP_' . strtoupper(str_replace('-', '_', PlatformRequest::HEADER_LANGUAGE_ID));
+        return 'HTTP_' . mb_strtoupper(str_replace('-', '_', PlatformRequest::HEADER_LANGUAGE_ID));
     }
 
     private function assertTranslationError(array $errors, array $data): void

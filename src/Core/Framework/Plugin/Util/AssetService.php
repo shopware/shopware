@@ -68,7 +68,7 @@ class AssetService
 
     private function getTargetDirectory(BundleInterface $bundle): string
     {
-        $assetDir = preg_replace('/bundle$/', '', strtolower($bundle->getName()));
+        $assetDir = preg_replace('/bundle$/', '', mb_strtolower($bundle->getName()));
 
         return 'bundles/' . $assetDir;
     }

@@ -28,13 +28,13 @@ class ArrayNormalizer
     {
         $result = [];
         foreach ($input as $key => $value) {
-            if (is_string($key) && strpos($key, '.') !== false) {
-                $first = strstr($key, '.', true);
-                $rest = strstr($key, '.');
+            if (is_string($key) && mb_strpos($key, '.') !== false) {
+                $first = mb_strstr($key, '.', true);
+                $rest = mb_strstr($key, '.');
                 if (isset($result[$first])) {
-                    $result[$first] = array_merge($result[$first], self::expand([substr($rest, 1) => $value]));
+                    $result[$first] = array_merge($result[$first], self::expand([mb_substr($rest, 1) => $value]));
                 } else {
-                    $result[$first] = self::expand([substr($rest, 1) => $value]);
+                    $result[$first] = self::expand([mb_substr($rest, 1) => $value]);
                 }
             } else {
                 $result[$key] = $value;

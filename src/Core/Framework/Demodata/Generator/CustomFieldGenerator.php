@@ -170,7 +170,7 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
 
         return [
             'id' => Uuid::randomHex(),
-            'name' => strtolower($prefix) . '_' . str_replace(' ', '_', $name),
+            'name' => mb_strtolower($prefix) . '_' . str_replace(' ', '_', $name),
             'type' => $type,
             'config' => $config,
         ];

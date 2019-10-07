@@ -41,19 +41,19 @@ class Zip
 
     public function isDir(): bool
     {
-        return substr($this->name, -1) === '/';
+        return mb_substr($this->name, -1) === '/';
     }
 
     public function isFile(): bool
     {
-        return substr($this->name, -1) !== '/';
+        return mb_substr($this->name, -1) !== '/';
     }
 
     public function getName(): string
     {
         $name = $this->name;
-        if (strpos($name, './') === 0) {
-            $name = substr($name, 2);
+        if (mb_strpos($name, './') === 0) {
+            $name = mb_substr($name, 2);
         }
 
         return $name;

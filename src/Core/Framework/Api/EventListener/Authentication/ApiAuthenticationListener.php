@@ -102,7 +102,7 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         }
 
         $path = '/' . ltrim($request->getPathInfo(), '/');
-        if (stripos($path, self::$routePrefix) !== 0) {
+        if (mb_stripos($path, self::$routePrefix) !== 0) {
             return;
         }
 

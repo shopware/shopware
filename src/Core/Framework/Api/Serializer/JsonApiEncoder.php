@@ -111,7 +111,7 @@ class JsonApiEncoder
 
         $input = str_replace('_', '-', $input);
 
-        return $this->caseCache[$input] = \ltrim(\strtolower(\preg_replace('/[A-Z]/', '-$0', $input)), '-');
+        return $this->caseCache[$input] = \ltrim(\mb_strtolower(\preg_replace('/[A-Z]/', '-$0', $input)), '-');
     }
 
     private function encodeData(EntityDefinition $definition, $data, JsonApiEncodingResult $result): void

@@ -9,7 +9,7 @@ interface NumberRangeValueGeneratorInterface
     /**
      * generates a new Value while taking Care of States, Events and Connectors
      */
-    public function getValue(string $type, Context $context, ?string $salesChannelId, ?bool $preview = false): string;
+    public function getValue(string $type, Context $context, ?string $salesChannelId, bool $preview = false): string;
 
     /**
      * generates a preview for a given pattern and start

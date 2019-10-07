@@ -55,7 +55,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
         $this->numberRangeDefinition = $numberRangeDefinition;
     }
 
-    public function getValue(string $type, Context $context, ?string $salesChannelId, ?bool $preview = false): string
+    public function getValue(string $type, Context $context, ?string $salesChannelId, bool $preview = false): string
     {
         $this->readConfiguration($type, $context, $salesChannelId);
 
@@ -63,7 +63,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
 
         $generatedValue = $this->generate($parsedPattern, $preview);
 
-        return $this->endEvent($generatedValue);
+        return $this->endEvent($generatedValue, $type, $context, $salesChannelId, $preview);
     }
 
     public function previewPattern(string $definition, string $pattern, int $start): string
@@ -162,11 +162,11 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
         $this->configuration->setStart($start);
     }
 
-    protected function endEvent($generatedValue): string
+    protected function endEvent(string $generatedValue, string $type, Context $context, ?string $salesChannelId, bool $preview): string
     {
         /** @var NumberRangeGeneratedEvent $generatedEvent */
         $generatedEvent = $this->eventDispatcher->dispatch(
-            new NumberRangeGeneratedEvent($generatedValue),
+            new NumberRangeGeneratedEvent($generatedValue, $type, $context, $salesChannelId, $preview),
             NumberRangeEvents::NUMBER_RANGE_GENERATED
         );
 

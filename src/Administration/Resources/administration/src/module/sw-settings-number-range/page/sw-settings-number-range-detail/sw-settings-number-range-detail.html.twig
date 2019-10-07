@@ -149,7 +149,7 @@
                         <sw-container columns="repeat(auto-fit, minmax(100%, 1fr)" gap="0px 30px">
                             {% block sw_sales_channel_detail_base_general_input_type %}
                                 <sw-select :store="numberRangeTypeStore"
-                                            v-model="numberRange.type.id"
+                                            v-model="numberRange.typeId"
                                             v-if="numberRange.type"
                                             id="numberRangeTypes"
                                             :criteria="typeCriteria"

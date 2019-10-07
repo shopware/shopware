@@ -185,7 +185,7 @@ Component.register('sw-settings-number-range-detail', {
         },
 
         loadEntityData() {
-            this.salesChannelStore.getList().then((response) => {
+            this.salesChannelStore.getList({ headers: {} }).then((response) => {
                 this.salesChannels = response;
             });
             this.numberRangeStore.getByIdAsync(this.numberRangeId).then((response) => {
@@ -215,7 +215,7 @@ Component.register('sw-settings-number-range-detail', {
             numberRangeSalesChannels.search(numberRangeSalesChannelCriteria, this.context).then((responseSalesChannels) => {
                 const assignedSalesChannelIds = [];
                 responseSalesChannels.forEach((salesChannel) => {
-                    assignedSalesChannelIds.push(salesChannel.salesChannel.id);
+                    assignedSalesChannelIds.push(salesChannel.salesChannelId);
                 });
                 this.getPossibleSalesChannels(assignedSalesChannelIds);
             });

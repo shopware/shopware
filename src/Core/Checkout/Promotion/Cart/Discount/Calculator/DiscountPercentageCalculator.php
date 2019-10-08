@@ -131,11 +131,7 @@ class DiscountPercentageCalculator
         // if we have an empty string value
         // then we convert it to 0.00 when casting it,
         // thus we create an early return
-        if (trim($stringValue) === '') {
-            return false;
-        }
-
-        return true;
+        return trim($stringValue) !== '';
     }
 
     private function getMaxValue(DiscountLineItem $discount): float

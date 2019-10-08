@@ -14,11 +14,8 @@ abstract class AbstractRouteScope implements RouteScopeInterface
     public function isAllowedPath(string $path): bool
     {
         $basePath = explode('/', $path);
-        if (empty($this->allowedPaths) || in_array($basePath[1], $this->allowedPaths, true)) {
-            return true;
-        }
 
-        return false;
+        return empty($this->allowedPaths) || in_array($basePath[1], $this->allowedPaths, true);
     }
 
     abstract public function isAllowed(Request $request): bool;

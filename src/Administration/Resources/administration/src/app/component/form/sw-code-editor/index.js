@@ -100,7 +100,7 @@ Component.register('sw-code-editor', {
     watch: {
         value(value) {
             if (value !== null && value !== this.editor.getValue()) {
-                this.editor.setValue(value, 1);
+                this.editor.setValue(value);
             }
         },
 

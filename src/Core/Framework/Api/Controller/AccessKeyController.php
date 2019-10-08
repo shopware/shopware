@@ -44,14 +44,4 @@ class AccessKeyController extends AbstractController
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
         ]);
     }
-
-    /**
-     * @Route("/api/v{version}/_action/access-key/product-export", name="api.action.access-key.product-export", methods={"GET"})
-     */
-    public function generateProductExportKey(): JsonResponse
-    {
-        return new JsonResponse([
-            'accessKey' => AccessKeyHelper::generateAccessKey('product-export'),
-        ]);
-    }
 }

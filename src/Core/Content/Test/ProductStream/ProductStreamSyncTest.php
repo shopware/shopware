@@ -52,17 +52,7 @@ class ProductStreamSyncTest extends TestCase
         static::assertSame(200, $response->getStatusCode(), $response->getContent());
 
         $result = $this->connection
-            ->executeQuery(
-                'SELECT * FROM product_stream 
-                        INNER JOIN product_stream_translation ON product_stream.id = product_stream_translation.product_stream_id
-                        WHERE product_stream.id = :id1
-                          OR product_stream.id = :id2
-                        ORDER BY `name`',
-                [
-                    'id1' => Uuid::fromHexToBytes($id1),
-                    'id2' => Uuid::fromHexToBytes($id2),
-                ]
-            );
+            ->executeQuery('SELECT * from product_stream inner join product_stream_translation on product_stream.id = product_stream_translation.product_stream_id order by name');
 
         static::assertEquals('Test stream', $result->fetch()['name']);
         static::assertEquals('Test stream - 2', $result->fetch()['name']);

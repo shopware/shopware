@@ -1,33 +1,25 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\ProductExport\Command;
+namespace Shopware\Core\Content\Test\ProductStream\Service;
 
 use Doctrine\DBAL\Connection;
-use League\Flysystem\FilesystemInterface;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\ProductExport\Command\ProductExportGenerateCommand;
-use Shopware\Core\Content\ProductExport\ProductExportEntity;
+use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamService;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamServiceInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\TestCaseBase\CommandTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Console\Input\StringInput;
-use Symfony\Component\Console\Output\BufferedOutput;
 
-class ProductExportGenerateCommandTest extends TestCase
+class ProductStreamServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use CommandTestBehaviour;
-
-    /** @var ProductExportGenerateCommand */
-    private $productExportGenerateCommand;
 
     /**
      * @var EntityRepositoryInterface
@@ -44,99 +36,95 @@ class ProductExportGenerateCommandTest extends TestCase
      */
     private $salesChannelContext;
 
-    /** @var FilesystemInterface */
-    private $fileSystem;
+    /** @var ProductStreamServiceInterface */
+    private $service;
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('product_export.repository');
+        $this->repository = $this->getContainer()->get('product_stream.repository');
         $this->context = Context::createDefaultContext();
-        $this->fileSystem = $this->getContainer()->get('shopware.filesystem.private');
-        $this->productExportGenerateCommand = $this->getContainer()->get(ProductExportGenerateCommand::class);
+        $this->service = $this->getContainer()->get(ProductStreamService::class);
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), $this->getSalesChannelDomain()->getSalesChannelId());
+        $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
     }
 
-    public function testExecute(): void
+    public function testGetProductsWithoutFilters(): void
     {
         $this->createTestEntity();
 
-        $input = new StringInput($this->getSalesChannelDomain()->getSalesChannelId());
-        $output = new BufferedOutput();
+        $productStream = $this->repository
+            ->search(new Criteria(['137b079935714281ba80b40f83f8d7eb']), $this->context)
+            ->get('137b079935714281ba80b40f83f8d7eb');
 
-        $this->runCommand($this->productExportGenerateCommand, $input, $output);
+        static::expectException(NoFilterException::class);
 
-        $filePath = sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
-        $fileContent = $this->fileSystem->read($filePath);
-
-        $csvRows = explode(PHP_EOL, $fileContent);
-
-        static::assertTrue($this->fileSystem->has($this->getContainer()->getParameter('product_export.directory')));
-        static::assertTrue($this->fileSystem->has($filePath));
-        static::assertCount(4, $csvRows);
+        $this->service->getProducts($productStream, $this->salesChannelContext);
     }
 
-    private function getSalesChannelId(): string
+    public function testGetProducts(): void
     {
-        /** @var EntityRepositoryInterface $repository */
-        $repository = $this->getContainer()->get('sales_channel.repository');
+        $this->createTestEntity();
 
-        return $repository->search(new Criteria(), $this->context)->first()->getId();
+        $criteria = new Criteria(['137b079935714281ba80b40f83f8d7eb']);
+        $criteria->addAssociation('filters.queries');
+
+        $productStream = $this->repository
+            ->search($criteria, $this->context)
+            ->get('137b079935714281ba80b40f83f8d7eb');
+
+        $products = $this->service->getProducts($productStream, $this->salesChannelContext);
+
+        static::assertEquals(2, $products->count());
     }
 
-    private function getSalesChannelDomain(): SalesChannelDomainEntity
+    public function testGetProductsById(): void
     {
-        /** @var EntityRepositoryInterface $repository */
-        $repository = $this->getContainer()->get('sales_channel_domain.repository');
+        $this->createTestEntity();
 
-        return $repository->search(new Criteria(), $this->context)->first();
+        $products = $this->service->getProductsById('137b079935714281ba80b40f83f8d7eb', $this->salesChannelContext);
+
+        static::assertEquals(2, $products->count());
     }
 
-    private function getSalesChannelDomainId(): string
+    public function testGetProductsByIdBatch(): void
     {
-        return $this->getSalesChannelDomain()->getId();
+        $this->createTestEntity();
+
+        $firstProducts = $this->service->getProductsById(
+            '137b079935714281ba80b40f83f8d7eb',
+            $this->salesChannelContext,
+            0,
+            1
+        );
+        $secondProducts = $this->service->getProductsById(
+            '137b079935714281ba80b40f83f8d7eb',
+            $this->salesChannelContext,
+            1,
+            1
+        );
+
+        static::assertEquals(1, $firstProducts->count());
+        static::assertEquals(1, $secondProducts->count());
+        static::assertNotEquals($firstProducts, $secondProducts);
     }
 
-    private function createTestEntity(): string
-    {
-        $this->createProductStream();
-
-        $id = Uuid::randomHex();
-        $this->repository->upsert([
-            [
-                'id' => $id,
-                'fileName' => 'Testexport.csv',
-                'accessKey' => Uuid::randomHex(),
-                'encoding' => ProductExportEntity::ENCODING_UTF8,
-                'fileFormat' => ProductExportEntity::FILE_FORMAT_CSV,
-                'interval' => 0,
-                'headerTemplate' => 'name,url',
-                'bodyTemplate' => '{{ product.name }},{{ productUrl(product) }}',
-                'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
-                'storefrontSalesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
-                'salesChannelId' => $this->getSalesChannelId(),
-                'salesChannelDomainId' => $this->getSalesChannelDomainId(),
-                'generateByCronjob' => false,
-            ],
-        ], $this->context);
-
-        return $id;
-    }
-
-    private function createProductStream(): void
+    private function createTestEntity(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
 
         $randomProductIds = implode('|', array_slice(array_column($this->createProducts(), 'id'), 0, 2));
 
-        $connection->exec("
+        $connection->exec(
+            "
             INSERT INTO `product_stream` (`id`, `api_filter`, `invalid`, `created_at`, `updated_at`)
             VALUES
                 (UNHEX('137B079935714281BA80B40F83F8D7EB'), '[{\"type\": \"multi\", \"queries\": [{\"type\": \"multi\", \"queries\": [{\"type\": \"equalsAny\", \"field\": \"product.id\", \"value\": \"{$randomProductIds}\"}], \"operator\": \"AND\"}, {\"type\": \"multi\", \"queries\": [{\"type\": \"range\", \"field\": \"product.width\", \"parameters\": {\"gte\": 221, \"lte\": 932}}], \"operator\": \"AND\"}, {\"type\": \"multi\", \"queries\": [{\"type\": \"range\", \"field\": \"product.width\", \"parameters\": {\"lte\": 245}}], \"operator\": \"AND\"}, {\"type\": \"multi\", \"queries\": [{\"type\": \"equals\", \"field\": \"product.manufacturer.id\", \"value\": \"02f6b9aa385d4f40aaf573661b2cf919\"}, {\"type\": \"range\", \"field\": \"product.height\", \"parameters\": {\"gte\": 182}}], \"operator\": \"AND\"}], \"operator\": \"OR\"}]', 0, '2019-08-16 08:43:57.488', NULL);
-        ");
+        "
+        );
 
-        $connection->exec("
+        $connection->exec(
+            "
             INSERT INTO `product_stream_filter` (`id`, `product_stream_id`, `parent_id`, `type`, `field`, `operator`, `value`, `parameters`, `position`, `custom_fields`, `created_at`, `updated_at`)
             VALUES
                 (UNHEX('DA6CD9776BC84463B25D5B6210DDB57B'), UNHEX('137B079935714281BA80B40F83F8D7EB'), NULL, 'multi', NULL, 'OR', NULL, NULL, 0, NULL, '2019-08-16 08:43:57.469', NULL),
@@ -148,7 +136,8 @@ class ProductExportGenerateCommandTest extends TestCase
                 (UNHEX('6382E03A768F444E9C2A809C63102BD4'), UNHEX('137B079935714281BA80B40F83F8D7EB'), UNHEX('BB87D86524FB4E7EA01EE548DD43A5AC'), 'range', 'height', NULL, NULL, '{\"gte\":182}', 2, NULL, '2019-08-16 08:43:57.485', NULL),
                 (UNHEX('7CBC1236ABCD43CAA697E9600BF1DF6E'), UNHEX('137B079935714281BA80B40F83F8D7EB'), UNHEX('4A7AEB36426A482A8BFFA049F795F5E7'), 'range', 'width', NULL, NULL, '{\"lte\":245}', 1, NULL, '2019-08-16 08:43:57.476', NULL),
                 (UNHEX('80B2B90171454467B769A4C161E74B87'), UNHEX('137B079935714281BA80B40F83F8D7EB'), UNHEX('0EE60B6A87774E9884A832D601BE6B8F'), 'equalsAny', 'id', NULL, '{$randomProductIds}', NULL, 1, NULL, '2019-08-16 08:43:57.480', NULL);
-    ");
+    "
+        );
     }
 
     private function createProducts(): array
@@ -156,7 +145,7 @@ class ProductExportGenerateCommandTest extends TestCase
         $productRepository = $this->getContainer()->get('product.repository');
         $manufacturerId = Uuid::randomHex();
         $taxId = Uuid::randomHex();
-        $salesChannelId = $this->getSalesChannelDomain()->getSalesChannelId();
+        $salesChannelId = Defaults::SALES_CHANNEL;
         $products = [];
 
         for ($i = 0; $i < 10; ++$i) {

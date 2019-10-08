@@ -18,16 +18,6 @@ $sw-sales-channel-detail-color-text-access-key: $color-gutenberg;
         margin-bottom: 22px;
     }
 
-    .sw-sales-channel-detail-base__product-comparison-container {
-        position: relative;
-
-        .sw-sales-channel-detail-base__product-comparison-helptext {
-            position: absolute;
-            right: 0;
-            top: 0;
-        }
-    }
-
     .sw-sales-channel-detail-base__delete {
         margin-top: 30px;
         padding-top: 30px;
@@ -55,10 +45,6 @@ $sw-sales-channel-detail-color-text-access-key: $color-gutenberg;
 
     .sw-sales-channel-detail-base__domain-container {
         margin-bottom: 30px;
-    }
-
-    .sw-sales-channel-detail-base_general__last-generation-text {
-        margin-bottom: 22px;
     }
 }
 

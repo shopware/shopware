@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ProductStream;
 
-use Shopware\Core\Content\ProductExport\ProductExportDefinition;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -51,7 +50,6 @@ class ProductStreamDefinition extends EntityDefinition
 
             (new TranslationsAssociationField(ProductStreamTranslationDefinition::class, 'product_stream_id'))->addFlags(new Required()),
             (new OneToManyAssociationField('filters', ProductStreamFilterDefinition::class, 'product_stream_id', 'id'))->setFlags(new CascadeDelete()),
-            new OneToManyAssociationField('productExports', ProductExportDefinition::class, 'product_stream_id', 'id'),
         ]);
     }
 }

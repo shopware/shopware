@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ProductStream;
 
-use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterCollection;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -46,11 +45,6 @@ class ProductStreamEntity extends Entity
      * @var array|null
      */
     protected $customFields;
-
-    /**
-     * @var ProductExportCollection|null
-     */
-    protected $productExports;
 
     public function getName(): string
     {
@@ -120,15 +114,5 @@ class ProductStreamEntity extends Entity
     public function setCustomFields(?array $customFields): void
     {
         $this->customFields = $customFields;
-    }
-
-    public function getProductExports(): ?ProductExportCollection
-    {
-        return $this->productExports;
-    }
-
-    public function setProductExports(?ProductExportCollection $productExports): void
-    {
-        $this->productExports = $productExports;
     }
 }

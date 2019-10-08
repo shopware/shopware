@@ -36,8 +36,7 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
 
     methods: {
         createdComponent() {
-            // ToDo: Refactor with ticket NEXT-5101
-            this.$root.$emit('admin-menu-close');
+            this.store.commit('adminMenu/collapseSidebar');
 
             if (!this.isSystemDefaultLanguage) {
                 this.languageStore.setCurrentId(this.context.systemLanguageId);

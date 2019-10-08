@@ -96,8 +96,7 @@ Component.register('sw-cms-list', {
 
     methods: {
         createdComponent() {
-            // ToDo: Refactor with ticket NEXT-5101
-            this.$root.$emit('admin-menu-close');
+            this.$store.commit('adminMenu/collapseSidebar');
 
             this.setPageContext();
         },

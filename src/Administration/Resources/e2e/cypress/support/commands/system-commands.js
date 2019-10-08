@@ -39,8 +39,6 @@ Cypress.Commands.add('cleanUpPreviousState', () => {
         return cy.exec(`${Cypress.env('projectRoot')}/psh.phar e2e:restore-db`);
     }
 
-    cy.log('new');
-
     return cy.request(`http://${new URL(Cypress.config('baseUrl')).hostname}:8005/cleanup`)
         .its('body').should('eq', 'success');
 });

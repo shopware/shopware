@@ -16,6 +16,17 @@ const baseWebpackConfig = require('./webpack.base.conf');
 
 let webpackConfig = merge(baseWebpackConfig, {
     mode: 'production',
+    entry: {
+        commons: [
+            // Ensure vue-loader's runtime components will always be packaged into vendors-node, even if no single file
+            // components are present. This is required because when packaging a plugin using administration:build, the
+            // SplitChunksPlugin configuration in webpack.base.conf.js will force the vue-loader runtime into the
+            // vendors-node chunk, which will prevent it from being packaged in the plugin bundle, which will in turn
+            // prevent that plugin bundle from loading on a Shopware instance which does not have the vue-loader runtime
+            // in its vendors-node bundle. Because of this, stock Shopware must ship the runtime.
+            require.resolve('vue-loader/lib/runtime/componentNormalizer.js')
+        ]
+    },
     module: {
         rules: utils.styleLoaders({
             sourceMap: config.build.productionSourceMap

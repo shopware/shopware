@@ -40,6 +40,8 @@ Cypress.Commands.add('cleanUpPreviousState', () => {
     }
 
     return cy.request(`http://${new URL(Cypress.config('baseUrl')).hostname}:8005/cleanup`)
+        // ToDo: Remove when cypress issue #5150 is released:
+        //  https://github.com/cypress-io/cypress/pull/5150/files
         .its('body').should('eq', 'success');
 });
 

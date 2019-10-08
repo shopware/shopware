@@ -99,8 +99,6 @@ class ProductRatingAverageIndexer implements IndexerInterface, EventSubscriberIn
 
     public function partial(?array $lastId, \DateTimeInterface $timestamp): ?array
     {
-        $context = Context::createDefaultContext();
-
         $iterator = $this->iteratorFactory->createIterator($this->productDefinition, $lastId);
 
         $ids = $iterator->fetch();
@@ -108,7 +106,7 @@ class ProductRatingAverageIndexer implements IndexerInterface, EventSubscriberIn
             return null;
         }
 
-        $this->update($ids, []);
+        $this->update(Uuid::fromHexToBytesList($ids), []);
 
         return $iterator->getOffset();
     }

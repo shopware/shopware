@@ -330,6 +330,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $detailPath = $this->getResourceUri($definition) . '/' . $uuid;
 
         $extensions = [];
+        $extensionRelationships = [];
 
         $apiSource = $forSalesChannel ? SalesChannelApiSource::class : AdminApiSource::class;
         /** @var Field $field */
@@ -398,7 +399,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                     continue;
                 }
 
-                $relationships[$extension->getPropertyName()] = $extensionAttributes[$extension->getPropertyName()];
+                $extensionRelationships[$extension->getPropertyName()] = $extensionAttributes[$extension->getPropertyName()];
             }
         }
 
@@ -461,6 +462,20 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             }
 
             $attributes[$property] = ['$ref' => '#/components/schemas/' . $entity . '_flat'];
+        }
+
+        foreach ($extensionRelationships as $property => $relationship) {
+            $relationshipData = $relationship['properties']['data'];
+            $type = $relationshipData['type'];
+            $entity = '';
+
+            if ($type === 'object') {
+                $entity = $relationshipData['properties']['type']['example'];
+            } elseif ($type === 'array') {
+                $entity = $relationshipData['items']['properties']['type']['example'];
+            }
+
+            $attributes['extensions']['properties'][$property] = ['$ref' => '#/components/schemas/' . $entity . '_flat'];
         }
 
         $schema[$schemaName . '_flat'] = [
@@ -580,7 +595,17 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                     'content' => [
                         'application/vnd.api+json' => [
                             'schema' => [
-                                '$ref' => '#/components/schemas/' . $definition->getEntityName(),
+                                'type' => 'object',
+                                'properties' => [
+                                    'data' => [
+                                        '$ref' => '#/components/schemas/' . $definition->getEntityName(),
+                                    ],
+                                    'included' => [
+                                        'type' => 'array',
+                                        'items' => ['$ref' => '#/components/schemas/resource'],
+                                        'uniqueItems' => true,
+                                    ],
+                                ],
                             ],
                         ],
                         'application/json' => [
@@ -620,7 +645,22 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                     'content' => [
                         'application/vnd.api+json' => [
                             'schema' => [
-                                '$ref' => '#/components/schemas/' . $definition->getEntityName(),
+                                'type' => 'object',
+                                'properties' => [
+                                    'data' => [
+                                        '$ref' => '#/components/schemas/' . $definition->getEntityName(),
+                                    ],
+                                    'included' => [
+                                        'type' => 'array',
+                                        'items' => ['$ref' => '#/components/schemas/resource'],
+                                        'uniqueItems' => true,
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'application/json' => [
+                            'schema' => [
+                                '$ref' => '#/components/schemas/' . $definition->getEntityName() . '_flat',
                             ],
                         ],
                     ],

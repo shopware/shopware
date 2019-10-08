@@ -49,6 +49,12 @@
 
     td.sw-license-violation__table-actions {
         text-align: right;
+
+        div.sw-license-violation__table-actions-wrap {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
     }
 
     .sw-license-violation__table-action-remove {

@@ -36,10 +36,12 @@
                 </template>
             </td>
 
-            <td>{{ violation.text }}</td>
+            <td>{{ violation.extensions.licenseViolation.text }}</td>
 
             <td class="sw-license-violation__table-actions">
-                <div v-for="action in violation.actions" :key="action.externalLink">
+                <div v-for="action in violation.extensions.licenseViolation.actions"
+                     :key="action.externalLink"
+                     class="sw-license-violation__table-actions-wrap">
                     <a class="sw-license-violation__table-action-remove"
                        href="#"
                        @click.prevent="deletePlugin(violation)">

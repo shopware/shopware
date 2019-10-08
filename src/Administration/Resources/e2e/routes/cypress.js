@@ -4,7 +4,7 @@ const childProcess = require('child_process');
 const app = express();
 
 app.get('/cleanup', (req, res) => {
-    return childProcess.exec('./psh.phar e2e:cleanup', (err, stdin, stderr) => {
+    return childProcess.exec('./psh.phar e2e:cleanup', { maxBuffer: 2000 * 1024 }, (err, stdin, stderr) => {
         if (err) {
             console.log('stderr: ', stderr);
 

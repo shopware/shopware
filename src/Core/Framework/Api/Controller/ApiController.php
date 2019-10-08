@@ -99,12 +99,12 @@ class ApiController extends AbstractController
     /**
      * @Route("/api/v{version}/_search", name="api.composite.search", methods={"GET"}, requirements={"version"="\d+"})
      */
-    public function compositeSearch(Request $request, Context $context): JsonResponse
+    public function compositeSearch(Request $request, Context $context, int $version): JsonResponse
     {
         $term = $request->query->get('term');
         $limit = $request->query->getInt('limit', 5);
 
-        $result = $this->compositeEntitySearcher->search($term, $limit, $context);
+        $result = $this->compositeEntitySearcher->search($term, $limit, $context, $version);
 
         $result = json_decode(json_encode($result), true);
 
@@ -118,9 +118,10 @@ class ApiController extends AbstractController
      *
      * @throws DefinitionNotFoundException
      */
-    public function clone(Context $context, string $entity, string $id): JsonResponse
+    public function clone(Context $context, string $entity, string $id, int $version): JsonResponse
     {
         $entity = $this->urlToSnakeCase($entity);
+        $this->checkIfRouteAvailableInApiVersion($entity, $version);
 
         $definition = $this->definitionRegistry->getByEntityName($entity);
         $this->validateAclPermissions($context, $definition, AclResourceDefinition::PRIVILEGE_CREATE);
@@ -145,8 +146,11 @@ class ApiController extends AbstractController
      * @throws InvalidUuidException
      * @throws InvalidVersionNameException
      */
-    public function createVersion(Request $request, Context $context, string $entity, string $id): Response
+    public function createVersion(Request $request, Context $context, string $entity, string $id, int $version): Response
     {
+        $entity = $this->urlToSnakeCase($entity);
+        $this->checkIfRouteAvailableInApiVersion($entity, $version);
+
         $versionId = $request->query->get('versionId');
         $versionName = $request->query->get('versionName');
 
@@ -181,8 +185,11 @@ class ApiController extends AbstractController
      *
      * @throws InvalidUuidException
      */
-    public function mergeVersion(Context $context, string $entity, string $versionId): JsonResponse
+    public function mergeVersion(Context $context, string $entity, string $versionId, int $version): JsonResponse
     {
+        $entity = $this->urlToSnakeCase($entity);
+        $this->checkIfRouteAvailableInApiVersion($entity, $version);
+
         if (!Uuid::isValid($versionId)) {
             throw new InvalidUuidException($versionId);
         }
@@ -955,5 +962,12 @@ class ApiController extends AbstractController
         }
 
         return $definition;
+    }
+
+    private function checkIfRouteAvailableInApiVersion(string $entity, int $version): void
+    {
+        if (!$this->converterService->isAllowed($entity, null, $version)) {
+            throw new NotFoundHttpException();
+        }
     }
 }

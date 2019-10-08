@@ -78,7 +78,7 @@ class JsonEntityEncoder
                 continue;
             }
 
-            if (!$this->converterService->isFieldInResponseAllowed($definition->getEntityName(), $key, $apiVersion)) {
+            if (!$this->converterService->isAllowed($definition->getEntityName(), $key, $apiVersion)) {
                 unset($decoded[$key]);
 
                 continue;

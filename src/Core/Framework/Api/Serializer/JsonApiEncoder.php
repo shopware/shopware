@@ -163,7 +163,7 @@ class JsonApiEncoder
                 continue;
             }
 
-            if (!$this->converterService->isFieldInResponseAllowed($definition->getEntityName(), $propertyName, $result->getApiVersion())) {
+            if (!$this->converterService->isAllowed($definition->getEntityName(), $propertyName, $result->getApiVersion())) {
                 continue;
             }
 

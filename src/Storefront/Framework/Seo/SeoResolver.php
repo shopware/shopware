@@ -19,7 +19,7 @@ class SeoResolver implements SeoResolverInterface
 
     public function resolveSeoPath(string $languageId, string $salesChannelId, string $pathInfo): array
     {
-        $seoPathInfo = trim($pathInfo, '/');
+        $seoPathInfo = ltrim($pathInfo, '/');
         if ($seoPathInfo === '') {
             return ['pathInfo' => '/', 'isCanonical' => false];
         }
@@ -56,15 +56,15 @@ class SeoResolver implements SeoResolverInterface
                 ->setParameter('language_id', Uuid::fromHexToBytes($languageId))
                 ->setParameter('sales_channel_id', Uuid::fromHexToBytes($salesChannelId))
                 ->setParameter('id', $seoPath['id'] ?? '')
-                ->setParameter('pathInfo', '/' . trim($seoPath['pathInfo'], '/'));
+                ->setParameter('pathInfo', '/' . ltrim($seoPath['pathInfo'], '/'));
 
             $canonical = $query->execute()->fetch();
             if ($canonical) {
-                $seoPath['canonicalPathInfo'] = '/' . trim($canonical['seoPathInfo'], '/');
+                $seoPath['canonicalPathInfo'] = '/' . ltrim($canonical['seoPathInfo'], '/');
             }
         }
 
-        $seoPath['pathInfo'] = '/' . trim($seoPath['pathInfo'], '/') . '/';
+        $seoPath['pathInfo'] = '/' . ltrim($seoPath['pathInfo'], '/');
 
         return $seoPath;
     }

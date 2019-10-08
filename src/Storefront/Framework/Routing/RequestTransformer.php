@@ -222,7 +222,7 @@ class RequestTransformer implements RequestTransformerInterface
 
     private function resolveSeoUrl(Request $request, string $baseUrl, string $languageId, string $salesChannelId): array
     {
-        $seoPathInfo = rtrim($request->getPathInfo(), '/') . '/';
+        $seoPathInfo = $request->getPathInfo();
 
         // only remove full base url not part
         // registered domain: 'shop-dev.de/de'
@@ -238,7 +238,7 @@ class RequestTransformer implements RequestTransformerInterface
         $resolved = (new SeoResolver($this->connection))
             ->resolveSeoPath($languageId, $salesChannelId, $seoPathInfo);
 
-        $resolved['pathInfo'] = '/' . trim($resolved['pathInfo'], '/');
+        $resolved['pathInfo'] = '/' . ltrim($resolved['pathInfo'], '/');
 
         return $resolved;
     }

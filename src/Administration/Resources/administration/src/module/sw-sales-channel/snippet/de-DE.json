@@ -1,9 +1,4 @@
 {
-  "global": {
-    "error-codes": {
-      "DUPLICATED_PRODUCT_EXPORT_FILE_NAME": "Dieser Dateiname wird bereits verwendet. Bitte wähle einen anderen aus."
-    }
-  },
   "sw-sales-channel": {
     "general": {
       "titleMenuItems": "Verkaufskanäle"
@@ -29,10 +24,6 @@
       "buttonCreateNewApiKeys": "API-Zugangsdaten neu generieren",
       "tabBase": "Allgemein",
       "tabTheme": "Theme",
-      "tabProductComparison": "Template",
-      "titleProductComparisonTemplate": "Template",
-      "titleProductComparisonPreview": "Vorschau",
-      "titleProductComparisonPreviewErrors": "Fehler bei der Generierung",
       "labelAccessKeyField": "API-Zugangs-ID",
       "titleAPIError": "Fehler",
       "messageAPIError": "Der API-Schlüssel konnte nicht generiert werden.",
@@ -79,74 +70,7 @@
       "navigationCategoryId": "Einstiegspunkt Hauptnavigation",
       "navigationCategoryHelpText": "Für diesen Einstiegspunkt können keine Kategorien des Typs \"benutzerdefinierter Link\" oder \"Strukturkategorie\" ausgewählt werden.",
       "footerCategory": "Einstiegspunkt Footernavigation",
-      "serviceCategory": "Einstiegspunkt Servicenavigation",
-      "productComparison": {
-        "inputHeaderLabel": "Kopfzeile",
-        "inputBodyLabel": "Produktzeile",
-        "inputFooterLabel": "Fußzeile",
-        "buttonTestLabel": "Template testen",
-        "buttonPreviewLabel": "Vorschau generieren",
-        "settings": "Produktexport",
-        "fileName": "Dateiname",
-        "placeholderFileName": "shopware.csv",
-        "lastGenerationLabel": "Zeitpunkt der letzten Generierung: ",
-        "notYetGenerated": "Dieser Export wurde bisher noch nicht generiert.",
-        "encoding": "Encoding",
-        "placeholderSelectEncoding": "Wähle ein Encoding aus... ",
-        "fileFormat": "Dateiformat",
-        "placeholderSelectFileFormat": "Wähle ein Dateiformat aus...",
-        "accessKey": "Zugangsschlüssel",
-        "accessUrl": "Export-URL",
-        "buttonCreateNewAccessKey": "Zugangsschlüssel neu generieren",
-        "productStream": "Dynamische Produktgruppe",
-        "fileFormatlabels": {
-          "csv": "CSV",
-          "xml": "XML"
-        },
-        "includeVariants": "Varianten einschließen",
-        "interval": "Generierungsintervall",
-        "generateByCronjob": "Per Scheduler generieren",
-        "notificationTitleValidateSuccessful": "Test erfolgreich",
-        "notificationMessageValidateSuccessful": "Keine Fehler gefunden",
-        "notificationTitleValidateError": "Test fehlerhaft",
-        "notificationTitlePreviewError": "Vorschau fehlerhaft",
-        "intervalLabels": {
-          "0": "Live",
-          "120": "2 Minuten",
-          "300": "5 Minuten",
-          "600": "10 Minuten",
-          "900": "15 Minuten",
-          "1800": "30 Minuten",
-          "3600": "1 Stunde",
-          "7200": "2 Stunden",
-          "14400": "4 Stunden",
-          "28800": "8 Stunden",
-          "43200": "12 Stunden",
-          "86400": "1 Tag",
-          "172800": "2 Tage",
-          "259200": "3 Tage",
-          "345600": "4 Tage",
-          "432000": "5 Tage",
-          "518400": "6 Tage",
-          "604800": "1 Woche"
-        },
-        "storefront": "Storefront-Verkaufskanal",
-        "storefrontDomain": "Storefront-Domain",
-        "storefrontDomainLanguage": {
-          "label": "Sprache",
-          "help": "Auf Basis der Storefront-Domain automatisch gewählt"
-        },
-        "storefrontDomainCurrency": {
-          "label": "Währung",
-          "help": "Auf Basis der Storefront-Domain automatisch gewählt"
-        },
-        "storefrontSalesChannelCustomerGroup": {
-          "label": "Kundengruppe",
-          "help": "Auf Basis des Storefront-Verkaufskanals automatisch gewählt"
-        },
-        "titleAccessKeyChanged": "Zugangsschlüssel geändert",
-        "messageAccessKeyChanged": "Der Zugangsschlüssel und die geänderte Export-URL werden erst nach dem Speichern aktiv."
-      }
+      "serviceCategory": "Einstiegspunkt Servicenavigation"
     }
   }
 }

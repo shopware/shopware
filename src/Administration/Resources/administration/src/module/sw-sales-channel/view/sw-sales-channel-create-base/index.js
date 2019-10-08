@@ -7,8 +7,5 @@ Component.extend('sw-sales-channel-create-base', 'sw-sales-channel-detail-base',
 
     created() {
         this.onGenerateKeys();
-        if (this.isProductComparison) {
-            this.onGenerateProductExportKey(false);
-        }
     }
 });

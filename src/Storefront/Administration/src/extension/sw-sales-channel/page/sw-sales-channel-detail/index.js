@@ -7,12 +7,24 @@ Component.override('sw-sales-channel-detail', {
     template,
 
     methods: {
-        getLoadSalesChannelCriteria() {
-            const criteria = this.$super.getLoadSalesChannelCriteria();
+        loadSalesChannel() {
+            const criteria = new Criteria();
 
+            criteria.addAssociation('paymentMethods');
+            criteria.addAssociation('shippingMethods');
+            criteria.addAssociation('countries');
+            criteria.addAssociation('currencies');
+            criteria.addAssociation('languages');
+            criteria.addAssociation('domains');
             criteria.addAssociation('themes');
 
-            return criteria;
+            this.isLoading = true;
+            this.salesChannelRepository
+                .get(this.$route.params.id, this.context, criteria)
+                .then((entity) => {
+                    this.salesChannel = entity;
+                    this.isLoading = false;
+                });
         }
     }
 });

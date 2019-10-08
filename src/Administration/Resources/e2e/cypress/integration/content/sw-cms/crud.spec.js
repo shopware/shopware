@@ -15,7 +15,7 @@ describe('CMS: Test crud operations of layouts', () => {
             });
     });
 
-    it.skip('@package @content: create and read layout', () => {
+    it('@package @content: create and read layout', () => {
         cy.server();
         cy.route({
             url: '/api/v1/cms-page',

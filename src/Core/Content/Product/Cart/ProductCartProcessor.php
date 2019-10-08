@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryTime;
 use Shopware\Core\Checkout\Cart\Exception\MissingLineItemPriceException;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\QuantityInformation;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
@@ -45,8 +46,12 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         $this->calculator = $calculator;
     }
 
-    public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
-    {
+    public function collect(
+        CartDataCollection $data,
+        Cart $original,
+        SalesChannelContext $context,
+        CartBehavior $behavior
+    ): void {
         $lineItems = $original
             ->getLineItems()
             ->filterFlatByType(LineItem::PRODUCT_LINE_ITEM_TYPE);
@@ -70,9 +75,18 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
     }
 
-    public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
-    {
+    /**
+     * @throws MissingLineItemPriceException
+     */
+    public function process(
+        CartDataCollection $data,
+        Cart $original,
+        Cart $toCalculate,
+        SalesChannelContext $context,
+        CartBehavior $behavior
+    ): void {
         // handle all products which stored in root level
+        /** @var LineItemCollection $lineItems */
         $lineItems = $original
             ->getLineItems()
             ->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE);
@@ -94,7 +108,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             /** @var ProductEntity $product */
             $product = $data->get('product-' . $lineItem->getReferencedId());
 
-            // container products can not be buyed
+            // container products can not be bought
             if ($product->getChildCount() > 0) {
                 $original->remove($lineItem->getId());
                 continue;
@@ -140,8 +154,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $product = $data->get($key);
 
-        /* @var ProductEntity $product */
-        if (!$product || !$product instanceof ProductEntity) {
+        if (!$product instanceof ProductEntity) {
             $cart->addErrors(new ProductNotFoundError($id));
             $cart->getLineItems()->remove($lineItem->getId());
 
@@ -159,10 +172,10 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             $lineItem->setCover($product->getCover()->getMedia());
         }
 
-        /* @var ProductEntity $product */
         $deliveryTime = null;
-        if ($product->getDeliveryTime()) {
-            $deliveryTime = DeliveryTime::createFromEntity($product->getDeliveryTime());
+        $productDeliveryTime = $product->getDeliveryTime();
+        if ($productDeliveryTime !== null) {
+            $deliveryTime = DeliveryTime::createFromEntity($productDeliveryTime);
         }
 
         $lineItem->setDeliveryInformation(
@@ -184,32 +197,41 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $quantityInformation = new QuantityInformation();
 
-        if ($product->getMinPurchase() > 0) {
-            $quantityInformation->setMinPurchase($product->getMinPurchase());
+        $productMinPurchase = $product->getMinPurchase();
+        if ($productMinPurchase > 0) {
+            $quantityInformation->setMinPurchase($productMinPurchase);
         }
 
         if ($product->getIsCloseout()) {
             $max = $product->getAvailableStock();
 
-            if ($product->getMaxPurchase() > 0 && $product->getMaxPurchase() < $max) {
-                $max = $product->getMaxPurchase();
+            $productMaxPurchase = $product->getMaxPurchase();
+            if ($productMaxPurchase > 0 && $productMaxPurchase < $max) {
+                $max = $productMaxPurchase;
             }
 
             $quantityInformation->setMaxPurchase($max);
         }
 
-        if ($product->getPurchaseSteps() > 0) {
-            $quantityInformation->setPurchaseSteps($product->getPurchaseSteps());
+        $productPurchaseSteps = $product->getPurchaseSteps();
+        if ($productPurchaseSteps > 0) {
+            $quantityInformation->setPurchaseSteps($productPurchaseSteps);
         }
 
         $lineItem->setQuantityInformation($quantityInformation);
+
+        $options = [];
+        $productOptions = $product->getOptions();
+        if ($productOptions !== null) {
+            $options = $productOptions->getElements();
+        }
 
         $lineItem->replacePayload([
             'tags' => $product->getTagIds(),
             'categories' => $product->getCategoryTree(),
             'properties' => $product->getPropertyIds(),
             'productNumber' => $product->getProductNumber(),
-            'options' => $product->getOptions() !== null ? $product->getOptions()->getElements() : [],
+            'options' => $options,
         ]);
 
         if ($product->hasExtension('canonicalUrl')) {

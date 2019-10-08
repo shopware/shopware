@@ -19,9 +19,9 @@ class LineItemTest extends TestCase
     {
         $lineItem = new LineItem('A', 'type');
 
-        static::assertEquals('A', $lineItem->getId());
-        static::assertEquals('type', $lineItem->getType());
-        static::assertEquals(1, $lineItem->getQuantity());
+        static::assertSame('A', $lineItem->getId());
+        static::assertSame('type', $lineItem->getType());
+        static::assertSame(1, $lineItem->getQuantity());
     }
 
     /**
@@ -53,7 +53,7 @@ class LineItemTest extends TestCase
         $lineItem = new LineItem('A', 'type');
         $lineItem->setStackable(true);
         $lineItem->setQuantity(5);
-        static::assertEquals(5, $lineItem->getQuantity());
+        static::assertSame(5, $lineItem->getQuantity());
     }
 
     /**
@@ -66,7 +66,7 @@ class LineItemTest extends TestCase
         $lineItem = new LineItem('A', 'type');
         $lineItem->setStackable(false);
         $lineItem->setQuantity(5);
-        static::assertEquals(1, $lineItem->getQuantity());
+        static::assertSame(1, $lineItem->getQuantity());
     }
 
     /**
@@ -91,30 +91,30 @@ class LineItemTest extends TestCase
 
         $lineItem->setQuantity(2);
 
-        static::assertEquals(2, $lineItem->getQuantity());
-        static::assertEquals(6, $child1->getQuantity());
-        static::assertEquals(4, $child2->getQuantity());
-        static::assertEquals(2, $child3->getQuantity());
-        static::assertEquals(10, $child4->getQuantity());
-        static::assertEquals(20, $child5->getQuantity());
+        static::assertSame(2, $lineItem->getQuantity());
+        static::assertSame(6, $child1->getQuantity());
+        static::assertSame(4, $child2->getQuantity());
+        static::assertSame(2, $child3->getQuantity());
+        static::assertSame(10, $child4->getQuantity());
+        static::assertSame(20, $child5->getQuantity());
 
         $lineItem->setQuantity(3);
 
-        static::assertEquals(3, $lineItem->getQuantity());
-        static::assertEquals(9, $child1->getQuantity());
-        static::assertEquals(6, $child2->getQuantity());
-        static::assertEquals(3, $child3->getQuantity());
-        static::assertEquals(15, $child4->getQuantity());
-        static::assertEquals(30, $child5->getQuantity());
+        static::assertSame(3, $lineItem->getQuantity());
+        static::assertSame(9, $child1->getQuantity());
+        static::assertSame(6, $child2->getQuantity());
+        static::assertSame(3, $child3->getQuantity());
+        static::assertSame(15, $child4->getQuantity());
+        static::assertSame(30, $child5->getQuantity());
 
         $lineItem->setQuantity(1);
 
-        static::assertEquals(1, $lineItem->getQuantity());
-        static::assertEquals(3, $child1->getQuantity());
-        static::assertEquals(2, $child2->getQuantity());
-        static::assertEquals(1, $child3->getQuantity());
-        static::assertEquals(5, $child4->getQuantity());
-        static::assertEquals(10, $child5->getQuantity());
+        static::assertSame(1, $lineItem->getQuantity());
+        static::assertSame(3, $child1->getQuantity());
+        static::assertSame(2, $child2->getQuantity());
+        static::assertSame(1, $child3->getQuantity());
+        static::assertSame(5, $child4->getQuantity());
+        static::assertSame(10, $child5->getQuantity());
     }
 
     /**
@@ -143,36 +143,37 @@ class LineItemTest extends TestCase
 
         $lineItem->setQuantity(2);
 
-        static::assertEquals(2, $lineItem->getQuantity());
-        static::assertEquals(6, $child1->getQuantity());
-        static::assertEquals(2, $child2->getQuantity());
-        static::assertEquals(1, $child3->getQuantity());
-        static::assertEquals(5, $child4->getQuantity());
-        static::assertEquals(10, $child5->getQuantity());
+        static::assertSame(2, $lineItem->getQuantity());
+        static::assertSame(6, $child1->getQuantity());
+        static::assertSame(2, $child2->getQuantity());
+        static::assertSame(1, $child3->getQuantity());
+        static::assertSame(5, $child4->getQuantity());
+        static::assertSame(10, $child5->getQuantity());
 
         $lineItem->setQuantity(3);
 
-        static::assertEquals(3, $lineItem->getQuantity());
-        static::assertEquals(9, $child1->getQuantity());
-        static::assertEquals(2, $child2->getQuantity());
-        static::assertEquals(1, $child3->getQuantity());
-        static::assertEquals(5, $child4->getQuantity());
-        static::assertEquals(10, $child5->getQuantity());
+        static::assertSame(3, $lineItem->getQuantity());
+        static::assertSame(9, $child1->getQuantity());
+        static::assertSame(2, $child2->getQuantity());
+        static::assertSame(1, $child3->getQuantity());
+        static::assertSame(5, $child4->getQuantity());
+        static::assertSame(10, $child5->getQuantity());
 
         $lineItem->setQuantity(1);
 
-        static::assertEquals(1, $lineItem->getQuantity());
-        static::assertEquals(3, $child1->getQuantity());
-        static::assertEquals(2, $child2->getQuantity());
-        static::assertEquals(1, $child3->getQuantity());
-        static::assertEquals(5, $child4->getQuantity());
-        static::assertEquals(10, $child5->getQuantity());
+        static::assertSame(1, $lineItem->getQuantity());
+        static::assertSame(3, $child1->getQuantity());
+        static::assertSame(2, $child2->getQuantity());
+        static::assertSame(1, $child3->getQuantity());
+        static::assertSame(5, $child4->getQuantity());
+        static::assertSame(10, $child5->getQuantity());
     }
 
     /**
      * @throws InvalidChildQuantityException
-     * @throws MixedLineItemTypeException
      * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
      */
     public function testAddChildrenToLineItemWithInvalidQuantity(): void
     {
@@ -191,7 +192,6 @@ class LineItemTest extends TestCase
 
     /**
      * @throws InvalidChildQuantityException
-     * @throws MixedLineItemTypeException
      * @throws InvalidQuantityException
      */
     public function testSetChildrenToLineItemWithInvalidQuantity(): void
@@ -205,5 +205,42 @@ class LineItemTest extends TestCase
         $this->expectException(InvalidChildQuantityException::class);
 
         $lineItem->setChildren(new LineItemCollection([$child1, $child2, $child3]));
+    }
+
+    /**
+     * @throws InvalidChildQuantityException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
+     */
+    public function testAddChildToLineItemWithQuantity1(): void
+    {
+        $lineItem = new LineItem('abc', 'type', null, 5);
+
+        $child = new LineItem('123', 'child');
+
+        $lineItem->addChild($child);
+
+        $childTest = $lineItem->getChildren()->first();
+        static::assertNotNull($childTest);
+        static::assertSame(1, $childTest->getQuantity());
+        static::assertSame(5, $lineItem->getQuantity());
+    }
+
+    /**
+     * @throws InvalidChildQuantityException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
+     */
+    public function testAddChildToLineItemWithQuantity1AndParentStackable(): void
+    {
+        $lineItem = new LineItem('abc', 'type', null, 5);
+        $lineItem->setStackable(true);
+
+        $child = new LineItem('123', 'child');
+
+        $this->expectException(InvalidChildQuantityException::class);
+        $lineItem->addChild($child);
     }
 }

@@ -628,6 +628,7 @@
     "reload": "Reload",
     "alert-text": "We have detected a license violation for at least one of your plugins in this installation. To fix the license violation and avoid legal consequences, book the plugin subscription after or buy/rent the plugin (depending on the type of violation). You are not using the plugin anymore? Then delete it completely from the Plugin Manager. If none of these measure are taken, shopware AG reserves the right to charge for the license violation.",
     "delete-plugin": "Delete plugin permanently",
+    "message-delete-confirm": "Do you want to completely delete the plugin \"{pluginName} \"?",
     "checkbox-message": "I have taken this message to notice",
     "close-modal": "Close notification",
     "ignore-plugin": "Ignore permanently",

@@ -65,17 +65,22 @@ export default function createLicenseViolationsService(storeService) {
                     return Promise.reject();
                 }
 
-                saveViolationsToCache(response);
+                const licenseViolations = response.filter((i) => i.extensions.licenseViolation);
 
-                return handleResponse(response);
+                saveViolationsToCache(licenseViolations);
+
+                return handleResponse(licenseViolations);
             });
     }
 
     function handleResponse(response) {
         const resolveData = {
-            violations: response.filter((violation) => violation.type.level === 'violation'),
-            warnings: response.filter((violation) => violation.type.level === 'warning'),
-            other: response.filter((violation) => violation.type.level !== 'violation' && violation.type.level !== 'warning')
+            violations: response.filter((violation) => violation.extensions.licenseViolation.type.level === 'violation'),
+            warnings: response.filter((violation) => violation.extensions.licenseViolation.type.level === 'warning'),
+            other: response.filter((violation) => {
+                return violation.extensions.licenseViolation.type.level !== 'violation'
+                    && violation.extensions.licenseViolation.type.level !== 'warning';
+            })
         };
 
         if (isTimeExpired(lastLicenseWarningsKey)) {
@@ -167,7 +172,8 @@ export default function createLicenseViolationsService(storeService) {
         }
     }
 
-    function spawnNotification(warning) {
+    function spawnNotification(plugin) {
+        const warning = plugin.extensions.licenseViolation;
         const notificationActions = warning.actions.map((action) => {
             return {
                 label: action.label,
@@ -181,7 +187,7 @@ export default function createLicenseViolationsService(storeService) {
         };
 
         getApplicationRootReference().$store.dispatch('notification/createGrowlNotification', {
-            title: warning.name,
+            title: plugin.label,
             message: warning.text,
             autoClose: false,
             variant: 'warning',

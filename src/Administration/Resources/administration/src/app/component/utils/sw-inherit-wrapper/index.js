@@ -110,7 +110,12 @@ Component.register('sw-inherit-wrapper', {
             },
 
             set(newValue) {
-                this.removeInheritance(newValue);
+                if (this.isInherited) {
+                    this.removeInheritance(newValue);
+                    return;
+                }
+
+                this.updateValue(newValue);
             }
         },
 

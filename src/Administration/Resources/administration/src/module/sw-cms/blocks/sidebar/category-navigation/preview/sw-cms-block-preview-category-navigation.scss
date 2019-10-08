@@ -7,15 +7,16 @@
     color: $color-darkgray-200;
     font-weight: 600;
     border-radius: 5px;
+    padding: 20px 20px;
 
     .sw-cms-block-category-placeholder-listing div {
-        margin: 10px 30px;
+        margin: 10px 0;
         height: 0.7em;
         border-radius: 4px;
         background-color: $color-gray-100;
 
         &.sw-cms-block-category-navigation__placeholder--subcategory {
-            margin: 7px 30px 7px 70px;
+            margin: 7px 0 7px 30px;
         }
     }
 
@@ -23,9 +24,5 @@
         max-width: 90%;
         margin: 10px auto;
         border: 1px solid $color-steam-cloud;
-    }
-
-    p {
-        margin: auto 10px;
     }
 }

@@ -1,5 +1,9 @@
 {% block sw_data_grid_slot_pagination %}
-    <sw-pagination :page="page" :limit="limit" :total="total" :total-visible="7" @page-change="paginate" />
+    <sw-pagination
+        v-bind="{ page, limit, total }"
+        :total-visible="7"
+        @page-change="paginate">
+    </sw-pagination>
 {% endblock %}
 
 {% block sw_data_grid_slot_actions %}

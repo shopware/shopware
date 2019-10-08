@@ -71,8 +71,8 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
                 this.total = result.length;
             }
 
-            this.page = result.criteria.page;
-            this.limit = result.criteria.limit;
+            this.page = result.criteria.page || this.page;
+            this.limit = result.criteria.limit || this.limit;
         },
 
         save(record) {
@@ -128,11 +128,13 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
             }
 
             this.result.criteria.addSorting(
-                Criteria.sort(column.dataIndex, direction)
+                Criteria.sort(column.dataIndex, direction, !!column.naturalSorting)
             );
 
             this.currentSortBy = column.dataIndex;
             this.currentSortDirection = direction;
+            this.currentNaturalSorting = !!column.naturalSorting;
+
             return this.load();
         },
 

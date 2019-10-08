@@ -12,6 +12,10 @@
     {% set filterRangeActiveMaxLabel = 'listing.filterRangeActiveMaxLabel'|trans %}
 {% endif %}
 
+{% if filterRangeErrorMessage is not defined %}
+    {% set filterRangeErrorMessage = 'listing.filterRangeErrorMessage'|trans %}
+{% endif %}
+
 {% block component_filter_range %}
     <div class="filter-range filter-panel-item{% if not sidebar %} dropdown{% endif %}"
          data-filter-range="true"
@@ -22,7 +26,8 @@
              "currencySymbol": "{{ currencySymbol }}",
              "snippets": {
                 "filterRangeActiveMinLabel": "{{ filterRangeActiveMinLabel }}",
-                "filterRangeActiveMaxLabel": "{{ filterRangeActiveMaxLabel }}"
+                "filterRangeActiveMaxLabel": "{{ filterRangeActiveMaxLabel }}",
+                "filterRangeErrorMessage": "{{ filterRangeErrorMessage }}"
              }
          }'>
 

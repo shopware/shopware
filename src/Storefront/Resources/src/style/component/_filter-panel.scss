@@ -62,7 +62,8 @@ This file contains the generic styling for all filter items.
 }
 
 .filter-active {
-    display: inline-flex;
+    @include text-truncate();
+    display: inline-block;
     align-items: center;
     padding: 2px 35px 2px 14px;
     border-radius: 50px;
@@ -73,6 +74,7 @@ This file contains the generic styling for all filter items.
     margin-bottom: 8px;
     vertical-align: top;
     position: relative;
+    max-width: 245px;
 }
 
 .filter-active-preview {
@@ -84,6 +86,7 @@ This file contains the generic styling for all filter items.
     margin-right: 8px;
     background-position: center center;
     background-size: cover;
+    vertical-align: text-bottom;
 }
 
 .filter-active-remove {
@@ -115,7 +118,7 @@ This file contains the generic styling for all filter items.
 }
 
 .btn.filter-reset-all {
-    display: inline-flex;
+    display: inline-block;
     border-radius: 50px;
     height: 32px;
     line-height: 26px;

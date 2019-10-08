@@ -16,6 +16,12 @@ This filter item should only be used inside a filter panel.
     padding: 16px;
 }
 
+.filter-range-error {
+    padding: 0 16px 16px;
+    font-size: 13px;
+    color: $danger;
+}
+
 .filter-range-min,
 .filter-range-max {
     width: calc(50% - 14px);

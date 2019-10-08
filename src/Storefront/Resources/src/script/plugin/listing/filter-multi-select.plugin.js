@@ -91,10 +91,13 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
 
                     if (checkboxEl) {
                         checkboxEl.checked = true;
+                        this.selection.push(checkboxEl.id);
                     }
                 });
             }
         });
+
+        this._updateCount();
 
         return stateChanged;
     }

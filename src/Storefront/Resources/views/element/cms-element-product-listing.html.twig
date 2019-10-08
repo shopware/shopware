@@ -56,18 +56,31 @@
 
             {% block element_product_listing_row %}
                 <div class="row cms-listing-row js-listing-wrapper">
-                    {% block element_product_listing_col %}
-                        {% for product in searchResult %}
-                            <div class="cms-listing-col {{ listingColumns }}">
-                                {% block element_product_listing_box %}
-                                    {% sw_include '@Storefront/component/product/card/box.html.twig' with {
-                                        'layout': element.translated.config.boxLayout.value,
-                                        'displayMode': element.translated.config.displayMode.value
+                    {% if searchResult.total > 0 %}
+                        {% block element_product_listing_col %}
+                            {% for product in searchResult %}
+                                <div class="cms-listing-col {{ listingColumns }}">
+                                    {% block element_product_listing_box %}
+                                        {% sw_include '@Storefront/component/product/card/box.html.twig' with {
+                                            'layout': element.translated.config.boxLayout.value,
+                                            'displayMode': element.translated.config.displayMode.value
+                                        } %}
+                                    {% endblock %}
+                                </div>
+                            {% endfor %}
+                        {% endblock %}
+                    {% else %}
+                        {% block element_product_listing_col_empty %}
+                            <div class="cms-listing-col col-12">
+                                {% block element_product_listing_col_empty_alert %}
+                                    {% sw_include '@Storefront/utilities/alert.html.twig' with {
+                                        type: 'info',
+                                        content: 'listing.emptyResultMessage'|trans
                                     } %}
                                 {% endblock %}
                             </div>
-                        {% endfor %}
-                    {% endblock %}
+                        {% endblock %}
+                    {% endif %}
                 </div>
             {% endblock %}
 

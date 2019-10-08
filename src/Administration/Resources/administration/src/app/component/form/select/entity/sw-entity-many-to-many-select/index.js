@@ -281,7 +281,7 @@ Component.register('sw-entity-many-to-many-select', {
                 newEntityCollection.push(deepCopyObject(entity));
             });
 
-            /** @dprecated Html select don't have an onInput event */
+            /** @deprecated Html select don't have an onInput event */
             this.$emit('input', newEntityCollection);
             this.$emit('change', newEntityCollection);
         },

@@ -268,14 +268,14 @@ Component.register('sw-entity-single-select', {
             // This is a little against v-model. But so we dont need to load the selected item on every selection
             // from the server
             this.lastSelection = item;
-            /** @dprecated Html select don't have an onInput event */
+            /** @deprecated Html select don't have an onInput event */
             this.$emit('input', item.id, item);
             this.$emit('change', item.id, item);
         },
 
         clearSelection() {
             this.$emit('before-selection-clear', this.singleSelection, this.value);
-            /** @dprecated Html select don't have an onInput event */
+            /** @deprecated Html select don't have an onInput event */
             this.$emit('input', null);
             this.$emit('change', null);
         },

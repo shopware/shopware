@@ -30,11 +30,7 @@ class ErdDefinition
 
     public function isSpecialType(): bool
     {
-        if ($this->isMapping() || $this->isTranslation()) {
-            return true;
-        }
-
-        return false;
+        return $this->isMapping() || $this->isTranslation();
     }
 
     public function isMapping(): bool

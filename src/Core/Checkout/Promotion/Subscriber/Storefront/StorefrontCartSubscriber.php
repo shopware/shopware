@@ -176,11 +176,7 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
         $discountId = $lineItem->getPayloadValue('discountId');
 
         $removeThisDiscounts = $lineItems->filter(function ($lineItem) use ($discountId) {
-            if ($lineItem->hasPayloadValue('discountId') && $lineItem->getPayloadValue('discountId') === $discountId) {
-                return true;
-            }
-
-            return false;
+            return $lineItem->hasPayloadValue('discountId') && $lineItem->getPayloadValue('discountId') === $discountId;
         });
 
         foreach ($removeThisDiscounts as $discountItem) {

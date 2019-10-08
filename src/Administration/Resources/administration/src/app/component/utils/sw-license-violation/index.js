@@ -26,7 +26,9 @@ Shopware.Component.register('sw-license-violation', {
             licenseSubscription: null,
             showViolation: false,
             readNotice: false,
-            loading: []
+            loading: [],
+            showDeleteModal: false,
+            deletePluginItem: null
         };
     },
 
@@ -133,6 +135,19 @@ Shopware.Component.register('sw-license-violation', {
         },
 
         deletePlugin(violation) {
+            this.deletePluginItem = violation;
+            this.showDeleteModal = true;
+        },
+
+        onCloseDeleteModal() {
+            this.deletePluginItem = null;
+            this.showDeleteModal = false;
+        },
+
+        onConfirmDelete() {
+            const violation = this.deletePluginItem;
+
+            this.showDeleteModal = false;
             this.addLoading('deletePlugin');
 
             const matchingPlugin = this.plugins.find((plugin) => plugin.name === violation.name);

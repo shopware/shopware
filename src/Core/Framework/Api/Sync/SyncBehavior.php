@@ -9,13 +9,21 @@ class SyncBehavior
      */
     protected $failOnError;
 
-    public function __construct(bool $failOnError)
+    protected $apiVersion;
+
+    public function __construct(bool $failOnError, int $apiVersion)
     {
         $this->failOnError = $failOnError;
+        $this->apiVersion = $apiVersion;
     }
 
     public function failOnError(): bool
     {
         return $this->failOnError;
+    }
+
+    public function getApiVersion(): int
+    {
+        return $this->apiVersion;
     }
 }

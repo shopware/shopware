@@ -6,8 +6,14 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Event\LineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\LineItemQuantityChangedEvent;
 use Shopware\Core\Checkout\Cart\Event\LineItemRemovedEvent;
+use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
@@ -24,15 +30,9 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
      */
     private $session;
 
-    /**
-     * @var CartService
-     */
-    private $cartService;
-
-    public function __construct(Session $session, CartService $cartService)
+    public function __construct(Session $session)
     {
         $this->session = $session;
-        $this->cartService = $cartService;
     }
 
     public static function getSubscribedEvents(): array
@@ -60,7 +60,7 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
             /** @var string|null $code */
             $code = $event->getLineItem()->getReferencedId();
 
-            if (!empty($code)) {
+            if ($code !== null && $code !== '') {
                 $this->addToSession($code);
             }
         }
@@ -100,7 +100,7 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
             /** @var string|null $code */
             $code = $lineItem->getReferencedId();
 
-            if (!empty($code)) {
+            if ($code !== null && $code !== '') {
                 $this->checkFixedDiscountItems($cart, $lineItem);
                 $this->removeFromSession($code);
             }
@@ -116,42 +116,38 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
      * Thus it will re-add promotions that have been added before
      * and where not explicitly removed by the user.
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
      */
     private function reAddPromotionsFromSession(Cart $cart, SalesChannelContext $context): void
     {
-        /** @var array $allSessionCodes */
+        /** @var string[] $allSessionCodes */
         $allSessionCodes = $this->session->get(self::SESSION_KEY_PROMOTION_CODES);
 
-        if (count($allSessionCodes) <= 0) {
+        if (\count($allSessionCodes) <= 0) {
             return;
         }
 
-        /** @var array $codesInCart */
         $codesInCart = $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->getReferenceIds();
 
         $builder = new PromotionItemBuilder();
 
-        /** @var string $sessionCode */
         foreach ($allSessionCodes as $sessionCode) {
             // only add a new placeholder item if that
             // code is not already existing either as placeholder or real promotion item
-            if (!in_array($sessionCode, $codesInCart, true)) {
-                /** @var LineItem $lineItem */
+            if (!\in_array($sessionCode, $codesInCart, true)) {
                 $lineItem = $builder->buildPlaceholderItem($sessionCode, $context->getContext()->getCurrencyPrecision());
-                /* @var Cart $cart */
                 $cart->add($lineItem);
             }
         }
     }
 
     /**
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException
+     * @throws LineItemNotFoundException
+     * @throws LineItemNotRemovableException
+     * @throws PayloadKeyNotFoundException
      */
     private function checkFixedDiscountItems(Cart $cart, LineItem $lineItem): void
     {
@@ -172,10 +168,9 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var string $discountId */
         $discountId = $lineItem->getPayloadValue('discountId');
 
-        $removeThisDiscounts = $lineItems->filter(function ($lineItem) use ($discountId) {
+        $removeThisDiscounts = $lineItems->filter(static function (LineItem $lineItem) use ($discountId) {
             return $lineItem->hasPayloadValue('discountId') && $lineItem->getPayloadValue('discountId') === $discountId;
         });
 
@@ -186,7 +181,7 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
 
     /**
      * if a customer adds a promotion code it is stored in the session
-     * the promotion will be added each time if a change in cart occures
+     * the promotion will be added each time if a change in cart occurs
      * This ensures that is added and removed automatically if restrictions
      * of promotions fit or do not fit
      */
@@ -196,7 +191,7 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
         $allCodes = $this->session->get(self::SESSION_KEY_PROMOTION_CODES);
 
         // add our new item
-        if (!in_array($code, $allCodes, true)) {
+        if (!\in_array($code, $allCodes, true)) {
             $allCodes[] = $code;
         }
 
@@ -220,8 +215,7 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * Creates an empty session list if not
-     * already existing.
+     * Creates an empty session list if not already existing.
      */
     private function setupSession(): void
     {

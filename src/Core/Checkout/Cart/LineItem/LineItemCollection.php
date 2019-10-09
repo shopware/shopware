@@ -10,10 +10,11 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method LineItem[]    getIterator()
- * @method LineItem[]    getElements()
- * @method LineItem|null first()
- * @method LineItem|null last()
+ * @method LineItem[]         getIterator()
+ * @method LineItem[]         getElements()
+ * @method LineItem|null      first()
+ * @method LineItem|null      last()
+ * @method LineItemCollection filter(\Closure $closure)
  */
 class LineItemCollection extends Collection
 {

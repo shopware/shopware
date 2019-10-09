@@ -54,7 +54,7 @@ class UpdateSubscriber implements EventSubscriberInterface
         $this->themeLifecycleService->refreshThemes($context);
 
         $criteria = new Criteria();
-        $criteria->addAssociation('theme.salesChannels');
+        $criteria->addAssociation('salesChannels');
         $criteria->addFilter(new EqualsFilter('technicalName', 'Storefront'));
         /** @var ThemeEntity|null $theme */
         $theme = $this->themeRepository->search($criteria, $context)->first();
@@ -62,7 +62,7 @@ class UpdateSubscriber implements EventSubscriberInterface
             throw new \RuntimeException('Default theme not found');
         }
 
-        foreach ($theme->getSalesChannels()as $salesChannel) {
+        foreach ($theme->getSalesChannels() as $salesChannel) {
             $salesChannelId = $salesChannel->getId();
             $this->themeService->compileTheme($salesChannelId, $theme->getId(), $context);
         }

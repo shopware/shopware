@@ -70,7 +70,7 @@
                                   :value="currentValue"
                                   @change="updateCurrentValue">
                             <template #suffix>
-                                <span v-if="defaultCurrency">{{ defaultCurrency.symbol }}</span>
+                                <span class="sw-product-price-form__currency" v-if="defaultCurrency">{{ defaultCurrency.symbol }}</span>
                             </template>
                         </sw-field>
 

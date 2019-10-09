@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
@@ -242,6 +243,11 @@ class CustomerEntity extends Entity
      * @var PromotionCollection|null
      */
     protected $promotions;
+
+    /**
+     * @var CustomerRecoveryEntity|null
+     */
+    protected $recoveryCustomer;
 
     /**
      * @var array|null
@@ -697,6 +703,16 @@ class CustomerEntity extends Entity
     public function setProductReviews(?ProductReviewCollection $productReviews): void
     {
         $this->productReviews = $productReviews;
+    }
+
+    public function getRecoveryCustomer(): ?CustomerRecoveryEntity
+    {
+        return $this->recoveryCustomer;
+    }
+
+    public function setRecoveryCustomer(?CustomerRecoveryEntity $recoveryCustomer): void
+    {
+        $this->recoveryCustomer = $recoveryCustomer;
     }
 
     public function getAffiliateCode(): ?string

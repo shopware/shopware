@@ -3,8 +3,16 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
+use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
+use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
+use Shopware\Core\Checkout\Customer\Exception\CustomerRecoveryHashExpiredException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -100,5 +108,114 @@ class AuthController extends StorefrontController
         $data->set('password', null);
 
         return $this->forwardToRoute('frontend.account.login.page', ['loginError' => true]);
+    }
+
+    /**
+     * @Route("/account/recover", name="frontend.account.recover.page", methods={"GET"})
+     *
+     * @throws CategoryNotFoundException
+     * @throws InconsistentCriteriaIdsException
+     * @throws MissingRequestParameterException
+     */
+    public function recoverAccountForm(Request $request, SalesChannelContext $context): Response
+    {
+        $page = $this->loginPageLoader->load($request, $context);
+
+        return $this->renderStorefront('@Storefront/page/account/profile/recover-password.html.twig', [
+            'page' => $page,
+        ]);
+    }
+
+    /**
+     * @Route("/account/recover", name="frontend.account.recover.request", methods={"POST"})
+     */
+    public function generateAccountRecovery(RequestDataBag $data, SalesChannelContext $context): Response
+    {
+        try {
+            $this->accountService->generateAccountRecovery($data->get('email'), $context);
+
+            $this->addFlash('success', $this->trans('account.recoveryMailSend'));
+        } catch (CustomerNotFoundException $e) {
+            $this->addFlash('success', $this->trans('account.recoveryMailSend'));
+        } catch (InconsistentCriteriaIdsException $e) {
+            $this->addFlash('danger', $this->trans('error.message-default'));
+        }
+
+        return $this->redirectToRoute('frontend.account.recover.page');
+    }
+
+    /**
+     * @Route("/account/recover/password", name="frontend.account.recover.password.page", methods={"GET"})
+     *
+     * @throws CategoryNotFoundException
+     * @throws InconsistentCriteriaIdsException
+     * @throws MissingRequestParameterException
+     */
+    public function resetPasswordForm(Request $request, SalesChannelContext $context): Response
+    {
+        $page = $this->loginPageLoader->load($request, $context);
+        $hash = $request->get('hash');
+
+        if (!$hash) {
+            $this->addFlash('danger', $this->trans('account.passwordHashNotFound'));
+
+            return $this->redirectToRoute('frontend.account.recover.request');
+        }
+
+        $customerHashCriteria = new Criteria();
+        $customerHashCriteria->addFilter(new EqualsFilter('hash', $hash));
+
+        $customerRecovery = $this->accountService->getCustomerRecovery($customerHashCriteria, $context->getContext());
+
+        if ($customerRecovery === null) {
+            $this->addFlash('danger', $this->trans('account.passwordHashNotFound'));
+
+            return $this->redirectToRoute('frontend.account.recover.request');
+        }
+
+        if (!$this->accountService->checkHash($hash, $context->getContext())) {
+            $this->addFlash('danger', $this->trans('account.passwordHashExpired'));
+
+            return $this->redirectToRoute('frontend.account.recover.request');
+        }
+
+        return $this->renderStorefront('@Storefront/page/account/profile/reset-password.html.twig', [
+            'page' => $page,
+            'hash' => $hash,
+            'formViolations' => $request->get('formViolations'),
+        ]);
+    }
+
+    /**
+     * @Route("/account/recover/password", name="frontend.account.recover.password.reset", methods={"POST"})
+     *
+     * @throws InconsistentCriteriaIdsException
+     */
+    public function resetPassword(RequestDataBag $data, SalesChannelContext $context): Response
+    {
+        $hash = $data->get('password')->get('hash');
+
+        try {
+            $this->accountService->resetPassword($data->get('password'), $context);
+
+            $this->addFlash('success', $this->trans('account.passwordChangeSuccess'));
+        } catch (ConstraintViolationException $formViolations) {
+            $this->addFlash('danger', $this->trans('account.passwordChangeNoSuccess'));
+
+            return $this->forwardToRoute(
+                'frontend.account.recover.password.page',
+                ['hash' => $hash, 'formViolations' => $formViolations, 'passwordFormViolation' => true]
+            );
+        } catch (CustomerNotFoundByHashException $e) {
+            $this->addFlash('danger', $this->trans('account.passwordChangeNoSuccess'));
+
+            return $this->forwardToRoute('frontend.account.recover.request');
+        } catch (CustomerRecoveryHashExpiredException $e) {
+            $this->addFlash('danger', $this->trans('account.passwordHashExpired'));
+
+            return $this->forwardToRoute('frontend.account.recover.request');
+        }
+
+        return $this->redirectToRoute('frontend.account.profile.page');
     }
 }

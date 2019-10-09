@@ -57,6 +57,7 @@ class CmsController extends StorefrontController
      * @HttpCache()
      * @Route("/widgets/cms/{id}", name="frontend.cms.page", methods={"GET", "POST"}, defaults={"id"=null, "XmlHttpRequest"=true})
      *
+     * @throws InconsistentCriteriaIdsException
      * @throws MissingRequestParameterException
      * @throws PageNotFoundException
      */

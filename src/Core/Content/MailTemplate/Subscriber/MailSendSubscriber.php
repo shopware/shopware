@@ -71,10 +71,23 @@ class MailSendSubscriber implements EventSubscriberInterface
 
         if ($mailEvent->getSalesChannelId()) {
             $criteria->addFilter(new EqualsFilter('mail_template.salesChannels.salesChannel.id', $mailEvent->getSalesChannelId()));
-        }
 
-        /** @var MailTemplateEntity|null $mailTemplate */
-        $mailTemplate = $this->mailTemplateRepository->search($criteria, $event->getContext())->first();
+            /** @var MailTemplateEntity|null $mailTemplate */
+            $mailTemplate = $this->mailTemplateRepository->search($criteria, $event->getContext())->first();
+
+            // Fallback if no template for the saleschannel is found
+            if ($mailTemplate === null) {
+                $criteria = new Criteria();
+                $criteria->addFilter(new EqualsFilter('mailTemplateTypeId', $mailTemplateTypeId));
+                $criteria->setLimit(1);
+
+                /** @var MailTemplateEntity|null $mailTemplate */
+                $mailTemplate = $this->mailTemplateRepository->search($criteria, $event->getContext())->first();
+            }
+        } else {
+            /** @var MailTemplateEntity|null $mailTemplate */
+            $mailTemplate = $this->mailTemplateRepository->search($criteria, $event->getContext())->first();
+        }
 
         if ($mailTemplate === null) {
             return;

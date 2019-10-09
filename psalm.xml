@@ -12,6 +12,7 @@
             <directory name="vendor/shopware/platform/src/Core/Flag"/>
             <directory name="vendor/shopware/platform/src/Core/Framework/Test/FeatureFlag"/>
             <file name="vendor/shopware/platform/src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php"/>
+            <file name="vendor/shopware/platform/src/Core/Migration/Test/BasicDataUntouchedTest.php"/>
         </ignoreFiles>
     </projectFiles>
 

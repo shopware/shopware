@@ -15,11 +15,10 @@ class Migration1566817701AddDisplayGroup extends MigrationStep
     public function update(Connection $connection): void
     {
         $connection->executeUpdate('ALTER TABLE `product` ADD `display_group` varchar(50) NULL AFTER `display_in_listing`;');
-        $connection->executeUpdate('ALTER TABLE `product` DROP COLUMN `display_in_listing`;');
     }
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
+        $connection->executeUpdate('ALTER TABLE `product` DROP COLUMN `display_in_listing`;');
     }
 }

@@ -2,7 +2,7 @@
 const path = require('path');
 const process = require('process');
 
-const appPath = process.argv.slice(2)[0];
+const appPath = process.argv.slice(2)[0] || '';
 const appEnv = process.env.APP_ENV;
 
 module.exports = {

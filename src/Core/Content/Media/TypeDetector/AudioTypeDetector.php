@@ -19,7 +19,8 @@ class AudioTypeDetector implements TypeDetectorInterface
 
     public function detect(MediaFile $mediaFile, ?MediaType $previouslyDetectedType): ?MediaType
     {
-        if (!array_key_exists($mediaFile->getFileExtension(), self::SUPPORTED_FILE_EXTENSIONS)) {
+        $fileExtension = mb_strtolower($mediaFile->getFileExtension());
+        if (!array_key_exists($fileExtension, self::SUPPORTED_FILE_EXTENSIONS)) {
             return $previouslyDetectedType;
         }
 
@@ -27,7 +28,7 @@ class AudioTypeDetector implements TypeDetectorInterface
             $previouslyDetectedType = new AudioType();
         }
 
-        $previouslyDetectedType->addFlags(self::SUPPORTED_FILE_EXTENSIONS[$mediaFile->getFileExtension()]);
+        $previouslyDetectedType->addFlags(self::SUPPORTED_FILE_EXTENSIONS[$fileExtension]);
 
         return $previouslyDetectedType;
     }

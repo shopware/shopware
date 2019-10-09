@@ -553,6 +553,12 @@
   "sw-text-editor-toolbar": {
     "link": {
       "openInNewTab": "Link in neuem Tab öffnen",
+      "displayAsButton": "Links als Button darstellen",
+      "buttonVariant": "Buttontyp",
+      "buttonVariantPrimary": "Primär",
+      "buttonVariantSecondary": "Sekundär",
+      "buttonVariantPrimarySmall": "Primär (klein)",
+      "buttonVariantSecondarySmall": "Sekundär (klein)",
       "placeholder": "URL eingeben",
       "linkTo": "Link zu",
       "insert": "Einfügen"

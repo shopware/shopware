@@ -6,14 +6,14 @@
                 <div class="form-group col-md-3 col-sm-6 contact-type">
                     {% block component_address_personal_account_type_label %}
                         <label class="form-label"
-                               for="{{ prefix }}customerType">
+                               for="{{ prefix }}accountType">
                             {{ "account.personalTypeLabel"|trans }}{{ "general.required"|trans }}
                         </label>
                     {% endblock %}
-            
+
                     {% block component_address_personal_account_type_select %}
-                        <select name="typeId"
-                                id="accountType"
+                        <select name="{% if prefix %}{{ prefix }}[accountType]{% else %}accountType{% endif %}"
+                                id="{{ prefix }}accountType"
                                 required="required"
                                 class="custom-select contact-select{% if formViolations.getViolations('/typeId') %} is-invalid{% endif %}"
                                 data-form-field-toggle="true"
@@ -50,7 +50,7 @@
                             {% endif %}
                         </select>
                     {% endblock %}
-            
+
                     {% block component_address_personal_account_type_error %}
                         {% if formViolations.getViolations('/company') is not empty %}
                             {% sw_include '@Storefront/utilities/form-violation.html.twig' with {

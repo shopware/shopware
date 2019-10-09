@@ -298,6 +298,17 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.vm.hexValue).toBe('#e9c3cf');
     });
 
+    it('should validate the hex input', () => {
+        wrapper.setData({
+            hueValue: 275,
+            saturationValue: 55,
+            luminanceValue: 89,
+            hexValue: 'qwertz'
+        });
+
+        expect(wrapper.vm.hexValue).toBe('#e6d4f2');
+    });
+
     it('should be the correct hex-alpha value', () => {
         wrapper.setData({
             hueValue: 341,

@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Api\Converter\Exceptions\QueryFutureEntityException;
 use Shopware\Core\Framework\Api\Converter\Exceptions\QueryFutureFieldException;
 use Shopware\Core\Framework\Api\Converter\Exceptions\WriteDeprecatedFieldException;
 use Shopware\Core\Framework\Api\Converter\Exceptions\WriteFutureFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
@@ -44,6 +46,25 @@ class ConverterService
         }
 
         return true;
+    }
+
+    public function convertCollection(EntityDefinition $definition, EntityCollection $collection, int $apiVersion): array
+    {
+        $entities = [];
+        foreach ($collection->getElements() as $key => $entity) {
+            $entities[$key] = $this->convertEntity($definition, $entity, $apiVersion);
+        }
+
+        return $entities;
+    }
+
+    public function convertEntity(EntityDefinition $definition, Entity $entity, int $apiVersion): array
+    {
+        $payload = json_decode(json_encode($entity), true);
+
+        $payload = $this->stripNotAllowedFields($definition, $payload, $apiVersion);
+
+        return $payload;
     }
 
     public function convertPayload(EntityDefinition $entity, array $payload, int $apiVersion, ApiConversionException $conversionException, string $pointer = ''): array
@@ -192,5 +213,63 @@ class ConverterService
         $entity = $field instanceof ManyToManyAssociationField ? $field->getToManyReferenceDefinition() : $field->getReferenceDefinition();
 
         $this->validateQueryField($entity, implode('.', $parts), $apiVersion, $searchException, $pointer . '/' . $fieldName);
+    }
+
+    private function stripNotAllowedFields(EntityDefinition $definition, $payload, int $apiVersion): array
+    {
+        foreach ($payload as $field => $value) {
+            $futureConverter = $this->converterRegistry->getFutureConverter($apiVersion);
+            if ($futureConverter->isFromFuture($definition->getEntityName(), $field)) {
+                unset($payload[$field]);
+
+                continue;
+            }
+
+            $deprecatedConverter = $this->converterRegistry->getDeprecationConverter($apiVersion);
+            if ($deprecatedConverter->isDeprecated($definition->getEntityName(), $field)) {
+                unset($payload[$field]);
+
+                continue;
+            }
+        }
+
+        return $this->stripAssociations($definition, $payload, $apiVersion);
+    }
+
+    private function stripAssociations(EntityDefinition $definition, array $payload, int $apiVersion): array
+    {
+        $toOneFields = $definition->getFields()->filter(function (Field $field) {
+            return $field instanceof OneToOneAssociationField || $field instanceof ManyToOneAssociationField;
+        });
+
+        /** @var OneToOneAssociationField|OneToManyAssociationField $field */
+        foreach ($toOneFields as $field) {
+            if (array_key_exists($field->getPropertyName(), $payload) && is_array($payload[$field->getPropertyName()])) {
+                $payload[$field->getPropertyName()] = $this->stripNotAllowedFields(
+                    $field->getReferenceDefinition(),
+                    $payload[$field->getPropertyName()],
+                    $apiVersion
+                );
+            }
+        }
+
+        $toManyFields = $definition->getFields()->filter(function (Field $field) {
+            return $field instanceof OneToManyAssociationField || $field instanceof ManyToManyAssociationField;
+        });
+
+        /** @var OneToManyAssociationField|ManyToManyAssociationField $field */
+        foreach ($toManyFields as $field) {
+            if (array_key_exists($field->getPropertyName(), $payload) && is_array($payload[$field->getPropertyName()])) {
+                foreach ($payload[$field->getPropertyName()] as $key => $entityPayload) {
+                    $payload[$field->getPropertyName()] = $this->stripNotAllowedFields(
+                        $field instanceof ManyToManyAssociationField ? $field->getToManyReferenceDefinition() : $field->getReferenceDefinition(),
+                        $entityPayload,
+                        $apiVersion
+                    );
+                }
+            }
+        }
+
+        return $payload;
     }
 }

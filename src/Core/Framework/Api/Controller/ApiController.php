@@ -104,11 +104,14 @@ class ApiController extends AbstractController
         $term = $request->query->get('term');
         $limit = $request->query->getInt('limit', 5);
 
-        $result = $this->compositeEntitySearcher->search($term, $limit, $context, $version);
+        $results = $this->compositeEntitySearcher->search($term, $limit, $context, $version);
 
-        $result = json_decode(json_encode($result), true);
+        foreach ($results as $result) {
+            $definition = $this->definitionRegistry->getByEntityName($result['entity']);
+            $result['entities'] = $this->converterService->convertCollection($definition, $result['entities'], $version);
+        }
 
-        return new JsonResponse(['data' => $result]);
+        return new JsonResponse(['data' => $results]);
     }
 
     /**

@@ -125,6 +125,15 @@ Component.register('sw-entity-many-to-many-select', {
         this.createdComponent();
     },
 
+    watch: {
+        entityCollection(newVal) {
+            // reload data if association was reset but component was not destroyed
+            if (newVal.length <= 0 && this.totalAssigned > 0) {
+                this.initData();
+            }
+        }
+    },
+
     methods: {
         createdComponent() {
             this.initData();
@@ -316,21 +325,23 @@ Component.register('sw-entity-many-to-many-select', {
         remove(item) {
             this.$emit('item-remove', item);
 
-            this.selectedIds = this.selectedIds.filter((id) => {
-                return id !== item.id;
-            });
-
             if (this.localMode) {
-                this.totalAssigned -= 1;
+                this.removeIdFromList(item.id);
                 return Promise.resolve();
             }
 
             this.isLoading = true;
             return this.repository.delete(item.id, this.entityCollection.context).then((response) => {
-                this.totalAssigned -= 1;
-
+                this.removeIdFromList(item.id);
                 this.isLoading = false;
                 return response;
+            });
+        },
+
+        removeIdFromList(id) {
+            this.totalAssigned -= 1;
+            this.selectedIds = this.selectedIds.filter((currentId) => {
+                return currentId !== id;
             });
         },
 

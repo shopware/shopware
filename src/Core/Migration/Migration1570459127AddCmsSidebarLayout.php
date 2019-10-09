@@ -52,7 +52,7 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
             'id' => Uuid::randomBytes(),
             'cms_section_id' => $sectionId,
             'position' => 1,
-            'locked' => 0,
+            'locked' => 1,
             'type' => 'sidebar-filter',
             'name' => 'Filter',
             'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -64,7 +64,7 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
         // cms slots
         $filterSlot = [
             'id' => Uuid::randomBytes(),
-            'locked' => 0,
+            'locked' => 1,
             'cms_block_id' => $filterBlock['id'],
             'type' => 'sidebar-filter',
             'slot' => 'content',
@@ -109,7 +109,7 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
         $page = [
             'id' => Uuid::randomBytes(),
             'type' => 'product_list',
-            'locked' => 0,
+            'locked' => 1,
             'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
         $pageEng = [
@@ -155,7 +155,7 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
                 'id' => Uuid::randomBytes(),
                 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'cms_section_id' => $topSection['id'],
-                'locked' => 0,
+                'locked' => 1,
                 'position' => 0,
                 'type' => 'image-text',
                 'name' => 'Category info',
@@ -170,7 +170,7 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
                 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'cms_section_id' => $sidebarSection['id'],
                 'section_position' => 'sidebar',
-                'locked' => 0,
+                'locked' => 1,
                 'position' => 1,
                 'type' => 'category-navigation',
                 'name' => 'Sidebar navigation',
@@ -182,7 +182,7 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
                 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'cms_section_id' => $sidebarSection['id'],
                 'section_position' => 'sidebar',
-                'locked' => 0,
+                'locked' => 1,
                 'position' => 2,
                 'type' => 'sidebar-filter',
                 'name' => 'Sidebar filter',
@@ -193,7 +193,7 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
                 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'cms_section_id' => $sidebarSection['id'],
                 'section_position' => 'main',
-                'locked' => 0,
+                'locked' => 1,
                 'position' => 2,
                 'type' => 'product-listing',
                 'name' => 'Category listing',
@@ -211,15 +211,15 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
 
         // cms slots
         $slots = [
-            ['id' => Uuid::randomBytes(), 'locked' => 0, 'cms_block_id' => $blocks[0]['id'], 'type' => 'image', 'slot' => 'left', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT), 'version_id' => $versionId],
-            ['id' => Uuid::randomBytes(), 'locked' => 0, 'cms_block_id' => $blocks[0]['id'], 'type' => 'text', 'slot' => 'right', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT), 'version_id' => $versionId],
+            ['id' => Uuid::randomBytes(), 'locked' => 1, 'cms_block_id' => $blocks[0]['id'], 'type' => 'image', 'slot' => 'left', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT), 'version_id' => $versionId],
+            ['id' => Uuid::randomBytes(), 'locked' => 1, 'cms_block_id' => $blocks[0]['id'], 'type' => 'text', 'slot' => 'right', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT), 'version_id' => $versionId],
 
-            ['id' => Uuid::randomBytes(), 'locked' => 0, 'cms_block_id' => $blocks[1]['id'], 'type' => 'category-navigation', 'slot' => 'content', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT), 'version_id' => $versionId],
+            ['id' => Uuid::randomBytes(), 'locked' => 1, 'cms_block_id' => $blocks[1]['id'], 'type' => 'category-navigation', 'slot' => 'content', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT), 'version_id' => $versionId],
 
-            ['id' => Uuid::randomBytes(), 'locked' => 0, 'cms_block_id' => $blocks[2]['id'], 'type' => 'sidebar-filter', 'slot' => 'content', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT), 'version_id' => $versionId],
+            ['id' => Uuid::randomBytes(), 'locked' => 1, 'cms_block_id' => $blocks[2]['id'], 'type' => 'sidebar-filter', 'slot' => 'content', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT), 'version_id' => $versionId],
 
-            ['id' => Uuid::randomBytes(), 'locked' => 0, 'cms_block_id' => $blocks[2]['id'], 'type' => 'sidebar-filter', 'slot' => 'content', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT), 'version_id' => $versionId],
-            ['id' => Uuid::randomBytes(), 'locked' => 0, 'cms_block_id' => $blocks[3]['id'], 'type' => 'product-listing', 'slot' => 'content', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT), 'version_id' => $versionId],
+            ['id' => Uuid::randomBytes(), 'locked' => 1, 'cms_block_id' => $blocks[2]['id'], 'type' => 'sidebar-filter', 'slot' => 'content', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT), 'version_id' => $versionId],
+            ['id' => Uuid::randomBytes(), 'locked' => 1, 'cms_block_id' => $blocks[3]['id'], 'type' => 'product-listing', 'slot' => 'content', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT), 'version_id' => $versionId],
         ];
 
         $slotTranslationData = [

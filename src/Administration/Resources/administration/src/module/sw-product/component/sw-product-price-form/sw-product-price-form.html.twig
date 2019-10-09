@@ -58,8 +58,7 @@
                 <sw-inherit-wrapper v-model="product.purchasePrice"
                                     :hasParent="!!parentProduct.id"
                                     :inheritedValue="parentProduct.purchasePrice"
-                                    :label="$tc('sw-product.priceForm.labelPurchasePriceGross')"
-                                    required>
+                                    :label="$tc('sw-product.priceForm.labelPurchasePriceGross')">
                     <template #content="{ currentValue, updateCurrentValue, isInherited }">
 
                         <sw-field type="number"

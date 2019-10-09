@@ -130,6 +130,7 @@ class SeoUrlIndexer implements IndexerInterface
 
                 $chain = $languageChains[$languageId];
                 $context = new Context(new Context\SystemSource(), [], Defaults::CURRENCY, $chain);
+                $context->setConsiderInheritance(true);
                 $iterator = $this->iteratorFactory->createIterator($config->getDefinition());
 
                 $this->eventDispatcher->dispatch(
@@ -220,6 +221,7 @@ class SeoUrlIndexer implements IndexerInterface
 
         $chain = $languageChains[$languageId];
         $context = new Context(new Context\SystemSource(), [], Defaults::CURRENCY, $chain);
+        $context->setConsiderInheritance(true);
         $iterator = $this->iteratorFactory->createIterator($config->getDefinition(), $dataOffset);
 
         $ids = $iterator->fetch();
@@ -270,6 +272,7 @@ class SeoUrlIndexer implements IndexerInterface
             foreach ($templateGroups as $languageId => $groups) {
                 $chain = $languageChains[$languageId];
                 $context = new Context(new Context\SystemSource(), [], Defaults::CURRENCY, $chain);
+                $context->setConsiderInheritance(true);
                 foreach (array_chunk($ids, 250) as $idsChunk) {
                     $seoUrls = $this->seoUrlGenerator->generateSeoUrls($context, $seoUrlRoute, $idsChunk, $groups);
                     $this->seoUrlPersister->updateSeoUrls($context, $config->getRouteName(), $idsChunk, $seoUrls);

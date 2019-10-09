@@ -211,10 +211,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'productNumber' => $product->getProductNumber(),
             'options' => $product->getOptions() !== null ? $product->getOptions()->getElements() : [],
         ]);
-
-        if ($product->hasExtension('canonicalUrl')) {
-            $lineItem->addExtension('canonicalUrl', $product->getExtension('canonicalUrl'));
-        }
     }
 
     private function getNotCompleted(CartDataCollection $data, array $lineItems): array

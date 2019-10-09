@@ -209,6 +209,14 @@ Component.register('sw-colorpicker', {
             },
 
             set(newValue) {
+                // checking if the new value is an actual hex value
+                const newHexValue = newValue;
+                const validHexCharacters = /^#[0-9a-f]{3,8}/i;
+
+                if (!validHexCharacters.test(newHexValue)) {
+                    return;
+                }
+
                 const hslValue = this.convertHEXtoHSL(newValue);
                 if (hslValue === false) {
                     return;

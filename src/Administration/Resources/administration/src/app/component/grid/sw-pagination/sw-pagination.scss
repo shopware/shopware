@@ -78,7 +78,7 @@ $sw-pagination-border-radius: $border-radius-default;
         }
 
         .sw-field.sw-field--select {
-            grid-template-columns: 120px 60px;
+            grid-template-columns: 120px auto;
         }
     }
 }

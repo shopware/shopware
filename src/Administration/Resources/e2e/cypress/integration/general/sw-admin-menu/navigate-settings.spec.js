@@ -186,6 +186,10 @@ describe('Administration: Check module navigation in settings', () => {
             targetPath: '#/sw/settings/index',
             mainMenuId: 'sw-settings'
         });
+
+        cy.get('.sw-settings__tab-system').should('be.visible');
+        cy.get('.sw-settings__tab-system').click();
+
         cy.get('#sw-settings-logging').click();
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);

@@ -77,6 +77,15 @@ class SeoUrlPlaceholderHandler
         $response->setContent($content);
     }
 
+    public function generateResolved(Request $request, $name, $parameters = []): string
+    {
+        $url = $this->generate($name, $parameters);
+        $tmpResponse = new Response($url);
+        $this->replacePlaceholder($request, $tmpResponse);
+
+        return $tmpResponse->getContent();
+    }
+
     private function createDefaultMapping(array $matches): array
     {
         $mapping = [];

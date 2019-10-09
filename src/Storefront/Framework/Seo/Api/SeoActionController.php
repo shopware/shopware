@@ -89,6 +89,8 @@ class SeoActionController extends AbstractController
      */
     public function validate(Request $request, Context $context): JsonResponse
     {
+        $context->setConsiderInheritance(true);
+
         $this->validateSeoUrlTemplate($request);
         $seoUrlTemplate = $request->request->all();
 

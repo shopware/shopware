@@ -79,25 +79,27 @@
                                         {% block sw_order_detail_base_line_items_summary_entries %}
                                             {% block sw_order_detail_base_line_items_summary_amount %}
                                                 <dt>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</dt>
-                                            <dd>{{ order.positionPrice | currency(order.currency.translated.shortName) }}</dd>
+                                                <dd>{{ order.positionPrice | currency(order.currency.translated.shortName) }}</dd>
                                             {% endblock %}
 
                                             {% block sw_order_detail_base_line_items_summary_shipping_cost %}
-                                                <dt>{{ $tc('sw-order.detailBase.summaryLabelShippingCosts') }}</dt>
-                                            <dd>
-                                            <sw-order-saveable-field type="number"
-                                            v-tooltip="{showDelay: 300, message: shippingCostsDetail}"
-                                            :editable="isEditing"
-                                            :value="delivery.shippingCosts.totalPrice"
-                                            @value-change="onShippingChargeEdited">
-                                            {{ delivery.shippingCosts.totalPrice | currency(order.currency.translated.shortName) }}
-                                                </sw-order-saveable-field>
-                                                </dd>
+                                                <template v-if="delivery">
+                                                    <dt>{{ $tc('sw-order.detailBase.summaryLabelShippingCosts') }}</dt>
+                                                    <dd>
+                                                        <sw-order-saveable-field type="number"
+                                                                                 v-tooltip="{showDelay: 300, message: shippingCostsDetail}"
+                                                                                 :editable="isEditing"
+                                                                                 :value="delivery.shippingCosts.totalPrice"
+                                                                                 @value-change="onShippingChargeEdited">
+                                                             {{ delivery.shippingCosts.totalPrice | currency(order.currency.translated.shortName) }}
+                                                        </sw-order-saveable-field>
+                                                    </dd>
+                                                </template>
                                             {% endblock %}
 
                                             {% block sw_order_detail_base_line_items_summary_amount_without_tax %}
                                                 <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
-                                            <dd><strong>{{ order.amountNet | currency(order.currency.translated.shortName) }}</strong></dd>
+                                                <dd><strong>{{ order.amountNet | currency(order.currency.translated.shortName) }}</strong></dd>
                                             {% endblock %}
 
                                             {% block sw_order_detail_base_line_items_summary_taxes %}
@@ -136,7 +138,8 @@
         {% endblock %}
 
         {% block sw_order_detail_delivery_metadata %}
-            <sw-order-delivery-metadata class="sw-order-delivery-metadata"
+            <sw-order-delivery-metadata v-if="delivery"
+                                        class="sw-order-delivery-metadata"
                                         :title="$tc('sw-order.detailDeliveries.cardTitleItems', 0, { count: ' '})"
                                         :isLoading="isLoading"
                                         :order="order"

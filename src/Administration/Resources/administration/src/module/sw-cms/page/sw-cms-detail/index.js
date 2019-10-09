@@ -440,6 +440,26 @@ Component.register('sw-cms-detail', {
             }
 
             const sections = this.page.sections;
+
+            if (sections.length < 1) {
+                this.createNotificationWarning({
+                    title: this.$tc('sw-cms.detail.notificationTitleMissingSections'),
+                    message: this.$tc('sw-cms.detail.notificationMessageMissingSections')
+                });
+
+                return Promise.reject();
+            }
+
+            if (sections.length === 1 && sections[0].blocks.length === 0) {
+                this.createNotificationWarning({
+                    title: this.$tc('sw-cms.detail.notificationTitleMissingBlocks'),
+                    message: this.$tc('sw-cms.detail.notificationMessageMissingBlocks')
+                });
+
+                this.pageConfigOpen('blocks');
+                return Promise.reject();
+            }
+
             let foundEmptyRequiredField = [];
 
             sections.forEach((section) => {

@@ -48,6 +48,11 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
         },
 
         onSave() {
+            this.savePage();
+            this.$router.push({ name: 'sw.cms.detail', params: { id: this.page.id } });
+        },
+
+        savePage() {
             this.isSaveSuccessful = false;
 
             if ((this.isSystemDefaultLanguage && !this.page.name) || !this.page.type) {
@@ -59,13 +64,19 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
                     title: warningTitle,
                     message: warningMessage
                 });
+
+                return Promise.reject();
             }
+
+            this.deleteEntityAndRequiredConfigKey(this.page.sections);
 
             this.isLoading = true;
 
-            this.pageRepository.save(this.page, this.context).then(() => {
+            return this.pageRepository.save(this.page, this.context).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
+
+                return this.loadPage(this.page.id);
             }).catch((exception) => {
                 this.isLoading = false;
 
@@ -74,9 +85,9 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
                     title: errorNotificationTitle,
                     message: exception.message
                 });
-            });
 
-            this.$router.push({ name: 'sw.cms.detail', params: { id: this.page.id } });
+                return Promise.reject(exception);
+            });
         },
 
         onWizardComplete() {

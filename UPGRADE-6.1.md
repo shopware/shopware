@@ -353,6 +353,9 @@ Storefront
 * If your javascript lives in `Resources/storefront/script` you have to explicitly define this path in the `getStorefrontScriptPath()` method of your plugin base class as we have changed the default path to `Resources/dist/storefront/js`.
 * Added `extractIdsToUpdate` to `Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteInterface`. `extractIdsToUpdate` must provide the ids of entities which seo urls should be updated based on an EntityWrittenContainerEvent.
 * Replace `productUrl(product)` with `seoUrl('frontend.detail.page', {'productId': product.id}) }` and `navigationUrl(navigation)` with `seoUrl('frontend.navigation.page', { 'navigationId': navigation.id })`'
+* The JavaScript `CmsSlotReloadPlugin` is no longer used to render the response after paginating a product list. This has been moved to the `ListingPlugin` which can be found in `platform/src/Storefront/Resources/src/script/plugin/listing/listing.plugin.js`.
+  * The `ListingPlugin` now handles the pagination as well as the product filter and the new sorting element.
+  * The pagination uses a separate JavaScript plugin `listing-sorting.plugin.js`.
 
 Elasticsearch
 -------------

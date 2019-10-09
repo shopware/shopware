@@ -18,11 +18,11 @@
         "elasticsearch/elasticsearch": "7.2.1",
         "ongr/elasticsearch-dsl": "6.0.3",
         "shopware/core": "*",
-        "symfony/http-foundation": "4.3.4",
-        "symfony/messenger": "4.3.4"
+        "symfony/http-foundation": "4.3.5",
+        "symfony/messenger": "4.3.5"
     },
     "require-dev": {
-        "symfony/dependency-injection": "4.3.4",
+        "symfony/dependency-injection": "4.3.5",
         "phpunit/phpunit": "8.4.0"
     }
 }

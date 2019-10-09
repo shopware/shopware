@@ -118,6 +118,11 @@
             </call>
         </service>
 
+        <service id="Shopware\Core\Framework\Migration\IndexerQueuer" public="true">
+
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
         <!-- Serializer -->
         <service id="Shopware\Core\Framework\Struct\Serializer\StructNormalizer">
             <tag name="serializer.normalizer"/>

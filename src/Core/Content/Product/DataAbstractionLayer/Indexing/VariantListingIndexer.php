@@ -113,6 +113,11 @@ class VariantListingIndexer implements IndexerInterface
         $this->update($ids, $event->getContext());
     }
 
+    public static function getName(): string
+    {
+        return 'Swag.VariantListingIndexer';
+    }
+
     private function getListingConfiguration(array $ids, Context $context)
     {
         $versionBytes = Uuid::fromHexToBytes($context->getVersionId());

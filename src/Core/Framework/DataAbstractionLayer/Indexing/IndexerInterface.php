@@ -11,4 +11,6 @@ interface IndexerInterface
     public function refresh(EntityWrittenContainerEvent $event): void;
 
     public function partial(?array $lastId, \DateTimeInterface $timestamp): ?array;
+
+    public static function getName(): string;
 }

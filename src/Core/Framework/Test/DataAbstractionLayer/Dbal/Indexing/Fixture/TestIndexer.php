@@ -54,4 +54,9 @@ class TestIndexer implements IndexerInterface
     {
         return $this->refreshCalls;
     }
+
+    public static function getName(): string
+    {
+        return self::class;
+    }
 }

@@ -163,6 +163,11 @@ class TreeIndexer implements IndexerInterface
         }
     }
 
+    public static function getName(): string
+    {
+        return 'Swag.TreeIndexer';
+    }
+
     private function updateIds(array $ids, $definition, Context $context): void
     {
         foreach ($ids as $id) {

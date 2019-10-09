@@ -175,6 +175,7 @@ SHOPWARE_HTTP_DEFAULT_TTL=7200
     ```
 
 * All customer events in `Shopware\Core\Checkout\Customer\Event` now get the `Shopware\Core\Syste\SalesChannel\SalesChannelContext` instead of `Shopware\Core\Framework\Context` and a `salesChannelId`
+* Implement `getName` for classes that implement `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface`
 
 Administration
 --------------

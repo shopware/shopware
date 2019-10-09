@@ -137,6 +137,11 @@ class ProductStreamIndexer implements IndexerInterface
         $this->update($ids);
     }
 
+    public static function getName(): string
+    {
+        return 'Swag.ProductStreamIndexer';
+    }
+
     private function update(array $ids): void
     {
         if (empty($ids)) {

@@ -118,6 +118,11 @@ class PromotionRedemptionIndexer implements IndexerInterface
         $this->update($lineItems->getIds(), $event->getContext());
     }
 
+    public static function getName(): string
+    {
+        return 'Swag.PromotionRedemptionIndexer';
+    }
+
     private function update(array $ids, Context $context): void
     {
         if (empty($ids)) {

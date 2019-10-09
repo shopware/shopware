@@ -200,4 +200,9 @@ class EmptyIndexer implements IndexerInterface
 
         return null;
     }
+
+    public static function getName(): string
+    {
+        return self::class;
+    }
 }

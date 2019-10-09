@@ -285,4 +285,9 @@ class InheritanceIndexer implements IndexerInterface
             );
         }
     }
+
+    public static function getName(): string
+    {
+        return 'Swag.InheritanceIndexer';
+    }
 }

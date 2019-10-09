@@ -1,5 +1,6 @@
 enqueue:
     default:
         transport:
-            dsn: "%env(DATABASE_URL)%"
+            dsn: "null:"
+            factory_service: Shopware\Core\Framework\MessageQueue\Enqueue\ConnectionFactoryFactory
         client: ~

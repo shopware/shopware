@@ -14,6 +14,11 @@
             <tag name="shopware.entity.definition" entity="message_queue_stats"/>
         </service>
 
+        <!--  ConnectionFactory -->
+        <service id="Shopware\Core\Framework\MessageQueue\Enqueue\ConnectionFactoryFactory">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
         <!--Message Bus-->
         <service id="Shopware\Core\Framework\MessageQueue\MonitoringBusDecorator" decorates="messenger.bus.shopware">
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\MonitoringBusDecorator.inner"/>

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount;
 
+use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 
 class DiscountLineItem
@@ -107,6 +108,25 @@ class DiscountLineItem
     }
 
     /**
+     * @throws PayloadKeyNotFoundException
+     *
+     * @return string|array
+     */
+    public function getPayloadValue(string $key)
+    {
+        if (!$this->hasPayloadValue($key)) {
+            throw new PayloadKeyNotFoundException($key, $this->getLabel());
+        }
+
+        return $this->payload[$key];
+    }
+
+    public function hasPayloadValue(string $key): bool
+    {
+        return isset($this->payload[$key]);
+    }
+
+    /**
      * Gets the code of the discount if existing.
      */
     public function getCode(): ?string
@@ -120,11 +140,7 @@ class DiscountLineItem
      */
     public function getFilterSorterKey(): string
     {
-        if ($this->filterSorterKey === null) {
-            return '';
-        }
-
-        return $this->filterSorterKey;
+        return $this->filterSorterKey ?? '';
     }
 
     /**
@@ -133,11 +149,7 @@ class DiscountLineItem
      */
     public function getFilterApplierKey(): string
     {
-        if ($this->filterApplierKey === null) {
-            return '';
-        }
-
-        return $this->filterApplierKey;
+        return $this->filterApplierKey ?? '';
     }
 
     /**
@@ -146,10 +158,6 @@ class DiscountLineItem
      */
     public function getFilterUsageKey(): string
     {
-        if ($this->filterUsageKey === null) {
-            return '';
-        }
-
-        return $this->filterUsageKey;
+        return $this->filterUsageKey ?? '';
     }
 }

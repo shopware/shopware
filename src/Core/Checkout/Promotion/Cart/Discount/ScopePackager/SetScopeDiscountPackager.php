@@ -3,6 +3,11 @@
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
+use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilderResult;
@@ -39,24 +44,21 @@ class SetScopeDiscountPackager implements DiscountPackagerInterface
      * In addition to this, a set can indeed occur multiple times. So the
      * result may come from multiple complete sets and their groups.
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
-     * @throws \Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException
-     * @throws \Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
+     * @throws LineItemGroupPackagerNotFoundException
+     * @throws LineItemGroupSorterNotFoundException
      */
     public function getMatchingItems(DiscountLineItem $discount, Cart $cart, SalesChannelContext $context): DiscountPackageCollection
     {
         /** @var array $groups */
-        $groups = $discount->getPayload()['setGroups'];
+        $groups = $discount->getPayloadValue('setGroups');
 
-        /** @var array $definitions */
         $definitions = $this->buildGroupDefinitionList($groups);
 
-        /** @var LineItemGroupBuilderResult $result */
         $result = $this->groupBuilder->findGroupPackages($definitions, $cart, $context);
 
-        /** @var int $lowestCommonCount */
         $lowestCommonCount = $this->getLowestCommonGroupCountDenominator($definitions, $result);
 
         // if no max possible groups that have
@@ -65,7 +67,6 @@ class SetScopeDiscountPackager implements DiscountPackagerInterface
             return new DiscountPackageCollection();
         }
 
-        /** @var DiscountPackage[] $units */
         $units = [];
 
         for ($i = 0; $i < $lowestCommonCount; ++$i) {
@@ -73,7 +74,6 @@ class SetScopeDiscountPackager implements DiscountPackagerInterface
 
             // now run through all definitions
             // and check if our set and count is valid
-            /** @var LineItemGroupDefinition $definition */
             foreach ($definitions as $definition) {
                 /** @var LineItemGroup[] $groupResult */
                 $groupResult = $result->getGroupResult($definition);
@@ -93,11 +93,12 @@ class SetScopeDiscountPackager implements DiscountPackagerInterface
     /**
      * Gets a list of in-memory grupo definitions
      * from the list of group settings from the payload
+     *
+     * @return LineItemGroupDefinition[]
      */
     private function buildGroupDefinitionList(array $groups): array
     {
         $definitions = [];
-        /** @var array $group */
         foreach ($groups as $group) {
             $definitions[] = new LineItemGroupDefinition(
                 $group['groupId'],
@@ -117,14 +118,14 @@ class SetScopeDiscountPackager implements DiscountPackagerInterface
      * has been found, and search the maximum count of complete sets.
      * 2 GROUPS of A and 1 GROUP of B would mean a count of 1 for
      * the whole set combination of A and B.
+     *
+     * @param LineItemGroupDefinition[] $definitions
      */
     private function getLowestCommonGroupCountDenominator(array $definitions, LineItemGroupBuilderResult $result): int
     {
         $lowestCommonCount = null;
 
-        /** @var LineItemGroupDefinition $definition */
         foreach ($definitions as $definition) {
-            /** @var int $count */
             $count = $result->getGroupCount($definition);
 
             if ($lowestCommonCount === null) {

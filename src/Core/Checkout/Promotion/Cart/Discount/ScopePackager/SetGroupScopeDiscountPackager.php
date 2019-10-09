@@ -3,9 +3,12 @@
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
+use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
-use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilderResult;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
@@ -39,29 +42,26 @@ class SetGroupScopeDiscountPackager implements DiscountPackagerInterface
      * So the result may come from multiple complete groups.
      *
      * @throws SetGroupNotFoundException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
-     * @throws \Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException
-     * @throws \Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
+     * @throws LineItemGroupPackagerNotFoundException
+     * @throws LineItemGroupSorterNotFoundException
      */
     public function getMatchingItems(DiscountLineItem $discount, Cart $cart, SalesChannelContext $context): DiscountPackageCollection
     {
         /** @var array $groups */
-        $groups = $discount->getPayload()['setGroups'];
+        $groups = $discount->getPayloadValue('setGroups');
 
         /** @var string $groupId */
-        $groupId = $discount->getPayload()['groupId'];
+        $groupId = $discount->getPayloadValue('groupId');
 
-        /** @var LineItemGroupDefinition $definition */
         $definition = $this->getGroupDefinition($groupId, $groups);
 
-        /** @var LineItemGroupBuilderResult $result */
         $result = $this->groupBuilder->findGroupPackages([$definition], $cart, $context);
 
         $units = [];
 
-        /** @var LineItemGroup $group */
         foreach ($result->getGroupResult($definition) as $group) {
             $units[] = new DiscountPackage(new LineItemQuantityCollection($group->getItems()));
         }
@@ -79,7 +79,6 @@ class SetGroupScopeDiscountPackager implements DiscountPackagerInterface
     {
         $index = 1;
 
-        /** @var array $group */
         foreach ($groups as $group) {
             if ((string) $index === $groupId) {
                 return new LineItemGroupDefinition(

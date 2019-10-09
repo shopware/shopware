@@ -2,20 +2,24 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount;
 
-use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Checkout\Promotion\Exception\PriceNotFoundException;
 use Shopware\Core\Framework\Struct\Collection;
 
+/**
+ * @method DiscountPackage[]    getIterator()
+ * @method DiscountPackage[]    getElements()
+ * @method DiscountPackage|null first()
+ * @method DiscountPackage|null last()
+ */
 class DiscountPackageCollection extends Collection
 {
     /**
      * Gets a list of all prices within all
      * existing packages of this collection.
      *
-     * @throws \Shopware\Core\Checkout\Promotion\Exception\PriceNotFoundException
+     * @throws PriceNotFoundException
      */
     public function getAffectedPrices(): PriceCollection
     {
@@ -23,7 +27,6 @@ class DiscountPackageCollection extends Collection
 
         /** @var DiscountPackage $package */
         foreach ($this->elements as $package) {
-            /** @var CalculatedPrice $price */
             foreach ($package->getAffectedPrices() as $price) {
                 $affectedPrices->add($price);
             }
@@ -42,7 +45,6 @@ class DiscountPackageCollection extends Collection
 
         /** @var DiscountPackage $package */
         foreach ($this->elements as $package) {
-            /** @var LineItem $item */
             foreach ($package->getMetaData() as $item) {
                 $items->add($item);
             }
@@ -63,10 +65,8 @@ class DiscountPackageCollection extends Collection
 
         /** @var DiscountPackage $package */
         foreach ($this->elements as $package) {
-            /** @var LineItemQuantity $meta */
             foreach ($package->getMetaData() as $meta) {
-                $tmpPackage = new DiscountPackage(new LineItemQuantityCollection([$meta]));
-                $tmpPackages[] = $tmpPackage;
+                $tmpPackages[] = new DiscountPackage(new LineItemQuantityCollection([$meta]));
             }
         }
 

@@ -166,7 +166,7 @@ class RuleValidator implements EventSubscriberInterface
             $value = json_decode($payload['value'], true);
         }
 
-        return $value;
+        return $value ?? [];
     }
 
     private function validateConsistence(array $fieldValidations, array $payload, ConstraintViolationList $violationList): void

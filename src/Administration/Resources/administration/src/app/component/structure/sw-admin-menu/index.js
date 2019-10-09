@@ -19,7 +19,6 @@ Component.register('sw-admin-menu', {
 
     data() {
         return {
-            isExpanded: true,
             isOffCanvasShown: false,
             isUserActionsActive: false,
             flyoutEntries: [],
@@ -36,6 +35,10 @@ Component.register('sw-admin-menu', {
     },
 
     computed: {
+        isExpanded() {
+            return this.$store.state.adminMenu.isExpanded;
+        },
+
         userStore() {
             return State.getStore('user');
         },
@@ -106,8 +109,6 @@ Component.register('sw-admin-menu', {
 
     methods: {
         createdComponent() {
-            this.registerEvents();
-
             this.collapseMenuOnSmallViewports();
             this.getUser();
             this.$root.$on('toggle-offcanvas', (state) => {
@@ -115,22 +116,12 @@ Component.register('sw-admin-menu', {
             });
         },
 
-        destroyedComponent() {
-            this.removeEvents();
+        collapseAdminMenu() {
+            this.$store.commit('adminMenu/collapseSidebar');
         },
 
-        registerEvents() {
-            // ToDo: Refactor with ticket NEXT-5101
-            this.$root.$on('admin-menu-close', this.onAdminMenuClose);
-        },
-
-        removeEvents() {
-            // ToDo: Refactor with ticket NEXT-5101
-            this.$root.$off('admin-menu-close', this.onAdminMenuClose);
-        },
-
-        onAdminMenuClose() {
-            this.isExpanded = false;
+        expandAdminMenu() {
+            this.$store.commit('adminMenu/expandSidebar');
         },
 
         mountedComponent() {
@@ -187,11 +178,11 @@ Component.register('sw-admin-menu', {
 
         collapseMenuOnSmallViewports() {
             if (this.$device.getViewportWidth() <= 1200 && this.$device.getViewportWidth() >= 500) {
-                this.isExpanded = false;
+                this.collapseAdminMenu();
             }
 
             if (this.$device.getViewportWidth() <= 500) {
-                this.isExpanded = true;
+                this.expandAdminMenu();
             }
         },
 
@@ -250,7 +241,11 @@ Component.register('sw-admin-menu', {
         },
 
         onToggleSidebar() {
-            this.isExpanded = !this.isExpanded;
+            if (this.isExpanded) {
+                this.collapseAdminMenu();
+            } else {
+                this.expandAdminMenu();
+            }
 
             if (!this.isExpanded) {
                 this.closeFlyout();

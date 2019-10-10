@@ -2,6 +2,9 @@
 Thank you for contributing to Shopware! Please fill out this description template to help us to process your pull request.
 
 Please make sure to fulfil our contribution guideline (https://docs.shopware.com/en/shopware-platform-dev-en/community/contribution-guideline?category=shopware-platform-dev-en/communtiy).
+
+Do your changes need to be mentioned in the documentation?
+Add notes on your change right now in the documentation files in /src/Docs/Resources and add them to the pull request as well. 
 -->
 
 ### 1. Why is this change necessary?
@@ -16,10 +19,7 @@ Please make sure to fulfil our contribution guideline (https://docs.shopware.com
 ### 4. Please link to the relevant issues (if any).
 
 
-### 5. Which documentation changes (if any) need to be made because of this PR?
-
-
-### 6. Checklist
+### 5. Checklist
 
 - [ ] I have written tests and verified that they fail without my change
 - [ ] I have squashed any insignificant commits

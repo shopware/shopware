@@ -53,4 +53,9 @@ class ProductKeywordIndexer implements IndexerInterface
 
         $this->decorated->refresh($event);
     }
+
+    public static function getName(): string
+    {
+        return 'Swag.ProductKeywordIndexer';
+    }
 }

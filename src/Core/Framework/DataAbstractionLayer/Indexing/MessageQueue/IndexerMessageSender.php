@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
@@ -16,34 +15,33 @@ class IndexerMessageSender
     private $bus;
 
     /**
-     * @var IndexerInterface[]|iterable
+     * @var iterable
      */
-    private $indexer;
+    private $indexers;
 
     public function __construct(MessageBusInterface $bus, iterable $indexer)
     {
         $this->bus = $bus;
-        $this->indexer = $indexer;
+        $this->indexers = $indexer;
     }
 
-    public function partial(\DateTimeInterface $timestamp): void
+    public function partial(\DateTimeInterface $timestamp, ?array $indexers = null): void
     {
-        // it is important that we do not throw a message into the bus for every indexer, otherwise the priority is no longer respected
-        $indexer = null;
-        foreach ($this->indexer as $loop) {
-            $indexer = $loop;
-            break;
+        $scheduledIndexers = [];
+        foreach ($this->indexers as $indexer) {
+            $indexerName = $indexer::getName();
+            if ($indexers !== null && !in_array($indexerName, $indexers, true)) {
+                continue;
+            }
+            $scheduledIndexers[] = $indexerName;
         }
 
-        if (!$indexer) {
+        if (empty($scheduledIndexers)) {
             return;
         }
 
-        $message = new IndexerMessage();
-        $message->setIndexer(get_class($indexer));
+        $message = new IndexerMessage($scheduledIndexers);
         $message->setTimestamp($timestamp);
-        $message->setActionType(IndexerMessage::ACTION_PARTIAL);
-
         $this->bus->dispatch($message);
     }
 }

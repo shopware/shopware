@@ -138,6 +138,11 @@ class ProductCategoryTreeIndexer implements IndexerInterface
         $this->update($ids, $event->getContext());
     }
 
+    public static function getName(): string
+    {
+        return 'Swag.ProductCategoryTreeIndexer';
+    }
+
     private function update(array $ids, Context $context): void
     {
         if (empty($ids)) {

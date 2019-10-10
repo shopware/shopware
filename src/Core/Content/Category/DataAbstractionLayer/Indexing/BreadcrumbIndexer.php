@@ -270,6 +270,11 @@ class BreadcrumbIndexer implements IndexerInterface
         $this->cache->invalidateTags($tags);
     }
 
+    public static function getName(): string
+    {
+        return 'Swag.BreadcrumbIndexer';
+    }
+
     private function buildBreadcrumb(string $id, CategoryCollection $categories): array
     {
         $category = $categories->get($id);

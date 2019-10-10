@@ -205,6 +205,11 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
         return $updated;
     }
 
+    public static function getName(): string
+    {
+        return 'Swag.RulePayloadIndexer';
+    }
+
     private function clearCache(): void
     {
         $this->cache->invalidateTags(['entity_' . $this->ruleDefinition->getEntityName()]);

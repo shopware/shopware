@@ -121,6 +121,11 @@ class PromotionExclusionIndexer implements IndexerInterface
         }
     }
 
+    public static function getName(): string
+    {
+        return 'Swag.PromotionExclusionIndexer';
+    }
+
     /**
      * function is called when promotions have been deleted. All references on promotions that id is in array
      * ids will be deleted

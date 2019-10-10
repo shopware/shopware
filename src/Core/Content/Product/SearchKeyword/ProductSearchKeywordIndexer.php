@@ -263,4 +263,9 @@ class ProductSearchKeywordIndexer implements IndexerInterface
             }
         );
     }
+
+    public static function getName(): string
+    {
+        return 'Swag.ProductSearchKeywordIndexer';
+    }
 }

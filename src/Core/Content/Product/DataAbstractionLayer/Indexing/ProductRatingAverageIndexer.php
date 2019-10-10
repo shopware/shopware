@@ -172,6 +172,11 @@ class ProductRatingAverageIndexer implements IndexerInterface, EventSubscriberIn
         $this->update($productIds, $reviewIds);
     }
 
+    public static function getName(): string
+    {
+        return 'Swag.ProductRatingAverageIndexer';
+    }
+
     /**
      * method returns all binary productIds that are linked to given reviewIds
      */

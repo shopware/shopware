@@ -51,4 +51,9 @@ class QueueTestIndexer implements IndexerInterface
     {
         return $this->partialCalls;
     }
+
+    public static function getName(): string
+    {
+        return self::class;
+    }
 }

@@ -114,6 +114,11 @@ class MediaThumbnailIndexer implements IndexerInterface, EventSubscriberInterfac
         }
     }
 
+    public static function getName(): string
+    {
+        return self::class;
+    }
+
     private function updateThumbnailsRoField(array $mediaIds, Context $context): void
     {
         $criteria = new Criteria($mediaIds);

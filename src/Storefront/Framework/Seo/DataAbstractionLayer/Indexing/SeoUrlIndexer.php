@@ -281,12 +281,15 @@ class SeoUrlIndexer implements IndexerInterface
         }
 
         if ($mustReindex) {
-            $message = new IndexerMessage();
-            $message->setIndexer(self::class);
+            $message = new IndexerMessage([self::getName()]);
             $message->setTimestamp(new \DateTime());
-            $message->setActionType(IndexerMessage::ACTION_PARTIAL);
             $this->bus->dispatch($message);
         }
+    }
+
+    public static function getName(): string
+    {
+        return 'Swag.SeoUrlIndexer';
     }
 
     private function getLanguageIdChain($languageId): array

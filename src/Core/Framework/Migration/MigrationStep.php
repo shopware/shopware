@@ -70,4 +70,9 @@ abstract class MigrationStep
         );
         $connection->exec($query);
     }
+
+    protected function registerIndexer(Connection $connection, string $name): void
+    {
+        IndexerQueuer::registerIndexer($connection, $name, get_class($this));
+    }
 }

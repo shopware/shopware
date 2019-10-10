@@ -43,7 +43,8 @@ export default class OrderFixtureService extends SalesChannelFixtureService {
             .then(() => {
                 return this.apiClient.post(`/v1/checkout/cart/line-item/${productId}`, {
                     type: 'product',
-                    referencedId: productId
+                    referencedId: productId,
+                    stackable: true
                 });
             })
             .then(() => {

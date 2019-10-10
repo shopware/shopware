@@ -63,9 +63,9 @@
                                                       :context="versionContext"
                                                       :editable="isEditing"
                                                       ref="sw-order-line-item-grid"
-                                                      @item-deleted="saveAndRecalculate"
-                                                      @item-edited="recalculateAndReload"
-                                                      @existing-item-edited="saveAndRecalculate"
+                                                      @item-delete="saveAndRecalculate"
+                                                      @item-edit="recalculateAndReload"
+                                                      @existing-item-edit="saveAndRecalculate"
                                                       @item-added="recalculateAndReload"
                                                       @item-cancel="recalculateAndReload">
                             </sw-order-line-items-grid>

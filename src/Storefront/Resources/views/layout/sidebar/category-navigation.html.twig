@@ -1,4 +1,6 @@
 {% block layout_navigation_categories %}
+    {% set navigationMaxDepth = 3 %}
+
     {% if not level %}
         {% set level = 0 %}
     {% endif %}
@@ -13,7 +15,7 @@
 
                             {% block layout_navigation_categories_link_children %}
                                 <a class="category-navigation-link{% if item.category.id is same as(activeResult.id) %} is-active{% endif %}{% if item.category.id in activeResult.path %} in-path{% endif %}"
-                                   href="{{ navigationUrl(item.category) }}">
+                                   href="{% if item.category.externalLink %}{{ item.category.externalLink }}{% else %}{{ seoUrl('frontend.navigation.page', { navigationId: item.category.id }) }}{% endif %}">
                                     {% block layout_navigation_categories_link_children_name %}
                                         {{ item.category.name }}
                                     {% endblock %}
@@ -21,17 +23,19 @@
                             {% endblock %}
 
                             {% block layout_navigation_categories_recoursion %}
-                                {% sw_include '@Storefront/layout/sidebar/category-navigation.html.twig' with {
-                                    navigationTree: item.children,
-                                    activeResult: activeResult,
-                                    level: level + 1
-                                } only %}
+                                {% if level < navigationMaxDepth %}
+                                    {% sw_include '@Storefront/layout/sidebar/category-navigation.html.twig' with {
+                                        navigationTree: item.children,
+                                        activeResult: activeResult,
+                                        level: level + 1
+                                    } only %}
+                                {% endif %}
                             {% endblock %}
                         {% else %}
 
                             {% block layout_navigation_categories_link %}
                                 <a class="category-navigation-link{% if item.category.id is same as(activeResult.id) %} is-active{% endif %}"
-                                   href="{{ navigationUrl(item.category) }}">
+                                   href="{% if item.category.externalLink %}{{ item.category.externalLink }}{% else %}{{ seoUrl('frontend.navigation.page', { navigationId: item.category.id }) }}{% endif %}">
                                     {% block layout_navigation_categories_link_name %}
                                         {{ item.category.name }}
                                     {% endblock %}

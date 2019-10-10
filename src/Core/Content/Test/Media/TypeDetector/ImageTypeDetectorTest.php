@@ -146,6 +146,18 @@ class ImageTypeDetectorTest extends TestCase
         static::assertTrue($type->is(ImageType::TRANSPARENT));
     }
 
+    public function testDetectWorksForUpperCase(): void
+    {
+        $type = $this->getImageTypeDetector()->detect(
+            $this->createMediaFile(__DIR__ . '/../fixtures/shopware-logo.PNG'),
+            null
+        );
+
+        static::assertInstanceOf(ImageType::class, $type);
+        static::assertCount(1, $type->getFlags());
+        static::assertTrue($type->is(ImageType::TRANSPARENT));
+    }
+
     public function testDetectDoc(): void
     {
         $type = $this->getImageTypeDetector()->detect(

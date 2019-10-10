@@ -38,11 +38,6 @@ class SalesChannelCheckoutControllerTest extends TestCase
     /**
      * @var EntityRepositoryInterface
      */
-    private $mediaRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
     private $currencyRepository;
 
     /**
@@ -60,21 +55,6 @@ class SalesChannelCheckoutControllerTest extends TestCase
      */
     private $connection;
 
-    /**
-     * @var Context
-     */
-    private $context;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $shippingMethodRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $paymentMethodRepository;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -82,13 +62,9 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->customerRepository = $this->getContainer()->get('customer.repository');
-        $this->mediaRepository = $this->getContainer()->get('media.repository');
         $this->currencyRepository = $this->getContainer()->get('currency.repository');
-        $this->shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
-        $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
         $this->taxId = Uuid::randomHex();
         $this->manufacturerId = Uuid::randomHex();
-        $this->context = Context::createDefaultContext();
 
         // reset rules
         $ruleLoader = $this->getContainer()->get(CartRuleLoader::class);
@@ -236,7 +212,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $mail = Uuid::randomHex() . '@shopware.unit';
 
         $firstName = 'Max';
-        $lastName = 'Mustmann';
+        $lastName = 'Mustermann';
         $salutationId = $this->getValidSalutationId();
 
         $personal = [
@@ -269,6 +245,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
 
         $order = json_decode($browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('data', $order);
+        static::assertArrayHasKey(PlatformRequest::HEADER_CONTEXT_TOKEN, $order);
 
         $order = $order['data'];
         static::assertNotEmpty($order);
@@ -321,7 +298,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $mail = Uuid::randomHex() . '@shopware.unit';
 
         $firstName = 'Max';
-        $lastName = 'Mustmann';
+        $lastName = 'Mustermann';
         $salutationId = $this->getValidSalutationId();
 
         $personal = [
@@ -449,7 +426,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $guestMail = Uuid::randomHex() . '@shopware.unit';
 
         $firstName = 'Max';
-        $lastName = 'Mustmann';
+        $lastName = 'Mustermann';
         $salutationId = $this->getValidSalutationId();
 
         $personal = [
@@ -649,7 +626,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $mail = Uuid::randomHex() . '@shopware.unit';
 
         $firstName = 'Max';
-        $lastName = 'Mustmann';
+        $lastName = 'Mustermann';
         $salutationId = $this->getValidSalutationId();
 
         $personal = [
@@ -717,10 +694,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
 
     private function createCart(?KernelBrowser $browser = null): KernelBrowser
     {
-        $salesChannelClient = $browser;
-        if ($browser === null) {
-            $salesChannelClient = $this->getSalesChannelBrowser();
-        }
+        $salesChannelClient = $browser ?? $this->getSalesChannelBrowser();
         $salesChannelClient->request('POST', '/sales-channel-api/v1/checkout/cart');
         $response = $salesChannelClient->getResponse();
 
@@ -767,19 +741,5 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $content = json_decode($response->getContent(), true);
 
         $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
-    }
-
-    private function setShippingMethod(string $shippingId, KernelBrowser $browser): void
-    {
-        $browser->request('PATCH', '/sales-channel-api/v1/context', [
-            'shippingMethodId' => $shippingId,
-        ]);
-    }
-
-    private function setPaymentMethod(string $paymentMethodId, KernelBrowser $browser): void
-    {
-        $browser->request('PATCH', '/sales-channel-api/v1/context', [
-            'paymentMethodId' => $paymentMethodId,
-        ]);
     }
 }

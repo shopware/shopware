@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart\SalesChannel;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService;
+use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
@@ -17,8 +18,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -44,11 +45,6 @@ class SalesChannelCheckoutController extends AbstractController
     private $cartService;
 
     /**
-     * @var SalesChannelContextPersister
-     */
-    private $contextPersister;
-
-    /**
      * @var SalesChannelContextFactory
      */
     private $salesChannelContextFactory;
@@ -56,7 +52,7 @@ class SalesChannelCheckoutController extends AbstractController
     /**
      * @var AccountRegistrationService
      */
-    private $accountRegisterService;
+    private $accountRegistrationService;
 
     /**
      * @var Serializer
@@ -68,22 +64,27 @@ class SalesChannelCheckoutController extends AbstractController
      */
     private $orderRepository;
 
+    /**
+     * @var AccountService
+     */
+    private $accountService;
+
     public function __construct(
         PaymentService $paymentService,
         CartService $cartService,
-        SalesChannelContextPersister $contextPersister,
         SalesChannelContextFactory $salesChannelContextFactory,
         Serializer $serializer,
         EntityRepositoryInterface $orderRepository,
-        AccountRegistrationService $accountRegisterService
+        AccountRegistrationService $accountRegistrationService,
+        AccountService $accountService
     ) {
         $this->paymentService = $paymentService;
         $this->cartService = $cartService;
-        $this->contextPersister = $contextPersister;
         $this->salesChannelContextFactory = $salesChannelContextFactory;
         $this->orderRepository = $orderRepository;
         $this->serializer = $serializer;
-        $this->accountRegisterService = $accountRegisterService;
+        $this->accountRegistrationService = $accountRegistrationService;
+        $this->accountService = $accountService;
     }
 
     /**
@@ -92,15 +93,12 @@ class SalesChannelCheckoutController extends AbstractController
      * @throws OrderNotFoundException
      * @throws CartTokenNotFoundException
      */
-    public function createOrder(Request $request, SalesChannelContext $context): JsonResponse
+    public function createOrder(SalesChannelContext $context): JsonResponse
     {
-        $token = $request->request->getAlnum('token', $context->getToken());
-        $cart = $this->cartService->getCart($token, $context);
+        $cart = $this->cartService->getCart($context->getToken(), $context);
 
         $orderId = $this->cartService->order($cart, $context);
         $order = $this->getOrderById($orderId, $context);
-
-        $this->contextPersister->save($context->getToken(), ['cartToken' => null]);
 
         return new JsonResponse($this->serialize($order));
     }
@@ -111,20 +109,24 @@ class SalesChannelCheckoutController extends AbstractController
      * @throws OrderNotFoundException
      * @throws CartTokenNotFoundException
      */
-    public function createGuestOrder(Request $request, RequestDataBag $data, SalesChannelContext $context): JsonResponse
+    public function createGuestOrder(RequestDataBag $data, SalesChannelContext $salesChannelContext): JsonResponse
     {
-        $token = $request->request->getAlnum('token', $context->getToken());
-        $request->request->remove('token');
+        $customerId = $this->accountRegistrationService->register($data, true, $salesChannelContext);
+        $newContextToken = $this->accountService->login($data->get('email'), $salesChannelContext, true);
 
-        $customerId = $this->accountRegisterService->register($data, true, $context);
+        $newSalesChannelContext = $this->createSalesChannelContext(
+            $newContextToken,
+            $customerId,
+            $salesChannelContext
+        );
 
-        $salesChannelContext = $this->createSalesChannelContext($customerId, $context);
+        $cart = $this->cartService->getCart($newSalesChannelContext->getToken(), $newSalesChannelContext);
+        $orderId = $this->cartService->order($cart, $newSalesChannelContext);
 
-        $cart = $this->cartService->getCart($token, $salesChannelContext);
-        $orderId = $this->cartService->order($cart, $salesChannelContext);
-        $this->contextPersister->save($context->getToken(), ['cartToken' => null]);
+        $responseData = $this->serialize($this->getOrderById($orderId, $newSalesChannelContext));
+        $responseData[PlatformRequest::HEADER_CONTEXT_TOKEN] = $newContextToken;
 
-        return new JsonResponse($this->serialize($this->getOrderById($orderId, $context)));
+        return new JsonResponse($responseData);
     }
 
     /**
@@ -190,10 +192,15 @@ class SalesChannelCheckoutController extends AbstractController
         return $order;
     }
 
-    private function createSalesChannelContext(string $customerId, SalesChannelContext $context): SalesChannelContext
+    /**
+     * Since the guest customer was logged in, the context changed in the system,
+     * but this doesn't effect the context given as parameter.
+     * Because of that, a new context for the following operations is created
+     */
+    private function createSalesChannelContext(string $newToken, string $customerId, SalesChannelContext $context): SalesChannelContext
     {
         $salesChannelContext = $this->salesChannelContextFactory->create(
-            $context->getToken(),
+            $newToken,
             $context->getSalesChannel()->getId(),
             [SalesChannelContextService::CUSTOMER_ID => $customerId]
         );

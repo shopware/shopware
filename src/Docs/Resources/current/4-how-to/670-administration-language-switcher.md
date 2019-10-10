@@ -18,7 +18,7 @@ To change the language in an administration listing you have to add the language
 {# foobar-list.html.twig #}
 
 <sw-page>
-    <template slot="language-switch">
+    <template #language-switch>
         <sw-language-switch></sw-language-switch>
     </template>
 </sw-page>
@@ -33,7 +33,7 @@ The language switcher just tells the administration application to change the la
 So as our content is not automatically reloaded on switching the language you have to listen to the change event of the language switcher like this:
 
 ```twig
-<sw-language-switch v-on:on-change="getList"></sw-language-switch>
+<sw-language-switch @change="changeLanguage"></sw-language-switch>
 ``` 
 ```javascript
 import template from './foobar-list.html.twig';
@@ -60,6 +60,11 @@ Shopware.Component.register('foobar-list', {
     },
 
     methods: {
+        changeLanguage(languageId) {
+            this.context.languageId = languageId;
+            this.getList()
+        },
+
         getList() {
             this.isLoading = true;
 
@@ -81,7 +86,7 @@ To change the language in an administration editing page you have to add the lan
 {# foobar-detail.html.twig #}
 
 <sw-page>
-    <template slot="language-switch">
+    <template #language-switch>
         <sw-language-switch></sw-language-switch>
     </template>
 </sw-page>
@@ -90,7 +95,7 @@ To change the language in an administration editing page you have to add the lan
 Like in the listing you have to provide a reloading functionality by listening to the on-change event:
 
 ```twig
-<sw-language-switch v-on:on-change="loadItem"></sw-language-switch>
+<sw-language-switch @change="loadItem"></sw-language-switch>
 ``` 
 
 ```javascript
@@ -135,9 +140,9 @@ But be aware of that this might end up in data loss.
 To prevent that the language switch component can cancel the language switch if you provide callbacks that check for changes:
 
 ```twig
-<sw-language-switch v-bind:saveChangesFunction="saveOnLanguageChange"
-                    v-bind:abortChangeFunction="abortOnLanguageChange"
-                    v-on:on-change="loadItem">
+<sw-language-switch :saveChangesFunction="saveOnLanguageChange"
+                    :abortChangeFunction="abortOnLanguageChange"
+                    @change="loadItem">
 </sw-language-switch>
 ``` 
 
@@ -169,6 +174,11 @@ Shopware.Component.register('foobar-detail', {
     },
 
     methods: {
+        changeLanguage(languageId) {
+            this.context.languageId = languageId;
+            this.loadItem()
+        },
+
         loadItem() {
             return this.customEntityRepository.get(this.$route.params.id, this.context).then(entity => {
                 this.item = entity
@@ -193,10 +203,11 @@ You can see it regularly above an other content:
 
 ```twig
 <sw-page class="foobar-detail">
-    <sw-card-view slot="content"
-                  v-if="item">
-        <sw-language-info v-bind:entityDescription="item.name"></sw-language-info>
-    </sw-card-view>
+    <template #content>
+        <sw-card-view v-if="item">
+            <sw-language-info :entityDescription="item.name"></sw-language-info>
+        </sw-card-view>
+    </template>
 </sw-page>
 ```
 
@@ -211,7 +222,7 @@ Simply disable the component using the attribute:
 
 ```twig
 <sw-page>
-    <template slot="language-switch">
+    <template #language-switch>
         <sw-language-switch disabled="disabled"></sw-language-switch>
     </template>
 </sw-page>
@@ -240,8 +251,8 @@ Shopware.Component.register('foobar-detail', {
 The language info display a slightly different text for a new entry so be sure to tell the language info component it is about editing a new entry:
 
 ```twig
-<sw-language-info v-bind:entityDescription="item.name"
-                  v-bind:isNewEntity="true">
+<sw-language-info :entityDescription="item.name"
+                  :isNewEntity="true">
 </sw-language-info>
 ```
 

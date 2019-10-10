@@ -36,7 +36,8 @@ Cypress.Commands.add('activateShopwareTheme', () => {
  */
 Cypress.Commands.add('cleanUpPreviousState', () => {
     if (Cypress.env('localUsage')) {
-        return cy.exec(`${Cypress.env('projectRoot')}/psh.phar e2e:restore-db`);
+        return cy.exec(`${Cypress.env('projectRoot')}/psh.phar e2e:restore-db`)
+            .its('stdout').should('contain', 'All commands successfully executed!');
     }
 
     return cy.request(`http://${new URL(Cypress.config('baseUrl')).hostname}:8005/cleanup`);

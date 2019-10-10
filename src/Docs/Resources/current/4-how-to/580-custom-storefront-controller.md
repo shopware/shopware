@@ -18,10 +18,14 @@ You need a own route for every controller action, you will use Symfony's `@Route
 
 namespace Swag\StorefrontController\Storefront\Controller;
 
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @RouteScope(scopes={"storefront"})
+ */
 class ClearCartController extends StorefrontController
 {
     /**
@@ -64,10 +68,14 @@ Your controller now looks like this:
 namespace Swag\StorefrontController\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @RouteScope(scopes={"storefront"})
+ */
 class ClearCartController extends StorefrontController
 {
     /**

@@ -37,6 +37,14 @@ $criteria->addFilter(
 );
 ```
 
+### Adding associations to your criteria
+
+By default your query will only fetch the main entity you are requesting. You can add associations to your criteria object in order to fetch data for that association.
+
+```php
+$orderCriteria->addAssociation('lineItems');
+```
+
 ## Filter
 
 Filters reduce your results to your needs and will be considered when aggregating data. You can filter on every property of an entity, both via code or API.

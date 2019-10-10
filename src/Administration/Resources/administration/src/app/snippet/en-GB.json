@@ -385,8 +385,7 @@
       "messageNoTypeResults": "No type found.",
       "placeholderSearchField": "Find products, customers, orders...",
       "placeholderTypeSearchField": "Search \"{entity}\"...",
-      "placeholderShortcutInfo": "Tip: Press the \"f\" key to get to the search bar faster.",
-      "labelShowResultsInModule": "Show results in module({count})"
+      "placeholderShortcutInfo": "Tip: Press the \"f\" key to get to the search bar faster."
     },
     "sw-search-bar-item": {
       "typeLabelCustomer": "Customer",
@@ -395,6 +394,9 @@
       "typeLabelMedia": "Media",
       "typeLabelCategory": "Category",
       "typeLabelCms": "CMS"
+    },
+    "sw-search-more-results": {
+      "labelShowResultsInModule": "Show results in module({count})"
     },
     "sw-condition": {
       "operator": {

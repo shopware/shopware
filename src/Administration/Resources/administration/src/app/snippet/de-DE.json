@@ -386,8 +386,7 @@
       "messageNoTypeResults": "Es wurde kein passender Typ gefunden.",
       "placeholderSearchField": "Finde Produkte, Kunden, Bestellungen",
       "placeholderTypeSearchField": "Durchsuche alle {entity} ...",
-      "placeholderShortcutInfo": "Tipp: Nutze die \"f\" Taste, um die Suche schneller zu öffnen.",
-      "labelShowResultsInModule": "Ergebnisse im Modul anzeigen({count})"
+      "placeholderShortcutInfo": "Tipp: Nutze die \"f\" Taste, um die Suche schneller zu öffnen."
     },
     "sw-search-bar-item": {
       "typeLabelCustomer": "Kunde",
@@ -396,6 +395,9 @@
       "typeLabelMedia": "Medium",
       "typeLabelCategory": "Kategorie",
       "typeLabelCms": "CMS"
+    },
+    "sw-search-more-results": {
+      "labelShowResultsInModule": "Ergebnisse im Modul anzeigen({count})"
     },
     "sw-condition": {
       "operator": {

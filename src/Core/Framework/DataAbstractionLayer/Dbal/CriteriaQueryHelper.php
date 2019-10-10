@@ -95,18 +95,29 @@ trait CriteriaQueryHelper
 
     protected function addIdCondition(Criteria $criteria, EntityDefinition $definition, QueryBuilder $query): void
     {
-        $primaryKey = $criteria->getIds();
+        $primaryKeys = $criteria->getIds();
 
-        $primaryKey = array_values($primaryKey);
+        $primaryKeys = array_values($primaryKeys);
 
-        if (!\is_array($primaryKey[0]) || \count($primaryKey[0]) === 1) {
-            $bytes = array_map(function (string $id) {
-                return Uuid::fromHexToBytes($id);
-            }, $criteria->getIds());
+        if (!\is_array($primaryKeys[0]) || \count($primaryKeys[0]) === 1) {
+            $primaryKeyField = $definition->getPrimaryKeys()->first();
+            if ($primaryKeyField instanceof IdField) {
+                $primaryKeys = array_map(function ($id) {
+                    if (is_array($id)) {
+                        return Uuid::fromHexToBytes($id[0]);
+                    }
 
-            $query->andWhere(EntityDefinitionQueryHelper::escape($definition->getEntityName()) . '.`id` IN (:ids)');
+                    return Uuid::fromHexToBytes($id);
+                }, $primaryKeys);
+            }
 
-            $query->setParameter('ids', array_values($bytes), Connection::PARAM_STR_ARRAY);
+            $query->andWhere(sprintf(
+                '%s.%s IN (:ids)',
+                EntityDefinitionQueryHelper::escape($definition->getEntityName()),
+                EntityDefinitionQueryHelper::escape($primaryKeyField->getStorageName())
+            ));
+
+            $query->setParameter('ids', array_values($primaryKeys), Connection::PARAM_STR_ARRAY);
 
             return;
         }

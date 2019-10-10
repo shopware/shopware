@@ -88,10 +88,12 @@ Component.register('sw-media-modal-folder-settings', {
 
             if (this.folder.parentId !== null) {
                 this.parent = this.mediaFolderStore.getById(this.folder.parentId);
-                this.parent.configuration = this.mediaFolderConfigurationStore.getById(this.parent.configuration.id);
-                this.parent.configuration.getAssociation('mediaThumbnailSizes').getList({
-                    limit: 25,
-                    page: 1
+                this.mediaFolderConfigurationStore.getByIdAsync(this.parent.configurationId).then((parentConfiguration) => {
+                    this.parent.configuration = parentConfiguration;
+                    this.parent.configuration.getAssociation('mediaThumbnailSizes').getList({
+                        limit: 25,
+                        page: 1
+                    });
                 });
             }
         },
@@ -127,6 +129,8 @@ Component.register('sw-media-modal-folder-settings', {
         },
 
         deleteThumbnail(thumbnailSize) {
+            this.mediaFolderConfigurationThumbnailSizeStore.remove(thumbnailSize);
+
             thumbnailSize.delete(true).then(() => {
                 this.getThumbnailSizes();
             });
@@ -188,7 +192,7 @@ Component.register('sw-media-modal-folder-settings', {
                 return;
             }
 
-            this.configuration = this.mediaFolderConfigurationStore.duplicate(this.parent.configuration.id, true);
+            this.configuration = this.mediaFolderConfigurationStore.duplicate(this.parent.configurationId, true);
         },
 
         onClickSave() {
@@ -215,7 +219,7 @@ Component.register('sw-media-modal-folder-settings', {
             }
 
             handleDefaultFolder.then(() => {
-                this.mediaFolderConfigurationStore.sync()
+                this.configuration.save()
                     .then(() => {
                         return this.folder.save();
                     })

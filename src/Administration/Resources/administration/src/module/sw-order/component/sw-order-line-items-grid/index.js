@@ -137,7 +137,7 @@ Component.register('sw-order-line-items-grid', {
                         });
                     }
                 } else {
-                    this.$emit('item-edited');
+                    this.$emit('existing-item-edited');
                     resolve();
                 }
             });
@@ -156,11 +156,15 @@ Component.register('sw-order-line-items-grid', {
                 price: 0
             };
             item.price = {
-                taxRules: [{ taxRate: 0 }]
+                taxRules: [{ taxRate: 0 }],
+                unitPrice: 0,
+                quantity: 1,
+                totalPrice: 0
             };
             item.quantity = 1;
             item.unitPrice = 0;
             item.totalPrice = 0;
+            item.precision = 2;
             item.label = '';
 
             return item;

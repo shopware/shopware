@@ -12,9 +12,10 @@
                             <sw-button-group :disabled="isLoading">
 
                                 {% block sw_order_line_items_grid_add_existing_product %}
-                                    <sw-button variant="ghost"
-                                        size="small"
-                                        @click="onInsertExistingItem">
+                                    <sw-button class="sw-order-line-items-grid__actions-container-add-product-btn"
+                                               variant="ghost"
+                                               size="small"
+                                               @click="onInsertExistingItem">
                                         {{ $tc('sw-order.detailBase.buttonAddProduct') }}
                                     </sw-button>
                                 {% endblock %}

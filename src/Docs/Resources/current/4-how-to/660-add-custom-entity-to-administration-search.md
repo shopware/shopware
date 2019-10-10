@@ -60,7 +60,7 @@ In order to declare a search result view the `sw-search-bar-item` template has t
 `sw-search-bar-item.html.twig`
 ```twig
 {% block sw_search_bar_item_cms_page %}
-    {{ parent }}
+    {% parent %}
 
     <router-link v-else-if="type === 'foo_bar'"
                  v-bind:to="{ name: 'foo.bar.detail', params: { id: item.id } }"

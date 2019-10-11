@@ -38,7 +38,7 @@ Component.register('sw-multi-select', {
         },
         value: {
             type: Array,
-            required: true
+            required: false
         },
         labelProperty: {
             type: String,
@@ -123,7 +123,7 @@ Component.register('sw-multi-select', {
 
         currentValue: {
             get() {
-                return [...this.value];
+                return this.value ? [...this.value] : this.value;
             },
             set(newValue) {
                 /** @deprecated Html select don't have an onInput event */

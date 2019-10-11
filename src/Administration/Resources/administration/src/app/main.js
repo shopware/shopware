@@ -20,6 +20,7 @@ import LicenseViolationsService from 'src/app/service/license-violations.service
 import LocaleToLanguageService from 'src/app/service/locale-to-language.service';
 import addPluginUpdatesListener from 'src/core/service/plugin-updates-listener.service';
 import addShopwareUpdatesListener from 'src/core/service/shopware-updates-listener.service';
+import PreferedColorSchemeService from 'src/app/service/prefered-color-scheme.service';
 import 'src/app/decorator';
 
 /** Import global styles */
@@ -94,4 +95,9 @@ Application
     })
     .addServiceProvider('licenseViolationService', () => {
         return LicenseViolationsService(Application.getContainer('service').storeService);
+    })
+    .addServiceProvider('preferedColorSchemeService', () => {
+        const preferedColorSchemeService = new PreferedColorSchemeService();
+        preferedColorSchemeService.load();
+        return preferedColorSchemeService;
     });

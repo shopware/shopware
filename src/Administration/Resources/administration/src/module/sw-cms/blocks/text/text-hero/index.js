@@ -1,7 +1,7 @@
 import './component';
 import './preview';
 
-Shopware.Service.get('cmsService').registerCmsBlock({
+Shopware.Service('cmsService').registerCmsBlock({
     name: 'text-hero',
     label: 'Hero text',
     category: 'text',

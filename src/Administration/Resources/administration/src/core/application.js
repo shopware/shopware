@@ -160,7 +160,7 @@ class ApplicationBootstrapper {
      */
     registerContext(context) {
         this.addServiceProvider('context', () => {
-            const ContextFactory = Shopware._private.ContextFactory;
+            const ContextFactory = Shopware.Classes._private.ContextFactory;
 
             return ContextFactory(context);
         });

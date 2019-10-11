@@ -1,7 +1,7 @@
 import './component';
 import './preview';
 
-Shopware.Service.get('cmsService').registerCmsBlock({
+Shopware.Service('cmsService').registerCmsBlock({
     name: 'product-listing',
     label: 'Product listing',
     category: 'commerce',

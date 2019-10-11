@@ -1,7 +1,7 @@
 import './component';
 import './preview';
 
-Shopware.Service.get('cmsService').registerCmsBlock({
+Shopware.Service('cmsService').registerCmsBlock({
     name: 'image-text-row',
     label: 'Three column image and text grid',
     category: 'text-image',

@@ -9,7 +9,7 @@ class UserRecoveryApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'user') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'userRecoveryService';
-        this.context = Shopware.Context.get();
+        this.context = Shopware.Context;
     }
 
     createRecovery(email) {

@@ -6,7 +6,7 @@ const Criteria = Shopware.Data.Criteria;
 const criteria = new Criteria();
 criteria.addAssociation('cover');
 
-Shopware.Service.get('cmsService').registerCmsElement({
+Shopware.Service('cmsService').registerCmsElement({
     name: 'product-box',
     label: 'Product box',
     component: 'sw-cms-el-product-box',
@@ -56,7 +56,7 @@ Shopware.Service.get('cmsService').registerCmsElement({
     collect: function collect(elem) {
         const context = Object.assign(
             {},
-            Shopware.Context.get(),
+            Shopware.Context,
             { inheritance: true }
         );
 

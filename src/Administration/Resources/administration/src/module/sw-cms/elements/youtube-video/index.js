@@ -2,7 +2,7 @@ import './component';
 import './config';
 import './preview';
 
-Shopware.Service.get('cmsService').registerCmsElement({
+Shopware.Service('cmsService').registerCmsElement({
     name: 'youtube-video',
     label: 'YouTube video',
     component: 'sw-cms-el-youtube-video',

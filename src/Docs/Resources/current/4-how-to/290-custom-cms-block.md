@@ -76,7 +76,7 @@ First of all, access our `Applicaton` wrapper, which will grant you access to th
 mentioned `registerCmsBlock` method.
 
 ```js
-Shopware.Application.getContainer('service').cmsService.registerCmsBlock();
+Shopware.Service('cmsService').registerCmsBlock();
 ```
 
 The method `registerCmsBlock` takes a configuration object, containing the following necessary data:
@@ -107,7 +107,7 @@ slots
 Go ahead and create this configuration object yourself.
 Here's what it should look like after having set all of those options:
 ```js
-Shopware.Application.getContainer('service').cmsService.registerCmsBlock({
+Shopware.Service('cmsService').registerCmsBlock({
     name: 'image-text-reversed',
     label: 'Text next to image',
     category: 'text-image',
@@ -216,7 +216,7 @@ new component actually gets loaded.
 ```js
 import './component';
 
-Shopware.Application.getContainer('service').cmsService.registerCmsBlock({
+Shopware.Service('cmsService').registerCmsBlock({
     ...
 });
 ```
@@ -278,7 +278,7 @@ This is, what your final block's `index.js` file should look like now:
 import './component';
 import './preview';
 
-Shopware.Application.getContainer('service').cmsService.registerCmsBlock({
+Shopware.Service('cmsService').registerCmsBlock({
     name: 'image-text-reversed',
     label: 'Text next to image',
     category: 'text-image',

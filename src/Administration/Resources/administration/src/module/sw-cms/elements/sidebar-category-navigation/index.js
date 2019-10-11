@@ -2,7 +2,7 @@ import './component';
 import './config';
 import './preview';
 
-Shopware.Service.get('cmsService').registerCmsElement({
+Shopware.Service('cmsService').registerCmsElement({
     name: 'category-navigation',
     label: 'Category Navigation',
     component: 'sw-cms-el-category-navigation',

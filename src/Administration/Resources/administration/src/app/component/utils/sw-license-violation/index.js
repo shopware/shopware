@@ -12,7 +12,8 @@ Shopware.Component.register('sw-license-violation', {
         'licenseViolationService',
         'pluginService',
         'cacheApiService',
-        'loginService'
+        'loginService',
+        'context'
     ],
 
     mixins: [
@@ -44,12 +45,8 @@ Shopware.Component.register('sw-license-violation', {
             return this.violations.length > 0;
         },
 
-        context() {
-            return Shopware.Context.get();
-        },
-
         pluginRepository() {
-            const repositoryFactory = Shopware.Service.get('repositoryFactory');
+            const repositoryFactory = Shopware.Service('repositoryFactory');
             return repositoryFactory.create('plugin');
         },
 

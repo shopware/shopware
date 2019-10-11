@@ -1,7 +1,7 @@
 import './component';
 import './preview';
 
-Shopware.Service.get('cmsService').registerCmsBlock({
+Shopware.Service('cmsService').registerCmsBlock({
     name: 'text-two-column',
     label: 'Two column text',
     category: 'text',

@@ -22,7 +22,7 @@ export default class IndividualCodeGenerator extends EventEmitter {
         this.chunkSize = 100;
         this.maxRetryCount = 5;
 
-        this.syncService = Shopware.Service.get('syncService');
+        this.syncService = Shopware.Service('syncService');
         this.httpClient = this.syncService.httpClient;
     }
 

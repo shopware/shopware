@@ -5,7 +5,7 @@ Filter.register('asset', (value) => {
         return '';
     }
 
-    const context = Shopware.Context.get();
+    const context = Shopware.Context;
 
     return `${context.assetsPath}${value}`;
 });

@@ -19,9 +19,9 @@ const slots = {};
 function resolve(page) {
     const loadedData = [];
 
-    contextService = Shopware.Context.get();
-    repoFactory = Shopware.Service.get('repositoryFactory');
-    cmsService = Shopware.Service.get('cmsService');
+    contextService = Shopware.Context;
+    repoFactory = Shopware.Service('repositoryFactory');
+    cmsService = Shopware.Service('cmsService');
     cmsElements = cmsService.getCmsElementRegistry();
 
     const slotEntityList = {};

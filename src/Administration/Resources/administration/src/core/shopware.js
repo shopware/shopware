@@ -215,21 +215,22 @@ const Shopware = {
      * @memberOf module:Shopware
      * @type {Object}
      */
-    Service: {
-        get: (name) => application.getContainer('service')[name],
-        list: () => application.getContainer('service').$list(),
-        register: (name, service) => application.addServiceProvider(name, service),
-        registerMiddleware: (...args) => application.addServiceProviderMiddleware(...args),
-        registerDecorator: (...args) => application.addServiceProviderDecorator(...args)
+    Service: (serviceName) => {
+        this.get = (name) => application.getContainer('service')[name];
+        this.list = () => application.getContainer('service').$list();
+        this.register = (name, service) => application.addServiceProvider(name, service);
+        this.registerMiddleware = (...args) => application.addServiceProviderMiddleware(...args);
+        this.registerDecorator = (...args) => application.addServiceProviderDecorator(...args);
+
+        return serviceName ? this.get(serviceName) : this;
     },
 
     /**
      * @memberOf module:Shopware
      * @type {Object}
      */
-    Context: {
-        get: () => application.getContainer('service').context,
-        getCopy: () => Shopware.Utils.object.cloneDeep(application.getContainer('service').context)
+    get Context() {
+        return application.getContainer('service').context;
     },
 
     /**
@@ -318,6 +319,12 @@ const Shopware = {
      * @type {Object}
      */
     Classes: {
+        _private: {
+            HttpFactory: HttpFactory,
+            RepositoryFactory: RepositoryFactory,
+            ContextFactory: ContextFactory,
+            RouterFactory: RouterFactory
+        },
         ShopwareError: ShopwareError,
         ApiService: ApiService
     },
@@ -341,10 +348,6 @@ const Shopware = {
      * @type {Object}
      */
     _private: {
-        HttpFactory: HttpFactory,
-        RepositoryFactory: RepositoryFactory,
-        ContextFactory: ContextFactory,
-        RouterFactory: RouterFactory,
         ApiServices: ApiServices
     }
 };

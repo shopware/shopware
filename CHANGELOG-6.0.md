@@ -55,6 +55,8 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * `EntityCollection.filter` returns a new `EntityCollection` object instead of a native array 
     * Added Sections which support sidebars to the `sw-cms`
     * Navigation sidebar is now a globally expandable & collapsable with `this.$store.commit('adminMenu/collapseSidebar)` and `this.$store.commit('adminMenu/expandSidebar)`
+    * Added Services functions to Shopware object for easier access
+    * Added Context to Shopware object for easier access
 * Core
     * Added DAL support for multi primary keys.
     * Added API endpoints for translation definitions

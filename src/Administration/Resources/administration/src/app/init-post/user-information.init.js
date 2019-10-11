@@ -4,9 +4,9 @@ const { State } = Shopware;
 
 export default function initializeUserContext() {
     return new Promise((resolve) => {
-        const loginService = Shopware.Service.get('loginService');
-        const context = Shopware.Context.get();
-        const userService = Shopware.Service.get('userService');
+        const loginService = Shopware.Service('loginService');
+        const context = Shopware.Context;
+        const userService = Shopware.Service('userService');
 
         // The user isn't logged in
         if (!loginService.isLoggedIn()) {

@@ -28,7 +28,7 @@ Component.register('sw-cms-el-image', {
         },
 
         mediaUrl() {
-            const context = Shopware.Context.get();
+            const context = Shopware.Context;
             const elemData = this.element.data.media;
             const mediaSource = this.element.config.media.source;
 

@@ -72,7 +72,7 @@ Component.register('sw-cms-section', {
         },
 
         sectionStyles() {
-            const context = Shopware.Context.get();
+            const context = Shopware.Context;
             let backgroundMedia = null;
 
             if (this.section.backgroundMedia) {

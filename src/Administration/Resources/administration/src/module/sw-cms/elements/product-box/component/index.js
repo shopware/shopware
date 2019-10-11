@@ -35,7 +35,7 @@ Component.register('sw-cms-el-product-box', {
         },
 
         mediaUrl() {
-            const context = Shopware.Context.get();
+            const context = Shopware.Context;
 
             if (this.product.cover && this.product.cover.media) {
                 if (this.product.cover.media.id) {

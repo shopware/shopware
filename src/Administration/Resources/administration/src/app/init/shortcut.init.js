@@ -1,8 +1,8 @@
 export default function initializeShortcutService() {
     const factoryContainer = this.getContainer('factory');
     const shortcutFactory = factoryContainer.shortcut;
-    const shortcutService = Shopware.Service.get('shortcutService');
-    const loginService = Shopware.Service.get('loginService');
+    const shortcutService = Shopware.Service('shortcutService');
+    const loginService = Shopware.Service('loginService');
 
     // Register default Shortcuts
     const defaultShortcuts = defaultShortcutMap();

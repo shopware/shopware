@@ -58,7 +58,7 @@ export default class RefreshTokenHelper {
      * @returns {Promise<String>}
      */
     fireRefreshTokenRequest() {
-        const loginService = Shopware.Service.get('loginService');
+        const loginService = Shopware.Service('loginService');
         this.isRefreshing = true;
 
         return loginService.refreshToken().then((newToken) => {

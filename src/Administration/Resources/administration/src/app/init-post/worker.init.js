@@ -7,10 +7,10 @@ let enabled = false;
  * Starts the worker
  */
 export default function initializeWorker() {
-    const loginService = Shopware.Service.get('loginService');
-    const context = Shopware.Context.get();
+    const loginService = Shopware.Service('loginService');
+    const context = Shopware.Context;
     const workerNotificationFactory = this.getContainer('factory').workerNotification;
-    const configService = Shopware.Service.get('configService');
+    const configService = Shopware.Service('configService');
 
     registerThumbnailMiddleware(workerNotificationFactory);
 

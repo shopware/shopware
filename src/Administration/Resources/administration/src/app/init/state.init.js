@@ -6,7 +6,7 @@ export default function createAppStates() {
     const UploadStore = Shopware.DataDeprecated.UploadStore;
 
     stateFactory.registerStore('upload', new UploadStore(
-        Shopware.Service.get('mediaService')
+        Shopware.Service('mediaService')
     ));
 
     return Object.keys(VuexModules).map((storeModule) => {

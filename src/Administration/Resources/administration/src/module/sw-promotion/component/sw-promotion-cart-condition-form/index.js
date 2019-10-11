@@ -88,7 +88,7 @@ Component.register('sw-promotion-cart-condition-form', {
     },
     methods: {
         createdComponent() {
-            this.syncService = Shopware.Service.get('syncService');
+            this.syncService = Shopware.Service('syncService');
             this.httpClient = this.syncService.httpClient;
 
             if (this.promotion) {

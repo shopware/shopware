@@ -7,7 +7,7 @@ export default function initializeApiServices() {
         const initContainer = this.getContainer('init');
 
         const apiServiceFactory = factoryContainer.apiService;
-        const service = new ApiService(initContainer.httpClient, Shopware.Service.get('loginService'));
+        const service = new ApiService(initContainer.httpClient, Shopware.Service('loginService'));
         const serviceName = service.name;
         apiServiceFactory.register(serviceName, service);
 

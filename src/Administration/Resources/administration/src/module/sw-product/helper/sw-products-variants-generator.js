@@ -12,7 +12,7 @@ export default class VariantsGenerator extends EventEmitter {
         this.product = null;
 
         // set dependencies
-        this.syncService = Shopware.Service.get('syncService');
+        this.syncService = Shopware.Service('syncService');
         this.EntityStore = EntityStore;
         this.State = State;
         this.httpClient = this.syncService.httpClient;

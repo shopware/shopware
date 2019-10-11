@@ -81,7 +81,7 @@ Component.register('sw-cms-el-image-slider', {
         },
 
         contextAssetPath() {
-            return Shopware.Context.get().assetsPath;
+            return Shopware.Context.assetsPath;
         }
     },
 

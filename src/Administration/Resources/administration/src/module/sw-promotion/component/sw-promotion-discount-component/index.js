@@ -236,7 +236,7 @@ Component.register('sw-promotion-discount-component', {
     },
     methods: {
         createdComponent() {
-            this.syncService = Shopware.Service.get('syncService');
+            this.syncService = Shopware.Service('syncService');
             this.httpClient = this.syncService.httpClient;
 
             this.currencyRepository.search(new Criteria(), this.context).then((response) => {

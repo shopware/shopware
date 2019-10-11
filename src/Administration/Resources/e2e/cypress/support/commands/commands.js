@@ -275,6 +275,31 @@ Cypress.Commands.add('typeLegacySelectAndCheck', {
 });
 
 /**
+ * Assert that an SW Grid with a row containing a given label also contains another column with a given value
+ * @memberOf Cypress.Chainable#
+ * @name assertRowWithLabelContains
+ * @function
+ * @param {String|RegExp} columnValue - The value which should exists in the row
+ * @param {String} columnSelector - Selector to select the value row
+ * @param {String|RegExp} labelColumnValue - Label of the row to assert
+ * @param {String} [labelColumnSelector] - Selector to select the label row
+ */
+Cypress.Commands.add('assertRowWithLabelContains', {
+    prevSubject: 'element'
+}, (subject, columnValue, columnSelector, labelColumnValue, labelColumnSelector = '.sw-data-grid__cell--label') => {
+
+    subject.children()
+        .get(labelColumnSelector)
+        .contains(labelColumnValue)
+        .parent().parent().parent()
+        .within(($row) => {
+            cy.get(`${columnSelector} > .sw-data-grid__cell-content`).contains(columnValue)
+        });
+});
+
+
+
+/**
  * Types in the global search field and verify search terms in url
  * @memberOf Cypress.Chainable#
  * @name typeAndCheckSearchField

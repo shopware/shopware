@@ -240,6 +240,9 @@
         }
       }
     },
+    "sw-dark-mode-switcher": {
+      "label": "Nachtmodus"
+    },
     "sw-duplicated-media": {
       "titleModal": "Datei existiert bereits",
       "description": "Es existiert bereits eine Datei mit dem Namen \"{fileName}\".",

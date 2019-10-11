@@ -239,6 +239,9 @@
         }
       }
     },
+    "sw-dark-mode-switcher": {
+      "label": "Dark mode"
+    },
     "sw-duplicated-media": {
       "titleModal": "File already exists",
       "description": "A file with the name \"{fileName}\" already exists.",

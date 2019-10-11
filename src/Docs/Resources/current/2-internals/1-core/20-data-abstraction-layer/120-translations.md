@@ -6,7 +6,7 @@ The data abstraction layer supports translations out of the box. In order to do 
 
 Breaking these fields into different tables enables you to search and inherit data very easily.
 It provides a strict structure and data consistency is ensured through constraints.
-Given the following DDL for MySQL:
+Given the following [DDL] for MySQL:
 
 ```sql
 CREATE TABLE `product` (
@@ -34,9 +34,9 @@ CREATE TABLE `product_translation` (
     `created_at` DATETIME(3) NOT NULL,
     `updated_at` DATETIME(3),
     PRIMARY KEY (`product_id`, `language_id`),
-    CONSTRAINT `fk.pnp_ruleset_translation.language_id` FOREIGN KEY (`language_id`)
+    CONSTRAINT `fk.product_translation.language_id` FOREIGN KEY (`language_id`)
         REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT `fk.pnp_ruleset_translation.pnp_ruleset_id` FOREIGN KEY (`product_id`)
+    CONSTRAINT `fk.product_translation.product_id` FOREIGN KEY (`product_id`)
         REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 );
 ```
@@ -100,3 +100,4 @@ protected function getParentDefinitionClass(): string
 ```
 
 
+[DDL]: https://en.wikipedia.org/wiki/Data_definition_language

@@ -14,7 +14,7 @@ export default {
     },
 
     actions: {
-        setMode({commit}, mode) {
+        setMode({ commit }, mode) {
             commit('setMode', { mode });
         }
     },
@@ -22,7 +22,8 @@ export default {
     mutations: {
         setMode(state, { mode }) {
             const colorSchemeService = Application.getContainer('service').preferedColorSchemeService;
-            colorSchemeService.mode = state.mode = mode;
+            state.mode = mode;
+            colorSchemeService.mode = mode;
             colorSchemeService.store();
         }
     }

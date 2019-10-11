@@ -413,4 +413,22 @@ $sw-admin-menu-shop-status-ok: $color-emerald;
         opacity: 0;
         transform: translateX(-8px);
     }
+
+    .sw-dark-mode-switcher {
+        display: inline-block;
+        margin: 0;
+        vertical-align: text-bottom;
+
+        &.sw-field--switch {
+            .sw-field--switch__content{
+                background: $sw-admin-menu-color-active;
+            }
+        }
+
+        .sw-field {
+            .sw-field__label {
+                color: $sw-admin-menu-color-text-primary;
+            }
+        }
+    }
 }

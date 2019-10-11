@@ -311,6 +311,8 @@
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber\UpdateSubscriber">
             <argument type="service" id="Shopware\Core\Framework\Migration\IndexerQueuer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IndexerMessageSender"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\DataAbstractionLayerValidateCommand">

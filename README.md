@@ -55,13 +55,15 @@ The **Shopware 6 Administration** is based on [Vue.js](https://vuejs.org/v2/guid
 making the creation of new modules fast and easy.
 Get started with the [design documentation](https://shopware.design/).   
 
-[![](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/rulebuilderT.png)](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/rulebuilder.png)
+[![](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/rulebuilder.gif)](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/rulebuilder.gif)
 
 The Rulebuilder makes the implementation of business processes easy.
 
 ---
 
-[![](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/shoppingexpT.png)](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/shoppingexp.png)
+[![](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/shoppingexp.gif)](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/shoppingexp.gif)
+
+[![](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/cms.gif)](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/cms.gif)
 
 Designing content is fast and intuitive with the Shopping Experiences.
 
@@ -150,13 +152,13 @@ The Shopware Roadmap shows you what we are working on, what we want to tackle ne
 
 [Take a look at the current roadmap here.](https://shopware.com/en/roadmap/)
 
-## Community
+## Our community is our strongest asset
 
-Shopware is an open source eCommerce platform that is built around the ideas and spirit of it's community - and you can take part in shaping the story of the product.
-In helping craft the future, you as a developer will grow as well.
- 
-Whether you're writing plugins, proposing code changes via pull requests,
-or exchanging ideas in Gitter or the Shopware Forum - you are a vital part of the source of inspiration we are proud to call the Shopware Community.
+In today’s information-based world, you cannot thrive in closed systems. Black boxes and vendor lock-in models hurt innovation – and belong in the dark ages of ecommerce.
+
+The future of IT is all about collaboration. At Shopware, we believe that the best ecommerce solution can only be developed in constant exchange with the people that use it every day. This is why we made a clear promise to the open source approach and embrace everyone willing to participate. We consider our community to be our greatest strength; not our competitor, like many companies tend to do.
+
+We believe that our open source edition is our strongest asset and that we need, now more than ever, to invest in our ecosystem of partners and developers. So that we can work together to collaborate across backgrounds, experiences and ideas and mutually benefit from the software that results.
  
 **Join the community now** 🖤
 

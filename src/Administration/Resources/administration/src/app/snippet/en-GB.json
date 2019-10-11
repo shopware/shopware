@@ -538,7 +538,8 @@
       "tax": "Tax | Taxes",
       "theme": "Theme | Themes",
       "unit": "Unit | Units",
-      "user": "User | Users"
+      "user": "User | Users",
+      "delivery_time": "Delivery time | Delivery times"
     },
     "day-of-week": {
       "monday": "Monday",

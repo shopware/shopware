@@ -538,7 +538,8 @@
       "snippet": "Textbaustein | Textbausteine",
       "tax": "Steuern",
       "unit": "Maßeinheit | Maßeinheiten",
-      "user": "Benutzer"
+      "user": "Benutzer",
+      "delivery_time": "Lieferzeit | Lieferzeiten"
     },
     "day-of-week": {
       "monday": "Montag",

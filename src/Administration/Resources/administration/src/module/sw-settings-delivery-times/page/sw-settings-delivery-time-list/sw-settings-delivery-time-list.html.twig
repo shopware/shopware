@@ -1,0 +1,71 @@
+{% block sw_settings_delivery_time_list %}
+    <sw-page class="sw-settings-delivery-time-list">
+
+        {% block sw_settings_delivery_time_list_search_bar %}
+            <template #search-bar>
+                <sw-search-bar
+                    initialSearchType="delivery_time"
+                    :placeholder="$tc('sw-settings-delivery-time.general.placeholder')"
+                    :initialSearch="term"
+                    @search="onSearch">
+                </sw-search-bar>
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_delivery_time_list_language_switch %}
+            <template #language-switch>
+                <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_delivery_time_list_smart_bar_actions %}
+            <template #smart-bar-actions>
+                {% block sw_settings_delivery_time_list_smart_bar_actions_create %}
+                    <sw-button
+                        class="sw-settings-delivery-time-list__create"
+                        variant="primary"
+                        :routerLink="{ name: 'sw.settings.delivery.time.create' }">
+                        {{ $tc('sw-settings-delivery-time.general.buttonCreate') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_delivery_time_list_content %}
+            <template #content>
+
+                {% block sw_settings_delivery_time_list_content_inner %}
+                    <sw-card-view>
+
+                        {% block sw_settings_delivery_time_list_grid_wrapper %}
+                            <sw-card>
+                                <template #grid>
+
+                                    {% block sw_settings_delivery_time_list_grid %}
+                                        <sw-entity-listing
+                                            :items="deliveryTimes"
+                                            :columns="deliveryTimeColumns()"
+                                            :repository="deliveryTimeRepository"
+                                            detailRoute="sw.settings.delivery.time.detail"
+                                            :allowColumnEdit="false"
+                                            :showSelection="true"
+                                            :showSettings="false"
+                                            :isLoading="isLoading"
+                                            :fullPage="false">
+
+                                            {% block sw_settings_delivery_time_list_grid_column_unit %}
+                                                <template #column-unit="{ item }">
+                                                    {{ $tc(`sw-settings-delivery-time.list.columnUnit_${item.unit}`) }}
+                                                </template>
+                                            {% endblock %}
+                                        </sw-entity-listing>
+                                    {% endblock %}
+                                </template>
+                            </sw-card>
+                        {% endblock %}
+                    </sw-card-view>
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

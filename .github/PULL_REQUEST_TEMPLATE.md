@@ -1,7 +1,7 @@
 <!--
 Thank you for contributing to Shopware! Please fill out this description template to help us to process your pull request.
 
-Please make sure to fulfil our contribution guideline (https://docs.shopware.com/en/shopware-platform-dev-en/community/contribution-guideline?category=shopware-platform-dev-en/communtiy).
+Please make sure to fulfil our contribution guideline (https://docs.shopware.com/en/shopware-platform-dev-en/community/contribution-guideline?category=shopware-platform-dev-en/community).
 -->
 
 ### 1. Why is this change necessary?

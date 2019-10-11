@@ -1,3 +1,4 @@
+import { mapGetters } from 'vuex';
 import template from './sw-admin.html.twig';
 
 const { Component } = Shopware;
@@ -12,5 +13,15 @@ Component.register('sw-admin', {
         return {
             title: this.$tc('global.sw-admin-menu.textShopwareAdmin')
         };
+    },
+
+    computed: {
+        ...mapGetters({
+            colorSchemeMode: 'adminPreferedColorScheme/getMode'
+        }),
+
+        themeClass() {
+            return 'theme-' + this.colorSchemeMode;
+        }
     }
 });

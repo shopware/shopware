@@ -1,5 +1,5 @@
 {% block sw_admin %}
-    <div id="app">
+    <div id="app" :class="themeClass">
         <sw-notifications ref="notifications"></sw-notifications>
         <sw-duplicated-media></sw-duplicated-media>
         <router-view></router-view>

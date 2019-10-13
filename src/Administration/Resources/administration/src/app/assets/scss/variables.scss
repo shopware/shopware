@@ -8,8 +8,9 @@
  * 4. Generic colors
  * 5. Legacy colors
  * 6. Typography
- * 7. Miscellaneous
- * 8. z-index
+ * 7. Dark mode
+ * 8. Miscellaneous
+ * 9. z-index
  * ------------------------------------ */
 
 /* ------------------------------------
@@ -237,14 +238,24 @@ $font-size-large: 18px;
 $font-size-small: 14px;
 
 /* ------------------------------------
- * 7. Miscellaneous
+ * 7. Dark mode
+ * ------------------------------------ */
+
+$dark-theme-class: '.theme-dark';
+$dark-theme-transition-duration: 500ms;
+$dark-theme-transition-function: ease-in-out;
+$dark-theme-contrast-factor: 20%;
+$gradient-dark-theme-dark-gray: linear-gradient(to bottom, darken($color-gradient-dark-gray-start, $dark-theme-contrast-factor), darken($color-gradient-dark-gray-end, $dark-theme-contrast-factor));
+
+/* ------------------------------------
+ * 8. Miscellaneous
  * ------------------------------------ */
 
 $border-radius-default: 4px;
 $transparent-background-url: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAACVBMVEX39/f////+/v66RnnUAAAAM0lEQVQIHQXBwQ3AMAgEMC95SPRPpQxENuiete2HCqZRhWlkcV4kIIPb6MUWZpEHN+j9ARNGDXV0xoICAAAAAElFTkSuQmCC');
 
 /* ------------------------------------
- * 8. z-index
+ * 9. z-index
  * ------------------------------------ */
 
 $z-index-loader: 400;

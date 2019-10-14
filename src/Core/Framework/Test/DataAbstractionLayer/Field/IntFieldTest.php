@@ -31,7 +31,7 @@ class IntFieldTest extends TestCase
                 $this->getWriteParameterBagMock()
             )->current();
         } catch (WriteConstraintViolationException $e) {
-            static::assertSame('count', $e->getViolations()->get(0)->getPropertyPath());
+            static::assertSame('/count', $e->getViolations()->get(0)->getPropertyPath());
             static::assertSame('This value should not be blank.', $e->getViolations()->get(0)->getMessage());
             throw $e;
         }
@@ -52,7 +52,7 @@ class IntFieldTest extends TestCase
                 $this->getWriteParameterBagMock()
             )->current();
         } catch (WriteConstraintViolationException $e) {
-            static::assertSame('count', $e->getViolations()->get(0)->getPropertyPath());
+            static::assertSame('/count', $e->getViolations()->get(0)->getPropertyPath());
             static::assertSame('This value should be of type int.', $e->getViolations()->get(0)->getMessage());
             throw $e;
         }

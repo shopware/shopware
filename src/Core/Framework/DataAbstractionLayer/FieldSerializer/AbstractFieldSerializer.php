@@ -56,6 +56,8 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
                     $fieldName .= '/' . $property;
                 }
 
+                $fieldName = '/' . $fieldName;
+
                 $violationList->add(
                     new ConstraintViolation(
                         $violation->getMessage(),
@@ -74,7 +76,7 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
         }
 
         if (\count($violationList)) {
-            throw new WriteConstraintViolationException($violationList, $path . '/' . $data->getKey());
+            throw new WriteConstraintViolationException($violationList, $path);
         }
     }
 

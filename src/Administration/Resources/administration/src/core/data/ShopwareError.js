@@ -11,7 +11,7 @@ import utils from 'src/core/service/util.service';
 export default class ShopwareError {
     constructor({
         code,
-        parameters = {},
+        meta = {},
         status = '',
         detail = ''
     } = {}) {
@@ -21,7 +21,7 @@ export default class ShopwareError {
 
         this._id = utils.createId();
         this._code = code;
-        this._parameters = parameters;
+        this._parameters = meta.parameters;
         this._status = status;
         this._detail = detail;
     }

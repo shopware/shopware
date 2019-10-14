@@ -14,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Pricing\PriceCollection;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
-use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -48,12 +47,18 @@ class PriceFieldSerializer extends AbstractFieldSerializer
                     unset($row['extensions']);
                 }
             }
-
             $data->setValue($value);
 
-            $constraints = $this->getConstraints($field);
+            if ($field->is(Required::class)) {
+                $this->validate([new NotBlank()], $data, $parameters->getPath());
+            }
 
-            $this->validate($constraints, $data, $parameters->getPath());
+            $constraints = $this->getConstraints($field);
+            $pricePath = $parameters->getPath() . '/price';
+
+            foreach ($data->getValue() as $index => $price) {
+                $this->validate($constraints, new KeyValuePair((string) $index, $price, true), $pricePath);
+            }
 
             $converted = [];
 
@@ -88,23 +93,17 @@ class PriceFieldSerializer extends AbstractFieldSerializer
     protected function getConstraints(Field $field): array
     {
         $constraints = [
-            new All([
-                'constraints' => new Collection([
-                    'allowExtraFields' => false,
-                    'allowMissingFields' => false,
-                    'fields' => [
-                        'currencyId' => [new NotBlank(), new Uuid()],
-                        'gross' => [new NotBlank(), new Type('numeric')],
-                        'net' => [new NotBlank(), new Type('numeric')],
-                        'linked' => [new Type('boolean')],
-                    ],
-                ]),
+            new Collection([
+                'allowExtraFields' => false,
+                'allowMissingFields' => false,
+                'fields' => [
+                    'currencyId' => [new NotBlank(), new Uuid()],
+                    'gross' => [new NotBlank(), new Type('numeric')],
+                    'net' => [new NotBlank(), new Type('numeric')],
+                    'linked' => [new Type('boolean')],
+                ],
             ]),
         ];
-
-        if ($field->is(Required::class)) {
-            $constraints[] = new NotBlank();
-        }
 
         return $constraints;
     }

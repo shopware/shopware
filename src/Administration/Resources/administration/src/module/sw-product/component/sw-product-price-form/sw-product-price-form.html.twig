@@ -44,7 +44,7 @@
                                         required
                                         :taxRate="productTaxRate"
                                         :disabled="isInherited"
-                                        :error="productPriceError"
+                                        :error="productPriceError ? productPriceError[0] : null"
                                         :currency="defaultCurrency">
                         </sw-price-field>
 

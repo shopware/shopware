@@ -112,10 +112,10 @@ class RuleValidatorTest extends TestCase
         try {
             $this->ruleRepository->create($ruleData, $this->context);
         } catch (WriteException $we) {
-            $violations = $we->getExceptions()[0]->toArray();
+            $violations = iterator_to_array($we->getErrors());
 
             static::assertCount(1, $violations);
-            static::assertEquals('/0/conditions/1/type', $violations[0]['propertyPath']);
+            static::assertEquals('/0/conditions/1/type', $violations[0]['source']['pointer']);
         }
     }
 
@@ -148,10 +148,10 @@ class RuleValidatorTest extends TestCase
         try {
             $this->ruleRepository->create($ruleData, $this->context);
         } catch (WriteException $we) {
-            $violations = $we->getExceptions()[0]->toArray();
+            $violations = iterator_to_array($we->getErrors());
 
             static::assertCount(1, $violations);
-            static::assertEquals('/0/conditions/0/children/0/type', $violations[0]['propertyPath']);
+            static::assertEquals('/0/conditions/0/children/0/type', $violations[0]['source']['pointer']);
         }
     }
 
@@ -176,10 +176,10 @@ class RuleValidatorTest extends TestCase
         try {
             $this->ruleRepository->create($ruleData, $this->context);
         } catch (WriteException $we) {
-            $violations = $we->getExceptions()[0]->toArray();
+            $violations = iterator_to_array($we->getErrors());
 
             static::assertCount(1, $violations);
-            static::assertEquals('/0/conditions/0/type', $violations[0]['propertyPath']);
+            static::assertEquals('/0/conditions/0/type', $violations[0]['source']['pointer']);
         }
     }
 
@@ -200,11 +200,11 @@ class RuleValidatorTest extends TestCase
         try {
             $this->ruleRepository->create($ruleData, $this->context);
         } catch (WriteException $we) {
-            $violations = $we->getExceptions()[0]->toArray();
+            $violations = iterator_to_array($we->getErrors());
 
             static::assertCount(2, $violations);
-            static::assertEquals('/0/conditions/0/value/count', $violations[0]['propertyPath']);
-            static::assertEquals('/0/conditions/0/value/operator', $violations[1]['propertyPath']);
+            static::assertEquals('/0/conditions/0/value/count', $violations[0]['source']['pointer']);
+            static::assertEquals('/0/conditions/0/value/operator', $violations[1]['source']['pointer']);
         }
     }
 
@@ -230,10 +230,10 @@ class RuleValidatorTest extends TestCase
         try {
             $this->ruleRepository->create($ruleData, $this->context);
         } catch (WriteException $we) {
-            $violations = $we->getExceptions()[0]->toArray();
+            $violations = iterator_to_array($we->getErrors());
 
             static::assertCount(1, $violations);
-            static::assertEquals('/0/conditions/0/value/thisFieldIsNotValid', $violations[0]['propertyPath']);
+            static::assertEquals('/0/conditions/0/value/thisFieldIsNotValid', $violations[0]['source']['pointer']);
         }
     }
 
@@ -306,11 +306,12 @@ class RuleValidatorTest extends TestCase
                 ],
             ], $this->context);
         } catch (WriteException $we) {
-            $violations = array_column($we->getExceptions()[0]->toArray(), 'propertyPath');
+            $violations = iterator_to_array($we->getErrors());
+            $pointer = array_column(array_column($violations, 'source'), 'pointer');
 
-            static::assertCount(2, $violations);
-            static::assertContains('/0/value/count', $violations);
-            static::assertContains('/0/value/operator', $violations);
+            static::assertCount(2, $pointer);
+            static::assertContains('/0/value/count', $pointer);
+            static::assertContains('/0/value/operator', $pointer);
         }
     }
 }

@@ -23,7 +23,7 @@ class MissingSystemTranslationException extends WriteConstraintViolationExceptio
                 $template,
                 $parameters,
                 null,
-                $path,
+                '',
                 Defaults::LANGUAGE_SYSTEM,
                 null,
                 self::VIOLATION_MISSING_SYSTEM_TRANSLATION

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Validation\Constraint;
 
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
@@ -51,6 +52,7 @@ class ArrayOfTypeValidator extends ConstraintValidator
             }
 
             $this->context->buildViolation($constraint::INVALID_MESSAGE)
+                ->setCode(Type::INVALID_TYPE_ERROR)
                 ->setParameter('{{ type }}', $constraint->type)
                 ->setParameter('{{ value }}', $value)
                 ->addViolation();

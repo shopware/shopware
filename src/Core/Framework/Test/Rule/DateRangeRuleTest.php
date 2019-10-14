@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Rule\DateRangeRule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\Constraints\DateTime;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -56,71 +55,13 @@ class DateRangeRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            static::assertGreaterThan(0, count($stackException->getExceptions()));
-            /** @var WriteConstraintViolationException $exception */
-            foreach ($stackException->getExceptions() as $exception) {
-                static::assertCount(2, $exception->getViolations());
+            $exceptions = iterator_to_array($stackException->getErrors());
+            static::assertCount(2, $exceptions);
+            static::assertSame('/0/value/fromDate', $exceptions[0]['source']['pointer']);
+            static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[0]['code']);
 
-                static::assertSame('/0/value/fromDate', $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
-                static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
-
-                static::assertSame('/0/value/toDate', $exception->getViolations()->get(1)->getPropertyPath());
-                static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(1)->getCode());
-                static::assertSame('This value should not be blank.', $exception->getViolations()->get(1)->getMessage());
-            }
-        }
-    }
-
-    public function testValidateWithoutFromDate(): void
-    {
-        try {
-            $this->conditionRepository->create([
-                [
-                    'type' => (new DateRangeRule())->getName(),
-                    'ruleId' => Uuid::randomHex(),
-                    'value' => [
-                        'toDate' => '2018-12-06T10:03:35+00:00',
-                        'useTime' => true,
-                    ],
-                ],
-            ], $this->context);
-            static::fail('Exception was not thrown');
-        } catch (WriteException $stackException) {
-            static::assertGreaterThan(0, count($stackException->getExceptions()));
-            /** @var WriteConstraintViolationException $exception */
-            foreach ($stackException->getExceptions() as $exception) {
-                static::assertCount(1, $exception->getViolations());
-                static::assertSame('/0/value/fromDate', $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
-                static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
-            }
-        }
-    }
-
-    public function testValidateWithoutToDate(): void
-    {
-        try {
-            $this->conditionRepository->create([
-                [
-                    'type' => (new DateRangeRule())->getName(),
-                    'ruleId' => Uuid::randomHex(),
-                    'value' => [
-                        'fromDate' => '2018-12-06T10:03:35+00:00',
-                        'useTime' => true,
-                    ],
-                ],
-            ], $this->context);
-            static::fail('Exception was not thrown');
-        } catch (WriteException $stackException) {
-            static::assertGreaterThan(0, count($stackException->getExceptions()));
-            /** @var WriteConstraintViolationException $exception */
-            foreach ($stackException->getExceptions() as $exception) {
-                static::assertCount(1, $exception->getViolations());
-                static::assertSame('/0/value/toDate', $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
-                static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
-            }
+            static::assertSame('/0/value/toDate', $exceptions[1]['source']['pointer']);
+            static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[1]['code']);
         }
     }
 
@@ -141,14 +82,10 @@ class DateRangeRuleTest extends TestCase
                 ], $this->context);
                 static::fail('Exception was not thrown');
             } catch (WriteException $stackException) {
-                static::assertGreaterThan(0, count($stackException->getExceptions()));
-                /** @var WriteConstraintViolationException $exception */
-                foreach ($stackException->getExceptions() as $exception) {
-                    static::assertCount(1, $exception->getViolations());
-                    static::assertSame('/0/value/fromDate', $exception->getViolations()->get(0)->getPropertyPath());
-                    static::assertSame(DateTime::INVALID_FORMAT_ERROR, $exception->getViolations()->get(0)->getCode());
-                    static::assertSame('This value is not a valid datetime.', $exception->getViolations()->get(0)->getMessage());
-                }
+                $exceptions = iterator_to_array($stackException->getErrors());
+                static::assertCount(1, $exceptions);
+                static::assertSame('/0/value/fromDate', $exceptions[0]['source']['pointer']);
+                static::assertSame(DateTime::INVALID_FORMAT_ERROR, $exceptions[0]['code']);
             }
         }
     }
@@ -170,14 +107,10 @@ class DateRangeRuleTest extends TestCase
                 ], $this->context);
                 static::fail('Exception was not thrown');
             } catch (WriteException $stackException) {
-                static::assertGreaterThan(0, count($stackException->getExceptions()));
-                /** @var WriteConstraintViolationException $exception */
-                foreach ($stackException->getExceptions() as $exception) {
-                    static::assertCount(1, $exception->getViolations());
-                    static::assertSame('/0/value/toDate', $exception->getViolations()->get(0)->getPropertyPath());
-                    static::assertSame(DateTime::INVALID_FORMAT_ERROR, $exception->getViolations()->get(0)->getCode());
-                    static::assertSame('This value is not a valid datetime.', $exception->getViolations()->get(0)->getMessage());
-                }
+                $exceptions = iterator_to_array($stackException->getErrors());
+                static::assertCount(1, $exceptions);
+                static::assertSame('/0/value/toDate', $exceptions[0]['source']['pointer']);
+                static::assertSame(DateTime::INVALID_FORMAT_ERROR, $exceptions[0]['code']);
             }
         }
     }
@@ -198,14 +131,10 @@ class DateRangeRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            static::assertGreaterThan(0, count($stackException->getExceptions()));
-            /** @var WriteConstraintViolationException $exception */
-            foreach ($stackException->getExceptions() as $exception) {
-                static::assertCount(1, $exception->getViolations());
-                static::assertSame('/0/value/useTime', $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertSame(Type::INVALID_TYPE_ERROR, $exception->getViolations()->get(0)->getCode());
-                static::assertSame('This value should be of type bool.', $exception->getViolations()->get(0)->getMessage());
-            }
+            $exceptions = iterator_to_array($stackException->getErrors());
+            static::assertCount(1, $exceptions);
+            static::assertSame('/0/value/useTime', $exceptions[0]['source']['pointer']);
+            static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[0]['code']);
         }
     }
 

@@ -136,8 +136,10 @@ EOF;
         static::assertCount(1, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
+
         static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
         static::assertEquals('/0/price', $fieldException->getPath());
+        static::assertEquals('/0/net', $fieldException->getViolations()->get(0)->getPropertyPath());
     }
 
     public function testMultipleMissingProperties(): void
@@ -175,16 +177,16 @@ EOF;
         $violations = $fieldException->getViolations();
 
         $violation = $violations->get(0);
-        static::assertEquals('price/0/currencyId', $violation->getPropertyPath());
+        static::assertEquals('/0/currencyId', $violation->getPropertyPath());
 
         $violation = $violations->get(1);
-        static::assertEquals('price/0/gross', $violation->getPropertyPath());
+        static::assertEquals('/0/gross', $violation->getPropertyPath());
 
         $violation = $violations->get(2);
-        static::assertEquals('price/0/net', $violation->getPropertyPath());
+        static::assertEquals('/0/net', $violation->getPropertyPath());
 
         $violation = $violations->get(3);
-        static::assertEquals('price/0/foo', $violation->getPropertyPath());
+        static::assertEquals('/0/foo', $violation->getPropertyPath());
     }
 
     public function testPropertyTypes(): void
@@ -309,15 +311,18 @@ EOF;
 
         $fieldException = $ex->getExceptions()[0];
         static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
-        static::assertEquals('/0/data/gross', $fieldException->getPath());
+        static::assertEquals('/0/data', $fieldException->getPath());
+        static::assertEquals('/gross', $fieldException->getViolations()->get(0)->getPropertyPath());
 
         $fieldException = $ex->getExceptions()[1];
         static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
-        static::assertEquals('/0/data/foo/bar', $fieldException->getPath());
+        static::assertEquals('/0/data/foo', $fieldException->getPath());
+        static::assertEquals('/bar', $fieldException->getViolations()->get(0)->getPropertyPath());
 
         $fieldException = $ex->getExceptions()[2];
         static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
-        static::assertEquals('/0/data/foo/baz/deep', $fieldException->getPath());
+        static::assertEquals('/0/data/foo/baz', $fieldException->getPath());
+        static::assertEquals('/deep', $fieldException->getViolations()->get(0)->getPropertyPath());
     }
 
     public function testWriteUtf8(): void

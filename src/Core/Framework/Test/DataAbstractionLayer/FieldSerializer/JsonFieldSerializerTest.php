@@ -151,7 +151,7 @@ class JsonFieldSerializerTest extends TestCase
         }
 
         static::assertInstanceOf(WriteConstraintViolationException::class, $exception, 'JsonFieldSerializer does not throw violation exception for empty required field.');
-        static::assertEquals('/data', $exception->getPath());
+        static::assertEquals('/data', $exception->getViolations()->get(0)->getPropertyPath());
     }
 
     public function testNullValueForNotRequiredField(): void

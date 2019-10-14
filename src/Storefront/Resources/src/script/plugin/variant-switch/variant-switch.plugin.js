@@ -152,7 +152,8 @@ export default class VariantSwitchPlugin extends Plugin {
         const url = this.options.url + '?' + queryString.stringify(data);
 
         this.httpClient.get(`${url}`, (response) => {
-            window.location.replace(JSON.parse(response));
+            const data = JSON.parse(response);
+            window.location.replace(data.url);
         });
     }
 }

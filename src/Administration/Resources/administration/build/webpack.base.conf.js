@@ -1,7 +1,6 @@
 const path = require('path');
 const utils = require('./utils');
 const config = require('../config');
-const vueLoaderConfig = require('./vue-loader.conf');
 
 function resolve(dir) {
     return path.join(__dirname, '..', dir);
@@ -69,11 +68,6 @@ module.exports = {
                     formatter: require('eslint-friendly-formatter') // eslint-disable-line global-require
                 }
             }),
-            {
-                test: /\.vue$/,
-                loader: 'vue-loader',
-                options: vueLoaderConfig
-            },
             {
                 test: /\.(html|twig)$/,
                 loader: 'html-loader'

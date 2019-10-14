@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Development\Kernel;
 
@@ -294,7 +295,7 @@ class KernelPluginIntegrationTest extends TestCase
     {
         $kernelClass = KernelLifecycleManager::getKernelClass();
         $version = 'v' . self::getTestVersion() . '@' . self::getTestRevision();
-        $this->kernel = new $kernelClass('test', true, $loader, $version);
+        $this->kernel = new $kernelClass('test', true, $loader, Uuid::randomHex(), $version);
         $class = new \ReflectionClass(Kernel::class);
 
         $connection = $class->getProperty('connection');

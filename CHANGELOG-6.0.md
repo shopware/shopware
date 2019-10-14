@@ -129,3 +129,26 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
 * Storefront
     * Removed `Shopware\Storefront\Framework\Seo\Entity\Field\CanonicalUrlField`, use the twig helper function `seoUrl` to get seo urls
     * Removed fields `isValid` and `autoIncrement` from `SeoUrlDefinition`
+
+
+### 6.1.0
+
+**Additions / Changes**
+
+* Administration
+    *
+* Core
+* Storefront
+    * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures
+
+**Removals**
+
+* Administration
+    *
+* Core
+* Storefront
+    * Removed `\Shopware\Storefront\Framework\Cache\CacheWarmer\Navigation\NavigationRouteMessage`
+    * Removed `\Shopware\Storefront\Framework\Cache\CacheWarmer\Product\ProductRouteMessage`
+    * Removed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmerSender`
+    * Removed `\Shopware\Storefront\Framework\Cache\CacheWarmer\IteratorMessage`
+    * Removed `\Shopware\Storefront\Framework\Cache\CacheWarmer\IteratorMessageHandler`

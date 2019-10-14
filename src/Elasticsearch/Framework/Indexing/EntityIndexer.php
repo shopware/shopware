@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Elasticsearch\Client;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Context\SystemSource;
@@ -27,11 +26,6 @@ class EntityIndexer implements IndexerInterface
      * @var ElasticsearchRegistry
      */
     private $registry;
-
-    /**
-     * @var Client
-     */
-    private $client;
 
     /**
      * @var EntityRepositoryInterface

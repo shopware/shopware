@@ -40,7 +40,13 @@ class CacheStore implements StoreInterface
      */
     private $eventDispatcher;
 
+    /**
+     * @var string
+     */
+    private $cacheHash;
+
     public function __construct(
+        string $cacheHash,
         TagAwareAdapterInterface $cache,
         ObjectCacheKeyFinder $cacheKeyDetector,
         CacheStateValidator $stateValidator,
@@ -50,6 +56,7 @@ class CacheStore implements StoreInterface
         $this->cacheKeyDetector = $cacheKeyDetector;
         $this->stateValidator = $stateValidator;
         $this->eventDispatcher = $eventDispatcher;
+        $this->cacheHash = $cacheHash;
     }
 
     public function lookup(Request $request)
@@ -194,7 +201,7 @@ class CacheStore implements StoreInterface
      */
     private function generateCacheKey(Request $request): string
     {
-        $uri = $this->getRequestUri($request);
+        $uri = $this->getRequestUri($request) . $this->cacheHash;
 
         $hash = 'md' . hash('sha256', $uri);
 

@@ -87,7 +87,10 @@ class InvalidateCacheSubscriberTest extends TestCase
             ->method('invalidateTags')
             ->with($tags);
 
-        $generator = new EntityCacheKeyGenerator($this->getContainer()->get(LanguageDefinition::class));
+        $generator = new EntityCacheKeyGenerator(
+            $this->getContainer()->get(LanguageDefinition::class),
+            $this->getContainer()->getParameter('kernel.cache.hash')
+        );
         $registry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
         $subscriber = new InvalidateCacheSubscriber($cache, $generator, $registry);
 

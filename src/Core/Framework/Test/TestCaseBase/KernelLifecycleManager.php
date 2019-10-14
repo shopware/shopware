@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 use Composer\Autoload\ClassLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Test\Filesystem\Adapter\MemoryAdapterFactory;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DependencyInjection\ResettableContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -107,7 +108,9 @@ class KernelLifecycleManager
 
         $pluginLoader = new DbalKernelPluginLoader(self::$classLoader, null, static::$class::getConnection());
 
-        return new static::$class($env, $debug, $pluginLoader);
+        $cacheId = Uuid::randomHex();
+
+        return new static::$class($env, $debug, $pluginLoader, $cacheId);
     }
 
     /**

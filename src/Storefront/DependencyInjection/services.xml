@@ -282,6 +282,7 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Cache\CacheStore" public="true">
+            <argument>%kernel.cache.hash%</argument>
             <argument type="service" id="cache.http"/>
             <argument type="service" id="Shopware\Storefront\Framework\Cache\ObjectCacheKeyFinder"/>
             <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheStateValidator" />
@@ -296,44 +297,37 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmerSender">
+        <service id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer">
             <argument type="service" id="sales_channel_domain.repository" />
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmerRegistry" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="kernel" />
+            <argument type="service" id="router" />
+            <argument type="service" id="Shopware\Core\Framework\Routing\RequestTransformerInterface" />
+            <tag name="messenger.message_handler"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmerRegistry">
             <argument type="tagged" tag="http_cache.route_warmer"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Cache\CacheWarmer\IteratorMessageHandler">
-            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmerRegistry"/>
-            <argument type="service" id="messenger.bus.shopware"/>
-            <tag name="messenger.message_handler"/>
-        </service>
-
         <service id="Shopware\Storefront\Framework\Cache\CacheWarmer\Product\ProductRouteWarmer">
-            <argument type="service" id="Shopware\Core\Framework\Routing\RequestTransformerInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <argument type="service" id="kernel"/>
-            <argument type="service" id="router"/>
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
-            <tag name="messenger.message_handler"/>
             <tag name="http_cache.route_warmer" />
         </service>
 
         <service id="Shopware\Storefront\Framework\Cache\CacheWarmer\Navigation\NavigationRouteWarmer">
-            <argument type="service" id="Shopware\Core\Framework\Routing\RequestTransformerInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <argument type="service" id="kernel"/>
-            <argument type="service" id="router"/>
             <argument type="service" id="Shopware\Core\Content\Category\CategoryDefinition"/>
-            <tag name="messenger.message_handler"/>
             <tag name="http_cache.route_warmer"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Command\HttpCacheWarmupCommand">
-            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmerSender"/>
+        <service id="Shopware\Storefront\Framework\Command\HttpCacheWarmUpCommand">
+            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer"/>
+            <argument type="service" id="kernel"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="console.command"/>
         </service>
     </services>

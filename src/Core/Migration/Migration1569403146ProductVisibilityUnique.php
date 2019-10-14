@@ -27,6 +27,20 @@ SQL;
         $connection->exec($removeDuplicatesSql);
 
         $connection->exec('
+        DELETE pv FROM `product_visibility` pv
+            LEFT JOIN (
+                SELECT product_id, `product_version_id`, `sales_channel_id`, COUNT(product_id) AS num, MIN(`visibility`) AS keep, id
+                FROM `product_visibility` pvb
+                GROUP BY `product_id`, `product_version_id`, `sales_channel_id` HAVING num > 1
+            ) pvb
+            ON pv.id != pvb.id
+            AND pv.`product_id` = pvb.`product_id`
+            AND pv.`product_version_id` = pvb.`product_version_id`
+            AND pv.`sales_channel_id` = pvb.`sales_channel_id`
+    WHERE pvb.id IS NOT NULL
+        ');
+
+        $connection->exec('
             ALTER TABLE `product_visibility`
                 ADD UNIQUE KEY `uniq.product_id__sales_channel_id` (`product_id`, `product_version_id`, `sales_channel_id`)
         ');

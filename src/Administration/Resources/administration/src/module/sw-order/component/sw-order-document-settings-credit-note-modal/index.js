@@ -42,7 +42,7 @@ Component.extend('sw-order-document-settings-credit-note-modal', 'sw-order-docum
 
     methods: {
         createdComponent() {
-            this.$super.createdComponent();
+            this.$super('createdComponent');
 
             const criteria = CriteriaFactory.equals('documentType.technicalName', 'invoice');
             this.order.getAssociation('documents').getList(

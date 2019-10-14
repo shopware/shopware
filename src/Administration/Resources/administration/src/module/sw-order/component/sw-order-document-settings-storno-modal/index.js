@@ -81,7 +81,7 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
 
         onPreview() {
             this.documentConfig.custom.stornoNumber = this.documentConfig.documentNumber;
-            this.$super.onPreview();
+            this.$super('onPreview');
         },
 
         onSelectInvoice(selected) {

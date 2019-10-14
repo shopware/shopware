@@ -19,7 +19,7 @@ Component.extend('sw-settings-document-create', 'sw-settings-document-detail', {
                 this.documentConfig = this.documentBaseConfigStore.create();
             }
             this.documentConfig.isLoading = true;
-            this.$super.createdComponent();
+            this.$super('createdComponent');
             this.documentConfig.global = false;
             this.documentConfig.isLoading = false;
         },
@@ -30,7 +30,7 @@ Component.extend('sw-settings-document-create', 'sw-settings-document-detail', {
         },
 
         onSave() {
-            this.$super.onSave();
+            this.$super('onSave');
         }
     }
 });

@@ -29,7 +29,7 @@ Component.extend('sw-settings-shipping-create', 'sw-settings-shipping-detail', {
                 this.shippingMethodStore.create(this.$route.params.id);
             }
 
-            this.$super.createdComponent();
+            this.$super('createdComponent');
 
             this.shippingMethod.active = true;
         },
@@ -40,7 +40,7 @@ Component.extend('sw-settings-shipping-create', 'sw-settings-shipping-detail', {
         },
 
         onSave() {
-            this.$super.onSave();
+            this.$super('onSave');
         }
     }
 });

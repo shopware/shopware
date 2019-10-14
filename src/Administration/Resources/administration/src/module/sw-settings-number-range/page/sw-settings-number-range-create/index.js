@@ -28,7 +28,7 @@ Component.extend('sw-settings-number-range-create', 'sw-settings-number-range-de
             this.numberRange.start = 1;
             this.numberRange.global = false;
             this.numberRange.isLoading = true;
-            this.$super.createdComponent();
+            this.$super('createdComponent');
             this.getPreview();
             this.splitPattern();
             this.numberRange.isLoading = false;
@@ -40,7 +40,7 @@ Component.extend('sw-settings-number-range-create', 'sw-settings-number-range-de
         },
 
         onSave() {
-            this.$super.onSave();
+            this.$super('onSave');
         }
     }
 });

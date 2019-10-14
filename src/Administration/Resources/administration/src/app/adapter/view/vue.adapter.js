@@ -12,7 +12,6 @@ import VuePlugins from 'src/app/plugin';
 import EntityStore from 'src/core/data/EntityStore';
 
 const { Component, State, Mixin } = Shopware;
-const { warn } = Shopware.Utils.debug;
 
 export default class VueAdapter extends ViewAdapter {
     /**
@@ -38,7 +37,6 @@ export default class VueAdapter extends ViewAdapter {
         this.initPlugins();
         this.initDirectives();
         this.initFilters();
-        this.initInheritance();
         this.initTitle();
 
         const store = this.initStore();
@@ -300,62 +298,6 @@ export default class VueAdapter extends ViewAdapter {
         });
 
         return i18n;
-    }
-
-    /**
-     * Extends Vue prototype to access super class for component inheritance.
-     *
-     * @private
-     * @memberOf module:app/adapter/view/vue
-     */
-    initInheritance() {
-        if (Vue.prototype.hasOwnProperty('$super')) {
-            return;
-        }
-
-        Object.defineProperties(Vue.prototype, {
-            $super: {
-                get() {
-                    /**
-                     * Registers a proxy as the $super property on every instance.
-                     * Makes it possible to dynamically access methods of an extended component.
-                     */
-                    return new Proxy(this, {
-                        get(target, key) {
-                            /**
-                             * Fallback method which will be returned
-                             * if the called method does not exist on a super class.
-                             */
-                            function empty() {
-                                warn('View', `The method "${key}" is not defined in any super class.`, target);
-                            }
-
-                            /**
-                             * Recursively search for a method in super classes.
-                             * This enables multi level inheritance.
-                             */
-                            function getSuperMethod(comp, methodName) {
-                                if (comp.extends && comp.extends.methods && comp.extends.methods[methodName]) {
-                                    return comp.extends.methods[methodName];
-                                }
-
-                                if (comp.extends && comp.extends.computed && comp.extends.computed[methodName]) {
-                                    return comp.extends.computed[methodName];
-                                }
-
-                                if (comp.extends.extends) {
-                                    return getSuperMethod(comp.extends, methodName);
-                                }
-
-                                return empty;
-                            }
-
-                            return getSuperMethod(target.constructor.options, key).bind(target);
-                        }
-                    });
-                }
-            }
-        });
     }
 
     /**

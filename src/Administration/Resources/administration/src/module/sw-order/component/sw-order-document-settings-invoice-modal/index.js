@@ -28,7 +28,7 @@ Component.extend('sw-order-document-settings-invoice-modal', 'sw-order-document-
 
         onPreview() {
             this.documentConfig.custom.invoiceNumber = this.documentConfig.documentNumber;
-            this.$super.onPreview();
+            this.$super('onPreview');
         }
     }
 });

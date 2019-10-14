@@ -33,7 +33,7 @@ Component.extend('sw-settings-custom-field-set-create', 'sw-settings-custom-fiel
             const criteria = CriteriaFactory.equals('name', this.set.name);
             return this.customFieldSetStore.getList({ criteria }).then((res) => {
                 if (res.total === 0) {
-                    this.$super.onSave();
+                    this.$super('onSave');
 
                     return;
                 }

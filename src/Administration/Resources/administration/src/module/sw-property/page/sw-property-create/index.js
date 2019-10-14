@@ -38,7 +38,7 @@ Component.extend('sw-property-create', 'sw-property-detail', {
         },
 
         onSave() {
-            this.$super.onSave();
+            this.$super('onSave');
         }
     }
 });

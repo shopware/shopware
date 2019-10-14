@@ -34,7 +34,7 @@ Component.extend('sw-sales-channel-create', 'sw-sales-channel-detail', {
             this.salesChannel.typeId = this.$route.params.typeId;
             this.salesChannel.active = false;
 
-            this.$super.createdComponent();
+            this.$super('createdComponent');
         },
 
         saveFinish() {
@@ -43,7 +43,7 @@ Component.extend('sw-sales-channel-create', 'sw-sales-channel-detail', {
         },
 
         onSave() {
-            this.$super.onSave();
+            this.$super('onSave');
         }
     }
 });

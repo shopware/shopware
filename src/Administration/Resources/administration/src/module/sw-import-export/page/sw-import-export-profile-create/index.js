@@ -18,7 +18,7 @@ Component.extend('sw-import-export-profile-create', 'sw-import-export-profile-de
         },
 
         onSave() {
-            this.$super.onSave().then(() => {
+            this.$super('onSave').then(() => {
                 this.$router.push({ name: 'sw.import.export.profile_detail', params: { id: this.importExportProfile.id } });
             });
         }

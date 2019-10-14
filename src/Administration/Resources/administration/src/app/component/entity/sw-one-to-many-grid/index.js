@@ -33,7 +33,7 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
 
     methods: {
         createdComponent() {
-            this.$super.createdComponent();
+            this.$super('createdComponent');
 
             // assign collection as records for the sw-data-grid
             this.applyResult(this.collection);

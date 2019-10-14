@@ -228,12 +228,22 @@ function build(componentName, skipTemplate = false) {
     if (overrideRegistry.has(componentName)) {
         const overrides = overrideRegistry.get(componentName);
 
-        overrides.forEach((overrideComp) => {
+        convertOverrides(overrides).forEach((overrideComp) => {
             const comp = Object.create(overrideComp);
 
             comp.extends = Object.create(config);
             config = comp;
         });
+    }
+
+    const superRegistry = buildSuperRegistry(config);
+
+    if (isNotEmptyObject(superRegistry)) {
+        const inheritatedFrom = isAnOverride(config)
+            ? `#${componentName}`
+            : config.extends.name;
+
+        config.methods = { ...config.methods, ...addSuperBehaviour(inheritatedFrom, superRegistry) };
     }
 
     /**
@@ -246,4 +256,262 @@ function build(componentName, skipTemplate = false) {
     }
 
     return config;
+}
+
+/**
+ * Reorganizes the structure of the given overrides.
+ * @param {Object} overrides
+ * @returns {Object}
+ */
+function convertOverrides(overrides) {
+    return overrides
+        .reverse()
+        .reduce((acc, overrideComp) => {
+            if (acc.length === 0) {
+                return [overrideComp];
+            }
+
+            const previous = acc.pop();
+
+            Object.entries(overrideComp).forEach(([prop, values]) => {
+                // check if current property exists in previous override
+                if (previous.hasOwnProperty(prop)) {
+                    // if it exists iterate over the methods
+                    // and hoist them if the don't exists in previous override
+
+                    // check for methods in current property-object
+                    if (typeof values === 'object') {
+                        Object.entries(values).forEach(([methodName, methodFunction]) => {
+                            if (!previous[prop].hasOwnProperty(methodName)) {
+                                // move the function over
+                                previous[prop][methodName] = methodFunction;
+                                delete overrideComp[prop][methodName];
+                            }
+                        });
+                    }
+                } else {
+                    // move the property over
+                    previous[prop] = values;
+                    delete overrideComp[prop];
+                }
+            });
+
+            return [...acc, previous, ...[overrideComp]];
+        }, [])
+        .reverse();
+}
+
+/**
+ * Build the superRegistry for computed properties and methods.
+ * @param {Object} config
+ * @returns {Object}
+ */
+function buildSuperRegistry(config) {
+    let superRegistry = {};
+
+    /**
+     * Search for `this.$super()` call in every `computed` property and `method``
+     * and resolve the call chain.
+     */
+    ['computed', 'methods'].forEach((methodOrComputed) => {
+        if (!config[methodOrComputed]) {
+            return;
+        }
+
+        const methods = Object.entries(config[methodOrComputed]);
+
+        methods.forEach(([name, method]) => {
+            // is computed getter/setter definition
+            if (methodOrComputed === 'computed' && typeof method === 'object') {
+                Object.entries(method).forEach(([cmd, func]) => {
+                    const path = `${name}.${cmd}`;
+
+                    superRegistry = updateSuperRegistry(superRegistry, path, func, methodOrComputed, config);
+                });
+            } else {
+                superRegistry = updateSuperRegistry(superRegistry, name, method, methodOrComputed, config);
+            }
+        });
+    });
+
+    return superRegistry;
+}
+
+function updateSuperRegistry(superRegistry, methodName, method, methodOrComputed, config) {
+    const superCallPattern = new RegExp('this\\.\\$super', 'gi');
+    const methodString = method.toString();
+    const hasSuperCall = superCallPattern.test(methodString);
+
+    if (!hasSuperCall) {
+        return superRegistry;
+    }
+
+    if (!superRegistry.hasOwnProperty(methodName)) {
+        superRegistry[methodName] = {};
+    }
+
+    const overridePrefix = isAnOverride(config) ? '#' : '';
+
+    superRegistry[methodName] = resolveSuperCallChain(config, methodName, methodOrComputed, overridePrefix);
+
+    return superRegistry;
+}
+
+/**
+ * Returns a superBehaviour object, which contains a super-like callstack.
+ * @param {String} inheritatedFrom
+ * @param {Object} superRegistry
+ * @returns {Object}
+ */
+function addSuperBehaviour(inheritatedFrom, superRegistry) {
+    return {
+        $super(name, args) {
+            this._initVirtualCallStack(name);
+
+            const superStack = this._findInSuperRegister(name);
+            const superFuncObject = superStack[this._virtualCallStack[name]];
+
+            this._virtualCallStack[name] = superFuncObject.parent;
+
+            const result = superFuncObject.func.bind(this)(args);
+
+            // reset the virtual call-stack
+            if (superFuncObject.parent) {
+                this._virtualCallStack[name] = this._inheritatedFrom();
+            }
+
+            return result;
+        },
+        _initVirtualCallStack(name) {
+            // if there is no virtualCallStack
+            if (!this._virtualCallStack) {
+                this._virtualCallStack = { name };
+            }
+
+            if (!this._virtualCallStack[name]) {
+                this._virtualCallStack[name] = this._inheritatedFrom();
+            }
+        },
+        _findInSuperRegister(name) {
+            return this._superRegistry()[name];
+        },
+        _superRegistry() {
+            return superRegistry;
+        },
+        _inheritatedFrom() {
+            return inheritatedFrom;
+        }
+    };
+}
+
+/**
+ * Resolves the super call chain for a given method (or computed property).
+ * @param {Object} config
+ * @param {String} methodName
+ * @param {String} methodsOrComputed
+ * @param {String} overridePrefix
+ * @returns {Object}
+ */
+function resolveSuperCallChain(config, methodName, methodsOrComputed = 'methods', overridePrefix = '') {
+    const extension = config.extends;
+
+    if (!extension) {
+        return {};
+    }
+
+    const parentName = `${overridePrefix}${extension.name}`;
+    let parentsParentName = extension.extends ? `${overridePrefix}${extension.extends.name}` : null;
+
+    if (parentName === parentsParentName) {
+        if (overridePrefix.length > 0) {
+            overridePrefix = `#${overridePrefix}`;
+        }
+
+        parentsParentName = `${overridePrefix}${extension.extends.name}`;
+    }
+
+    const methodFunction = findMethodInChain(extension, methodName, methodsOrComputed);
+
+    const parentBlock = {};
+    parentBlock[parentName] = {
+        parent: parentsParentName,
+        func: methodFunction
+    };
+
+    const resolvedParent = resolveSuperCallChain(extension, methodName, methodsOrComputed, overridePrefix);
+
+    const result = {
+        ...resolvedParent,
+        ...parentBlock
+    };
+
+    return result;
+}
+
+/**
+ * Returns a method in the extension chain object.
+ * @param {Object} extension
+ * @param {String} methodName
+ * @param {String} methodsOrComputed
+ * @returns {Object} superCallChain
+ */
+function findMethodInChain(extension, methodName, methodsOrComputed) {
+    const splitPath = methodName.split('.');
+
+    if (splitPath.length > 1) {
+        return resolveGetterSetterChain(extension, splitPath, methodsOrComputed);
+    }
+
+    if (!extension[methodsOrComputed]) {
+        return findMethodInChain(extension.extends, methodName, methodsOrComputed);
+    }
+
+    if (!extension[methodsOrComputed][methodName]) {
+        return findMethodInChain(extension.extends, methodName, methodsOrComputed);
+    }
+
+    return extension[methodsOrComputed][methodName];
+}
+
+/**
+ * Returns a method in the extension chain object with a method path like `getterSetterMethod.get`.
+ * @param {Object} extension
+ * @param {String} path
+ * @param {String} methodsOrComputed
+ * @returns {Object} superCallChain
+ */
+function resolveGetterSetterChain(extension, path, methodsOrComputed) {
+    const [methodName, cmd] = path;
+
+    if (!extension[methodsOrComputed]) {
+        return findMethodInChain(extension.extends, methodName, methodsOrComputed);
+    }
+
+    if (!extension[methodsOrComputed][methodName]) {
+        return findMethodInChain(extension.extends, methodName, methodsOrComputed);
+    }
+
+    return extension[methodsOrComputed][methodName][cmd];
+}
+
+/**
+ * Tests a component, whether it is an extension or an override.
+ * @param {Object} config
+ * @returns {Boolean}
+ */
+function isAnOverride(config) {
+    if (!config.extends) {
+        return false;
+    }
+
+    return config.extends.name === config.name;
+}
+
+/**
+ * Tests an object, whether it is empty or not.
+ * @param {Object} config
+ * @returns {Boolean}
+ */
+function isNotEmptyObject(obj) {
+    return (Object.keys(obj).length !== 0 && obj.constructor === Object);
 }

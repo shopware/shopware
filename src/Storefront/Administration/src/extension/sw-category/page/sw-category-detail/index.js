@@ -7,7 +7,7 @@ Component.override('sw-category-detail', {
 
     methods: {
         onSave() {
-            this.$super.onSave();
+            this.$super('onSave');
 
             const seoUrls = this.$store.getters['swSeoUrl/getNewOrModifiedUrls']();
 

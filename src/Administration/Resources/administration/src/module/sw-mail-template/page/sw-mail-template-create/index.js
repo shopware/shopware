@@ -38,7 +38,7 @@ Component.extend('sw-mail-template-create', 'sw-mail-template-detail', {
         },
 
         onSave() {
-            this.$super.onSave();
+            this.$super('onSave');
         }
     }
 });

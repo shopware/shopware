@@ -22,7 +22,7 @@ Component.extend('sw-settings-user-create', 'sw-settings-user-detail', {
             if (!this.user.localeId) {
                 this.user.localeId = this.currentUser.localeId;
             }
-            this.$super.onSave();
+            this.$super('onSave');
         }
     }
 });

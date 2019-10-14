@@ -483,9 +483,7 @@ describe('core/factory/component.factory.js', () => {
 
         expect(componentAfterFirstOverride).toBeInstanceOf(Object);
         expect(componentAfterFirstOverride.methods).toBeInstanceOf(Object);
-        expect(typeof componentAfterFirstOverride.methods.singleOverride).toBe('function');
         expect(typeof componentAfterFirstOverride.methods.doubleOverride).toBe('function');
-        expect(componentAfterFirstOverride.methods.singleOverride()).toBe('This is the first override.');
         expect(componentAfterFirstOverride.methods.doubleOverride()).toBe('This is the first override.');
         // eslint-disable-next-line max-len
         expect(componentAfterFirstOverride.template).toBe('<div><div>This is a test template.</div>This is an override of a template.</div>');
@@ -500,9 +498,272 @@ describe('core/factory/component.factory.js', () => {
         expect(componentAfterSecondOverride.extends).toBeInstanceOf(Object);
         expect(componentAfterSecondOverride.extends.template).toBe(undefined);
         expect(componentAfterSecondOverride.extends.methods).toBeInstanceOf(Object);
-        expect(typeof componentAfterSecondOverride.extends.methods.singleOverride).toBe('function');
-        expect(typeof componentAfterSecondOverride.extends.methods.doubleOverride).toBe('function');
-        expect(componentAfterSecondOverride.extends.methods.singleOverride()).toBe('This is the first override.');
-        expect(componentAfterSecondOverride.extends.methods.doubleOverride()).toBe('This is the first override.');
+    });
+
+
+    it('should build the final component structure with an extend and super-call', () => {
+        ComponentFactory.register('test-component', {
+            methods: {
+                testMethod() {
+                    return 'This is a test method.';
+                }
+            },
+            template: '<div>test-component</div>'
+        });
+
+        ComponentFactory.extend('extended-component', 'test-component', {
+            methods: {
+                testMethod() {
+                    const prev = this.$super('testMethod');
+
+                    return `This is an override. ${prev}`;
+                }
+            }
+        });
+
+        const extendedComponent = ComponentFactory.build('extended-component');
+
+        expect(extendedComponent.methods.testMethod()).toBe('This is an override. This is a test method.');
+    });
+
+    it('should build the final component structure with an override and super-call', () => {
+        ComponentFactory.register('test-component', {
+            methods: {
+                testMethod() {
+                    return 'This is a test method.';
+                }
+            },
+            template: '<div>test-component</div>'
+        });
+
+        ComponentFactory.override('test-component', {
+            methods: {
+                testMethod() {
+                    const prev = this.$super('testMethod');
+
+                    return `This is an override. ${prev}`;
+                }
+            }
+        });
+
+        const component = ComponentFactory.build('test-component');
+
+        expect(component.methods.testMethod()).toBe('This is an override. This is a test method.');
+    });
+
+    it('should build the final component structure with an overriden override and super-call', () => {
+        ComponentFactory.register('test-component', {
+            methods: {
+                testMethod() {
+                    return 'This is a test method.';
+                }
+            },
+            template: '<div>test-component</div>'
+        });
+
+        ComponentFactory.override('test-component', {
+            methods: {
+                testMethod() {
+                    const prev = this.$super('testMethod');
+
+                    return `This is an override. ${prev}`;
+                }
+            }
+        });
+
+        ComponentFactory.override('test-component', {
+            methods: {
+                testMethod() {
+                    const prev = this.$super('testMethod');
+
+                    return `This is an overridden override. ${prev}`;
+                }
+            }
+        });
+
+        const component = ComponentFactory.build('test-component');
+
+        expect(component.methods.testMethod())
+            .toBe('This is an overridden override. This is an override. This is a test method.');
+    });
+
+    it('should build the final component structure with multiple inheritance and super-call', () => {
+        ComponentFactory.register('test-component', {
+            methods: {
+                testMethod() {
+                    return 'This is a test method.';
+                }
+            },
+            template: '<div>test-component</div>'
+        });
+
+        ComponentFactory.extend('extension-1', 'test-component', {
+            methods: {
+                testMethod() {
+                    const prev = this.$super('testMethod');
+
+                    return `This is an extension. ${prev}`;
+                }
+            }
+        });
+
+        ComponentFactory.extend('extension-2', 'extension-1', {
+            methods: {
+                testMethod() {
+                    const prev = this.$super('testMethod');
+
+                    return `This is an extended extension. ${prev}`;
+                }
+            }
+        });
+
+        const component = ComponentFactory.build('extension-2');
+
+        expect(component.methods.testMethod())
+            .toBe('This is an extended extension. This is an extension. This is a test method.');
+    });
+
+    it('should build the final component structure extending a component with computed properties', () => {
+        ComponentFactory.register('test-component', {
+            computed: {
+                fooBar() {
+                    return 'fooBar';
+                },
+                getterSetter: {
+                    get() {
+                        return this._getterSetter;
+                    },
+                    set(value) {
+                        this._getterSetter = value;
+                    }
+                }
+            },
+            template: '<div>test-component</div>'
+        });
+
+        ComponentFactory.extend('extension-1', 'test-component', {
+            computed: {
+                fooBar() {
+                    const prev = this.$super('fooBar');
+
+                    return `${prev}Baz`;
+                },
+                getterSetter: {
+                    get() {
+                        this.$super('getterSetter.get');
+
+                        return `foo${this._getterSetter}`;
+                    },
+                    set(value) {
+                        this.$super('getterSetter.set', value);
+
+                        this._getterSetter = `${value}Baz!`;
+                    }
+                }
+            }
+        });
+
+        ComponentFactory.extend('extension-2', 'extension-1', {
+            computed: {
+                fooBar() {
+                    const prev = this.$super('fooBar');
+
+                    return `${prev}!`;
+                },
+                getterSetter: {
+                    get() {
+                        this.$super('getterSetter.get');
+
+                        return this._getterSetter;
+                    },
+                    set(value) {
+                        this.$super('getterSetter.set', value);
+
+                        this._getterSetter = value;
+                    }
+                }
+            }
+        });
+
+        const component = ComponentFactory.build('extension-2');
+
+        expect(typeof component.computed.fooBar).toBe('function');
+        expect(typeof component.methods.$super).toBe('function');
+        expect(component.methods.$super('fooBar')).toBe('fooBarBaz');
+
+        component.methods.$super('getterSetter.set', 'Bar');
+        expect(component.methods.$super('getterSetter.get')).toBe('fooBarBaz!');
+    });
+
+    it('should build the final component structure overriding a component with computed properties', () => {
+        ComponentFactory.register('test-component', {
+            computed: {
+                fooBar() {
+                    return 'fooBar';
+                },
+                getterSetter: {
+                    get() {
+                        return this._getterSetter;
+                    },
+                    set(value) {
+                        this._getterSetter = value;
+                    }
+                }
+            },
+            template: '<div>test-component</div>'
+        });
+
+        ComponentFactory.override('test-component', {
+            computed: {
+                fooBar() {
+                    const prev = this.$super('fooBar');
+
+                    return `${prev}Baz`;
+                },
+                getterSetter: {
+                    get() {
+                        this.$super('getterSetter.get');
+
+                        return `foo${this._getterSetter}`;
+                    },
+                    set(value) {
+                        this.$super('getterSetter.set', value);
+
+                        this._getterSetter = `${value}Baz!`;
+                    }
+                }
+            }
+        });
+
+        ComponentFactory.override('test-component', {
+            computed: {
+                fooBar() {
+                    const prev = this.$super('fooBar');
+
+                    return `${prev}!`;
+                },
+                getterSetter: {
+                    get() {
+                        this.$super('getterSetter.get');
+
+                        return this._getterSetter;
+                    },
+                    set(value) {
+                        this.$super('getterSetter.set', value);
+
+                        this._getterSetter = value;
+                    }
+                }
+            }
+        });
+
+        const component = ComponentFactory.build('test-component');
+
+        expect(typeof component.computed.fooBar).toBe('function');
+        expect(typeof component.methods.$super).toBe('function');
+        expect(component.methods.$super('fooBar')).toBe('fooBarBaz');
+
+        component.methods.$super('getterSetter.set', 'Bar');
+        expect(component.methods.$super('getterSetter.get')).toBe('fooBarBaz!');
     });
 });

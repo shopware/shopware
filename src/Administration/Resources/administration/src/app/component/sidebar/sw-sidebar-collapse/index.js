@@ -22,7 +22,7 @@ Component.extend('sw-sidebar-collapse', 'sw-collapse', {
 
     methods: {
         collapseItem() {
-            this.$super.collapseItem();
+            this.$super('collapseItem');
             this.$emit('change-expanded', { isExpanded: this.expanded });
         }
     }

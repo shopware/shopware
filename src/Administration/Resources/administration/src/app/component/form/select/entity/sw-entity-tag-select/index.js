@@ -23,7 +23,7 @@ Component.extend('sw-entity-tag-select', 'sw-entity-multi-select', {
             // Remove earlier "Add Tag" elements
             this.filterSearchGeneratedTags();
 
-            Promise.all([this.checkTagExists(this.searchTerm), this.$super.search(searchTerm)]).then(() => {
+            Promise.all([this.checkTagExists(this.searchTerm), this.$super('search', searchTerm)]).then(() => {
                 // Add the "Add Tag" Element if no tag exists
                 if (!this.tagExists) {
                     // Create dummy entity with id -1
@@ -44,7 +44,7 @@ Component.extend('sw-entity-tag-select', 'sw-entity-multi-select', {
             if (item.id === -1) {
                 this.createNewTag();
             } else {
-                this.$super.addItem(item);
+                this.$super('addItem', item);
             }
         },
 
@@ -52,7 +52,7 @@ Component.extend('sw-entity-tag-select', 'sw-entity-multi-select', {
             const item = this.repository.create(this.entityCollection.context);
             item.name = this.searchTerm;
             this.repository.save(item, this.entityCollection.context).then(() => {
-                this.$super.addItem(item);
+                this.$super('addItem', item);
 
                 // Reset criteria and all parameter to get a clean new result after an item has been added
                 this.criteria.setPage(1);

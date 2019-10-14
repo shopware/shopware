@@ -30,7 +30,7 @@ Component.extend('sw-settings-payment-create', 'sw-settings-payment-detail', {
                 this.paymentMethodStore.create(this.$route.params.id);
             }
 
-            this.$super.createdComponent();
+            this.$super('createdComponent');
         },
 
         saveFinish() {
@@ -39,7 +39,7 @@ Component.extend('sw-settings-payment-create', 'sw-settings-payment-detail', {
         },
 
         onSave() {
-            this.$super.onSave();
+            this.$super('onSave');
         }
     }
 });

@@ -52,7 +52,11 @@
         "available": "Kompatiblität"
       },
       "actions": {
-        "openPluginManager": "Plugin-Manager öffnen"
+        "openPluginManager": "Plugin-Manager öffnen",
+        "deactivateAll": "Alle Plugins deaktivieren.",
+        "deactivateIncompatible": "Alle inkompatiblen Plugins deaktivieren.",
+        "deactivateNone": "Ich bin mir der Gefahren bewusst und möchte ein Update durchführen, ohne entsprechende Plugins zu deaktivieren. Mir ist klar, dass Shopware keinerlei Garantie zur Funktionsweise meiner Installation nach einem inkompatiblen Update geben kann.",
+        "recommended": "(Empfohlen)"
       },
       "pluginNotInStore": "Dieses Plugin ist im Store nicht verfügbar. Bitte kontaktieren Sie den Plugin-Autor.",
       "pluginWillBeDeactivatedHint": "(Wird im Updateprozess deaktiviert)"
@@ -63,7 +67,7 @@
         "install": "Installieren",
         "goToUpdate": "Jetzt zum Update"
       },
-      "messageIncompatible":"Einige der installierten Plugins sind nicht mit der neuen Version kompatibel. Wenn Du mit dem Update fortfährst werden alle inkompatiblen Plugins automatisch deaktiviert. Du hast nach dem Update die Möglichkeit die Plugins über den Plugin-Manager zu aktualisieren und sie dann wieder zu aktivieren.",
+      "messageIncompatible":"Einige der überprüften Plugins sind nicht mit der neuen Version kompatibel. Wenn Du mit dem Update fortfährst könnte es zu unerwarteten Fehlern kommen, welche Dein System nachhaltig schädigen. Wir können für Dich inkompatible Plugins für den Update-Prozess deaktivieren, um die Funktionsweise Deiner Installation sicherzustellen. Du hast die Möglichkeit diese Plugins dann später wieder zu aktivieren, nachdem eine entsprechende Aktualisierung für diese Plugins vorgenommen wurde.",
       "messageNotInStore": "Du hast einige Plugins, die nicht auf Kompatiblität geprüft werden konnten. Bitte kontaktieren Sie den Plugin-Autor für weitere Informationen. Bitte stelle Sicher, dass du ein Backup erstellt hast",
       "messageOkay": "Alle Voraussetzungen sind erfüllt. Bitte stelle Sicher, dass du ein Backup erstellt hast",
       "messageUpdateCheck": "Deine aktuelle Version kann auf Version {version} aktualisiert werden. Was möchtest du tun?",

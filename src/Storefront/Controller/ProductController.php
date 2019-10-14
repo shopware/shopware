@@ -95,13 +95,13 @@ class ProductController extends StorefrontController
         if (!$product->hasExtension('canonicalUrl')) {
             $url = $this->generateUrl('frontend.detail.page', ['productId' => $redirect->getVariantId()]);
 
-            return new JsonResponse($url);
+            return new JsonResponse(['url' => $url]);
         }
 
         /** @var SeoUrlEntity $canonical */
         $canonical = $product->getExtension('canonicalUrl');
 
-        return new JsonResponse($canonical->getUrl());
+        return new JsonResponse(['url' => $canonical->getUrl()]);
     }
 
     /**

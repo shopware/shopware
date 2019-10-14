@@ -37,6 +37,34 @@ $criteria->addFilter(
 );
 ```
 
+## Associations
+
+By default your query will only fetch the main entity you are requesting. You can add associations to your criteria object in order to fetch data for that association.
+
+### Example 1: Simple Association
+
+In the example below, this adds the line item entity to be included with the order entity.
+
+```php
+$orderCriteria = new Criteria();
+$orderCriteria->addFilter(new EqualsFilter('orderNumber', 'SW10001'));
+$orderCriteria->addAssociation('lineItems');
+```
+
+When looping through the order entities of a collection, this will then return a `OrderLineItemEntity` object than null when you use the method `$orderEntity->getLineItems()`
+
+### Example 2: Nested Association
+
+You can also add nested associations to your criteria object using the same approach.
+In the example below, it will add the payment method entity to the transaction entity. 
+
+```php
+$orderCriteria->addAssociation('transactions.paymentMethod');
+```
+
+When access the transaction entity within the order entity, it will return a `PaymentMethodEntity` object than null when you use the method `$transactionEntity->getPaymentMethod()`
+
+
 ## Filter
 
 Filters reduce your results to your needs and will be considered when aggregating data. You can filter on every property of an entity, both via code or API.

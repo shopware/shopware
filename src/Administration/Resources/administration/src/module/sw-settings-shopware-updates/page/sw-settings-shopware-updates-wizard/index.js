@@ -146,16 +146,18 @@ Component.register('sw-settings-shopware-updates-wizard', {
 
             return this.updateInfo.changelog.en.changelog;
         },
-        pluginUpdateState() {
-            if (this.plugins.filter(p => p.statusName === 'updatableNow').length) {
-                return 'updatableNow';
-            }
-
-            if (this.plugins.filter(p => p.statusName === 'notInStore').length) {
-                return 'notInStore';
-            }
-
-            return 'allOkay';
+        displayIncompatiblePluginsWarning() {
+            return this.plugins.some((plugin) => {
+                return plugin.statusName !== 'compatible' && plugin.statusName !== 'notInStore';
+            });
+        },
+        displayUnknownPluginsWarning() {
+            return this.plugins.some((plugin) => {
+                return plugin.statusName === 'notInStore';
+            });
+        },
+        displayAllPluginsOkayInfo() {
+            return !(this.displayIncompatiblePluginsWarning || this.displayUnknownPluginsWarning);
         }
     }
 });

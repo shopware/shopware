@@ -54,7 +54,8 @@
       "actions": {
         "openPluginManager": "Open plugin manager"
       },
-      "pluginNotInStore": "The plugin is not available in the store. Please contact the author"
+      "pluginNotInStore": "The plugin is not available in the store. Please contact the author",
+      "pluginWillBeDeactivatedHint": "(This plugin will be deactivated on update)"
     },
     "updateModal": {
       "actions": {
@@ -62,9 +63,9 @@
         "install": "Install",
         "goToUpdate": "Open update wizard"
       },
-      "messageOkay": "All prerequisites are fulfilled. You should create a backup before updating.",
-      "messageUpdatableNow": "You have some plugins, which needs an update before the Shopware update. You should also create a backup before updating.",
+      "messageIncompatible": "Some of the installed plugins are not compatible with the newest version. If you continue the update all incompatible plugins will be deactivated. After the update you have the possibility to update the plugins via the plugin manager and activate them afterwards.",
       "messageNotInStore": "You have some plugins that could not be tested for compatibility. Please contact the plugin author for more information. You should also create a backup before updating.",
+      "messageOkay": "All prerequisites are fulfilled. You should create a backup before updating.",
       "messageUpdateCheck": "Your current version can be updated to version {version}. What do you want to do?",
       "backupLabel": "Yes, I've created a backup"
     }

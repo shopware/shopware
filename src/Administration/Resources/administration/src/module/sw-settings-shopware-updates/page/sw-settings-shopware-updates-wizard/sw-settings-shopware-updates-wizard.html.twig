@@ -53,14 +53,18 @@
                 v-if="updateModalShown"
                 @modal-close="updateModalShown = false"
             >
-                <template v-if="pluginUpdateState == 'allOkay'">
-                    {{ $tc('sw-settings-shopware-updates.updateModal.messageOkay') }}
-                </template>
-                <template v-if="pluginUpdateState == 'updatableNow'">
-                    {{ $tc('sw-settings-shopware-updates.updateModal.messageUpdatableNow') }}
-                </template>
-                <template v-if="pluginUpdateState == 'notInStore'">
+                <template v-if="displayUnknownPluginsWarning">
                     {{ $tc('sw-settings-shopware-updates.updateModal.messageNotInStore') }}
+                    <br>
+                    <br>
+                </template>
+
+                <template v-if="displayIncompatiblePluginsWarning">
+                    {{ $tc('sw-settings-shopware-updates.updateModal.messageIncompatible') }}
+                </template>
+
+                <template v-if="displayAllPluginsOkayInfo">
+                    {{ $tc('sw-settings-shopware-updates.updateModal.messageOkay') }}
                 </template>
 
                 <template slot="modal-footer">

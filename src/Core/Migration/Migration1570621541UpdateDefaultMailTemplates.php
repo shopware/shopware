@@ -17,8 +17,8 @@ class Migration1570621541UpdateDefaultMailTemplates extends MigrationStep
     public function update(Connection $connection): void
     {
         // implement update
-        $enLangId = $this->fetchLanguageId('English', $connection);
-        $deLangId = $this->fetchLanguageId('Deutsch', $connection);
+        $enLangId = $this->fetchLanguageId('en-GB', $connection);
+        $deLangId = $this->fetchLanguageId('de-DE', $connection);
 
         // update order confirmation
         $templateId = $this->fetchSystemMailTemplateIdFromType($connection, MailTemplateTypes::MAILTYPE_ORDER_CONFIRM);
@@ -147,12 +147,11 @@ class Migration1570621541UpdateDefaultMailTemplates extends MigrationStep
         return $templateId;
     }
 
-    private function fetchLanguageId(string $langName, Connection $connection)
+    private function fetchLanguageId(string $code, Connection $connection)
     {
-        /** @var string $langId */
-        $langId = $connection->executeQuery('
-        SELECT `id` from `language` WHERE `name` = :langName
-        ', ['langName' => $langName])->fetchColumn();
+        $langId = $connection->fetchColumn('
+        SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `language`.`locale_id` = `locale`.`id` WHERE `code` = :code LIMIT 1
+        ', ['code' => $code]);
 
         return $langId;
     }
@@ -160,11 +159,15 @@ class Migration1570621541UpdateDefaultMailTemplates extends MigrationStep
     private function updateMailTemplateTranslation(
         Connection $connection,
         string $mailTemplateId,
-        string $langId,
+        ?string $langId,
         ?string $contentHtml,
         ?string $contentPlain,
         ?string $senderName = null
     ): void {
+        if (!$langId) {
+            return;
+        }
+
         $sqlString = '';
         $sqlParams = [
             'templateId' => $mailTemplateId,

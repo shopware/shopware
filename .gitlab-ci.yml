@@ -271,54 +271,54 @@ Storefront (Jest):
         - docker exec cypress npx cypress run --project /e2e-Administration --browser chrome --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0 --spec $TEST_DIRECTORY
         - docker rm -f cypress
 
-Storefront:
+General (Storefront):
     <<: *e2e_definition
     script: *storefront_definition
     needs: [Storefront (Jest)]
 
-Administration (General):
+Shopping experiences (Mixed):
     <<: *e2e_definition
-    script: *administration_definition
+    script: *mixed_definition
     variables:
-        TEST_DIRECTORY: e2e-Administration/cypress/integration/general/**/*
+        TEST_DIRECTORY: e2e-Administration/cypress/integration/shopping-experiences/**/*
 
-Administration (Catalogues):
+Catalogues  (Mixed):
     <<: *e2e_definition
     script: *mixed_definition
     variables:
         TEST_DIRECTORY: e2e-Administration/cypress/integration/catalogue/**/*
 
-Administration (Customer):
+Customers (Mixed):
     <<: *e2e_definition
     script: *mixed_definition
     variables:
         TEST_DIRECTORY: e2e-Administration/cypress/integration/customer/**/*
 
-Administration (Orders):
+Media and Marketing (Mixed):
+    <<: *e2e_definition
+    script: *mixed_definition
+    variables:
+        TEST_DIRECTORY: e2e-Administration/cypress/integration/media-marketing/**/*
+
+General (Administration):
+    <<: *e2e_definition
+    script: *administration_definition
+    variables:
+        TEST_DIRECTORY: e2e-Administration/cypress/integration/general/**/*
+
+Orders (Administration):
     <<: *e2e_definition
     script: *administration_definition
     variables:
         TEST_DIRECTORY: e2e-Administration/cypress/integration/order/**/*
 
-Administration (Content):
-    <<: *e2e_definition
-    script: *mixed_definition
-    variables:
-        TEST_DIRECTORY: e2e-Administration/cypress/integration/content/**/*
-
-Administration (Marketing):
-    <<: *e2e_definition
-    script: *mixed_definition
-    variables:
-        TEST_DIRECTORY: e2e-Administration/cypress/integration/marketing/**/*
-
-Administration (Rules):
+Rules and Product Groups (Administration):
     <<: *e2e_definition
     script: *administration_definition
     variables:
-        TEST_DIRECTORY: e2e-Administration/cypress/integration/rule/**/*
+        TEST_DIRECTORY: e2e-Administration/cypress/integration/rule-product-stream/**/*
 
-Administration (Settings):
+Settings (Administration):
     <<: *e2e_definition
     script: *administration_definition
     variables:

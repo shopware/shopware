@@ -39,6 +39,11 @@ class ProductVisibilityDefinition extends EntityDefinition
         return ProductVisibilityCollection::class;
     }
 
+    protected function getParentDefinitionClass(): ?string
+    {
+        return ProductDefinition::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

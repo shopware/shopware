@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\ProductStream\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\ProductStream\Util\EventIdExtractor;
+use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -50,11 +50,6 @@ class ProductStreamIndexer implements IndexerInterface
     private $eventDispatcher;
 
     /**
-     * @var EventIdExtractor
-     */
-    private $eventIdExtractor;
-
-    /**
      * @var IteratorFactory
      */
     private $iteratorFactory;
@@ -71,7 +66,6 @@ class ProductStreamIndexer implements IndexerInterface
 
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
-        EventIdExtractor $eventIdExtractor,
         EntityRepositoryInterface $productStreamRepository,
         Connection $connection,
         Serializer $serializer,
@@ -81,7 +75,6 @@ class ProductStreamIndexer implements IndexerInterface
         ProductDefinition $productDefinition
     ) {
         $this->eventDispatcher = $eventDispatcher;
-        $this->eventIdExtractor = $eventIdExtractor;
         $this->productStreamRepository = $productStreamRepository;
         $this->connection = $connection;
         $this->serializer = $serializer;
@@ -133,7 +126,13 @@ class ProductStreamIndexer implements IndexerInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        $ids = $this->eventIdExtractor->getProductStreamIds($event);
+        $ids = [];
+
+        $nested = $event->getEventByEntityName(ProductStreamDefinition::ENTITY_NAME);
+        if ($nested) {
+            $ids = $nested->getIds();
+        }
+
         $this->update($ids);
     }
 
@@ -148,7 +147,7 @@ class ProductStreamIndexer implements IndexerInterface
             return;
         }
 
-        $bytes = array_values(array_map(function ($id) { return Uuid::fromHexToBytes($id); }, $ids));
+        $bytes = Uuid::fromHexToBytesList($ids);
 
         $filters = $this->connection->fetchAll(
             'SELECT product_stream_id as array_key, product_stream_filter.* FROM product_stream_filter  WHERE product_stream_id IN (:ids) ORDER BY product_stream_id',

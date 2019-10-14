@@ -14,11 +14,8 @@
             <tag name="shopware.entity.definition" entity="product_stream_filter"/>
         </service>
 
-        <service id="Shopware\Core\Content\ProductStream\Util\EventIdExtractor"/>
-
         <service id="Shopware\Core\Content\ProductStream\DataAbstractionLayer\Indexing\ProductStreamIndexer">
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\ProductStream\Util\EventIdExtractor"/>
             <argument type="service" id="product_stream.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="serializer"/>

@@ -40,6 +40,11 @@ class PromotionDiscountDefinition extends EntityDefinition
         return PromotionDiscountCollection::class;
     }
 
+    protected function getParentDefinitionClass(): ?string
+    {
+        return PromotionDefinition::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

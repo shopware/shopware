@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Test\Media\Message;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Message\GenerateThumbnailsHandler;
 use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
@@ -87,19 +87,17 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
         $criteria = new Criteria([$media->getId()]);
         $criteria->addAssociation('thumbnails');
-        $criteria->addAssociation('mediaFolder.configuration.thumbnailSizes');
 
         $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
-        static::assertEquals(4, $media->getThumbnails()->count());
+        static::assertEquals(2, $media->getThumbnails()->count());
 
-        $filteredThumbnails = $media->getThumbnails()->filter(function (MediaThumbnailEntity $thumbnail) {
-            return ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)
-                || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150);
-        });
+        /** @var MediaEntity $media */
+        foreach ($media->getThumbnails() as $thumbnail) {
+            static::assertTrue(
+                ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)
+                || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150)
+            );
 
-        static::assertEquals(3, $filteredThumbnails->count());
-        /** @var MediaThumbnailEntity $thumbnail */
-        foreach ($filteredThumbnails as $thumbnail) {
             $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail->getWidth(), $thumbnail->getHeight());
             static::assertTrue(
                 $this->getPublicFilesystem()->has($path),
@@ -139,17 +137,15 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $criteria->addAssociation('mediaFolder.configuration.thumbnailSizes');
 
         $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
-        static::assertEquals(3, $media->getThumbnails()->count());
+        static::assertEquals(2, $media->getThumbnails()->count());
 
-        $filteredThumbnails = $media->getThumbnails()->filter(function (MediaThumbnailEntity $thumbnail) {
-            return ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)
-                || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150);
-        });
+        /** @var MediaEntity $media */
+        foreach ($media->getThumbnails() as $thumbnail) {
+            static::assertTrue(
+                ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)
+                || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150)
+            );
 
-        static::assertEquals(2, $filteredThumbnails->count());
-
-        /** @var MediaThumbnailEntity $thumbnail */
-        foreach ($filteredThumbnails as $thumbnail) {
             $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail->getWidth(), $thumbnail->getHeight());
             static::assertTrue(
                 $this->getPublicFilesystem()->has($path),

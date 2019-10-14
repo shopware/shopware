@@ -24,12 +24,12 @@ class DefinitionInstanceRegistry
     /**
      * @var array
      */
-    private $definitions;
+    protected $definitions;
 
     /**
      * @var array
      */
-    private $entityClassMapping;
+    protected $entityClassMapping;
 
     /**
      * @param array $definitionMap array of $entityName => $definitionServiceId,
@@ -112,6 +112,22 @@ class DefinitionInstanceRegistry
         $source = get_class($entity);
 
         return $map[$source] ?? null;
+    }
+
+    public function register(EntityDefinition $definition): void
+    {
+        $class = get_class($definition);
+        if (!$this->container->has($class)) {
+            $this->container->set($class, $definition);
+        }
+
+        if ($this->entityClassMapping !== null) {
+            $this->entityClassMapping[$definition->getEntityClass()] = $definition;
+        }
+
+        $this->definitions[$definition->getEntityName()] = $class;
+
+        $definition->compile($this);
     }
 
     private function loadClassMapping(): array

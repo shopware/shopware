@@ -39,6 +39,11 @@ class CmsSlotDefinition extends EntityDefinition
         return CmsSlotCollection::class;
     }
 
+    protected function getParentDefinitionClass(): ?string
+    {
+        return CmsBlockDefinition::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

@@ -14,7 +14,6 @@
         <service id="Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\RulePayloadIndexer">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Rule\Util\EventIdExtractor"/>
             <argument type="service" id="Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <argument type="service" id="Shopware\Core\Framework\Cache\CacheClearer"/>
@@ -24,8 +23,6 @@
             <tag name="kernel.event_subscriber"/>
             <tag name="shopware.dal_indexing.indexer"/>
         </service>
-
-        <service id="Shopware\Core\Content\Rule\Util\EventIdExtractor"/>
 
         <service id="Shopware\Core\Content\Rule\RuleValidator">
             <argument type="service" id="validator"/>

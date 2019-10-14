@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Context\AdminApiSource;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
@@ -95,6 +97,11 @@ class VersionManager
      */
     private $registry;
 
+    /**
+     * @var Connection
+     */
+    private $connection;
+
     public function __construct(
         EntityWriterInterface $entityWriter,
         EntityReaderInterface $entityReader,
@@ -105,7 +112,8 @@ class VersionManager
         DefinitionInstanceRegistry $registry,
         VersionCommitDefinition $versionCommitDefinition,
         VersionCommitDataDefinition $versionCommitDataDefinition,
-        VersionDefinition $versionDefinition
+        VersionDefinition $versionDefinition,
+        Connection $connection
     ) {
         $this->entityWriter = $entityWriter;
         $this->entityReader = $entityReader;
@@ -117,42 +125,74 @@ class VersionManager
         $this->versionCommitDataDefinition = $versionCommitDataDefinition;
         $this->versionDefinition = $versionDefinition;
         $this->registry = $registry;
+        $this->connection = $connection;
     }
 
     public function upsert(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
     {
-        $writtenEvent = $this->entityWriter->upsert($definition, $rawData, $writeContext);
+        $writeResults = $this->entityWriter->upsert($definition, $rawData, $writeContext);
 
-        if ($definition->isVersionAware()) {
-            $this->writeAuditLog($writtenEvent, $writeContext, __FUNCTION__);
-        }
+        $parents = $this->resolveParents($definition, $rawData);
 
-        return $writtenEvent;
+        $writeResults = $this->addParentResults($writeResults, $parents);
+
+        $this->writeAuditLog($writeResults, $writeContext);
+
+        return $writeResults;
     }
 
     public function insert(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
     {
-        $writtenEvent = $this->entityWriter->insert($definition, $rawData, $writeContext);
+        /** @var EntityWriteResult[] $writeResults */
+        $writeResults = $this->entityWriter->insert($definition, $rawData, $writeContext);
 
-        $this->writeAuditLog($writtenEvent, $writeContext, __FUNCTION__);
+        $parents = $this->resolveParents($definition, $rawData);
 
-        return $writtenEvent;
+        $writeResults = $this->addParentResults($writeResults, $parents);
+
+        $this->writeAuditLog($writeResults, $writeContext);
+
+        return $writeResults;
     }
 
     public function update(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
     {
-        $writtenEvent = $this->entityWriter->update($definition, $rawData, $writeContext);
+        $writeResults = $this->entityWriter->update($definition, $rawData, $writeContext);
 
-        $this->writeAuditLog($writtenEvent, $writeContext, __FUNCTION__);
+        $parents = $this->resolveParents($definition, $rawData);
 
-        return $writtenEvent;
+        $writeResults = $this->addParentResults($writeResults, $parents);
+
+        $this->writeAuditLog($writeResults, $writeContext);
+
+        return $writeResults;
     }
 
     public function delete(EntityDefinition $definition, array $ids, WriteContext $writeContext): DeleteResult
     {
+        $parents = $this->resolveParents($definition, $ids);
+
         $deleteEvent = $this->entityWriter->delete($definition, $ids, $writeContext);
 
-        $this->writeAuditLog($deleteEvent->getDeleted(), $writeContext, __FUNCTION__);
+        $deleted = $deleteEvent->getDeleted();
+
+        $deleted = $this->addParentResults($deleted, $parents);
+
+        $this->writeAuditLog($deleted, $writeContext);
+
+        if (!$parents) {
+            return $deleteEvent;
+        }
+
+        $updates = [];
+
+        foreach ($deleted as $entity => $results) {
+            $updates[$entity] = array_filter($results, function (EntityWriteResult $result) {
+                return $result->getOperation() === EntityWriteResult::OPERATION_UPDATE;
+            });
+        }
+
+        $deleteEvent->setUpdated(array_filter($updates));
 
         return $deleteEvent;
     }
@@ -180,7 +220,7 @@ class VersionManager
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $versionContext->getContext(), []);
         $this->eventDispatcher->dispatch($event);
 
-        $this->writeAuditLog($affected, $context, 'clone', $versionId);
+        $this->writeAuditLog($affected, $context, $versionId, true);
 
         return $versionId;
     }
@@ -224,6 +264,10 @@ class VersionManager
                 // deduplicate to prevent deletion errors
                 $entityKey = md5(JsonFieldSerializer::encodeJson($entity));
                 $entities[$entityKey] = $entity;
+
+                if (empty($data->getPayload()) && $data->getAction() !== 'delete') {
+                    continue;
+                }
 
                 switch ($data->getAction()) {
                     case 'insert':
@@ -459,7 +503,7 @@ class VersionManager
         return $payload;
     }
 
-    private function writeAuditLog(array $writtenEvents, WriteContext $writeContext, string $action, ?string $versionId = null): void
+    private function writeAuditLog(array $writtenEvents, WriteContext $writeContext, ?string $versionId = null, bool $isClone = false): void
     {
         $versionId = $versionId ?? $writeContext->getContext()->getVersionId();
         $commitId = Uuid::randomBytes();
@@ -498,7 +542,6 @@ class VersionManager
                 continue;
             }
 
-            //@todo@jp fix data format
             /** @var EntityDefinition $definition */
             $definition = $this->registry->getByEntityName($items[0]->getEntityName());
             $entityName = $definition->getEntityName();
@@ -511,12 +554,13 @@ class VersionManager
                 continue;
             }
 
+            /** @var EntityWriteResult $item */
             foreach ($items as $item) {
                 $payload = $item->getPayload();
 
                 $primary = $item->getPrimaryKey();
                 if (!\is_array($primary)) {
-                    $primary = ['id' => $item->getPrimaryKey()];
+                    $primary = ['id' => $primary];
                 }
                 $primary['versionId'] = $versionId;
 
@@ -531,7 +575,7 @@ class VersionManager
                         'entity_id' => JsonFieldSerializer::encodeJson($primary),
                         'payload' => JsonFieldSerializer::encodeJson($payload),
                         'user_id' => $userId,
-                        'action' => $action,
+                        'action' => $isClone ? 'clone' : $item->getOperation(),
                         'created_at' => $date,
                     ],
                     ['id' => $id],
@@ -637,5 +681,159 @@ class VersionManager
 
             $this->addCloneAssociations($reference, $nested, $cloneChildren);
         }
+    }
+
+    private function addParentResults(array $writeResults, ?array $parents): array
+    {
+        if (!$parents) {
+            return $writeResults;
+        }
+
+        foreach ($parents as $entity => $primaryKeys) {
+            if (!isset($writeResults[$entity])) {
+                $writeResults[$entity] = [];
+            }
+
+            foreach ($primaryKeys as $primaryKey) {
+                $writeResults[$entity][] = new EntityWriteResult($primaryKey, [], $entity, EntityWriteResult::OPERATION_UPDATE);
+            }
+        }
+
+        return $writeResults;
+    }
+
+    private function resolveParents(EntityDefinition $definition, array $rawData): ?array
+    {
+        if ($definition instanceof MappingEntityDefinition) {
+            return $this->resolveMappingParents($definition, $rawData);
+        }
+
+        $parent = $definition->getParentDefinition();
+
+        if (!$parent) {
+            return null;
+        }
+
+        $fkField = $definition->getFields()->filter(function (Field $field) use ($parent) {
+            if (!$field instanceof FkField || $field instanceof ReferenceVersionField) {
+                return false;
+            }
+
+            return $field->getReferenceDefinition()->getClass() === $parent->getClass();
+        });
+
+        $fkField = $fkField->first();
+        if (!$fkField instanceof FkField) {
+            throw new \RuntimeException(sprintf('Can not detect foreign key for parent definition %s', $parent->getClass()));
+        }
+
+        $primaryKeys = $this->getPrimaryKeysOfFkField($definition, $rawData, $fkField);
+
+        $mapped = array_map(function ($id) {
+            return ['id' => $id];
+        }, $primaryKeys);
+
+        $nested = $this->resolveParents($parent, $mapped) ?? [];
+
+        $entity = $parent->getEntityName();
+
+        $nested[$entity] = array_merge($nested[$entity] ?? [], $primaryKeys);
+
+        return $nested;
+    }
+
+    private function resolveMappingParents(EntityDefinition $definition, array $rawData): array
+    {
+        $fkFields = $definition->getFields()->filter(function (Field $field) {
+            return $field instanceof FkField && !$field instanceof ReferenceVersionField;
+        });
+
+        $mapping = [];
+
+        /** @var FkField $fkField */
+        foreach ($fkFields as $fkField) {
+            $primaryKeys = $this->getPrimaryKeysOfFkField($definition, $rawData, $fkField);
+
+            $entity = $fkField->getReferenceDefinition()->getEntityName();
+            $mapping[$entity] = array_merge($mapping[$entity] ?? [], $primaryKeys);
+
+            $mapped = array_map(function ($id) {
+                return ['id' => $id];
+            }, $primaryKeys);
+
+            $nested = $this->resolveParents($fkField->getReferenceDefinition(), $mapped) ?? [];
+
+            foreach ($nested as $entity => $primaryKeys) {
+                $mapping[$entity] = array_merge($mapping[$entity] ?? [], $primaryKeys);
+            }
+        }
+
+        return $mapping;
+    }
+
+    private function fetchForeignKey(EntityDefinition $definition, array $rawData, FkField $fkField): string
+    {
+        $query = $this->connection->createQueryBuilder();
+        $query->select(
+            'LOWER(HEX(' . EntityDefinitionQueryHelper::escape($fkField->getStorageName()) . '))'
+        );
+        $query->from(EntityDefinitionQueryHelper::escape($definition->getEntityName()));
+
+        foreach ($definition->getPrimaryKeys() as $index => $primaryKey) {
+            if ($primaryKey instanceof VersionField || $primaryKey instanceof ReferenceVersionField) {
+                continue;
+            }
+
+            /** @var Field|StorageAware $primaryKey */
+            if (!isset($rawData[$primaryKey->getPropertyName()])) {
+                throw new \RuntimeException(
+                    sprintf('Missing primary key %s for definition %s', $primaryKey->getPropertyName(), $definition->getClass())
+                );
+            }
+            $key = 'primaryKey' . $index;
+
+            $query->andWhere(
+                EntityDefinitionQueryHelper::escape($primaryKey->getStorageName()) . ' = :' . $key
+            );
+
+            $query->setParameter($key, Uuid::fromHexToBytes($rawData[$primaryKey->getPropertyName()]));
+        }
+
+        $fk = $query->execute()->fetchColumn();
+
+        if (!$fk) {
+            throw new \RuntimeException('Fk can not be detected');
+        }
+
+        return (string) $fk;
+    }
+
+    private function getPrimaryKeysOfFkField(EntityDefinition $definition, array $rawData, FkField $fkField): array
+    {
+        $parent = $fkField->getReferenceDefinition();
+
+        $referenceField = $parent->getFields()->getByStorageName($fkField->getReferenceField());
+        if (!$referenceField) {
+            throw new \RuntimeException(
+                sprintf(
+                    'Can not detect reference field with storage name %s in definition %s',
+                    $fkField->getReferenceField(),
+                    $parent->getClass()
+                )
+            );
+        }
+
+        $primaryKeys = [];
+        foreach ($rawData as $row) {
+            if (array_key_exists($fkField->getPropertyName(), $row)) {
+                $fk = $row[$fkField->getPropertyName()];
+            } else {
+                $fk = $this->fetchForeignKey($definition, $row, $fkField);
+            }
+
+            $primaryKeys[] = $fk;
+        }
+
+        return $primaryKeys;
     }
 }

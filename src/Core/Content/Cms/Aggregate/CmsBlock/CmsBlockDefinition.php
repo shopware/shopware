@@ -38,6 +38,11 @@ class CmsBlockDefinition extends EntityDefinition
         return CmsBlockCollection::class;
     }
 
+    protected function getParentDefinitionClass(): ?string
+    {
+        return CmsSectionDefinition::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

@@ -170,6 +170,12 @@ class EntityRepository implements EntityRepositoryInterface
     {
         $affected = $this->versionManager->delete($this->definition, $ids, WriteContext::createFromContext($context));
         $event = EntityWrittenContainerEvent::createWithDeletedEvents($affected->getDeleted(), $context, $affected->getNotFound());
+
+        if ($affected->getUpdated()) {
+            $updates = EntityWrittenContainerEvent::createWithWrittenEvents($affected->getUpdated(), $context, []);
+            $event->addEvent(...$updates->getEvents());
+        }
+
         $this->eventDispatcher->dispatch($event);
 
         return $event;

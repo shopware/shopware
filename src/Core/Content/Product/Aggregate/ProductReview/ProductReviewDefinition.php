@@ -42,11 +42,17 @@ class ProductReviewDefinition extends EntityDefinition
         return ProductReviewEntity::class;
     }
 
+    protected function getParentDefinitionClass(): ?string
+    {
+        return ProductDefinition::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new Required()),
+            (new ReferenceVersionField(ProductDefinition::class))->addFlags(new Required()),
             (new FkField('customer_id', 'customerId', CustomerDefinition::class))->addFlags(new Required()),
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required()),
@@ -63,7 +69,6 @@ class ProductReviewDefinition extends EntityDefinition
             (new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, 'id', false))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false),
-            (new ReferenceVersionField(ProductDefinition::class))->addFlags(new Required()),
         ]);
     }
 }

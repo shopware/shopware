@@ -148,7 +148,7 @@ class EntityWriter implements EntityWriterInterface
                     return new RestrictDeleteViolation($restriction['pk'], $restriction['restrictions']);
                 }, $restrictions);
 
-                throw new RestrictDeleteViolationException($definition, $restrictions, $this->registry);
+                throw new RestrictDeleteViolationException($definition, $restrictions);
             }
         }
 
@@ -162,7 +162,7 @@ class EntityWriter implements EntityWriterInterface
             }
 
             foreach ($cascades as $affectedDefinitionClass => &$cascade) {
-                $affectedDefinition = $this->registry->get($affectedDefinitionClass);
+                $affectedDefinition = $this->registry->getByEntityName($affectedDefinitionClass);
 
                 $cascade = array_map(function ($key) use ($affectedDefinition) {
                     $payload = $key;
@@ -175,6 +175,7 @@ class EntityWriter implements EntityWriterInterface
                         $key,
                         $payload,
                         $affectedDefinition->getEntityName(),
+                        EntityWriteResult::OPERATION_DELETE,
                         null
                     );
                 }, $cascade);
@@ -190,7 +191,13 @@ class EntityWriter implements EntityWriterInterface
             $existence = $this->gateway->getExistence($definition, $mappedBytes, [], $commandQueue);
 
             if (!$existence->exists()) {
-                $skipped[$definition->getClass()][] = new EntityWriteResult($mapped, $mapped, $definition->getEntityName(), $existence);
+                $skipped[$definition->getEntityName()][] = new EntityWriteResult(
+                    $mapped,
+                    $mapped,
+                    $definition->getEntityName(),
+                    EntityWriteResult::OPERATION_DELETE,
+                    $existence
+                );
                 continue;
             }
 
@@ -221,7 +228,6 @@ class EntityWriter implements EntityWriterInterface
                 continue;
             }
 
-            //@todo@jp fix data format
             $definition = $commands[0]->getDefinition();
 
             $primaryKeys = $definition->getPrimaryKeys()
@@ -229,7 +235,7 @@ class EntityWriter implements EntityWriterInterface
                     return !$field instanceof VersionField && !$field instanceof ReferenceVersionField;
                 });
 
-            $identifiers[$definition->getClass()] = [];
+            $identifiers[$definition->getEntityName()] = [];
 
             $jsonUpdateCommands = [];
             $writeResults = [];
@@ -244,11 +250,19 @@ class EntityWriter implements EntityWriterInterface
                     continue;
                 }
 
+                $operation = EntityWriteResult::OPERATION_UPDATE;
+                if ($command instanceof InsertCommand) {
+                    $operation = EntityWriteResult::OPERATION_INSERT;
+                } elseif ($command instanceof DeleteCommand) {
+                    $operation = EntityWriteResult::OPERATION_DELETE;
+                }
+
                 $payload = $this->getCommandPayload($command);
                 $writeResults[$uniqueId] = new EntityWriteResult(
                     $primaryKey,
                     $payload,
                     $command->getDefinition()->getEntityName(),
+                    $operation,
                     $command->getEntityExistence()
                 );
             }
@@ -274,11 +288,12 @@ class EntityWriter implements EntityWriterInterface
                     $this->getCommandPrimaryKey($command, $primaryKeys),
                     $mergedPayload,
                     $command->getDefinition()->getEntityName(),
+                    EntityWriteResult::OPERATION_UPDATE,
                     $command->getEntityExistence()
                 );
             }
 
-            $identifiers[$definition->getClass()] = array_values($writeResults);
+            $identifiers[$definition->getEntityName()] = array_values($writeResults);
         }
 
         return $identifiers;

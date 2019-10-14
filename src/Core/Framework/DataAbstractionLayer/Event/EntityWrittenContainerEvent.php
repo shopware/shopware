@@ -66,7 +66,6 @@ class EntityWrittenContainerEvent extends NestedEvent
                 continue;
             }
 
-            //@todo@jp fix data format
             $entityName = $entityWrittenResults[0]->getEntityName();
 
             $events->add(
@@ -92,7 +91,6 @@ class EntityWrittenContainerEvent extends NestedEvent
                 continue;
             }
 
-            //@todo@jp fix data format
             $entityName = $data[0]->getEntityName();
 
             $events->add(
@@ -106,6 +104,13 @@ class EntityWrittenContainerEvent extends NestedEvent
         }
 
         return new self($context, $events, $errors);
+    }
+
+    public function addEvent(NestedEvent ...$events): void
+    {
+        foreach ($events as $event) {
+            $this->events->add($event);
+        }
     }
 
     public function getErrors(): array

@@ -27,14 +27,11 @@ class DeleteTest extends TestCase
     {
         $this->writer = $this->getContainer()->get(EntityWriter::class);
 
-        $this->getContainer()->set(DeleteCascadeParentDefinition::class, new DeleteCascadeParentDefinition());
-        $this->getContainer()->set(DeleteCascadeManyToOneDefinition::class, new DeleteCascadeManyToOneDefinition());
-        $this->getContainer()->set(DeleteCascadeChildDefinition::class, new DeleteCascadeChildDefinition());
-
         $registry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
-        $this->getContainer()->get(DeleteCascadeParentDefinition::class)->compile($registry);
-        $this->getContainer()->get(DeleteCascadeManyToOneDefinition::class)->compile($registry);
-        $this->getContainer()->get(DeleteCascadeChildDefinition::class)->compile($registry);
+
+        $registry->register(new DeleteCascadeParentDefinition());
+        $registry->register(new DeleteCascadeManyToOneDefinition());
+        $registry->register(new DeleteCascadeChildDefinition());
 
         $this->getContainer()->get(Connection::class)->executeUpdate(
             'DROP TABLE IF EXISTS delete_cascade_child;

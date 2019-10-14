@@ -136,7 +136,6 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
 **Additions / Changes**
 
 * Administration
-    *
 * Core
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures
@@ -144,8 +143,11 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
 **Removals**
 
 * Administration
-    *
 * Core
+    * When a sub entity is written or deleted, a written event is dispatched for the configured root entity. 
+        - Example for mapping entities: Writing a `product_category` entity now also dispatches a `product.written` and `category.written` event
+        - Example for simple sub entities: Writing a `product_price` entity now also dispatches a `product_category` event
+        - Example for nested sub entities: Writing a `order_delivery_position` entity now also dispatches a `order_delivery.written` and a `order.written` event
 * Storefront
     * Removed `\Shopware\Storefront\Framework\Cache\CacheWarmer\Navigation\NavigationRouteMessage`
     * Removed `\Shopware\Storefront\Framework\Cache\CacheWarmer\Product\ProductRouteMessage`

@@ -28,6 +28,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\SumAggregation;
@@ -38,6 +39,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Struct\ArrayEntity;
@@ -112,6 +114,79 @@ class VersioningTest extends TestCase
         $this->context = Context::createDefaultContext();
 
         $this->registerDefinition(CalculatedPriceFieldTestDefinition::class);
+    }
+
+    public function testChangelogWrittenForRoot(): void
+    {
+        $id = Uuid::randomHex();
+        $categoryId = Uuid::randomHex();
+
+        $product = [
+            'id' => $id,
+            'productNumber' => $id,
+            'stock' => 1,
+            'name' => 'test',
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8, 'linked' => false]],
+            'manufacturer' => ['id' => $id, 'name' => 'test'],
+            'tax' => ['id' => $id, 'name' => 'updated', 'taxRate' => 11000],
+            'categories' => [
+                ['id' => $categoryId, 'name' => 'test'],
+            ],
+        ];
+
+        $context = Context::createDefaultContext();
+
+        $this->productRepository->create([$product], $context);
+
+        $ruleId = Uuid::randomHex();
+
+        $this->getContainer()->get('rule.repository')->create([
+            ['id' => $ruleId, 'name' => 'test', 'priority' => 1],
+        ], $context);
+
+        $price = [
+            'id' => $id,
+            'productId' => $id,
+            'quantityStart' => 1,
+            'ruleId' => $ruleId,
+            'price' => [
+                [
+                    'currencyId' => Defaults::CURRENCY,
+                    'gross' => 119,
+                    'net' => 100,
+                    'linked' => false,
+                ],
+            ],
+        ];
+
+        /** @var EntityRepositoryInterface $priceRepository */
+        $priceRepository = $this->getContainer()->get('product_price.repository');
+
+        $event = $priceRepository->create([$price], $context);
+        $productEvent = $event->getEventByEntityName('product');
+        static::assertInstanceOf(EntityWrittenEvent::class, $productEvent);
+        static::assertEquals([$id], $productEvent->getIds());
+
+        $commits = $this->getCommits('product', $id, Defaults::LIVE_VERSION);
+        static::assertCount(2, $commits);
+
+        $priceRepository->delete([['id' => $id]], $context);
+
+        $commits = $this->getCommits('product', $id, Defaults::LIVE_VERSION);
+        static::assertCount(3, $commits);
+
+        /** @var EntityRepositoryInterface $mappingRepository */
+        $mappingRepository = $this->getContainer()->get('product_category.repository');
+
+        $event = $mappingRepository->delete([['productId' => $id, 'categoryId' => $categoryId]], $context);
+
+        $productEvent = $event->getEventByEntityName('product');
+        static::assertInstanceOf(EntityWrittenEvent::class, $productEvent);
+
+        $categoryEvent = $event->getEventByEntityName('category');
+        static::assertInstanceOf(EntityWrittenEvent::class, $categoryEvent);
+
+        // recursion test > order > delivery > position
     }
 
     public function testChangelogOnlyWrittenForVersionAwareEntities(): void
@@ -504,7 +579,7 @@ class VersioningTest extends TestCase
         static::assertEquals($id, $changelog[1]['entity_id']['id']);
         static::assertEquals($context->getVersionId(), $changelog[1]['entity_id']['versionId']);
         static::assertEquals('product', $changelog[1]['entity_name']);
-        static::assertEquals('upsert', $changelog[1]['action']);
+        static::assertEquals('update', $changelog[1]['action']);
     }
 
     public function testChangelogWrittenWithMultipleEntities(): void
@@ -596,7 +671,7 @@ class VersioningTest extends TestCase
         static::assertEquals($id, $changelog[1]['entity_id']['id']);
         static::assertEquals($versionId, $changelog[1]['entity_id']['versionId']);
         static::assertEquals('product', $changelog[1]['entity_name']);
-        static::assertEquals('upsert', $changelog[1]['action']);
+        static::assertEquals('update', $changelog[1]['action']);
 
         static::assertArrayHasKey('payload', $changelog[1]);
         static::assertArrayHasKey('ean', $changelog[1]['payload']);
@@ -616,7 +691,7 @@ class VersioningTest extends TestCase
         static::assertEquals($id, $changelog[1]['entity_id']['id']);
         static::assertEquals($context->getVersionId(), $changelog[1]['entity_id']['versionId']);
         static::assertEquals('product', $changelog[1]['entity_name']);
-        static::assertEquals('upsert', $changelog[1]['action']);
+        static::assertEquals('update', $changelog[1]['action']);
 
         static::assertArrayHasKey('payload', $changelog[1]);
         static::assertArrayHasKey('ean', $changelog[1]['payload']);
@@ -1828,6 +1903,35 @@ class VersioningTest extends TestCase
         return $customerId;
     }
 
+    private function getCommits(string $entity, string $id, string $versionId): array
+    {
+        $data = $this->connection->fetchAll(
+            "SELECT d.* 
+             FROM version_commit_data d
+             INNER JOIN version_commit c
+               ON c.id = d.version_commit_id
+               AND c.version_id = :version
+             WHERE entity_name = :entity 
+             AND JSON_EXTRACT(entity_id, '$.id') = :id
+             GROUP BY c.id
+             ORDER BY auto_increment",
+            [
+                'entity' => $entity,
+                'id' => $id,
+                'version' => Uuid::fromHexToBytes($versionId),
+            ]
+        );
+
+        $data = array_map(function (array $row) {
+            $row['entity_id'] = json_decode($row['entity_id'], true);
+            $row['payload'] = json_decode($row['payload'], true);
+
+            return $row;
+        }, $data);
+
+        return $data;
+    }
+
     private function getVersionData(string $entity, string $id, string $versionId): array
     {
         $data = $this->connection->fetchAll(
@@ -1854,6 +1958,18 @@ class VersioningTest extends TestCase
         }, $data);
 
         return $data;
+    }
+
+    private function dumpHistory(): void
+    {
+        $criteria = new Criteria();
+        $criteria->getAssociation('data')
+            ->addSorting(new FieldSorting('autoIncrement'));
+
+        $criteria->addSorting(new FieldSorting('autoIncrement'));
+        $commits = $this->getContainer()->get('version_commit.repository')->search($criteria, Context::createDefaultContext());
+
+        dump(json_encode($commits));
     }
 
     private function getTranslationVersionData(string $entity, string $languageId, string $foreignKeyName, string $foreignKey, string $versionId): array

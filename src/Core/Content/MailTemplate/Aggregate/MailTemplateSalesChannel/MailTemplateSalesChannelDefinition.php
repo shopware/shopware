@@ -22,6 +22,11 @@ class MailTemplateSalesChannelDefinition extends EntityDefinition
         return self::ENTITY_NAME;
     }
 
+    protected function getParentDefinitionClass(): ?string
+    {
+        return MailTemplateDefinition::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

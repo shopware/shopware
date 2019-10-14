@@ -125,7 +125,7 @@ class WriterTest extends TestCase
             $context
         );
         static::assertEmpty($deleteResult->getNotFound());
-        static::assertNotEmpty($deleteResult->getDeleted()[CategoryDefinition::class]);
+        static::assertNotEmpty($deleteResult->getDeleted()[CategoryDefinition::ENTITY_NAME]);
 
         $categories = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:id) ',
@@ -180,8 +180,8 @@ class WriterTest extends TestCase
             $context
         );
 
-        static::assertCount(3, $deleteResult->getNotFound()[CategoryDefinition::class]);
-        static::assertCount(2, $deleteResult->getDeleted()[CategoryDefinition::class]);
+        static::assertCount(3, $deleteResult->getNotFound()[CategoryDefinition::ENTITY_NAME]);
+        static::assertCount(2, $deleteResult->getDeleted()[CategoryDefinition::ENTITY_NAME]);
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:id) ',
@@ -229,7 +229,7 @@ class WriterTest extends TestCase
         );
         static::assertEmpty($exists);
 
-        static::assertCount(1, $deleteResult->getDeleted()[ProductCategoryDefinition::class]);
+        static::assertCount(1, $deleteResult->getDeleted()[ProductCategoryDefinition::ENTITY_NAME]);
         static::assertCount(0, $deleteResult->getNotFound());
     }
 
@@ -308,7 +308,7 @@ class WriterTest extends TestCase
         );
         static::assertEmpty($exists);
 
-        static::assertCount(2, $deleteResult->getDeleted()[ProductCategoryDefinition::class]);
+        static::assertCount(2, $deleteResult->getDeleted()[ProductCategoryDefinition::ENTITY_NAME]);
         static::assertCount(0, $deleteResult->getNotFound());
     }
 

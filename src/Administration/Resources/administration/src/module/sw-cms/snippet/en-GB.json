@@ -114,6 +114,8 @@
       "labelMappingEmptyPreview": "No preview available.",
       "notificationTitleMissingFields": "Error",
       "notificationMessageMissingFields": "Configuration required. Please fill in all required fields.",
+      "notificationTitleMissingProductListing": "Error",
+      "notificationMessageMissingProductListing": "Unable to save. Please add a product listing block or change the layout type.",
       "notificationTitleMissingBlockFields": "Missing configuration",
       "notificationMessageMissingBlockFields": "Configuration required. Please fill in all required elements.",
       "notificationTitlePageError": "Layout could not be saved!",

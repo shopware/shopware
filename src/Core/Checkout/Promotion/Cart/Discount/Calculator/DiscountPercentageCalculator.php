@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Calculator;
 
 use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorResult;
@@ -19,9 +20,15 @@ class DiscountPercentageCalculator
      */
     private $absolutePriceCalculator;
 
-    public function __construct(AbsolutePriceCalculator $absolutePriceCalculator)
+    /**
+     * @var PercentagePriceCalculator
+     */
+    private $percentagePriceCalculator;
+
+    public function __construct(AbsolutePriceCalculator $absolutePriceCalculator, PercentagePriceCalculator $percentagePriceCalculator)
     {
         $this->absolutePriceCalculator = $absolutePriceCalculator;
+        $this->percentagePriceCalculator = $percentagePriceCalculator;
     }
 
     /**
@@ -40,22 +47,13 @@ class DiscountPercentageCalculator
 
         $definedPercentage = -abs($definition->getPercentage());
 
-        // now get the assessment basis of all line items
-        // including their quantities that need to be discounted
-        // based on our discount definition.
-        // the basis might only be from a few items and quantities of the cart
-        $assessmentBasis = $packages->getAffectedPrices()->sum()->getTotalPrice();
-
-        // calculate our price from that sum
-        $discountPrice = ($definedPercentage / 100.0) * $assessmentBasis;
-
         // now simply calculate the price object
         // with that sum for the corresponding line items.
         // we dont need to check on the actual item count in there,
         // because our calculation does always go for the original cart items
         // without considering any previously applied discounts.
-        $calculatedPrice = $this->absolutePriceCalculator->calculate(
-            -abs($discountPrice),
+        $calculatedPrice = $this->percentagePriceCalculator->calculate(
+            $definedPercentage,
             $packages->getAffectedPrices(),
             $context
         );
@@ -74,6 +72,12 @@ class DiscountPercentageCalculator
                     $packages->getAffectedPrices(),
                     $context
                 );
+
+                // now get the assessment basis of all line items
+                // including their quantities that need to be discounted
+                // based on our discount definition.
+                // the basis might only be from a few items and quantities of the cart
+                $assessmentBasis = $packages->getAffectedPrices()->sum()->getTotalPrice();
 
                 // we have to get our new fictional and lower percentage.
                 // we now calculate the percentage with MAX VALUE against our basis

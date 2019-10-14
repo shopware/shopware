@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemQuantitySplitter;
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
-use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
@@ -57,11 +57,6 @@ class PromotionCalculator
     private $absolutePriceCalculator;
 
     /**
-     * @var QuantityPriceCalculator
-     */
-    private $quantityPriceCalculator;
-
-    /**
      * @var LineItemGroupBuilder
      */
     private $groupBuilder;
@@ -81,22 +76,27 @@ class PromotionCalculator
      */
     private $discountCompositionBuilder;
 
+    /**
+     * @var PercentagePriceCalculator
+     */
+    private $percentagePriceCalculator;
+
     public function __construct(
         AmountCalculator $amountCalculator,
         AbsolutePriceCalculator $absolutePriceCalculator,
-        QuantityPriceCalculator $quantityPriceCalculator,
         LineItemGroupBuilder $groupBuilder,
         DiscountCompositionBuilder $compositionBuilder,
         AdvancedPackageFilter $filter,
-        LineItemQuantitySplitter $lineItemQuantitySplitter
+        LineItemQuantitySplitter $lineItemQuantitySplitter,
+        PercentagePriceCalculator $percentagePriceCalculator
     ) {
         $this->amountCalculator = $amountCalculator;
         $this->absolutePriceCalculator = $absolutePriceCalculator;
         $this->groupBuilder = $groupBuilder;
         $this->discountCompositionBuilder = $compositionBuilder;
-        $this->quantityPriceCalculator = $quantityPriceCalculator;
         $this->advancedFilter = $filter;
         $this->lineItemQuantitySplitter = $lineItemQuantitySplitter;
+        $this->percentagePriceCalculator = $percentagePriceCalculator;
     }
 
     /**
@@ -249,9 +249,7 @@ class PromotionCalculator
         // if we had our line item scope and split it into different packages, then bring them back into 1 single package
         if ($packager->getResultContext() === DiscountPackagerInterface::RESULT_CONTEXT_LINEITEM) {
             $packages = new DiscountPackageCollection(
-                [
-                    new DiscountPackage($packages->getAllLineMetaItems()),
-                ]
+                [new DiscountPackage($packages->getAllLineMetaItems())]
             );
         }
 
@@ -268,7 +266,7 @@ class PromotionCalculator
                 break;
 
             case PromotionDiscountEntity::TYPE_PERCENTAGE:
-                $calculator = new DiscountPercentageCalculator($this->absolutePriceCalculator);
+                $calculator = new DiscountPercentageCalculator($this->absolutePriceCalculator, $this->percentagePriceCalculator);
                 break;
 
             case PromotionDiscountEntity::TYPE_FIXED:

@@ -3,6 +3,13 @@
 namespace Shopware\Core\Framework\Update\Api;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Plugin\PluginEntity;
+use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Update\Event\UpdateFinishedEvent;
 use Shopware\Core\Framework\Update\Exception\UpdateFailedException;
@@ -61,13 +68,25 @@ class UpdateController extends AbstractController
      */
     private $systemConfig;
 
+    /**
+     * @var PluginLifecycleService
+     */
+    private $pluginLifecycleService;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $pluginRepository;
+
     public function __construct(
         string $rootDir,
         ApiClient $apiClient,
         RequirementsValidator $requirementsValidator,
         PluginCompatibility $pluginCompatibility,
         EventDispatcherInterface $eventDispatcher,
-        SystemConfigService $systemConfig
+        SystemConfigService $systemConfig,
+        PluginLifecycleService $lifecycleService,
+        EntityRepositoryInterface $pluginRepository
     ) {
         $this->rootDir = $rootDir;
         $this->apiClient = $apiClient;
@@ -75,6 +94,8 @@ class UpdateController extends AbstractController
         $this->pluginCompatibility = $pluginCompatibility;
         $this->eventDispatcher = $eventDispatcher;
         $this->systemConfig = $systemConfig;
+        $this->pluginLifecycleService = $lifecycleService;
+        $this->pluginRepository = $pluginRepository;
     }
 
     /**
@@ -144,10 +165,14 @@ class UpdateController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/update/unpack", name="api.custom.updateapi.unpack", methods={"GET"})
      */
-    public function unpack(Request $request): JsonResponse
+    public function unpack(Request $request, Context $context): JsonResponse
     {
         /** @var Version $update */
         $update = $this->apiClient->checkForUpdates();
+
+        // TODO: NEXT-5205 - Refactor into DeactivateIncompatiblePluginStep
+        $this->deactivateIncompatiblePlugins($update, $context);
+
         $source = $this->createDestinationFromVersion($update);
         $offset = $request->query->getInt('offset');
 
@@ -206,6 +231,37 @@ class UpdateController extends AbstractController
         $this->eventDispatcher->dispatch(new UpdateFinishedEvent($context));
 
         return $this->redirectToRoute('administration.index');
+    }
+
+    private function fetchInstalledPlugins(Context $context): PluginCollection
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('installedAt', null)]));
+
+        /** @var PluginCollection $collection */
+        $collection = $this->pluginRepository->search($criteria, $context)->getEntities();
+
+        return $collection;
+    }
+
+    private function deactivateIncompatiblePlugins(Version $update, Context $context): void
+    {
+        $compatibilities = $this->pluginCompatibility->getPluginCompatibilities($update);
+        $plugins = $this->fetchInstalledPlugins($context);
+
+        foreach ($compatibilities as $compatibility) {
+            if ($compatibility['statusName'] === PluginCompatibility::PLUGIN_COMPATIBILITY_COMPATIBLE
+                || $compatibility['statusName'] === PluginCompatibility::PLUGIN_COMPATIBILITY_NOT_IN_STORE
+            ) {
+                continue;
+            }
+
+            /** @var PluginEntity|null $plugin */
+            $plugin = $plugins->filterByProperty('name', $compatibility['name'])->first();
+            if ($plugin && $plugin->getActive()) {
+                $this->pluginLifecycleService->deactivatePlugin($plugin, $context);
+            }
+        }
     }
 
     private function toJson($result): JsonResponse

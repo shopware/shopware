@@ -40,14 +40,26 @@
             background: #fff;
             border-radius: 5px;
             padding: 15px;
+
+            #{$dark-theme-class} & {
+                background: darken(#fff, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-cms-el-image-slider__navigation-button {
             cursor: pointer;
             color: $color-gray-400;
 
+            #{$dark-theme-class} & {
+                color: lighten($color-gray-400, $dark-theme-contrast-factor);
+            }
+
             &:hover {
                 color: $color-gray-900;
+
+                #{$dark-theme-class} & {
+                    color: lighten($color-gray-900, $dark-theme-contrast-factor);
+                }
             }
         }
 
@@ -115,12 +127,24 @@
                     border-radius: 100%;
                     margin: 0 3px;
 
+                    #{$dark-theme-class} & {
+                        background: darken($color-gray-400, $dark-theme-contrast-factor);
+                    }
+
                     &.is--active {
                         background: $color-gray-900;
+
+                        #{$dark-theme-class} & {
+                            background: darken($color-gray-900, $dark-theme-contrast-factor);
+                        }
                     }
 
                     &:hover {
                         background: $color-gray-900;
+
+                        #{$dark-theme-class} & {
+                            background: darken($color-gray-900, $dark-theme-contrast-factor);
+                        }
                     }
                 }
             }

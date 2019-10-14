@@ -7,9 +7,17 @@ $sw-condition-not-found-color-background: $color-white;
     .sw-select.field--condition {
         background-color: $sw-condition-not-found-color-error;
 
+        #{$dark-theme-class} & {
+            background-color: darken($sw-condition-not-found-color-error, $dark-theme-contrast-factor);
+        }
+
         &:before,
         &:after {
             background-color: $sw-condition-not-found-color-error;
+
+            #{$dark-theme-class} & {
+                background-color: darken($sw-condition-not-found-color-error, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -17,16 +25,29 @@ $sw-condition-not-found-color-background: $color-white;
         .sw-field.field--main, .sw-select.field--condition {
             border-top-color: $sw-condition-not-found-color-error;
             border-bottom-color: $sw-condition-not-found-color-error;
+
+            #{$dark-theme-class} & {
+                border-top-color: lighten($sw-condition-not-found-color-error, $dark-theme-contrast-factor);
+                border-bottom-color: lighten($sw-condition-not-found-color-error, $dark-theme-contrast-factor);
+            }
         }
     }
 
     &.sw-condition-base .field--actions {
         border-color: $sw-condition-not-found-color-error;
+
+        #{$dark-theme-class} & {
+            border-color: lighten($sw-condition-not-found-color-error, $dark-theme-contrast-factor);
+        }
     }
 
     &.sw-condition-base .sw-field.field--main .sw-field__addition {
         display: flex;
         padding: 11px 15px;
         background-color: $sw-condition-not-found-color-background;
+
+        #{$dark-theme-class} & {
+            background-color: darken($sw-condition-not-found-color-background, $dark-theme-contrast-factor);
+        }
     }
 }

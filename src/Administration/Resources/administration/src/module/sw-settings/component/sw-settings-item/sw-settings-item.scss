@@ -9,6 +9,10 @@ $sw-settings-item-hover-text-color: $color-shopware-blue;
     display: flex;
     align-items: center;
 
+    #{$dark-theme-class} & {
+        color: lighten($sw-settings-item-text-color, $dark-theme-contrast-factor);
+    }
+
     &.is--disabled {
         opacity: 0.4;
         cursor: default;
@@ -28,6 +32,10 @@ $sw-settings-item-hover-text-color: $color-shopware-blue;
 
         &.background--enabled {
             background-color: darken($color-light-gray, 2%);
+
+            #{$dark-theme-class} & {
+                background-color: darken(darken($color-light-gray, $dark-theme-contrast-factor), 2%);
+            }
         }
 
         .sw-icon {
@@ -35,6 +43,10 @@ $sw-settings-item-hover-text-color: $color-shopware-blue;
             margin: auto;
             width: 20px;
             height: 20px;
+
+            #{$dark-theme-class} & {
+                color: lighten(lighten($color-gutenberg, $dark-theme-contrast-factor), 15%);
+            }
         }
     }
 
@@ -45,13 +57,25 @@ $sw-settings-item-hover-text-color: $color-shopware-blue;
     &:hover {
         color: $sw-settings-item-hover-text-color;
 
+        #{$dark-theme-class} & {
+            color: lighten($sw-settings-item-hover-text-color, $dark-theme-contrast-factor);
+        }
+
         .sw-settings-item__icon {
             &.background--enabled {
                 background-color: darken($color-light-gray, 4%);
+
+                #{$dark-theme-class} & {
+                    background-color: darken(darken($color-light-gray, $dark-theme-contrast-factor), 4%);
+                }
             }
 
             .sw-icon {
                 color: $sw-settings-item-hover-text-color;
+
+                #{$dark-theme-class} & {
+                    color: lighten($sw-settings-item-hover-text-color, $dark-theme-contrast-factor);
+                }
             }
         }
     }

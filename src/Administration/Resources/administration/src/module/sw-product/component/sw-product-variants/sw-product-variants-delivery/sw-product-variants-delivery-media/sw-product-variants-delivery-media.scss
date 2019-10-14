@@ -12,6 +12,11 @@
         overflow: auto;
         border-right: 1px solid $color-steam-cloud;
         padding: 20px 0;
+
+        #{$dark-theme-class} & {
+            border-right: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
+
         .sw-icon {
             margin-right: 8px;
         }
@@ -28,9 +33,17 @@
 
         &:hover {
             background-color: lighten($color-cadet-blue, 2.5);
+
+            #{$dark-theme-class} & {
+                background-color: lighten(darken($color-cadet-blue, $dark-theme-contrast-factor), 2.5);
+            }
         }
         &.is--selected {
             background-color: #f8f9fa;
+
+            #{$dark-theme-class} & {
+                background-color: darken(#f8f9fa, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -42,6 +55,10 @@
     .sw-product-variants-delivery-media__listing {
         padding: 20px;
         border-bottom: 1px solid $color-steam-cloud;
+
+        #{$dark-theme-class} & {
+            border-bottom: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
 
         .sw-field--checkbox {
             margin-bottom: 0;

@@ -30,19 +30,35 @@ $sw-search-bar-item-label-hover-color-text: $color-shopware-blue;
         overflow: hidden;
         text-overflow: ellipsis;
         margin-right: 10px;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-search-bar-item-color-label, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-search-bar-item__type {
         color: $sw-search-bar-item-color-type;
         font-size: 13px;
         margin-left: auto;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-search-bar-item-color-type, $dark-theme-contrast-factor);
+        }
     }
 
 	&.is--active {
         background: $sw-search-bar-item-hover-color-background;
 
+        #{$dark-theme-class} & {
+            background: darken($sw-search-bar-item-hover-color-background, $dark-theme-contrast-factor);
+        }
+
 		.sw-search-bar-item__label {
 			color: $sw-search-bar-item-label-hover-color-text;
+
+			#{$dark-theme-class} & {
+			    color: lighten($sw-search-bar-item-label-hover-color-text, $dark-theme-contrast-factor);
+			}
 		}
 	}
 }

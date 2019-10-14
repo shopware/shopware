@@ -38,8 +38,17 @@ $sw-product-stream-modal-color-success: $color-emerald;
         padding: 0;
         border-bottom: 1px solid $color-steam-cloud;
 
+        #{$dark-theme-class} & {
+            background: darken($color-light-gray, $dark-theme-contrast-factor);
+            border-bottom: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
+
         &:hover {
             background: $color-light-gray;
+
+            #{$dark-theme-class} & {
+                background: darken($color-light-gray, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-product-stream-modal-preview__search-field {
@@ -54,9 +63,17 @@ $sw-product-stream-modal-color-success: $color-emerald;
 
     .is--inactive {
         color: $sw-product-stream-modal-color-error;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-product-stream-modal-color-error, $dark-theme-contrast-factor);
+        }
     }
 
     .is--active {
         color: $sw-product-stream-modal-color-success;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-product-stream-modal-color-success, $dark-theme-contrast-factor);
+        }
     }
 }

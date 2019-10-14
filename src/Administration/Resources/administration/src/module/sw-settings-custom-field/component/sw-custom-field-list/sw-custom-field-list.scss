@@ -26,11 +26,24 @@ $sw-custom-field-list-color-label-link: $color-shopware-blue;
         background-color: $sw-custom-field-list-color-toolbar-background;
         border-bottom: 1px solid $sw-custom-field-list-color-toolbar-bottom;
 
+        #{$dark-theme-class} & {
+            background-color: darken($sw-custom-field-list-color-toolbar-background, $dark-theme-contrast-factor);
+            border-bottom: 1px solid lighten($sw-custom-field-list-color-toolbar-bottom, $dark-theme-contrast-factor);
+        }
+
         .sw-custom-field-list__delete-button.sw-button--square {
             border-color: $sw-custom-field-list-color-border;
 
+            #{$dark-theme-class} & {
+                border-color: lighten($sw-custom-field-list-color-border, $dark-theme-contrast-factor);
+            }
+
             .sw-icon {
                 color: $sw-custom-field-list-color-border;
+
+                #{$dark-theme-class} & {
+                    color: lighten($sw-custom-field-list-color-border, $dark-theme-contrast-factor);
+                }
             }
 
             &.sw-button--disabled {
@@ -54,6 +67,10 @@ $sw-custom-field-list-color-label-link: $color-shopware-blue;
         &:hover {
             color: $sw-custom-field-list-color-label-link;
             text-decoration: underline;
+
+            #{$dark-theme-class} & {
+                color: lighten($sw-custom-field-list-color-label-link, $dark-theme-contrast-factor);
+            }
         }
     }
 

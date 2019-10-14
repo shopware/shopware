@@ -13,6 +13,10 @@ $sw-sidebar-item-width-content:    400px;
     border-left: 1px solid $sw-sidebar-item-color-border;
     overflow: hidden;
 
+    #{$dark-theme-class} & {
+        border-left: 1px solid lighten($sw-sidebar-item-color-border, $dark-theme-contrast-factor);
+    }
+
     .sw-sidebar-item__headline {
         display: grid;
         grid-template-columns: 1fr 32px;
@@ -23,6 +27,10 @@ $sw-sidebar-item-width-content:    400px;
         margin: 0;
         font-size: 18px;
         color: $sw-sidebar-item-headline-color;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-sidebar-item-headline-color, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-sidebar-item__close-button {
@@ -34,6 +42,10 @@ $sw-sidebar-item-width-content:    400px;
         border: none;
         outline: none;
         cursor: pointer;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-sidebar-item-headline-color, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-sidebar-item__content {

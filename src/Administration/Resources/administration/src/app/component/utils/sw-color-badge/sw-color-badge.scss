@@ -14,24 +14,44 @@ $sw-color-badge-color-info: $color-shopware-blue;
     border-radius: 2px;
     background-color: $sw-color-badge-color-fallback;
 
+    #{$dark-theme-class} & {
+        background-color: darken($sw-color-badge-color-fallback, $dark-theme-contrast-factor);
+    }
+
     &.is--rounded {
         border-radius: 100%;
     }
 
     &.is--warning {
         background-color: $sw-color-badge-color-warning;
+
+        #{$dark-theme-class} & {
+            background-color: darken($sw-color-badge-color-warning, $dark-theme-contrast-factor);
+        }
     }
 
     &.is--error,
     &.is--danger {
         background-color: $sw-color-badge-color-error;
+
+        #{$dark-theme-class} & {
+            background-color: darken($sw-color-badge-color-error, $dark-theme-contrast-factor);
+        }
     }
 
     &.is--success {
         background-color: $sw-color-badge-color-success;
+
+        #{$dark-theme-class} & {
+            background-color: darken($sw-color-badge-color-success, $dark-theme-contrast-factor);
+        }
     }
 
     &.is--info {
         background-color: $sw-color-badge-color-info;
+
+        #{$dark-theme-class} & {
+            background-color: darken($sw-color-badge-color-info, $dark-theme-contrast-factor);
+        }
     }
 }

@@ -1,7 +1,13 @@
+@import "~scss/variables";
+
 .sw-product-detail-variants {
     .sw-card__configurator .sw-card__content {
         padding: 0;
         background: #f8f9fa;
+
+        #{$dark-theme-class} & { 
+            background: darken(#f8f9fa, $dark-theme-contrast-factor);
+        }
     }
     .sw-product-detail-variants__generated-variants.is--loading .sw-card__content{
         min-height: 250px;

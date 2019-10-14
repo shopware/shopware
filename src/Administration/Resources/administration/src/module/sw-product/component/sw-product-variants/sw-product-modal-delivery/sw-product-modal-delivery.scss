@@ -22,11 +22,19 @@
                 padding: 20px 30px;
                 flex-basis: 400px;
                 border-right: 1px solid $color-steam-cloud;
+
+                #{$dark-theme-class} & { 
+                    border-right: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+                }
             }
         }
 
         .sw-modal__footer {
             border-top: 1px solid $color-steam-cloud;
+
+            #{$dark-theme-class} & { 
+                border-top: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+            }
         }
     }
 

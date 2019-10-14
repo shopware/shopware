@@ -18,6 +18,10 @@
         input {
             border-radius: 24px;
             background-color: $color-gray-100;
+
+            #{$dark-theme-class} & {
+                background-color: darken($color-gray-100, $dark-theme-contrast-factor);
+            }
         }
 
         &.sw-field--default {
@@ -43,20 +47,39 @@
         .sw-block-field__block {
             border: 1px solid $color-gray-300;
             box-shadow: 0 0 4px $color-gray-50;
+
+            #{$dark-theme-class} & {
+                border: 1px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+                box-shadow: 0 0 4px lighten($color-gray-50, $dark-theme-contrast-factor);
+            }
         }
 
         &.has--error {
             border: 1px solid $color-gray-300;
             box-shadow: 0 0 4px $color-gray-50;
+
+            #{$dark-theme-class} & {
+                border: 1px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+                box-shadow: 0 0 4px lighten($color-gray-50, $dark-theme-contrast-factor);
+            }
         }
 
         &.has-focus {
             border: 1px solid $color-gray-300;
             box-shadow: 0 0 4px $color-gray-50;
+
+            #{$dark-theme-class} & {
+                border: 1px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+                box-shadow: 0 0 4px lighten($color-gray-50, $dark-theme-contrast-factor);
+            }
         }
 
         input {
             background-color: $color-gray-100;
+
+            #{$dark-theme-class} & {
+                background-color: darken($color-gray-100, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -66,5 +89,9 @@
         position: absolute;
         right: 18px;
         top: 50%;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-gray-700, $dark-theme-contrast-factor);
+        }
     }
 }

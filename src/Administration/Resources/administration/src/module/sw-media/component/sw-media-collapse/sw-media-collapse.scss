@@ -11,6 +11,10 @@ $sw-media-collapse-font-size-title: $font-size-default;
         cursor: pointer;
         padding: 16px 25px 0;
         color: $sw-media-collapse-color-title;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-media-collapse-color-title, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-media-collapse__title {
@@ -27,4 +31,8 @@ $sw-media-collapse-font-size-title: $font-size-default;
     }
 
     border-bottom: 1px solid $sw-media-collapse-color-divider;
+
+    #{$dark-theme-class} & {
+        border-bottom: 1px solid lighten($sw-media-collapse-color-divider, $dark-theme-contrast-factor);
+    }
 }

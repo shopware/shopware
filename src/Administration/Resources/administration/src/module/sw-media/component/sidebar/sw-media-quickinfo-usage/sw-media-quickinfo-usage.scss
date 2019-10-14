@@ -39,8 +39,16 @@ $sw-media-quickinfo-usage-hover-background: #E3F3FF;
             cursor: pointer;
             background-color: $sw-media-quickinfo-usage-hover-background;
 
+            #{$dark-theme-class} & {
+                background-color: darken($sw-media-quickinfo-usage-hover-background, $dark-theme-contrast-factor);
+            }
+
             .sw-media-quickinfo-usage__label {
                 color: $sw-media-quickinfo-usage-hover-color;
+
+                #{$dark-theme-class} & {
+                    color: lighten($sw-media-quickinfo-usage-hover-color, $dark-theme-contrast-factor);
+                }
             }
         }
 

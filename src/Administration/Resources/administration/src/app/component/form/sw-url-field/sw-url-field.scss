@@ -9,6 +9,10 @@ $sw-field-color-secure: $color-emerald;
 
         &.is--ssl {
             color: $sw-field-color-secure;
+
+            #{$dark-theme-class} & { 
+                color: lighten($sw-field-color-secure, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-icon {

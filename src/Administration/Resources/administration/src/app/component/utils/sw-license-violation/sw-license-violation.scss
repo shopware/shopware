@@ -16,6 +16,10 @@
             text-decoration: none;
             color: $color-shopware-brand-500;
 
+            #{$dark-theme-class} & {
+                color: lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+            }
+
             &:hover {
                 text-decoration: none;
             }
@@ -28,6 +32,10 @@
 
         tr {
             border-bottom: 1px solid $color-gray-300;
+
+            #{$dark-theme-class} & {
+                border-bottom: 1px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+            }
         }
 
         th,
@@ -55,6 +63,10 @@
         color: $color-crimson-500;
         text-decoration: none;
         margin-right: 8px;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-crimson-500, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-modal__footer {

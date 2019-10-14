@@ -39,10 +39,18 @@ $sw-field-icon-border-radius: $border-radius-default;
         align-items: center;
         justify-content: center;
 
+        #{$dark-theme-class} & {
+            background-color: darken(#33404D, $dark-theme-contrast-factor);
+        }
+
         .sw-icon {
             color: $color-white;
             width: 10px;
             height: 10px;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-white, $dark-theme-contrast-factor);
+            }
         }
 
         + a {
@@ -74,6 +82,10 @@ $sw-field-icon-border-radius: $border-radius-default;
         color: lighten($sw-field-help-color, 20);
         line-height: $sw-field-help-line-height;
         margin-top: 7px;
+
+        #{$dark-theme-class} & {
+            color: lighten(lighten($sw-field-help-color, $dark-theme-contrast-factor), 20);
+        }
     }
 }
 

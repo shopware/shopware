@@ -23,6 +23,12 @@
         background: $color-light-gray;
         border: 1px solid $color-steam-cloud;
 
+
+        #{$dark-theme-class} & {
+            background: darken($color-light-gray, $dark-theme-contrast-factor);
+            border: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
+
         button {
             padding: 6px 8px;
             color: $color-gutenberg;
@@ -35,8 +41,16 @@
             -moz-appearance: none;
             -webkit-appearance: none;
 
+            #{$dark-theme-class} & {
+                color: lighten($color-gutenberg, $dark-theme-contrast-factor);
+            }
+
             &:hover {
                 color: $color-shopware-blue;
+
+                #{$dark-theme-class} & {
+                    color: lighten($color-shopware-blue, $dark-theme-contrast-factor);
+                }
             }
         }
     }
@@ -45,6 +59,10 @@
         .content-editor,
         .content-editor:hover {
             border: 1px solid $color-steam-cloud;
+
+            #{$dark-theme-class} & {
+                border: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+            }
         }
     }
 }

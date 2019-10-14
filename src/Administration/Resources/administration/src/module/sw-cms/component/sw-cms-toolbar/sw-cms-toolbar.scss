@@ -9,16 +9,28 @@
     align-items: center;
     align-content: center;
 
+    #{$dark-theme-class} & {
+        border-bottom: 2px solid lighten(#d1d9e0, $dark-theme-contrast-factor);
+    }
+
     .sw-cms-toolbar__back-btn {
         padding: 10px 20px;
 
         .sw-icon {
             color: $color-steam-cloud;
             transform: rotate(180deg);
+
+            #{$dark-theme-class} & {
+                color: lighten($color-steam-cloud, $dark-theme-contrast-factor);
+            }
         }
 
         a:hover .sw-icon {
             color: $color-kashmir;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-kashmir, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -30,6 +42,10 @@
         overflow: hidden;
         text-overflow: ellipsis;
         margin-bottom: 0;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-kashmir, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-cms-toolbar__actions {

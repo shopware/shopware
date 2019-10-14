@@ -16,6 +16,11 @@ $sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
     user-select: none;
     z-index: 250;
 
+    #{$dark-theme-class} & {
+        background: linear-gradient(-180deg, darken($color-menu-start, $dark-theme-contrast-factor) 0%, darken($color-menu-end, $dark-theme-contrast-factor) 100%);
+        color: lighten($color-gray-300, $dark-theme-contrast-factor);
+    }
+
     &::before {
         content: '';
         position: absolute;
@@ -28,6 +33,12 @@ $sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
         background: $color-menu-end;
         border-top: 1px solid $color-menu-end;
         border-left: 1px solid $color-menu-end;
+
+        #{$dark-theme-class} & {
+            background: darken($color-menu-end, $dark-theme-contrast-factor);
+            border-top: 1px solid lighten($color-menu-end, $dark-theme-contrast-factor);
+            border-left: 1px solid lighten($color-menu-end, $dark-theme-contrast-factor);
+        }
     }
 
     &.is--boxedEdit {
@@ -42,6 +53,12 @@ $sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
         display: grid;
         grid-template-columns: auto;
 
+        #{$dark-theme-class} & {
+            background: darken($color-gray-100, $dark-theme-contrast-factor);
+            border-bottom: 1px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+            color: lighten($sw-text-editor-toolbar-item-color-boxed, $dark-theme-contrast-factor);
+        }
+
         &::before {
             content: none;
         }
@@ -49,10 +66,18 @@ $sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
         .sw-text-editor-buttons {
             &.is--middle {
                 border-left: 1px solid $color-gray-300;
+
+                #{$dark-theme-class} & {
+                    border-left: 1px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+                }
             }
 
             &.is--right {
                 border-left: 1px solid $color-gray-300;
+
+                #{$dark-theme-class} & {
+                    border-left: 1px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+                }
             }
         }
 
@@ -69,12 +94,20 @@ $sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
         &.is--middle {
             border-left: 1px solid $color-darkgray-200;
             padding-left: 1px;
+
+            #{$dark-theme-class} & {
+                border-left: 1px solid lighten($color-darkgray-200, $dark-theme-contrast-factor);
+            }
         }
 
         &.is--right {
             border-left: 1px solid $color-darkgray-200;
             padding-left: 1px;
             justify-self: end;
+
+            #{$dark-theme-class} & {
+                border-left: 1px solid lighten($color-darkgray-200, $dark-theme-contrast-factor);
+            }
         }
     }
 }

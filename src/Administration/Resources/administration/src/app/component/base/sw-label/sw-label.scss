@@ -20,6 +20,12 @@ $sw-label-pill-border-radius: 50px;
     color: $color-darkgray-200;
     cursor: default;
 
+    #{$dark-theme-class} & {
+        border: 1px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+        background: darken($color-gray-50, $dark-theme-contrast-factor);
+        color: lighten($color-darkgray-200, $dark-theme-contrast-factor);
+    }
+
     .sw-label__caption {
         @include truncate();
 
@@ -30,6 +36,10 @@ $sw-label-pill-border-radius: 50px;
     &.sw-label--dismissable:hover {
         border-color: $color-shopware-brand-500;
 
+        #{$dark-theme-class} & {
+            border-color: lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+        }
+
         .sw-label__caption {
             width: calc(100% - 15px);
         }
@@ -37,6 +47,10 @@ $sw-label-pill-border-radius: 50px;
         .sw-label__dismiss {
             display: inline-block;
             color: $color-shopware-brand-500;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -62,6 +76,11 @@ $sw-label-pill-border-radius: 50px;
         cursor: pointer;
         outline: none;
 
+        #{$dark-theme-class} & {
+            color: lighten($color-darkgray-200, $dark-theme-contrast-factor);
+            background-color: darken($color-gray-50, $dark-theme-contrast-factor);
+        }
+
         .sw-icon {
             width: 12px;
             height: 12px;
@@ -71,6 +90,10 @@ $sw-label-pill-border-radius: 50px;
     &.sw-label--ghost {
         background: transparent;
         border-color: $color-gray-300;
+
+        #{$dark-theme-class} & {
+            border-color: lighten($color-gray-300, $dark-theme-contrast-factor);
+        }
     }
 
     &.sw-label--appearance-pill {

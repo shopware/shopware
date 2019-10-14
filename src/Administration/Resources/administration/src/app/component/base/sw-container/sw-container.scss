@@ -28,5 +28,9 @@
         font-size: 14px;
         line-height: 20px;
         color: $color-darkgray-200;
+
+        #{$dark-theme-class} & { 
+            color: lighten($color-darkgray-200, $dark-theme-contrast-factor);
+        }
     }
 }

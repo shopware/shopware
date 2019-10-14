@@ -14,10 +14,18 @@ $sw-text-editor-color-label: $color-kashmir;
         color: $sw-text-editor-color-label;
         font-weight: normal;
         user-select: none;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-text-editor-color-label, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-code-editor__editor {
 		border: 1px solid $sw-text-editor-color-border;
         height: 260px;
+
+		#{$dark-theme-class} & {
+		    border: 1px solid lighten($sw-text-editor-color-border, $dark-theme-contrast-factor);
+		}
     }
 }

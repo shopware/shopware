@@ -15,6 +15,11 @@ $sw-sidebar-transition:       cubic-bezier(.50, .32, .01, 1) .3s;
     width: $sw-sidebar-navigation-width;
     transition: width $sw-sidebar-transition;
 
+    #{$dark-theme-class} & {
+        background-color: darken($sw-sidebar-color-background, $dark-theme-contrast-factor);
+        border-left: 1px solid lighten($sw-sidebar-color-border, $dark-theme-contrast-factor);
+    }
+
     &.is--opened {
         width: $sw-sidebar-navigation-width + $sw-sidebar-item-width;
     }

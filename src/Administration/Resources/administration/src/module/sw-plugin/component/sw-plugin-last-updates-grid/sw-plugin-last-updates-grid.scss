@@ -17,6 +17,10 @@
             .sw-plugin-last-updates-grid__upgraded-date {
                 color: $color-gray;
                 font-size: $font-size-small;
+
+                #{$dark-theme-class} & {
+                    color: lighten($color-gray, $dark-theme-contrast-factor);
+                }
             }
         }
 
@@ -25,5 +29,9 @@
     .sw-plugin-last-updates-grid__version {
         font-size: $font-size-small;
         color: $color-gray;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-gray, $dark-theme-contrast-factor);
+        }
     }
 }

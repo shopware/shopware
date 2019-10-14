@@ -16,6 +16,11 @@
         position: absolute;
         left: 16px - (3px / 2);
         top: -20px;
+
+        #{$dark-theme-class} & {
+            background-color: darken($color-gray-100, $dark-theme-contrast-factor);
+            border: 1px solid lighten($color-gray-100, $dark-theme-contrast-factor);
+        }
     }
 
     &:first-child {
@@ -35,6 +40,10 @@
         display: flex;
         align-items: center;
         justify-content: center;
+
+        #{$dark-theme-class} & {
+            background-color: darken($color-gray-100, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-step-item__description {
@@ -43,51 +52,91 @@
         font-weight: 600;
         color: $color-gray-500;
         line-height: $font-size-small;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-gray-500, $dark-theme-contrast-factor);
+        }
     }
 
     &.sw-step-item--disabled {
         .sw-step-item__bubble {
             background-color: $color-gray-100;
+
+            #{$dark-theme-class} & {
+                background-color: darken($color-gray-100, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-step-item__icon {
             color: $color-gray-300;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-gray-300, $dark-theme-contrast-factor);
+            }
         }
     }
 
     &.sw-step-item--info {
         .sw-step-item__bubble {
             background-color: $color-shopware-brand-50;
+
+            #{$dark-theme-class} & {
+                background-color: darken($color-shopware-brand-50, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-step-item__icon {
             color: $color-shopware-brand-500;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+            }
         }
     }
 
     &.sw-step-item--error {
         .sw-step-item__bubble {
             background-color: $color-crimson-50;
+
+            #{$dark-theme-class} & {
+                background-color: darken($color-crimson-50, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-step-item__icon {
             color: $color-crimson-500;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-crimson-500, $dark-theme-contrast-factor);
+            }
         }
     }
 
     &.sw-step-item--success {
         .sw-step-item__bubble {
             background-color: $color-emerald-50;
+
+            #{$dark-theme-class} & {
+                background-color: darken($color-emerald-50, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-step-item__icon {
             color: $color-emerald-500;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-emerald-500, $dark-theme-contrast-factor);
+            }
         }
     }
 
     &.sw-step-item--active {
         .sw-step-item__description {
             color: $color-darkgray-200;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-darkgray-200, $dark-theme-contrast-factor);
+            }
         }
     }
 }

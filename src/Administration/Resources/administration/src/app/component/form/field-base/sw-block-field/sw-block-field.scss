@@ -7,6 +7,10 @@ $sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
         border: 1px solid $color-steam-cloud;
         border-radius: $border-radius-default;
         overflow: hidden;
+
+        #{$dark-theme-class} & {
+            border: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
     }
 
     input,
@@ -27,6 +31,11 @@ $sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
         -webkit-appearance: none;
         -moz-appearance: none;
 
+        #{$dark-theme-class} & {
+            background: darken($color-white, $dark-theme-contrast-factor);
+            color: lighten($color-gutenberg, $dark-theme-contrast-factor);
+        }
+
         &:invalid,
         &:-moz-submit-invalid,
         &:-moz-ui-invalid {
@@ -37,10 +46,19 @@ $sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
             background: $color-light-gray;
             border-color: $color-steam-cloud;
             cursor: default !important;
+
+            #{$dark-theme-class} & {
+                background: darken($color-light-gray, $dark-theme-contrast-factor);
+                border-color: lighten($color-steam-cloud, $dark-theme-contrast-factor);
+            }
         }
 
         &::placeholder {
             color: lighten($color-gutenberg, 25%);
+
+            #{$dark-theme-class} & {
+                color: lighten(lighten($color-gutenberg, $dark-theme-contrast-factor), 25%);
+            }
         }
     }
 
@@ -48,18 +66,31 @@ $sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
         .sw-block-field__block {
             border-color: $color-shopware-blue;
             box-shadow: 0 0 4px lighten($color-shopware-blue, 30%);
+
+            #{$dark-theme-class} & {
+                border-color: lighten($color-shopware-blue, $dark-theme-contrast-factor);
+                box-shadow: 0 0 4px lighten(lighten($color-shopware-blue, $dark-theme-contrast-factor), 30%);
+            }
         }
     }
 
     &.has--error {
         .sw-block-field__block {
             border-color: $color-crimson;
+
+            #{$dark-theme-class} & {
+                border-color: lighten($color-crimson, $dark-theme-contrast-factor);
+            }
         }
     }
 
     &.has--error.has--focus {
         .sw-block-field__block {
             box-shadow: 0 0 4px lighten($color-crimson, 30%);
+
+            #{$dark-theme-class} & {
+                box-shadow: 0 0 4px lighten(lighten($color-crimson, $dark-theme-contrast-factor), 30%);
+            }
         }
     }
 

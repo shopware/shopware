@@ -19,12 +19,20 @@ $sw-media-index-page-background-color:    $color-white;
 
     .sw-media-index__navigation-breadcrumb {
         color: $sw-media-index-color-breadcrumb-icon;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-media-index-color-breadcrumb-icon, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-media-index__navigation-label {
         @include truncate();
         color: $sw-media-index-color-navigation-parent;
         text-decoration: none;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-media-index-color-navigation-parent, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-media-index__page-content {
@@ -32,6 +40,10 @@ $sw-media-index-page-background-color:    $color-white;
         display: grid;
         height: 100%;
         grid-template-columns: 1fr auto;
+
+        #{$dark-theme-class} & {
+            background: darken($sw-media-index-page-background-color, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-media-index__media-library {

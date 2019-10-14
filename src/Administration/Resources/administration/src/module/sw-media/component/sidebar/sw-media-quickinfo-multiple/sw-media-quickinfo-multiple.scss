@@ -6,4 +6,8 @@ $sw-media-quickinfo-color-second-headline: $color-gutenberg;
     display: block;
     margin: -20px 0 20px;
     color: $sw-media-quickinfo-color-second-headline;
+
+    #{$dark-theme-class} & { 
+        color: lighten($sw-media-quickinfo-color-second-headline, $dark-theme-contrast-factor);
+    }
 }

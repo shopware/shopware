@@ -28,6 +28,10 @@
         border: 1px solid $color-steam-cloud;
         border-radius: $border-radius-default;
 
+        #{$dark-theme-class} & {
+            border: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
+
         .sw-cms-el-product-slider__title {
             margin-top: 0;
         }

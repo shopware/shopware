@@ -18,6 +18,10 @@
         color: $color-kashmir;
         font-weight: normal;
         user-select: none;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-kashmir, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-cms-mapping-field__selection {
@@ -35,6 +39,10 @@
         font-size: 14px;
         color: $color-shopware-blue;
         cursor: pointer;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-shopware-blue, $dark-theme-contrast-factor);
+        }
 
         &:hover .sw-cms-mapping-field__action-label {
             text-decoration: underline;
@@ -57,6 +65,10 @@
 
         &:hover {
             color: $color-crimson;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-crimson, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -66,6 +78,11 @@
         background: $color-light-gray;
         border: 1px dashed $color-steam-cloud;
         border-radius: 4px;
+
+        #{$dark-theme-class} & {
+            background: darken($color-light-gray, $dark-theme-contrast-factor);
+            border: 1px dashed lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-cms-mapping-field__preview {
@@ -73,6 +90,10 @@
         border: 1px solid $color-steam-cloud;
         margin-top: 10px;
         margin-bottom: 22px;
+
+        #{$dark-theme-class} & {
+            border: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-cms-mapping-field__empty-demo {

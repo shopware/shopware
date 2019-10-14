@@ -20,12 +20,20 @@
         font-size: 25px;
         margin-bottom: 15px;
         color: $color-darkgray-200;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-darkgray-200, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-empty-state__description {
         color: $color-darkgray-200;
         margin-bottom: 15px;
         font-size: 14px;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-darkgray-200, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-empty-state__icon {

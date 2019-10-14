@@ -20,6 +20,10 @@
         margin: 8px 6px 0 0;
         color: $color-shopware-blue;
         line-height: 26px;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-shopware-blue, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-select-selection-list__input {
@@ -29,6 +33,10 @@
 
         &::placeholder {
             color: lighten($color-gutenberg, 25%);
+
+            #{$dark-theme-class} & {
+                color: lighten(lighten($color-gutenberg, $dark-theme-contrast-factor), 25%);
+            }
         }
     }
 }

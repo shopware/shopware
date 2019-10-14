@@ -18,6 +18,10 @@ $sw-media-quickinfo-border-radius-preview: $border-radius-default;
         border: 1px solid $sw-media-quickinfo-border-color-preview;
         border-radius: $sw-media-quickinfo-border-radius-preview;
 
+        #{$dark-theme-class} & {
+            border: 1px solid lighten($sw-media-quickinfo-border-color-preview, $dark-theme-contrast-factor);
+        }
+
         &:after {
             content: "";
             display: block;

@@ -13,6 +13,11 @@ $sw-sidebar-collapse-font-size-title: $font-size-default;
     padding-bottom: 16px;
     color: $sw-sidebar-collapse-color-title;
     border-top: 1px solid $sw-sidebar-collapse-color-divider;
+
+    #{$dark-theme-class} & {
+        color: lighten($sw-sidebar-collapse-color-title, $dark-theme-contrast-factor);
+        border-top: 1px solid lighten($sw-sidebar-collapse-color-divider, $dark-theme-contrast-factor);
+    }
   }
 
   .sw-sidebar-collapse__title {

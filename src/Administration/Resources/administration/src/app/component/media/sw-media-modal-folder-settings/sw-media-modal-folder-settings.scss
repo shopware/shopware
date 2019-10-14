@@ -30,8 +30,16 @@ $sw-media-modal-folder-settings-delete-color:               $color-crimson;
             background: none;
             font-weight: normal;
 
+            #{$dark-theme-class} & {
+                color: lighten($sw-media-modal-folder-settings-color-switch-mode, $dark-theme-contrast-factor);
+            }
+
             &.sw-button--disabled {
                 color: $sw-media-modal-folder-settings-color-disabled-switch-mode;
+
+                #{$dark-theme-class} & {
+                    color: lighten($sw-media-modal-folder-settings-color-disabled-switch-mode, $dark-theme-contrast-factor);
+                }
             }
         }
     }
@@ -39,6 +47,10 @@ $sw-media-modal-folder-settings-delete-color:               $color-crimson;
     .sw-media-modal-folder-settings__thumbnails-list-container {
         border: 1px solid $sw-media-modal-folder-settings-border-color;
         padding: 22px 24px 0 24px;
+
+        #{$dark-theme-class} & {
+            border: 1px solid lighten($sw-media-modal-folder-settings-border-color, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-media-modal-folder-settings__thumbnails-list {
@@ -47,15 +59,22 @@ $sw-media-modal-folder-settings-delete-color:               $color-crimson;
         &.is--editable {
             li {
                 border-bottom: 1px solid $sw-media-modal-folder-settings-border-color;
+
+                #{$dark-theme-class} & {
+                    border-bottom: 1px solid lighten($sw-media-modal-folder-settings-border-color, $dark-theme-contrast-factor);
+                }
             }
         }
 
         li {
             border-bottom: 1px solid transparent;
             margin-bottom: 8px;
-
             display: flex;
             justify-content: space-between;
+
+            #{$dark-theme-class} & {
+                border-bottom: 1px solid transparent;
+            }
 
             .sw-field--switch {
                 margin: 0;
@@ -70,6 +89,10 @@ $sw-media-modal-folder-settings-delete-color:               $color-crimson;
             color: $sw-media-modal-folder-settings-delete-color;
             cursor: pointer;
             outline: none;
+
+            #{$dark-theme-class} & {
+                color: lighten($sw-media-modal-folder-settings-delete-color, $dark-theme-contrast-factor);
+            }
         }
     }
 }

@@ -12,36 +12,69 @@ $sw-side-navigation-item-link-distance: 10px;
     cursor: pointer;
     user-select: none;
 
+    #{$dark-theme-class} & {
+        border-bottom: 2px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+        color: lighten($color-darkgray-200, $dark-theme-contrast-factor);
+    }
+
     .sw-tabs-item__error-badge {
         position: relative;
         bottom: 2px;
         color: $color-crimson-300;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-crimson-300, $dark-theme-contrast-factor);
+        }
     }
 
     &.sw-tabs-item--active {
         color: $color-darkgray-800;
 
+        #{$dark-theme-class} & {
+            color: lighten($color-darkgray-800, $dark-theme-contrast-factor);
+        }
+
         .sw-tabs-item__error-badge {
             color: $color-crimson-500;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-crimson-500, $dark-theme-contrast-factor);
+            }
         }
     }
 
     &.sw-tabs-item--has-error {
         color: $color-crimson-300;
 
+        #{$dark-theme-class} & {
+            color: lighten($color-crimson-300, $dark-theme-contrast-factor);
+        }
+
         &.sw-tabs-item--active {
             color: $color-crimson-500;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-crimson-500, $dark-theme-contrast-factor);
+            }
         }
     }
 
     &.sw-tabs-item--is-disabled {
         color: $color-darkgray-200;
         pointer-events: none;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-darkgray-200, $dark-theme-contrast-factor);
+        }
     }
 
     &:disabled {
         color: $color-darkgray-200;
         cursor: not-allowed;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-darkgray-200, $dark-theme-contrast-factor);
+        }
     }
 }
 
@@ -49,9 +82,18 @@ $sw-side-navigation-item-link-distance: 10px;
     padding: $sw-side-navigation-item-link-distance;
     border-bottom: 0 solid $color-gray-300;
     border-left: 2px solid $color-gray-300;
+
+    #{$dark-theme-class} & {
+        border-bottom: 0 solid lighten($color-gray-300, $dark-theme-contrast-factor);
+        border-left: 2px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+    }
 }
 
 .sw-tabs--vertical.sw-tabs--align-right .sw-tabs-item{
     border-left: 0;
     border-right: 2px solid $color-gray-300;
+
+    #{$dark-theme-class} & {
+        border-right: 2px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+    }
 }

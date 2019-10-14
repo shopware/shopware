@@ -15,13 +15,26 @@ $sw-sidebar-navigation-item-size: 64px;
     cursor: pointer;
     outline: none;
 
+    #{$dark-theme-class} & {
+        color: lighten($sw-sidebar-navigation-item-icon-color, $dark-theme-contrast-factor);
+    }
+
     &:hover:not(.is--disabled) {
         color: $sw-sidebar-navigation-item-icon-color-active;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-sidebar-navigation-item-icon-color-active, $dark-theme-contrast-factor);
+        }
     }
 
     &.is--active {
         background: $sw-sidebar-navigation-item-active-color-background;
         color: $sw-sidebar-navigation-item-icon-color-active;
+
+        #{$dark-theme-class} & {
+            background: darken($sw-sidebar-navigation-item-active-color-background, $dark-theme-contrast-factor);
+            color: lighten($sw-sidebar-navigation-item-icon-color-active, $dark-theme-contrast-factor);
+        }
     }
 
     &.is--disabled {

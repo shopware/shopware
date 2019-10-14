@@ -67,6 +67,10 @@ $sw-order-user-card-link: $color-shopware-blue;
             padding-top: 0;
             padding-bottom: 0;
             vertical-align: top;
+
+            #{$dark-theme-class} & {
+                color: lighten($sw-order-user-card-link, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-order-user-card__address-add-button {

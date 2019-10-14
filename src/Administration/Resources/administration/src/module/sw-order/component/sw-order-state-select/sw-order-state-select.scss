@@ -29,8 +29,16 @@
       background: lighten($sw-order-state-card-progress,40%);
       border: none;
 
+      #{$dark-theme-class} & {
+          background: lighten(darken($sw-order-state-card-progress, $dark-theme-contrast-factor),40%);
+      }
+
       &.is--placeholder {
         color: $sw-order-state-card-progress;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-order-state-card-progress, $dark-theme-contrast-factor);
+        }
       }
     }
     .sw-block-field__block {
@@ -43,8 +51,16 @@
       background: lighten($sw-order-state-card-danger,42%);
       border: none;
 
+      #{$dark-theme-class} & {
+          background: lighten(darken($sw-order-state-card-danger, $dark-theme-contrast-factor),42%);
+      }
+
       &.is--placeholder {
         color: $sw-order-state-card-danger;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-order-state-card-danger, $dark-theme-contrast-factor);
+        }
       }
     }
     .sw-block-field__block {
@@ -57,8 +73,16 @@
       background: lighten($sw-order-state-card-success,40%);
       border: none;
 
+      #{$dark-theme-class} & {
+          background: lighten(darken($sw-order-state-card-success, $dark-theme-contrast-factor),40%);
+      }
+
       &.is--placeholder {
         color: $sw-order-state-card-success;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-order-state-card-success, $dark-theme-contrast-factor);
+        }
       }
     }
     .sw-block-field__block {

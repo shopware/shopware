@@ -25,6 +25,10 @@ $sw-media-field-color-unlink:                     $color-crimson;
         line-height: 16px;
         font-weight: normal;
         user-select: none;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-media-field-color-label, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-media-field__input-container {
@@ -39,6 +43,11 @@ $sw-media-field-color-unlink:                     $color-crimson;
             background-color: $color-white;
             border: 1px solid $sw-media-field-border-color-input;
             border-radius: $sw-media-field-border-radius-input 0 0 $sw-media-field-border-radius-input;
+
+            #{$dark-theme-class} & {
+                background-color: darken($color-white, $dark-theme-contrast-factor);
+                border: 1px solid lighten($sw-media-field-border-color-input, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-media-base-item.is--list {
@@ -52,10 +61,18 @@ $sw-media-field-color-unlink:                     $color-crimson;
             border: 1px solid $sw-media-field-border-color-input;
             border-left: 0 none;
             width: 45px;
+
+            #{$dark-theme-class} & {
+                border: 1px solid lighten($sw-media-field-border-color-input, $dark-theme-contrast-factor);
+            }
         }
 
         &.is--active .sw-media-field__input {
             border: 1px solid $sw-media-field-border-color-input-active;
+
+            #{$dark-theme-class} & {
+                border: 1px solid lighten($sw-media-field-border-color-input-active, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -72,6 +89,10 @@ $sw-media-field-color-unlink:                     $color-crimson;
         border: 1px solid $sw-media-field-border-color-picker;
         border-radius: $sw-media-field-border-radius-picker;
 
+        #{$dark-theme-class} & {
+            background-color: darken($sw-media-field-background-color-picker, $dark-theme-contrast-factor);
+            border: 1px solid lighten($sw-media-field-border-color-picker, $dark-theme-contrast-factor);
+        }
 
         .sw-simple-search-field {
             margin-bottom: 8px;
@@ -83,6 +104,10 @@ $sw-media-field-color-unlink:                     $color-crimson;
             > .sw-media-field__suggestion-list-entry:hover {
                 cursor: pointer;
                 background: $sw-media-field-background-color-list-item-hover;
+
+                #{$dark-theme-class} & {
+                    background: darken($sw-media-field-background-color-list-item-hover, $dark-theme-contrast-factor);
+                }
             }
         }
 
@@ -102,6 +127,12 @@ $sw-media-field-color-unlink:                     $color-crimson;
             border-top: 1px solid $sw-media-field-border-color-picker;
             border-left: 1px solid $sw-media-field-border-color-picker;
             z-index: $z-index-context-menu;
+
+            #{$dark-theme-class} & {
+                background: darken($color-white, $dark-theme-contrast-factor);
+                border-top: 1px solid lighten($sw-media-field-border-color-picker, $dark-theme-contrast-factor);
+                border-left: 1px solid lighten($sw-media-field-border-color-picker, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -119,18 +150,34 @@ $sw-media-field-color-unlink:                     $color-crimson;
       color: $sw-media-field-color-picker-toggle;
       justify-self: start;
 
+      #{$dark-theme-class} & {
+          color: lighten($sw-media-field-color-picker-toggle, $dark-theme-contrast-factor);
+      }
+
         &.is--remove {
             color: $sw-media-field-color-unlink;
             justify-self: end;
+
+            #{$dark-theme-class} & {
+                color: lighten($sw-media-field-color-unlink, $dark-theme-contrast-factor);
+            }
         }
     }
 
     .sw-media-field__icon-add {
         color: $sw-media-field-color-picker-toggle;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-media-field-color-picker-toggle, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-media-field__icon-remove {
         color: $sw-media-field-color-unlink;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-media-field-color-unlink, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-media-field__picker-loader {

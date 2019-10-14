@@ -16,5 +16,9 @@
     .sw-order-document-settings-credit-note-modal__no-items-text {
         margin-bottom: 22px;
         color: $color-crimson;
+
+        #{$dark-theme-class} & { 
+            color: lighten($color-crimson, $dark-theme-contrast-factor);
+        }
     }
 }

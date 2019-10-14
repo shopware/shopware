@@ -15,7 +15,16 @@ $sw-avatar-size-default: 40px;
     color: $color-white;
     user-select: none;
 
+    #{$dark-theme-class} & {
+        background: darken($color-gray-200, $dark-theme-contrast-factor) no-repeat center center;
+        color: lighten($color-white, $dark-theme-contrast-factor);
+    }
+
     .sw-icon {
         color: $color-shopware-brand-500;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+        }
     }
 }

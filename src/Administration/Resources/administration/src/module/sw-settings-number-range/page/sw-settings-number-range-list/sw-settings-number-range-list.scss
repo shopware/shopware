@@ -7,6 +7,10 @@ $sw-settings-number-range-list-font-size-default: $font-size-default;
 .sw-settings-number-range-list {
     .is--default {
         color: $sw-settings-number-range-list-color-success;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-settings-number-range-list-color-success, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-settings-number-range-list__columns-assignment-tag {
@@ -26,6 +30,11 @@ $sw-settings-number-range-list-font-size-default: $font-size-default;
         padding-bottom: 16px;
         color: #607182;
         border-bottom: 1px solid $sw-settings-number-range-list-color-border-collapse;
+
+        #{$dark-theme-class} & {
+            color: lighten(#607182, $dark-theme-contrast-factor);
+            border-bottom: 1px solid lighten($sw-settings-number-range-list-color-border-collapse, $dark-theme-contrast-factor);
+        }
 
         .sw-settings-number-range-list__collapse-indicator {
             margin-right: 25px;

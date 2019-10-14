@@ -5,6 +5,10 @@
         padding: 0;
         border-bottom: 1px solid $color-steam-cloud;
 
+        #{$dark-theme-class} & {
+            border-bottom: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
+
         .sw-data-grid__cell--header {
             border-width: 0;
         }

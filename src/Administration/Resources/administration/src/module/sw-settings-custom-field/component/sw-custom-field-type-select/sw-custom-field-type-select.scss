@@ -8,6 +8,10 @@ $sw-custom-field-type-select-button-delete-color: $color-crimson;
         background: none;
         color: $sw-custom-field-type-select-button-delete-color;
         margin-left: 20px;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-custom-field-type-select-button-delete-color, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-custom-field-type-select__option-container {
@@ -17,5 +21,10 @@ $sw-custom-field-type-select-button-delete-color: $color-crimson;
     .sw-custom-field-type-select__button-add {
         color: $sw-custom-field-type-select-button-add-color;
         border-color: $sw-custom-field-type-select-button-add-color;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-custom-field-type-select-button-add-color, $dark-theme-contrast-factor);
+            border-color: lighten($sw-custom-field-type-select-button-add-color, $dark-theme-contrast-factor);
+        }
     }
 }

@@ -9,6 +9,11 @@
     border: 1px solid $color-module-purple-900;
     border-radius: $border-radius-default;
 
+    #{$dark-theme-class} & {
+        background-color: darken($color-module-purple-50, $dark-theme-contrast-factor);
+        border: 1px solid lighten($color-module-purple-900, $dark-theme-contrast-factor);
+    }
+
     .sw-icon {
         flex-shrink: 0;
         margin-right: 8px;
@@ -19,5 +24,9 @@
         color: $color-darkgray-200;
         font-size: $font-size-small;
         line-height: 22px;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-darkgray-200, $dark-theme-contrast-factor);
+        }
     }
 }

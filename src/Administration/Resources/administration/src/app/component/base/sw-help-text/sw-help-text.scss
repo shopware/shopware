@@ -11,6 +11,11 @@
     align-items: center;
     justify-content: center;
 
+    #{$dark-theme-class} & {
+        background-color: darken($color-shopware-brand-500, $dark-theme-contrast-factor);
+        color: lighten($color-white, $dark-theme-contrast-factor);
+    }
+
     .sw-icon {
         width: 14px;
         height: 14px;

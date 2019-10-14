@@ -64,6 +64,10 @@
                 -moz-user-select: none;
                 -webkit-user-select: none;
                 -ms-user-select: none;
+
+                #{$dark-theme-class} & {
+                    color: lighten($color-gutenberg, $dark-theme-contrast-factor);
+                }
             }
 
             &:first-of-type {
@@ -94,6 +98,12 @@
         border-radius: $border-radius-default;
         box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 0.5);
 
+        #{$dark-theme-class} & {
+            border: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+            background-color: darken($color-white, $dark-theme-contrast-factor);
+            box-shadow: 0 3px 6px 0 lighten(rgba(120, 138, 155, 0.5), $dark-theme-contrast-factor);
+        }
+
         &::before {
             content: '';
             position: absolute;
@@ -106,6 +116,11 @@
             border-right: none;
             background: $color-white;
             transform: rotate(45deg);
+
+            #{$dark-theme-class} & {
+                border: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+                background: darken($color-white, $dark-theme-contrast-factor);
+            }
         }
 
         &--compact {
@@ -129,6 +144,10 @@
                 linear-gradient(180deg, #fff, rgba(255, 255, 255, 0) 50%),
                 linear-gradient(0deg, #000, rgba(0, 0, 0, 0) 50%),
                 linear-gradient(90deg, #808080, rgba(128, 128, 128, 0) 100%);
+
+            #{$dark-theme-class} & {
+                border: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+            }
         }
 
         &-selector {
@@ -140,6 +159,11 @@
             border-radius: 50%;
             box-shadow: 0 0 5px $color-shopware-blue;
             cursor: grab;
+
+            #{$dark-theme-class} & {
+                border: 3px solid lighten(#fff, $dark-theme-contrast-factor);
+                box-shadow: 0 0 5px lighten($color-shopware-blue, $dark-theme-contrast-factor);
+            }
 
             &:active {
                 cursor: grabbing;
@@ -162,6 +186,11 @@
             border: 1px solid $color-steam-cloud;
             background: #fff;
             -webkit-appearance: none;
+
+            #{$dark-theme-class} & {
+                border: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+                background: darken(#fff, $dark-theme-contrast-factor);
+            }
         }
 
         &-slider-range::-webkit-slider-thumb:hover {
@@ -174,6 +203,11 @@
             border-radius: $border-radius-default;
             border: 1px solid $color-steam-cloud;
             background: #fff;
+
+            #{$dark-theme-class} & {
+                border: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+                background: darken(#fff, $dark-theme-contrast-factor);
+            }
         }
 
         &-slider-range::-moz-range-thumb:hover {
@@ -212,6 +246,10 @@
             border: 1px solid $color-steam-cloud;
             border-radius: $border-radius-default;
             z-index: 1;
+
+            #{$dark-theme-class} & {
+                border: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+            }
         }
 
         &-previewBackground {
@@ -222,6 +260,10 @@
             border: 1px solid $color-steam-cloud;
             border-radius: $border-radius-default;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 90 90' width='100%25' height='100%25'%3E%3Crect width='30' height='30' x='00' y='00' fill='%23cdd5db' /%3E%3Crect width='30' height='30' x='30' y='30' fill='%23cdd5db' /%3E%3Crect width='30' height='30' x='60' y='00' fill='%23cdd5db' /%3E%3Crect width='30' height='30' x='60' y='60' fill='%23cdd5db' /%3E%3Crect width='30' height='30' x='00' y='60' fill='%23cdd5db' /%3E%3C/svg%3E");
+
+            #{$dark-theme-class} & {
+                border: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+            }
 
             &.is--invalid::after {
                 position: absolute;
@@ -246,6 +288,11 @@
             color: $color-gutenberg;
             outline: none;
 
+            #{$dark-theme-class} & {
+                border: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+                color: lighten($color-gutenberg, $dark-theme-contrast-factor);
+            }
+
             &[type=number] {
                 -moz-appearance: textfield;
             }
@@ -265,6 +312,10 @@
 
             &:focus {
                 border-color: $color-shopware-blue;
+
+                #{$dark-theme-class} & {
+                    border-color: lighten($color-shopware-blue, $dark-theme-contrast-factor);
+                }
             }
         }
     }
@@ -279,6 +330,10 @@
         outline: none;
         -webkit-appearance: none;
 
+        #{$dark-theme-class} & {
+            border: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
+
         &::-webkit-slider-thumb {
             height: 26px;
             width: 8px;
@@ -286,6 +341,11 @@
             border: 1px solid $color-steam-cloud;
             background: #fff;
             -webkit-appearance: none;
+
+            #{$dark-theme-class} & {
+                border: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+                background: darken(#fff, $dark-theme-contrast-factor);
+            }
         }
 
         &::-webkit-slider-thumb:hover {
@@ -298,6 +358,11 @@
             border: 1px solid $color-steam-cloud;
             border-radius: $border-radius-default;
             background: #fff;
+
+            #{$dark-theme-class} & {
+                border: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+                background: darken(#fff, $dark-theme-contrast-factor);
+            }
         }
 
         &::-moz-range-thumb:hover {

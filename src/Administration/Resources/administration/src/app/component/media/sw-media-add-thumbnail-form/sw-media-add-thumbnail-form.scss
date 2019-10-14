@@ -30,8 +30,16 @@ $sw-media-add-thumbnail-form-lock-color-locked: $color-shopware-blue;
             outline: none;
             cursor: pointer;
 
+            #{$dark-theme-class} & {
+                color: lighten($sw-media-add-thumbnail-form-lock-color-default, $dark-theme-contrast-factor);
+            }
+
             &.is--locked {
                 color: $sw-media-add-thumbnail-form-lock-color-locked;
+
+                #{$dark-theme-class} & {
+                    color: lighten($sw-media-add-thumbnail-form-lock-color-locked, $dark-theme-contrast-factor);
+                }
             }
         }
     }

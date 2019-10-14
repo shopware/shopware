@@ -8,6 +8,11 @@
         border-bottom: 1px solid $color-gray-100;
         padding: 25px;
 
+        #{$dark-theme-class} & {
+            background-color: darken($color-gray-100, $dark-theme-contrast-factor);
+            border-bottom: 1px solid lighten($color-gray-100, $dark-theme-contrast-factor);
+        }
+
         input {
             padding: 6px 16px;
             height: 32px;
@@ -38,6 +43,11 @@
         padding-left: 25px;
         padding-right: 25px;
 
+        #{$dark-theme-class} & {
+            background-color: darken($color-gray-100, $dark-theme-contrast-factor);
+            border-bottom: 1px solid lighten($color-gray-100, $dark-theme-contrast-factor);
+        }
+
         .sw-progress-bar {
             margin-bottom: 25px;
         }
@@ -56,9 +66,17 @@
 
     .is--inactive {
         color: $color-gray;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-gray, $dark-theme-contrast-factor);
+        }
     }
 
     .is--active {
         color: $color-emerald;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-emerald, $dark-theme-contrast-factor);
+        }
     }
 }

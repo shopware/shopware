@@ -19,6 +19,10 @@ $sw-context-menu-color-warning:          $color-pumpkin-spice;
     outline: none;
     cursor: pointer;
 
+    #{$dark-theme-class} & {
+        color: lighten($sw-context-menu-color-text, $dark-theme-contrast-factor);
+    }
+
     &.sw-context-menu-item--icon {
         display: grid;
         grid-template-columns: 16px auto;
@@ -32,23 +36,48 @@ $sw-context-menu-color-warning:          $color-pumpkin-spice;
         background: $sw-context-menu-color-background-hover;
         color: $sw-context-menu-color-active;
 
+        #{$dark-theme-class} & {
+            background: darken($sw-context-menu-color-background-hover, $dark-theme-contrast-factor);
+            color: lighten($sw-context-menu-color-active, $dark-theme-contrast-factor);
+        }
+
         .sw-icon {
             color: $sw-context-menu-color-active;
+
+            #{$dark-theme-class} & {
+                color: lighten($sw-context-menu-color-active, $dark-theme-contrast-factor);
+            }
         }
     }
 
     &.sw-context-menu-item--danger {
         color: $sw-context-menu-color-danger;
 
+        #{$dark-theme-class} & {
+            color: lighten($sw-context-menu-color-danger, $dark-theme-contrast-factor);
+        }
+
         .sw-icon {
             color: $sw-context-menu-color-danger;
+
+            #{$dark-theme-class} & {
+                color: lighten($sw-context-menu-color-danger, $dark-theme-contrast-factor);
+            }
         }
 
         &:hover {
             background: lighten($sw-context-menu-color-danger, 42%);
 
+            #{$dark-theme-class} & {
+                background: lighten(darken($sw-context-menu-color-danger, $dark-theme-contrast-factor), 42%);
+            }
+
             &.is--disabled {
                 color: $sw-context-menu-color-danger;
+
+                #{$dark-theme-class} & {
+                    color: lighten($sw-context-menu-color-danger, $dark-theme-contrast-factor);
+                }
             }
         }
     }
@@ -56,15 +85,31 @@ $sw-context-menu-color-warning:          $color-pumpkin-spice;
     &.sw-context-menu-item--success {
         color: $sw-context-menu-color-success;
 
+        #{$dark-theme-class} & {
+            color: lighten($sw-context-menu-color-success, $dark-theme-contrast-factor);
+        }
+
         .sw-icon {
             color: $sw-context-menu-color-success;
+
+            #{$dark-theme-class} & {
+                color: lighten($sw-context-menu-color-success, $dark-theme-contrast-factor);
+            }
         }
 
         &:hover {
             background: lighten($sw-context-menu-color-success, 42%);
 
+            #{$dark-theme-class} & {
+                background: lighten(darken($sw-context-menu-color-success, $dark-theme-contrast-factor), 42%);
+            }
+
             &.is--disabled {
                 color: $sw-context-menu-color-success;
+
+                #{$dark-theme-class} & {
+                    color: lighten($sw-context-menu-color-success, $dark-theme-contrast-factor);
+                }
             }
         }
     }
@@ -72,15 +117,31 @@ $sw-context-menu-color-warning:          $color-pumpkin-spice;
     &.sw-context-menu-item--warning {
         color: $sw-context-menu-color-warning;
 
+        #{$dark-theme-class} & {
+            color: lighten($sw-context-menu-color-warning, $dark-theme-contrast-factor);
+        }
+
         .sw-icon {
             color: $sw-context-menu-color-warning;
+
+            #{$dark-theme-class} & {
+                color: lighten($sw-context-menu-color-warning, $dark-theme-contrast-factor);
+            }
         }
 
         &:hover {
             background: lighten($sw-context-menu-color-warning, 25%);
 
+            #{$dark-theme-class} & {
+                background: lighten(darken($sw-context-menu-color-warning, $dark-theme-contrast-factor), 25%);
+            }
+
             &.is--disabled {
                 color: $sw-context-menu-color-warning;
+
+                #{$dark-theme-class} & {
+                    color: lighten($sw-context-menu-color-warning, $dark-theme-contrast-factor);
+                }
             }
         }
     }
@@ -92,6 +153,10 @@ $sw-context-menu-color-warning:          $color-pumpkin-spice;
         &:hover {
             color: $sw-context-menu-color-text;
             background: 0 none;
+
+            #{$dark-theme-class} & {
+                color: lighten($sw-context-menu-color-text, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -103,14 +168,26 @@ $sw-context-menu-color-warning:          $color-pumpkin-spice;
         &:hover {
             color: $sw-context-menu-color-text;
             background: 0 none;
+
+            #{$dark-theme-class} & {
+                color: lighten($sw-context-menu-color-text, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-icon {
             color: $sw-context-menu-color-text;
+
+            #{$dark-theme-class} & {
+                color: lighten($sw-context-menu-color-text, $dark-theme-contrast-factor);
+            }
         }
     }
 
     & > .sw-icon {
         color: $sw-context-menu-color-text;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-context-menu-color-text, $dark-theme-contrast-factor);
+        }
     }
 }

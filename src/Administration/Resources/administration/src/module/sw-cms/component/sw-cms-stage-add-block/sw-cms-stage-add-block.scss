@@ -22,6 +22,11 @@
         background: rgba($color-shopware-blue, 0.2);
         border: 2px dashed $color-shopware-blue;
 
+        #{$dark-theme-class} & {
+            background: darken(rgba($color-shopware-blue, 0.2), $dark-theme-contrast-factor);
+            border: 2px dashed lighten($color-shopware-blue, $dark-theme-contrast-factor);
+        }
+
         .sw-cms-stage-add-block__handle,
         .sw-cms-stage-add-block__button {
             display: none;
@@ -35,6 +40,11 @@
         background-color: $color-shopware-blue;
         box-shadow: 0 0 10px 0 rgba($color-shopware-blue, 0.6);
         position: relative;
+
+        #{$dark-theme-class} & {
+            background-color: darken($color-shopware-blue, $dark-theme-contrast-factor);
+            box-shadow: 0 0 10px 0 lighten(rgba($color-shopware-blue, 0.6), $dark-theme-contrast-factor);
+        }
     }
 
     .sw-cms-stage-add-block__button {
@@ -47,5 +57,10 @@
         background-color: $color-shopware-blue;
         color: $color-white;
         position: absolute;
+
+        #{$dark-theme-class} & {
+            background-color: darken($color-shopware-blue, $dark-theme-contrast-factor);
+            color: lighten($color-white, $dark-theme-contrast-factor);
+        }
     }
 }

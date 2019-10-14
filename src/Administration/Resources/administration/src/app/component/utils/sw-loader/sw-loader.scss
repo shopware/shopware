@@ -18,6 +18,10 @@ $sw-loader-z-index: $z-index-loader;
     z-index: $sw-loader-z-index;
     background: $sw-loader-color-overlay;
 
+    #{$dark-theme-class} & {
+        background: darken($sw-loader-color-overlay, $dark-theme-contrast-factor);
+    }
+
     .sw-loader__container {
         display: grid;
         grid-auto-columns: auto;

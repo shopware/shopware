@@ -11,6 +11,10 @@ $sw-grid-column-color-link: $color-shopware-blue;
     position: relative;
     border-right: 1px solid $sw-grid-column-color-border;
 
+    #{$dark-theme-class} & {
+        border-right: 1px solid lighten($sw-grid-column-color-border, $dark-theme-contrast-factor);
+    }
+
     &:last-child {
         border-right: 0 none;
     }
@@ -57,6 +61,10 @@ $sw-grid-column-color-link: $color-shopware-blue;
         text-align: left;
         color: $sw-grid-column-content-color-text;
 
+        #{$dark-theme-class} & {
+            color: lighten($sw-grid-column-content-color-text, $dark-theme-contrast-factor);
+        }
+
         &.is--truncate {
             @include truncate();
             display: block;
@@ -66,9 +74,17 @@ $sw-grid-column-color-link: $color-shopware-blue;
             color: $sw-grid-column-content-color-text;
             text-decoration: none;
 
+            #{$dark-theme-class} & {
+                color: lighten($sw-grid-column-content-color-text, $dark-theme-contrast-factor);
+            }
+
             &:hover {
                 color: $sw-grid-column-color-link;
                 text-decoration: underline;
+
+                #{$dark-theme-class} & {
+                    color: lighten($sw-grid-column-color-link, $dark-theme-contrast-factor);
+                }
             }
         }
 
@@ -114,6 +130,10 @@ $sw-grid-column-color-link: $color-shopware-blue;
 
         &:hover {
             color: $sw-grid-column-color-action;
+
+            #{$dark-theme-class} & {
+                color: lighten($sw-grid-column-color-action, $dark-theme-contrast-factor);
+            }
         }
     }
 }

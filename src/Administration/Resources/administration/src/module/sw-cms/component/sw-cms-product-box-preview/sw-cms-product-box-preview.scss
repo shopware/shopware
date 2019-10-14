@@ -10,6 +10,10 @@
     color: $color-gutenberg;
     border-radius: 2px;
 
+    #{$dark-theme-class} & {
+        color: lighten($color-gutenberg, $dark-theme-contrast-factor);
+    }
+
     .sw-cms-product-box-preview__image {
         height: 60px;
         max-width: 100%;
@@ -47,5 +51,10 @@
         text-align: center;
         font-size: 12px;
         line-height: 26px;
+
+        #{$dark-theme-class} & {
+            background: darken($color-steam-cloud, $dark-theme-contrast-factor);
+            color: lighten($color-kashmir, $dark-theme-contrast-factor);
+        }
     }
 }

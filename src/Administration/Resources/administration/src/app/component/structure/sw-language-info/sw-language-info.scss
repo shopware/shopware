@@ -12,8 +12,16 @@ $sw-language-info-color-language: $color-shopware-blue;
     color: $sw-language-info-color-text;
     font-size: $sw-language-info-font-size;
 
+    #{$dark-theme-class} & {
+        color: lighten($sw-language-info-color-text, $dark-theme-contrast-factor);
+    }
+
     .sw-language-info__link-parent {
         color: $sw-language-info-color-language;
         cursor: pointer;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-language-info-color-language, $dark-theme-contrast-factor);
+        }
     }
 }

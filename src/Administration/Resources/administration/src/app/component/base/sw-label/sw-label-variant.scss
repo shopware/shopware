@@ -1,18 +1,36 @@
+@import "~scss/variables";
 @mixin sw-label-variant($color-background, $color-text, $color-border) {
     background-color: $color-background;
     border-color: transparent;
     color: $color-text;
 
+    #{$dark-theme-class} & {
+        background-color: darken($color-background, $dark-theme-contrast-factor);
+        color: lighten($color-text, $dark-theme-contrast-factor);
+    }
+
     &.sw-label--small::before {
         background: $color-border;
+
+        #{$dark-theme-class} & {
+            background: darken($color-border, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-label__dismiss {
         color: $color-text;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-text, $dark-theme-contrast-factor);
+        }
     }
 
     &.sw-label--ghost {
         background: transparent;
         border-color: $color-border;
+
+        #{$dark-theme-class} & {
+            border-color: lighten($color-border, $dark-theme-contrast-factor);
+        }
     }
 }

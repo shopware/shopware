@@ -51,6 +51,12 @@ $sw-condition-base-color-disabled: $color-light-gray;
         flex-shrink: 0;
         border-top: 1px solid $sw-condition-base-color-border;
         border-bottom: 1px solid $sw-condition-base-color-border;
+
+        #{$dark-theme-class} & {
+            background-color: darken($sw-condition-base-color-background, $dark-theme-contrast-factor);
+            border-top: 1px solid lighten($sw-condition-base-color-border, $dark-theme-contrast-factor);
+            border-bottom: 1px solid lighten($sw-condition-base-color-border, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-field.sw-field--medium {
@@ -63,6 +69,11 @@ $sw-condition-base-color-disabled: $color-light-gray;
         border-top: 1px solid $sw-condition-base-color-border;
         border-bottom: 1px solid $sw-condition-base-color-border;
         padding-left: 0;
+
+        #{$dark-theme-class} & {
+            border-top: 1px solid lighten($sw-condition-base-color-border, $dark-theme-contrast-factor);
+            border-bottom: 1px solid lighten($sw-condition-base-color-border, $dark-theme-contrast-factor);
+        }
 
         &.sw-select--small .sw-select__inner {
             min-height: 38px;
@@ -108,6 +119,10 @@ $sw-condition-base-color-disabled: $color-light-gray;
                 top: 12px;
                 right: 5px;
                 color: $sw-condition-base-color-primary-text;
+
+                #{$dark-theme-class} & {
+                    color: lighten($sw-condition-base-color-primary-text, $dark-theme-contrast-factor);
+                }
             }
 
             .sw-select__results {
@@ -133,12 +148,23 @@ $sw-condition-base-color-disabled: $color-light-gray;
         border-top-left-radius: 3px;
         border-bottom-left-radius: 3px;
 
+        #{$dark-theme-class} & {
+            background: darken($sw-condition-base-color-primary, $dark-theme-contrast-factor);
+            color: lighten($sw-condition-base-color-primary-text, $dark-theme-contrast-factor);
+            border-top-color: lighten($sw-condition-base-color-primary, $dark-theme-contrast-factor);
+            border-bottom-color: lighten($sw-condition-base-color-primary, $dark-theme-contrast-factor);
+        }
+
         &.is--expanded {
             border-bottom-left-radius: 0;
         }
 
         .sw-select__indicator .sw-icon {
             color: $sw-condition-base-color-primary-text;
+
+            #{$dark-theme-class} & {
+                color: lighten($sw-condition-base-color-primary-text, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-select__inner {
@@ -146,12 +172,21 @@ $sw-condition-base-color-disabled: $color-light-gray;
                 border-color: $sw-condition-base-color-primary;
                 color: $sw-condition-base-color-secondary-text;
 
+                #{$dark-theme-class} & {
+                    border-color: lighten($sw-condition-base-color-primary, $dark-theme-contrast-factor);
+                    color: lighten($sw-condition-base-color-secondary-text, $dark-theme-contrast-factor);
+                }
+
                 .sw-icon {
                     color: unset;
                 }
             }
             .sw-select__placeholder {
                 color: $sw-condition-base-color-primary-text;
+
+                #{$dark-theme-class} & {
+                    color: lighten($sw-condition-base-color-primary-text, $dark-theme-contrast-factor);
+                }
             }
         }
 
@@ -166,6 +201,10 @@ $sw-condition-base-color-disabled: $color-light-gray;
             z-index: $sw-condition-base-z-index-arrow;
             transform: rotate(-20deg);
             border-bottom-right-radius: 3px;
+
+            #{$dark-theme-class} & {
+                background: darken($sw-condition-base-color-primary, $dark-theme-contrast-factor);
+            }
         }
 
         &:after {
@@ -179,6 +218,10 @@ $sw-condition-base-color-disabled: $color-light-gray;
             z-index: $sw-condition-base-z-index-arrow;
             border-top-right-radius: 3px;
             transform: rotate(20deg);
+
+            #{$dark-theme-class} & {
+                background: darken($sw-condition-base-color-primary, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -193,6 +236,10 @@ $sw-condition-base-color-disabled: $color-light-gray;
             background: $sw-condition-base-color-border;
             z-index: $sw-condition-base-z-index-arrow;
             transform: rotate(-20deg);
+
+            #{$dark-theme-class} & {
+                background: darken($sw-condition-base-color-border, $dark-theme-contrast-factor);
+            }
         }
 
         &:after {
@@ -205,6 +252,10 @@ $sw-condition-base-color-disabled: $color-light-gray;
             background: $sw-condition-base-color-border;
             z-index: $sw-condition-base-z-index-arrow;
             transform: rotate(20deg);
+
+            #{$dark-theme-class} & {
+                background: darken($sw-condition-base-color-border, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -248,6 +299,10 @@ $sw-condition-base-color-disabled: $color-light-gray;
             bottom: -1px;
             background-color: $sw-condition-base-color-border;
             z-index: $sw-condition-base-z-index-arrow;
+
+            #{$dark-theme-class} & {
+                background-color: darken($sw-condition-base-color-border, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -262,6 +317,10 @@ $sw-condition-base-color-disabled: $color-light-gray;
         padding: 0 0;
         height: auto;
         cursor: pointer;
+
+        #{$dark-theme-class} & {
+            border: 1px solid lighten($sw-condition-base-color-border, $dark-theme-contrast-factor);
+        }
 
         .sw-context-button {
             height: 100%;
@@ -306,6 +365,10 @@ $sw-condition-base-color-disabled: $color-light-gray;
 
         &.is--disabled {
             background-color: $sw-condition-base-color-disabled;
+
+            #{$dark-theme-class} & {
+                background-color: darken($sw-condition-base-color-disabled, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -317,6 +380,10 @@ $sw-condition-base-color-disabled: $color-light-gray;
         padding: 0;
         margin: 0;
         width: 100%;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-condition-base-color-primary-text, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-context-button .sw-context-button__button {
@@ -328,24 +395,45 @@ $sw-condition-base-color-disabled: $color-light-gray;
         .field--condition {
             background-color: $sw-condition-base-color-error;
 
+            #{$dark-theme-class} & {
+                background-color: darken($sw-condition-base-color-error, $dark-theme-contrast-factor);
+            }
+
             &:before, &:after {
                 background-color: $sw-condition-base-color-error;
+
+                #{$dark-theme-class} & {
+                    background-color: darken($sw-condition-base-color-error, $dark-theme-contrast-factor);
+                }
             }
         }
 
         .sw-condition-base__base-field {
             border-top-color: $sw-condition-base-color-error;
             border-bottom-color: $sw-condition-base-color-error;
+
+            #{$dark-theme-class} & {
+                border-top-color: lighten($sw-condition-base-color-error, $dark-theme-contrast-factor);
+                border-bottom-color: lighten($sw-condition-base-color-error, $dark-theme-contrast-factor);
+            }
         }
 
         .has--arrow {
             &:before, &:after {
                 background-color: $sw-condition-base-color-error;
+
+                #{$dark-theme-class} & {
+                    background-color: darken($sw-condition-base-color-error, $dark-theme-contrast-factor);
+                }
             }
         }
 
         .field--actions {
             border-color: $sw-condition-base-color-error;
+
+            #{$dark-theme-class} & {
+                border-color: lighten($sw-condition-base-color-error, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -353,5 +441,9 @@ $sw-condition-base-color-disabled: $color-light-gray;
         display: block;
         color: $sw-condition-base-color-error;
         font-size: 14px;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-condition-base-color-error, $dark-theme-contrast-factor);
+        }
     }
 }

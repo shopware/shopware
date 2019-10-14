@@ -5,6 +5,10 @@ $sw-settings-rule-list-invalidColor: $color-crimson;
 .sw-settings-rule-list {
     .sw-settings-rule-list-invalid {
         color: $sw-settings-rule-list-invalidColor;
+
+        #{$dark-theme-class} & { 
+            color: lighten($sw-settings-rule-list-invalidColor, $dark-theme-contrast-factor);
+        }
     }
     .sw-grid {
         overflow: scroll;

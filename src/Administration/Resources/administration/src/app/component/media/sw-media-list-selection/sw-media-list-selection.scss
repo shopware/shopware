@@ -10,5 +10,9 @@
         grid-gap: 10px;
         grid-auto-flow: dense;
         margin-top: 20px;
+
+        #{$dark-theme-class} & {
+            border: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
     }
 }

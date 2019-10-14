@@ -5,6 +5,10 @@
 
     .icon--default-review-star-full {
         color: $color-module-yellow-400;
+
+        #{$dark-theme-class} & { 
+            color: lighten($color-module-yellow-400, $dark-theme-contrast-factor);
+        }
     }
 }
 

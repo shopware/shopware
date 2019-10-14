@@ -27,6 +27,10 @@
             font-size: 12px;
             font-weight: initial;
             line-height: 17px;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-gray, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -43,6 +47,11 @@
             border-right: 1px solid $color-shopware-brand-500;
             margin-right: 4px;
             padding-right: 4px;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+                border-right: 1px solid lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+            }
 
             &:last-child {
                 border-right: none;

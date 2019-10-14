@@ -24,21 +24,47 @@ $sw-media-modal-move-breadcrumbs-parent-color:                $color-steam-cloud
         max-width: 400px;
         @include truncate();
 
+        #{$dark-theme-class} & {
+            color: lighten($sw-media-modal-move-breadcrumbs-default-color, $dark-theme-contrast-factor);
+        }
+
         &:hover {
             background-color: $sw-media-modal-move-breadcrumbs-hover-background-color;
+
+            #{$dark-theme-class} & {
+                background-color: darken($sw-media-modal-move-breadcrumbs-hover-background-color, $dark-theme-contrast-factor);
+            }
         }
 
         &.--target{
             color: $sw-media-modal-move-breadcrumbs-target-color;
+
+            #{$dark-theme-class} & {
+                color: lighten($sw-media-modal-move-breadcrumbs-target-color, $dark-theme-contrast-factor);
+            }
+
             .sw-icon {
                 color: $sw-media-modal-move-breadcrumbs-right-arrow-color;
+
+                #{$dark-theme-class} & {
+                    color: lighten($sw-media-modal-move-breadcrumbs-right-arrow-color, $dark-theme-contrast-factor);
+                }
             }
         }
 
         &.--parent{
             color: $sw-media-modal-move-breadcrumbs-parent-color;
+
+            #{$dark-theme-class} & {
+                color: lighten($sw-media-modal-move-breadcrumbs-parent-color, $dark-theme-contrast-factor);
+            }
+
             .sw-icon {
                 color: $sw-media-modal-move-breadcrumbs-right-arrow-color;
+
+                #{$dark-theme-class} & {
+                    color: lighten($sw-media-modal-move-breadcrumbs-right-arrow-color, $dark-theme-contrast-factor);
+                }
             }
         }
     }

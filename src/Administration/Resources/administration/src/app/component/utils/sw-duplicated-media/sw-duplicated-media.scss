@@ -10,7 +10,7 @@ $sw-duplicated-media-font-size-preview: $font-size-small;
         font-size: 14px;
         margin-bottom: 10px;
     }
-    
+
     .sw-duplicated-media__preview {
         margin-bottom: 35px;
     }
@@ -22,6 +22,10 @@ $sw-duplicated-media-font-size-preview: $font-size-small;
     .sw-duplicated-media__preview-separator {
         justify-self: center;
         color: $sw-duplicated-media-separator-color;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-duplicated-media-separator-color, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-duplicated-media__options {
@@ -48,6 +52,10 @@ $sw-duplicated-media-font-size-preview: $font-size-small;
         border: 1px solid $color-steam-cloud;
         border-radius: 4px;
         padding: 8px;
+
+        #{$dark-theme-class} & {
+            border: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-duplicated-media__target-preview {
@@ -72,5 +80,9 @@ $sw-duplicated-media-font-size-preview: $font-size-small;
     .sw-duplicated-media__target-details {
         font-size: $font-size-small;
         color: $color-steam-cloud;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
     }
 }

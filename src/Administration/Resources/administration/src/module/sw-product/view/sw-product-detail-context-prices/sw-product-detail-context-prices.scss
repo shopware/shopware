@@ -24,6 +24,11 @@
         background-color: $color-gray-100;
         border-bottom: 1px solid $color-steam-cloud;
 
+        #{$dark-theme-class} & {
+            background-color: darken($color-gray-100, $dark-theme-contrast-factor);
+            border-bottom: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
+
         .sw-single-select__inner {
             min-height: auto;
             padding-top: 0;

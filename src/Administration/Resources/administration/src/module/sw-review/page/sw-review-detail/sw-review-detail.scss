@@ -19,6 +19,10 @@ $sw-review-detail-base-color-text: $color-gutenberg;
 
             .icon--default-review-star-full {
                 color: $color-module-yellow-400;
+
+                #{$dark-theme-class} & {
+                    color: lighten($color-module-yellow-400, $dark-theme-contrast-factor);
+                }
             }
         }
     }
@@ -55,10 +59,18 @@ $sw-review-detail-base-color-text: $color-gutenberg;
 
     .review-status-true {
         color: $color-emerald-500;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-emerald-500, $dark-theme-contrast-factor);
+        }
     }
 
     .review-status-false {
         color: $color-crimson-500;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-crimson-500, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-review-detail__metadata-review-title {
@@ -71,6 +83,10 @@ $sw-review-detail-base-color-text: $color-gutenberg;
         color: $sw-review-detail-base-color-text;
         font-size: 14px;
         margin-bottom: 16px;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-review-detail-base-color-text, $dark-theme-contrast-factor);
+        }
 
         .sw-review-base-info-columns {
             dt {

@@ -7,6 +7,10 @@ $sw-customer-detail-base-color-text: $color-gutenberg;
     font-size: 14px;
     margin-bottom: 16px;
 
+    #{$dark-theme-class} & {
+        color: lighten($sw-customer-detail-base-color-text, $dark-theme-contrast-factor);
+    }
+
     .sw-customer-base-info-columns {
         dt {
             padding: 21px 4px 4px 4px;

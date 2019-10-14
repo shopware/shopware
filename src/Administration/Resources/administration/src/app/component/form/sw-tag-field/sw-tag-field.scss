@@ -15,6 +15,10 @@ $sw-select-color-search-highlight: $color-shopware-blue;
 
         .sw-label {
             border: 1px solid $sw-select-color-border;
+
+            #{$dark-theme-class} & { 
+                border: 1px solid lighten($sw-select-color-border, $dark-theme-contrast-factor);
+            }
         }
     }
 }

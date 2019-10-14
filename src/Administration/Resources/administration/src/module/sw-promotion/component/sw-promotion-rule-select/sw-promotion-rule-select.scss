@@ -4,5 +4,10 @@
     .sw-promotion-rule-select__add-new-rule:hover {
         color: $color-shopware-brand-500;
         background-color: lighten($color-shopware-brand-500, 40%);
+
+        #{$dark-theme-class} & {
+            color: lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+            background-color: lighten(darken($color-shopware-brand-500, $dark-theme-contrast-factor), 40%);
+        }
     }
 }

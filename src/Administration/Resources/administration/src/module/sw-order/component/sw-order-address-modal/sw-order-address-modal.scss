@@ -16,6 +16,11 @@ $sw-order-address-modal-selected-text: $color-white;
         &:hover {
             background-color: $sw-order-address-modal-highlight;
             color: $sw-order-address-modal-link;
+
+            #{$dark-theme-class} & {
+                background-color: darken($sw-order-address-modal-highlight, $dark-theme-contrast-factor);
+                color: lighten($sw-order-address-modal-link, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -23,9 +28,19 @@ $sw-order-address-modal-selected-text: $color-white;
         color: $sw-order-address-modal-selected-text;
         background-color: $sw-order-address-modal-selected;
 
+        #{$dark-theme-class} & {
+            color: lighten($sw-order-address-modal-selected-text, $dark-theme-contrast-factor);
+            background-color: darken($sw-order-address-modal-selected, $dark-theme-contrast-factor);
+        }
+
         &:hover {
             color: $sw-order-address-modal-selected-text;
             background-color: $sw-order-address-modal-selected;
+
+            #{$dark-theme-class} & {
+                color: lighten($sw-order-address-modal-selected-text, $dark-theme-contrast-factor);
+                background-color: darken($sw-order-address-modal-selected, $dark-theme-contrast-factor);
+            }
         }
 
     }

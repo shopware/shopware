@@ -1,5 +1,11 @@
+@import "~scss/variables";
+
 h1, h2, h3, h4, h5, h6 {
     color: $color-kashmir;
     font-weight: 600;
     margin: 0 0 20px 0;
+
+    #{$dark-theme-class} & {
+        color: lighten($color-kashmir, $dark-theme-contrast-factor);
+    }
 }

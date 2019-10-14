@@ -15,6 +15,11 @@ $sw-product-variants-configurator-prices-search-border: $color-steam-cloud;
         overflow: auto;
         border-right: 1px solid $color-steam-cloud;
         padding: 20px 0;
+
+        #{$dark-theme-class} & {
+            border-right: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
+
         .sw-icon {
             margin-right: 8px;
         }
@@ -31,9 +36,17 @@ $sw-product-variants-configurator-prices-search-border: $color-steam-cloud;
 
         &:hover {
             background-color: lighten($sw-product-variants-configurator-prices-active-color-background, 2.5);
+
+            #{$dark-theme-class} & {
+                background-color: lighten(darken($sw-product-variants-configurator-prices-active-color-background, $dark-theme-contrast-factor), 2.5);
+            }
         }
         &.is--selected {
             background-color: $sw-product-variants-configurator-prices-active-color-background;
+
+            #{$dark-theme-class} & {
+                background-color: darken($sw-product-variants-configurator-prices-active-color-background, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -46,6 +59,10 @@ $sw-product-variants-configurator-prices-search-border: $color-steam-cloud;
 
         .sw-data-grid {
             border-bottom: 1px solid $sw-product-variants-configurator-prices-search-border;
+
+            #{$dark-theme-class} & {
+                border-bottom: 1px solid lighten($sw-product-variants-configurator-prices-search-border, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -58,5 +75,10 @@ $sw-product-variants-configurator-prices-search-border: $color-steam-cloud;
         padding: 25px;
         background-color: $sw-product-variants-configurator-prices-search-background;
         border-bottom: 1px solid $sw-product-variants-configurator-prices-search-border;
+
+        #{$dark-theme-class} & {
+            background-color: darken($sw-product-variants-configurator-prices-search-background, $dark-theme-contrast-factor);
+            border-bottom: 1px solid lighten($sw-product-variants-configurator-prices-search-border, $dark-theme-contrast-factor);
+        }
     }
 }

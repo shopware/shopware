@@ -16,6 +16,10 @@ $sw-media-preview-locked-icon-z-index: 5;
         align-items: center;
         justify-content: center;
         color: $color-steam-cloud;
+
+        #{$dark-theme-class} & { 
+            color: lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-media-preview__item {

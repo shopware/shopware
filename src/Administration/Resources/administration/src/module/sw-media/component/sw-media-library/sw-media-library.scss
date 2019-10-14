@@ -10,6 +10,10 @@ $sw-media-library-color-background: $color-white;
     height: 100%;
     background-color: $sw-media-library-color-background;
 
+    #{$dark-theme-class} & {
+        background-color: darken($sw-media-library-color-background, $dark-theme-contrast-factor);
+    }
+
     .sw-media-library__options-container {
         padding: 0 24px 16px;
         display: grid;

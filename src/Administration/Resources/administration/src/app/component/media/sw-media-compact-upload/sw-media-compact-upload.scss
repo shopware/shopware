@@ -42,6 +42,10 @@
         color: $color-kashmir;
         font-weight: normal;
         user-select: none;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-kashmir, $dark-theme-contrast-factor);
+        }
     }
 
 }

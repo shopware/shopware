@@ -6,6 +6,10 @@
     padding: 0;
     background-color: #F9FAFB;
 
+    #{$dark-theme-class} & {
+        background-color: darken(#F9FAFB, $dark-theme-contrast-factor);
+    }
+
     .sw-product-variants-delivery-order__groups {
         background-color: $color-white;
         font-size: 14px;
@@ -13,6 +17,11 @@
         height: 100%;
         overflow: auto;
         border-right: 1px solid $color-steam-cloud;
+
+        #{$dark-theme-class} & {
+            background-color: darken($color-white, $dark-theme-contrast-factor);
+            border-right: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
 
         .sw-tree {
             border-width: 0px;

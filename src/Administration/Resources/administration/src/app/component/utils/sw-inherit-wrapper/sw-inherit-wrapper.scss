@@ -9,6 +9,10 @@
         margin-bottom: 8px;
         color: $color-kashmir;
 
+        #{$dark-theme-class} & {
+            color: lighten($color-kashmir, $dark-theme-contrast-factor);
+        }
+
         label {
             flex-grow: 1;
         }
@@ -21,12 +25,20 @@
     &.is--inherited {
         .sw-inherit-wrapper__toggle-wrapper {
             color: $color-purple;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-purple, $dark-theme-contrast-factor);
+            }
         }
     }
 
     &.is--required .sw-inherit-wrapper__toggle-wrapper label::after {
         content: "*";
         color: $color-shopware-blue;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-shopware-blue, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-card__title {
@@ -39,16 +51,30 @@
 
         &.sw-card__title__inherited {
             color: $color-purple;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-purple, $dark-theme-contrast-factor);
+            }
         }
     }
 
     .sw-card__inherited .sw-card__content {
         border-color: $color-purple;
+
+        #{$dark-theme-class} & {
+            border-color: lighten($color-purple, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-card__toolbar {
         border-top-color: $color-purple;
         border-left-color: $color-purple;
         border-right-color: $color-purple;
+
+        #{$dark-theme-class} & {
+            border-top-color: lighten($color-purple, $dark-theme-contrast-factor);
+            border-left-color: lighten($color-purple, $dark-theme-contrast-factor);
+            border-right-color: lighten($color-purple, $dark-theme-contrast-factor);
+        }
     }
 }

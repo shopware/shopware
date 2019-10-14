@@ -12,9 +12,17 @@ $sw-customer-list-color-success: $color-emerald;
 
     .is--inactive {
         color: $sw-customer-list-color-error;
+
+        #{$dark-theme-class} & { 
+            color: lighten($sw-customer-list-color-error, $dark-theme-contrast-factor);
+        }
     }
 
     .is--active {
         color: $sw-customer-list-color-success;
+
+        #{$dark-theme-class} & { 
+            color: lighten($sw-customer-list-color-success, $dark-theme-contrast-factor);
+        }
     }
 }

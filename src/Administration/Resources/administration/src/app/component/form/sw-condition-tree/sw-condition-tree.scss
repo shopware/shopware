@@ -1,3 +1,5 @@
+@import "~scss/variables";
+
 $sw-button-color-light-gray: #F9FAFB;
 
 .sw-condition-tree {
@@ -7,5 +9,9 @@ $sw-button-color-light-gray: #F9FAFB;
         padding: 2px 16px;
         line-height: inherit;
         background: $sw-button-color-light-gray;
+
+        #{$dark-theme-class} & { 
+            background: darken($sw-button-color-light-gray, $dark-theme-contrast-factor);
+        }
     }
 }

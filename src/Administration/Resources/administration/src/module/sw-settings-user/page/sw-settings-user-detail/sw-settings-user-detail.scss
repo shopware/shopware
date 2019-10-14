@@ -58,6 +58,10 @@ $sw-field-help-color: $color-gutenberg;
         color: $sw-settings-user-detail-change-password;
         margin-left: auto;
         cursor: pointer;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-settings-user-detail-change-password, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-settings-user-detail__detail {
@@ -71,6 +75,10 @@ $sw-field-help-color: $color-gutenberg;
             color: lighten($sw-field-help-color, 20);
             line-height: $sw-field-help-line-height;
             padding-top: 7px;
+
+            #{$dark-theme-class} & {
+                color: lighten(lighten($sw-field-help-color, $dark-theme-contrast-factor), 20);
+            }
         }
     }
 }

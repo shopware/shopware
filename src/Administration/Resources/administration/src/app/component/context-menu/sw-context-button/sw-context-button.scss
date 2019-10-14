@@ -10,10 +10,18 @@ $sw-context-button-color-disabled:  $color-light-gray;
     position: relative;
     color: $sw-context-button-color-text;
 
+    #{$dark-theme-class} & {
+        color: lighten($sw-context-button-color-text, $dark-theme-contrast-factor);
+    }
+
     &.is--disabled {
         .sw-context-button__button {
             color: lighten($sw-context-button-color-text, 20%);
             cursor: initial;
+
+            #{$dark-theme-class} & {
+                color: lighten(lighten($sw-context-button-color-text, $dark-theme-contrast-factor), 20%);
+            }
 
             &:hover,
             &.is--active {
@@ -33,9 +41,18 @@ $sw-context-button-color-disabled:  $color-light-gray;
         padding: 0 8px;
         outline: none;
 
+        #{$dark-theme-class} & {
+            color: lighten($sw-context-button-color-text, $dark-theme-contrast-factor);
+            border: 1px solid transparent;
+        }
+
         &:hover,
         &.is--active {
             border-color: $sw-context-button-color-border;
+
+            #{$dark-theme-class} & {
+                border-color: lighten($sw-context-button-color-border, $dark-theme-contrast-factor);
+            }
         }
     }
 }

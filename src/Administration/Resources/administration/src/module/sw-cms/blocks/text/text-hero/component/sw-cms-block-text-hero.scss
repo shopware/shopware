@@ -5,5 +5,9 @@
         max-width: 160px;
         margin: 0 auto 20px auto;
         border: 2px solid $color-steam-cloud;
+
+        #{$dark-theme-class} & { 
+            border: 2px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
     }
 }

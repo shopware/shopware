@@ -15,6 +15,12 @@ $sw-pagination-border-radius: $border-radius-default;
     position: relative;
     border-top: 1px solid $sw-pagination-controls-color-border;
 
+    #{$dark-theme-class} & {
+        background: darken($sw-pagination-color-background, $dark-theme-contrast-factor);
+        color: lighten($sw-pagination-controls-color-text, $dark-theme-contrast-factor);
+        border-top: 1px solid lighten($sw-pagination-controls-color-border, $dark-theme-contrast-factor);
+    }
+
     .sw-pagination__list {
         display: inline-block;
     }
@@ -35,8 +41,16 @@ $sw-pagination-border-radius: $border-radius-default;
         cursor: pointer;
         outline: none;
 
+        #{$dark-theme-class} & {
+            color: lighten($sw-pagination-controls-color-text, $dark-theme-contrast-factor);
+        }
+
         &:hover {
             color: $sw-pagination-controls-color-hover;
+
+            #{$dark-theme-class} & {
+                color: lighten($sw-pagination-controls-color-hover, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -45,6 +59,10 @@ $sw-pagination-border-radius: $border-radius-default;
 
         &:hover {
             color: $sw-pagination-controls-color-text;
+
+            #{$dark-theme-class} & {
+                color: lighten($sw-pagination-controls-color-text, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -53,6 +71,10 @@ $sw-pagination-border-radius: $border-radius-default;
 
         &:hover {
             color: $sw-pagination-controls-color-text;
+
+            #{$dark-theme-class} & {
+                color: lighten($sw-pagination-controls-color-text, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -62,6 +84,11 @@ $sw-pagination-border-radius: $border-radius-default;
         &.is-active {
             background: $sw-pagination-controls-color-hover;
             color: #fff;
+
+            #{$dark-theme-class} & {
+                background: darken($sw-pagination-controls-color-hover, $dark-theme-contrast-factor);
+                color: lighten(#fff, $dark-theme-contrast-factor);
+            }
         }
     }
 

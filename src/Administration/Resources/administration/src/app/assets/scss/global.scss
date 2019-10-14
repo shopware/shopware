@@ -13,6 +13,11 @@ body {
     background: $color-iron;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+
+    #{$dark-theme-class} & {
+        background: darken($color-iron, $dark-theme-contrast-factor);
+        color: lighten($color-deep-cove, $dark-theme-contrast-factor);
+    }
 }
 
 html, body, #app {
@@ -24,9 +29,17 @@ html, body, #app {
     position: absolute;
     background: $color-drag-select-box;
     z-index: $z-index-drag-select-box;
+
+    #{$dark-theme-class} & {
+        background: darken($color-drag-select-box, $dark-theme-contrast-factor);
+    }
 }
 
 .link {
     display: inline-block;
     color: $color-shopware-blue;
+
+    #{$dark-theme-class} & {
+        color: lighten($color-shopware-blue, $dark-theme-contrast-factor);
+    }
 }

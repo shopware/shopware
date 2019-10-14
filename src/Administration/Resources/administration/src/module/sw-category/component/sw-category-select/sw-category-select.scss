@@ -23,11 +23,19 @@ $sw-category-select-input-background: $color-white;
         font-size: 14px;
         background: $sw-category-select-input-background;
         padding: 8px 16px;
+
+        #{$dark-theme-class} & {
+            background: darken($sw-category-select-input-background, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-category-select__product-number {
         color: $color-gray-400;
         margin-left: 10px;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-gray-400, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-select-option__result-item-text {

@@ -15,6 +15,10 @@ $sw-version-font-size-info:  12px;
         font-weight: 600;
         margin: 0;
         vertical-align: top;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-white, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-version__status {
@@ -36,5 +40,9 @@ $sw-version-font-size-info:  12px;
         max-width: 200px;
         color: $color-gray-300;
         font-size: $sw-version-font-size-info;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-gray-300, $dark-theme-contrast-factor);
+        }
     }
 }

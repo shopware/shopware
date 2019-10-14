@@ -35,9 +35,17 @@
 
     .is--danger {
         color: $color-crimson-500;
+
+        #{$dark-theme-class} & { 
+            color: lighten($color-crimson-500, $dark-theme-contrast-factor);
+        }
     }
 
     .is--default {
         color: $color-gray;
+
+        #{$dark-theme-class} & { 
+            color: lighten($color-gray, $dark-theme-contrast-factor);
+        }
     }
 }

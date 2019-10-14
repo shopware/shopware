@@ -9,5 +9,9 @@
 
     .sw-media-upload .sw-media-upload__dropzone {
         border: 1px solid $color-steam-cloud;
+
+        #{$dark-theme-class} & { 
+            border: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
     }
 }

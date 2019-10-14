@@ -19,11 +19,24 @@
         background-color: $color-light-gray;
         border-bottom: 1px solid $color-steam-cloud;
 
+        #{$dark-theme-class} & {
+            background-color: darken($color-light-gray, $dark-theme-contrast-factor);
+            border-bottom: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
+
         .sw-property-option-list__delete-button {
             border-color: $color-crimson;
 
+            #{$dark-theme-class} & {
+                border-color: lighten($color-crimson, $dark-theme-contrast-factor);
+            }
+
             .sw-icon {
                 color: $color-crimson;
+
+                #{$dark-theme-class} & {
+                    color: lighten($color-crimson, $dark-theme-contrast-factor);
+                }
             }
             &.sw-button--disabled {
                 opacity: 0.2;

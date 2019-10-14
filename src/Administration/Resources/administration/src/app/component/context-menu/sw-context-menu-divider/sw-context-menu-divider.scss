@@ -6,4 +6,8 @@ $sw-context-menu-color-border: $color-steam-cloud;
     border: none;
     border-bottom: 1px solid $sw-context-menu-color-border;
     margin: 5px -10px;
+
+    #{$dark-theme-class} & {
+        border-bottom: 1px solid lighten($sw-context-menu-color-border, $dark-theme-contrast-factor);
+    }
 }

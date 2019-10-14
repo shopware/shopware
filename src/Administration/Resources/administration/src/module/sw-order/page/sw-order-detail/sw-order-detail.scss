@@ -5,7 +5,7 @@
     .smart-bar__actions .sw-button-group .sw-button {
         margin-right: 0;
     }
-    
+
     .sw-order-detail__summary {
         grid-template-areas: 'empty summary'
     }
@@ -23,6 +23,11 @@
             font-weight: normal;
             text-align: right;
             padding: 0;
+
+            #{$dark-theme-class} & {
+                border-bottom: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+                color: lighten($color-gutenberg, $dark-theme-contrast-factor);
+            }
         }
 
         dd {

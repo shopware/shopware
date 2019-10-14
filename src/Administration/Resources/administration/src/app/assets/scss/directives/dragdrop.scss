@@ -8,8 +8,12 @@
     user-select: none;
     z-index: $z-index-dragdrop;
     box-shadow: 0 0 4px 0 $color-shopware-blue;
-    overflow: hidden;
     cursor: grab;
+    overflow: hidden;
+
+    #{$dark-theme-class} & {
+        box-shadow: 0 0 4px 0 lighten($color-shopware-blue, $dark-theme-contrast-factor);
+    }
 
     & > * {
         user-focus: none;
@@ -23,10 +27,18 @@
 
     &.is--valid-drag {
         box-shadow: 0 0 4px 0 $color-emerald;
+
+        #{$dark-theme-class} & {
+            box-shadow: 0 0 4px 0 lighten($color-emerald, $dark-theme-contrast-factor);
+        }
     }
 
     &.is--invalid-drag {
         box-shadow: 0 0 4px 0 $color-crimson;
+
+        #{$dark-theme-class} & {
+            box-shadow: 0 0 4px 0 lighten($color-crimson, $dark-theme-contrast-factor);
+        }
     }
 }
 
@@ -52,6 +64,12 @@
     box-shadow: none;
     color: $color-light-gray;
     cursor: grab;
+
+    #{$dark-theme-class} & {
+        color: lighten($color-light-gray, $dark-theme-contrast-factor);
+        background: darken($color-light-gray, $dark-theme-contrast-factor);
+        border: 1px dashed lighten($color-steam-cloud, $dark-theme-contrast-factor);
+    }
 
     & > * {
         opacity: 0;

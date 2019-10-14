@@ -13,6 +13,12 @@ $sw-alert-size-close: 40px;
     margin: 0 auto 20px;
     font-size: $font-size-small;
 
+    #{$dark-theme-class} & {
+        border: 1px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+        color: lighten($color-darkgray-200, $dark-theme-contrast-factor);
+        background-color: darken($color-white, $dark-theme-contrast-factor);
+    }
+
     .sw-alert__body {
         padding: 15px 15px 15px 55px;
     }
@@ -27,6 +33,10 @@ $sw-alert-size-close: 40px;
         display: block;
         left: 15px;
         top: 15px;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-gray-300, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-alert__close {
@@ -62,6 +72,10 @@ $sw-alert-size-close: 40px;
         display: flex;
         flex-wrap: wrap;
 
+        #{$dark-theme-class} & {
+            border-top: 1px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+        }
+
         .sw-button {
             border: 0;
             height: 40px;
@@ -74,10 +88,18 @@ $sw-alert-size-close: 40px;
 
             &:not(:last-child) {
                 border-right: 1px solid $color-gray-300;
+
+                #{$dark-theme-class} & {
+                    border-right: 1px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+                }
             }
 
             &:hover {
                 background-color: $color-white;
+
+                #{$dark-theme-class} & {
+                    background-color: darken($color-white, $dark-theme-contrast-factor);
+                }
             }
         }
     }
@@ -93,8 +115,17 @@ $sw-alert-size-close: 40px;
         border: 1px solid $color-gray-300;
         border-left: 4px solid $color-gray-300;
 
+        #{$dark-theme-class} & {
+            border: 1px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+            border-left: 4px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+        }
+
         .sw-alert__actions .sw-button {
             color: $color-shopware-brand-500;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -102,25 +133,52 @@ $sw-alert-size-close: 40px;
         border-color: $color-pumpkin-spice-500;
         background-color: $color-pumpkin-spice-50;
 
+        #{$dark-theme-class} & {
+            border-color: lighten($color-pumpkin-spice-500, $dark-theme-contrast-factor);
+            background-color: darken($color-pumpkin-spice-50, $dark-theme-contrast-factor);
+        }
+
         &.sw-alert--notification {
             background-color: $color-white;
             border-color: $color-gray-300;
             border-left-color: $color-pumpkin-spice-500;
+
+            #{$dark-theme-class} & {
+                background-color: darken($color-white, $dark-theme-contrast-factor);
+                border-color: lighten($color-gray-300, $dark-theme-contrast-factor);
+                border-left-color: lighten($color-pumpkin-spice-500, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-alert__icon,
         .sw-alert__close {
             color: $color-pumpkin-spice-500;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-pumpkin-spice-500, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-alert__actions {
             border-color: $color-pumpkin-spice-200;
 
+            #{$dark-theme-class} & {
+                border-color: lighten($color-pumpkin-spice-200, $dark-theme-contrast-factor);
+            }
+
             .sw-button {
                 border-color: $color-pumpkin-spice-200;
 
+                #{$dark-theme-class} & {
+                    border-color: lighten($color-pumpkin-spice-200, $dark-theme-contrast-factor);
+                }
+
                 &:hover {
                     background-color: $color-pumpkin-spice-100;
+
+                    #{$dark-theme-class} & {
+                        background-color: darken($color-pumpkin-spice-100, $dark-theme-contrast-factor);
+                    }
                 }
             }
         }
@@ -130,25 +188,52 @@ $sw-alert-size-close: 40px;
         border-color: $color-crimson-500;
         background-color: $color-crimson-50;
 
+        #{$dark-theme-class} & {
+            border-color: lighten($color-crimson-500, $dark-theme-contrast-factor);
+            background-color: darken($color-crimson-50, $dark-theme-contrast-factor);
+        }
+
         &.sw-alert--notification {
             background-color: $color-white;
             border-color: $color-gray-300;
             border-left-color: $color-crimson-500;
+
+            #{$dark-theme-class} & {
+                background-color: darken($color-white, $dark-theme-contrast-factor);
+                border-color: lighten($color-gray-300, $dark-theme-contrast-factor);
+                border-left-color: lighten($color-crimson-500, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-alert__icon,
         .sw-alert__close {
             color: $color-crimson-500;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-crimson-500, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-alert__actions {
             border-color: $color-crimson-200;
 
+            #{$dark-theme-class} & {
+                border-color: lighten($color-crimson-200, $dark-theme-contrast-factor);
+            }
+
             .sw-button {
                 border-color: $color-crimson-200;
 
+                #{$dark-theme-class} & {
+                    border-color: lighten($color-crimson-200, $dark-theme-contrast-factor);
+                }
+
                 &:hover {
                     background-color: $color-crimson-100;
+
+                    #{$dark-theme-class} & {
+                        background-color: darken($color-crimson-100, $dark-theme-contrast-factor);
+                    }
                 }
             }
         }
@@ -158,25 +243,52 @@ $sw-alert-size-close: 40px;
         border-color: $color-emerald-500;
         background-color: $color-emerald-50;
 
+        #{$dark-theme-class} & {
+            border-color: lighten($color-emerald-500, $dark-theme-contrast-factor);
+            background-color: darken($color-emerald-50, $dark-theme-contrast-factor);
+        }
+
         &.sw-alert--notification {
             background-color: $color-white;
             border-color: $color-gray-300;
             border-left-color: $color-emerald-500;
+
+            #{$dark-theme-class} & {
+                background-color: darken($color-white, $dark-theme-contrast-factor);
+                border-color: lighten($color-gray-300, $dark-theme-contrast-factor);
+                border-left-color: lighten($color-emerald-500, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-alert__icon,
         .sw-alert__close {
             color: $color-emerald-500;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-emerald-500, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-alert__actions {
             border-color: $color-emerald-200;
 
+            #{$dark-theme-class} & {
+                border-color: lighten($color-emerald-200, $dark-theme-contrast-factor);
+            }
+
             .sw-button {
                 border-color: $color-emerald-200;
 
+                #{$dark-theme-class} & {
+                    border-color: lighten($color-emerald-200, $dark-theme-contrast-factor);
+                }
+
                 &:hover {
                     background-color: $color-emerald-100;
+
+                    #{$dark-theme-class} & {
+                        background-color: darken($color-emerald-100, $dark-theme-contrast-factor);
+                    }
                 }
             }
         }
@@ -186,25 +298,52 @@ $sw-alert-size-close: 40px;
         border-color: $color-shopware-brand-500;
         background-color: $color-shopware-brand-50;
 
+        #{$dark-theme-class} & {
+            border-color: lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+            background-color: darken($color-shopware-brand-50, $dark-theme-contrast-factor);
+        }
+
         &.sw-alert--notification {
             background-color: $color-white;
             border-color: $color-gray-300;
             border-left-color: $color-shopware-brand-500;
+
+            #{$dark-theme-class} & {
+                background-color: darken($color-white, $dark-theme-contrast-factor);
+                border-color: lighten($color-gray-300, $dark-theme-contrast-factor);
+                border-left-color: lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-alert__icon,
         .sw-alert__close {
             color: $color-shopware-brand-500;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-alert__actions {
             border-color: $color-shopware-brand-200;
 
+            #{$dark-theme-class} & {
+                border-color: lighten($color-shopware-brand-200, $dark-theme-contrast-factor);
+            }
+
             .sw-button {
                 border-color: $color-shopware-brand-200;
 
+                #{$dark-theme-class} & {
+                    border-color: lighten($color-shopware-brand-200, $dark-theme-contrast-factor);
+                }
+
                 &:hover {
                     background-color: $color-shopware-brand-100;
+
+                    #{$dark-theme-class} & {
+                        background-color: darken($color-shopware-brand-100, $dark-theme-contrast-factor);
+                    }
                 }
             }
         }
@@ -213,14 +352,30 @@ $sw-alert-size-close: 40px;
     &.sw-alert--notification {
         background-color: $color-gray-100;
 
+        #{$dark-theme-class} & {
+            background-color: darken($color-gray-100, $dark-theme-contrast-factor);
+        }
+
         .sw-alert__actions {
             border-color: $color-gray-300;
+
+            #{$dark-theme-class} & {
+                border-color: lighten($color-gray-300, $dark-theme-contrast-factor);
+            }
 
             .sw-button {
                 border-color: $color-gray-300;
 
+                #{$dark-theme-class} & {
+                    border-color: lighten($color-gray-300, $dark-theme-contrast-factor);
+                }
+
                 &:hover {
                     background-color: $color-gray-100;
+
+                    #{$dark-theme-class} & {
+                        background-color: darken($color-gray-100, $dark-theme-contrast-factor);
+                    }
                 }
             }
         }
@@ -232,19 +387,44 @@ $sw-alert-size-close: 40px;
         border: 1px solid $color-darkgray-200;
         box-shadow: none;
 
+        #{$dark-theme-class} & {
+            color: lighten($color-white, $dark-theme-contrast-factor);
+            background: darken($color-deep-cove, $dark-theme-contrast-factor);
+            border: 1px solid lighten($color-darkgray-200, $dark-theme-contrast-factor);
+        }
+
         .sw-alert__actions {
             border-color: $color-darkgray-50;
+
+            #{$dark-theme-class} & {
+                border-color: lighten($color-darkgray-50, $dark-theme-contrast-factor);
+            }
 
             .sw-button {
                 color: $color-gray-300;
                 border-color: $color-darkgray-50;
 
+                #{$dark-theme-class} & {
+                    color: lighten($color-gray-300, $dark-theme-contrast-factor);
+                }
+                #{$dark-theme-class} & {
+                    border-color: lighten($color-darkgray-50, $dark-theme-contrast-factor);
+                }
+
                 &:hover {
                     background-color: lighten($color-deep-cove, 6%);
+
+                    #{$dark-theme-class} & {
+                        background-color: lighten(darken($color-deep-cove, $dark-theme-contrast-factor), 6%);
+                    }
                 }
 
                 &:active {
                     background-color: lighten($color-deep-cove, 8%);
+
+                    #{$dark-theme-class} & {
+                        background-color: lighten(darken($color-deep-cove, $dark-theme-contrast-factor), 8%);
+                    }
                 }
             }
         }

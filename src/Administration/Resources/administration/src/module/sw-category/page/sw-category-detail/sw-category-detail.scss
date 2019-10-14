@@ -1,9 +1,15 @@
+@import "~scss/variables";
+
 .sw-category {
     .sw-page__back-btn-container {
         display: none;
     }
     .sw-page__content.has--side-content .sw-page__side-content {
         background: white;
+
+        #{$dark-theme-class} & { 
+            background: white;
+        }
     }
 
     &.is--mobile {

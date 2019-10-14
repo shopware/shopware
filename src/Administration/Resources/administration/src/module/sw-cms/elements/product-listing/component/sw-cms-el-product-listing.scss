@@ -24,13 +24,27 @@
             border-bottom: 1px solid $color-steam-cloud;
             border-top: 1px solid $color-steam-cloud;
 
+            #{$dark-theme-class} & {
+                border-right: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+                border-bottom: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+                border-top: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+            }
+
             .sw-icon {
                 color: $color-gutenberg;
+
+                #{$dark-theme-class} & {
+                    color: lighten($color-gutenberg, $dark-theme-contrast-factor);
+                }
             }
 
             &:first-of-type {
                 border-radius: 4px 0 0 4px;
                 border-left: 1px solid $color-steam-cloud;
+
+                #{$dark-theme-class} & {
+                    border-left: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+                }
             }
 
             &:last-of-type {

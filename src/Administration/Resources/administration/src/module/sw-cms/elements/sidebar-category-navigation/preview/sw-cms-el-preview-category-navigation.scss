@@ -7,11 +7,20 @@
     color: $color-darkgray-200;
     font-weight: 600;
 
+    #{$dark-theme-class} & {
+        background: darken($color-white, $dark-theme-contrast-factor);
+        color: lighten($color-darkgray-200, $dark-theme-contrast-factor);
+    }
+
     .sw-cms-el-category-placeholder-listing div {
         margin: 10px 30px;
         height: 0.7em;
         border-radius: 4px;
         background-color: $color-gray-100;
+
+        #{$dark-theme-class} & {
+            background-color: darken($color-gray-100, $dark-theme-contrast-factor);
+        }
 
         &.sw-cms-el-category-navigation__placeholder--subcategory {
             margin: 7px 30px 7px 70px;
@@ -22,6 +31,10 @@
         max-width: 90%;
         margin: 10px auto;
         border: 1px solid $color-steam-cloud;
+
+        #{$dark-theme-class} & {
+            border: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
     }
 
     p {

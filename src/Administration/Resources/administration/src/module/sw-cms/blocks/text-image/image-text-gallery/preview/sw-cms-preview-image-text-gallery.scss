@@ -1,3 +1,5 @@
+@import "~scss/variables";
+
 .sw-cms-preview-image-text-gallery {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -8,6 +10,10 @@
     .sw-cms-preview-image-text-gallery__center,
     .sw-cms-preview-image-text-gallery__right {
         box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.2);
+
+        #{$dark-theme-class} & { 
+            box-shadow: 0 0 3px 0 lighten(rgba(0, 0, 0, 0.2), $dark-theme-contrast-factor);
+        }
     }
 
     .sw-cms-preview-image-text-gallery__image {

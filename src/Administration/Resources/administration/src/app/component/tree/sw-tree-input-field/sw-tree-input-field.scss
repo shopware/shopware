@@ -22,6 +22,10 @@ $sw-tree-item-color-text: $color-gutenberg;
                     .sw-tree-item__icon,
                     .sw-tree-item__content {
                         color: $sw-tree-item-color-text;
+
+                        #{$dark-theme-class} & { 
+                            color: lighten($sw-tree-item-color-text, $dark-theme-contrast-factor);
+                        }
                     }
                 }
             }

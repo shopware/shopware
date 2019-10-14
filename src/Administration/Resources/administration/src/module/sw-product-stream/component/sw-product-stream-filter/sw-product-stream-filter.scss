@@ -22,6 +22,10 @@ $sw-condition-base-z-index-arrow: 100;
                 background: $color-white;
                 z-index: $sw-condition-base-z-index-arrow;
                 transform: rotate(-20deg);
+
+                #{$dark-theme-class} & {
+                    background: darken($color-white, $dark-theme-contrast-factor);
+                }
             }
 
             &:after {
@@ -34,12 +38,20 @@ $sw-condition-base-z-index-arrow: 100;
                 background: $color-white;
                 z-index: $sw-condition-base-z-index-arrow;
                 transform: rotate(20deg);
+
+                #{$dark-theme-class} & {
+                    background: darken($color-white, $dark-theme-contrast-factor);
+                }
             }
         }
     }
 
     &.is--api {
         background: $sw-condition-base-api;
+
+        #{$dark-theme-class} & {
+            background: darken($sw-condition-base-api, $dark-theme-contrast-factor);
+        }
         .sw-condition-base__container {
             .sw-tagged-field, .sw-tagged-field__inner {
                 background: transparent;
@@ -66,13 +78,28 @@ $sw-condition-base-z-index-arrow: 100;
                 color: $sw-field-color-text;
                 padding-left: 6px;
 
+                #{$dark-theme-class} & {
+                    background: darken($sw-select-api, $dark-theme-contrast-factor);
+                    border-top-color: lighten($sw-select-api, $dark-theme-contrast-factor);
+                    border-bottom-color: lighten($sw-select-api, $dark-theme-contrast-factor);
+                    color: lighten($sw-field-color-text, $dark-theme-contrast-factor);
+                }
+
                 &:not(.field--not-last) {
                     &:before {
                         background: $sw-select-api;
+
+                        #{$dark-theme-class} & {
+                            background: darken($sw-select-api, $dark-theme-contrast-factor);
+                        }
                     }
 
                     &:after {
                         background: $sw-select-api;
+
+                        #{$dark-theme-class} & {
+                            background: darken($sw-select-api, $dark-theme-contrast-factor);
+                        }
                     }
                 }
             }
@@ -99,6 +126,10 @@ $sw-condition-base-z-index-arrow: 100;
 
                     .sw-select__single-selection {
                         color: $sw-field-color-text;
+
+                        #{$dark-theme-class} & {
+                            color: lighten($sw-field-color-text, $dark-theme-contrast-factor);
+                        }
                     }
                 }
             }

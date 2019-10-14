@@ -5,22 +5,42 @@
 
     &.sw-card-section--divider-top {
         border-top: 1px solid $color-gray-300;
+
+        #{$dark-theme-class} & { 
+            border-top: 1px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+        }
     }
 
     &.sw-card-section--divider-right {
         border-right: 1px solid $color-gray-300;
+
+        #{$dark-theme-class} & { 
+            border-right: 1px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+        }
     }
 
     &.sw-card-section--divider-bottom {
         border-bottom: 1px solid $color-gray-300;
+
+        #{$dark-theme-class} & { 
+            border-bottom: 1px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+        }
     }
 
     &.sw-card-section--divider-left {
         border-left: 1px solid $color-gray-300;
+
+        #{$dark-theme-class} & { 
+            border-left: 1px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+        }
     }
 
     &.sw-card-section--secondary {
         background-color: $color-gray-100;
+
+        #{$dark-theme-class} & { 
+            background-color: darken($color-gray-100, $dark-theme-contrast-factor);
+        }
     }
 
     &.sw-card-section--slim {

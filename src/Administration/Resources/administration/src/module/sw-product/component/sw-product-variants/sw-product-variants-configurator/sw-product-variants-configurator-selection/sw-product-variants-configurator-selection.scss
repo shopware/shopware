@@ -9,6 +9,12 @@ $sw-product-variants-configurator-selection-search-background: $color-light-gray
     border-bottom: 1px solid #D8DDE6;
     background-color: $sw-product-variants-configurator-selection-search-background;
 
+
+    #{$dark-theme-class} & {
+        border-bottom: 1px solid lighten(#D8DDE6, $dark-theme-contrast-factor);
+        background-color: darken($sw-product-variants-configurator-selection-search-background, $dark-theme-contrast-factor);
+    }
+
     .sw-simple-search-field {
         margin: 0;
     }
@@ -33,6 +39,10 @@ $sw-product-variants-configurator-selection-search-background: $color-light-gray
     background-color: $sw-product-variants-configurator-selection-overlay;
     transform-origin: top right;
 
+    #{$dark-theme-class} & {
+        background-color: darken($sw-product-variants-configurator-selection-overlay, $dark-theme-contrast-factor);
+    }
+
     .generate-variant-progress-bar {
         max-width: 300px;
     }
@@ -40,6 +50,10 @@ $sw-product-variants-configurator-selection-search-background: $color-light-gray
     .generate-variant-progress-bar__description {
         color: $sw-product-variants-configurator-selection-text-color;
         margin-top: 20px;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-product-variants-configurator-selection-text-color, $dark-theme-contrast-factor);
+        }
     }
 }
 

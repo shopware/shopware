@@ -13,6 +13,10 @@ $sw-progress-bar-height:            8px;
         height: 100%;
         background-color: $sw-progress-bar-background-color;
         border-radius: $sw-progress-bar-height / 2;
+
+        #{$dark-theme-class} & {
+            background-color: darken($sw-progress-bar-background-color, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-progress-bar__value {
@@ -20,6 +24,10 @@ $sw-progress-bar-height:            8px;
         height: 100%;
         background-color: $sw-progress-bar-value-color;
         border-radius: $sw-progress-bar-height / 2;
+
+        #{$dark-theme-class} & {
+            background-color: darken($sw-progress-bar-value-color, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-progress-bar__value--no-transition {

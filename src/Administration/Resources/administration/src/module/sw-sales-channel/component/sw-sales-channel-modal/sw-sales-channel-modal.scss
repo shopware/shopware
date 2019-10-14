@@ -22,6 +22,10 @@ $sw-sales-channel-modal-color-icon-background:      $color-white;
         color: $sw-sales-channel-modal-color-back;
         cursor: pointer;
         outline: none;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-sales-channel-modal-color-back, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-sales-channel-modal__title {
@@ -44,6 +48,10 @@ $sw-sales-channel-modal-color-icon-background:      $color-white;
         background-color: $color-light-gray;
         border-radius: 3px;
 
+        #{$dark-theme-class} & {
+            background-color: darken($color-light-gray, $dark-theme-contrast-factor);
+        }
+
         img {
             max-width: 100%;
         }
@@ -54,12 +62,20 @@ $sw-sales-channel-modal-color-icon-background:      $color-white;
         color: $sw-sales-channel-modal-color-detail-name;
         font-weight: 600;
         margin-bottom: 8px;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-sales-channel-modal-color-detail-name, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-sales-channel-modal__detail-manufacturer {
         font-size: $sw-sales-channel-modal-font-size-small;
         color: lighten($sw-sales-channel-modal-color-text, 25%);
         margin-bottom: 20px;
+
+        #{$dark-theme-class} & {
+            color: lighten(lighten($sw-sales-channel-modal-color-text, $dark-theme-contrast-factor), 25%);
+        }
     }
 
     .sw-sales-channel-modal__detail-description {
@@ -70,10 +86,18 @@ $sw-sales-channel-modal-color-icon-background:      $color-white;
         margin-bottom: 20px;
         font-weight: 600;
         color: $sw-sales-channel-modal-color-description-title;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-sales-channel-modal-color-description-title, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-sales-channel-modal__description-text {
         color: $sw-sales-channel-modal-color-text;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-sales-channel-modal-color-text, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-sales-channel-modal__screenshot {
@@ -93,11 +117,19 @@ $sw-sales-channel-modal-color-icon-background:      $color-white;
         margin-bottom: 0;
         color: $sw-sales-channel-modal-color-text;
         font-weight: normal;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-sales-channel-modal-color-text, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-sales-channel-modal__grid-item-description {
         color: lighten($sw-sales-channel-modal-color-text, 25%);
         font-size: $sw-sales-channel-modal-font-size-small;
+
+        #{$dark-theme-class} & {
+            color: lighten(lighten($sw-sales-channel-modal-color-text, $dark-theme-contrast-factor), 25%);
+        }
     }
 
     .sw-sales-channel-modal__grid-icon-column .sw-grid__cell-content {
@@ -110,11 +142,19 @@ $sw-sales-channel-modal-color-icon-background:      $color-white;
         background: lighten($sw-sales-channel-modal-color-text, 25%);
         border-radius: 3px;
 
+        #{$dark-theme-class} & {
+            background: lighten(darken($sw-sales-channel-modal-color-text, $dark-theme-contrast-factor), 25%);
+        }
+
         .sw-icon{
             background: $sw-sales-channel-modal-color-icon-background;
             padding: 10px;
             width: 100%;
             height: 100%;
+
+            #{$dark-theme-class} & {
+                background: darken($sw-sales-channel-modal-color-icon-background, $dark-theme-contrast-factor);
+            }
         }
     }
 

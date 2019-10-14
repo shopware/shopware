@@ -15,6 +15,11 @@ $sw-product-variants-configurator-restrictions-search-border: $color-steam-cloud
         padding: 25px;
         background-color: $sw-product-variants-configurator-restrictions-search-background;
         border-bottom: 1px solid $sw-product-variants-configurator-restrictions-search-border;
+
+        #{$dark-theme-class} & {
+            background-color: darken($sw-product-variants-configurator-restrictions-search-background, $dark-theme-contrast-factor);
+            border-bottom: 1px solid lighten($sw-product-variants-configurator-restrictions-search-border, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-product-variants-configurator-restrictions__modal.sw-modal .sw-modal__body {
@@ -43,6 +48,10 @@ $sw-product-variants-configurator-restrictions-search-border: $color-steam-cloud
         background-color: $sw-product-variants-configurator-restrictions-search-background;
         padding: 40px 40px 80px 40px;
         overflow: hidden;
+
+        #{$dark-theme-class} & {
+            background-color: darken($sw-product-variants-configurator-restrictions-search-background, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-product-variants-configurator-restrictions__seperator {

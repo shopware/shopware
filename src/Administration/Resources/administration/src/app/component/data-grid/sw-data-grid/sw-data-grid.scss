@@ -5,6 +5,10 @@
     overflow: hidden;
     background-color: $color-white;
 
+    #{$dark-theme-class} & {
+        background-color: darken($color-white, $dark-theme-contrast-factor);
+    }
+
     &.sw-data-grid--full-page {
         width: 100%;
         height: 100%;
@@ -33,6 +37,12 @@
         overflow: hidden;
         background-color: $color-white;
 
+        #{$dark-theme-class} & {
+            color: lighten($color-gutenberg, $dark-theme-contrast-factor);
+            border-right: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+            background-color: darken($color-white, $dark-theme-contrast-factor);
+        }
+
         &:last-child {
             border-right: 0 none;
         }
@@ -40,6 +50,10 @@
 
     &.sw-data-grid--actions .sw-data-grid__cell {
         border-right: 1px solid $color-steam-cloud;
+
+        #{$dark-theme-class} & {
+            border-right: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
 
         &:last-child,
         &:nth-last-child(2) {
@@ -87,6 +101,10 @@
         a {
             color: $color-gutenberg;
             text-decoration: none;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-gutenberg, $dark-theme-contrast-factor);
+            }
 
             &:hover {
                 text-decoration: underline;
@@ -147,8 +165,16 @@
         opacity: 0;
         transition: all 0.2s ease-in-out;
 
+        #{$dark-theme-class} & {
+            background-color: darken($color-steam-cloud, $dark-theme-contrast-factor);
+        }
+
         &.is--column-resizing {
             background-color: darken($color-steam-cloud, 10%);
+
+            #{$dark-theme-class} & {
+                background-color: darken(darken($color-steam-cloud, $dark-theme-contrast-factor), 10%);
+            }
         }
     }
 
@@ -157,6 +183,10 @@
 
         .sw-icon {
             color: $color-steam-cloud;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-steam-cloud, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -179,9 +209,18 @@
         z-index: 6;
         overflow: visible;
 
+        #{$dark-theme-class} & {
+            box-shadow: inset 0 -1px 0 lighten($color-steam-cloud, $dark-theme-contrast-factor);
+            background-color: darken($color-white, $dark-theme-contrast-factor);
+        }
+
         &.sw-data-grid__cell--selection {
             z-index: 7;
             box-shadow: inset -1px -1px 0 0 $color-steam-cloud;
+
+            #{$dark-theme-class} & {
+                box-shadow: inset -1px -1px 0 0 lighten($color-steam-cloud, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-data-grid__cell-content {
@@ -193,6 +232,10 @@
     .sw-data-grid__cell--sortable:hover {
         cursor: pointer;
         background-color: $color-light-gray;
+
+        #{$dark-theme-class} & {
+            background-color: darken($color-light-gray, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-data-grid__cell--property {
@@ -202,11 +245,19 @@
 
         &.is--column-resizing {
             background-color: $color-cadet-blue;
+
+            #{$dark-theme-class} & {
+                background-color: darken($color-cadet-blue, $dark-theme-contrast-factor);
+            }
         }
 
         &:hover {
             .sw-data-grid__action-edit-column .sw-icon {
                 color: $color-gutenberg;
+
+                #{$dark-theme-class} & {
+                    color: lighten($color-gutenberg, $dark-theme-contrast-factor);
+                }
             }
         }
     }
@@ -225,8 +276,12 @@
         max-width: 88px;
         border-right: 0;
         box-shadow: inset -1px 0 0 $color-steam-cloud;
-        overflow: visible;
         z-index: 5;
+        overflow: visible;
+
+        #{$dark-theme-class} & {
+            box-shadow: inset -1px 0 0 lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
 
         &.sw-data-grid__cell:nth-child(1) {
             border-right: 0;
@@ -253,6 +308,12 @@
         z-index: 7;
         border-bottom: 1px inset $color-steam-cloud;
         padding: 20px 12px 20px 100px;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-gutenberg, $dark-theme-contrast-factor);
+            background: darken($color-white, $dark-theme-contrast-factor);
+            border-bottom: 1px inset lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-data-grid__bulk-selected {
@@ -270,13 +331,25 @@
     .sw-data-grid__body .sw-data-grid__row {
         &:nth-child(even) .sw-data-grid__cell {
             background-color: $color-light-gray;
+
+            #{$dark-theme-class} & {
+                background-color: darken($color-light-gray, $dark-theme-contrast-factor);
+            }
         }
 
         &:hover .sw-data-grid__cell {
             background-color: $color-cadet-blue;
 
+            #{$dark-theme-class} & {
+                background-color: darken($color-cadet-blue, $dark-theme-contrast-factor);
+            }
+
             a {
                 color: $color-shopware-blue;
+
+                #{$dark-theme-class} & {
+                    color: lighten($color-shopware-blue, $dark-theme-contrast-factor);
+                }
             }
         }
 
@@ -285,11 +358,21 @@
                 background-color: $color-cadet-blue;
                 border-top: 1px solid $color-shopware-blue;
                 border-bottom: 1px solid $color-shopware-blue;
+
+                #{$dark-theme-class} & {
+                    background-color: darken($color-cadet-blue, $dark-theme-contrast-factor);
+                    border-top: 1px solid lighten($color-shopware-blue, $dark-theme-contrast-factor);
+                    border-bottom: 1px solid lighten($color-shopware-blue, $dark-theme-contrast-factor);
+                }
             }
 
             .sw-data-grid__cell-content {
                 padding: 10px;
                 color: darken($color-steam-cloud, 10%);
+
+                #{$dark-theme-class} & {
+                    color: darken(lighten($color-steam-cloud, $dark-theme-contrast-factor), 10%);
+                }
             }
 
             .sw-data-grid__cell-value {
@@ -298,6 +381,10 @@
                 color: darken($color-steam-cloud, 10%);
                 user-select: none;
                 cursor: default;
+
+                #{$dark-theme-class} & {
+                    color: darken(lighten($color-steam-cloud, $dark-theme-contrast-factor), 10%);
+                }
             }
         }
 
@@ -306,6 +393,12 @@
                 background-color: $color-cadet-blue;
                 border-top: 1px solid $color-shopware-blue;
                 border-bottom: 1px solid $color-shopware-blue;
+
+                #{$dark-theme-class} & {
+                    background-color: darken($color-cadet-blue, $dark-theme-contrast-factor);
+                    border-top: 1px solid lighten($color-shopware-blue, $dark-theme-contrast-factor);
+                    border-bottom: 1px solid lighten($color-shopware-blue, $dark-theme-contrast-factor);
+                }
             }
         }
     }
@@ -320,6 +413,10 @@
         box-shadow: inset 1px 0 0 $color-steam-cloud;
         overflow: visible;
         z-index: 4;
+
+        #{$dark-theme-class} & {
+            box-shadow: inset 1px 0 0 lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
 
         &.is--loading {
             position: initial;
@@ -344,12 +441,20 @@
         color: $color-gutenberg;
         cursor: pointer;
 
+        #{$dark-theme-class} & {
+            color: lighten($color-gutenberg, $dark-theme-contrast-factor);
+        }
+
         &:hover {
             text-decoration: underline;
         }
 
         &.link-danger {
             color: $color-crimson;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-crimson, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -362,6 +467,11 @@
         background-color: $color-white;
         margin-right: 15px;
         flex-shrink: 0;
+
+        #{$dark-theme-class} & {
+            border: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+            background-color: darken($color-white, $dark-theme-contrast-factor);
+        }
 
         .sw-media-preview__item {
             max-width: calc(100% - 5px);
@@ -382,6 +492,10 @@
     .sw-data-grid__cell-settings {
         box-shadow: inset 1px -1px 0 $color-steam-cloud;
         z-index: 7;
+
+        #{$dark-theme-class} & {
+            box-shadow: inset 1px -1px 0 lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
     }
 
     &.is--scroll-x {
@@ -395,6 +509,10 @@
             top: 0;
             bottom: 0;
             left: -8px;
+
+            #{$dark-theme-class} & {
+                background: linear-gradient(to right, transparent, darken(rgba(0, 0, 0, 0.1), $dark-theme-contrast-factor));
+            }
         }
 
         .sw-data-grid__cell--selection::before {
@@ -407,6 +525,10 @@
             top: 0;
             bottom: 0;
             right: -8px;
+
+            #{$dark-theme-class} & {
+                background: linear-gradient(to left, transparent, darken(rgba(0, 0, 0, 0.1), $dark-theme-contrast-factor));
+            }
         }
 
         &.sw-data-grid__cell--header::before {

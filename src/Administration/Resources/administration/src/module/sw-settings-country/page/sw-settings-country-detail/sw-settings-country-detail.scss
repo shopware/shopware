@@ -9,8 +9,16 @@
         .sw-country-state-list__delete-button.sw-button--square {
             border-color: $color-crimson;
 
+            #{$dark-theme-class} & {
+                border-color: lighten($color-crimson, $dark-theme-contrast-factor);
+            }
+
             .sw-icon {
                 color: $color-crimson;
+
+                #{$dark-theme-class} & {
+                    color: lighten($color-crimson, $dark-theme-contrast-factor);
+                }
             }
             &.sw-button--disabled {
                 opacity: 0.2;

@@ -3,6 +3,10 @@
 .sw-settings-logging-mail-sent-info__mail-content {
     border: 1px solid $color-gray-500;
     padding: 12px;
+
+    #{$dark-theme-class} & {
+        border: 1px solid lighten($color-gray-500, $dark-theme-contrast-factor);
+    }
 }
 
 .sw-settings-logging-mail-sent-info__recipients {

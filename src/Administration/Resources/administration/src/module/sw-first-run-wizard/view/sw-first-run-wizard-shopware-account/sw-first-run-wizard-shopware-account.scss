@@ -13,6 +13,10 @@
     .external-link {
         text-decoration: none;
         color: $color-shopware-brand-500;
+
+        #{$dark-theme-class} & { 
+            color: lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+        }
         font-size: 14px;
         font-weight: normal;
         letter-spacing: 0.1px;

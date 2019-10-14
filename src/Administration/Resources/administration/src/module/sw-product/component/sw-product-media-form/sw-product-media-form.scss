@@ -15,6 +15,10 @@
         grid-template-columns: 175px 1fr;
         grid-gap: 12px;
 
+        #{$dark-theme-class} & {
+            border: 1px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+        }
+
         .preview-cover {
             width: 175px;
             text-align: center;
@@ -45,6 +49,10 @@
         overflow: hidden;
         margin-bottom: 10px;
 
+        #{$dark-theme-class} & {
+            color: lighten($color-gray-300, $dark-theme-contrast-factor);
+        }
+
         &::after {
             content: "";
             padding-top: 50%;
@@ -62,6 +70,10 @@
             align-items: center;
             justify-content: center;
 
+            #{$dark-theme-class} & {
+                border: 2px dashed lighten($color-gray-300, $dark-theme-contrast-factor);
+            }
+
             &:hover {
                 background-color: transparent;
             }
@@ -72,17 +84,32 @@
         .sw-button {
             background-color: $color-gray-100;
             color: lighten($color-kashmir, 25%);
+
+            #{$dark-theme-class} & {
+                background-color: darken($color-gray-100, $dark-theme-contrast-factor);
+                color: lighten(lighten($color-kashmir, $dark-theme-contrast-factor), 25%);
+            }
         }
 
         .sw-button--ghost {
             background-color: transparent;
             border-color: lighten($color-shopware-brand-500, 20%);
             color: lighten($color-kashmir, 20%);
+
+            #{$dark-theme-class} & {
+                border-color: lighten(lighten($color-shopware-brand-500, $dark-theme-contrast-factor), 20%);
+                color: lighten(lighten($color-kashmir, $dark-theme-contrast-factor), 20%);
+            }
         }
 
         .sw-button--primary {
             background: lighten($color-shopware-brand-500, 20%);
             color: lighten($color-kashmir, 60%);
+
+            #{$dark-theme-class} & {
+                background: lighten(darken($color-shopware-brand-500, $dark-theme-contrast-factor), 20%);
+                color: lighten(lighten($color-kashmir, $dark-theme-contrast-factor), 60%);
+            }
         }
 
         &::after {
@@ -96,6 +123,10 @@
             background-color: $color-gray-100;
             border-radius: $border-radius-default;
             mix-blend-mode: multiply;
+
+            #{$dark-theme-class} & {
+                background-color: darken($color-gray-100, $dark-theme-contrast-factor);
+            }
         }
     }
 

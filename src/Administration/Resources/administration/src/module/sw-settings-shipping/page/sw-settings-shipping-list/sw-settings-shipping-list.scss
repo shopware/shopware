@@ -6,9 +6,17 @@ $sw-settings-shipping-list-color-success: $color-emerald;
 .sw-settings-shipping-list {
     .is--inactive {
         color: $sw-settings-shipping-list-color-error;
+
+        #{$dark-theme-class} & { 
+            color: lighten($sw-settings-shipping-list-color-error, $dark-theme-contrast-factor);
+        }
     }
 
     .is--active {
         color: $sw-settings-shipping-list-color-success;
+
+        #{$dark-theme-class} & { 
+            color: lighten($sw-settings-shipping-list-color-success, $dark-theme-contrast-factor);
+        }
     }
 }

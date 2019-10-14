@@ -13,10 +13,18 @@
         justify-content: center;
         background-color: $color-emerald-50;
         margin-bottom: 16px;
+
+        #{$dark-theme-class} & {
+            background-color: darken($color-emerald-50, $dark-theme-contrast-factor);
+        }
     }
 
     &__icon {
         color: $color-emerald-500;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-emerald-500, $dark-theme-contrast-factor);
+        }
     }
 
     .headline-success {
@@ -58,8 +66,16 @@
             padding: 10px 0;
             border-radius: $border-radius-default;
 
+            #{$dark-theme-class} & {
+                color: lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+            }
+
             &:hover {
                 background-color: $color-gray-100;
+
+                #{$dark-theme-class} & {
+                    background-color: darken($color-gray-100, $dark-theme-contrast-factor);
+                }
             }
         }
     }

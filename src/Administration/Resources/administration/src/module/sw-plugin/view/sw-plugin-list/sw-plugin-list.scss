@@ -19,6 +19,10 @@
             .sw-plugin-list__author-name {
                 color: $color-gray;
                 font-size: $font-size-small;
+
+                #{$dark-theme-class} & {
+                    color: lighten($color-gray, $dark-theme-contrast-factor);
+                }
             }
         }
     }

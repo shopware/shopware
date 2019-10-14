@@ -19,8 +19,17 @@ $sw-grid-row-border-radius: $border-radius-default;
     background: $sw-grid-item-color-background;
     position: relative;
 
+    #{$dark-theme-class} & {
+        border-bottom: 1px solid lighten($sw-grid-item-color-border, $dark-theme-contrast-factor);
+        background: darken($sw-grid-item-color-background, $dark-theme-contrast-factor);
+    }
+
     &:nth-child(even) {
         background: $sw-grid-item-even-color-background;
+
+        #{$dark-theme-class} & {
+            background: darken($sw-grid-item-even-color-background, $dark-theme-contrast-factor);
+        }
     }
 
     &:last-child {
@@ -31,8 +40,16 @@ $sw-grid-row-border-radius: $border-radius-default;
     &:hover {
         background: lighten($sw-grid-item-active-color-background, 2%);
 
+        #{$dark-theme-class} & {
+            background: lighten(darken($sw-grid-item-active-color-background, $dark-theme-contrast-factor), 2%);
+        }
+
         .sw-grid__cell-content a {
             color: $sw-grid-item-hover-color-link;
+
+            #{$dark-theme-class} & {
+                color: lighten($sw-grid-item-hover-color-link, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -40,10 +57,20 @@ $sw-grid-row-border-radius: $border-radius-default;
         background: $sw-grid-item-active-color-background;
         border-bottom: 1px solid $sw-grid-item-active-color-border;
         box-shadow: 0 -1px 0 0 $sw-grid-item-active-color-border;
+
+        #{$dark-theme-class} & {
+            background: darken($sw-grid-item-active-color-background, $dark-theme-contrast-factor);
+            border-bottom: 1px solid lighten($sw-grid-item-active-color-border, $dark-theme-contrast-factor);
+            box-shadow: 0 -1px 0 0 lighten($sw-grid-item-active-color-border, $dark-theme-contrast-factor);
+        }
     }
 
     &:first-child.is--selected {
         box-shadow: inset 0 1px 0 0 $sw-grid-item-active-color-border;
+
+        #{$dark-theme-class} & {
+            box-shadow: inset 0 1px 0 0 lighten($sw-grid-item-active-color-border, $dark-theme-contrast-factor);
+        }
     }
 
     &.is--inline-editing {
@@ -51,12 +78,22 @@ $sw-grid-row-border-radius: $border-radius-default;
         border-bottom: 1px solid $sw-grid-item-active-color-border;
         box-shadow: 0 -1px 0 0 $sw-grid-item-active-color-border;
 
+        #{$dark-theme-class} & {
+            background: darken($sw-grid-item-active-color-background, $dark-theme-contrast-factor);
+            border-bottom: 1px solid lighten($sw-grid-item-active-color-border, $dark-theme-contrast-factor);
+            box-shadow: 0 -1px 0 0 lighten($sw-grid-item-active-color-border, $dark-theme-contrast-factor);
+        }
+
         .sw-grid__cell-content {
             display: none;
         }
 
         .sw-grid-column {
             border-right-color: rgba(0, 0, 0, 0.05);
+
+            #{$dark-theme-class} & {
+                border-right-color: lighten(rgba(0, 0, 0, 0.05), $dark-theme-contrast-factor);
+            }
         }
 
         .sw-grid__cell-inline-editing {
@@ -93,5 +130,10 @@ $sw-grid-row-border-radius: $border-radius-default;
         border: 1px solid $sw-grid-row-color-border;
         border-top: 0 none;
         border-radius: 0 0 $sw-grid-row-inline-edit-border-radius $sw-grid-row-inline-edit-border-radius;
+
+        #{$dark-theme-class} & {
+            background: darken($sw-grid-row-color-background, $dark-theme-contrast-factor);
+            border: 1px solid lighten($sw-grid-row-color-border, $dark-theme-contrast-factor);
+        }
     }
 }

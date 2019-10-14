@@ -30,12 +30,21 @@ $sw-field--switch-color-error: $color-crimson;
         grid-column-gap: 10px;
         background: $sw-field--switch-color-background;
         color: $sw-field--switch-color-text;
+
+        #{$dark-theme-class} & {
+            background: darken($sw-field--switch-color-background, $dark-theme-contrast-factor);
+            color: lighten($sw-field--switch-color-text, $dark-theme-contrast-factor);
+        }
     }
 
     &.sw-field--switch-bordered .sw-field--switch__content {
         border-radius: 4px;
         border: 1px solid $sw-field--switch-color-border;
         padding: 12px 16px;
+
+        #{$dark-theme-class} & {
+            border: 1px solid lighten($sw-field--switch-color-border, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-field--switch__input {
@@ -65,13 +74,25 @@ $sw-field--switch-color-error: $color-crimson;
             &:disabled ~ .sw-field__switch-state {
                 background: $color-light-gray;
 
+                #{$dark-theme-class} & {
+                    background: darken($color-light-gray, $dark-theme-contrast-factor);
+                }
+
                 .sw-field__switch-state-knob {
                     background: $sw-field--switch-color-border;
+
+                    #{$dark-theme-class} & {
+                        background: darken($sw-field--switch-color-border, $dark-theme-contrast-factor);
+                    }
                 }
             }
 
             &:checked ~ .sw-field__switch-state {
                 background: $sw-field--switch-color-focus;
+
+                #{$dark-theme-class} & {
+                    background: darken($sw-field--switch-color-focus, $dark-theme-contrast-factor);
+                }
 
                 .sw-field__switch-state-knob {
                     left: 10px;
@@ -80,6 +101,10 @@ $sw-field--switch-color-error: $color-crimson;
 
             &:checked:disabled ~ .sw-field__switch-state {
                 background: $color-light-gray;
+
+                #{$dark-theme-class} & {
+                    background: darken($color-light-gray, $dark-theme-contrast-factor);
+                }
             }
         }
 
@@ -92,6 +117,10 @@ $sw-field--switch-color-error: $color-crimson;
             background: $sw-field--switch-color-border;
             border-radius: 8px;
 
+            #{$dark-theme-class} & {
+                background: darken($sw-field--switch-color-border, $dark-theme-contrast-factor);
+            }
+
             .sw-field__switch-state-knob {
                 transition: all 0.3s ease-in-out;
                 width: 12px;
@@ -101,6 +130,10 @@ $sw-field--switch-color-error: $color-crimson;
                 left: 2px;
                 background: $sw-field--switch-color-background;
                 border-radius: 7px;
+
+                #{$dark-theme-class} & {
+                    background: darken($sw-field--switch-color-background, $dark-theme-contrast-factor);
+                }
             }
         }
     }
@@ -120,23 +153,43 @@ $sw-field--switch-color-error: $color-crimson;
     &.has--error {
         .sw-field__switch-state {
             background: $sw-field--switch-color-error;
+
+            #{$dark-theme-class} & {
+                background: darken($sw-field--switch-color-error, $dark-theme-contrast-factor);
+            }
         }
 
         input[type="checkbox"] {
             &:disabled ~ .sw-field__switch-state {
                 background: $sw-field--switch-color-error;
 
+                #{$dark-theme-class} & {
+                    background: darken($sw-field--switch-color-error, $dark-theme-contrast-factor);
+                }
+
                 .sw-field__switch-state-knob {
                     background: darken($sw-field--switch-color-error, 5%);
+
+                    #{$dark-theme-class} & {
+                        background: darken(darken($sw-field--switch-color-error, $dark-theme-contrast-factor), 5%);
+                    }
                 }
             }
 
             &:checked ~ .sw-field__switch-state {
                 background: $sw-field--switch-color-error;
+
+                #{$dark-theme-class} & {
+                    background: darken($sw-field--switch-color-error, $dark-theme-contrast-factor);
+                }
             }
 
             &:checked:disabled ~ .sw-field__switch-state {
                 background: $sw-field--switch-color-error;
+
+                #{$dark-theme-class} & {
+                    background: darken($sw-field--switch-color-error, $dark-theme-contrast-factor);
+                }
             }
         }
     }
@@ -145,6 +198,10 @@ $sw-field--switch-color-error: $color-crimson;
         input[type="checkbox"] {
             &:checked ~ .sw-field__switch-state {
                 background: $sw-field--switch-color-border;
+
+                #{$dark-theme-class} & {
+                    background: darken($sw-field--switch-color-border, $dark-theme-contrast-factor);
+                }
             }
         }
     }

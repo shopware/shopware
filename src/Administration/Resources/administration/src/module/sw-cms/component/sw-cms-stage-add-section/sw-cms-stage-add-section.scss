@@ -8,6 +8,10 @@
     background: $color-gray-50;
     display: grid;
 
+    #{$dark-theme-class} & {
+        background: darken($color-gray-50, $dark-theme-contrast-factor);
+    }
+
     .sw-cms-stage-add-section__button {
         width: 30px;
         height: 30px;
@@ -17,8 +21,16 @@
         color: $color-gray-900;
         transition: 0.5s;
 
+        #{$dark-theme-class} & {
+            color: lighten($color-gray-900, $dark-theme-contrast-factor);
+        }
+
         &:hover {
             color: $color-shopware-brand-500;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+            }
         }
 
         &.is--open {

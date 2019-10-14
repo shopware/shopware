@@ -12,6 +12,10 @@ $sw-error-font-size-large: $font-size-large;
     justify-items: center;
     color: $sw-error-color;
 
+    #{$dark-theme-class} & {
+        color: lighten($sw-error-color, $dark-theme-contrast-factor);
+    }
+
     .sw-error__container {
         display: grid;
         align-items: center;
@@ -51,6 +55,11 @@ $sw-error-font-size-large: $font-size-large;
         background: $sw-error-background-stack;
         border: 1px solid darken($sw-error-background-stack, 30%);
         border-radius: $sw-error-radius-stack;
+
+        #{$dark-theme-class} & {
+            background: darken($sw-error-background-stack, $dark-theme-contrast-factor);
+            border: 1px solid darken(lighten($sw-error-background-stack, $dark-theme-contrast-factor), 30%);
+        }
     }
 
     @media screen and (max-width: 900px) {

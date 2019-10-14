@@ -10,6 +10,10 @@
         .version {
             font-size: 12px;
             color: $color-gray;
+
+            #{$dark-theme-class} & { 
+                color: lighten($color-gray, $dark-theme-contrast-factor);
+            }
         }
     }
 }

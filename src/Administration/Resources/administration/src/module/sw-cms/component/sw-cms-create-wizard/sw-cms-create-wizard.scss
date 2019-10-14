@@ -15,6 +15,10 @@
         color: $color-darkgray-200;
         font-size: 32px;
         font-weight: normal;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-darkgray-200, $dark-theme-contrast-factor);
+        }
     }
 }
 
@@ -38,6 +42,12 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
+
+        #{$dark-theme-class} & {
+            border: 1px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+            color: lighten($color-darkgray-200, $dark-theme-contrast-factor);
+            background: darken(#fff, $dark-theme-contrast-factor);
+        }
 
         &.is--disabled {
             cursor: not-allowed;
@@ -71,10 +81,20 @@
         display: grid;
         grid-template-rows: 120px 40px;
 
+        #{$dark-theme-class} & {
+            border: 1px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+            background: darken(#fff, $dark-theme-contrast-factor);
+        }
+
         .sw-cms-create-wizard__preview_image {
             background: center center no-repeat $color-white;
             border: 1px solid $color-gray-300;
             border-radius: 4px;
+
+            #{$dark-theme-class} & {
+                background: center center no-repeat darken($color-white, $dark-theme-contrast-factor);
+                border: 1px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-cms-create-wizard__preview_info {
@@ -83,6 +103,10 @@
             justify-content: center;
             color: $color-darkgray-200;
             align-items: center;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-darkgray-200, $dark-theme-contrast-factor);
+            }
 
             .sw-icon {
                 margin-right: 8px;

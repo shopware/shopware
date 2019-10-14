@@ -6,9 +6,17 @@ $sw-payment-list-color-success: $color-emerald;
 .sw-settings-payment-list {
     .is--inactive {
         color: $sw-payment-list-color-error;
+
+        #{$dark-theme-class} & { 
+            color: lighten($sw-payment-list-color-error, $dark-theme-contrast-factor);
+        }
     }
 
     .is--active {
         color: $sw-payment-list-color-success;
+
+        #{$dark-theme-class} & { 
+            color: lighten($sw-payment-list-color-success, $dark-theme-contrast-factor);
+        }
     }
 }

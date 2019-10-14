@@ -17,6 +17,10 @@
             display: inline;
             color: $color-gray-400;
             margin-left: 10px;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-gray-400, $dark-theme-contrast-factor);
+            }
         }
     }
 }

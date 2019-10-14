@@ -1,3 +1,5 @@
+@import "~scss/variables";
+
 .sw-data-grid-inline-edit {
     width: 100%;
     display: flex;
@@ -8,5 +10,9 @@
         color: rgba(0, 0, 0, 0.2);
         cursor: default;
         user-select: none;
+
+        #{$dark-theme-class} & {
+            color: lighten(rgba(0, 0, 0, 0.2), $dark-theme-contrast-factor);
+        }
     }
 }

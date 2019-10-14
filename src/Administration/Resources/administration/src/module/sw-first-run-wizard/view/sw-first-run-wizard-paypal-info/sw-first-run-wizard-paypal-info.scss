@@ -48,6 +48,10 @@
         font-weight: normal;
         letter-spacing: 0;
         line-height: 19px;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-gray-500, $dark-theme-contrast-factor);
+        }
     }
 }
 

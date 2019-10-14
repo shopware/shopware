@@ -6,6 +6,10 @@
     position: relative;
     color: $color-darkgray-200;
 
+    #{$dark-theme-class} & {
+        color: lighten($color-darkgray-200, $dark-theme-contrast-factor);
+    }
+
     &.sw-card--tabs {
         .sw-card__content {
             border-radius: 0 0 $border-radius-default $border-radius-default;
@@ -18,8 +22,16 @@
             border-bottom: none;
             margin-bottom: 0;
 
+            #{$dark-theme-class} & {
+                border: 1px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+            }
+
             .sw-tabs__content {
                 background-color: $color-gray-50;
+
+                #{$dark-theme-class} & {
+                    background-color: darken($color-gray-50, $dark-theme-contrast-factor);
+                }
             }
 
             .sw-tabs__custom-Content {
@@ -88,6 +100,10 @@
         line-height: 24px;
         color: $color-darkgray-200;
 
+        #{$dark-theme-class} & {
+            color: lighten($color-darkgray-200, $dark-theme-contrast-factor);
+        }
+
         @media screen and (min-width: 1580px) {
             width: 200px;
             position: absolute;
@@ -101,6 +117,11 @@
         padding: 30px;
         background-color: $color-gray-100;
         border: 1px solid $color-gray-300;
+
+        #{$dark-theme-class} & {
+            background-color: darken($color-gray-100, $dark-theme-contrast-factor);
+            border: 1px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+        }
     }
 
     &.has--header {
@@ -117,6 +138,11 @@
         border-radius: $border-radius-default;
         border: 1px solid $color-gray-300;
         position: relative;
+
+        #{$dark-theme-class} & {
+            background: darken($color-white, $dark-theme-contrast-factor);
+            border: 1px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+        }
 
         @media screen and (max-width: 800px) {
             padding: 15px;
@@ -151,8 +177,16 @@
             color: $color-shopware-brand-500;
             font-size: 14px;
 
+            #{$dark-theme-class} & {
+                color: lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+            }
+
             &:hover {
                 color: $color-shopware-brand-600;
+
+                #{$dark-theme-class} & {
+                    color: lighten($color-shopware-brand-600, $dark-theme-contrast-factor);
+                }
             }
         }
 
@@ -177,21 +211,40 @@
 
             &:hover {
                 border-bottom-color: $color-gray-300;
+
+                #{$dark-theme-class} & {
+                    border-bottom-color: lighten($color-gray-300, $dark-theme-contrast-factor);
+                }
             }
 
             &:focus {
                 background-color: $color-gray-100;
                 border-bottom-color: $color-gray-300;
+
+                #{$dark-theme-class} & {
+                    background-color: darken($color-gray-100, $dark-theme-contrast-factor);
+                    border-bottom-color: lighten($color-gray-300, $dark-theme-contrast-factor);
+                }
             }
 
             &:active {
                 border-bottom-color: $color-white;
                 background-color: $color-white;
+
+                #{$dark-theme-class} & {
+                    border-bottom-color: lighten($color-white, $dark-theme-contrast-factor);
+                    background-color: darken($color-white, $dark-theme-contrast-factor);
+                }
             }
 
             &.router-link-active {
                 background-color: $color-white;
                 border-bottom-color: $color-white;
+
+                #{$dark-theme-class} & {
+                    background-color: darken($color-white, $dark-theme-contrast-factor);
+                    border-bottom-color: lighten($color-white, $dark-theme-contrast-factor);
+                }
             }
         }
     }

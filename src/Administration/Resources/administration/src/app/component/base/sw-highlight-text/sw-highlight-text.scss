@@ -4,5 +4,9 @@
     .sw-highlight-text__highlight{
         color: $color-shopware-brand-500;
         font-weight: bold;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+        }
     }
 }

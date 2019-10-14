@@ -20,6 +20,10 @@ $sw-customer-color-mail-to-link: $color-shopware-blue;
         .sw-customer-card-email-link {
             color: $sw-customer-color-mail-to-link;
             text-decoration: none;
+
+            #{$dark-theme-class} & {
+                color: lighten($sw-customer-color-mail-to-link, $dark-theme-contrast-factor);
+            }
         }
     }
 

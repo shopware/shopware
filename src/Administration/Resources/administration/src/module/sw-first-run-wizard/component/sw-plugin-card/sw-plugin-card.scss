@@ -24,6 +24,10 @@
         font-weight: normal;
         letter-spacing: 0;
         line-height: 19px;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-gray-500, $dark-theme-contrast-factor);
+        }
     }
 
     &__short-description {
@@ -59,6 +63,10 @@
         letter-spacing: 0.1px;
         line-height: 22px;
         margin-right: 24px;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-emerald-500, $dark-theme-contrast-factor);
+        }
 
         .sw-icon {
             margin-right: 5px;

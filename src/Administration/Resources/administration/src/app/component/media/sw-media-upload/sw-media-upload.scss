@@ -24,12 +24,20 @@ $sw-media-upload-caption-icon-color:           $color-steam-cloud;
         color: $color-kashmir;
         font-weight: normal;
         user-select: none;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-kashmir, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-media-upload__switch-mode {
         color: $sw-media-upload-color-switch-mode;
         margin-left: auto;
         cursor: pointer;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-media-upload-color-switch-mode, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-media-upload__help-text {
@@ -47,6 +55,11 @@ $sw-media-upload-caption-icon-color:           $color-steam-cloud;
         border-radius: $sw-media-upload-border-radius;
         background-color: $sw-media-upload-upload-background-color;
         position: relative;
+
+        #{$dark-theme-class} & {
+            border: 2px dashed lighten($sw-media-upload-border-color, $dark-theme-contrast-factor);
+            background-color: darken($sw-media-upload-upload-background-color, $dark-theme-contrast-factor);
+        }
 
         &.is--multi {
             flex-direction: column;
@@ -70,9 +83,19 @@ $sw-media-upload-caption-icon-color:           $color-steam-cloud;
             background-color: $sw-media-upload-background-color-highlighted;
             color: $sw-media-upload-color-highlighted;
 
+            #{$dark-theme-class} & {
+                border-color: lighten($sw-media-upload-color-highlighted, $dark-theme-contrast-factor);
+                background-color: darken($sw-media-upload-background-color-highlighted, $dark-theme-contrast-factor);
+                color: lighten($sw-media-upload-color-highlighted, $dark-theme-contrast-factor);
+            }
+
             .sw-media-upload__upload-caption {
                 .sw-icon {
                     color: $sw-media-upload-color-highlighted;
+
+                    #{$dark-theme-class} & {
+                        color: lighten($sw-media-upload-color-highlighted, $dark-theme-contrast-factor);
+                    }
                 }
             }
         }
@@ -84,6 +107,10 @@ $sw-media-upload-caption-icon-color:           $color-steam-cloud;
             .sw-icon {
                 margin-right: 8px;
                 color: $sw-media-upload-caption-icon-color;
+
+                #{$dark-theme-class} & {
+                    color: lighten($sw-media-upload-caption-icon-color, $dark-theme-contrast-factor);
+                }
             }
         }
     }
@@ -162,13 +189,25 @@ $sw-media-upload-caption-icon-color:           $color-steam-cloud;
         border: 2px solid $sw-media-upload-border-color;
         border-radius: $sw-media-upload-border-radius;
 
+        #{$dark-theme-class} & {
+            border: 2px solid lighten($sw-media-upload-border-color, $dark-theme-contrast-factor);
+        }
+
         &.is--fallback {
             border: 2px dashed $sw-media-upload-border-color;
+
+            #{$dark-theme-class} & {
+                border: 2px dashed lighten($sw-media-upload-border-color, $dark-theme-contrast-factor);
+            }
         }
     }
 
     .sw-media-upload__fallback-icon {
         color: $color-steam-cloud;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-media-upload__button {

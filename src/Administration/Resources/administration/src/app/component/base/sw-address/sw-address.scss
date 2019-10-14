@@ -7,16 +7,28 @@
     line-height: 20px;
     color: $color-darkgray-200;
 
+    #{$dark-theme-class} & {
+        color: lighten($color-darkgray-200, $dark-theme-contrast-factor);
+    }
+
     .sw-address__headline {
         margin: 0 0 20px 0;
         color: $color-darkgray-200;
         font-weight: normal;
         font-size: 18px;
 
+        #{$dark-theme-class} & {
+            color: lighten($color-darkgray-200, $dark-theme-contrast-factor);
+        }
+
         .sw-address-headline-link {
             font-size: 14px;
             color: $color-shopware-brand-500;
             text-decoration: none;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+            }
         }
     }
 }

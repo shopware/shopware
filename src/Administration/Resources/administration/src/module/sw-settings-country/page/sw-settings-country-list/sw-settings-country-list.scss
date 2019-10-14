@@ -6,9 +6,17 @@ $sw-country-list-color-success: $color-emerald;
 .sw-settings-country-list {
     .is--inactive {
         color: $sw-country-list-color-error;
+
+        #{$dark-theme-class} & { 
+            color: lighten($sw-country-list-color-error, $dark-theme-contrast-factor);
+        }
     }
 
     .is--active {
         color: $sw-country-list-color-success;
+
+        #{$dark-theme-class} & { 
+            color: lighten($sw-country-list-color-success, $dark-theme-contrast-factor);
+        }
     }
 }

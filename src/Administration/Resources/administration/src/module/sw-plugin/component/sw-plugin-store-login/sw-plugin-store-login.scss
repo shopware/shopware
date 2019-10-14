@@ -33,6 +33,10 @@
             font-size: 12px;
             color: $color-shopware-blue;
             text-decoration: none;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-shopware-blue, $dark-theme-contrast-factor);
+            }
         }
 
         .shopware-id-label {
@@ -73,6 +77,10 @@
         .new-account-link {
             color: $color-shopware-blue;
             text-decoration: none;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-shopware-blue, $dark-theme-contrast-factor);
+            }
         }
 
         .footer-button-container {

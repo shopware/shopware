@@ -11,5 +11,9 @@
         margin: 2px 0;
         border-radius: 4px;
         background: darken($color-light-gray, 5%);
+
+        #{$dark-theme-class} & { 
+            background: darken(darken($color-light-gray, $dark-theme-contrast-factor), 5%);
+        }
     }
 }

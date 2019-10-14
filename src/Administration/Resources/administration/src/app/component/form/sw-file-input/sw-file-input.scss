@@ -16,6 +16,10 @@
         color: $color-kashmir;
         font-weight: normal;
         user-select: none;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-kashmir, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-file-input__dropzone {
@@ -27,6 +31,11 @@
         border: 2px dashed $color-steam-cloud;
         border-radius: $border-radius-default;
         background-color: $color-light-gray;
+
+        #{$dark-theme-class} & {
+            border: 2px dashed lighten($color-steam-cloud, $dark-theme-contrast-factor);
+            background-color: darken($color-light-gray, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-file-input__upload-caption {
@@ -36,6 +45,10 @@
         .sw-icon {
             margin-right: 8px;
             color: $color-steam-cloud;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-steam-cloud, $dark-theme-contrast-factor);
+            }
         }
     }
 

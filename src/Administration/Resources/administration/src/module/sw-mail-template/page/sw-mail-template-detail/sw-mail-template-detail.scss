@@ -12,6 +12,10 @@
             padding: 20px;
             border-top: 1px solid #D8DDE6;
 
+            #{$dark-theme-class} & {
+                border-top: 1px solid lighten(#D8DDE6, $dark-theme-contrast-factor);
+            }
+
             label {
                 font-weight: bold;
             }

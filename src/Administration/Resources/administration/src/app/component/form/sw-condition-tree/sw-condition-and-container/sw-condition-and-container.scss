@@ -6,11 +6,19 @@ $sw-condition-and-container-background-odd: #F0F2F5;
 .sw-condition-and-container {
     &.container-condition-level__is--even {
         background-color: $sw-condition-and-container-background-even;
+
+        #{$dark-theme-class} & {
+            background-color: darken($sw-condition-and-container-background-even, $dark-theme-contrast-factor);
+        }
     }
 
     &.container-condition-level__is--odd {
         background-color: $sw-condition-and-container-background-odd;
         border-radius: 4px;
+
+        #{$dark-theme-class} & {
+            background-color: darken($sw-condition-and-container-background-odd, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-condition-and-container__condition-content {

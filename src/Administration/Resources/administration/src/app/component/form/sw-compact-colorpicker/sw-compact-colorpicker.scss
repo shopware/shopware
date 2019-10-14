@@ -33,6 +33,10 @@
         border-radius: 2px;
         height: 16px;
         width: 16px;
+
+        #{$dark-theme-class} & {
+            border: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-colorpicker__previewColor {

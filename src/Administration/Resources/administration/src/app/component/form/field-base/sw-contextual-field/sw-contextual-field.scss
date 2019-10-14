@@ -25,6 +25,12 @@ $sw-field-transition: border-color 0.3s ease-out;
         color: $color-gutenberg;
         transition: $sw-field-transition;
 
+        #{$dark-theme-class} & {
+            background: darken($color-iron, $dark-theme-contrast-factor);
+            border-left: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+            color: lighten($color-gutenberg, $dark-theme-contrast-factor);
+        }
+
         .sw-icon {
             width: 16px;
             height: 16px;
@@ -34,12 +40,20 @@ $sw-field-transition: border-color 0.3s ease-out;
         &.is--prefix {
             border-right: 1px solid $color-steam-cloud;
             border-left: none
+
+            #{$dark-theme-class} & {
+                border-right: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+            }
         }
     }
 
     &.is--disabled {
         .sw-field__addition {
             background: $color-light-gray;
+
+            #{$dark-theme-class} & {
+                background: darken($color-light-gray, $dark-theme-contrast-factor);
+            }
         }
     }
 

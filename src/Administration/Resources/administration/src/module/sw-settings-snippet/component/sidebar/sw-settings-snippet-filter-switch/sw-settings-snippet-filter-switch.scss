@@ -8,10 +8,18 @@ $sw-settings-snippets-sidebar-border:       $color-steam-cloud;
 
     &.border-top {
       border-top: 1px solid $sw-settings-snippets-sidebar-border;
+
+      #{$dark-theme-class} & { 
+          border-top: 1px solid lighten($sw-settings-snippets-sidebar-border, $dark-theme-contrast-factor);
+      }
     }
 
     &.border-bottom {
       border-bottom: 1px solid $sw-settings-snippets-sidebar-border;
+
+      #{$dark-theme-class} & { 
+          border-bottom: 1px solid lighten($sw-settings-snippets-sidebar-border, $dark-theme-contrast-factor);
+      }
     }
 
     &.sw-settings-snippet-filter-switch--small {

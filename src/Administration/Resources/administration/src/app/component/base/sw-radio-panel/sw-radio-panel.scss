@@ -7,6 +7,10 @@
     position: relative;
     max-width: 300px;
 
+    #{$dark-theme-class} & {
+        background: darken($color-white, $dark-theme-contrast-factor);
+    }
+
     .sw-radio-panel__image {
         width: 80px;
         height: 80px;
@@ -17,6 +21,11 @@
         display: flex;
         align-items: center;
         justify-content: center;
+
+        #{$dark-theme-class} & {
+            background-color: darken($color-shopware-brand-50, $dark-theme-contrast-factor);
+            color: lighten($color-shopware-brand-100, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-radio-panel__title {
@@ -26,6 +35,10 @@
         margin: 0 0 12px 0;
         color: $color-darkgray-200;
         transition: all 0.2s ease-in-out;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-darkgray-200, $dark-theme-contrast-factor);
+        }
 
         &.is--truncate {
             @include truncate();
@@ -52,6 +65,10 @@
         text-align: center;
         cursor: pointer;
         transition: all 0.2s ease-in-out;
+
+        #{$dark-theme-class} & {
+            border: 1px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-radio-panel__radio {
@@ -64,6 +81,11 @@
         border: 2px solid $color-gray-300;
         border-radius: 50%;
         transition: all 0.2s ease-in-out;
+
+        #{$dark-theme-class} & {
+            background-color: darken($color-gray-100, $dark-theme-contrast-factor);
+            border: 2px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+        }
     }
 
     input[type="radio"] {
@@ -75,13 +97,26 @@
         &:checked + .sw-radio-panel__body {
             border-color: $color-shopware-brand-500;
 
+            #{$dark-theme-class} & {
+                border-color: lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+            }
+
             .sw-radio-panel__title {
                 color: $color-shopware-brand-500;
+
+                #{$dark-theme-class} & {
+                    color: lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+                }
             }
 
             .sw-radio-panel__radio {
                 border: 5px solid $color-shopware-brand-500;
                 background-color: $color-white;
+
+                #{$dark-theme-class} & {
+                    border: 5px solid lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+                    background-color: darken($color-white, $dark-theme-contrast-factor);
+                }
             }
         }
     }
@@ -89,10 +124,18 @@
     &:hover {
         .sw-radio-panel__title {
             color: $color-shopware-brand-500;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-radio-panel__body {
             border-color: $color-shopware-brand-500;
+
+            #{$dark-theme-class} & {
+                border-color: lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+            }
         }
     }
 }

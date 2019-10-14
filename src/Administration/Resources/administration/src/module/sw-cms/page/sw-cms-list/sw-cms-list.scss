@@ -77,9 +77,20 @@
         background: $color-white;
         cursor: pointer;
 
+        #{$dark-theme-class} & {
+            color: lighten($color-gutenberg, $dark-theme-contrast-factor);
+            border: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+            background: darken($color-white, $dark-theme-contrast-factor);
+        }
+
         &:hover {
             color: $color-shopware-blue;
             border-color: $color-shopware-blue;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-shopware-blue, $dark-theme-contrast-factor);
+                border-color: lighten($color-shopware-blue, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -97,6 +108,10 @@
     .sw-cms-list__icon-lock {
         margin-right: 10px;
         color: $color-steam-cloud;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-cms-list__list-pagination {

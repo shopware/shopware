@@ -6,9 +6,17 @@
     position: relative;
     border: 1px solid #dcdde2;
 
+    #{$dark-theme-class} & {
+        border: 1px solid lighten(#dcdde2, $dark-theme-contrast-factor);
+    }
+
     .sw-tree__search {
         padding: 10px 20px;
         border-bottom: 1px solid #dcdde2;
+
+        #{$dark-theme-class} & {
+            border-bottom: 1px solid lighten(#dcdde2, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-tree-actions__headline {
@@ -21,10 +29,19 @@
         line-height: 32px;
         border-bottom: 1px solid $color-steam-cloud;
 
+        #{$dark-theme-class} & {
+            color: lighten($color-kashmir, $dark-theme-contrast-factor);
+            border-bottom: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
+
         .sw-tree__batch-delete {
             color: $color-crimson;
             font-size: 14px;
             cursor: pointer;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-crimson, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -50,6 +67,10 @@
         .sw-tree-item__children {
             border-left: none !important;
 
+            #{$dark-theme-class} & {
+                border-left: none !important;
+            }
+
             &::before {
                 content: '';
                 background: $color-steam-cloud;
@@ -57,6 +78,10 @@
                 left: 16px;
                 height: 100%;
                 width: 1px;
+
+                #{$dark-theme-class} & {
+                    background: darken($color-steam-cloud, $dark-theme-contrast-factor);
+                }
             }
         }
 

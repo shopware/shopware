@@ -7,11 +7,19 @@ $sw-condition-or-container-border: #788A9B;
 .sw-condition-or-container {
     &.container-condition-level__is--even {
         background-color: $sw-condition-or-container-background-even;
+
+        #{$dark-theme-class} & {
+            background-color: darken($sw-condition-or-container-background-even, $dark-theme-contrast-factor);
+        }
     }
 
     &.container-condition-level__is--odd {
         background-color: $sw-condition-or-container-background-odd;
         border-radius: 4px;
+
+        #{$dark-theme-class} & {
+            background-color: darken($sw-condition-or-container-background-odd, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-condition-or-container__condition-content {
@@ -34,6 +42,10 @@ $sw-condition-or-container-border: #788A9B;
             width: calc(100% - 40px);
             margin-left: 48px;
             border-top: 1px dotted $sw-condition-or-container-border;
+
+            #{$dark-theme-class} & {
+                border-top: 1px dotted lighten($sw-condition-or-container-border, $dark-theme-contrast-factor);
+            }
         }
     }
 

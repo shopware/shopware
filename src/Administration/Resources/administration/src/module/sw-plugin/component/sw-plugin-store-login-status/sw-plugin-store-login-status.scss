@@ -21,7 +21,7 @@
         cursor: pointer;
         margin: auto;
     }
-    
+
     .sw-plugin-store-login-status__title {
         padding-bottom: 4px;
         font-size: $font-size-small;
@@ -41,6 +41,11 @@
         border: 1px solid $color-steam-cloud;
         width: 240px;
         padding: 12px;
+
+        #{$dark-theme-class} & {
+            background: darken($color-white, $dark-theme-contrast-factor);
+            border: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-plugin-store-login-status__context-button {

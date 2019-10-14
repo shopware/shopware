@@ -25,6 +25,10 @@ $sw-tagged-field-transition-tags:                 all ease-in-out .15s;
         font-weight: normal;
         cursor: pointer;
         user-select: none;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-tagged-field-color-label, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-tagged-field__inner {
@@ -40,6 +44,11 @@ $sw-tagged-field-transition-tags:                 all ease-in-out .15s;
         background-color: $sw-tagged-field-color-background;
         transition: $sw-tagged-field-transition-results;
         cursor: text;
+
+        #{$dark-theme-class} & {
+            border: 1px solid lighten($sw-tagged-field-color-border, $dark-theme-contrast-factor);
+            background-color: darken($sw-tagged-field-color-background, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-help-text {
@@ -85,8 +94,16 @@ $sw-tagged-field-transition-tags:                 all ease-in-out .15s;
         font-family: $sw-tagged-field-font-family;
         background: 0 none;
 
+        #{$dark-theme-class} & {
+            color: lighten($sw-tagged-field-input-color-text, $dark-theme-contrast-factor);
+        }
+
         &::placeholder {
             color: $sw-tagged-field-input-color-placeholder;
+
+            #{$dark-theme-class} & {
+                color: lighten($sw-tagged-field-input-color-placeholder, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -109,6 +126,10 @@ $sw-tagged-field-transition-tags:                 all ease-in-out .15s;
             .sw-label__dismiss {
                 display: block;
                 color: $color-shopware-blue;
+
+                #{$dark-theme-class} & {
+                    color: lighten($color-shopware-blue, $dark-theme-contrast-factor);
+                }
             }
         }
     }
@@ -125,10 +146,18 @@ $sw-tagged-field-transition-tags:                 all ease-in-out .15s;
     &.has--error {
         .sw-tagged-field__label {
             color: $sw-tagged-field-color-error;
+
+            #{$dark-theme-class} & {
+                color: lighten($sw-tagged-field-color-error, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-tagged-field__inner {
             border-color: $sw-tagged-field-color-error;
+
+            #{$dark-theme-class} & {
+                border-color: lighten($sw-tagged-field-color-error, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -136,15 +165,31 @@ $sw-tagged-field-transition-tags:                 all ease-in-out .15s;
         pointer-events: none;
         color: $sw-tagged-field-disabled-color-text;
 
+        #{$dark-theme-class} & {
+            color: lighten($sw-tagged-field-disabled-color-text, $dark-theme-contrast-factor);
+        }
+
         .sw-tagged-field__inner {
             background: $sw-tagged-field-disabled-color-background;
+
+            #{$dark-theme-class} & {
+                background: darken($sw-tagged-field-disabled-color-background, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-tagged-field__input {
             color: $sw-tagged-field-disabled-color-text;
 
+            #{$dark-theme-class} & {
+                color: lighten($sw-tagged-field-disabled-color-text, $dark-theme-contrast-factor);
+            }
+
             &::placeholder {
                 color: $sw-tagged-field-disabled-color-text;
+
+                #{$dark-theme-class} & {
+                    color: lighten($sw-tagged-field-disabled-color-text, $dark-theme-contrast-factor);
+                }
             }
         }
     }

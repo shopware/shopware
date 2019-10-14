@@ -22,9 +22,17 @@ $sw-grid-table-row-color-background:      $color-white;
     grid-template-rows: auto;
     border: 1px solid $sw-grid-item-color-border;
 
+    #{$dark-theme-class} & {
+        border: 1px solid lighten($sw-grid-item-color-border, $dark-theme-contrast-factor);
+    }
+
     .sw-card & {
         border: none;
         border-top: 1px solid $sw-grid-item-color-border;
+
+        #{$dark-theme-class} & {
+            border-top: 1px solid lighten($sw-grid-item-color-border, $dark-theme-contrast-factor);
+        }
     }
 
     &.sw-grid--sidebar {
@@ -48,16 +56,32 @@ $sw-grid-table-row-color-background:      $color-white;
         .sw-grid-row {
             background-color: $sw-grid-table-row-color-background;
 
+            #{$dark-theme-class} & {
+                background-color: darken($sw-grid-table-row-color-background, $dark-theme-contrast-factor);
+            }
+
             &.is--selected {
                 background-color: $sw-grid-item-active-color-background;
+
+                #{$dark-theme-class} & {
+                    background-color: darken($sw-grid-item-active-color-background, $dark-theme-contrast-factor);
+                }
             }
 
             &.is--deleted {
                 background-color: lighten($sw-grid-item-color-background-deleted, 45%);
+
+                #{$dark-theme-class} & {
+                    background-color: lighten(darken($sw-grid-item-color-background-deleted, $dark-theme-contrast-factor), 45%);
+                }
             }
 
             &.is--new {
                 background-color: lighten($sw-grid-item-color-background-new, 45%);
+
+                #{$dark-theme-class} & {
+                    background-color: lighten(darken($sw-grid-item-color-background-new, $dark-theme-contrast-factor), 45%);
+                }
             }
         }
 
@@ -93,6 +117,11 @@ $sw-grid-table-row-color-background:      $color-white;
         background-color: $sw-grid-header-color-background;
         border-bottom: 1px solid $sw-grid-header-color-border;
 
+        #{$dark-theme-class} & {
+            background-color: darken($sw-grid-header-color-background, $dark-theme-contrast-factor);
+            border-bottom: 1px solid lighten($sw-grid-header-color-border, $dark-theme-contrast-factor);
+        }
+
         .sw-grid-column {
             font-size: 16px;
             font-weight: bold;
@@ -111,6 +140,10 @@ $sw-grid-table-row-color-background:      $color-white;
                     display: grid;
                     grid-template-columns: 1fr 10px;
                     grid-gap: 5px;
+
+                    #{$dark-theme-class} & {
+                        color: darken(lighten($sw-grid-header-color-text, $dark-theme-contrast-factor), 10%);
+                    }
                 }
             }
         }
@@ -138,13 +171,25 @@ $sw-grid-table-row-color-background:      $color-white;
         font-size: 20px;
         color: $sw-grid-actions-icon-color;
 
+        #{$dark-theme-class} & {
+            color: lighten($sw-grid-actions-icon-color, $dark-theme-contrast-factor);
+        }
+
         &:hover {
             color: $sw-grid-actions-icon-hover-color;
+
+            #{$dark-theme-class} & {
+                color: lighten($sw-grid-actions-icon-hover-color, $dark-theme-contrast-factor);
+            }
         }
     }
 
     .sw-grid__pagination {
         background: $sw-grid-item-color-background;
+
+        #{$dark-theme-class} & {
+            background: darken($sw-grid-item-color-background, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-grid__cell-content {

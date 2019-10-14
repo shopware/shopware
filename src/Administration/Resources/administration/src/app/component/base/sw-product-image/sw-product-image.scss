@@ -5,11 +5,19 @@
     border-radius: $border-radius-default;
     border: 2px solid $color-gray-300;
 
+    #{$dark-theme-class} & {
+        border: 2px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+    }
+
     &.is--placeholder {
         border: 2px dashed $color-gray-300;
         display: flex;
         align-items: center;
         justify-content: center;
+
+        #{$dark-theme-class} & {
+            border: 2px dashed lighten($color-gray-300, $dark-theme-contrast-factor);
+        }
 
         &:hover {
             background-color: transparent;
@@ -43,6 +51,10 @@
     &:hover {
         background-color: $color-black;
 
+        #{$dark-theme-class} & {
+            background-color: darken($color-black, $dark-theme-contrast-factor);
+        }
+
         .sw-product-image__image {
             opacity: 0.7;
         }
@@ -65,11 +77,19 @@
         .sw-icon {
             color: $color-white;
             height: 100%;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-white, $dark-theme-contrast-factor);
+            }
         }
     }
 
     .sw-product-image__placeholder-icon {
         color: $color-gray-300;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-gray-300, $dark-theme-contrast-factor);
+        }
     }
 
     &:after {
@@ -81,5 +101,9 @@
     &.is--cover {
         border-radius: $border-radius-default;
         border: 2px solid $color-shopware-brand-500;
+
+        #{$dark-theme-class} & {
+            border: 2px solid lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+        }
     }
 }

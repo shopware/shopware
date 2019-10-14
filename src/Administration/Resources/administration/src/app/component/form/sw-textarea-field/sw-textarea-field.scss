@@ -13,5 +13,11 @@
         border-color: $color-steam-cloud;
         color: lighten($color-gutenberg, 40%);
         cursor: default !important;
+
+        #{$dark-theme-class} & {
+            background: darken($color-light-gray, $dark-theme-contrast-factor);
+            border-color: lighten($color-steam-cloud, $dark-theme-contrast-factor);
+            color: lighten(lighten($color-gutenberg, $dark-theme-contrast-factor), 40%);
+        }
     }
 }

@@ -33,6 +33,10 @@
         .sw-first-run-wizard-modal-content__steps {
             margin-right: 25%;
             border-right: 1px solid $color-gray-300;
+
+            #{$dark-theme-class} & { 
+                border-right: 1px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-first-run-wizard-modal-content__page {

@@ -60,6 +60,10 @@
             &.sw-button--danger,
             &.sw-button--contrast {
                 border-left: 1px solid rgba(0, 0, 0, 0.2);
+
+                #{$dark-theme-class} & { 
+                    border-left: 1px solid lighten(rgba(0, 0, 0, 0.2), $dark-theme-contrast-factor);
+                }
             }
         }
     }

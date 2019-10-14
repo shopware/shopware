@@ -5,5 +5,9 @@ $sw-import-export-profile-list-color-success: $color-emerald;
 .sw-import-export-profile-list {
   .is--default {
     color: $sw-import-export-profile-list-color-success;
+
+    #{$dark-theme-class} & { 
+        color: lighten($sw-import-export-profile-list-color-success, $dark-theme-contrast-factor);
+    }
   }
 }

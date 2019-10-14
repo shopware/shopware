@@ -6,6 +6,10 @@ $sw-metadata-item-caption-color: $color-gutenberg;
 .sw-media-quickinfo-metadata-item__term {
     font-size: $font-size-small;
     color: $sw-metadata-item-caption-color;
+
+    #{$dark-theme-class} & { 
+        color: lighten($sw-metadata-item-caption-color, $dark-theme-contrast-factor);
+    }
 }
 
 .sw-media-quickinfo-metadata-item__description {

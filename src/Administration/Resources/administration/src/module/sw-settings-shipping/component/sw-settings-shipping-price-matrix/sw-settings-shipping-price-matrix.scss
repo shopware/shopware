@@ -14,6 +14,11 @@ $sw-shipping-list-color-error: $color-crimson;
         border-top-left-radius: 4px;
         border-top-right-radius: 4px;
 
+        #{$dark-theme-class} & {
+            background-color: darken(#F9FAFB, $dark-theme-contrast-factor);
+            border-bottom: 1px solid lighten(#D1D9E0, $dark-theme-contrast-factor);
+        }
+
         .sw-select__single-selection {
             min-height: 30px;
         }
@@ -25,6 +30,10 @@ $sw-shipping-list-color-error: $color-crimson;
         border-radius: 3px;
         padding: 0;
         cursor: pointer;
+
+        #{$dark-theme-class} & {
+            border: 1px solid lighten(#D6DDE5, $dark-theme-contrast-factor);
+        }
 
         &.sw-context-button {
             height: 100%;
@@ -55,5 +64,9 @@ $sw-shipping-list-color-error: $color-crimson;
         line-height: 35px;
         cursor: pointer;
         color: $color-shopware-blue;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-shopware-blue, $dark-theme-contrast-factor);
+        }
     }
 }

@@ -26,6 +26,10 @@ $sw-modal-transition-timing-function: cubic-bezier(.68, -0.55, .26, 1.55);
     align-items: center;
     padding: 0 ($sw-modal-gap / 2);
 
+    #{$dark-theme-class} & {
+        background-color: darken($sw-modal-color-backdrop, $dark-theme-contrast-factor);
+    }
+
     .sw-modal__dialog {
         background-color: $color-white;
         border-radius: $border-radius-default;
@@ -36,6 +40,11 @@ $sw-modal-transition-timing-function: cubic-bezier(.68, -0.55, .26, 1.55);
         outline: none;
         display: flex;
         flex-direction: column;
+
+        #{$dark-theme-class} & {
+            background-color: darken($color-white, $dark-theme-contrast-factor);
+            color: lighten($color-darkgray-200, $dark-theme-contrast-factor);
+        }
     }
 
     &.sw-modal--default .sw-modal__dialog {
@@ -84,6 +93,10 @@ $sw-modal-transition-timing-function: cubic-bezier(.68, -0.55, .26, 1.55);
         position: relative;
         padding: 0 16px 0 32px;
         height: 64px;
+
+        #{$dark-theme-class} & {
+            border-bottom: 1px solid lighten($color-gray-300, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-modal__title {
@@ -107,13 +120,26 @@ $sw-modal-transition-timing-function: cubic-bezier(.68, -0.55, .26, 1.55);
         height: 40px;
         width: 40px;
 
+        #{$dark-theme-class} & {
+            color: lighten($color-darkgray-100, $dark-theme-contrast-factor);
+        }
+
         &:hover {
             color: $color-darkgray-200;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-darkgray-200, $dark-theme-contrast-factor);
+            }
         }
 
         &:focus {
             background-color: $color-gray-200;
             color: $color-darkgray-200;
+
+            #{$dark-theme-class} & {
+                background-color: darken($color-gray-200, $dark-theme-contrast-factor);
+                color: lighten($color-darkgray-200, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -136,6 +162,10 @@ $sw-modal-transition-timing-function: cubic-bezier(.68, -0.55, .26, 1.55);
         flex-shrink: 0;
         height: 72px;
         padding: 0 32px;
+
+        #{$dark-theme-class} & {
+            background-color: darken($color-gray-100, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-loader {

@@ -5,6 +5,11 @@
         background: $color-darkgray-500;
         color: $color-white;
 
+        #{$dark-theme-class} & {
+            background: darken($color-darkgray-500, $dark-theme-contrast-factor);
+            color: lighten($color-white, $dark-theme-contrast-factor);
+        }
+
         .apexcharts-tooltip-series-group.active {
             padding-top: 4px;
         }
@@ -17,8 +22,16 @@
 
     .apexcharts-xaxistooltip.dark {
         background: $color-darkgray-500;
+
+        #{$dark-theme-class} & {
+            background: darken($color-darkgray-500, $dark-theme-contrast-factor);
+        }
     }
     .apexcharts-xaxistooltip.dark:before, .apexcharts-xaxistooltip.dark:after {
         border-bottom-color: $color-darkgray-500;
+
+        #{$dark-theme-class} & {
+            border-bottom-color: lighten($color-darkgray-500, $dark-theme-contrast-factor);
+        }
     }
 }

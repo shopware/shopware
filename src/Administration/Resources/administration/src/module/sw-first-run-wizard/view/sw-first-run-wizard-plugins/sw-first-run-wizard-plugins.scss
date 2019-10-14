@@ -37,10 +37,19 @@
         &.sw-label--neutral {
             color: $color-gray-500;
             border-color: $color-gray-500;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-gray-500, $dark-theme-contrast-factor);
+                border-color: lighten($color-gray-500, $dark-theme-contrast-factor);
+            }
         }
 
         &.sw-label--info {
             border-color: $color-shopware-brand-500;
+
+            #{$dark-theme-class} & {
+                border-color: lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -49,6 +58,10 @@
         height: 1px;
         background-color: $color-gray-300;
         margin: 20px 0;
+
+        #{$dark-theme-class} & {
+            background-color: darken($color-gray-300, $dark-theme-contrast-factor);
+        }
     }
 
     .plugins-category-lead {

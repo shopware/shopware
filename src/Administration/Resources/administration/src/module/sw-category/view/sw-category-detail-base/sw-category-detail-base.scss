@@ -32,6 +32,10 @@
         color: $color-shopware-blue;
         text-decoration: none;
         line-height: 24px;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-shopware-blue, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-category-detail__menu {
@@ -71,6 +75,10 @@
         .sw-category-detail-base__layout-desc-headline.is--empty,
         .sw-category-detail-base__layout-desc-subheadline.is--empty {
             color: #B3BFCC;
+
+            #{$dark-theme-class} & {
+                color: lighten(#B3BFCC, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-category-detail-base__layout-desc-info {
@@ -92,6 +100,10 @@
             text-decoration: none;
             font-size: 14px;
             margin-top: 8px;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-shopware-blue, $dark-theme-contrast-factor);
+            }
 
             .sw-icon {
                 margin-left: 8px;

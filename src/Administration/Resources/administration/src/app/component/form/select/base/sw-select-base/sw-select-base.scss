@@ -10,6 +10,10 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
         background-color: $color-white;
         position: relative;
         overflow: visible;
+
+        #{$dark-theme-class} & {
+            background-color: darken($color-white, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-select__selection {
@@ -23,6 +27,10 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
         outline: none;
         -webkit-appearance: none;
         -moz-appearance: none;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-darkgray-200, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-select__selection-indicators {
@@ -73,14 +81,26 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
     &.is--disabled {
         .sw-block-field__block {
             background-color: $color-gray-100;
+
+            #{$dark-theme-class} & {
+                background-color: darken($color-gray-100, $dark-theme-contrast-factor);
+            }
         }
 
         .sw-label {
             background-color: $color-gray-100;
+
+            #{$dark-theme-class} & {
+                background-color: darken($color-gray-100, $dark-theme-contrast-factor);
+            }
         }
 
         input {
             background-color: $color-gray-100;
+
+            #{$dark-theme-class} & {
+                background-color: darken($color-gray-100, $dark-theme-contrast-factor);
+            }
         }
     }
 }

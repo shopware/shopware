@@ -17,13 +17,25 @@ $sw-price-field-suffix-font-weight: 400;
         outline: none;
         cursor: pointer;
 
+        #{$dark-theme-class} & {
+            color: lighten($sw-price-field-lock-color-default, $dark-theme-contrast-factor);
+        }
+
         &.is--locked {
             color: $sw-price-field-lock-color-locked;
+
+            #{$dark-theme-class} & {
+                color: lighten($sw-price-field-lock-color-locked, $dark-theme-contrast-factor);
+            }
         }
 
         &.is--disabled {
             color: $color-gray;
             cursor: default;
+
+            #{$dark-theme-class} & {
+                color: lighten($color-gray, $dark-theme-contrast-factor);
+            }
         }
     }
 

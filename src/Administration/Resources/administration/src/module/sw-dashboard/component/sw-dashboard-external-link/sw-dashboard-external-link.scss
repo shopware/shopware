@@ -7,11 +7,23 @@
     text-decoration: none;
     font-size: 18px;
 
+    #{$dark-theme-class} & {
+        color: lighten($color-darkgray-200, $dark-theme-contrast-factor);
+    }
+
     .sw-icon svg {
         color: $color-shopware-brand-500;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+        }
     }
 
     &:hover {
         color: $color-shopware-brand-500;
+
+        #{$dark-theme-class} & {
+            color: lighten($color-shopware-brand-500, $dark-theme-contrast-factor);
+        }
     }
 }

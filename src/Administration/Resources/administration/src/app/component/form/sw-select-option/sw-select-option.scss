@@ -16,6 +16,10 @@ $sw-select-option-disabled-color-text: darken($color-steam-cloud, 15%);
     align-items: center;
     justify-content: space-between;
 
+    #{$dark-theme-class} & {
+        border-bottom: 1px solid lighten($sw-select-option-color-border, $dark-theme-contrast-factor);
+    }
+
     .sw-select-option__result-item-text {
         word-break: break-word;
         display: flex;
@@ -26,20 +30,38 @@ $sw-select-option-disabled-color-text: darken($color-steam-cloud, 15%);
         flex-grow: 0;
         flex-shrink: 0;
         margin-left: 10px;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-select-option-color-icon, $dark-theme-contrast-factor);
+        }
     }
 
     &.is--active {
         background: $sw-select-option-active-color-background;
         color: $sw-select-option-active-color-text;
+
+        #{$dark-theme-class} & {
+            background: darken($sw-select-option-active-color-background, $dark-theme-contrast-factor);
+            color: lighten($sw-select-option-active-color-text, $dark-theme-contrast-factor);
+        }
     }
 
     &.is--disabled {
         color: $sw-select-option-disabled-color-text;
 
+        #{$dark-theme-class} & {
+            color: lighten($sw-select-option-disabled-color-text, $dark-theme-contrast-factor);
+        }
+
         &.is--active {
             background: $sw-select-option-disabled-color-background;
             color: $sw-select-option-disabled-color-text;
             cursor: default;
+
+            #{$dark-theme-class} & {
+                background: darken($sw-select-option-disabled-color-background, $dark-theme-contrast-factor);
+                color: lighten($sw-select-option-disabled-color-text, $dark-theme-contrast-factor);
+            }
         }
     }
 

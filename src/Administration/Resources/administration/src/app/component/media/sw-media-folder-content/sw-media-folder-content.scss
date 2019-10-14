@@ -15,6 +15,11 @@ $sw-media-folder-content-background-color:        $color-white;
         background-color: $sw-media-folder-content-background-color;
         padding: 8px;
         list-style: none;
+
+        #{$dark-theme-class} & {
+            border: 1px solid lighten($sw-media-folder-content-border-color-listing, $dark-theme-contrast-factor);
+            background-color: darken($sw-media-folder-content-background-color, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-media-folder-content__list-item {
@@ -29,13 +34,25 @@ $sw-media-folder-content-background-color:        $color-white;
         &:hover {
             background-color: $color-cadet-blue;
 
+            #{$dark-theme-class} & {
+                background-color: darken($color-cadet-blue, $dark-theme-contrast-factor);
+            }
+
             .sw-media-folder-content__folder-button {
                 color: $color-shopware-blue;
+
+                #{$dark-theme-class} & {
+                    color: lighten($color-shopware-blue, $dark-theme-contrast-factor);
+                }
             }
         }
 
         &.is--selected {
             background-color: $color-cadet-blue;
+
+            #{$dark-theme-class} & {
+                background-color: darken($color-cadet-blue, $dark-theme-contrast-factor);
+            }
         }
     }
 
@@ -49,6 +66,10 @@ $sw-media-folder-content-background-color:        $color-white;
         outline: none;
         padding: 8px;
         color: $sw-media-folder-content-color-buttons;
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-media-folder-content-color-buttons, $dark-theme-contrast-factor);
+        }
     }
 
     .sw-media-folder-content__folder-button {
@@ -60,5 +81,9 @@ $sw-media-folder-content-background-color:        $color-white;
         color: $sw-media-folder-content-parent-color;
         text-align: left;
         @include truncate();
+
+        #{$dark-theme-class} & {
+            color: lighten($sw-media-folder-content-parent-color, $dark-theme-contrast-factor);
+        }
     }
 }

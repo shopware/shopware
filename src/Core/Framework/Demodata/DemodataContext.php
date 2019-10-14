@@ -4,10 +4,12 @@ namespace Shopware\Core\Framework\Demodata;
 
 use Doctrine\DBAL\Connection;
 use Faker\Generator;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class DemodataContext
@@ -78,7 +80,13 @@ class DemodataContext
 
         $repository = $this->registry->getRepository($entity);
 
-        $ids = $repository->searchIds((new Criteria())->setLimit(500), Context::createDefaultContext())
+        $criteria = new Criteria();
+        if ($entity === MediaDefinition::ENTITY_NAME) {
+            $criteria->addFilter(new EqualsFilter('mediaFolder.defaultFolder.entity', 'product'));
+        }
+        $criteria->setLimit(500);
+
+        $ids = $repository->searchIds($criteria, Context::createDefaultContext())
             ->getIds();
 
         $this->entities[$entity] = $ids;

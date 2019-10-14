@@ -6,22 +6,30 @@
         {% block sw_order_state_history_card_container %}
             <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="30px 30px">
                 {% block sw_order_state_history_card_transaction %}
-                    <sw-order-state-card-entry class="sw-order-state-history-card__payment-state"
-                            @state-select="onTransactionStateSelected"
-                            :history="transactionHistory"
-                            :transitionOptions="transactionOptions"
-                            stateMachineName="order_transaction.state"
-                            :title="$tc('sw-order.stateCard.headlineTransactionState')">
+                    <sw-order-state-card-entry v-if="transaction"
+                                               class="sw-order-state-history-card__payment-state"
+                                               @state-select="onTransactionStateSelected"
+                                               :history="transactionHistory"
+                                               :transitionOptions="transactionOptions"
+                                               stateMachineName="order_transaction.state"
+                                               :title="$tc('sw-order.stateCard.headlineTransactionState')">
                     </sw-order-state-card-entry>
+
+                    <template v-else>
+                        <div>
+                            <h2>{{ $tc('sw-order.stateCard.headlineTransactionState') }}</h2>
+                            {{ $tc('sw-order.stateCard.labelNoTransactionState') }}
+                        </div>
+                    </template>
                 {% endblock %}
 
                 {% block sw_order_state_history_card_order%}
                     <sw-order-state-card-entry  class="sw-order-state-history-card__order-state"
-                            @state-select="onOrderStateSelected"
-                            :history="orderHistory"
-                            :transitionOptions="orderOptions"
-                            stateMachineName="order.state"
-                            :title="$tc('sw-order.stateCard.headlineOrderState')">
+                                                @state-select="onOrderStateSelected"
+                                                :history="orderHistory"
+                                                :transitionOptions="orderOptions"
+                                                stateMachineName="order.state"
+                                                :title="$tc('sw-order.stateCard.headlineOrderState')">
                     </sw-order-state-card-entry>
                 {% endblock %}
             </sw-container>

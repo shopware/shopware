@@ -66,6 +66,10 @@ Component.register('sw-order-detail-base', {
             return this.order.deliveries[0];
         },
 
+        transaction() {
+            return this.order.transactions[0];
+        },
+
         shippingCostsDetail() {
             const calcTaxes = this.sortByTaxRate(this.order.shippingCosts.calculatedTaxes);
             const formattedTaxes = `${calcTaxes.map(
@@ -86,7 +90,7 @@ Component.register('sw-order-detail-base', {
             if (this.isLoading) return null;
 
             return `${this.$tc('sw-order.stateCard.headlineTransactionState')}: \
-            ${this.order.transactions[0].stateMachineState.translated.name}`;
+            ${this.transaction.stateMachineState.translated.name}`;
         },
 
         transactionOptionsBackground() {
@@ -95,7 +99,7 @@ Component.register('sw-order-detail-base', {
             }
 
             return this.stateStyleDataProviderService.getStyle('order_transaction.state',
-                this.order.transactions[0].stateMachineState.technicalName).selectBackgroundStyle;
+                this.transaction.stateMachineState.technicalName).selectBackgroundStyle;
         },
 
         orderOptionPlaceholder() {

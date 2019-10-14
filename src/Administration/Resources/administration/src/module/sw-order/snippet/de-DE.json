@@ -126,7 +126,8 @@
       "labelSelectStateButton":"Status setzen",
       "headlineErrorStateChange":"Fehler",
       "labelErrorStateChange":"Beim setzen des Status ist ein Fehler aufgetreten. Zusätzliche Informationen:",
-      "labelErrorNoAction":"Kein neuer Zustand gewählt."
+      "labelErrorNoAction":"Kein neuer Zustand gewählt.",
+      "labelNoTransactionState": "Keine Transaktion vorhanden"
     },
     "documentCard": {
       "searchBarPlaceholder": "Suche nach Belegen",

@@ -36,7 +36,7 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
 
     methods: {
         createdComponent() {
-            this.store.commit('adminMenu/collapseSidebar');
+            this.$store.commit('adminMenu/collapseSidebar');
 
             if (!this.isSystemDefaultLanguage) {
                 this.languageStore.setCurrentId(this.context.systemLanguageId);
@@ -48,7 +48,34 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
         },
 
         onSave() {
-            this.$super.onSave();
+            this.isSaveSuccessful = false;
+
+            if ((this.isSystemDefaultLanguage && !this.page.name) || !this.page.type) {
+                this.pageConfigOpen();
+
+                const warningTitle = this.$tc('sw-cms.detail.notificationTitleMissingFields');
+                const warningMessage = this.$tc('sw-cms.detail.notificationMessageMissingFields');
+                this.createNotificationWarning({
+                    title: warningTitle,
+                    message: warningMessage
+                });
+            }
+
+            this.isLoading = true;
+
+            this.pageRepository.save(this.page, this.context).then(() => {
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
+            }).catch((exception) => {
+                this.isLoading = false;
+
+                const errorNotificationTitle = this.$tc('sw-cms.detail.notificationTitlePageError');
+                this.createNotificationError({
+                    title: errorNotificationTitle,
+                    message: exception.message
+                });
+            });
+
             this.$router.push({ name: 'sw.cms.detail', params: { id: this.page.id } });
         },
 

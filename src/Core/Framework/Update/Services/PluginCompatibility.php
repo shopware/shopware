@@ -15,6 +15,13 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class PluginCompatibility
 {
+    public const PLUGIN_COMPATIBILITY_COMPATIBLE = 'compatible';
+    public const PLUGIN_COMPATIBILITY_NOT_COMPATIBLE = 'notCompatible';
+    public const PLUGIN_COMPATIBILITY_UPDATABLE_NOW = 'updatableNow';
+    public const PLUGIN_COMPATIBILITY_UPDATABLE_FUTURE = 'updatableFuture';
+
+    public const PLUGIN_COMPATIBILITY_NOT_IN_STORE = 'notInStore';
+
     /**
      * @var EntityRepositoryInterface
      */
@@ -57,7 +64,7 @@ class PluginCompatibility
                     'statusVariant' => 'error',
                     'statusColor' => null,
                     'statusMessage' => '',
-                    'statusName' => 'notInStore',
+                    'statusName' => self::PLUGIN_COMPATIBILITY_NOT_IN_STORE,
                 ];
             }
 

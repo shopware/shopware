@@ -24,7 +24,7 @@ $sw-select-field-color-error: $color-crimson;
             pointer-events: none;
 
             #{$dark-theme-class} & {
-                color: lighten($sw-select-field-color-text, $dark-theme-contrast-factor);
+                color: lighten($color-deep-cove, $dark-theme-contrast-factor);
             }
         }
     }
@@ -45,7 +45,7 @@ $sw-select-field-color-error: $color-crimson;
         color: lighten($sw-select-field-color-text, 25);
 
         #{$dark-theme-class} & {
-            color: lighten(lighten($sw-select-field-color-text, $dark-theme-contrast-factor), 25);
+            color: lighten($color-deep-cove, $dark-theme-contrast-factor);
         }
     }
 
@@ -57,7 +57,7 @@ $sw-select-field-color-error: $color-crimson;
             background-color: $sw-select-field-color-background;
 
             #{$dark-theme-class} & {
-                color: lighten($sw-select-field-color-text, $dark-theme-contrast-factor);
+                color: lighten($color-deep-cove, $dark-theme-contrast-factor);
                 background-color: darken($sw-select-field-color-background, $dark-theme-contrast-factor);
             }
         }
@@ -66,7 +66,7 @@ $sw-select-field-color-error: $color-crimson;
             color: $sw-select-field-color-text-disabled;
 
             #{$dark-theme-class} & {
-                color: lighten($sw-select-field-color-text-disabled, $dark-theme-contrast-factor);
+                color: $color-gray-500;
             }
         }
 
@@ -74,7 +74,7 @@ $sw-select-field-color-error: $color-crimson;
             color: lighten($sw-select-field-color-text, 25%);
 
             #{$dark-theme-class} & {
-                color: lighten(lighten($sw-select-field-color-text, $dark-theme-contrast-factor), 25%);
+                color: $color-gray-700;
             }
         }
 

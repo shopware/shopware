@@ -1,5 +1,5 @@
 {% block sw_context_menu %}
-    <div class="sw-context-menu">
+    <div class="sw-context-menu" :class="themeClass">
         {% block sw_context_menu_content %}
             <div class="sw-context-menu__content">
                 <slot>{% block sw_context_menu_slot_default %}{% endblock %}</slot>

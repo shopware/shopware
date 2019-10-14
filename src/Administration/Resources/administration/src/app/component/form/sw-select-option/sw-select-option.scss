@@ -32,7 +32,7 @@ $sw-select-option-disabled-color-text: darken($color-steam-cloud, 15%);
         margin-left: 10px;
 
         #{$dark-theme-class} & {
-            color: lighten($sw-select-option-color-icon, $dark-theme-contrast-factor);
+            color: lighten($color-deep-cove, $dark-theme-contrast-factor);
         }
     }
 
@@ -42,7 +42,7 @@ $sw-select-option-disabled-color-text: darken($color-steam-cloud, 15%);
 
         #{$dark-theme-class} & {
             background: darken($sw-select-option-active-color-background, $dark-theme-contrast-factor);
-            color: lighten($sw-select-option-active-color-text, $dark-theme-contrast-factor);
+            color: lighten($color-deep-cove, $dark-theme-contrast-factor);
         }
     }
 

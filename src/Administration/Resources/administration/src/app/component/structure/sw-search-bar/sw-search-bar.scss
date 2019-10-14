@@ -23,7 +23,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
     align-content: center;
 
     #{$dark-theme-class} & {
-        background: darken($sw-search-bar-background-color, $dark-theme-contrast-factor);
+        background: $color-darkgray-600;
     }
 
     .sw-search-bar__button {
@@ -249,7 +249,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
 			margin-right: 10px;
 
 			#{$dark-theme-class} & {
-			    color: lighten($sw-search-bar-result-color-icon, $dark-theme-contrast-factor);
+			    color: lighten($color-deep-cove, $dark-theme-contrast-factor);
 			}
 		}
 	}
@@ -311,7 +311,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
         margin: 20px 3px 0 3px;
 
         #{$dark-theme-class} & {
-            color: lighten(lighten($color-gutenberg, $dark-theme-contrast-factor), 25%);
+            color: lighten($color-deep-cove, $dark-theme-contrast-factor);
         }
     }
 }

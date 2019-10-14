@@ -7,8 +7,8 @@
     .sw-page__content.has--side-content .sw-page__side-content {
         background: white;
 
-        #{$dark-theme-class} & { 
-            background: white;
+        #{$dark-theme-class} & {
+            background: $color-darkgray-700;
         }
     }
 

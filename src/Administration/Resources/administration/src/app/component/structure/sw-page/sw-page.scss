@@ -30,7 +30,7 @@ $sw-page-smart-bar-headline-font-weight: 600;
         border-bottom: 2px solid $sw-page-smart-bar-border-color;
 
         #{$dark-theme-class} & {
-            background: darken($sw-page-smart-bar-background-color, $dark-theme-contrast-factor);
+            background: $color-darkgray-600;
             border-bottom: 2px solid lighten($sw-page-smart-bar-border-color, $dark-theme-contrast-factor);
         }
     }
@@ -116,7 +116,7 @@ $sw-page-smart-bar-headline-font-weight: 600;
         margin-bottom: 0;
 
         #{$dark-theme-class} & {
-            color: lighten($sw-page-smart-bar-headline-color, $dark-theme-contrast-factor);
+            color: $color-gray-400;
         }
 
         .sw-icon {

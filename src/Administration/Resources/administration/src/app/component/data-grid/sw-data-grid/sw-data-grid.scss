@@ -6,7 +6,7 @@
     background-color: $color-white;
 
     #{$dark-theme-class} & {
-        background-color: darken($color-white, $dark-theme-contrast-factor);
+        background-color: $color-darkgray-500;
     }
 
     &.sw-data-grid--full-page {
@@ -38,9 +38,9 @@
         background-color: $color-white;
 
         #{$dark-theme-class} & {
-            color: lighten($color-gutenberg, $dark-theme-contrast-factor);
-            border-right: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
-            background-color: darken($color-white, $dark-theme-contrast-factor);
+            color: $color-gray-500;
+            border-right: 1px solid $color-gray-500;
+            background-color: $color-darkgray-500;
         }
 
         &:last-child {
@@ -52,7 +52,7 @@
         border-right: 1px solid $color-steam-cloud;
 
         #{$dark-theme-class} & {
-            border-right: 1px solid lighten($color-steam-cloud, $dark-theme-contrast-factor);
+            border-right: 1px solid $color-gray-500;
         }
 
         &:last-child,
@@ -211,7 +211,7 @@
 
         #{$dark-theme-class} & {
             box-shadow: inset 0 -1px 0 lighten($color-steam-cloud, $dark-theme-contrast-factor);
-            background-color: darken($color-white, $dark-theme-contrast-factor);
+            background-color: $color-darkgray-700;
         }
 
         &.sw-data-grid__cell--selection {
@@ -234,7 +234,7 @@
         background-color: $color-light-gray;
 
         #{$dark-theme-class} & {
-            background-color: darken($color-light-gray, $dark-theme-contrast-factor);
+            background-color: $color-darkgray-600;
         }
     }
 
@@ -341,7 +341,7 @@
             background-color: $color-cadet-blue;
 
             #{$dark-theme-class} & {
-                background-color: darken($color-cadet-blue, $dark-theme-contrast-factor);
+                background-color: $color-darkgray-300;
             }
 
             a {

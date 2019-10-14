@@ -13,16 +13,16 @@ body {
     background: $color-iron;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-
-    #{$dark-theme-class} & {
-        background: darken($color-iron, $dark-theme-contrast-factor);
-        color: lighten($color-deep-cove, $dark-theme-contrast-factor);
-    }
 }
 
 html, body, #app {
     height: 100%;
     overflow: hidden;
+
+    &#{$dark-theme-class} {
+        background: $color-darkgray-700;
+        color: lighten($color-deep-cove, $dark-theme-contrast-factor);
+    }
 }
 
 .sw-drag-select-box {

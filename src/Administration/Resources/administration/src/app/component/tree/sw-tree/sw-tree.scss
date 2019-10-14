@@ -53,6 +53,10 @@
         width: 100%;
         padding: 0;
 
+        #{$dark-theme-class} {
+            background: $color-darkgray-700;
+        }
+
         .tree-items {
             padding: 16px 16px 0 16px;
             width: max-content;

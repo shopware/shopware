@@ -143,6 +143,11 @@
         <form id="confirmOrderForm"
               action="{{ path('frontend.checkout.finish.order') }}"
               method="post">
+
+            {% block page_checkout_aside_actions_csrf %}
+                {{ sw_csrf('frontend.checkout.finish.order') }}
+            {% endblock %}
+
             {% block page_checkout_confirm_form_submit %}
                 <button id="confirmFormSubmit"
                         class="btn btn-primary btn-block btn-lg"

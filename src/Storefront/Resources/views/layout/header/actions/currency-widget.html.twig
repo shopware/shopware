@@ -10,6 +10,11 @@
                       action="{{ path('frontend.checkout.configure') }}"
                       class="currency-form"
                       data-form-auto-submit="true">
+
+                    {% block layout_header_actions_currency_widget_form_csrf %}
+                        {{ sw_csrf('frontend.checkout.configure') }}
+                    {% endblock %}
+
                     {% block layout_header_actions_currency_widget_content %}
                         <div class="currencies-menu dropdown">
                             {% block layout_header_actions_currency_widget_dropdown_toggle %}

@@ -19,6 +19,11 @@
                         <form method="post"
                               action="{{ path('frontend.account.address.edit.save', { 'addressId': page.address.id }) }}"
                               data-form-validation="true">
+
+                            {% block page_account_address_form_edit_csrf %}
+                                {{ sw_csrf('frontend.account.address.edit.save') }}
+                            {% endblock %}
+
                             {% block page_account_address_form_edit_personal %}
                                 {% sw_include '@Storefront/component/address/address-personal.html.twig' with {
                                     'data': page.address,

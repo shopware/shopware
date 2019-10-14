@@ -12,7 +12,7 @@
                                     {{ "newsletter.headline"|trans }}
                                 </h1>
                             {% endblock %}
-    
+
                             {% block page_newsletter_headline_info %}
                                 <div class="newsletter-info">
                                     {{ "newsletter.info"|trans }}
@@ -21,7 +21,7 @@
                         </div>
                     </div>
                 {% endblock %}
-    
+
                 {% block page_newsletter_content %}
                     <div class="card newsletter-form">
                         <div class="card-body">
@@ -30,17 +30,22 @@
                                     {{ "newsletter.headline"|trans }}
                                 </div>
                             {% endblock %}
-    
+
                             {% block page_newsletter_form %}
                                 <form action="{{ path('frontend.newsletter.register.handle') }}"
                                       method="post"
                                       data-form-validation="true">
+
+                                    {% block page_newsletter_form_csrf %}
+                                        {{ sw_csrf('frontend.newsletter.register.handle') }}
+                                    {% endblock %}
+
                                     {% block page_newsletter_form_forward_to %}
                                         <input type="hidden" name="forwardTo" value="frontend.newsletter.register.page"/>
                                     {% endblock %}
-    
+
                                     {% set formViolations = app.request.get('errors') %}
-    
+
                                     {% block page_newsletter_form_field_subscription %}
                                         <div class="form-row">
                                             <div class="form-group col-md-4 newsletter-subscription">
@@ -61,7 +66,7 @@
                                                         </select>
                                                     </div>
                                                 {% endblock %}
-    
+
                                                 {% block page_newsletter_form_field_subscription_error %}
                                                     {% if formViolations.getViolations('/status') is not empty %}
                                                         {% sw_include '@Storefront/utilities/form-violation.html.twig' with {
@@ -72,7 +77,7 @@
                                             </div>
                                         </div>
                                     {% endblock %}
-    
+
                                     {% block page_newsletter_form_field_email %}
                                         <div class="form-group newsletter-email">
                                             {% block page_newsletter_form_field_email_label %}
@@ -80,7 +85,7 @@
                                                     {{ "account.personalMailLabel"|trans }}{{ "general.required"|trans }}
                                                 </label>
                                             {% endblock %}
-    
+
                                             {% block page_newsletter_form_field_email_input %}
                                                 <input name="email"
                                                        type="email"
@@ -90,7 +95,7 @@
                                                        value="{{ data.get('email') }}"
                                                        class="form-control{% if formViolations.getViolations('/email') %} is-invalid{% endif %}"/>
                                             {% endblock %}
-    
+
                                             {% block page_newsletter_form_field_email_error %}
                                                 {% if formViolations.getViolations('/email') is not empty %}
                                                     {% sw_include '@Storefront/utilities/form-violation.html.twig' with {
@@ -100,7 +105,7 @@
                                             {% endblock %}
                                         </div>
                                     {% endblock %}
-    
+
                                     {% block page_newsletter_form_additional_fields %}
                                         <div class="js-field-toggle-newsletter-additional d-none">
                                             {% block page_newsletter_form_field_salutation %}
@@ -132,7 +137,7 @@
                                                     </div>
                                                 </div>
                                             {% endblock %}
-    
+
                                             {% block page_newsletter_form_field_firstname %}
                                                 <div class="form-group newsletter-firstname">
                                                     {% block page_newsletter_form_field_firstname_label %}
@@ -140,7 +145,7 @@
                                                             {{ "account.personalFirstNameLabel"|trans }}
                                                         </label>
                                                     {% endblock %}
-    
+
                                                     {% block page_newsletter_form_field_firstname_input %}
                                                         <input name="firstName"
                                                                id="newsletterFirstName"
@@ -151,7 +156,7 @@
                                                     {% endblock %}
                                                 </div>
                                             {% endblock %}
-    
+
                                             {% block page_newsletter_form_field_lastname %}
                                                 {% block page_newsletter_form_field_lastname_label %}
                                                     <label class="form-label" for="newsletterLastName">
@@ -169,7 +174,7 @@
                                                     </div>
                                                 {% endblock %}
                                             {% endblock %}
-    
+
                                             {% block page_newsletter_form_field_street %}
                                                 <div class="form-group newsletter-street">
                                                     {% block page_newsletter_form_field_street_label %}
@@ -187,7 +192,7 @@
                                                     {% endblock %}
                                                 </div>
                                             {% endblock %}
-    
+
                                             {% block page_newsletter_form_field_zip_and_city %}
                                                 <div class="form-row newsletter-zip-city">
                                                     {% set zipcodeField %}
@@ -231,10 +236,10 @@
                                             {% endblock %}
                                         </div>
                                     {% endblock %}
-    
+
                                     {#TODO: NEXT-2002 - add captcha#}
                                     {% block page_newsletter_form_captcha %}{% endblock %}
-    
+
                                     {% block page_newsletter_form_privacy %}
                                         {% sw_include '@Storefront/component/privacy-notice.html.twig' %}
                                     {% endblock %}

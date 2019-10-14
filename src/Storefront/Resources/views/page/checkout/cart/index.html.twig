@@ -63,6 +63,11 @@
                         <form action="{{ path('frontend.checkout.product.add-by-number') }}"
                               class="cart-add-product"
                               method="post">
+
+                            {% block page_checkout_cart_add_product_csrf %}
+                                {{ sw_csrf('frontend.checkout.product.add-by-number') }}
+                            {% endblock %}
+
                             {% block page_checkout_cart_add_product_redirect %}
                                 <input type="hidden"
                                        name="redirectTo"
@@ -109,6 +114,11 @@
                               method="post"
                               action="{{ path('frontend.checkout.configure') }}"
                               data-form-auto-submit="true">
+
+                            {% block page_checkout_cart_shipping_costs_csrf %}
+                                {{ sw_csrf('frontend.checkout.configure') }}
+                            {% endblock %}
+
                             {% block page_checkout_cart_shipping_costs_trigger %}
                                     <a class="btn btn-link cart-shipping-costs-btn"
                                        data-toggle="collapse"
@@ -183,6 +193,11 @@
             <form action="{{ path('frontend.checkout.promotion.add') }}"
                   class="cart-add-promotion"
                   method="post">
+
+                {% block page_checkout_cart_add_promotion_csrf %}
+                    {{ sw_csrf('frontend.checkout.promotion.add') }}
+                {% endblock %}
+
                 {% block page_checkout_cart_add_promotion_forward %}
                     <input type="hidden"
                            name="forwardTo"

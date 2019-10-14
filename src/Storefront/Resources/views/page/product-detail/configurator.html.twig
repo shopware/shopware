@@ -6,6 +6,11 @@
 
         {% block page_product_detail_configurator_form %}
             <form data-variant-switch="true" data-variant-switch-options="{{ config|json_encode }}">
+
+                {% block page_product_detail_configurator_csrf %}
+                    {{ sw_csrf('frontend.detail.switch') }}
+                {% endblock %}
+
                 {% block page_product_detail_configurator_groups %}
                     {% for group in page.configuratorSettings %}
                         {% block page_product_detail_configurator_group %}

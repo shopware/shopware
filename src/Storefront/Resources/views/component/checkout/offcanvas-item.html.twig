@@ -91,6 +91,11 @@
                                                         <form action="{{ path('frontend.checkout.line-item.change-quantity', {'id': lineItem.id}) }}"
                                                               class="cart-item-quantity-container"
                                                               method="post">
+
+                                                            {% block component_offcanvas_product_quantity_form_csrf %}
+                                                                {{ sw_csrf('frontend.checkout.line-item.change-quantity') }}
+                                                            {% endblock %}
+
                                                             {% block component_offcanvas_product_quantity_form_redirect %}
                                                                 <input type="hidden"
                                                                        name="redirectTo"
@@ -143,6 +148,11 @@
                                 <form action="{{ path('frontend.checkout.line-item.delete', {'id': lineItem.id}) }}"
                                       class="cart-item-remove js-offcanvas-cart-remove-product"
                                       method="post">
+
+                                    {% block component_offcanvas_product_remove_form_csrf %}
+                                        {{ sw_csrf('frontend.checkout.line-item.delete') }}
+                                    {% endblock %}
+
                                     {% block component_offcanvas_product_remove_redirect %}
                                         <input type="hidden"
                                                name="redirectTo"

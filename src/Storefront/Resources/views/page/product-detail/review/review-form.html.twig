@@ -13,6 +13,11 @@
           data-form-ajax-submit-options='{
               "replaceSelectors": ".js-review-container"
           }'>
+
+        {% block page_product_detail_review_form_csrf %}
+            {{ sw_csrf('frontend.detail.review.save') }}
+        {% endblock %}
+
         {% block page_product_detail_review_form_forward %}
             <input type="hidden"
                    name="forwardTo"

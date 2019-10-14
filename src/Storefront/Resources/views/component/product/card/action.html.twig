@@ -9,6 +9,11 @@
                               method="post"
                               class="buy-widget"
                               data-add-to-cart="true">
+
+                            {% block component_product_box_action_buy_csrf %}
+                                {{ sw_csrf('frontend.checkout.line-item.add') }}
+                            {% endblock %}
+
                             {% block component_product_box_action_form %}
 
                                 {% block component_product_box_action_buy_redirect_input %}

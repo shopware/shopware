@@ -5,6 +5,11 @@
                 {% if defaultShippingAddress.id != address.id %}
                     <form action="{{ path('frontend.account.address.set-default-address', {'type': 'shipping', 'addressId': address.id}) }}"
                         method="post">
+
+                        {% block page_account_address_actions_set_default_shipping_csrf %}
+                            {{ sw_csrf('frontend.account.address.set-default-address') }}
+                        {% endblock %}
+
                         <button type="submit"
                                 title="{{ "account.addressesSetAsDefaultShippingAction"|trans }}"
                                 class="btn btn-link address-action-set-default">
@@ -18,6 +23,11 @@
                 {% if defaultBillingAddress.id != address.id %}
                     <form action="{{ path('frontend.account.address.set-default-address', {'type': 'billing', 'addressId': address.id}) }}"
                         method="post">
+
+                        {% block page_account_address_actions_set_default_billing_csrf %}
+                            {{ sw_csrf('frontend.account.address.set-default-address') }}
+                        {% endblock %}
+
                         <button type="submit"
                                 title="{{ "account.addressesSetAsDefaultBillingAction"|trans }}"
                                 class="btn btn-link address-action-set-default">
@@ -47,6 +57,11 @@
                         <form action="{{ path('frontend.account.address.delete', {'addressId': address.id}) }}"
                               class="address-action-delete"
                               method="post">
+
+                            {% block page_account_address_actions_delete_csrf %}
+                                {{ sw_csrf('frontend.account.address.delete') }}
+                            {% endblock %}
+
                             <button type="submit"
                                     class="btn btn-light btn-sm"
                                     title="{{ "account.addressesContentItemActionDelete"|trans }}">

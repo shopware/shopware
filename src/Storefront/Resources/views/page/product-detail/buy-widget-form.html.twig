@@ -5,6 +5,11 @@
         method="post"
         class="buy-widget"
         data-add-to-cart="true">
+
+        {% block page_product_detail_buy_form_inner_csrf %}
+            {{ sw_csrf('frontend.checkout.line-item.add') }}
+        {% endblock %}
+
         {% block page_product_detail_buy_container %}
             {# @var page \Shopware\Storefront\Page\Product\ProductPage #}
             {% if (not page.product.isCloseout or (page.product.availableStock >= page.product.minPurchase)) and page.product.childCount <= 0 %}

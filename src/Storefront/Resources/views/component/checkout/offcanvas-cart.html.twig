@@ -101,12 +101,17 @@
                                     <form action="{{ path('frontend.checkout.promotion.add') }}"
                                           class="offcanvas-cart-promotion-form js-offcanvas-cart-add-promotion"
                                           method="post">
+
+                                        {% block component_offcanvas_cart_actions_promotion_form_csrf %}
+                                            {{ sw_csrf('frontend.checkout.promotion.add') }}
+                                        {% endblock %}
+
                                         {% block component_offcanvas_cart_actions_promotion_redirect %}
                                             <input type="hidden"
                                                    name="redirectTo"
                                                    value="frontend.cart.offcanvas">
                                         {% endblock %}
-                        
+
                                         {% block component_offcanvas_cart_actions_promotion_input_group %}
                                             <div class="input-group">
                                                 {% block component_offcanvas_cart_actions_promotion_label %}
@@ -114,7 +119,7 @@
                                                         {{ "checkout.addPromotionLabel"|trans }}
                                                     </label>
                                                 {% endblock %}
-                                
+
                                                 {% block component_offcanvas_cart_actions_promotion_input %}
                                                     <input type="text"
                                                            name="code"
@@ -125,7 +130,7 @@
                                                            aria-describedby="addPromotionOffcanvasCart"
                                                            required="required">
                                                 {% endblock %}
-                                
+
                                                 {% block component_offcanvas_cart_actions_promotion_submit %}
                                                     <div class="input-group-append">
                                                         <button class="btn btn-dark"
@@ -142,7 +147,7 @@
                             </div>
                         {% endif %}
                     {% endblock %}
-                    
+
                     {% block component_offcanvas_cart_actions_checkout %}
                         <a href="{{ path('frontend.checkout.confirm.page') }}"
                            class="btn btn-block {% if isCartNotEmpty %}btn-primary{% else %}btn-light disabled{% endif %}"

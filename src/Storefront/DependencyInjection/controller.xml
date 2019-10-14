@@ -172,5 +172,11 @@
             <argument type="service" id="product_review.repository"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
+
+        <service id="Shopware\Storefront\Controller\CsrfController">
+            <argument id="security.csrf.token_manager" type="service"/>
+            <argument>%storefront.csrf.enabled%</argument>
+            <argument>%storefront.csrf.mode%</argument>
+        </service>
     </services>
 </container>

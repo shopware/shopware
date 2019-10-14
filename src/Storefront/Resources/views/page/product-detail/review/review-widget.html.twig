@@ -53,6 +53,10 @@
 							  "submitOnChange": true
 						  }'>
 
+                            {% block page_product_detail_review_filter_csrf %}
+                                {{ sw_csrf('frontend.product.reviews') }}
+                            {% endblock %}
+
 						{% if app.request.get('limit') %}
 							<input type="hidden" name="limit" value="{{ app.request.get('limit') }}">
 						{% endif %}

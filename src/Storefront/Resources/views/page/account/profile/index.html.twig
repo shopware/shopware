@@ -30,6 +30,11 @@
                                       method="post"
                                       action="{{ path('frontend.account.profile.save') }}"
                                       data-form-validation="true">
+
+                                    {% block page_account_profile_personal_form_csrf %}
+                                        {{ sw_csrf('frontend.account.profile.save') }}
+                                    {% endblock %}
+
                                     {% block page_account_profile_personal_fields %}
                                         {% sw_include '@Storefront/page/account/profile/personal.html.twig' with {
                                             'showBirthdayField': shopware.config.core.loginRegistration.birthdayFieldRequired,
@@ -122,6 +127,11 @@
                                               method="post"
                                               action="{{ path('frontend.account.profile.email.save') }}"
                                               data-form-validation="true">
+
+                                            {% block page_account_profile_mail_form_csrf %}
+                                                {{ sw_csrf('frontend.account.profile.email.save') }}
+                                            {% endblock %}
+
                                             {% block page_account_profile_mail_title %}
                                                 <div class="card-title">
                                                     {{ "account.profileMailTitle"|trans }}
@@ -258,6 +268,11 @@
                                               method="post"
                                               action="{{ path('frontend.account.profile.password.save') }}"
                                               data-form-validation="true">
+
+                                            {% block page_account_profile_password_form_csrf %}
+                                                {{ sw_csrf('frontend.account.profile.password.save') }}
+                                            {% endblock %}
+
                                             {% block page_account_profile_password_title %}
                                                 <div class="card-title">
                                                     {{ "account.profilePasswordTitle"|trans }}

@@ -15,6 +15,10 @@
                       method="post"
                       data-form-validation="true">
 
+                    {% block component_account_login_form_csrf %}
+                        {{ sw_csrf('frontend.account.login') }}
+                    {% endblock %}
+
                     {% block component_account_login_form_redirect %}
                         <input type="hidden"
                                name="redirectTo"

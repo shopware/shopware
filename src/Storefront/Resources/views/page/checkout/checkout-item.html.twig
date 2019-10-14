@@ -164,6 +164,11 @@
                                                   class="cart-item-quantity-container"
                                                   method="post"
                                                   data-form-auto-submit="true">
+
+                                                {% block page_checkout_item_quantity_form_csrf %}
+                                                    {{ sw_csrf('frontend.checkout.line-item.change-quantity') }}
+                                                {% endblock %}
+
                                                 {% block page_checkout_item_quantity_redirect %}
                                                     <input type="hidden"
                                                            name="redirectTo"
@@ -243,6 +248,11 @@
                                 <form action="{{ path('frontend.checkout.line-item.delete', {'id': lineItem.id}) }}"
                                       method="post"
                                       data-form-auto-submit="true">
+
+                                    {% block page_checkout_item_remove_form_csrf %}
+                                        {{ sw_csrf('frontend.checkout.line-item.delete') }}
+                                    {% endblock %}
+
                                     {% block page_checkout_item_remove_redirect %}
                                         <input type="hidden"
                                                name="redirectTo"

@@ -35,6 +35,11 @@
                                 <form action="{{ path('frontend.page.contact.send') }}"
                                       method="post"
                                       data-form-validation="true">
+
+                                    {% block page_contact_form_csrf %}
+                                        {{ sw_csrf('frontend.page.contact.send') }}
+                                    {% endblock %}
+
                                     {% block page_contact_form_additional_fields %}
                                         {% block page_contact_form_field_salutation %}
                                             <div class="form-row">

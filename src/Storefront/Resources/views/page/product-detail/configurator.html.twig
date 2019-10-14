@@ -1,9 +1,11 @@
 {% block page_product_detail_configurator %}
     <div class="product-detail-configurator">
+        {% set config = {
+            url: url('frontend.detail.switch', { productId: page.product.parentId })
+        } %}
+
         {% block page_product_detail_configurator_form %}
-            <form action="{{ path('frontend.detail.switch', { productId: page.product.parentId }) }}"
-                  method="post"
-                  data-variant-switch="true">
+            <form data-variant-switch="true" data-variant-switch-options="{{ config|json_encode }}">
                 {% block page_product_detail_configurator_groups %}
                     {% for group in page.configuratorSettings %}
                         {% block page_product_detail_configurator_group %}
@@ -54,6 +56,7 @@
                                                                title="{{ optionIdentifier }}"
                                                                id="{{ optionIdentifier }}"
                                                                {% if isActive %}checked="checked"{% endif %}>
+
                                                         {% block page_product_detail_configurator_option_radio_label %}
                                                             <label class="product-detail-configurator-option-label{% if isCombinableCls %} {{ isCombinableCls }}{% endif %} is-display-{{ displayType }}"
                                                                    {% if displayType == 'color' and option.colorHexCode %}
@@ -61,6 +64,7 @@
                                                                    {% endif %}
                                                                    title="{{ option.translated.name }}"
                                                                    for="{{ optionIdentifier }}">
+
                                                                 {% if displayType == 'media' and media %}
                                                                     <img src="{{ media|sw_encode_media_url }}"
                                                                          class="product-detail-configurator-option-image"

@@ -99,10 +99,6 @@ Component.register('sw-admin-menu', {
         this.createdComponent();
     },
 
-    destroyed() {
-        this.destroyedComponent();
-    },
-
     mounted() {
         this.mountedComponent();
     },

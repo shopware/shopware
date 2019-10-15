@@ -2,7 +2,7 @@
   "sw-product-stream": {
     "general": {
       "mainMenuItemGeneral": "Dynamische Produktgruppen",
-      "placeholderSearchBar": "Durchsuche alle dynamischen Produktgruppen",
+      "placeholderSearchBar": "Durchsuche alle dynamischen Produktgruppen ...",
       "descriptionTextModule": "Verwalte hier Deine dynamischen Produktgruppen."
     },
     "list": {

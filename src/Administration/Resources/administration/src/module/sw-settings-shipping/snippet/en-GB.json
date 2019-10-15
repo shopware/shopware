@@ -2,7 +2,7 @@
   "sw-settings-shipping": {
     "general": {
       "mainMenuItemGeneral": "Shipping",
-      "placeholderSearchBar": "Search shipping",
+      "placeholderSearchBar": "Search all shipping methods...",
       "descriptionTextModule": "Manage shipping methods here."
     },
     "list": {
@@ -66,14 +66,14 @@
       "calculationPrice": "Cart price",
       "calculationWeight": "Weight",
       "calculationVolume": "Volume",
-      "columnQuantityStart": "Quantity from ...",
-      "columnQuantityEnd": "... to ...",
-      "columnWeightStart": "Weight from ...",
-      "columnWeightEnd": "... to ...",
-      "columnPriceStart": "Cart price from ...",
-      "columnPriceEnd": "... to ...",
-      "columnVolumeStart": "Volume from ...",
-      "columnVolumeEnd": "... to ...",
+      "columnQuantityStart": "Quantity from...",
+      "columnQuantityEnd": "to...",
+      "columnWeightStart": "Weight from...",
+      "columnWeightEnd": "to...",
+      "columnPriceStart": "Cart price from...",
+      "columnPriceEnd": "to...",
+      "columnVolumeStart": "Volume from...",
+      "columnVolumeEnd": "to...",
       "columnPrice": "Price (gross)",
       "columnCalculationRule": "Rule",
       "buttonAddAdditionalPriceMatrix": "Add price matrix",

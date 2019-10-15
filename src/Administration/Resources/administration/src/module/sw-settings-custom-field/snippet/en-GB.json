@@ -3,7 +3,7 @@
     "general": {
       "description": "Manage custom fields here.",
       "mainMenuItemGeneral": "Custom fields",
-      "placeholderSearchBar": "Search in all custom fields",
+      "placeholderSearchBar": "Search in all custom fields...",
       "tooltipTechnicalName": "A technical name has to be unique and cannot be changed later."
     },
     "set": {

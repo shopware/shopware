@@ -10,7 +10,7 @@
       "tabPlugins": "Plugins"
     },
     "system-config": {
-      "labelSalesChannelSelect": "Saleschannel",
+      "labelSalesChannelSelect": "Sales Channel",
       "inherited": "Inherited"
     }
   }

@@ -86,6 +86,7 @@ Component.register('sw-newsletter-recipient-list', {
             this.isLoading = true;
             const criteria = new Criteria(this.page, this.limit, this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
+            criteria.addAssociation('salesChannel');
 
             Object.values(this.internalFilters).forEach((item) => {
                 criteria.addFilter(item);
@@ -176,6 +177,12 @@ Component.register('sw-newsletter-recipient-list', {
                 label: this.$tc('sw-newsletter-recipient.list.name'),
                 allowResize: true,
                 primary: true
+            }, {
+                property: 'salesChannel.name',
+                label: this.$tc('sw-newsletter-recipient.list.salesChannel'),
+                allowResize: true,
+                primary: false,
+                visible: false
             }, {
                 property: 'status',
                 label: this.$tc('sw-newsletter-recipient.list.status'),

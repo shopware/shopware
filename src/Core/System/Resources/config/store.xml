@@ -7,10 +7,10 @@
 
         <input-field>
             <name>licenseHost</name>
-            <label>License host</label>
-            <label lang="de-DE">Lizenzierungshost</label>
-            <placeholder>Enter license host</placeholder>
-            <placeholder lang="de-DE">Gib einen Lizenzierungshost ein</placeholder>
+            <label>License domain</label>
+            <label lang="de-DE">Lizenzdomain</label>
+            <placeholder>Enter license domain...</placeholder>
+            <placeholder lang="de-DE">Gib eine Lizenzdomain ein ...</placeholder>
         </input-field>
     </card>
 </config>

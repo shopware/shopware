@@ -3,7 +3,7 @@
     "general": {
       "mainMenuItemList": "Bewertungen",
       "mainMenuItemGeneral": "Bewertungen",
-      "placeholderSearchBar": "Durchsuche alle Bewertungen",
+      "placeholderSearchBar": "Durchsuche alle Bewertungen ...",
       "descriptionTextModule": "Verwaltung von Bewertungen."
     },
     "list": {
@@ -32,8 +32,8 @@
       "labelProduct": "Produkt",
       "labelEmail": "E-Mail",
       "labelLanguage": "Sprache",
-      "labelPositive": "Positive Votes",
-      "labelNegative": "Negative Votes",
+      "labelPositive": "Positive votes",
+      "labelNegative": "Negative votes",
       "labelStatus": "Sichtbar",
       "labelContent": "Inhalt",
       "labelComment": "Kommentar",
@@ -46,7 +46,7 @@
       "review2PointRatingText": "Akzeptierbar",
       "review3PointRatingText": "Gut",
       "review4PointRatingText": "Sehr gut",
-      "review5PointRatingText": "Perfekt"
+      "review5PointRatingText": "Exzellent"
     }
   }
 }

@@ -2,7 +2,7 @@
   "sw-settings-rule": {
     "general": {
       "mainMenuItemGeneral": "Rule builder",
-      "placeholderSearchBar": "Search all rules",
+      "placeholderSearchBar": "Search all rules...",
       "descriptionTextModule": "Manage rules here."
     },
     "list": {

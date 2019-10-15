@@ -3,7 +3,7 @@
     "general": {
       "mainMenuItemList": "Hersteller",
       "mainMenuItemGeneral": "Hersteller",
-      "placeholderSearchBar": "Durchsuche alle Hersteller"
+      "placeholderSearchBar": "Durchsuche alle Hersteller ..."
     },
     "list": {
       "textManufacturerOverview": "Hersteller",

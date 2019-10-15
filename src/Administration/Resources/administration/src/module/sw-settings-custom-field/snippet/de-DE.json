@@ -3,7 +3,7 @@
     "general": {
       "description": "Zusatzfelder",
       "mainMenuItemGeneral": "Zusatzfelder",
-      "placeholderSearchBar": "Durchsuche alle Zusatzfelder",
+      "placeholderSearchBar": "Durchsuche alle Zusatzfelder ...",
       "tooltipTechnicalName": "Der technische Name muss eindeutig sein und kann nach dem Speichern nicht mehr verändert werden"
     },
     "set": {

@@ -26,9 +26,9 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.contains('Create new layout').click();
         cy.get('.sw-cms-detail').should('be.visible');
         cy.contains('.sw-cms-create-wizard__page-type', 'Landing page').click();
-        cy.get('.sw-cms-create-wizard__title').contains('Which section would you like to start with?');
+        cy.get('.sw-cms-create-wizard__title').contains('What kind of section would you like to start with?');
         cy.contains('.sw-cms-stage-section-selection__default', 'Full width').click();
-        cy.get('.sw-cms-create-wizard__title').contains('What should your layout be called?');
+        cy.get('.sw-cms-create-wizard__title').contains('How do you want to label your new layout?');
         cy.contains('.sw-button--primary', 'Create layout').should('not.be.enabled');
         cy.get('#sw-field--page-name').typeAndCheck('Laidout');
         cy.contains('.sw-button--primary', 'Create layout').should('be.enabled');

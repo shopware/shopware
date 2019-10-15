@@ -8,7 +8,7 @@
       "salesChannel": "Sales channel",
       "buttonSave": "Save",
       "mainMenuItemGeneral": "Newsletter recipients",
-      "placeholderSearchBarSnippets": "Search all newsletter recipients",
+      "placeholderSearchBarSnippets": "Search all newsletter recipients...",
       "tags": "Tags"
     },
     "detail": {
@@ -27,6 +27,7 @@
       "title": "Title",
       "firstName": "First name",
       "lastName": "Last name",
+      "salesChannel": "Sales Channel",
       "zipCode": "Zip code",
       "city": "City",
       "street": "Street",

@@ -4,7 +4,7 @@
       "mainMenuItemGeneral": "Bestellungen",
       "mainMenuItemList": "Übersicht",
       "descriptionTextModule": "Verwaltung von Bestellungen.",
-      "placeholderSearchBar": "Durchsuche alle Bestellungen"
+      "placeholderSearchBar": "Durchsuche alle Bestellungen ..."
     },
     "list": {
       "columnCustomerName": "Kundenname",

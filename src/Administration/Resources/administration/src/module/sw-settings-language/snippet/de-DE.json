@@ -2,7 +2,7 @@
   "sw-settings-language": {
     "general": {
       "mainMenuItemGeneral": "Sprachen",
-      "placeholderSearchBar": "Durchsuche alle Sprachen"
+      "placeholderSearchBar": "Durchsuche alle Sprachen ..."
     },
     "list": {
       "textHeadline": "Sprachen",

@@ -1,7 +1,7 @@
 {
   "sw-property": {
     "general": {
-      "placeholderSearchBar": "Durchsuche alle Eigenschaften",
+      "placeholderSearchBar": "Durchsuche alle Eigenschaften ...",
       "mainMenuItemGeneral": "Eigenschaften",
       "descriptionTextModule": "Verwaltung von Eigenschaften."
     },

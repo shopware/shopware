@@ -2,7 +2,7 @@
   "sw-settings-payment": {
     "general": {
       "mainMenuItemGeneral": "Payment",
-      "placeholderSearchBar": "Search payment methods"
+      "placeholderSearchBar": "Search all payment methods..."
     },
     "list": {
       "textHeadline": "Payment",

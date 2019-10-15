@@ -16,12 +16,6 @@
             "treeHeadSelected": "{count} selected",
             "emptyStateHeadline": "No category selected",
 
-            "leavePageModal": {
-                "headline": "Warning",
-                "description": "You have unsaved changes. Are you sure that you want to leave this page?",
-                "confirmButton": "Leave Page",
-                "cancelButton": "Stay on Page"
-            },
             "actions": {
                 "actionsDisabledInLanguage": "Categories can only be created in the default language",
                 "createSub": "New subcategory",

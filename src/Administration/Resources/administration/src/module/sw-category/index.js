@@ -1,7 +1,6 @@
 import './component/sw-category-tree';
 import './component/sw-category-view';
 import './component/sw-category-select';
-import './component/sw-category-leave-page-modal';
 import './page/sw-category-detail';
 import './view/sw-category-detail-base';
 import './view/sw-category-detail-cms';

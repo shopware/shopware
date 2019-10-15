@@ -291,21 +291,28 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IndexerHandler">
-            <argument type="tagged" tag="shopware.dal_indexing.indexer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryInterface"/>
             <argument type="service" id="messenger.bus.shopware" />
             <tag name="messenger.message_handler"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IndexerMessageSender">
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IndexerMessageSender" public="true">
             <argument type="service" id="messenger.bus.shopware" />
             <argument type="tagged" tag="shopware.dal_indexing.indexer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\RefreshIndexCommand">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryInterface"/>
+
             <tag name="kernel.event_subscriber"/>
             <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber\UpdateSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\Migration\IndexerQueuer"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IndexerMessageSender"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\DataAbstractionLayerValidateCommand">

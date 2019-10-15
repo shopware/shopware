@@ -11,6 +11,8 @@
             <argument type="service" id="Shopware\Core\Framework\Update\Services\PluginCompatibility" />
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService"/>
+            <argument type="service" id="plugin.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\Update\Services\ApiClient">
@@ -25,6 +27,7 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
             <argument type="service" id="plugin.repository"/>
             <argument type="service" id="request_stack"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService"/>
         </service>
 
         <service id="Shopware\Core\Framework\Update\Services\Filesystem"/>

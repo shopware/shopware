@@ -109,6 +109,11 @@ class MediaFolderConfigIndexer implements IndexerInterface
         return $iterator->getOffset();
     }
 
+    public static function getName(): string
+    {
+        return 'Swag.MediaFolderConfigIndexer';
+    }
+
     private function updateConfigOnRefresh(EntityWrittenEvent $event): void
     {
         foreach ($event->getPayloads() as $update) {

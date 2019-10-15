@@ -42,5 +42,11 @@
             "shippingMethod": "Shipping method: %shippingMethod%",
             "additionalInfo": "Delivered goods remain our property until full payment has been made."
         }
+    },
+    "filter": {
+        "sortByNameAscending": "Name ascending",
+        "sortByNameDescending": "Name descending",
+        "sortByPriceAscending": "Price ascending",
+        "sortByPriceDescending": "Price descending"
     }
 }

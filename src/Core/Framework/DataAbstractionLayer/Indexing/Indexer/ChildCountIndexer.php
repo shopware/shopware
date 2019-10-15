@@ -159,6 +159,11 @@ class ChildCountIndexer implements IndexerInterface
         }
     }
 
+    public static function getName(): string
+    {
+        return 'Swag.ChildCountIndexer';
+    }
+
     private function update(EntityWrittenEvent $event, array $ids, Context $context): void
     {
         $entityParents = array_map(function (EntityExistence $existence) {

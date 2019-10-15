@@ -14,7 +14,10 @@
                 <sw-color-badge v-if="item.statusVariant" :variant="item.statusVariant" :rounded="true"></sw-color-badge>
                 <sw-color-badge v-else :color="item.statusColor" :rounded="true"></sw-color-badge>&nbsp;
 
-                <template v-if="item.statusMessage">
+                <template v-if="item.statusMessage === 'notCompatible'">
+                    {{ item.statusMessage }} {{ $t('sw-settings-shopware-updates.plugins.pluginWillBeDeactivatedHint') }}
+                </template>
+                <template v-else-if="item.statusMessage">
                     {{ item.statusMessage }}
                 </template>
                 <template v-else>

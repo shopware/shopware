@@ -27,7 +27,8 @@ Component.register('sw-seo-url-template-card', {
             variableStores: {},
             seoUrlTemplateRepository: {},
             salesChannelId: null,
-            salesChannels: []
+            salesChannels: [],
+            selectedProperty: null
         };
     },
 
@@ -102,15 +103,13 @@ Component.register('sw-seo-url-template-card', {
                 this.isLoading = false;
 
                 this.seoUrlTemplates.forEach(seoUrlTemplate => {
-                    // Fetch preview / validate seo url template if not done yet
+                    // Fetch preview / validate seo url template
+                    this.fetchSeoUrlPreview(seoUrlTemplate);
 
-                    if (!seoUrlTemplate.isNew() && !this.previews.hasOwnProperty(seoUrlTemplate.id)) {
-                        this.fetchSeoUrlPreview(seoUrlTemplate);
-                    }
                     // Create stores for the possible variables
                     if (!this.variableStores.hasOwnProperty(seoUrlTemplate.id)) {
                         this.seoUrlTemplateService.getContext(seoUrlTemplate).then(data => {
-                            this.createVariablesStore(seoUrlTemplate.id, data);
+                            this.createVariableOptions(seoUrlTemplate.id, data);
                         });
                     }
                 });
@@ -134,16 +133,22 @@ Component.register('sw-seo-url-template-card', {
                 }
             });
         },
-        createVariablesStore(id, data) {
+        createVariableOptions(id, data) {
             const storeOptions = [];
 
-            Object.keys(data).forEach((property) => {
-                storeOptions.push({ id: property, name: `${property}` });
+            Object.entries(data).forEach(([property, value]) => {
+                storeOptions.push({ name: `${property}` });
+
+                if (value instanceof Object) {
+                    Object.keys(value).forEach((innerProperty) => {
+                        storeOptions.push({ name: `${property}.${innerProperty}` });
+                    });
+                }
             });
 
-            this.$set(this.variableStores, id, new LocalStore(storeOptions));
+            this.$set(this.variableStores, id, storeOptions);
         },
-        getVariablesStore(id) {
+        getVariableOptions(id) {
             if (this.variableStores.hasOwnProperty(id)) {
                 return this.variableStores[id];
             }
@@ -201,8 +206,7 @@ Component.register('sw-seo-url-template-card', {
                         this.seoUrlTemplateRepository.schema.entity,
                         this.context, new Criteria()
                     );
-                    this.createdComponent();
-                    this.$refs.salesChannelSelect.changeToNewSalesChannel(this.salesChannelId);
+                    this.fetchSeoUrlTemplates(this.salesChannelId);
                     this.createSaveSuccessNotification();
                 });
             }).catch(() => {
@@ -229,12 +233,12 @@ Component.register('sw-seo-url-template-card', {
         },
 
         onSelectInput(propertyName, entity) {
+            if (propertyName === null) {
+                return;
+            }
             const templateValue = entity.template ? (`${entity.template}/`) : '';
             entity.template = `${templateValue}{{ ${propertyName} }}`;
             this.fetchSeoUrlPreview(entity);
-
-            const selectComponent = this.$refs[`select-${entity.id}`][0];
-            selectComponent.loadSelected();
         },
         onInput(entity) {
             this.debouncedPreviewSeoUrlTemplate(entity);

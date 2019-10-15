@@ -1,5 +1,9 @@
 @import "~scss/variables";
 
+.sw-license-violation-confirm-delete {
+    z-index: 1300;
+}
+
 .sw-license-violation {
     z-index: 1200;
 
@@ -49,6 +53,12 @@
 
     td.sw-license-violation__table-actions {
         text-align: right;
+
+        div.sw-license-violation__table-actions-wrap {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
     }
 
     .sw-license-violation__table-action-remove {

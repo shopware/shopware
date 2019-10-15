@@ -150,6 +150,11 @@ class EntityIndexer implements IndexerInterface
         }
     }
 
+    public static function getName(): string
+    {
+        return 'Swag.EntityIndexer';
+    }
+
     private function getLanguages(): EntityCollection
     {
         $context = Context::createDefaultContext();

@@ -85,6 +85,7 @@ describe('Country: Test crud operations', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
+        cy.get('.sw-modal__body').should('be.visible');
         cy.get('.sw-modal__body')
             .contains('Are you sure you want to delete the country "1.Niemandsland"?');
         cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();

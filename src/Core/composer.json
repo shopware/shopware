@@ -14,7 +14,12 @@
         ],
         "psr-4": {
             "Shopware\\Core\\": ""
-        }
+        },
+        "files": [
+            "Flag/feature_next733.php",
+            "Flag/feature_next1797.php",
+            "Flag/feature_next3722.php"
+        ]
     },
     "require": {
         "php": ">=7.2.0",

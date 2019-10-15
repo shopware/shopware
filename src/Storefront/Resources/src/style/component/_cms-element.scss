@@ -48,7 +48,7 @@ General styling for cms elements
 .cms-element-youtube-video {
     position: relative;
     width: 100%;
-    
+
     &.is--streched {
         height: 100%;
     }
@@ -72,10 +72,19 @@ General styling for cms elements
     }
 }
 
-
 .cms-element-product-listing {
     .cms-listing-col {
         margin-bottom: $spacer-lg;
+    }
+}
+
+.cms-element-product-listing-actions {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+
+    .sorting {
+        margin-left: auto;
     }
 }
 

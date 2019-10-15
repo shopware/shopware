@@ -113,7 +113,7 @@ Component.register('sw-order-line-items-grid', {
                             item.identifier,
                             item.quantity
                         ).then((lineItem) => {
-                            this.$emit('item-edited');
+                            this.$emit('item-edit');
                             resolve(lineItem);
                         });
                     } else if (item.type === 'credit') {
@@ -122,7 +122,7 @@ Component.register('sw-order-line-items-grid', {
                             this.order.versionId,
                             item
                         ).then((lineItem) => {
-                            this.$emit('item-edited');
+                            this.$emit('item-edit');
                             resolve(lineItem);
                         });
                     } else {
@@ -132,12 +132,12 @@ Component.register('sw-order-line-items-grid', {
                             this.order.versionId,
                             item
                         ).then((lineItem) => {
-                            this.$emit('item-edited');
+                            this.$emit('item-edit');
                             resolve(lineItem);
                         });
                     }
                 } else {
-                    this.$emit('item-edited');
+                    this.$emit('existing-item-edit');
                     resolve();
                 }
             });
@@ -156,11 +156,15 @@ Component.register('sw-order-line-items-grid', {
                 price: 0
             };
             item.price = {
-                taxRules: [{ taxRate: 0 }]
+                taxRules: [{ taxRate: 0 }],
+                unitPrice: 0,
+                quantity: 1,
+                totalPrice: 0
             };
             item.quantity = 1;
             item.unitPrice = 0;
             item.totalPrice = 0;
+            item.precision = 2;
             item.label = '';
 
             return item;
@@ -199,7 +203,7 @@ Component.register('sw-order-line-items-grid', {
             this.selectedItems = {};
 
             Promise.all(deletionPromises).then(() => {
-                this.$emit('item-deleted');
+                this.$emit('item-delete');
             });
         },
 

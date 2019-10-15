@@ -164,7 +164,7 @@ class ProductDefinition extends EntityDefinition
             (new ManyToManyIdField('property_ids', 'propertyIds', 'properties'))->addFlags(new Inherited()),
             (new ManyToManyIdField('option_ids', 'optionIds', 'options'))->addFlags(new Inherited()),
             (new ManyToManyIdField('tag_ids', 'tagIds', 'tags'))->addFlags(new Inherited()),
-            (new ListingPriceField('listing_prices', 'listingPrices'))->addFlags(new Inherited(), new WriteProtected()),
+            (new ListingPriceField('listing_prices', 'listingPrices'))->addFlags(new WriteProtected()),
             (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, 'product_id', 'category_id'))->addFlags(new CascadeDelete(), new WriteProtected()),
             (new FloatField('rating_average', 'ratingAverage'))->addFlags(new WriteProtected()),
             (new FkField('delivery_time_id', 'deliveryTimeId', DeliveryTimeDefinition::class))->addFlags(new Inherited()),
@@ -189,13 +189,13 @@ class ProductDefinition extends EntityDefinition
             (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, 'id', true))
                 ->addFlags(new Inherited()),
 
-            (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, 'id', false))
+            (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, 'id'))
                 ->addFlags(new Inherited()),
 
-            (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, 'id', false))
+            (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, 'id'))
                 ->addFlags(new Inherited()),
 
-            (new ManyToOneAssociationField('cover', 'product_media_id', ProductMediaDefinition::class, 'id', false))
+            (new ManyToOneAssociationField('cover', 'product_media_id', ProductMediaDefinition::class, 'id'))
                 ->addFlags(new Inherited()),
 
             (new OneToManyAssociationField('prices', ProductPriceDefinition::class, 'product_id'))

@@ -16,11 +16,11 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Storefront\Framework\Seo\SeoUrlTemplate\TemplateGroup;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use Twig\Environment;
 use Twig\Error\Error;
 use Twig\Error\SyntaxError;
-use Twig\Extension\CoreExtension;
 use Twig\Extension\EscaperExtension;
 use Twig\Loader\ArrayLoader;
 
@@ -43,16 +43,23 @@ class SeoUrlGenerator
      */
     private $definitionRegistry;
 
+    /**
+     * @var RequestStack
+     */
+    private $requestStack;
+
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         Slugify $slugify,
-        RouterInterface $router
+        RouterInterface $router,
+        RequestStack $requestStack
     ) {
         $this->definitionRegistry = $definitionRegistry;
 
         $this->router = $router;
 
         $this->initTwig($slugify);
+        $this->requestStack = $requestStack;
     }
 
     /**
@@ -103,6 +110,10 @@ class SeoUrlGenerator
 
     private function generate(SeoUrlRouteInterface $seoUrlRoute, SeoUrlRouteConfig $config, array $salesChannels, EntityCollection $entities): iterable
     {
+        $request = $this->requestStack->getMasterRequest();
+
+        $basePath = $request ? $request->getBasePath() : '';
+
         /** @var Entity $entity */
         foreach ($entities as $entity) {
             $seoUrl = new SeoUrlEntity();
@@ -118,11 +129,13 @@ class SeoUrlGenerator
 
                 $mapping = $seoUrlRoute->getMapping($entity, $salesChannel);
                 $pathInfo = $this->router->generate($config->getRouteName(), $mapping->getInfoPathContext());
+                $pathInfo = $this->removePrefix($pathInfo, $basePath);
+
                 $copy->setPathInfo($pathInfo);
 
                 $seoPathInfo = $this->getSeoPathInfo($mapping, $config);
 
-                if ($seoPathInfo === null) {
+                if ($seoPathInfo === null || $seoPathInfo === '') {
                     continue;
                 }
 
@@ -142,7 +155,7 @@ class SeoUrlGenerator
     private function getSeoPathInfo(SeoUrlMapping $mapping, SeoUrlRouteConfig $config): ?string
     {
         try {
-            return $this->twig->render('template', $mapping->getSeoPathInfoContext());
+            return trim($this->twig->render('template', $mapping->getSeoPathInfoContext()));
         } catch (Error $error) {
             if (!$config->getSkipInvalid()) {
                 throw $error;
@@ -165,5 +178,14 @@ class SeoUrlGenerator
                 throw new InvalidTemplateException('Syntax error: ' . $syntaxError->getMessage());
             }
         }
+    }
+
+    private function removePrefix(string $subject, string $prefix): string
+    {
+        if (!$prefix || mb_strpos($subject, $prefix) !== 0) {
+            return $subject;
+        }
+
+        return mb_substr($subject, mb_strlen($prefix));
     }
 }

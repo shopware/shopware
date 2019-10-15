@@ -3,14 +3,12 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Content\Product\SalesChannel\ProductReviewService;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
-use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
+use Shopware\Storefront\Framework\Seo\SeoUrlPlaceholderHandler;
 use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader;
@@ -45,22 +43,22 @@ class ProductController extends StorefrontController
     private $productReviewService;
 
     /**
-     * @var SalesChannelRepositoryInterface
+     * @var SeoUrlPlaceholderHandler
      */
-    private $productRepository;
+    private $seoUrlPlaceholderHandler;
 
     public function __construct(
         ProductPageLoader $productPageLoader,
         ProductCombinationFinder $combinationFinder,
         MinimalQuickViewPageLoader $minimalQuickViewPageLoader,
         ProductReviewService $productReviewService,
-        SalesChannelRepositoryInterface $productRepository
+        SeoUrlPlaceholderHandler $seoUrlPlaceholderHandler
     ) {
         $this->productPageLoader = $productPageLoader;
         $this->combinationFinder = $combinationFinder;
         $this->minimalQuickViewPageLoader = $minimalQuickViewPageLoader;
         $this->productReviewService = $productReviewService;
-        $this->productRepository = $productRepository;
+        $this->seoUrlPlaceholderHandler = $seoUrlPlaceholderHandler;
     }
 
     /**
@@ -88,20 +86,13 @@ class ProductController extends StorefrontController
 
         $redirect = $this->combinationFinder->find($productId, $switchedOption, $newOptions, $context);
 
-        $criteria = new Criteria([$redirect->getVariantId()]);
+        $url = $this->seoUrlPlaceholderHandler->generateResolved(
+            $request,
+            'frontend.detail.page',
+            ['productId' => $redirect->getVariantId()]
+        );
 
-        $product = $this->productRepository->search($criteria, $context)->get($redirect->getVariantId());
-
-        if (!$product->hasExtension('canonicalUrl')) {
-            $url = $this->generateUrl('frontend.detail.page', ['productId' => $redirect->getVariantId()]);
-
-            return new JsonResponse(['url' => $url]);
-        }
-
-        /** @var SeoUrlEntity $canonical */
-        $canonical = $product->getExtension('canonicalUrl');
-
-        return new JsonResponse(['url' => $canonical->getUrl()]);
+        return new JsonResponse(['url' => $url]);
     }
 
     /**

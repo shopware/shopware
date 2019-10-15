@@ -1,0 +1,37 @@
+/*
+Filter boolean
+==============================================
+Styling for boolean filter item.
+This filter item should only be used inside a filter panel.
+*/
+
+.filter-boolean {
+    display: inline-block;
+    border: 1px solid $border-color;
+    padding-left: 12px;
+    padding-right: 12px;
+    height: 40px;
+    border-radius: 3px;
+    cursor: pointer;
+
+    &.is-active {
+        border-color: $primary;
+    }
+
+    &:hover {
+        border-color: $primary;
+        color: $primary;
+    }
+}
+
+.filter-boolean-label {
+    cursor: pointer;
+    height: 38px;
+    line-height: 38px;
+    width: 100%;
+
+    &::before,
+    &::after {
+        top: 11px;
+    }
+}

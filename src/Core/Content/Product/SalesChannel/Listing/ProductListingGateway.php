@@ -41,13 +41,18 @@ class ProductListingGateway implements ProductListingGatewayInterface
             new ProductAvailableFilter($salesChannelContext->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_ALL)
         );
 
-        $this->handleCategoryFilter($request, $criteria, $salesChannelContext);
-
+        $criteria->addFilter(
+            new EqualsFilter('product.categoriesRo.id', $this->getNavigationId($request, $salesChannelContext))
+        );
         $this->eventDispatcher->dispatch(
             new ProductListingCriteriaEvent($request, $criteria, $salesChannelContext)
         );
 
         $result = $this->productRepository->search($criteria, $salesChannelContext);
+
+        $result = ProductListingResult::createFrom($result);
+
+        $result->addCurrentFilter('navigationId', $this->getNavigationId($request, $salesChannelContext));
 
         $this->eventDispatcher->dispatch(
             new ProductListingResultEvent($request, $result, $salesChannelContext)
@@ -56,19 +61,14 @@ class ProductListingGateway implements ProductListingGatewayInterface
         return $result;
     }
 
-    private function handleCategoryFilter(
-        Request $request,
-        Criteria $criteria,
-        SalesChannelContext $salesChannelContext
-    ): void {
-        $navigationId = $salesChannelContext->getSalesChannel()->getNavigationCategoryId();
-
+    private function getNavigationId(Request $request, SalesChannelContext $salesChannelContext): string
+    {
         $params = $request->attributes->get('_route_params');
 
         if ($params && isset($params['navigationId'])) {
-            $navigationId = $params['navigationId'];
+            return $params['navigationId'];
         }
 
-        $criteria->addFilter(new EqualsFilter('product.categoriesRo.id', $navigationId));
+        return $salesChannelContext->getSalesChannel()->getNavigationCategoryId();
     }
 }

@@ -25,6 +25,11 @@ class BucketResult extends AggregationResult
         return $this->buckets;
     }
 
+    public function sort(\Closure $closure): void
+    {
+        usort($this->buckets, $closure);
+    }
+
     public function getKeys(): array
     {
         $keys = [];

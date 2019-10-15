@@ -137,6 +137,6 @@ export default class EntityDefinition {
     }
 
     isTranslatableField(field) {
-        return field.type === 'string' && field.flags.translatable === true;
+        return (field.type === 'string' || field.type === 'text') && field.flags.translatable === true;
     }
 }

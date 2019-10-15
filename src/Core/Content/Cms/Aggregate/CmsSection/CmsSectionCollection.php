@@ -20,7 +20,8 @@ class CmsSectionCollection extends EntityCollection
     {
         $blocks = new CmsBlockCollection();
 
-        foreach ($this->getIterator() as $section) {
+        /** @var CmsSectionEntity $section */
+        foreach ($this->elements as $section) {
             if (!$section->getBlocks()) {
                 continue;
             }
@@ -29,20 +30,6 @@ class CmsSectionCollection extends EntityCollection
         }
 
         return $blocks;
-    }
-
-    public function setBlocks(CmsBlockCollection $blocks): void
-    {
-        foreach ($this->getIterator() as $section) {
-            $sectionBlocks = $section->getBlocks();
-            if (!$sectionBlocks) {
-                continue;
-            }
-
-            foreach ($sectionBlocks->getIds() as $blockId) {
-                $sectionBlocks->set($blockId, $blocks->get($blockId));
-            }
-        }
     }
 
     protected function getExpectedClass(): string

@@ -16,8 +16,8 @@ class Migration1569907970RemoveUnusedSeoColumns extends MigrationStep
     {
         $connection->executeQuery('
             ALTER TABLE `seo_url`
-            DROP COLUMN `is_valid`,
-            DROP COLUMN `auto_increment`,
+            MODIFY COLUMN `is_valid` TINYINT(1) NULL,
+            MODIFY COLUMN `auto_increment` BIGINT unsigned NULL,
             DROP INDEX `idx.path_info`,
             DROP INDEX `idx.seo_path_info`,
             ADD INDEX `idx.path_info` (`language_id`,`sales_channel_id`, `is_canonical`, `path_info`)
@@ -26,6 +26,10 @@ class Migration1569907970RemoveUnusedSeoColumns extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
+        $connection->executeQuery('
+            ALTER TABLE `seo_url`
+            DROP COLUMN `is_valid`,
+            DROP COLUMN `auto_increment`
+        ');
     }
 }

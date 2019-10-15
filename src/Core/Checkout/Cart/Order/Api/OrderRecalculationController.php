@@ -142,7 +142,9 @@ class OrderRecalculationController extends AbstractController
         $type = $request->request->get('type', LineItem::CUSTOM_LINE_ITEM_TYPE);
         $quantity = $request->request->getInt('quantity', 1);
 
-        $lineItem = new LineItem($identifier, $type, null, $quantity);
+        $lineItem = (new LineItem($identifier, $type, null, $quantity))
+            ->setStackable(true)
+            ->setRemovable(true);
         $this->updateLineItemByRequest($request, $lineItem, $context);
 
         $this->recalculationService->addCustomLineItem($orderId, $lineItem, $context);

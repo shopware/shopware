@@ -25,7 +25,8 @@ Component.register('sw-settings-shopware-updates-wizard', {
             progressbarValue: 0,
             step: 'download',
             updaterIsRunning: false,
-            updateModalShown: false
+            updateModalShown: false,
+            chosenPluginBehaviour: ''
         };
     },
 
@@ -46,16 +47,25 @@ Component.register('sw-settings-shopware-updates-wizard', {
 
                 if (response.version) {
                     this.updateService.checkRequirements().then(requirementsStore => {
-                        this.requirements = requirementsStore;
-
-                        this.updateService.pluginCompatibility().then(plugins => {
-                            this.plugins = plugins;
-                            this.isLoading = false;
-                        });
+                        this.onRequirementsResponse(requirementsStore);
                     });
                 } else {
                     this.isLoading = false;
                 }
+            });
+        },
+        onRequirementsResponse(requirementsStore) {
+            this.requirements = requirementsStore;
+            this.updateService.pluginCompatibility().then(plugins => {
+                this.plugins = plugins;
+
+                if (this.displayUnknownPluginsWarning && this.displayIncompatiblePluginsWarning) {
+                    this.chosenPluginBehaviour = 'all';
+                } else if (this.displayIncompatiblePluginsWarning) {
+                    this.chosenPluginBehaviour = 'notCompatible';
+                }
+
+                this.isLoading = false;
             });
         },
         startUpdateProcess() {
@@ -95,7 +105,7 @@ Component.register('sw-settings-shopware-updates-wizard', {
 
         unpackUpdate(offset) {
             this.step = 'unpack';
-            this.updateService.unpackUpdate(offset).then(response => {
+            this.updateService.unpackUpdate(offset, this.chosenPluginBehaviour).then(response => {
                 this.progressbarValue = (Math.floor((response.offset / response.total) * 100));
 
                 if (response.redirectTo) {
@@ -146,16 +156,32 @@ Component.register('sw-settings-shopware-updates-wizard', {
 
             return this.updateInfo.changelog.en.changelog;
         },
-        pluginUpdateState() {
-            if (this.plugins.filter(p => p.statusName === 'updatableNow').length) {
-                return 'updatableNow';
-            }
+        displayIncompatiblePluginsWarning() {
+            return this.plugins.some((plugin) => {
+                return plugin.statusName !== 'compatible' && plugin.statusName !== 'notInStore';
+            });
+        },
+        displayUnknownPluginsWarning() {
+            return this.plugins.some((plugin) => {
+                return plugin.statusName === 'notInStore';
+            });
+        },
+        displayAllPluginsOkayInfo() {
+            return !(this.displayIncompatiblePluginsWarning || this.displayUnknownPluginsWarning);
+        },
+        optionDeactivateIncompatibleTranslation() {
+            const deactivateIncompatTrans = this.$tc('sw-settings-shopware-updates.plugins.actions.deactivateIncompatible');
+            const isRecommended = this.displayIncompatiblePluginsWarning && !this.displayUnknownPluginsWarning ?
+                this.$tc('sw-settings-shopware-updates.plugins.actions.recommended') : '';
 
-            if (this.plugins.filter(p => p.statusName === 'notInStore').length) {
-                return 'notInStore';
-            }
+            return `${deactivateIncompatTrans} ${isRecommended}`;
+        },
+        optionDeactivateAllTranslation() {
+            const deactiveAllTrans = this.$tc('sw-settings-shopware-updates.plugins.actions.deactivateAll');
+            const isRecommended = this.displayIncompatiblePluginsWarning && this.displayUnknownPluginsWarning ?
+                this.$tc('sw-settings-shopware-updates.plugins.actions.recommended') : '';
 
-            return 'allOkay';
+            return `${deactiveAllTrans} ${isRecommended}`;
         }
     }
 });

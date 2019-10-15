@@ -153,6 +153,11 @@ class ManyToManyIdFieldIndexer implements IndexerInterface
         }
     }
 
+    public static function getName(): string
+    {
+        return 'Swag.ManyToManyIdFieldIndexer';
+    }
+
     private function update(EntityDefinition $definition, array $ids, Context $context): void
     {
         if (empty($ids)) {

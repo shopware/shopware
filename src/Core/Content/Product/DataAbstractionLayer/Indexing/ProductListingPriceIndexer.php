@@ -152,6 +152,11 @@ class ProductListingPriceIndexer implements IndexerInterface
         $this->update($productIds);
     }
 
+    public static function getName(): string
+    {
+        return 'Swag.ProductListingPriceIndexer';
+    }
+
     private function update(array $ids): void
     {
         if (empty($ids)) {

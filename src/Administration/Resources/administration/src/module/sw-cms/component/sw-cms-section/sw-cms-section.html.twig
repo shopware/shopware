@@ -1,124 +1,126 @@
 {% block sw_cms_section %}
     <div class="sw-cms-section" :class="[sectionClasses, customSectionClass, sectionTypeClass]" :style="sectionStyles">
-        {% block sw_cms_section_sidebar %}
-            <div v-if="isSideBarType" class="sw-cms-section__sidebar" :class="sectionSidebarClasses">
+        <div class="sw-cms-section__wrapper">
+            {% block sw_cms_section_sidebar %}
+                <div v-if="isSideBarType" class="sw-cms-section__sidebar" :class="sectionSidebarClasses">
 
-                <template v-if="sideBarEmpty">
-                    {% block sw_cms_section_sidebar_block_empty %}
-                        <div class="sw-cms-section__empty-stage"
-                             @click="openBlockBar"
-                             v-droppable="{ dragGroup: 'cms-stage', data: getDropData(blockCount, 'sidebar') }">
+                    <template v-if="sideBarEmpty">
+                        {% block sw_cms_section_sidebar_block_empty %}
+                            <div class="sw-cms-section__empty-stage"
+                                 @click="openBlockBar"
+                                 v-droppable="{ dragGroup: 'cms-stage', data: getDropData(blockCount, 'sidebar') }">
 
-                            <sw-icon name="default-basic-plus-circle" size="24"></sw-icon>
-                            <p>{{ $tc('sw-cms.detail.addBlocks') }}</p>
-                        </div>
-                    {% endblock %}
-                </template>
-
-                <template v-else>
-
-                    {% block sw_cms_section_sidebar_add_first_block %}
-                        <sw-cms-stage-add-block :key="0"
-                                                v-droppable="{ dragGroup: 'cms-stage', data: getDropData(0, 'sidebar') }"
-                                                @stage-add-block="onAddSectionBlock">
-                        </sw-cms-stage-add-block>
-                    {% endblock %}
-
-                    <template v-for="(block, index) in sideBarBlocks">
-                        {% block sw_cms_section_sidebar_block %}
-                            <sw-cms-block class="sw-cms-stage-block"
-                                          :key="block.id"
-                                          :block="block"
-                                          :buttonsEnabled="isSystemDefaultLanguage"
-                                          :active="currentBlock !== null && currentBlock.id === block.id"
-                                          @block-overlay-click="onBlockSelection(block)"
-                                          @block-delete="onBlockDelete(block.id)"
-                                          @block-duplicate="onBlockDuplicate(block, section)">
-
-                                {% block sw_cms_section_sidebar_block_component %}
-                                    <component :is="`sw-cms-block-${block.type}`">
-                                        {% block sw_cms_section_content_block_slot %}
-                                            <sw-cms-slot v-for="el in block.slots"
-                                                         :slot="el.slot"
-                                                         :key="el.id"
-                                                         :element="el"
-                                                         :active="currentBlock !== null && currentBlock.id === block.id">
-                                            </sw-cms-slot>
-                                        {% endblock %}
-                                    </component>
-                                {% endblock %}
-                            </sw-cms-block>
+                                <sw-icon name="default-basic-plus-circle" size="24"></sw-icon>
+                                <p>{{ $tc('sw-cms.detail.addBlocks') }}</p>
+                            </div>
                         {% endblock %}
+                    </template>
 
-                        {% block sw_cms_section_add_sidebar_block %}
-                            <sw-cms-stage-add-block :key="index + 1"
-                                                    v-droppable="{ dragGroup: 'cms-stage', data: getDropData(block.position + 1, 'sidebar') }"
+                    <template v-else>
+
+                        {% block sw_cms_section_sidebar_add_first_block %}
+                            <sw-cms-stage-add-block :key="0"
+                                                    v-droppable="{ dragGroup: 'cms-stage', data: getDropData(0, 'sidebar') }"
                                                     @stage-add-block="onAddSectionBlock">
                             </sw-cms-stage-add-block>
                         {% endblock %}
+
+                        <template v-for="(block, index) in sideBarBlocks">
+                            {% block sw_cms_section_sidebar_block %}
+                                <sw-cms-block class="sw-cms-stage-block"
+                                              :key="block.id"
+                                              :block="block"
+                                              :buttonsEnabled="isSystemDefaultLanguage"
+                                              :active="currentBlock !== null && currentBlock.id === block.id"
+                                              @block-overlay-click="onBlockSelection(block)"
+                                              @block-delete="onBlockDelete(block.id)"
+                                              @block-duplicate="onBlockDuplicate(block, section)">
+
+                                    {% block sw_cms_section_sidebar_block_component %}
+                                        <component :is="`sw-cms-block-${block.type}`">
+                                            {% block sw_cms_section_content_block_slot %}
+                                                <sw-cms-slot v-for="el in block.slots"
+                                                             :slot="el.slot"
+                                                             :key="el.id"
+                                                             :element="el"
+                                                             :active="currentBlock !== null && currentBlock.id === block.id">
+                                                </sw-cms-slot>
+                                            {% endblock %}
+                                        </component>
+                                    {% endblock %}
+                                </sw-cms-block>
+                            {% endblock %}
+
+                            {% block sw_cms_section_add_sidebar_block %}
+                                <sw-cms-stage-add-block :key="index + 1"
+                                                        v-droppable="{ dragGroup: 'cms-stage', data: getDropData(block.position + 1, 'sidebar') }"
+                                                        @stage-add-block="onAddSectionBlock">
+                                </sw-cms-stage-add-block>
+                            {% endblock %}
+                        </template>
                     </template>
-                </template>
-            </div>
-        {% endblock %}
+                </div>
+            {% endblock %}
 
-        {% block sw_cms_section_content %}
-            <div class="sw-cms-section__content" :class="{ 'is--empty': mainContentEmpty }">
-                <template v-if="mainContentEmpty">
-                    {% block sw_cms_section_content_block_empty %}
-                        <div class="sw-cms-section__empty-stage"
-                             @click="openBlockBar"
-                             v-droppable="{ dragGroup: 'cms-stage', data: getDropData(blockCount, 'main') }">
+            {% block sw_cms_section_content %}
+                <div class="sw-cms-section__content" :class="{ 'is--empty': mainContentEmpty }">
+                    <template v-if="mainContentEmpty">
+                        {% block sw_cms_section_content_block_empty %}
+                            <div class="sw-cms-section__empty-stage"
+                                 @click="openBlockBar"
+                                 v-droppable="{ dragGroup: 'cms-stage', data: getDropData(blockCount, 'main') }">
 
-                            <sw-icon name="default-basic-plus-circle" size="24"></sw-icon>
-                            <p>{{ $tc('sw-cms.detail.addBlocks') }}</p>
-                        </div>
-                    {% endblock %}
-                </template>
-
-                <template v-else>
-
-                    {% block sw_cms_section_content_add_first_block %}
-                        <sw-cms-stage-add-block :key="0"
-                                                v-droppable="{ dragGroup: 'cms-stage', data: getDropData(0) }"
-                                                @stage-add-block="onAddSectionBlock">
-                        </sw-cms-stage-add-block>
-                    {% endblock %}
-
-                    <template v-for="(block, index) in mainContentBlocks">
-                        {% block sw_cms_section_content_block %}
-                            <sw-cms-block class="sw-cms-stage-block"
-                                          :key="block.id"
-                                          :block="block"
-                                          :buttonsEnabled="isSystemDefaultLanguage"
-                                          :active="currentBlock !== null && currentBlock.id === block.id"
-                                          @block-overlay-click="onBlockSelection(block)"
-                                          @block-delete="onBlockDelete(block.id)"
-                                          @block-duplicate="onBlockDuplicate(block, section)">
-
-                                {% block sw_cms_section_content_block_component %}
-                                    <component :is="`sw-cms-block-${block.type}`">
-                                        {% block sw_cms_section_content_block_slot %}
-                                            <sw-cms-slot v-for="el in block.slots"
-                                                         :slot="el.slot"
-                                                         :key="el.id"
-                                                         :element="el"
-                                                         :active="currentBlock !== null && currentBlock.id === block.id">
-                                            </sw-cms-slot>
-                                        {% endblock %}
-                                    </component>
-                                {% endblock %}
-                            </sw-cms-block>
+                                <sw-icon name="default-basic-plus-circle" size="24"></sw-icon>
+                                <p>{{ $tc('sw-cms.detail.addBlocks') }}</p>
+                            </div>
                         {% endblock %}
+                    </template>
 
-                        {% block sw_cms_section_add_content_block %}
-                            <sw-cms-stage-add-block :key="index + 1"
-                                                    v-droppable="{ dragGroup: 'cms-stage', data: getDropData(block.position + 1) }"
+                    <template v-else>
+
+                        {% block sw_cms_section_content_add_first_block %}
+                            <sw-cms-stage-add-block :key="0"
+                                                    v-droppable="{ dragGroup: 'cms-stage', data: getDropData(0) }"
                                                     @stage-add-block="onAddSectionBlock">
                             </sw-cms-stage-add-block>
                         {% endblock %}
+
+                        <template v-for="(block, index) in mainContentBlocks">
+                            {% block sw_cms_section_content_block %}
+                                <sw-cms-block class="sw-cms-stage-block"
+                                              :key="block.id"
+                                              :block="block"
+                                              :buttonsEnabled="isSystemDefaultLanguage"
+                                              :active="currentBlock !== null && currentBlock.id === block.id"
+                                              @block-overlay-click="onBlockSelection(block)"
+                                              @block-delete="onBlockDelete(block.id)"
+                                              @block-duplicate="onBlockDuplicate(block, section)">
+
+                                    {% block sw_cms_section_content_block_component %}
+                                        <component :is="`sw-cms-block-${block.type}`">
+                                            {% block sw_cms_section_content_block_slot %}
+                                                <sw-cms-slot v-for="el in block.slots"
+                                                             :slot="el.slot"
+                                                             :key="el.id"
+                                                             :element="el"
+                                                             :active="currentBlock !== null && currentBlock.id === block.id">
+                                                </sw-cms-slot>
+                                            {% endblock %}
+                                        </component>
+                                    {% endblock %}
+                                </sw-cms-block>
+                            {% endblock %}
+
+                            {% block sw_cms_section_add_content_block %}
+                                <sw-cms-stage-add-block :key="index + 1"
+                                                        v-droppable="{ dragGroup: 'cms-stage', data: getDropData(block.position + 1) }"
+                                                        @stage-add-block="onAddSectionBlock">
+                                </sw-cms-stage-add-block>
+                            {% endblock %}
+                        </template>
                     </template>
-                </template>
-            </div>
-        {% endblock %}
+                </div>
+            {% endblock %}
+        </div>
     </div>
 {% endblock %}

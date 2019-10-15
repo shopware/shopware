@@ -65,6 +65,7 @@ class SeoUrlPersister
             if ($seoUrl instanceof \JsonSerializable) {
                 $seoUrl = $seoUrl->jsonSerialize();
             }
+
             $fk = $seoUrl['foreignKey'];
             /** @var string|null $salesChannelId */
             $salesChannelId = $seoUrl['salesChannelId'] = $seoUrl['salesChannelId'] ?? null;
@@ -103,7 +104,7 @@ class SeoUrlPersister
             $insert['foreign_key'] = Uuid::fromHexToBytes($fk);
 
             $insert['path_info'] = $seoUrl['pathInfo'];
-            $insert['seo_path_info'] = trim($seoUrl['seoPathInfo'], '/');
+            $insert['seo_path_info'] = ltrim($seoUrl['seoPathInfo'], '/');
 
             $insert['route_name'] = $routeName;
             $insert['is_canonical'] = ($seoUrl['isCanonical'] ?? true) ? 1 : null;

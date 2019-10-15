@@ -57,6 +57,7 @@ describe('Snippet set: Test crud operations', () => {
             `${page.elements.gridRow}--0`
         );
 
+        cy.get('.sw-modal__body').should('be.visible');
         cy.get('.sw-modal__body')
             .contains('Are you sure you want to delete the snippet set "A Set Name Snippet"?');
         cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();

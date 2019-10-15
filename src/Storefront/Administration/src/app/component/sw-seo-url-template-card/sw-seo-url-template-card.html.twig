@@ -5,7 +5,6 @@
         <template slot="toolbar">
             <sw-sales-channel-switch
                     :label="$tc('sw-seo-url-template-card.general.labelSalesChannelSelect')"
-                    ref="salesChannelSelect"
                     @change-sales-channel-id="onSalesChannelChanged">
             </sw-sales-channel-switch>
         </template>
@@ -54,15 +53,16 @@
                             </sw-inherit-wrapper>
                         {% endblock %}
                         {% block sw_seo_url_template_card_entries_variables %}
-                            <sw-select
-                                    v-if="getVariablesStore(seoUrlTemplate.id)"
-                                    :store="getVariablesStore(seoUrlTemplate.id)"
-                                    :ref="`select-${seoUrlTemplate.id}`"
-                                    :placeholder="$tc('sw-seo-url-template-card.general.placeholderSelectVariables')"
-                                    :disabled="seoUrlTemplate.template === null"
-                                    @input="onSelectInput($event, seoUrlTemplate)"
-                                    :label="$tc('sw-seo-url-template-card.general.labelPossibleValues')">
-                            </sw-select>
+                            <sw-single-select v-if="getVariableOptions(seoUrlTemplate.id)"
+                                              :value="selectedProperty"
+                                              valueProperty="name"
+                                              labelProperty="name"
+                                              :options="getVariableOptions(seoUrlTemplate.id)"
+                                              :placeholder="$tc('sw-seo-url-template-card.general.placeholderSelectVariables')"
+                                              :disabled="seoUrlTemplate.template === null"
+                                              @change="(propertyName) => onSelectInput(propertyName, seoUrlTemplate)"
+                                              :label="$tc('sw-seo-url-template-card.general.labelPossibleValues')">
+                            </sw-single-select>
                         {% endblock %}
                     </sw-container>
                     {% block sw_seo_url_template_card_entries_preview %}

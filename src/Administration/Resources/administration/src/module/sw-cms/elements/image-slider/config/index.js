@@ -37,6 +37,14 @@ Component.register('sw-cms-el-config-image-slider', {
 
         defaultFolderName() {
             return this.cmsPageState.pageEntityName;
+        },
+
+        items() {
+            if (this.element.config && this.element.config.sliderItems && this.element.config.sliderItems.value) {
+                return this.element.config.sliderItems.value;
+            }
+
+            return [];
         }
     },
 

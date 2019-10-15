@@ -73,7 +73,9 @@
       "textHeadlineEdit": "Edit email template",
       "titleResult": "Email template",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "The email template \"{subject}\" has been saved."
+      "titleSaveError": "Error",
+      "messageSaveSuccess": "The email template \"{subject}\" has been saved.",
+      "messageSaveError": "The email template \"{subject}\" could not be saved."
     }
   },
   "sw-mail-header-footer": {
@@ -127,7 +129,9 @@
       "textHeadline": "New email header/footer",
       "titleResult": "Email header/footer",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "The email header/footer \"{name}\" has been saved."
+      "titleSaveError": "Error",
+      "messageSaveSuccess": "The email header/footer \"{name}\" has been saved.",
+      "messageSaveError": "The email header/footer \"{name}\" could not be saved."
     }
   }
 }

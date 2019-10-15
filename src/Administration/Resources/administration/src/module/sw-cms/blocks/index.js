@@ -26,6 +26,9 @@ import './text-image/image-text-gallery';
 import './text-image/image-text-bubble';
 import './text-image/text-on-image';
 
+import './sidebar/sidebar-filter';
+import './sidebar/category-navigation';
+
 import './commerce/product-three-column';
 import './commerce/product-listing';
 import './commerce/product-slider';

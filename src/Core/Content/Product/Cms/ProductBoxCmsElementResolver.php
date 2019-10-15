@@ -30,7 +30,6 @@ class ProductBoxCmsElementResolver extends AbstractCmsElementResolver
         }
 
         $criteria = new Criteria([$productConfig->getValue()]);
-        $criteria->addAssociation('cover');
 
         $criteriaCollection = new CriteriaCollection();
         $criteriaCollection->add('product_' . $slot->getUniqueIdentifier(), ProductDefinition::class, $criteria);

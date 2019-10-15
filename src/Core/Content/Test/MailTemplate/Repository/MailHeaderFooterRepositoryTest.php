@@ -222,9 +222,9 @@ class MailHeaderFooterRepositoryTest extends TestCase
                 'name' => sprintf('Test-Template %d %s', $i, $add),
                 'description' => sprintf('John Doe %d %s', $i, $add),
                 'headerPlain' => sprintf('Test header 123 %d %s', $i, $add),
-                'headerHtml' => sprintf('<h1>Test header %d %s <h1>', $i, $add),
+                'headerHtml' => sprintf('<h1>Test header %d %s </h1>', $i, $add),
                 'footerPlain' => sprintf('Test footer 123 %d %s', $i, $add),
-                'footerHtml' => sprintf('<h1>Test footer %d %s <h1>', $i, $add),
+                'footerHtml' => sprintf('<h1>Test footer %d %s </h1>', $i, $add),
             ];
         }
 

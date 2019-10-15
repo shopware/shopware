@@ -301,6 +301,7 @@ class EntityAggregator implements EntityAggregatorInterface
     private function parseTermsAggregation(TermsAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
     {
         $keyAccessor = $this->helper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
+        $query->addGroupBy($keyAccessor);
 
         $key = $aggregation->getName() . '.key';
 
@@ -310,7 +311,6 @@ class EntityAggregator implements EntityAggregatorInterface
         }
 
         $query->addSelect(sprintf('%s as `%s`', $keyAccessor, $key));
-        $query->addGroupBy($keyAccessor);
 
         $key = $aggregation->getName() . '.count';
 
@@ -378,10 +378,10 @@ class EntityAggregator implements EntityAggregatorInterface
     private function parseEntityAggregation(EntityAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
     {
         $accessor = $this->helper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
-        $accessor = 'LOWER(HEX(' . $accessor . '))';
-
-        $query->addSelect(sprintf('%s as `%s`', $accessor, $aggregation->getName()));
         $query->addGroupBy($accessor);
+
+        $accessor = 'LOWER(HEX(' . $accessor . '))';
+        $query->addSelect(sprintf('%s as `%s`', $accessor, $aggregation->getName()));
     }
 
     private function hydrateResult(Aggregation $aggregation, EntityDefinition $definition, array $rows, Context $context): AggregationResult
@@ -402,27 +402,27 @@ class EntityAggregator implements EntityAggregatorInterface
                 return $this->hydrateResult($aggregation->getAggregation(), $definition, $rows, $context);
 
             case $aggregation instanceof AvgAggregation:
-                $value = $rows[0] ? $rows[0][$name] : 0;
+                $value = isset($rows[0]) ? $rows[0][$name] : 0;
 
                 return new AvgResult($aggregation->getName(), (float) $value);
 
             case $aggregation instanceof SumAggregation:
-                $value = $rows[0] ? $rows[0][$name] : 0;
+                $value = isset($rows[0]) ? $rows[0][$name] : 0;
 
                 return new SumResult($aggregation->getName(), (float) $value);
 
             case $aggregation instanceof MaxAggregation:
-                $value = $rows[0] ? $rows[0][$name] : 0;
+                $value = isset($rows[0]) ? $rows[0][$name] : 0;
 
                 return new MaxResult($aggregation->getName(), $value);
 
             case $aggregation instanceof MinAggregation:
-                $value = $rows[0] ? $rows[0][$name] : 0;
+                $value = isset($rows[0]) ? $rows[0][$name] : 0;
 
                 return new MinResult($aggregation->getName(), $value);
 
             case $aggregation instanceof CountAggregation:
-                $value = $rows[0] ? $rows[0][$name] : 0;
+                $value = isset($rows[0]) ? $rows[0][$name] : 0;
 
                 return new CountResult($aggregation->getName(), (int) $value);
 

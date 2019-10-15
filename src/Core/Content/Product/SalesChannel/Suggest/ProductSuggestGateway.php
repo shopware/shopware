@@ -6,6 +6,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\Events\ProductSuggestCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSuggestResultEvent;
 use Shopware\Core\Content\Product\ProductEvents;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -60,6 +61,8 @@ class ProductSuggestGateway implements ProductSuggestGatewayInterface
         );
 
         $result = $this->repository->search($criteria, $context);
+
+        $result = ProductListingResult::createFrom($result);
 
         $this->eventDispatcher->dispatch(
             new ProductSuggestResultEvent($request, $result, $context),

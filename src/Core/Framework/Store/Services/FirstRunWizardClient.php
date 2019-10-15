@@ -135,6 +135,8 @@ final class FirstRunWizardClient
         $userToken = new ShopUserTokenStruct();
         $userToken->assign($data['shopUserToken']);
 
+        $this->configService->set('core.store.shopSecret', $data['shopSecret']);
+
         $accessTokenStruct = new AccessTokenStruct();
         $accessTokenStruct->assign($data);
         $accessTokenStruct->setShopUserToken($userToken);

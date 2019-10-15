@@ -1,0 +1,26 @@
+{% block component_filter_boolean %}
+    <div class="filter-boolean filter-panel-item"
+         data-filter-boolean="true"
+         data-filter-boolean-options='{ "name": "{{ name }}", "displayName": "{{ displayName }}" }'>
+
+        {% block component_filter_boolean_container %}
+            <div class="custom-control custom-checkbox">
+
+                {% block component_filter_boolean_checkbox %}
+                    <input type="checkbox"
+                           class="filter-boolean-input custom-control-input"
+                           id="{{ name }}"
+                           name="{{ name }}">
+                {% endblock %}
+
+                {% block component_filter_boolean_label %}
+                    <label for="{{ name }}" class="filter-boolean-label custom-control-label">
+                        {% block component_filter_boolean_display_name %}
+                            {{ displayName }}
+                        {% endblock %}
+                    </label>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

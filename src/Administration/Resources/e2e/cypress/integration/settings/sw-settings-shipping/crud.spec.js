@@ -91,6 +91,7 @@ describe('Shipping: Test crud operations', () => {
             `${page.elements.dataGridRow}--0`
         );
 
+        cy.get('.sw-modal__body').should('be.visible');
         cy.get('.sw-modal__body')
             .contains('Are you sure you really want to delete the shipping method "Luftpost"?');
         cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();

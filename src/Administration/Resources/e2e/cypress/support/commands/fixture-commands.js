@@ -1,7 +1,7 @@
 import ProductFixture from '../service/administration/fixture/product.fixture';
 import CustomerFixture from '../service/administration/fixture/customer.fixture';
 import ShippingFixture from '../service/administration/fixture/shipping.fixture';
-import  CmsFixture from '../service/administration/fixture/cms.fixture';
+import CmsFixture from '../service/administration/fixture/cms.fixture';
 import OrderFixture from '../service/saleschannel/fixture/order.fixture';
 import AdminSalesChannelFixture from '../service/administration/fixture/sales-channel.fixture';
 import Fixture from '../service/administration/fixture.service';
@@ -249,6 +249,8 @@ Cypress.Commands.add('createGuestOrder', (productId, userData) => {
 Cypress.Commands.add('setToInitialState', () => {
     return cy.log('Cleaning, please wait a little bit.').then(() => {
         return cy.cleanUpPreviousState();
+    }).then(() => {
+        return cy.clearCacheAdminApi('DELETE', 'api/v1/_action/cache');
     }).then(() => {
         return cy.setLocaleToEnGb();
     });

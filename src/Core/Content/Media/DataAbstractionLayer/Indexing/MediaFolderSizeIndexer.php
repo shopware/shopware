@@ -93,6 +93,11 @@ class MediaFolderSizeIndexer implements IndexerInterface
         return $iterator->getOffset();
     }
 
+    public static function getName(): string
+    {
+        return 'Swag.MediaFolderSizeIndexer';
+    }
+
     private function update(array $ids, Context $context): void
     {
         $criteria = new Criteria();

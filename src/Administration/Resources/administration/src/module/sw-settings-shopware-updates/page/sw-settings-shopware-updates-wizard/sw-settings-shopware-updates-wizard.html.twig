@@ -53,14 +53,24 @@
                 v-if="updateModalShown"
                 @modal-close="updateModalShown = false"
             >
-                <template v-if="pluginUpdateState == 'allOkay'">
-                    {{ $tc('sw-settings-shopware-updates.updateModal.messageOkay') }}
-                </template>
-                <template v-if="pluginUpdateState == 'updatableNow'">
-                    {{ $tc('sw-settings-shopware-updates.updateModal.messageUpdatableNow') }}
-                </template>
-                <template v-if="pluginUpdateState == 'notInStore'">
+                <sw-alert v-if="displayUnknownPluginsWarning" variant="warning">
                     {{ $tc('sw-settings-shopware-updates.updateModal.messageNotInStore') }}
+                </sw-alert>
+
+                <sw-alert v-if="displayIncompatiblePluginsWarning" variant="warning">
+                    {{ $tc('sw-settings-shopware-updates.updateModal.messageIncompatible') }}
+                </sw-alert>
+
+                <sw-radio-field v-if="displayIncompatiblePluginsWarning"
+                                v-model="chosenPluginBehaviour"
+                                :options="[
+                                {'value': 'all', 'name': optionDeactivateAllTranslation },
+                                {'value': 'notCompatible', 'name': optionDeactivateIncompatibleTranslation },
+                                {'value': '', 'name': $tc('sw-settings-shopware-updates.plugins.actions.deactivateNone')}]">
+                </sw-radio-field>
+
+                <template v-if="displayAllPluginsOkayInfo">
+                    {{ $tc('sw-settings-shopware-updates.updateModal.messageOkay') }}
                 </template>
 
                 <template slot="modal-footer">

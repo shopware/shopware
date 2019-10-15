@@ -8,5 +8,15 @@ Component.register('sw-cms-el-category-navigation', {
     mixins: [
         Mixin.getByName('cms-element'),
         Mixin.getByName('placeholder')
-    ]
+    ],
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            this.initElementConfig('category-navigation');
+        }
+    }
 });

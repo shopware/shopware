@@ -188,6 +188,11 @@ class ProductStockIndexer implements IndexerInterface, EventSubscriberInterface
         $this->clearCache($ids);
     }
 
+    public static function getName(): string
+    {
+        return 'Swag.ProductStockIndexer';
+    }
+
     private function updateAvailableStock(array $ids, Context $context): void
     {
         $ids = array_filter(array_keys(array_flip($ids)));

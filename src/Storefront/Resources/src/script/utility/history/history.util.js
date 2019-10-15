@@ -84,6 +84,10 @@ class HistoryUtilSingleton {
 
         this.replace(pathname, search, state);
     }
+
+    getSearch() {
+        return this._history.location.search;
+    }
 }
 
 /**
@@ -98,7 +102,7 @@ export default class HistoryUtil {
      * returns the current location
      */
     static getLocation() {
-        HistoryUtilInstance.getLocation();
+        return HistoryUtilInstance.getLocation();
     }
 
     /**
@@ -126,10 +130,11 @@ export default class HistoryUtil {
      * update the history
      *
      * @param {string} path
+     * @param {*} params
      * @param {*} state
      */
-    static push(path, state) {
-        HistoryUtilInstance.push(path, state);
+    static push(path, params, state) {
+        HistoryUtilInstance.push(path, params, state);
     }
 
     /**
@@ -160,5 +165,14 @@ export default class HistoryUtil {
      */
     static replaceParams(params, state) {
         HistoryUtilInstance.replaceParams(params, state);
+    }
+
+    /**
+     * Returns the history search parameter
+     *
+     * @returns {*}
+     */
+    static getSearch() {
+        return HistoryUtilInstance.getSearch();
     }
 }

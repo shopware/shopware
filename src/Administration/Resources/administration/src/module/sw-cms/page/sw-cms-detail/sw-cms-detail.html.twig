@@ -8,6 +8,7 @@
                     <sw-cms-toolbar>
                         {% block sw_cms_detail_toolbar_language_switch %}
                             <sw-language-switch slot="language-switch"
+                                                :disabled="isLoading"
                                                 @on-change="onChangeLanguage"
                                                 :saveChangesFunction="saveOnLanguageChange"
                                                 :abortChangeFunction="abortOnLanguageChange">
@@ -67,7 +68,10 @@
                         {% block sw_cms_detail_toolbar_actions %}
                             <div class="sw-cms-detail__actions" slot="actions">
                                 {% block sw_cms_detail_toolbar_actions_sales_channel %}
-                                    <sw-select-field v-model="currentSalesChannelKey" @change="onSalesChannelChange" size="medium">
+                                    <sw-select-field v-model="currentSalesChannelKey"
+                                                     @change="onSalesChannelChange"
+                                                     :disabled="isLoading"
+                                                     size="medium">
                                         <option v-for="salesChannel in salesChannels" :value="salesChannel.id">{{ placeholder(salesChannel, 'name') }}</option>
                                     </sw-select-field>
                                 {% endblock %}

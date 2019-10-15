@@ -2,18 +2,12 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-
 class IndexerMessage
 {
-    public const ACTION_INDEX = 'index';
-    public const ACTION_REFRESH = 'refresh';
-    public const ACTION_PARTIAL = 'partial';
-
     /**
-     * @var string classname of the indexer
+     * @var string[]
      */
-    private $indexer;
+    private $indexerNames;
 
     /**
      * @var \DateTimeInterface
@@ -21,23 +15,31 @@ class IndexerMessage
     private $timestamp;
 
     /**
-     * @var string
-     */
-    private $actionType = self::ACTION_INDEX;
-
-    /**
      * @var array|null
      */
     private $offset;
 
-    /**
-     * @var EntityWrittenContainerEvent
-     */
-    private $entityWrittenContainerEvent;
-
-    public function getIndexer(): string
+    public function __construct(array $indexers)
     {
-        return $this->indexer;
+        if (empty($indexers)) {
+            throw new \InvalidArgumentException('$indexers may not be empty');
+        }
+        foreach ($indexers as $indexer) {
+            if (!is_string($indexer)) {
+                throw new \InvalidArgumentException('expected array of strings');
+            }
+        }
+        $this->indexerNames = $indexers;
+    }
+
+    public function getCurrentIndexerName(): string
+    {
+        return @current($this->indexerNames);
+    }
+
+    public function getIndexerNames(): array
+    {
+        return $this->indexerNames;
     }
 
     public function getTimestamp(): \DateTimeInterface
@@ -45,34 +47,9 @@ class IndexerMessage
         return $this->timestamp;
     }
 
-    public function getActionType(): string
-    {
-        return $this->actionType;
-    }
-
-    public function getEntityWrittenContainerEvent(): EntityWrittenContainerEvent
-    {
-        return $this->entityWrittenContainerEvent;
-    }
-
-    public function setIndexer(string $indexer): void
-    {
-        $this->indexer = $indexer;
-    }
-
     public function setTimestamp(\DateTimeInterface $timestamp): void
     {
         $this->timestamp = $timestamp;
-    }
-
-    public function setActionType(string $actionType): void
-    {
-        $this->actionType = $actionType;
-    }
-
-    public function setEntityWrittenContainerEvent(EntityWrittenContainerEvent $entityWrittenContainerEvent): void
-    {
-        $this->entityWrittenContainerEvent = $entityWrittenContainerEvent;
     }
 
     public function getOffset(): ?array

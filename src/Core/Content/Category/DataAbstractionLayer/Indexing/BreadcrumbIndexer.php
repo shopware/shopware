@@ -250,15 +250,17 @@ class BreadcrumbIndexer implements IndexerInterface
             $path = $this->buildBreadcrumb($id, $categories);
 
             $this->connection->executeUpdate(
-                'UPDATE category_translation SET breadcrumb = :breadcrumb 
-                 WHERE category_id = :categoryId 
-                 AND language_id = :languageId
-                 AND category_version_id = :versionId',
+                '
+                    INSERT INTO `category_translation`
+                        (`category_id`, `category_version_id`, `language_id`, `breadcrumb`, `created_at`)
+                    VALUES
+                        (:categoryId, :versionId, :languageId, :breadcrumb, DATE(NOW()))
+                    ON DUPLICATE KEY UPDATE `breadcrumb` = :breadcrumb',
                 [
-                    'breadcrumb' => json_encode($path),
                     'categoryId' => Uuid::fromHexToBytes($id),
                     'versionId' => $versionId,
                     'languageId' => $languageId,
+                    'breadcrumb' => json_encode($path),
                 ]
             );
 
@@ -266,6 +268,11 @@ class BreadcrumbIndexer implements IndexerInterface
         }
 
         $this->cache->invalidateTags($tags);
+    }
+
+    public static function getName(): string
+    {
+        return 'Swag.BreadcrumbIndexer';
     }
 
     private function buildBreadcrumb(string $id, CategoryCollection $categories): array

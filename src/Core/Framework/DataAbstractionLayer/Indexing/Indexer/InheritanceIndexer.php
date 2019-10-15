@@ -145,7 +145,7 @@ class InheritanceIndexer implements IndexerInterface
         }
     }
 
-    private function update(EntityDefinition $definition, array $ids, Context $context): void
+    public function update(EntityDefinition $definition, array $ids, Context $context): void
     {
         $inherited = $definition->getFields()->filter(function (Field $field) {
             return $field->is(Inherited::class) && $field instanceof AssociationField;
@@ -168,12 +168,8 @@ class InheritanceIndexer implements IndexerInterface
         }
     }
 
-    private function updateToManyAssociations(
-        EntityDefinition $definition,
-        array $ids,
-        FieldCollection $associations,
-        Context $context
-    ): void {
+    public function updateToManyAssociations(EntityDefinition $definition, array $ids, FieldCollection $associations, Context $context): void
+    {
         $bytes = array_map(function ($id) {
             return Uuid::fromHexToBytes($id);
         }, $ids);
@@ -226,12 +222,8 @@ class InheritanceIndexer implements IndexerInterface
         }
     }
 
-    private function updateToOneAssociations(
-        EntityDefinition $definition,
-        array $ids,
-        FieldCollection $associations,
-        Context $context
-    ): void {
+    public function updateToOneAssociations(EntityDefinition $definition, array $ids, FieldCollection $associations, Context $context): void
+    {
         $bytes = array_map(function ($id) {
             return Uuid::fromHexToBytes($id);
         }, $ids);
@@ -292,5 +284,10 @@ class InheritanceIndexer implements IndexerInterface
                 ['ids' => Connection::PARAM_STR_ARRAY]
             );
         }
+    }
+
+    public static function getName(): string
+    {
+        return 'Swag.InheritanceIndexer';
     }
 }

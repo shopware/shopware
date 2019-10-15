@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Cms\SalesChannel;
 
-use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
@@ -12,7 +11,6 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -44,14 +42,14 @@ class SalesChannelCmsPageLoader
         $config = $config ?? [];
 
         // ensure sections, blocks and slots are loaded, slots and blocks can be restricted by caller
-        $criteria->getAssociation('sections')
-            ->addSorting(new FieldSorting('position', FieldSorting::ASCENDING))
+        $criteria
+            ->getAssociation('sections')
             ->addAssociation('backgroundMedia');
 
-        $criteria->getAssociation('sections.blocks')
+        $criteria
+            ->getAssociation('sections.blocks')
             ->addAssociation('backgroundMedia')
-            ->addAssociation('slots')
-            ->addSorting(new FieldSorting('position', FieldSorting::ASCENDING));
+            ->addAssociation('slots');
 
         // step 1, load cms pages with blocks and slots
         $pages = $this->cmsPageRepository->search($criteria, $context->getContext());
@@ -62,35 +60,19 @@ class SalesChannelCmsPageLoader
                 continue;
             }
 
+            $page->getSections()->sort(function (CmsSectionEntity $a, CmsSectionEntity $b) {
+                return $a->getPosition() <=> $b->getPosition();
+            });
+
             if (!$resolverContext) {
                 $resolverContext = new ResolverContext($context, $request);
             }
 
             // step 2, sort blocks into sectionPositions
-            /* @var $section CmsSectionEntity */
             foreach ($page->getSections() as $section) {
-                /* @var $sectionBlock CmsBlockCollection */
-                $sectionBlock = $section->getBlocks();
-
-                $sectionBlockPositions = [];
-
-                foreach ($sectionBlock as $block) {
-                    $key = $block->getSectionPosition() . 'Blocks';
-
-                    if (!isset($sectionBlockPositions[$key])) {
-                        $sectionBlockPositions[$key] = new CmsBlockCollection();
-                    }
-
-                    $sectionBlockPositions[$key]->add($block);
-                }
-
-                foreach ($sectionBlockPositions as $postionName => $blocksCollection) {
-                    $blocksCollection->sort(function (CmsBlockEntity $a, CmsBlockEntity $b) {
-                        return $a->getPosition() <=> $b->getPosition();
-                    });
-
-                    $section->addExtension($postionName, $blocksCollection);
-                }
+                $section->getBlocks()->sort(function (CmsBlockEntity $a, CmsBlockEntity $b) {
+                    return $a->getPosition() <=> $b->getPosition();
+                });
             }
 
             // step 3, find config overwrite

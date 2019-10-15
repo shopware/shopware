@@ -99,7 +99,7 @@ class IndexerRegistry implements EventSubscriberInterface, IndexerRegistryInterf
                 return $this->doPartial($indexer, $lastId, $index, $timestamp);
             }
 
-            if ($lastIndexer === get_class($indexer)) {
+            if ($lastIndexer === $indexer::getName()) {
                 return $this->doPartial($indexer, $lastId, $index, $timestamp);
             }
         }
@@ -111,7 +111,7 @@ class IndexerRegistry implements EventSubscriberInterface, IndexerRegistryInterf
     {
         $nextId = $indexer->partial($lastId, $timestamp);
 
-        $next = get_class($indexer);
+        $next = $indexer::getName();
 
         if ($nextId !== null) {
             return new IndexerRegistryPartialResult($next, $nextId);
@@ -123,7 +123,7 @@ class IndexerRegistry implements EventSubscriberInterface, IndexerRegistryInterf
             return null;
         }
 
-        return new IndexerRegistryPartialResult(get_class($indexers[$index]), null);
+        return new IndexerRegistryPartialResult($indexers[$index]::getName(), null);
     }
 
     private function getIndexers()

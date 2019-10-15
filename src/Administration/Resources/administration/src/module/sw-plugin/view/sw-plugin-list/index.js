@@ -264,11 +264,13 @@ Component.register('sw-plugin-list', {
             ];
 
             return matches.map((match) => {
+                const violation = match.extensions.licenseViolation;
+
                 return {
-                    level: match.type.level,
-                    label: match.type.label,
-                    text: match.text,
-                    actions: match.actions
+                    level: violation.type.level,
+                    label: violation.type.label,
+                    text: violation.text,
+                    actions: violation.actions
                 };
             });
         }

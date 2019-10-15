@@ -95,6 +95,7 @@ describe('Currency: Test crud operations', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--3`
         );
+        cy.get('.sw-modal__body').should('be.visible');
         cy.get('.sw-modal__body')
             .contains('Are you sure you want to delete the currency "Yen"?');
         cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();

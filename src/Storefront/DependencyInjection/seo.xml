@@ -62,6 +62,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="slugify"/>
             <argument type="service" id="router.default"/>
+            <argument type="service" id="request_stack"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Seo\SeoUrlPersister">

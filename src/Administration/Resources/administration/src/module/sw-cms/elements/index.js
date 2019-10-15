@@ -6,4 +6,5 @@ import './youtube-video';
 import './product-box';
 import './product-listing';
 import './product-slider';
+import './sidebar-filter';
 import './sidebar-category-navigation';

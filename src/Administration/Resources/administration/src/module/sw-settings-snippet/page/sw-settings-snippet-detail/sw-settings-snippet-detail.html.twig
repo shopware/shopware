@@ -33,7 +33,7 @@
                         class="sw-snippet-detail__save-action"
                         :isLoading="isLoading"
                         :processSuccess="isSaveSuccessful"
-                        :disabled="isLoading || !translationKey || !isSavable"
+                        :disabled="isLoading || !translationKey || !isSaveable"
                         variant="primary"
                         @process-finish="saveFinish"
                         @click.prevent="onSave">

@@ -13,7 +13,6 @@
     background-position: center center;
     padding: 0;
     min-height: 400px;
-    display: grid;
     border-top: 1px solid $color-gray-300;
 
     &.has--shadow-top {
@@ -25,14 +24,18 @@
     }
 
     &.is--sidebar {
-        grid-template-columns: 2fr 4fr;
-        grid-gap: 28px;
-        justify-content: center;
+        .sw-cms-section__wrapper {
+            display: grid;
+            grid-template-columns: 2fr 4fr;
+            grid-gap: 28px;
+        }
     }
 
     &.is--sidebar.is--boxed {
-        grid-template-columns: 340px 1fr;
-        justify-items: initial;
+        .sw-cms-section__wrapper {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+        }
     }
 
     &:hover {
@@ -53,9 +56,10 @@
         justify-items: center;
         padding: 20px;
 
-        .sw-cms-section__content {
+        .sw-cms-section__wrapper {
             max-width: 1080px;
             width: 100%;
+            margin: auto;
         }
     }
 
@@ -72,6 +76,7 @@
             border-radius: 10px;
             max-height: 980px;
             min-height: 300px;
+            height: 100%;
             width: 100%;
             display: flex;
             justify-content: center;

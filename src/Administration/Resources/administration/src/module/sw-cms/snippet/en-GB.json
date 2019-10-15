@@ -75,8 +75,10 @@
       "labelBlockCategorySelection": "Block category",
       "labelBlockCategoryText": "Text",
       "labelBlockCategoryTextImage": "Text & images",
+      "labelBlockCategorySidebar": "Sidebar",
       "labelBlockCategoryImage": "Images",
       "labelBlockCategoryCommerce": "Commerce",
+      "labelBlockCategorySidebar": "Sidebar",
       "titleElementSettingsModal": "Element settings",
       "labelButtonElementSettingsConfirm": "Done",
       "titleElementChangeModal": "Change element",
@@ -116,7 +118,8 @@
       "notificationMessageMissingElements": "Configuration required. Please fill in all required configuration elements.",
       "alertTitleTranslations": "Translations currently not available!",
       "alertContentTranslations": "Layouts can only be edited in the system default language.",
-      "addBlocks": "Add Blocks via Drag & Drop"
+      "addBlocks": "Add Blocks via Drag & Drop",
+      "labelNavigation": "Navigation"
     },
     "elements": {
       "captionMediaUpload": "Upload an image",
@@ -173,6 +176,7 @@
       "labelSettingsLinkNewTab": "Open link in new tab",
       "infoTextListingElement": "This element's product data is automatically loaded by the category associated with this layout. The content just shows a sample preview.",
       "infoTextNavigationElement": "This element's navigation data is automatically loaded by the category associated with this layout. The content just shows a sample preview.",
+      "infoTextFilterElement": "This element's filter data is automatically loaded. The content just shows a sample preview.",
       "labelImageGalleryZoom": "Zoom",
       "labelImageGalleryFullscreen": "Fullscreen gallery",
       "labelVideoID": "Video Link",

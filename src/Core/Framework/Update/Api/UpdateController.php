@@ -112,12 +112,12 @@ class UpdateController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/update/plugin-compatibility", name="api.custom.updateapi.plugin_compatibility", methods={"GET"})
      */
-    public function pluginCompatibility(): JsonResponse
+    public function pluginCompatibility(Context $context): JsonResponse
     {
         /** @var Version $update */
         $update = $this->apiClient->checkForUpdates();
 
-        return new JsonResponse($this->pluginCompatibility->getPluginCompatibilities($update));
+        return new JsonResponse($this->pluginCompatibility->getPluginCompatibilities($update, $context));
     }
 
     /**
@@ -144,10 +144,16 @@ class UpdateController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/update/unpack", name="api.custom.updateapi.unpack", methods={"GET"})
      */
-    public function unpack(Request $request): JsonResponse
+    public function unpack(Request $request, Context $context): JsonResponse
     {
         /** @var Version $update */
         $update = $this->apiClient->checkForUpdates();
+
+        $deactivationFilter = $request->query->get('deactivationFilter', PluginCompatibility::PLUGIN_DEACTIVATION_FILTER_NOT_COMPATIBLE);
+
+        // TODO: NEXT-5205 - Refactor into DeactivateIncompatiblePluginStep
+        $this->pluginCompatibility->deactivateIncompatiblePlugins($update, $context, $deactivationFilter);
+
         $source = $this->createDestinationFromVersion($update);
         $offset = $request->query->getInt('offset');
 

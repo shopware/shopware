@@ -36,10 +36,12 @@
                 </template>
             </td>
 
-            <td>{{ violation.text }}</td>
+            <td>{{ violation.extensions.licenseViolation.text }}</td>
 
             <td class="sw-license-violation__table-actions">
-                <div v-for="action in violation.actions" :key="action.externalLink">
+                <div v-for="action in violation.extensions.licenseViolation.actions"
+                     :key="action.externalLink"
+                     class="sw-license-violation__table-actions-wrap">
                     <a class="sw-license-violation__table-action-remove"
                        href="#"
                        @click.prevent="deletePlugin(violation)">
@@ -55,7 +57,7 @@
 
         </tr>
     </table>
-
+    
     <template slot="modal-footer">
         <sw-field type="checkbox"
                   v-model="readNotice"
@@ -70,4 +72,24 @@
         </sw-button>
     </template>
 
+    <sw-modal v-if="showDeleteModal"
+              @modal-close="onCloseDeleteModal"
+              :title="$tc('sw-license-violation.delete-plugin')"
+              class="sw-license-violation-confirm-delete"
+              variant="small">
+
+        <p class="sw-plugin-list__confirm-delete-text">
+            {{ $tc('sw-license-violation.message-delete-confirm', '', { pluginName: deletePluginItem.label }) }}
+        </p>
+
+        <template #modal-footer>
+                <sw-button @click="onCloseDeleteModal" size="small">
+                    {{ $tc('global.entity-components.deleteCancel') }}
+                </sw-button>
+
+                <sw-button @click="onConfirmDelete" variant="primary" size="small">
+                    {{ $tc('global.entity-components.deleteConfirm') }}
+                </sw-button>
+        </template>
+    </sw-modal>
 </sw-modal>

@@ -1,0 +1,44 @@
+@import "~scss/variables";
+
+.sw-cms-block-preview-sidebar-filter {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: stretch;
+    align-items: stretch;
+    padding: 20px 20px;
+
+    .sw-cms-block-preview-sidebar-filter__element {
+        display: inline-block;
+        border: 1px solid #d4e2e2;
+        border-radius: 3px;
+        padding: 4px 6px;
+        margin-right: 6px;
+
+        &::before {
+            content: '';
+            display: inline-block;
+            position: relative;
+            top: 2px;
+            margin-right: 4px;
+            width: 40px;
+            height: 16px;
+            background-color: $color-gray-100;
+            border-radius: 8px;
+        }
+
+        .sw-icon {
+            margin-left: 4px;
+            margin-bottom: 5px;
+            margin-right: 2px;
+        }
+
+        &:nth-child(2)::before {
+            width: 85px;
+        }
+
+        &:nth-child(3)::before {
+            width: 60px;
+        }
+    }
+}

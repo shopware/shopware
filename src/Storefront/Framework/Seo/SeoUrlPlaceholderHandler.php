@@ -77,6 +77,15 @@ class SeoUrlPlaceholderHandler
         $response->setContent($content);
     }
 
+    public function generateResolved(Request $request, $name, $parameters = []): string
+    {
+        $url = $this->generate($name, $parameters);
+        $tmpResponse = new Response($url);
+        $this->replacePlaceholder($request, $tmpResponse);
+
+        return $tmpResponse->getContent();
+    }
+
     private function createDefaultMapping(array $matches): array
     {
         $mapping = [];
@@ -107,8 +116,12 @@ class SeoUrlPlaceholderHandler
 
         /** @var SeoUrlEntity $seoUrl */
         foreach ($seoUrls as $seoUrl) {
+            $seoPathInfo = trim($seoUrl->getSeoPathInfo());
+            if ($seoPathInfo === '') {
+                continue;
+            }
             $key = self::DOMAIN_PLACEHOLDER . $seoUrl->getPathInfo() . '#';
-            $mapping[$key] = $seoUrl->getSeoPathInfo();
+            $mapping[$key] = $seoPathInfo;
         }
 
         return $mapping;

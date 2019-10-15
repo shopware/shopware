@@ -52,9 +52,14 @@
         "available": "Compatible"
       },
       "actions": {
-        "openPluginManager": "Open plugin manager"
+        "openPluginManager": "Open plugin manager",
+        "deactivateAll": "Deactivate all plugins.",
+        "deactivateIncompatible": "Deactivate all incompatible plugins.",
+        "deactivateNone": "I am aware of the dangers and want to update without deactivating incompatible plugins. I am conscious, that Shopware cannot guarantee the functionality of my installation after an incompatible update.",
+        "recommended": "(Recommended)"
       },
-      "pluginNotInStore": "The plugin is not available in the store. Please contact the author"
+      "pluginNotInStore": "The plugin is not available in the store. Please contact the author",
+      "pluginWillBeDeactivatedHint": "(This plugin will be deactivated on update)"
     },
     "updateModal": {
       "actions": {
@@ -62,9 +67,9 @@
         "install": "Install",
         "goToUpdate": "Open update wizard"
       },
-      "messageOkay": "All prerequisites are fulfilled. You should create a backup before updating.",
-      "messageUpdatableNow": "You have some plugins, which needs an update before the Shopware update. You should also create a backup before updating.",
+      "messageIncompatible": "Some of the checked plugins are not compatible with the newest version. If you continue the update some unknown issues could occur, which could harm your system deeply. We can deactivate incompatible plugins for you during the update process to ensure the functionality of your installation. After the update you have the possibility to activate the plugins manually, when you have updated these plugins accordingly.",
       "messageNotInStore": "You have some plugins that could not be tested for compatibility. Please contact the plugin author for more information. You should also create a backup before updating.",
+      "messageOkay": "All prerequisites are fulfilled. You should create a backup before updating.",
       "messageUpdateCheck": "Your current version can be updated to version {version}. What do you want to do?",
       "backupLabel": "Yes, I've created a backup"
     }

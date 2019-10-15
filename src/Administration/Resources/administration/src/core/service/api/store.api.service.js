@@ -97,7 +97,7 @@ class StoreApiService extends ApiService {
         const params = this.getBasicParams();
 
         return this.httpClient
-            .post(`/_action/${this.getApiBasePath()}/license-violations`, null, { params, headers })
+            .post(`/_action/${this.getApiBasePath()}/plugin/search`, null, { params, headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });

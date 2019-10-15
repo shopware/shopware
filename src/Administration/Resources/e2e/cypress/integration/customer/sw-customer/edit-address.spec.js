@@ -15,7 +15,7 @@ const newAddress = {
         zipcode: '333333',
         city: 'Little Whinging'
     }],
-    country: 'Great Britain'
+    country: 'United Kingdom'
 };
 
 describe('Customer: Edit customer\'s addresses', () => {

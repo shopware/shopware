@@ -248,7 +248,7 @@ class WebpackPluginInjector {
             }
 
             // Add plugin to include paths to support eslint
-            this.includePaths.push(...plugin.viewPath);
+            this.includePaths.push(plugin.entryFile);
 
             if (!plugin.hasCustomWebpackConfig) {
                 this.warn('Webpack Plugin Injector', `Plugin "${name}" injected as a new entry point`);

@@ -1,4 +1,3 @@
-const fs = require('fs');
 const webpack = require('webpack');
 const merge = require('webpack-merge');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
@@ -28,8 +27,8 @@ let webpackConfig = merge(baseWebpackConfig, {
         minimizer: [
             new TerserPlugin({
                 terserOptions: {
-                    ecma: 6,
-                    warnings: false
+                    warnings: false,
+                    output: 6
                 },
                 cache: true,
                 parallel: true,

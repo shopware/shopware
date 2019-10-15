@@ -54,8 +54,8 @@ class CsrfRouteListener implements EventSubscriberInterface
             return;
         }
 
-        /** @var RouteScope $routeScope */
-        $routeScope = $request->attributes->get('_routeScope', null);
+        /** @var RouteScope|null $routeScope */
+        $routeScope = $request->attributes->get('_routeScope');
 
         // Only check csrf token on storefront routes
         if ($routeScope && !in_array('storefront', $routeScope->getScopes(), true)) {

@@ -625,6 +625,26 @@ SHOPWARE_HTTP_DEFAULT_TTL=7200
     $response = $kernel->handle($request);
     ```
 
+* CSRF implementation
+    * Every `POST` method needs to append a CSRF token now
+    * CSRF tokens can be generated in twig, here is a small example for a typical form:
+    ```twig
+      <form name="ExampleForm" method="post" action="{{ path("exmaple.route") }}">
+          <!-- some form fields -->
+        
+          {{ sw_csrf('example.route') }}
+        
+      </form>
+    ```
+    * Important: The CSRF function needs the route name as parameter, because a token is only valid for a specific route
+    * To prevent a CSRF check in a controller action you can set `"csrf_protected"=false` to the `defaults` in your route annotation:
+    ```php
+       /**
+         * @Route("/example/route", name="example.route", defaults={"csrf_protected"=false}, methods={"POST"})
+        */
+    ```
+
+
 Elasticsearch
 -------------
 

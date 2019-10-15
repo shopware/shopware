@@ -84,6 +84,7 @@
         "symfony/property-info": "4.3.5",
         "symfony/psr-http-message-bridge": "1.2.0",
         "symfony/routing": "4.3.5",
+        "symfony/security-csrf": "4.3",
         "symfony/serializer": "4.3.5",
         "symfony/service-contracts": "1.1.7",
         "symfony/swiftmailer-bundle": "3.2.8",

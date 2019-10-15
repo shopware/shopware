@@ -242,12 +242,12 @@ class AccountService
      */
     public function login(string $email, SalesChannelContext $context, bool $includeGuest = false): string
     {
-        $event = new CustomerBeforeLoginEvent($context, $email);
-        $this->eventDispatcher->dispatch($event);
-
         if (empty($email)) {
             throw new BadCredentialsException();
         }
+
+        $event = new CustomerBeforeLoginEvent($context, $email);
+        $this->eventDispatcher->dispatch($event);
 
         try {
             $customer = $this->getCustomerByEmail($email, $context, $includeGuest);
@@ -277,12 +277,12 @@ class AccountService
      */
     public function loginWithPassword(DataBag $data, SalesChannelContext $context): string
     {
-        $event = new CustomerBeforeLoginEvent($context, $data->get('username'));
-        $this->eventDispatcher->dispatch($event);
-
         if (empty($data->get('username')) || empty($data->get('password'))) {
             throw new BadCredentialsException();
         }
+
+        $event = new CustomerBeforeLoginEvent($context, $data->get('username'));
+        $this->eventDispatcher->dispatch($event);
 
         try {
             $customer = $this->getCustomerByLogin(

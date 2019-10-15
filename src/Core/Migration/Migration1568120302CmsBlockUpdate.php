@@ -18,7 +18,7 @@ class Migration1568120302CmsBlockUpdate extends MigrationStep
     {
         $connection->executeUpdate('
             ALTER TABLE `cms_block`
-            ADD `cms_section_id` BINARY(16) NOT NULL AFTER `id`,
+            ADD `cms_section_id` BINARY(16) NULL AFTER `id`,
             ADD `section_position` VARCHAR(50) DEFAULT "main" AFTER `position`
         ');
 
@@ -44,12 +44,17 @@ class Migration1568120302CmsBlockUpdate extends MigrationStep
             );
         }
 
+        $connection->executeUpdate('
+            ALTER TABLE `cms_block`
+            MODIFY COLUMN `cms_page_id` BINARY(16) NULL;
+        ');
+
         $connection->executeUpdate('ALTER TABLE `cms_block` DROP FOREIGN KEY `fk.cms_block.cms_page_id`');
-        $connection->executeUpdate('ALTER TABLE `cms_block` DROP COLUMN `cms_page_id`, DROP COLUMN `sizing_mode`');
         $connection->executeUpdate('ALTER TABLE `cms_block` ADD CONSTRAINT `fk.cms_block.cms_section_id` FOREIGN KEY (`cms_section_id`) REFERENCES `cms_section` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
     }
 
     public function updateDestructive(Connection $connection): void
     {
+        $connection->executeUpdate('ALTER TABLE `cms_block` DROP COLUMN `cms_page_id`, DROP COLUMN `sizing_mode`');
     }
 }

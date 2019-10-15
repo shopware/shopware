@@ -66,6 +66,10 @@ class NavigationLoader
             throw new CategoryNotFoundException($activeId);
         }
 
+        if (!$this->isCategoryChildOfRootCategory($active, $rootId)) {
+            throw new CategoryNotFoundException($activeId);
+        }
+
         $ids = $rootLevel->getIds();
         $ids = array_flip($ids);
 
@@ -183,5 +187,22 @@ class NavigationLoader
         }
 
         return $items;
+    }
+
+    private function isCategoryChildOfRootCategory(CategoryEntity $active, string $rootId): bool
+    {
+        if ($rootId === $active->getId()) {
+            return true;
+        }
+
+        if ($active->getPath() === null) {
+            return false;
+        }
+
+        if (mb_strpos($active->getPath(), '|' . $rootId . '|')) {
+            return true;
+        }
+
+        return false;
     }
 }

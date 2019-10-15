@@ -752,5 +752,13 @@
     "keyboardShortcutSpecialShortcutSaveDetailViewLinux": "alt s",
     "functionSpecialShortcutCancelDetailView": "Abbrechen in Detailansicht",
     "keyboardShortcutSpecialShortcutCancelDetailView": "Esc"
+  },
+  "sw-discard-changes-modal": {
+    "title": "Ungespeicherte Änderungen verwerfen?",
+    "message": "Du hast ungespeicherte Änderungen, möchtest Du die Seite verlassen und diese verwerfen?",
+    "actions": {
+      "discard": "Änderungen verwerfen",
+      "keepEditing": "Weiter bearbeiten"
+    }
   }
 }

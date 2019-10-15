@@ -89,11 +89,11 @@
                     ></sw-category-view>
                 {% endblock %}
 
-                {% block sw_category_content_leave_modal %}
-                    <sw-category-leave-page-modal v-if="isDisplayingLeavePageWarning"
-                        @page-leave-cancel="onLeaveModalClose(nextRoute)"
-                        @page-leave-confirm="onLeaveModalConfirm(nextRoute)">
-                    </sw-category-leave-page-modal>
+                {% block sw_category_content_discard_changes_modal %}
+                    <sw-discard-changes-modal v-if="isDisplayingLeavePageWarning"
+                                              @keep-editing="onLeaveModalClose(nextRoute)"
+                                              @discard-changes="onLeaveModalConfirm(nextRoute)">
+                    </sw-discard-changes-modal>
                 {% endblock %}
 
                 {% block sw_category_content_loader %}

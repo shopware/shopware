@@ -752,5 +752,13 @@
     "keyboardShortcutSpecialShortcutSaveDetailViewLinux": "ALT-S",
     "functionSpecialShortcutCancelDetailView": "Cancel detail view",
     "keyboardShortcutSpecialShortcutCancelDetailView": "ESC"
+  },
+  "sw-discard-changes-modal": {
+    "title": "Discard unsaved changes?",
+    "message": "You have unsaved changes, do you want to leave the page and discard them?",
+    "actions": {
+      "discard": "Discard changes",
+      "keepEditing": "Keep editing"
+    }
   }
 }

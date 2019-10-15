@@ -16,13 +16,6 @@
             "treeHeadSelected": "{count} selektiert",
             "emptyStateHeadline": "Keine Kategorie ausgewählt",
 
-            "leavePageModal": {
-                "headline": "Warnung",
-                "description": "Es existieren ungespeicherte Änderungen. Soll die Seite trotzdem verlassen werden?",
-                "confirmButton": "Seite verlassen",
-                "cancelButton": "Auf Seite bleiben"
-            },
-
             "actions": {
                 "actionsDisabledInLanguage": "Kategorien können nur in der Standardsprache erstellt werden",
                 "createSub": "Neue Subkategorie",

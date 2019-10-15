@@ -70,8 +70,6 @@ describe('Order: Read order', () => {
             })
             .then(() => {
                 return cy.createProductFixture();
-            }).then(() => {
-                return cy.setProductFixtureVisibility('Product name', 'Catalogue #1');
             })
             .then(() => {
                 return cy.createProductFixture({
@@ -87,9 +85,6 @@ describe('Order: Read order', () => {
                         }
                     ]
                 });
-            })
-            .then(() => {
-                return cy.setProductFixtureVisibility('Awesome product', 'Catalogue #1');
             })
             .then(() => {
                 return cy.searchViaAdminApi({

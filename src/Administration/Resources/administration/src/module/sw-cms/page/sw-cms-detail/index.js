@@ -374,19 +374,20 @@ Component.register('sw-cms-detail', {
                 return;
             }
 
-            const demoEntity = this.currentMappingEntityRepo.get(demoEntityId, this.context);
+            this.currentMappingEntityRepo.get(demoEntityId, this.context).then((entity) => {
+                if (!entity) {
+                    return;
+                }
 
-            if (!demoEntity) {
-                return;
-            }
-
-            if (this.cmsPageState.currentMappingEntity === 'category' && demoEntity.mediaId !== null) {
-                this.repositoryFactory.create('media').get(demoEntity.mediaId, this.context).then((media) => {
-                    demoEntity.media = media;
-                });
-            }
-
-            this.$store.commit('cmsPageState/setCurrentDemoEntity', demoEntity);
+                if (this.cmsPageState.currentMappingEntity === 'category' && entity.mediaId !== null) {
+                    this.repositoryFactory.create('media').get(entity.mediaId, this.context).then((media) => {
+                        entity.media = media;
+                        this.$store.commit('cmsPageState/setCurrentDemoEntity', entity);
+                    });
+                } else {
+                    this.$store.commit('cmsPageState/setCurrentDemoEntity', entity);
+                }
+            });
         },
 
         onAddSection(type, index) {

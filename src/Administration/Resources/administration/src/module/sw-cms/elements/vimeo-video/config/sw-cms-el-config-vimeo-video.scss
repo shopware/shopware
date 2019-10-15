@@ -1,0 +1,20 @@
+.sw-cms-el-config-vimeo-video {
+    &__player-controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-column-gap: 32px;
+        grid-template-rows: 32px 32px;
+        margin-bottom: 10px;
+    }
+
+    &__artist-information {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-column-gap: 32px;
+        grid-template-rows: 32px 32px;
+    }
+
+    .sw-field--switch {
+        margin-top: 0;
+    }
+}

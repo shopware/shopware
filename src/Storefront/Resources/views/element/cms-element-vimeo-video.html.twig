@@ -1,0 +1,39 @@
+{% block element_vimeo_video %}    
+    {% set config = element.config %}
+    {% set videoUrl = 'https://player.vimeo.com/video/' %}
+    {% set videoUrl = videoUrl ~ config.videoID.value ~ '?' %}
+
+    {% if config.autoplay.value == true %}
+        {% set videoUrl = videoUrl ~ 'autoplay=true' ~ '&' %}
+    {% endif %}   
+
+    {% if config.byLine.value == false %}
+        {% set videoUrl = videoUrl ~ 'byline=false' ~ '&' %}
+    {% endif %}
+
+    {% set videoUrl = videoUrl ~ 'color=' ~ config.color.value|replace({'#': ''}) ~ '&' %}
+    {% set videoUrl = videoUrl ~ 'dnt=' ~ config.doNotTrack.value ~ '&' %}    
+    {% set videoUrl = videoUrl ~ 'loop=' ~ config.loop.value ~ '&' %}
+
+    {% if config.title.value == false %}
+        {% set videoUrl = videoUrl ~ 'title=false' ~ '&' %}
+    {% endif %}
+
+    {% if config.portrait.value == false %}
+        {% set videoUrl = videoUrl ~ 'portrait=false' ~ '&' %}
+    {% endif %}
+
+    {% if config.controls.value == false %}
+        {% set videoUrl = videoUrl ~ 'controls=false' ~ '&' %}
+    {% endif %}
+
+    <div class="cms-element-vimeo-video">
+
+        {% block element_vimeo_video_inner %}
+            <iframe class="cms-element-vimeo-video__video"
+                    src="{{ videoUrl }}">
+            </iframe>
+        {% endblock %}
+
+    </div>
+{% endblock %}

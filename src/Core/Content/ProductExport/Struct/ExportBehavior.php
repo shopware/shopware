@@ -11,13 +11,25 @@ class ExportBehavior
     private $includeInactive;
 
     /** @var bool */
-    private $preview;
+    private $batchMode;
 
-    public function __construct(bool $ignoreCache = false, bool $includeInactive = false, $preview = false)
+    /** @var bool */
+    private $generateHeader;
+
+    /** @var bool */
+    private $generateFooter;
+
+    /** @var int */
+    private $offset;
+
+    public function __construct(bool $ignoreCache = false, bool $includeInactive = false, $batchMode = false, $generateHeader = true, $generateFooter = true, $offset = 0)
     {
-        $this->ignoreCache = $ignoreCache;
+        $this->ignoreCache     = $ignoreCache;
         $this->includeInactive = $includeInactive;
-        $this->preview = $preview;
+        $this->batchMode       = $batchMode;
+        $this->generateHeader  = $generateHeader;
+        $this->generateFooter  = $generateFooter;
+        $this->offset          = $offset;
     }
 
     public function ignoreCache(): bool
@@ -30,8 +42,23 @@ class ExportBehavior
         return $this->includeInactive;
     }
 
-    public function preview(): bool
+    public function batchMode(): bool
     {
-        return $this->preview;
+        return $this->batchMode;
+    }
+
+    public function generateHeader(): bool
+    {
+        return $this->generateHeader;
+    }
+
+    public function generateFooter(): bool
+    {
+        return $this->generateFooter;
+    }
+
+    public function offset(): int
+    {
+        return $this->offset;
     }
 }

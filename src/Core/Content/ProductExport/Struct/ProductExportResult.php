@@ -12,10 +12,14 @@ class ProductExportResult
     /** @var Error[] */
     private $errors;
 
-    public function __construct(string $content, array $errors)
+    /** @var int */
+    private $total;
+
+    public function __construct(string $content, array $errors, int $total)
     {
         $this->content = $content;
         $this->errors = $errors;
+        $this->total = $total;
     }
 
     public function getContent(): string
@@ -31,5 +35,10 @@ class ProductExportResult
     public function hasErrors(): bool
     {
         return count($this->errors) > 0;
+    }
+
+    public function getTotal(): int
+    {
+        return $this->total;
     }
 }

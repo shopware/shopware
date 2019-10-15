@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
 use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
+use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Service\ProductExporterInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Defaults;
@@ -10,9 +11,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 {
@@ -24,18 +28,29 @@ class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 
     /** @var EntityRepository */
     private $salesChannelRepository;
+    /**
+     * @var EntityRepository
+     */
+    private $productExportRepository;
+
+    /** @var MessageBusInterface */
+    private $messageBus;
 
     public function __construct(
         EntityRepository $scheduledTaskRepository,
         ProductExporterInterface $productExporter,
         SalesChannelContextFactory $salesChannelContextFactory,
-        EntityRepository $salesChannelRepository
+        EntityRepository $salesChannelRepository,
+        EntityRepository $productExportRepository,
+        MessageBusInterface $messageBus
     ) {
         parent::__construct($scheduledTaskRepository);
 
         $this->productExporter = $productExporter;
         $this->salesChannelContextFactory = $salesChannelContextFactory;
         $this->salesChannelRepository = $salesChannelRepository;
+        $this->productExportRepository = $productExportRepository;
+        $this->messageBus = $messageBus;
     }
 
     public static function getHandledMessages(): iterable
@@ -57,10 +72,33 @@ class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
         foreach ($salesChannelIds->getIds() as $salesChannelId) {
             $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $salesChannelId);
 
-            try {
-                $this->productExporter->export($salesChannelContext, new ExportBehavior());
-            } catch (ExportNotFoundException $_) {
-                // Ignore when storefront has no defined exports
+            $criteria = new Criteria();
+            $criteria
+                ->addAssociation('salesChannel')
+                ->addAssociation('salesChannelDomain.salesChannel')
+                ->addAssociation('salesChannelDomain.language.locale')
+                ->addAssociation('productStream.filters.queries')
+                ->addFilter(
+                    new MultiFilter(
+                        'OR',
+                        [
+                            new EqualsFilter('salesChannelId', $salesChannelContext->getSalesChannel()->getId()),
+                            new EqualsFilter('salesChannelDomain.salesChannel.id', $salesChannelContext->getSalesChannel()->getId()),
+                        ]
+                    )
+                );
+
+            $productExports = $this->productExportRepository->search($criteria, $salesChannelContext->getContext());
+
+            if ($productExports->count() === 0) {
+                return;
+            }
+
+            /** @var ProductExportEntity $productExport */
+            foreach ($productExports as $productExport) {
+                $message = new ProductExportPartialGeneration($productExport->getId(), $salesChannelId);
+                $this->messageBus->dispatch($message);
+                // add message to queue
             }
         }
     }

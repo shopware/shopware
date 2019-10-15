@@ -25,6 +25,11 @@
             <argument type="string">%product_export.directory%</argument>
         </service>
 
+        <service id="Shopware\Core\Content\ProductExport\Service\ProductExportFileHandler">
+            <argument type="service" id="shopware.filesystem.private"/>
+            <argument type="string">%product_export.directory%</argument>
+        </service>
+
         <service id="Shopware\Core\Content\ProductExport\Service\ProductExportGenerator" public="true">
             <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
             <argument type="service" id="sales_channel.product.repository"/>

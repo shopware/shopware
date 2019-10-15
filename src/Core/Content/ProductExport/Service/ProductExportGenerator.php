@@ -10,6 +10,7 @@ use Shopware\Core\Content\ProductExport\Event\ProductExportRenderBodyContextEven
 use Shopware\Core\Content\ProductExport\Exception\EmptyExportException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
+use Shopware\Core\Content\ProductExport\Struct\GenerationBehavior;
 use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\SalesChannelRepositoryIterator;
@@ -89,6 +90,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         $criteria = new Criteria();
         $criteria
             ->addFilter(...$filters)
+            ->setOffset($exportBehavior->offset())
             ->setLimit($this->readBufferSize)
             ->addAssociation('categories')
             ->addAssociation('cover')
@@ -116,7 +118,9 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             throw $exception;
         }
 
-        $content = $this->productExportRender->renderHeader($productExport, $context);
+        if ($exportBehavior->generateHeader()) {
+            $content = $this->productExportRender->renderHeader($productExport, $context);
+        }
 
         $productContext = $this->eventDispatcher->dispatch(
             new ProductExportRenderBodyContextEvent(
@@ -142,11 +146,14 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
                 $content .= $this->productExportRender->renderBody($productExport, $context, $data);
             }
 
-            if ($exportBehavior->preview()) {
+            if ($exportBehavior->batchMode()) {
                 break;
             }
         }
-        $content .= $this->productExportRender->renderFooter($productExport, $context);
+
+        if ($exportBehavior->generateFooter()) {
+            $content .= $this->productExportRender->renderFooter($productExport, $context);
+        }
 
         /** @var ProductExportChangeEncodingEvent $encodingEvent */
         $encodingEvent = $this->eventDispatcher->dispatch(
@@ -155,6 +162,10 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
 
         $this->translator->resetInjection();
 
-        return new ProductExportResult($encodingEvent->getEncodedContent(), $this->productExportValidator->validate($productExport, $encodingEvent->getEncodedContent()));
+        return new ProductExportResult(
+            $encodingEvent->getEncodedContent(),
+            $this->productExportValidator->validate($productExport, $encodingEvent->getEncodedContent()),
+            $iterator->getTotal()
+        );
     }
 }

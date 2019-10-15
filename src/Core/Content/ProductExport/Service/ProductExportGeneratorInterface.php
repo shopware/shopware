@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\ProductExport\Service;
 
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
+use Shopware\Core\Content\ProductExport\Struct\GenerationBehavior;
 use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
 
 interface ProductExportGeneratorInterface

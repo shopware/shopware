@@ -13,4 +13,6 @@ interface ProductExportFileHandlerInterface
     public function writeProductExportResult(ProductExportResult $productExportResult, string $filePath, bool $append = false): bool;
 
     public function isValidFile(string $filePath, ExportBehavior $behavior, ProductExportEntity $productExport): bool;
+
+    public function move(string $filePath, string $finalFilePath): bool;
 }

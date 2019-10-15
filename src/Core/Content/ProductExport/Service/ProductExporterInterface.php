@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\ProductExport\Service;
 
 use Shopware\Core\Content\ProductExport\Exception\ExportInvalidException;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
-use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -19,6 +18,4 @@ interface ProductExporterInterface
         ExportBehavior $behavior,
         ?string $productExportId = null
     ): void;
-
-    public function getFilePath(ProductExportEntity $productExport): string;
 }

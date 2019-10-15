@@ -19,10 +19,9 @@
 
         <service id="Shopware\Core\Content\ProductExport\Service\ProductExporter" public="true">
             <argument type="service" id="product_export.repository"/>
-            <argument type="service" id="shopware.filesystem.private"/>
             <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportGenerator"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="string">%product_export.directory%</argument>
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportFileHandler"/>
         </service>
 
         <service id="Shopware\Core\Content\ProductExport\Service\ProductExportFileHandler">
@@ -53,9 +52,20 @@
 
         <service id="Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
-            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExporter"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
             <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="product_export.repository"/>
+            <argument type="service" id="messenger.bus.shopware"/>
+            <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportPartialGenerationHandler">
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportGenerator"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument type="service" id="product_export.repository"/>
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportFileHandler"/>
+            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="string">%product_export.read_buffer_size%</argument>
             <tag name="messenger.message_handler"/>
         </service>
 
@@ -70,12 +80,14 @@
 
         <service id="Shopware\Core\Content\ProductExport\SalesChannel\ProductExportController" public="true">
             <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExporter"/>
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportFileHandler"/>
             <argument type="service" id="shopware.filesystem.private"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="product_export.repository"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+            <argument type="service" id="product_export.repository"/>
         </service>
 
         <service id="Shopware\Core\Content\ProductExport\Service\ProductExportValidator">

@@ -2,15 +2,13 @@
 
 namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
-use Shopware\Core\Content\ProductExport\Service\ProductExporterInterface;
 use Shopware\Core\Content\ProductExport\Service\ProductExportFileHandlerInterface;
 use Shopware\Core\Content\ProductExport\Service\ProductExportGeneratorInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -21,9 +19,6 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
 {
     /** @var SalesChannelContextFactory */
     private $salesChannelContextFactory;
-
-    /** @var EntityRepository */
-    private $salesChannelRepository;
 
     /** @var EntityRepository */
     private $productExportRepository;
@@ -43,7 +38,6 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
     public function __construct(
         ProductExportGeneratorInterface $productExportGenerator,
         SalesChannelContextFactory $salesChannelContextFactory,
-        EntityRepository $salesChannelRepository,
         EntityRepository $productExportRepository,
         ProductExportFileHandlerInterface $productExportFileHandler,
         MessageBusInterface $messageBus,
@@ -51,7 +45,6 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
     ) {
         $this->productExportGenerator = $productExportGenerator;
         $this->salesChannelContextFactory = $salesChannelContextFactory;
-        $this->salesChannelRepository = $salesChannelRepository;
         $this->productExportRepository = $productExportRepository;
         $this->readBufferSize = $readBufferSize;
         $this->messageBus = $messageBus;
@@ -66,7 +59,10 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
     }
 
     /**
-     * @param ProductExportPartialGeneration $productExportPartialGeneration
+     * @param $productExportPartialGeneration ProductExportPartialGeneration
+     *
+     * @throws SalesChannelNotFoundException
+     * @throws InconsistentCriteriaIdsException
      */
     public function handle($productExportPartialGeneration): void
     {
@@ -77,12 +73,17 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
             $generateHeader = true;
         }
 
+        if ($productExportPartialGeneration->isLastPart()) {
+            $generateFooter = true;
+        }
+
         $criteria = new Criteria(array_filter([$productExportPartialGeneration->getProductExportId()]));
         $criteria
             ->addAssociation('salesChannel')
             ->addAssociation('salesChannelDomain.salesChannel')
             ->addAssociation('salesChannelDomain.language.locale')
-            ->addAssociation('productStream.filters.queries');
+            ->addAssociation('productStream.filters.queries')
+            ->setLimit(1);
 
         $salesChannelContext = $this->salesChannelContextFactory->create(
             Uuid::randomHex(),
@@ -102,7 +103,7 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
         $exportBehavior = new ExportBehavior(
             false,
             false,
-            false,
+            true,
             $generateHeader,
             $generateFooter,
             $productExportPartialGeneration->getOffset()
@@ -126,9 +127,15 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
                 new ProductExportPartialGeneration(
                     $productExportPartialGeneration->getProductExportId(),
                     $productExportPartialGeneration->getSalesChannelId(),
-                    $productExportPartialGeneration->getOffset() + $this->readBufferSize
+                    $productExportPartialGeneration->getOffset() + $this->readBufferSize,
+                    $productExportPartialGeneration->getOffset() + $this->readBufferSize * 2 >= $exportResult->getTotal()
                 )
             );
+
+            return;
         }
+
+        $finalFilePath = $this->productExportFileHandler->getFilePath($productExport);
+        $this->productExportFileHandler->move($filePath, $finalFilePath);
     }
 }

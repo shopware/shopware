@@ -118,6 +118,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             throw $exception;
         }
 
+        $content = "";
         if ($exportBehavior->generateHeader()) {
             $content = $this->productExportRender->renderHeader($productExport, $context);
         }

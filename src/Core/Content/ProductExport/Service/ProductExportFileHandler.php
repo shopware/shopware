@@ -50,7 +50,7 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
             $existingContent = $this->fileSystem->read($filePath);
         }
 
-        return $this->fileSystem->write(
+        return $this->fileSystem->put(
             $filePath,
             $existingContent . $productExportResult->getContent()
         );
@@ -64,6 +64,15 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
 
         return $productExport->isGenerateByCronjob()
             || (!$productExport->isGenerateByCronjob() && !$this->isCacheExpired($behavior, $productExport));
+    }
+
+    public function move(string $filePath, string $finalFilePath): bool
+    {
+        if ($this->fileSystem->has($filePath) && $this->fileSystem->has($finalFilePath)) {
+            $this->fileSystem->delete($finalFilePath);
+        }
+
+        return $this->fileSystem->rename($filePath, $finalFilePath);
     }
 
     private function isCacheExpired(ExportBehavior $behavior, ProductExportEntity $productExport): bool

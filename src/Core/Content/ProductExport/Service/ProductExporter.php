@@ -23,34 +23,23 @@ class ProductExporter implements ProductExporterInterface
     /** @var EntityRepositoryInterface */
     private $productExportRepository;
 
-    /** @var FilesystemInterface */
-    private $fileSystem;
-
     /** @var ProductExportGeneratorInterface */
     private $productExportGenerator;
 
-    /** @var string */
-    private $exportDirectory;
-
     /** @var EventDispatcherInterface */
     private $eventDispatcher;
-    /**
-     * @var ProductExportFileHandlerInterface
-     */
+
+    /** @var ProductExportFileHandlerInterface */
     private $productExportFileHandler;
 
     public function __construct(
         EntityRepositoryInterface $productExportRepository,
-        FilesystemInterface $fileSystem,
         ProductExportGeneratorInterface $productExportGenerator,
         EventDispatcherInterface $eventDispatcher,
-        ProductExportFileHandlerInterface $productExportFileHandler,
-        string $exportDirectory
+        ProductExportFileHandlerInterface $productExportFileHandler
     ) {
         $this->productExportRepository = $productExportRepository;
-        $this->fileSystem = $fileSystem;
         $this->productExportGenerator = $productExportGenerator;
-        $this->exportDirectory = $exportDirectory;
         $this->eventDispatcher = $eventDispatcher;
         $this->productExportFileHandler = $productExportFileHandler;
     }

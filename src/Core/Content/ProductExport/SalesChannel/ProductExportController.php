@@ -9,6 +9,7 @@ use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotGeneratedException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Service\ProductExporterInterface;
+use Shopware\Core\Content\ProductExport\Service\ProductExportFileHandlerInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -39,18 +40,23 @@ class ProductExportController extends StorefrontController
     private $eventDispatcher;
 
     /** @var EntityRepositoryInterface */
-    private $repository;
+    private $productExportRepository;
+
+    /** @var ProductExportFileHandlerInterface */
+    private $productExportFileHandler;
 
     public function __construct(
         ProductExporterInterface $productExportService,
+        ProductExportFileHandlerInterface $productExportFileHandler,
         FilesystemInterface $fileSystem,
         EventDispatcherInterface $eventDispatcher,
-        EntityRepositoryInterface $repository
+        EntityRepositoryInterface $productExportRepository
     ) {
-        $this->productExportService = $productExportService;
-        $this->fileSystem = $fileSystem;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->repository = $repository;
+        $this->productExportService     = $productExportService;
+        $this->productExportFileHandler = $productExportFileHandler;
+        $this->fileSystem               = $fileSystem;
+        $this->eventDispatcher          = $eventDispatcher;
+        $this->productExportRepository  = $productExportRepository;
     }
 
     /**
@@ -74,7 +80,7 @@ class ProductExportController extends StorefrontController
             );
 
         /** @var ProductExportEntity|null $productExport */
-        $productExport = $this->repository->search($criteria, $context->getContext())->first();
+        $productExport = $this->productExportRepository->search($criteria, $context->getContext())->first();
 
         if ($productExport === null) {
             $exportNotFoundException = new ExportNotFoundException(null, $request->get('fileName'));
@@ -83,7 +89,7 @@ class ProductExportController extends StorefrontController
         }
 
         $this->productExportService->export($context, new ExportBehavior(), $productExport->getId());
-        $filePath = $this->productExportService->getFilePath($productExport);
+        $filePath = $this->productExportFileHandler->getFilePath($productExport);
         if (!$this->fileSystem->has($filePath)) {
             $exportNotGeneratedException = new ExportNotGeneratedException();
             $this->logException($context->getContext(), $exportNotGeneratedException);

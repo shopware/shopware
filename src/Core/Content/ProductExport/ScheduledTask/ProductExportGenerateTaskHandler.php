@@ -20,17 +20,13 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 {
-    /** @var ProductExporterInterface */
-    private $productExporter;
-
     /** @var SalesChannelContextFactory */
     private $salesChannelContextFactory;
 
     /** @var EntityRepository */
     private $salesChannelRepository;
-    /**
-     * @var EntityRepository
-     */
+
+    /** @var EntityRepository */
     private $productExportRepository;
 
     /** @var MessageBusInterface */
@@ -38,7 +34,6 @@ class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 
     public function __construct(
         EntityRepository $scheduledTaskRepository,
-        ProductExporterInterface $productExporter,
         SalesChannelContextFactory $salesChannelContextFactory,
         EntityRepository $salesChannelRepository,
         EntityRepository $productExportRepository,
@@ -46,7 +41,6 @@ class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
     ) {
         parent::__construct($scheduledTaskRepository);
 
-        $this->productExporter = $productExporter;
         $this->salesChannelContextFactory = $salesChannelContextFactory;
         $this->salesChannelRepository = $salesChannelRepository;
         $this->productExportRepository = $productExportRepository;
@@ -98,7 +92,6 @@ class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
             foreach ($productExports as $productExport) {
                 $message = new ProductExportPartialGeneration($productExport->getId(), $salesChannelId);
                 $this->messageBus->dispatch($message);
-                // add message to queue
             }
         }
     }

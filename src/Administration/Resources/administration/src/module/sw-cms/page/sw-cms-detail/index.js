@@ -612,15 +612,16 @@ Component.register('sw-cms-detail', {
             Object.assign(newSection, sectionClone);
 
             section.blocks.forEach((block) => {
-                const clonedBlock = this.blockRepository.create();
-                clonedBlock.sectionId = newSection.id;
-                clonedBlock.slot = block.slot;
-                clonedBlock.type = block.type;
-                clonedBlock.config = cloneDeep(block.config);
-                clonedBlock.data = cloneDeep(block.data);
+                const newBlock = this.blockRepository.create();
 
-                this.cloneSlotsInBlock(block, clonedBlock);
-                newSection.blocks.push(clonedBlock);
+                const blockClone = cloneDeep(block);
+                blockClone.id = newBlock.id;
+                blockClone.position = block.position + 1;
+                blockClone.sectionId = section.id;
+                blockClone.slots = [];
+
+                this.cloneSlotsInBlock(block, blockClone);
+                newSection.blocks.push(blockClone);
             });
 
             this.page.sections.splice(newSection.position, 0, newSection);

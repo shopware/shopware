@@ -63,7 +63,7 @@ describe('Sales Channel: Test crud operations', () => {
         }).as('saveData');
 
         // Edit and verify change in sales channel
-        page.openSalesChannel('Storefront', 1);
+        page.openSalesChannel('Storefront', 4);
         cy.get(page.elements.salesChannelNameInput).clear();
         cy.get(page.elements.salesChannelNameInput).type('Channel No 9');
         cy.get(page.elements.salesChannelSaveAction).click();
@@ -84,12 +84,12 @@ describe('Sales Channel: Test crud operations', () => {
         }).as('deleteData');
 
         // Delete sales channel
-        page.openSalesChannel('Headless');
+        page.openSalesChannel('Headless', 2);
         page.deleteSingleSalesChannel('Headless');
         cy.wait('@deleteData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
-        cy.get('.sw-admin-menu__sales-channel-item--1').should('not.exist');
+        cy.get('.sw-admin-menu__sales-channel-item--4').should('not.exist');
     });
 });
 

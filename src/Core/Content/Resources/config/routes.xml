@@ -10,4 +10,5 @@
     <import resource="../../MailTemplate/**/*Controller.php" type="annotation" />
     <import resource="../../ImportExport/**/*Controller.php" type="annotation" />
     <import resource="../../Newsletter/**/*Controller.php" type="annotation" />
+    <import resource="../../ProductExport/**/*Controller.php" type="annotation" />
 </routes>

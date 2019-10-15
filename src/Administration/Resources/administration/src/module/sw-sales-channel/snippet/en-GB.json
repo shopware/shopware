@@ -1,4 +1,9 @@
 {
+  "global": {
+    "error-codes": {
+      "DUPLICATED_PRODUCT_EXPORT_FILE_NAME": "Filename already in use. Please choose a different one."
+    }
+  },
   "sw-sales-channel": {
     "general": {
       "titleMenuItems": "Sales channel"
@@ -24,6 +29,10 @@
       "buttonCreateNewApiKeys": "Create new API key",
       "tabBase": "General",
       "tabTheme": "Theme",
+      "tabProductComparison": "Template",
+      "titleProductComparisonTemplate": "Template",
+      "titleProductComparisonPreview": "Preview",
+      "titleProductComparisonPreviewErrors": "Errors during generation",
       "labelAccessKeyField": "API access key",
       "titleAPIError": "Error",
       "messageAPIError": "Unable to generate API access key.",
@@ -70,7 +79,74 @@
       "navigationCategoryId": "Entry point main navigation",
       "navigationCategoryHelpText": "For this entry point, you can not select categories of the type \"customizable link\" or \"structuring element\".",
       "footerCategory": "Entry point footer navigation",
-      "serviceCategory": "Entry point service navigation"
+      "serviceCategory": "Entry point service navigation",
+      "productComparison": {
+        "inputHeaderLabel": "Header row",
+        "inputBodyLabel": "Product row",
+        "inputFooterLabel": "Footer row",
+        "buttonTestLabel": "Test template",
+        "buttonPreviewLabel": "Generate preview",
+        "settings": "Product export",
+        "fileName": "Filename",
+        "placeholderFileName": "shopware.csv",
+        "lastGenerationLabel": "Last generated at: ",
+        "notYetGenerated": "This export has not been generated yet.",
+        "encoding": "Encoding",
+        "placeholderSelectEncoding": "Please select an encoding...",
+        "fileFormat": "File format",
+        "placeholderSelectFileFormat": "Please select a file format...",
+        "accessKey": "Access key",
+        "accessUrl": "Export URL",
+        "buttonCreateNewAccessKey": "Create new access key",
+        "productStream": "Dynamic product group",
+        "fileFormatLabels": {
+          "csv": "CSV",
+          "xml": "XML"
+        },
+        "includeVariants": "Include variants",
+        "interval": "Interval",
+        "generateByCronjob": "Generate via scheduler",
+        "notificationTitleValidateSuccessful": "Validation successful",
+        "notificationMessageValidateSuccessful": "No errors occurred",
+        "notificationTitleValidateError": "Validation failed",
+        "notificationTitlePreviewError": "Preview failed",
+        "intervalLabels": {
+          "0": "Live",
+          "120": "2 minutes",
+          "300": "5 minutes",
+          "600": "10 minutes",
+          "900": "15 minutes",
+          "1800": "30 minutes",
+          "3600": "1 hour",
+          "7200": "2 hours",
+          "14400": "4 hours",
+          "28800": "8 hours",
+          "43200": "12 hours",
+          "86400": "1 day",
+          "172800": "2 days",
+          "259200": "3 days",
+          "345600": "4 days",
+          "432000": "5 days",
+          "518400": "6 days",
+          "604800": "1 week"
+        },
+        "storefront": "Storefront Sales Channel",
+        "storefrontDomain": "Storefront domain",
+        "storefrontDomainLanguage": {
+          "label": "Language",
+          "help": "Automatically selected from sales channel domain"
+        },
+        "storefrontDomainCurrency": {
+          "label": "Currency",
+          "help": "Automatically selected from sales channel domain"
+        },
+        "storefrontSalesChannelCustomerGroup": {
+          "label": "Customer Group",
+          "help": "Automatically selected from sales channel"
+        },
+        "titleAccessKeyChanged": "Access key changed",
+        "messageAccessKeyChanged": "The access key and the changed export URL are only active after saving the sales channel."
+      }
     }
   }
 }

@@ -1,0 +1,105 @@
+{% block sw_sales_channel_detail_base %}
+    <div class="sw-sales-channel-detail-product-comparison">
+
+        {% block sw_sales_channel_detail_product_comparison %}
+            <sw-card :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleProductComparisonTemplate')" key="edit">
+
+                {% block sw_sales_channel_detail_product_comparison_header %}
+                    <sw-container>
+                        {% block sw_sales_channel_detail_product_comparison_input_header %}
+                            <sw-code-editor
+                                :label="$tc('sw-sales-channel.detail.productComparison.inputHeaderLabel')"
+                                :completerFunction="outerCompleterFunctionHeader"
+                                :editorConfig="editorConfig"
+                                completionMode="entity"
+                                mode="twig"
+                                :softWraps="true"
+                                :setFocus="false"
+                                v-model="productExport.headerTemplate"
+                                @input="resetValid"
+                                @blur="resetValid"
+                            >
+                            </sw-code-editor>
+                        {% endblock %}
+                    </sw-container>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_product_comparison_body %}
+                    <sw-container>
+                        {% block sw_sales_channel_detail_product_comparison_input_body %}
+                            <sw-code-editor
+                                :label="$tc('sw-sales-channel.detail.productComparison.inputBodyLabel')"
+                                :completerFunction="outerCompleterFunctionBody"
+                                :editorConfig="editorConfig"
+                                completionMode="entity"
+                                mode="twig"
+                                :softWraps="true"
+                                :setFocus="false"
+                                v-model="productExport.bodyTemplate"
+                                @input="resetValid"
+                                @blur="resetValid"
+                            >
+                            </sw-code-editor>
+                        {% endblock %}
+                    </sw-container>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_product_comparison_footer %}
+                    <sw-container>
+                        {% block sw_sales_channel_detail_product_comparison_input_footer %}
+                            <sw-code-editor
+                                :label="$tc('sw-sales-channel.detail.productComparison.inputFooterLabel')"
+                                :completerFunction="outerCompleterFunctionFooter"
+                                :editorConfig="editorConfig"
+                                completionMode="entity"
+                                mode="twig"
+                                :softWraps="true"
+                                :setFocus="false"
+                                v-model="productExport.footerTemplate"
+                                @input="resetValid"
+                                @blur="resetValid"
+                            >
+                            </sw-code-editor>
+                        {% endblock %}
+                    </sw-container>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_product_comparison_actions %}
+                    <sw-container columns="1fr 50%" gap="0 30px" >
+                        {% block sw_sales_channel_detail_product_comparison_actions_test_button %}
+                            <sw-button-process
+                                @click="validateTemplate"
+                                :square="false"
+                                :block="false"
+                                :isLoading="isLoadingValidate"
+                                :disabled="isLoadingValidate || (!productExport.headerTemplate && !productExport.bodyTemplate && !productExport.footerTemplate)"
+                                :processSuccess="isValidateSuccessful">
+                                {{ $tc('sw-sales-channel.detail.productComparison.buttonTestLabel') }}
+                            </sw-button-process>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_product_comparison_actions_preview_button %}
+                            <sw-button-process
+                                @click="preview"
+                                :square="false"
+                                :block="false"
+                                :isLoading="isLoadingPreview"
+                                :disabled="isLoadingPreview || (!productExport.headerTemplate && !productExport.bodyTemplate && !productExport.footerTemplate)"
+                                :processSuccess="isPreviewSuccessful">
+                                {{ $tc('sw-sales-channel.detail.productComparison.buttonPreviewLabel') }}
+                            </sw-button-process>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_product_comparison_actions_preview_component %}
+                            <sw-sales-channel-detail-product-comparison-preview
+                                :content="previewContent"
+                                :errors="previewErrors"
+                                @close="onPreviewClose">
+                            </sw-sales-channel-detail-product-comparison-preview>
+                        {% endblock %}
+                    </sw-container>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+    </div>
+{% endblock %}

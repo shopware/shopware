@@ -1,5 +1,6 @@
 {%  block sw_sales_channel_detail_content_tab_theme %}
-    <sw-tabs-item :route="{ name: 'sw.sales.channel.detail.theme', params: { id: $route.params.id } }"
+    <sw-tabs-item v-if="!isProductComparison && !isLoading"
+                  :route="{ name: 'sw.sales.channel.detail.theme', params: { id: $route.params.id } }"
                   :title="$tc('sw-sales-channel.detail.tabTheme')">
         {{ $tc('sw-sales-channel.detail.tabTheme') }}
     </sw-tabs-item>

@@ -15,7 +15,7 @@
                             class="sw-mail-template-detail__save-action"
                             :isLoading="isLoading"
                             :processSuccess="isSaveSuccessful"
-                            :disabled="mailTemplate.isLoading"
+                            :disabled="isLoading"
                             variant="primary"
                             @process-finish="saveFinish"
                             @click.prevent="onSave">

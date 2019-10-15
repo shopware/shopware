@@ -20,7 +20,7 @@ class StringTemplateRenderer
         // use private twig instance here, because we use custom template loader
         $this->twig = new Environment(new ArrayLoader());
         $this->twig->setCache(false);
-        $this->twig->enableStrictVariables();
+        $this->disableTestMode();
 
         foreach ($environment->getExtensions() as $extension) {
             if ($this->twig->hasExtension(get_class($extension))) {
@@ -49,11 +49,13 @@ class StringTemplateRenderer
 
     public function enableTestMode(): void
     {
+        $this->twig->addGlobal('testMode', true);
         $this->twig->disableStrictVariables();
     }
 
     public function disableTestMode(): void
     {
+        $this->twig->addGlobal('testMode', false);
         $this->twig->enableStrictVariables();
     }
 }

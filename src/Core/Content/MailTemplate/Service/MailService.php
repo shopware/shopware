@@ -127,7 +127,7 @@ class MailService
         $contents = $this->buildContents($data, $salesChannel);
         foreach ($contents as $index => $template) {
             try {
-                if (isset($data['testMode']) && $data['testMode'] === true) {
+                if (isset($data['testMode']) && (bool) $data['testMode'] === true) {
                     $this->templateRenderer->enableTestMode();
                 }
 
@@ -135,7 +135,7 @@ class MailService
                 $data['subject'] = $this->templateRenderer->render($data['subject'], $templateData, $context);
                 $data['senderName'] = $this->templateRenderer->render($data['senderName'], $templateData, $context);
 
-                if (isset($data['testMode']) && $data['testMode'] === true) {
+                if (isset($data['testMode']) && (bool) $data['testMode'] === true) {
                     $this->templateRenderer->disableTestMode();
                 }
             } catch (\Exception $e) {

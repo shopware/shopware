@@ -130,7 +130,7 @@ class PromotionPercentageCalculationTest extends TestCase
 
         static::assertEquals(50, $cart->getPrice()->getTotalPrice());
         static::assertEquals(50, $cart->getPrice()->getPositionPrice());
-        static::assertEquals(41.66, $cart->getPrice()->getNetPrice());
+        static::assertEquals(41.67, $cart->getPrice()->getNetPrice());
     }
 
     /**

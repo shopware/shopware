@@ -50,6 +50,8 @@ class DiscountPackageCollection extends Collection
             }
         }
 
+        $items->compress();
+
         return $items;
     }
 

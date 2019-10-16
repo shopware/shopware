@@ -8,7 +8,7 @@ Component.override('sw-sales-channel-detail', {
 
     methods: {
         getLoadSalesChannelCriteria() {
-            const criteria = this.$super.getLoadSalesChannelCriteria();
+            const criteria = this.$super('getLoadSalesChannelCriteria');
 
             criteria.addAssociation('themes');
 

@@ -52,11 +52,11 @@ class ProductExportController extends StorefrontController
         EventDispatcherInterface $eventDispatcher,
         EntityRepositoryInterface $productExportRepository
     ) {
-        $this->productExportService     = $productExportService;
+        $this->productExportService = $productExportService;
         $this->productExportFileHandler = $productExportFileHandler;
-        $this->fileSystem               = $fileSystem;
-        $this->eventDispatcher          = $eventDispatcher;
-        $this->productExportRepository  = $productExportRepository;
+        $this->fileSystem = $fileSystem;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->productExportRepository = $productExportRepository;
     }
 
     /**

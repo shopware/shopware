@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\ProductExport\Service;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
-use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
 
 class ProductExportFileHandler implements ProductExportFileHandlerInterface
 {
@@ -40,12 +39,13 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
         return $filePath;
     }
 
-    public function writeProductExportContent(string $content, string $filePath, bool $append = false): bool {
+    public function writeProductExportContent(string $content, string $filePath, bool $append = false): bool
+    {
         if ($this->fileSystem->has($filePath) && !$append) {
             $this->fileSystem->delete($filePath);
         }
 
-        $existingContent = "";
+        $existingContent = '';
         if ($append && $this->fileSystem->has($filePath)) {
             $existingContent = $this->fileSystem->read($filePath);
         }

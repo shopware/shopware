@@ -78,7 +78,7 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
     }
 
     /**
-     * @param $productExportPartialGeneration ProductExportPartialGeneration
+     * @param ProductExportPartialGeneration $productExportPartialGeneration
      *
      * @throws SalesChannelNotFoundException
      * @throws InconsistentCriteriaIdsException
@@ -119,7 +119,7 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
 
         /** @var ProductExportEntity $productExport */
         $productExport = $productExports->first();
-        $exportResult  = $this->productExportGenerator->generate(
+        $exportResult = $this->productExportGenerator->generate(
             $productExport,
             $exportBehavior
         );

@@ -2,14 +2,12 @@
 
 namespace Shopware\Core\Content\ProductExport\Service;
 
-use League\Flysystem\FilesystemInterface;
 use Monolog\Logger;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Exception\ExportInvalidException;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
-use Shopware\Core\Content\ProductExport\Struct\GenerationBehavior;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;

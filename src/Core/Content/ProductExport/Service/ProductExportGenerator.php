@@ -10,7 +10,6 @@ use Shopware\Core\Content\ProductExport\Event\ProductExportRenderBodyContextEven
 use Shopware\Core\Content\ProductExport\Exception\EmptyExportException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
-use Shopware\Core\Content\ProductExport\Struct\GenerationBehavior;
 use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\SalesChannelRepositoryIterator;
@@ -118,7 +117,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             throw $exception;
         }
 
-        $content = "";
+        $content = '';
         if ($exportBehavior->generateHeader()) {
             $content = $this->productExportRender->renderHeader($productExport, $context);
         }

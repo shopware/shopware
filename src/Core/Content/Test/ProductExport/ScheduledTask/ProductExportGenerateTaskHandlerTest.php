@@ -71,9 +71,10 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
     {
         return new ProductExportGenerateTaskHandler(
             $this->getContainer()->get('scheduled_task.repository'),
-            $this->getContainer()->get(ProductExporter::class),
             $this->getContainer()->get(SalesChannelContextFactory::class),
-            $this->getContainer()->get('sales_channel.repository')
+            $this->getContainer()->get('sales_channel.repository'),
+            $this->getContainer()->get('product_export.repository'),
+            $this->getContainer()->get('messenger.bus.shopware')
         );
     }
 

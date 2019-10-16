@@ -24,12 +24,12 @@ class ExportBehavior
 
     public function __construct(bool $ignoreCache = false, bool $includeInactive = false, $batchMode = false, $generateHeader = true, $generateFooter = true, $offset = 0)
     {
-        $this->ignoreCache     = $ignoreCache;
+        $this->ignoreCache = $ignoreCache;
         $this->includeInactive = $includeInactive;
-        $this->batchMode       = $batchMode;
-        $this->generateHeader  = $generateHeader;
-        $this->generateFooter  = $generateFooter;
-        $this->offset          = $offset;
+        $this->batchMode = $batchMode;
+        $this->generateHeader = $generateHeader;
+        $this->generateFooter = $generateFooter;
+        $this->offset = $offset;
     }
 
     public function ignoreCache(): bool

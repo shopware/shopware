@@ -460,58 +460,30 @@ tag it with `shopware.migration.writer` in the `migration_assistant_extension.xm
 
 namespace SwagMigrationBundleExample\Migration\Writer;
 
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use SwagMigrationAssistant\Migration\Writer\WriterInterface;
+use SwagMigrationAssistant\Migration\Writer\AbstractWriter;
 use SwagMigrationBundleExample\Profile\Shopware\DataSelection\DataSet\BundleDataSet;
 
-class BundleWriter implements WriterInterface
+class BundleWriter extends AbstractWriter
 {
-    /**
-     * @var EntityWriterInterface
-     */
-    private $entityWriter;
-
-    /**
-     * @var EntityDefinition
-     */
-    private $definition;
-
-    public function __construct(EntityWriterInterface $entityWriter, EntityDefinition $definition)
-    {
-        $this->entityWriter = $entityWriter;
-        $this->definition = $definition;
-    }
-
     public function supports(): string
     {
         return BundleDataSet::getEntity();
-    }
-
-    public function writeData(array $data, Context $context): void
-    {
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($data) {
-            $this->entityWriter->upsert(
-                $this->definition,
-                $data,
-                WriteContext::createFromContext($context)
-            );
-        });
     }
 }
 ```
 
 ```xml
-<service id="SwagMigrationBundleExample\Migration\Writer\BundleWriter">
+<service id="SwagMigrationBundleExample\Migration\Writer\BundleWriter"
+         parent="SwagMigrationAssistant\Migration\Writer\AbstractWriter">
     <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter"/>
     <argument type="service" id="Swag\BundleExample\Core\Content\Bundle\BundleDefinition"/>
     <tag name="shopware.migration.writer"/>
 </service>
 ```
 
-In the writer you use the `EntityWriter` to write your entities of the given entity definition (look above into `migration_assistant_extension.xml`).
+You only need to implement the `supports` method and specify the right `Definition` in `migration_assistant_extension.xml`.
+The logic to write the data is defined in the `AbstractWriter` class and should almost always be the same.
+Take a look at [writer concept](./../2-internals/4-plugins/010-shopware-migration-assistant/080-writer.md) for more information.
 
 And that's it, you're done and have already implemented your first plugin migration.
 Install your plugin, clear the cache and build the administration to see the migration of your bundle entities.

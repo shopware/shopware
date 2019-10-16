@@ -46,41 +46,24 @@ Cypress.Commands.add('removeFixtureByName', (name, endpoint, options = {}) => {
  * @function
  * @param {String} endpoint - API endpoint for the request
  */
-Cypress.Commands.add('createProductFixture', () => {
+Cypress.Commands.add('createProductFixture', (options = {}) => {
     let json = {};
-    let manufacturerId = '';
-    let categoryId = '';
+    const taxName = options.taxName || '19%';
 
     return cy.fixture('product').then((result) => {
         json = result;
-
-        return cy.createDefaultFixture('category');
-    }).then((result) => {
-        categoryId = result;
-
-        return cy.searchViaAdminApi({
-            endpoint: 'product-manufacturer',
-            data: {
-                field: 'name',
-                value: 'shopware AG'
-            }
-        })
-    }).then((result) => {
-        manufacturerId = result.id;
 
         return cy.searchViaAdminApi({
             endpoint: 'tax',
             data: {
                 field: 'name',
-                value: '19%'
+                value: taxName
             }
         });
     }).then((result) => {
-        return Object.assign({}, {
-            taxId: result.id,
-            manufacturerId: manufacturerId,
-            categoryId: categoryId
-        }, json);
+        return Cypress._.merge(json, {
+            taxId: result.id
+        }, options);
     }).then((result) => {
         return cy.createViaAdminApi({
             endpoint: 'product',
@@ -95,9 +78,10 @@ Cypress.Commands.add('createProductFixture', () => {
  * @name setProductFixtureVisibility
  * @function
  */
-Cypress.Commands.add('setProductFixtureVisibility', () => {
+Cypress.Commands.add('setProductFixtureVisibility', (name) => {
     let salesChannelId = '';
     let productId = '';
+    const productName = name || 'Product name';
 
     return cy.searchViaAdminApi({
         endpoint: 'sales-channel',
@@ -112,7 +96,7 @@ Cypress.Commands.add('setProductFixtureVisibility', () => {
             endpoint: 'product',
             data: {
                 field: 'name',
-                value: 'Product name'
+                value: name
             }
         });
     }).then((result) => {
@@ -126,22 +110,6 @@ Cypress.Commands.add('setProductFixtureVisibility', () => {
                 }]
             }
         });
-    }).then(() => {
-        return cy.searchViaAdminApi({
-            endpoint: 'category',
-            data: {
-                field: 'name',
-                value: 'MainCategory'
-            }
-        });
-    }).then((result) => {
-        return cy.updateViaAdminApi('product', productId, {
-            data: {
-                categories: [{
-                    id: result.id
-                }]
-            }
-        });
     });
 });
 
@@ -151,7 +119,7 @@ Cypress.Commands.add('setProductFixtureVisibility', () => {
  * @name createCustomerFixture
  * @function
  */
-Cypress.Commands.add('createCustomerFixture', () => {
+Cypress.Commands.add('createCustomerFixture', (userData) => {
     const addressId = uuid().replace(/-/g, '');
     const customerId = uuid().replace(/-/g, '');
     let customerJson = {};
@@ -164,7 +132,7 @@ Cypress.Commands.add('createCustomerFixture', () => {
     let salutationId = '';
 
     return cy.fixture('customer').then((result) => {
-        customerJson = result;
+        customerJson = Cypress._.merge(result, userData);
 
         return cy.fixture('customer-address')
     }).then((result) => {
@@ -244,5 +212,48 @@ Cypress.Commands.add('createCustomerFixture', () => {
             endpoint: 'customer',
             data: result
         });
+    });
+});
+
+/**
+ * Search for an existing entity using Shopware API at the given endpoint
+ * @memberOf Cypress.Chainable#
+ * @name setCustomerGroup
+ * @function
+ * @param {String} endpoint - API endpoint for the request
+ * @param {Object} [options={}] - Options concerning deletion
+ */
+Cypress.Commands.add('setCustomerGroup', (customerNumber, customerGroupData) => {
+    let customer = '';
+
+    return cy.fixture('customer-group').then((json) => {
+        return cy.createViaAdminApi({
+            endpoint: 'customer-group',
+            data: customerGroupData
+        });
+    }).then(() => {
+        return cy.searchViaAdminApi({
+            endpoint: 'customer',
+            data: {
+                field: 'customerNumber',
+                value: customerNumber
+            }
+        });
+    }).then((result) => {
+        customer = result;
+
+        return cy.searchViaAdminApi({
+            endpoint: 'customer-group',
+            data: {
+                field: 'name',
+                value: customerGroupData.name
+            }
+        });
+    }).then((result) => {
+        return cy.updateViaAdminApi('customer', customer.id, {
+            data: {
+                groupId: result.id
+            }
+        })
     });
 });

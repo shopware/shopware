@@ -37,6 +37,7 @@ class InvalidateCacheSubscriberTest extends TestCase
                     $id,
                     ['name' => 'test', 'id' => $id, 'stock' => 15, 'manufacturerId' => $id],
                     $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+                    EntityWriteResult::OPERATION_INSERT,
                     new EntityExistence($this->getContainer()->get(ProductDefinition::class)->getEntityName(), ['id' => $id], true, false, false, [])
                 )],
                 $context
@@ -47,6 +48,7 @@ class InvalidateCacheSubscriberTest extends TestCase
                     $id,
                     ['name' => 'test', 'id' => $id, 'active' => true],
                     $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+                    EntityWriteResult::OPERATION_INSERT,
                     new EntityExistence($this->getContainer()->get(ProductDefinition::class)->getEntityName(), ['id' => $id], true, false, false, [])
                 )],
                 $context
@@ -57,6 +59,7 @@ class InvalidateCacheSubscriberTest extends TestCase
                     $id,
                     ['productId' => $id, 'categoryId' => $id],
                     $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+                    EntityWriteResult::OPERATION_INSERT,
                     new EntityExistence($this->getContainer()->get(ProductDefinition::class)->getEntityName(), ['id' => $id], true, false, false, [])
                 )],
                 $context

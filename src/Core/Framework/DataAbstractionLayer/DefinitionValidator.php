@@ -171,6 +171,11 @@ class DefinitionValidator
                 $notices[$definition->getClass()],
                 $this->validateDataFieldNotPrefixedByEntityName($definition)
             );
+
+            $notices[$definition->getClass()] = array_merge_recursive(
+                $notices[$definition->getClass()],
+                $this->checkParentDefinition($definition)
+            );
         }
 
         $tableSchemas = $this->connection->getSchemaManager()->listTables();
@@ -921,5 +926,22 @@ class DefinitionValidator
         }
 
         return $violations;
+    }
+
+    private function checkParentDefinition(EntityDefinition $definition): array
+    {
+        if ($definition->getParentDefinition()) {
+            return [];
+        }
+
+        if ($definition instanceof MappingEntityDefinition) {
+            return [];
+        }
+
+        if (mb_strpos($definition->getClass(), '\\Aggregate\\') === false) {
+            return [];
+        }
+
+        return [sprintf('Missing parent definition in aggregate definition %s', $definition->getClass())];
     }
 }

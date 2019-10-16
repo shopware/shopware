@@ -38,6 +38,11 @@ class CmsSectionDefinition extends EntityDefinition
         return CmsSectionCollection::class;
     }
 
+    protected function getParentDefinitionClass(): ?string
+    {
+        return CmsPageDefinition::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

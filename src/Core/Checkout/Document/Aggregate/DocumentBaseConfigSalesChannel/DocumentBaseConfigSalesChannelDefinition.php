@@ -22,6 +22,11 @@ class DocumentBaseConfigSalesChannelDefinition extends EntityDefinition
         return self::ENTITY_NAME;
     }
 
+    protected function getParentDefinitionClass(): ?string
+    {
+        return DocumentBaseConfigDefinition::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

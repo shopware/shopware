@@ -38,6 +38,11 @@ class DocumentBaseConfigDefinition extends EntityDefinition
         return DocumentBaseConfigEntity::class;
     }
 
+    protected function getParentDefinitionClass(): ?string
+    {
+        return DocumentTypeDefinition::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

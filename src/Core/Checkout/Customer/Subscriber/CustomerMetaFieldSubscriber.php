@@ -52,6 +52,10 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
             }
 
             $payload = $writeResult->getPayload();
+            if (empty($payload)) {
+                continue;
+            }
+
             /** @var \DateTimeInterface $orderDate */
             $orderDate = $payload['orderDateTime'];
 

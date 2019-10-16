@@ -98,7 +98,6 @@
             <argument type="service" id="Shopware\Core\Framework\Cache\CacheClearer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <tag name="shopware.dal_indexing.indexer" priority="900"/>
-            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductListingPriceIndexer">

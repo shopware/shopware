@@ -251,8 +251,8 @@ class EntityForeignKeyResolver
                 if ($field instanceof ManyToManyAssociationField) {
                     $referenceDefinition = $field->getReferenceDefinition();
 
-                    if (!array_key_exists($referenceDefinition->getClass(), $restrictions)) {
-                        $restrictions[$referenceDefinition->getClass()] = [];
+                    if (!array_key_exists($referenceDefinition->getEntityName(), $restrictions)) {
+                        $restrictions[$referenceDefinition->getEntityName()] = [];
                     }
 
                     $sourceProperty = $referenceDefinition->getFields()->getByStorageName(
@@ -263,7 +263,7 @@ class EntityForeignKeyResolver
                     );
 
                     foreach ($value as $nested) {
-                        $restrictions[$referenceDefinition->getClass()][] = [
+                        $restrictions[$referenceDefinition->getEntityName()][] = [
                             $sourceProperty->getPropertyName() => $pk,
                             $targetProperty->getPropertyName() => $nested,
                         ];
@@ -276,7 +276,7 @@ class EntityForeignKeyResolver
                     continue;
                 }
 
-                $class = $field->getReferenceDefinition()->getClass();
+                $class = $field->getReferenceDefinition()->getEntityName();
 
                 if (!array_key_exists($class, $restrictions)) {
                     $restrictions[$class] = [];

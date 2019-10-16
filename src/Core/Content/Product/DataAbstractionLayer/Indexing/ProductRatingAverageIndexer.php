@@ -6,21 +6,18 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Cache\CacheClearer;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class ProductRatingAverageIndexer implements IndexerInterface, EventSubscriberInterface
+class ProductRatingAverageIndexer implements IndexerInterface
 {
     /**
      * @var EventDispatcherInterface
@@ -73,8 +70,6 @@ class ProductRatingAverageIndexer implements IndexerInterface, EventSubscriberIn
      */
     public function index(\DateTimeInterface $timestamp): void
     {
-        $context = Context::createDefaultContext();
-
         $iterator = $this->iteratorFactory->createIterator($this->productDefinition);
 
         $this->eventDispatcher->dispatch(
@@ -106,9 +101,14 @@ class ProductRatingAverageIndexer implements IndexerInterface, EventSubscriberIn
             return null;
         }
 
-        $this->update(Uuid::fromHexToBytesList($ids), []);
+        $this->update($ids, []);
 
         return $iterator->getOffset();
+    }
+
+    public static function getName(): string
+    {
+        return 'Swag.ProductRatingAverageIndexer';
     }
 
     /**
@@ -118,88 +118,18 @@ class ProductRatingAverageIndexer implements IndexerInterface, EventSubscriberIn
     public function refresh(EntityWrittenContainerEvent $event): void
     {
         $nested = $event->getEventByEntityName(ProductReviewDefinition::ENTITY_NAME);
-        if ($nested) {
-            $ids = $nested->getIds();
-            $this->updateByReview($ids);
-        }
-    }
 
-    /**
-     * this function should index all products newly that are affected by a review deletion
-     * we have to do this before the review is deleted because we won't have the productId
-     * in the normal indexer functions
-     */
-    public static function getSubscribedEvents()
-    {
-        return [
-            PreWriteValidationEvent::class => 'preDelete',
-        ];
-    }
+        if ($nested instanceof EntityDeletedEvent) {
+            $nested = $event->getEventByEntityName(ProductDefinition::ENTITY_NAME);
 
-    /**
-     * this function checks if reviews are deleted
-     */
-    public function preDelete(PreWriteValidationEvent $event): void
-    {
-        $commands = $event->getCommands();
+            $this->update(Uuid::fromHexToBytesList($nested->getIds()), []);
 
-        $reviewIds = [];
-
-        foreach ($commands as $command) {
-            // we are only interested in delete commands
-            if (!$command instanceof DeleteCommand) {
-                continue;
-            }
-
-            // we are only interested in product reviews
-            if (!$command->getDefinition() instanceof ProductReviewDefinition) {
-                continue;
-            }
-
-            // get all reviewIds that should be deleted
-            $reviewIds = array_unique(array_merge($reviewIds, $command->getPrimaryKey()));
-        }
-
-        // if there are no deleted reviews we don't have any work to do
-        if (count($reviewIds) === 0) {
             return;
         }
 
-        // get all affected productIds
-        $productIds = $this->getProductIdsByReviewIds($reviewIds);
-
-        // calculate rating new for these products
-        $this->update($productIds, $reviewIds);
-    }
-
-    public static function getName(): string
-    {
-        return 'Swag.ProductRatingAverageIndexer';
-    }
-
-    /**
-     * method returns all binary productIds that are linked to given reviewIds
-     */
-    private function getProductIdsByReviewIds(array $reviewIds): array
-    {
-        if (empty($reviewIds)) {
-            return [];
+        if ($nested) {
+            $this->updateByReview($nested->getIds());
         }
-
-        // select productids of all reviews that have been updated
-        $sql = 'SELECT DISTINCT product_id FROM product_review WHERE product_review.id in (:ids)';
-
-        $results = $this->connection->executeQuery(
-            $sql,
-            ['ids' => $reviewIds],
-            ['ids' => Connection::PARAM_STR_ARRAY]
-        )->fetchAll();
-
-        if (count($results) === 0) {
-            return [];
-        }
-
-        return array_column($results, 'product_id');
     }
 
     /**

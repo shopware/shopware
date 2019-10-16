@@ -42,4 +42,9 @@ class CustomFieldSetRelationDefinition extends EntityDefinition
             new ManyToOneAssociationField('customFieldSet', 'set_id', CustomFieldSetDefinition::class, 'id', false),
         ]);
     }
+
+    protected function getParentDefinitionClass(): ?string
+    {
+        return CustomFieldSetDefinition::class;
+    }
 }

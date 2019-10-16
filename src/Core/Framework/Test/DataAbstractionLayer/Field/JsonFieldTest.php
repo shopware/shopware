@@ -335,9 +335,9 @@ EOF;
 
         $written = $this->getWriter()->insert($this->registerDefinition(JsonDefinition::class), $data, $context);
 
-        static::assertArrayHasKey(JsonDefinition::class, $written);
-        static::assertCount(1, $written[JsonDefinition::class]);
-        $payload = $written[JsonDefinition::class][0]->getPayload();
+        static::assertArrayHasKey(JsonDefinition::ENTITY_NAME, $written);
+        static::assertCount(1, $written[JsonDefinition::ENTITY_NAME]);
+        $payload = $written[JsonDefinition::ENTITY_NAME][0]->getPayload();
 
         static::assertArrayHasKey('data', $payload);
         static::assertArrayHasKey('a', $payload['data']);
@@ -353,7 +353,7 @@ EOF;
             ['id' => Uuid::randomHex(), 'data' => [$randomKey => 'bar']],
         ];
         $written = $this->getWriter()->insert($this->registerDefinition(JsonDefinition::class), $data, $context);
-        static::assertCount(1, $written[JsonDefinition::class]);
+        static::assertCount(1, $written[JsonDefinition::ENTITY_NAME]);
 
         $context = $context->getContext();
 
@@ -408,10 +408,10 @@ EOF;
         ];
         $written = $this->getWriter()->insert($this->registerDefinition(JsonDefinition::class), [$insert], $context);
         static::assertCount(1, $written);
-        static::assertCount(1, $written[JsonDefinition::class]);
+        static::assertCount(1, $written[JsonDefinition::ENTITY_NAME]);
 
         /** @var EntityWriteResult $event */
-        $event = $written[JsonDefinition::class][0];
+        $event = $written[JsonDefinition::ENTITY_NAME][0];
         static::assertEquals($insertTime->format(\DateTime::ATOM), $event->getPayload()['root']['child']['childDateTime']);
         static::assertEquals($insertTime->format(Defaults::STORAGE_DATE_FORMAT), $event->getPayload()['root']['child']['childDate']);
 
@@ -426,10 +426,10 @@ EOF;
         ];
         $written = $this->getWriter()->update($this->registerDefinition(JsonDefinition::class), [$update], $context);
         static::assertCount(1, $written);
-        static::assertCount(1, $written[JsonDefinition::class]);
+        static::assertCount(1, $written[JsonDefinition::ENTITY_NAME]);
 
         /** @var EntityWriteResult $event */
-        $event = $written[JsonDefinition::class][0];
+        $event = $written[JsonDefinition::ENTITY_NAME][0];
         static::assertEquals($updateTime->format(\DateTime::ATOM), $event->getPayload()['root']['child']['childDateTime']);
         static::assertEquals($updateTime->format(Defaults::STORAGE_DATE_FORMAT), $event->getPayload()['root']['child']['childDate']);
     }

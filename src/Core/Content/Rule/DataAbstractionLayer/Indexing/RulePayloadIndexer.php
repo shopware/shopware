@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Content\Rule\RuleDefinition;
-use Shopware\Core\Content\Rule\Util\EventIdExtractor;
 use Shopware\Core\Framework\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -41,11 +40,6 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
     private $eventDispatcher;
 
     /**
-     * @var EventIdExtractor
-     */
-    private $eventIdExtractor;
-
-    /**
      * @var RuleConditionRegistry
      */
     private $ruleConditionRegistry;
@@ -73,7 +67,6 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
     public function __construct(
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
-        EventIdExtractor $eventIdExtractor,
         RuleConditionRegistry $ruleConditionRegistry,
         EntityCacheKeyGenerator $cacheKeyGenerator,
         CacheClearer $cache,
@@ -82,7 +75,6 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
     ) {
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
-        $this->eventIdExtractor = $eventIdExtractor;
         $this->ruleConditionRegistry = $ruleConditionRegistry;
         $this->cache = $cache;
         $this->cacheKeyGenerator = $cacheKeyGenerator;
@@ -139,7 +131,13 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        $ids = $this->eventIdExtractor->getRuleIds($event);
+        $ids = [];
+
+        $nested = $event->getEventByEntityName(RuleDefinition::ENTITY_NAME);
+        if ($nested) {
+            $ids = $nested->getIds();
+        }
+
         $this->update($ids);
     }
 

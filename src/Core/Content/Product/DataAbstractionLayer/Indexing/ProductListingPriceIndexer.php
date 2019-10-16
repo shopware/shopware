@@ -10,6 +10,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
@@ -129,27 +130,21 @@ class ProductListingPriceIndexer implements IndexerInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        $productIds = [];
+        $nested = $event->getEventByEntityName(ProductPriceDefinition::ENTITY_NAME);
 
-        $products = $event->getEventByEntityName(ProductDefinition::ENTITY_NAME);
-        if ($products) {
-            foreach ($products->getIds() as $id) {
-                $productIds[] = $id;
-            }
+        if (!$nested) {
+            return;
         }
 
-        $prices = $event->getEventByEntityName(ProductPriceDefinition::ENTITY_NAME);
-        if ($prices) {
-            $priceIds = $this->fetchProductPriceIds($prices->getIds());
-
-            foreach ($priceIds as $id) {
-                $productIds[] = $id;
-            }
+        if (!$nested instanceof EntityDeletedEvent) {
+            $ids = $this->fetchProductPriceIds($nested->getIds());
+            $this->update(array_unique($ids));
         }
 
-        $productIds = array_filter(array_keys(array_flip($productIds)));
-
-        $this->update($productIds);
+        $nested = $event->getEventByEntityName(ProductDefinition::ENTITY_NAME);
+        if ($nested) {
+            $this->update(array_unique($nested->getIds()));
+        }
     }
 
     public static function getName(): string

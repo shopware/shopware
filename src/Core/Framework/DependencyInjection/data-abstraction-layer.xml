@@ -340,6 +340,7 @@
             <argument type="service" id="Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinition"/>
             <argument type="service" id="Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition"/>
             <argument type="service" id="Shopware\Core\Framework\Version\VersionDefinition"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CalculatedPriceFieldSerializer">

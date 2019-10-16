@@ -47,11 +47,12 @@ same server for successfully using the `local` gateway.
 If you want to use the `ShopwareApiGateway` you have to download the [Shopware Connector](https://github.com/shopware/SwagMigrationConnector)
 plugin for your Shopware 5. For more details have a look at the [Gateway and reader](./060-gateway-and-reader.md).
 
-## Converter and Mapping
+## Converter, Mapping and Deltas
 Data gathered by `Reader` objects is transferred to `Converter` objects that put the data in a format Shopware 6 is able to work with.
 Simultaneously entries in the underlying mapping table are inserted to map the old identifiers to the new ones for future migrations (Have a look at the `MappingService` for that).
 The mapping is saved for the current connection. Converted data will be removed after the migration, the mapping will stay persistent.
-You can find out more about them here: [Converter and mapping](./070-converter-and-mapping.md)
+Also a checksum is saved to the mapping to identify and skip the same source data (data has not been changed since last migration).
+You can find out more about them here: [Converter, mapping and deltas](./070-converter-and-mapping.md)
 
 ## Logging
 During a migration, especially during the data conversion there will be possibly errors that you should log.

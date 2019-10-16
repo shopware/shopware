@@ -286,19 +286,20 @@ class ManufacturerReader extends AbstractPremappingReader
          $manufacturerId = $data['manufacturer']['id'];
          unset($data['manufacturer']);
  
-         $manufacturerUuid = $this->mappingService->getUuid(
+         $mapping = $this->mappingService->getMapping(
              $migrationContext->getConnection()->getId(),
              ManufacturerReader::getMappingName(),
              $manufacturerId,
              $context
          );
- 
+         
          $convertedStruct = $this->originalProductConverter->convert($data, $context, $migrationContext);
  
-         if ($manufacturerUuid === null) {
+         if ($mapping === null) {
              return $convertedStruct;
          }
  
+         $manufacturerUuid = $mapping['entityUuid']; 
          $converted = $convertedStruct->getConverted();
          $converted['manufacturerId'] = $manufacturerUuid;
  

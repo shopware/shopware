@@ -20,6 +20,8 @@ This method will receive one data entry at a time. It will have to return it in 
 ```php
 <?php declare(strict_types=1);
 
+/* SwagMigrationAssistant/Profile/Shopware/Converter/ProductConverter.php */
+
 class ProductConverter extends ShopwareConverter
 {
     /* ... */
@@ -100,6 +102,21 @@ of Shopware 6 and all source system data which could not be mapped to the Shopwa
 If the required fields are not filled, the convert method returns a `ConvertStruct` without a `converted` value and the hole given
 source system data as the `unmapped` value.
 
+Also every Converter needs to implement the `getSourceIdentifier` method like below:
+```php
+/* SwagMigrationAssistant/Profile/Shopware/Converter/ProductConverter.php */
+
+/**
+ * Get the identifier of the source data which is only known to converter
+ */
+public function getSourceIdentifier(array $data): string
+{
+    return $data['detail']['ordernumber'];
+}
+```
+This is the main identifier of the incoming data and it will be used to look for already migrated data
+(which will be covered later in this chapter by the Deltas concept).
+
 ## Mapping
 
 Many entities rely on other entities, so that they have to be converted in a specific order. Because of this and the
@@ -107,107 +124,115 @@ Shopware Migration Assistant's ability to perform multiple migrations without re
 source system identifiers have to be mapped to their new counterparts.
 Find a mapping example in the following code snippet:
 ```php
+    /* SwagMigrationAssistant/Profile/Shopware/Converter/ProductConverter.php */
+    
     private function getUuidForProduct(array &$data): array
     {
-        $converted['id'] = $this->mappingService->createNewUuid(
+        $this->mainMapping = $this->mappingService->getOrCreateMapping(
             $this->connectionId,
             DefaultEntities::PRODUCT,
             $this->oldProductId,
-            $this->context
+            $this->context,
+            $this->checksum
         );
+        $converted['id'] = $this->mainMapping['entityUuid'];
 
-        $this->mappingService->createNewUuid(
+        $mapping = $this->mappingService->getOrCreateMapping(
             $this->connectionId,
             DefaultEntities::PRODUCT . '_mainProduct',
             $data['detail']['articleID'],
             $this->context,
             null,
+            null,
             $converted['id']
         );
+        $this->mappingIds[] = $mapping['id']; // Take a look at the performance section below for details on this.
 
         return $converted;
     }
 ```
-The following function employs the `createNewUuid` function, that is part of the mapping service to acquire a unique identifier
+The following function employs the `getOrCreateMapping` function, that is part of the mapping service to acquire a unique identifier
 for the product that is about to get mapped to the source system's identifier and at the same time creating a new mapping
 entry in the `swag_migration_mapping` table. In case of that there is already a unique identifier for the product,
-the `createNewUuid` instead of creating a duplicate entry, returns the existing identifier:
+the `getOrCreateMapping` method instead of creating a duplicate entry, returns the existing identifier:
 ```php
-public function createNewUuid(
+    /* SwagMigrationAssistant/Migration/Mapping/MappingService.php */
+    
+    public function getOrCreateMapping(
         string $connectionId,
         string $entityName,
-        string $oldId,
+        string $oldIdentifier,
         Context $context,
+        ?string $checksum = null,
         ?array $additionalData = null,
-        ?string $newUuid = null
-    ): string {
-        $uuid = $this->getUuid($connectionId, $entityName, $oldId, $context);
+        ?string $uuid = null
+    ): array {
+        $mapping = $this->getMapping($connectionId, $entityName, $oldIdentifier, $context);
+
+        if (!isset($mapping)) {
+            return $this->createMapping($connectionId, $entityName, $oldIdentifier, $checksum, $additionalData, $uuid);
+        }
+
         if ($uuid !== null) {
-            return $uuid;
+            $mapping['entityUuid'] = $uuid;
+            $this->saveMapping($mapping);
+
+            return $mapping;
         }
 
-        $uuid = Uuid::randomHex();
-        if ($newUuid !== null) {
-            $uuid = $newUuid;
-        }
-
-        $this->saveMapping(
-            [
-                'connectionId' => $connectionId,
-                'entity' => $entityName,
-                'oldIdentifier' => $oldId,
-                'entityUuid' => $uuid,
-                'additionalData' => $additionalData,
-            ]
-        );
-
-        return $uuid;
+        return $mapping;
     }
 ```
 
 Sometimes it is not necessary to create a new identifier and it may be enough to only get the mapping identifier.
-In the following example there is an entity with a premapping and the converter simply uses the mapping service's `getUuid` method.:
+In the following example there is an entity with a premapping and the converter simply uses the mapping service's `getMapping` method:
 ```php
-private function getDefaultPaymentMethod(array $originalData): ?string
+/* SwagMigrationAssistant/Profile/Shopware/Converter/CustomerConverter.php */
+
+protected function getDefaultPaymentMethod(array $originalData): ?string
 {
-    $paymentMethodUuid = $this->mappingService->getUuid(
+    $paymentMethodMapping = $this->mappingService->getMapping(
         $this->connectionId,
         PaymentMethodReader::getMappingName(),
         $originalData['id'],
         $this->context
     );
 
-    if ($paymentMethodUuid === null) {
-        $this->loggingService->addWarning(
+    if ($paymentMethodMapping === null) {
+        $this->loggingService->addLogEntry(new UnknownEntityLog(
             $this->runId,
-            Shopware55LogTypes::UNKNOWN_PAYMENT_METHOD,
-            'Cannot find payment method',
-            'Customer-Entity could not be converted cause of unknown payment method',
-            [
-                'id' => $this->oldCustomerId,
-                'entity' => DefaultEntities::CUSTOMER,
-                'paymentMethod' => $originalData['id'],
-            ]
-        );
-    }
+            DefaultEntities::PAYMENT_METHOD,
+            $originalData['id'],
+            DefaultEntities::CUSTOMER,
+            $this->oldCustomerId
+        ));
 
-    return $paymentMethodUuid;
+        return null;
+    }
+    $this->mappingIds[] = $paymentMethodMapping['id'];
+
+    return $paymentMethodMapping['entityUuid'];
 }
 ```
-The `getUuid` method only fetches the identifier from the database and doesn't create a new one:
+The `getMapping` method only fetches the identifier from the database and doesn't create a new one:
 ```php
-public function getUuid(string $connectionId, string $entityName, string $oldId, Context $context): ?string
-{
-    if (isset($this->uuids[$entityName][$oldId])) {
-        return $this->uuids[$entityName][$oldId];
-    }
+/* SwagMigrationAssistant/Migration/Mapping/MappingService.php */
 
+public function getMapping(
+    string $connectionId,
+    string $entityName,
+    string $oldIdentifier,
+    Context $context
+): ?array {
+    if (isset($this->mappings[md5($entityName . $oldIdentifier)])) {
+        return $this->mappings[md5($entityName . $oldIdentifier)];
+    }
     /** @var EntitySearchResult $result */
-    $result = $context->disableCache(function (Context $context) use ($connectionId, $entityName, $oldId) {
+    $result = $context->disableCache(function (Context $context) use ($connectionId, $entityName, $oldIdentifier) {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('connectionId', $connectionId));
         $criteria->addFilter(new EqualsFilter('entity', $entityName));
-        $criteria->addFilter(new EqualsFilter('oldIdentifier', $oldId));
+        $criteria->addFilter(new EqualsFilter('oldIdentifier', $oldIdentifier));
         $criteria->setLimit(1);
 
         return $this->migrationMappingRepo->search($criteria, $context);
@@ -216,13 +241,103 @@ public function getUuid(string $connectionId, string $entityName, string $oldId,
     if ($result->getTotal() > 0) {
         /** @var SwagMigrationMappingEntity $element */
         $element = $result->getEntities()->first();
-        $uuid = $element->getEntityUuid();
 
-        $this->uuids[$entityName][$oldId] = $uuid;
+        $mapping = [
+            'id' => $element->getId(),
+            'connectionId' => $element->getConnectionId(),
+            'entity' => $element->getEntity(),
+            'oldIdentifier' => $element->getOldIdentifier(),
+            'entityUuid' => $element->getEntityUuid(),
+            'checksum' => $element->getChecksum(),
+            'additionalData' => $element->getAdditionalData(),
+        ];
+        $this->mappings[md5($entityName . $oldIdentifier)] = $mapping;
 
-        return $uuid;
+        return $mapping;
     }
 
     return null;
+}
+```
+
+## Deltas
+
+One of the parameters for the `getOrCreateMapping` Method is the `checksum`.
+It is used to identify unchanged data (source system data has not been changed since last migration).
+This will greatly improve the performance of future migrations.
+
+To get this checksum you can use the `generateChecksum` Method of the base `Converter` class:
+```php
+/* SwagMigrationAssistant/Migration/Converter/Converter.php */
+
+/**
+ * Generates a unique checksum for the data array to recognize changes
+ * on repeated migrations.
+ */
+protected function generateChecksum(array $data): void
+{
+    $this->checksum = md5(serialize($data));
+}
+```
+
+This is used in the first line of the converter with the raw data that comes from the `Reader` object:
+```php
+/* SwagMigrationAssistant/Profile/Shopware/Converter/ProductConverter.php */
+
+public function convert(
+    array $data,
+    Context $context,
+    MigrationContextInterface $migrationContext
+): ConvertStruct {
+    $this->generateChecksum($data);
+
+    /* ... */
+
+    // This is also important, so the checksum can be saved to the right mapping!
+    $this->mainMapping = $this->mappingService->getOrCreateMapping(
+        $this->connectionId,
+        DefaultEntities::PRODUCT,
+        $this->oldProductId,
+        $this->context,
+        $this->checksum
+    );
+
+    /* ... */
+}
+```
+
+For the checksum to be saved to the right mapping, make sure that you set the `mainMapping` attribute of the base `Converter` class.
+Internally the checksum of the main mapping of an entity will be compared to the incoming data checksum and if it is the same
+it will be skipped by the converter and also by the writer (you will not receive the data with the same checksum in your converter).
+For more information take a look at the corresponding `filterDeltas` method in the `MigrationDataConverter` class.
+
+## Additional performance tips
+
+The `Converter` base class also contains an array named `mappingIds`.
+This can be filled with all mapping ids that relate to the current data.
+Internally the related mappings will be fetched all at once in future migrations,
+which reduces the performance impact of `getMapping` calls
+(because not every call needs to query data from the database).
+So it is advised to add related mapping ids like so:
+```php
+/* SwagMigrationAssistant/Profile/Shopware/Converter/ProductConverter.php */
+
+private function getUnit(array $data): array
+{
+    $unit = [];
+    $mapping = $this->mappingService->getOrCreateMapping(
+        $this->connectionId,
+        DefaultEntities::UNIT,
+        $data['id'],
+        $this->context
+    );
+    $unit['id'] = $mapping['entityUuid'];
+    $this->mappingIds[] = $mapping['id']; // Store the mapping id as related mapping
+
+    $this->getUnitTranslation($unit, $data);
+    $this->convertValue($unit, 'shortCode', $data, 'unit');
+    $this->convertValue($unit, 'name', $data, 'description');
+
+    return $unit;
 }
 ```

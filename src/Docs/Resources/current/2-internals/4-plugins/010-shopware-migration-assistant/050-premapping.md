@@ -72,32 +72,35 @@ To get the associated new identifier, you can make use of the `MappingService` s
 
 /* ... */
 
-private function getSalutation(string $salutation): ?string
-{
-    // Get Shopware 6 salutation id
-    $salutationUuid = $this->mappingService->getUuid(
-        $this->connectionId,
-        SalutationReader::getMappingName(),
-        $salutation, // This is the id of the source system salutation
-        $this->context
-    );
-
-    if ($salutationUuid === null) {
-        $this->loggingService->addLogEntry(new UnknownEntityLog(
-            $this->runId,
-            DefaultEntities::SALUTATION,
+protected function getSalutation(string $salutation): ?string
+    {
+        $mapping = $this->mappingService->getMapping(
+            $this->connectionId,
+            SalutationReader::getMappingName(),
             $salutation,
-            DefaultEntities::CUSTOMER,
-            $this->oldCustomerId
-        ));
-    }
+            $this->context
+        );
 
-    return $salutationUuid;
-}
+        if ($mapping === null) {
+            $this->loggingService->addLogEntry(new UnknownEntityLog(
+                $this->runId,
+                DefaultEntities::SALUTATION,
+                $salutation,
+                DefaultEntities::CUSTOMER,
+                $this->oldCustomerId
+            ));
+
+            return null;
+        }
+        $this->mappingIds[] = $mapping['id'];
+
+        return $mapping['entityUuid'];
+    }
 
 /* ... */
 ```
-The `getUuid` method used in the mapping service looks up the `swag_migration_mapping` table for the combination of
-old identifier and entity name stored in the current connection. Then it returns the new Shopware 6 identifier.
-With this identifier it is possible to map your converted entity to your premapping choice. If `getUuid` returns null,
+The `getMapping` method used in the mapping service looks up the `swag_migration_mapping` table for the combination of
+old identifier and entity name stored in the current connection.
+Then it returns the mapping object, which contains the new Shopware 6 identifier.
+With this identifier it is possible to map your converted entity to your premapping choice. If `getMapping` returns null,
 then no valid mapping is available and you have to log this with [LoggingService](./071-logging.md).

@@ -110,9 +110,11 @@ class ProductDataSelection implements DataSelectionInterface
         return new DataSelectionStruct(
             $dataSelection->getId(),
             $this->getEntityNames(),
+            $this->getEntityNamesRequiredForCount(),
             $dataSelection->getSnippet(),
             $dataSelection->getPosition(),
-            $dataSelection->getProcessMediaFiles()
+            $dataSelection->getProcessMediaFiles(),
+            DataSelectionStruct::PLUGIN_DATA_TYPE
         );
     }
 
@@ -125,6 +127,13 @@ class ProductDataSelection implements DataSelectionInterface
         $entities[] = BundleDataSet::getEntity(); // Add the BundleDataSet entity to the entities array
 
         return $entities;
+    }
+
+    public function getEntityNamesRequiredForCount(): array
+    {
+        return [
+            BundleDataSet::getEntity(),
+        ];
     }
 }
 ```
@@ -289,6 +298,7 @@ namespace SwagMigrationBundleExample\Profile\Shopware\Converter;
 use Shopware\Core\Framework\Context;
 use SwagMigrationAssistant\Migration\Converter\ConvertStruct;
 use SwagMigrationAssistant\Migration\DataSelection\DefaultEntities;
+use SwagMigrationAssistant\Migration\Logging\LoggingServiceInterface;
 use SwagMigrationAssistant\Migration\Mapping\MappingServiceInterface;
 use SwagMigrationAssistant\Migration\MigrationContextInterface;
 use SwagMigrationAssistant\Profile\Shopware\Converter\ShopwareConverter;
@@ -297,13 +307,17 @@ use SwagMigrationBundleExample\Profile\Shopware\DataSelection\DataSet\BundleData
 
 class BundleConverter extends ShopwareConverter
 {
-    /**
-     * @var MappingServiceInterface
-     */
-    private $mappingService;
 
-    public function __construct(MappingServiceInterface $mappingService) {
-        $this->mappingService = $mappingService;
+    public function __construct(
+        MappingServiceInterface $mappingService,
+        LoggingServiceInterface $loggingService
+    ) {
+        parent::__construct($mappingService, $loggingService);
+    }
+
+    public function getSourceIdentifier(array $data): string
+    {
+        return $data['id'];
     }
 
     public function supports(MigrationContextInterface $migrationContext): bool
@@ -315,13 +329,18 @@ class BundleConverter extends ShopwareConverter
 
     public function convert(array $data, Context $context, MigrationContextInterface $migrationContext): ConvertStruct
     {
+        // Generate a checksum for the data to allow faster migrations in the future
+        $this->generateChecksum($data);
+
         // Get uuid for bundle entity out of mapping table or create a new one
-        $converted['id'] = $this->mappingService->createNewUuid(
+        $mainMapping = $this->mappingService->getOrCreateMapping(
             $migrationContext->getConnection()->getId(),
             BundleDataSet::getEntity(),
             $data['id'],
-            $context
+            $context,
+            $this->checksum
         );
+        $converted['id'] = $mainMapping['entityUuid'];
         
         // This method checks if key is available in data array and set value in converted array
         $this->convertValue($converted, 'name', $data, 'name');
@@ -358,13 +377,14 @@ class BundleConverter extends ShopwareConverter
         $products = [];
         foreach ($data['products'] as $product) {
             // Get associated uuid of product out of mapping table
-            $productUuid = $this->mappingService->getUuid($connectionId, DefaultEntities::PRODUCT . '_mainProduct', $product, $context);
+            $mapping = $this->mappingService->getMapping($connectionId, DefaultEntities::PRODUCT . '_mainProduct', $product, $context);
 
             // Log missing association of product
-            if ($productUuid === null) {
+            if ($mapping === null) {
                 continue;
             }
 
+            $productUuid = $mapping['entityUuid'];
             $newProduct['id'] = $productUuid;
             $products[] = $newProduct;
         }
@@ -441,9 +461,12 @@ of the field.) In the end of this step, you have to register your new converter 
 ```xml
 <service id="SwagMigrationBundleExample\Profile\Shopware\Converter\BundleConverter">
     <argument type="service" id="SwagMigrationAssistant\Migration\Mapping\MappingService"/>
+    <argument type="service" id="SwagMigrationAssistant\Migration\Logging\LoggingService"/>
     <tag name="shopware.migration.converter"/>
 </service>
 ```
+
+If you need more information about the converter and mapping, take a look at [converter, mapping and deltas concept](./../2-internals/4-plugins/010-shopware-migration-assistant/070-converter-and-mapping.md).
 
 ## Adding a writer
 

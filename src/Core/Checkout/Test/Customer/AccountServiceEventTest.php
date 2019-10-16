@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerChangedPaymentMethodEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
+use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
@@ -51,6 +52,41 @@ class AccountServiceEventTest extends TestCase
         $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
         $this->createCustomer($this->salesChannelContext, 'info@example.com', 'shopware');
+    }
+
+    public function testLoginBeforeEventNotDispatchedIfNoCredentialsGiven(): void
+    {
+        /** @var TraceableEventDispatcher $dispatcher */
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $eventDidRun = false;
+
+        $listenerClosure = $this->getEmailListenerClosure($eventDidRun, $this);
+        $dispatcher->addListener(CustomerBeforeLoginEvent::class, $listenerClosure);
+
+        $dataBag = new DataBag();
+        $dataBag->add([
+            'username' => '',
+            'password' => 'shopware',
+        ]);
+
+        try {
+            $this->accountService->loginWithPassword($dataBag, $this->salesChannelContext);
+        } catch (BadCredentialsException $e) {
+            // nth
+        }
+        static::assertFalse($eventDidRun, 'Event "' . CustomerBeforeLoginEvent::class . '" did run');
+
+        $eventDidRun = false;
+
+        try {
+            $this->accountService->login('', $this->salesChannelContext);
+        } catch (BadCredentialsException $e) {
+            // nth
+        }
+        static::assertFalse($eventDidRun, 'Event "' . CustomerBeforeLoginEvent::class . '" did run');
+
+        $dispatcher->removeListener(CustomerBeforeLoginEvent::class, $listenerClosure);
     }
 
     public function testLoginEventsDispatched(): void

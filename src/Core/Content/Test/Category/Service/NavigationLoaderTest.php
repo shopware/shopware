@@ -3,16 +3,74 @@
 namespace Shopware\Core\Content\Test\Category\Service;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\Service\NavigationLoader;
+use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class NavigationLoaderTest extends TestCase
 {
-    public function testTreeBuilderwithSimpleTree(): void
+    use IntegrationTestBehaviour;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $repository;
+
+    /**
+     * @var NavigationLoader
+     */
+    private $navigationLoader;
+
+    /**
+     * @var string
+     */
+    private $rootId;
+
+    /**
+     * @var string
+     */
+    private $category1Id;
+
+    /**
+     * @var string
+     */
+    private $category2Id;
+
+    /**
+     * @var string
+     */
+    private $category1_1Id;
+
+    /**
+     * @var string
+     */
+    private $category2_1Id;
+
+    public function setUp(): void
+    {
+        /* @var EntityRepositoryInterface $repository */
+        $this->repository = $this->getContainer()->get('category.repository');
+
+        $this->rootId = Uuid::randomHex();
+        $this->category1Id = Uuid::randomHex();
+        $this->category2Id = Uuid::randomHex();
+        $this->category1_1Id = Uuid::randomHex();
+        $this->category2_1Id = Uuid::randomHex();
+
+        $this->navigationLoader = $this->getContainer()->get(NavigationLoader::class);
+    }
+
+    public function testTreeBuilderWithSimpleTree(): void
     {
         $loader = new NavigationLoader(
             $this->createMock(SalesChannelRepository::class),
@@ -34,6 +92,44 @@ class NavigationLoaderTest extends TestCase
         static::assertCount(0, $treeItems['1.3']->getChildren());
     }
 
+    public function testLoadActiveAndRootCategoryAreSame(): void
+    {
+        $this->createCategoryTree();
+
+        $tree = $this->navigationLoader->load($this->category1Id, Generator::createSalesChannelContext(), $this->category1Id);
+        static::assertInstanceOf(Tree::class, $tree);
+    }
+
+    public function testLoadChildOfRootCategory(): void
+    {
+        $this->createCategoryTree();
+
+        $tree = $this->navigationLoader->load($this->category1_1Id, Generator::createSalesChannelContext(), $this->category1Id);
+        static::assertInstanceOf(Tree::class, $tree);
+    }
+
+    public function testLoadCategoryNotFound(): void
+    {
+        static::expectException(CategoryNotFoundException::class);
+        $this->navigationLoader->load(Uuid::randomHex(), Generator::createSalesChannelContext(), Uuid::randomHex());
+    }
+
+    public function testLoadNotChildOfRootCategoryThrowsException(): void
+    {
+        $this->createCategoryTree();
+
+        static::expectException(CategoryNotFoundException::class);
+        $this->navigationLoader->load($this->category2_1Id, Generator::createSalesChannelContext(), $this->category1Id);
+    }
+
+    public function testLoadParentOfRootCategoryThrowsException(): void
+    {
+        $this->createCategoryTree();
+
+        static::expectException(CategoryNotFoundException::class);
+        $this->navigationLoader->load($this->rootId, Generator::createSalesChannelContext(), $this->category1Id);
+    }
+
     private function createSimpleTree(): array
     {
         return [
@@ -47,6 +143,38 @@ class NavigationLoaderTest extends TestCase
             new TestTreeAware('1.2.2.1', '1.2.2'),
             new TestTreeAware('1.3', '1'),
         ];
+    }
+
+    private function createCategoryTree(): void
+    {
+        $this->repository->upsert([
+            [
+                'id' => $this->rootId,
+                'name' => 'root',
+                'children' => [
+                    [
+                        'id' => $this->category1Id,
+                        'name' => 'Category 1',
+                        'children' => [
+                            [
+                                'id' => $this->category1_1Id,
+                                'name' => 'Category 1.1',
+                            ],
+                        ],
+                    ],
+                    [
+                        'id' => $this->category2Id,
+                        'name' => 'Category 2',
+                        'children' => [
+                            [
+                                'id' => $this->category2_1Id,
+                                'name' => 'Category 2.1',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ], Context::createDefaultContext());
     }
 }
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Seo\SeoUrlRoute;
 
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -13,6 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Storefront\Framework\Seo\MainCategory\MainCategoryCollection;
+use Shopware\Storefront\Framework\Seo\MainCategory\MainCategoryEntity;
 
 class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
 {
@@ -47,6 +50,8 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
     public function prepareCriteria(Criteria $criteria): void
     {
         $criteria->addAssociation('manufacturer');
+        $criteria->addAssociation('mainCategories.category');
+        $criteria->addAssociation('categories');
     }
 
     public function getMapping(Entity $product, ?SalesChannelEntity $salesChannel): SeoUrlMapping
@@ -55,11 +60,18 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
             throw new \InvalidArgumentException('Expected ProductEntity');
         }
 
+        $productJson = $product->jsonSerialize();
+
+        $mainCategory = $this->extractMainCategory($product, $salesChannel);
+        if ($mainCategory !== null) {
+            $productJson['mainCategory'] = $mainCategory->jsonSerialize();
+        }
+
         return new SeoUrlMapping(
             $product,
             ['productId' => $product->getId()],
             [
-                'product' => $product->jsonSerialize(),
+                'product' => $productJson,
             ]
         );
     }
@@ -107,5 +119,24 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
         }
 
         return new SeoUrlExtractIdResult($ids);
+    }
+
+    private function extractMainCategory(ProductEntity $product, ?SalesChannelEntity $salesChannel): ?CategoryEntity
+    {
+        /** @var CategoryEntity|null $mainCategory */
+        $mainCategory = null;
+        if ($salesChannel !== null) {
+            /** @var MainCategoryCollection $mainCategories */
+            $mainCategories = $product->getExtension('mainCategories');
+            /** @var MainCategoryEntity|null $mainCategoryEntity */
+            $mainCategoryEntity = $mainCategories->filterBySalesChannelId($salesChannel->getId())->first();
+            $mainCategory = $mainCategoryEntity !== null ? $mainCategoryEntity->getCategory() : null;
+        }
+
+        if ($mainCategory === null) {
+            $mainCategory = $product->getCategories() ? $product->getCategories()->sortByPosition()->first() : null;
+        }
+
+        return $mainCategory;
     }
 }

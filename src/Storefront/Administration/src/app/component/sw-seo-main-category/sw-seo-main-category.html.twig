@@ -1,0 +1,15 @@
+{% block sw_seo_main_category %}
+    <div class="sw-seo-main-category">
+        {% block sw_seo_main_category_select %}
+            <sw-single-select :options="categories"
+                              labelProperty="translated.name"
+                              valueProperty="id"
+                              :placeholder="$tc('sw-seo-url.placeholderMainCategory')"
+                              :label="$tc('sw-seo-url.labelMainCategory')"
+                              :value = "selectedCategory"
+                              @input="onMainCategorySelected"
+                              :disabled="currentSalesChannelId===null">
+            </sw-single-select>
+        {% endblock %}
+    </div>
+{% endblock %}

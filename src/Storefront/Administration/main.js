@@ -1,5 +1,6 @@
 import './src/app/component/sw-seo-url-template-card';
 import './src/app/component/sw-seo-url';
+import './src/app/component/sw-seo-main-category';
 
 import './src/modules/sw-theme-manager';
 

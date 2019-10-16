@@ -75,6 +75,10 @@ Component.register('sw-seo-url', {
 
         seoUrlHelptext() {
             return this.isHeadlessSalesChannel ? this.$tc('sw-seo-url.textSeoUrlsDisallowedForHeadless') : null;
+        },
+
+        hasAdditionalSeoSlot() {
+            return this.$scopedSlots.hasOwnProperty('seo-additional');
         }
     },
 

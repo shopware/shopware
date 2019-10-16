@@ -350,7 +350,7 @@ class VersionManager
             }
 
             //set data and payload cursor to root or extensions to simplify following if conditions
-            $dataCursor = &$data;
+            $dataCursor = $data;
 
             $payloadCursor = &$payload;
 
@@ -359,7 +359,7 @@ class VersionManager
             }
 
             if ($field->is(Extension::class)) {
-                $dataCursor = $data['extensions'];
+                $dataCursor = $data['extensions'] ?? [];
                 $payloadCursor = &$extensions;
             }
 

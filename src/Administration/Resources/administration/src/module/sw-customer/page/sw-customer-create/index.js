@@ -44,7 +44,7 @@ Component.extend('sw-customer-create', 'sw-customer-detail', {
             this.customer.defaultShippingAddressId = defaultAddress.id;
             this.customer.password = '';
 
-            this.$super.createdComponent();
+            this.$super('createdComponent');
 
             this.isLoading = false;
             this.customerEditMode = true;
@@ -60,10 +60,10 @@ Component.extend('sw-customer-create', 'sw-customer-detail', {
                 this.numberRangeService.reserve('customer', this.customer.salesChannelId).then((response) => {
                     this.customerNumberPreview = 'reserved';
                     this.customer.customerNumber = response.number;
-                    this.$super.onSave();
+                    this.$super('onSave');
                 });
             } else {
-                this.$super.onSave().then(() => {
+                this.$super('onSave').then(() => {
                     this.customerNumberPreview = 'reserved';
                 });
             }

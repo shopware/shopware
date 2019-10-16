@@ -41,7 +41,7 @@ Component.extend('sw-condition-goods-price', 'sw-condition-base', {
         deleteCondition() {
             this.deleteChildren(this.condition.children);
 
-            this.$super.deleteCondition();
+            this.$super('deleteCondition');
         },
         deleteChildren(children) {
             children.forEach((child) => {

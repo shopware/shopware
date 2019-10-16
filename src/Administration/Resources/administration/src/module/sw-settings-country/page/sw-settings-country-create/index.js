@@ -41,7 +41,7 @@ Component.extend('sw-settings-country-create', 'sw-settings-country-detail', {
         },
 
         onSave() {
-            this.$super.onSave();
+            this.$super('onSave');
         }
     }
 });

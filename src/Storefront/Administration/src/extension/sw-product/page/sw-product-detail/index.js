@@ -10,7 +10,7 @@ Component.override('sw-product-detail', {
         onSaveFinished(response) {
             // if extensions are not set the seo urls are not present in store
             if (typeof this.$store.getters['swSeoUrl/getNewOrModifiedUrls'] !== 'function') {
-                this.$super.onSaveFinished(response);
+                this.$super('onSaveFinished', response);
                 return;
             }
 
@@ -34,7 +34,7 @@ Component.override('sw-product-detail', {
             }
 
             Promise.all(updatePromises).then(() => {
-                this.$super.onSaveFinished(response);
+                this.$super('onSaveFinished', response);
 
                 this.$root.$emit('seo-url-save-finish');
             });

@@ -65,7 +65,7 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
 
     methods: {
         createdComponent() {
-            this.$super.createdComponent();
+            this.$super('createdComponent');
 
             if (this.items) {
                 this.applyResult(this.items);

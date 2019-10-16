@@ -8,7 +8,7 @@ Component.override('sw-settings-seo', {
     methods: {
         onClickSave() {
             this.$refs.seoUrlTemplateCard.onClickSave();
-            this.$super.onClickSave();
+            this.$super('onClickSave');
         }
     }
 });

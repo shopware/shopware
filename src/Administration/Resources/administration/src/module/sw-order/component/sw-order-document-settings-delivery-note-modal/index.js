@@ -42,7 +42,7 @@ Component.extend('sw-order-document-settings-delivery-note-modal', 'sw-order-doc
 
         onPreview() {
             this.documentConfig.custom.deliveryNoteNumber = this.documentConfig.documentNumber;
-            this.$super.onPreview();
+            this.$super('onPreview');
         }
     }
 });

@@ -23,11 +23,11 @@ Component.extend('sw-condition-or-container', 'sw-condition-and-container', {
             if (this.level === 0) {
                 this.onAddChildClick();
             } else {
-                this.$super.onAddAndClick();
+                this.$super('onAddAndClick');
             }
         },
         onDeleteAll() {
-            this.$super.onDeleteAll();
+            this.$super('onDeleteAll');
 
             if (this.level === 0) {
                 this.$nextTick(() => {

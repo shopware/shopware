@@ -312,6 +312,148 @@ Also the change allows it to have different types of sections eg. one with a sid
 Structure is now Page->**Section**->blocks->slots <br>
 To migrate your existing data run `bin/console database:migrate --all Shopware\\` <br><br> See `2019-09-27-breaking-change-cms-sections` for more information
 
+* Refactored the multiple inheritance of vuejs components and `$super` method with a **breaking change**!
+
+	The syntax for the `$super` call has been changed as follows.
+
+    ```js
+    this.$super('relatedMethodName', ...args);
+    ```
+
+    You can use `$super` for _computed_ properties and _methods_ to invoke the behaviour of the component you want to extend or override.
+
+    Before:
+
+    ```js
+        import template from './test-component.html.twig';
+
+        ComponentFactory.register('test-component', {
+            template,
+
+            data() {
+                return {
+                    _value: '';
+                }
+            },
+
+            computed: {
+                fooBar() {
+                    return 'fooBar';
+                },
+                currentValue: {
+                    get() {
+                        return this._value;
+                    },
+                    set(value) {
+                        this._value = value;
+                    }
+                }
+            },
+
+            methods: {
+                uppercaseCurrentValue() {
+                    return this.currentValue.toUpperCase();
+                }
+            }
+        });
+
+        ComponentFactory.extend('extension-1', 'test-component', {
+            computed: {
+                fooBar() {
+                    const prev = this.$super.fooBar();
+
+                    return `${prev}Baz`;
+                },
+                currentValue: {
+                    get() {
+                        this.$super.currentValue();
+
+                        return `foo${this._value}`;
+                    },
+                    set(value) {
+                        this.$super.currentValue(value);
+
+                        this._value = `${value}Baz!`;
+                    }
+                }
+            },
+
+            methods: {
+                uppercaseCurrentValue() {
+                    const prev = this.$super.uppercaseCurrentValue();
+
+                    return prev.reverse();
+                }
+            }
+        });
+    ```
+
+    After:
+
+    ```js
+    import template from './test-component.html.twig';
+
+    ComponentFactory.register('test-component', {
+        template,
+
+        data() {
+            return {
+                _value: '';
+            }
+        },
+
+        computed: {
+            fooBar() {
+                return 'fooBar';
+            },
+            currentValue: {
+                get() {
+                    return this._value;
+                },
+                set(value) {
+                    this._value = value;
+                }
+            }
+        },
+
+        methods: {
+            uppercaseCurrentValue() {
+                return this.currentValue.toUpperCase();
+            }
+        }
+    });
+
+    ComponentFactory.extend('extension-1', 'test-component', {
+        computed: {
+            fooBar() {
+                const prev = this.$super('fooBar');
+
+                return `${prev}Baz`;
+            },
+            currentValue: {
+                get() {
+                    this.$super('currentValue.get');
+
+                    return `foo${this._value}`;
+                },
+                set(value) {
+                    this.$super('currentValue.set', value);
+
+                    this._value = `${value}Baz!`;
+                }
+            }
+        },
+
+        methods: {
+            uppercaseCurrentValue() {
+                const prev = this.$super('uppercaseCurrentValue');
+
+                return prev.reverse();
+            }
+        }
+    });
+```
+
 Storefront
 ----------
 

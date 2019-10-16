@@ -30,7 +30,7 @@ Component.extend('sw-product-stream-create', 'sw-product-stream-detail', {
                 this.productStream = this.productStreamStore.create(this.$route.params.id);
             }
 
-            this.$super.createdComponent();
+            this.$super('createdComponent');
         },
 
         saveFinish() {
@@ -39,7 +39,7 @@ Component.extend('sw-product-stream-create', 'sw-product-stream-detail', {
         },
 
         onSave() {
-            this.$super.onSave();
+            this.$super('onSave');
         }
     }
 });

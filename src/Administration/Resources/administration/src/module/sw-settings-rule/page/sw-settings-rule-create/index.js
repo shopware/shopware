@@ -15,7 +15,7 @@ Component.extend('sw-settings-rule-create', 'sw-settings-rule-detail', {
             if (this.$route.params.id) {
                 this.ruleStore.create(this.$route.params.id);
             }
-            this.$super.createdComponent();
+            this.$super('createdComponent');
         },
 
         saveFinish() {
@@ -24,7 +24,7 @@ Component.extend('sw-settings-rule-create', 'sw-settings-rule-detail', {
         },
 
         onSave() {
-            this.$super.onSave();
+            this.$super('onSave');
         }
     }
 });

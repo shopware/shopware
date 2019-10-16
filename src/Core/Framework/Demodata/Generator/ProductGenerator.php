@@ -112,6 +112,13 @@ class ProductGenerator implements DemodataGeneratorInterface
             $this->write($payload, $context);
         }
 
+        // set inherited association fields, normally set in Indexer
+        // these are needed in Order generation
+        $this->connection->executeQuery('
+            UPDATE product
+            SET visibilities = id, prices = id;
+        ');
+
         $context->getConsole()->progressFinish();
     }
 

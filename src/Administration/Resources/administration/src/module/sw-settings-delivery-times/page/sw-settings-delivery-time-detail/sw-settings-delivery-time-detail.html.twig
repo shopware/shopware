@@ -85,6 +85,7 @@
                                                 :label="$tc('sw-settings-delivery-time.detail.labelMin')"
                                                 :error="deliveryTimeMinError || invalidMinError"
                                                 :min="0"
+                                                :max="deliveryTime.max"
                                                 required>
                                             </sw-number-field>
                                         {% endblock %}
@@ -94,7 +95,7 @@
                                                 v-model="deliveryTime.max"
                                                 :label="$tc('sw-settings-delivery-time.detail.labelMax')"
                                                 :error="deliveryTimeMaxError"
-                                                :min="0"
+                                                :min="deliveryTime.min"
                                                 required>
                                             </sw-number-field>
                                         {% endblock %}

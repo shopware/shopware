@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
+use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Service\ProductExportFileHandlerInterface;
 use Shopware\Core\Content\ProductExport\Service\ProductExportGeneratorInterface;
+use Shopware\Core\Content\ProductExport\Service\ProductExportRendererInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -11,8 +13,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
+use Shopware\Core\Framework\Translation\Translator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class ProductExportPartialGenerationHandler extends AbstractMessageHandler
@@ -35,12 +39,24 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
     /** @var ProductExportFileHandlerInterface */
     private $productExportFileHandler;
 
+    /** @var ProductExportRendererInterface */
+    private $productExportRender;
+
+    /** @var Translator */
+    private $translator;
+
+    /** @var SalesChannelContextServiceInterface */
+    private $salesChannelContextService;
+
     public function __construct(
         ProductExportGeneratorInterface $productExportGenerator,
         SalesChannelContextFactory $salesChannelContextFactory,
         EntityRepository $productExportRepository,
         ProductExportFileHandlerInterface $productExportFileHandler,
         MessageBusInterface $messageBus,
+        ProductExportRendererInterface $productExportRender,
+        Translator $translator,
+        SalesChannelContextServiceInterface $salesChannelContextService,
         int $readBufferSize
     ) {
         $this->productExportGenerator = $productExportGenerator;
@@ -49,6 +65,9 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
         $this->readBufferSize = $readBufferSize;
         $this->messageBus = $messageBus;
         $this->productExportFileHandler = $productExportFileHandler;
+        $this->productExportRender = $productExportRender;
+        $this->translator = $translator;
+        $this->salesChannelContextService = $salesChannelContextService;
     }
 
     public static function getHandledMessages(): iterable
@@ -66,17 +85,6 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
      */
     public function handle($productExportPartialGeneration): void
     {
-        $generateHeader = false;
-        $generateFooter = false;
-
-        if ($productExportPartialGeneration->getOffset() === 0) {
-            $generateHeader = true;
-        }
-
-        if ($productExportPartialGeneration->isLastPart()) {
-            $generateFooter = true;
-        }
-
         $criteria = new Criteria(array_filter([$productExportPartialGeneration->getProductExportId()]));
         $criteria
             ->addAssociation('salesChannel')
@@ -104,11 +112,12 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
             false,
             false,
             true,
-            $generateHeader,
-            $generateFooter,
+            false,
+            false,
             $productExportPartialGeneration->getOffset()
         );
 
+        /** @var ProductExportEntity $productExport */
         $productExport = $productExports->first();
         $exportResult  = $this->productExportGenerator->generate(
             $productExport,
@@ -116,8 +125,8 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
         );
 
         $filePath = $this->productExportFileHandler->getFilePath($productExport, true);
-        $this->productExportFileHandler->writeProductExportResult(
-            $exportResult,
+        $this->productExportFileHandler->writeProductExportContent(
+            $exportResult->getContent(),
             $filePath,
             $productExportPartialGeneration->getOffset() > 0
         );
@@ -135,7 +144,35 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
             return;
         }
 
+        $this->finalizeExport($productExport, $filePath);
+    }
+
+    private function finalizeExport(ProductExportEntity $productExport, string $filePath): void
+    {
+        $context = $this->salesChannelContextService->get(
+            $productExport->getStorefrontSalesChannelId(),
+            Uuid::randomHex(),
+            $productExport->getSalesChannelDomain()->getLanguageId()
+        );
+
+        $this->translator->injectSettings(
+            $productExport->getStorefrontSalesChannelId(),
+            $productExport->getSalesChannelDomain()->getLanguageId(),
+            $productExport->getSalesChannelDomain()->getLanguage()->getLocaleId(),
+            $context->getContext()
+        );
+
+        $headerContent = $this->productExportRender->renderHeader($productExport, $context);
+        $footerContent = $this->productExportRender->renderFooter($productExport, $context);
         $finalFilePath = $this->productExportFileHandler->getFilePath($productExport);
-        $this->productExportFileHandler->move($filePath, $finalFilePath);
+
+        $this->translator->resetInjection();
+
+        $this->productExportFileHandler->finalizePartialProductExport(
+            $filePath,
+            $finalFilePath,
+            $headerContent,
+            $footerContent
+        );
     }
 }

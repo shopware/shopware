@@ -105,8 +105,8 @@ class ProductExporter implements ProductExporterInterface
             throw $exportInvalidException;
         }
 
-        $writeProductExportSuccesful = $this->productExportFileHandler->writeProductExportResult(
-            $result,
+        $writeProductExportSuccesful = $this->productExportFileHandler->writeProductExportContent(
+            $result->getContent(),
             $filePath
         );
 

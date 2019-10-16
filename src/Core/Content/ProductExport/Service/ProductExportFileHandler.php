@@ -40,7 +40,7 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
         return $filePath;
     }
 
-    public function writeProductExportResult(ProductExportResult $productExportResult, string $filePath, bool $append = false): bool {
+    public function writeProductExportContent(string $content, string $filePath, bool $append = false): bool {
         if ($this->fileSystem->has($filePath) && !$append) {
             $this->fileSystem->delete($filePath);
         }
@@ -52,7 +52,7 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
 
         return $this->fileSystem->put(
             $filePath,
-            $existingContent . $productExportResult->getContent()
+            $existingContent . $content
         );
     }
 
@@ -66,13 +66,22 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
             || (!$productExport->isGenerateByCronjob() && !$this->isCacheExpired($behavior, $productExport));
     }
 
-    public function move(string $filePath, string $finalFilePath): bool
+    public function finalizePartialProductExport(string $partialFilePath, string $finalFilePath, string $headerContent, string $footerContent): bool
     {
-        if ($this->fileSystem->has($filePath) && $this->fileSystem->has($finalFilePath)) {
+        if ($this->fileSystem->has($partialFilePath) && $this->fileSystem->has($finalFilePath)) {
             $this->fileSystem->delete($finalFilePath);
         }
 
-        return $this->fileSystem->rename($filePath, $finalFilePath);
+        $content = $this->fileSystem->readAndDelete($partialFilePath);
+
+        if ($content === false) {
+            return false;
+        }
+
+        return $this->fileSystem->put(
+            $finalFilePath,
+            $headerContent . $content . $footerContent
+        );
     }
 
     private function isCacheExpired(ExportBehavior $behavior, ProductExportEntity $productExport): bool

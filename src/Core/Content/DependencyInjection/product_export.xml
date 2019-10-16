@@ -65,6 +65,9 @@
             <argument type="service" id="product_export.repository"/>
             <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportFileHandler"/>
             <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportRenderer"/>
+            <argument type="service" id="Shopware\Core\Framework\Translation\Translator"/>
+            <argument type="service" id="Shopware\Core\Profiling\Checkout\SalesChannelContextServiceProfiler"/>
             <argument type="string">%product_export.read_buffer_size%</argument>
             <tag name="messenger.message_handler"/>
         </service>

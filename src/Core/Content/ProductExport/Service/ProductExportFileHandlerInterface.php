@@ -10,9 +10,9 @@ interface ProductExportFileHandlerInterface
 {
     public function getFilePath(ProductExportEntity $productExport, bool $partialGeneration = false): string;
 
-    public function writeProductExportResult(ProductExportResult $productExportResult, string $filePath, bool $append = false): bool;
+    public function writeProductExportContent(string $content, string $filePath, bool $append = false): bool;
 
     public function isValidFile(string $filePath, ExportBehavior $behavior, ProductExportEntity $productExport): bool;
 
-    public function move(string $filePath, string $finalFilePath): bool;
+    public function finalizePartialProductExport(string $partialFilePath, string $finalFilePath, string $headerContent, string $footerContent): bool;
 }

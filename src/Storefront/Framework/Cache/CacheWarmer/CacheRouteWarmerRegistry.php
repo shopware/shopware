@@ -14,6 +14,9 @@ class CacheRouteWarmerRegistry
         $this->warmers = $routes;
     }
 
+    /**
+     * @return iterable|CacheRouteWarmer[]
+     */
     public function getWarmers(): iterable
     {
         return $this->warmers;

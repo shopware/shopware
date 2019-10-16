@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Cache\CacheWarmer;
 
-abstract class WarmUpMessage
+class WarmUpMessage
 {
     /**
      * @var string
@@ -10,20 +10,30 @@ abstract class WarmUpMessage
     protected $domain;
 
     /**
+     * @var string
+     */
+    protected $cacheId;
+
+    /**
      * @var array|null
      */
     protected $offset;
 
     /**
+     * @var string
+     */
+    protected $route;
+
+    /**
      * @var array
      */
-    protected $ids;
+    protected $parameters;
 
-    public function __construct(string $domain, array $ids, ?array $offset = null)
+    public function __construct(string $route, array $parameters, ?array $offset = null)
     {
-        $this->domain = $domain;
         $this->offset = $offset;
-        $this->ids = $ids;
+        $this->route = $route;
+        $this->parameters = $parameters;
     }
 
     public function getDomain(): string
@@ -36,8 +46,28 @@ abstract class WarmUpMessage
         return $this->offset;
     }
 
-    public function getIds(): array
+    public function getCacheId(): string
     {
-        return $this->ids;
+        return $this->cacheId;
+    }
+
+    public function setCacheId(string $cacheId): void
+    {
+        $this->cacheId = $cacheId;
+    }
+
+    public function setDomain(string $domain): void
+    {
+        $this->domain = $domain;
+    }
+
+    public function getRoute(): string
+    {
+        return $this->route;
+    }
+
+    public function getParameters(): array
+    {
+        return $this->parameters;
     }
 }

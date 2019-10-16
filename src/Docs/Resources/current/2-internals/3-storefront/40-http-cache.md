@@ -44,7 +44,7 @@ class NavigationController extends StorefrontController
 ```
 
 ## How to write a http cache warmer extension
-The http cache warmer can be extended by further routes, which should be considered in the warmup. The routes can be registered via the DI container tag `<tag name="http_cache.route_warmer" />` and `<tag name="messenger.message_handler"/>`.
+The http cache warmer can be extended by further routes, which should be considered in the warm up. The routes can be registered via the DI container tag `<tag name="http_cache.route_warmer" />`.
 The following example shows a route warmer for the product detail pages:
 ```php
 <?php declare(strict_types=1);
@@ -53,96 +53,49 @@ namespace Shopware\Storefront\Framework\Cache\CacheWarmer\Product;
 
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer;
 use Shopware\Storefront\Framework\Cache\CacheWarmer\WarmUpMessage;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Routing\RouterInterface;
 
-class ProductRouteWarmer extends CacheRouteWarmer
+class ProductRouteWarmer implements CacheRouteWarmer
 {
-    /**
-     * @var RequestTransformerInterface
-     */
-    private $requestTransformer;
-
     /**
      * @var IteratorFactory
      */
     private $iteratorFactory;
 
     /**
-     * @var KernelInterface
-     */
-    private $kernel;
-
-    /**
-     * @var RouterInterface
-     */
-    private $router;
-
-    /**
      * @var ProductDefinition
      */
     private $definition;
 
-    public function __construct(
-        RequestTransformerInterface $requestTransformer,
-        IteratorFactory $iteratorFactory,
-        KernelInterface $kernel,
-        RouterInterface $router,
-        ProductDefinition $definition
-    ) {
-        $this->requestTransformer = $requestTransformer;
+    public function __construct(IteratorFactory $iteratorFactory, ProductDefinition $definition)
+    {
         $this->iteratorFactory = $iteratorFactory;
-        $this->kernel = $kernel;
-        $this->router = $router;
         $this->definition = $definition;
     }
 
     public function createMessage(SalesChannelDomainEntity $domain, ?array $offset): ?WarmUpMessage
     {
         $iterator = $this->iteratorFactory->createIterator($this->definition, $offset);
+        $iterator->getQuery()->setMaxResults(10);
 
         $ids = $iterator->fetch();
         if (empty($ids)) {
             return null;
         }
 
-        return new ProductRouteMessage($domain->getUrl(), $ids, $iterator->getOffset());
-    }
+        $ids = array_map(function ($id) {
+            return ['productId' => $id];
+        }, $ids);
 
-    public function handle($message): void
-    {
-        if (!$message instanceof ProductRouteMessage) {
-            return;
-        }
-
-        if (empty($message->getIds())) {
-            return;
-        }
-
-        $kernel = $this->createHttpCacheKernel($this->kernel);
-
-        foreach ($message->getIds() as $id) {
-            $url = rtrim($message->getDomain(), '/') . $this->router->generate('frontend.detail.page', ['productId' => $id]);
-            $request = $this->requestTransformer->transform(Request::create($url));
-            $kernel->handle($request);
-        }
-    }
-
-    public static function getHandledMessages(): iterable
-    {
-        return [ProductRouteMessage::class];
+        return new WarmUpMessage('frontend.detail.page', $ids, $iterator->getOffset());
     }
 }
 ```
 
 The `createMessage` function is responsible for creating a message for the queue for the defined offset. This is quite easy to do with the `IteratorFactory` class.
-If the function does not return a message, it means that there are no more routes to warm up. The `getHandledMessages` defines which messages this warmer can handle.
-Finally the `handle` function is called, which then processes the previously generated messages and sends a request via the http kernel.
+If the function does not return a message, it means that there are no more routes to warm up. 
 
 ## Cache state system
 When a certain status is reached in the system, certain routes can no longer be cached. Some routes behave differently based on the state of the system, f.e. when a customer is logged in or when products are in the cart.

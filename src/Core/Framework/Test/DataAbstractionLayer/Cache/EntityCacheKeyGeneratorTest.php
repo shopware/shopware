@@ -31,7 +31,10 @@ class EntityCacheKeyGeneratorTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->generator = new EntityCacheKeyGenerator($this->getContainer()->get(LanguageDefinition::class));
+        $this->generator = new EntityCacheKeyGenerator(
+            $this->getContainer()->get(LanguageDefinition::class),
+            $this->getContainer()->getParameter('kernel.cache.hash')
+        );
     }
 
     public function testGenerateAssociationCacheTags(): void

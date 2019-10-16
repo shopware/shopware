@@ -55,9 +55,14 @@ class Kernel extends HttpKernel
     private $rebooting = false;
 
     /**
+     * @var string
+     */
+    private $cacheId;
+
+    /**
      * {@inheritdoc}
      */
-    public function __construct(string $environment, bool $debug, KernelPluginLoader $pluginLoader, ?string $version = self::SHOPWARE_FALLBACK_VERSION)
+    public function __construct(string $environment, bool $debug, KernelPluginLoader $pluginLoader, string $cacheId, ?string $version = self::SHOPWARE_FALLBACK_VERSION)
     {
         date_default_timezone_set('UTC');
 
@@ -67,6 +72,7 @@ class Kernel extends HttpKernel
         $this->pluginLoader = $pluginLoader;
 
         $this->parseShopwareVersion($version);
+        $this->cacheId = $cacheId;
     }
 
     public function registerBundles()
@@ -139,14 +145,11 @@ class Kernel extends HttpKernel
 
     public function getCacheDir(): string
     {
-        $pluginHash = md5(implode('', array_keys($this->pluginLoader->getPluginInstances()->getActives())));
-
         return sprintf(
-            '%s/var/cache/%s_k%s_p%s',
+            '%s/var/cache/%s_h%s',
             $this->getProjectDir(),
             $this->getEnvironment(),
-            mb_substr($this->shopwareVersionRevision, 0, 8),
-            mb_substr($pluginHash, 0, 8)
+            $this->getCacheHash()
         );
     }
 
@@ -169,13 +172,16 @@ class Kernel extends HttpKernel
         parent::shutdown();
     }
 
-    public function reboot($warmupDir, ?KernelPluginLoader $pluginLoader = null): void
+    public function reboot($warmupDir, ?KernelPluginLoader $pluginLoader = null, ?string $cacheId = null): void
     {
         $this->rebooting = true;
 
         try {
             if ($pluginLoader) {
                 $this->pluginLoader = $pluginLoader;
+            }
+            if ($cacheId) {
+                $this->cacheId = $cacheId;
             }
             parent::reboot($warmupDir);
         } finally {
@@ -231,12 +237,24 @@ class Kernel extends HttpKernel
         return array_merge(
             $parameters,
             [
+                'kernel.cache.hash' => $this->getCacheHash(),
                 'kernel.shopware_version' => $this->shopwareVersion,
                 'kernel.shopware_version_revision' => $this->shopwareVersionRevision,
                 'kernel.plugin_dir' => $pluginDir,
                 'kernel.active_plugins' => $activePluginMeta,
             ]
         );
+    }
+
+    protected function getCacheHash()
+    {
+        $pluginHash = md5(implode('', array_keys($this->pluginLoader->getPluginInstances()->getActives())));
+
+        return md5(json_encode([
+            $this->cacheId,
+            mb_substr($this->shopwareVersionRevision, 0, 8),
+            mb_substr($pluginHash, 0, 8),
+        ]));
     }
 
     private function addApiRoutes(RouteCollectionBuilder $routes): void

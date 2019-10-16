@@ -39,6 +39,7 @@ class CacheClearerTest extends TestCase
                 'test',
                 true,
                 new StaticKernelPluginLoader($classLoader),
+                Uuid::randomHex(),
                 '1.0.0@' . $i . '1eec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33',
                 $original->getContainer()->get(Connection::class)
             );

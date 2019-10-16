@@ -25,9 +25,15 @@ class EntityCacheKeyGenerator
      */
     private $languageDefinition;
 
-    public function __construct(LanguageDefinition $languageDefinition)
+    /**
+     * @var string
+     */
+    private $cacheHash;
+
+    public function __construct(LanguageDefinition $languageDefinition, string $cacheHash)
     {
         $this->languageDefinition = $languageDefinition;
+        $this->cacheHash = $cacheHash;
     }
 
     /**
@@ -36,7 +42,12 @@ class EntityCacheKeyGenerator
      */
     public function getEntityContextCacheKey(string $id, EntityDefinition $definition, Context $context, ?Criteria $criteria = null): string
     {
-        $keys = [$this->getDefinitionCacheKey($definition), $id, $this->getContextHash($context)];
+        $keys = [
+            $id,
+            $this->cacheHash,
+            $this->getDefinitionCacheKey($definition),
+            $this->getContextHash($context),
+        ];
 
         if ($criteria && \count($criteria->getAssociations()) > 0) {
             $keys[] = md5(json_encode($criteria->getAssociations()));
@@ -51,7 +62,12 @@ class EntityCacheKeyGenerator
      */
     public function getReadCriteriaCacheKey(EntityDefinition $definition, Criteria $criteria, Context $context): string
     {
-        $keys = [$this->getDefinitionCacheKey($definition), $this->getReadCriteriaHash($criteria), $this->getContextHash($context)];
+        $keys = [
+            $this->getDefinitionCacheKey($definition),
+            $this->getReadCriteriaHash($criteria),
+            $this->getContextHash($context),
+            $this->cacheHash,
+        ];
 
         return md5(implode('-', $keys));
     }
@@ -61,7 +77,12 @@ class EntityCacheKeyGenerator
      */
     public function getSearchCacheKey(EntityDefinition $definition, Criteria $criteria, Context $context): string
     {
-        $keys = [$this->getDefinitionCacheKey($definition), $this->getCriteriaHash($criteria), $this->getContextHash($context)];
+        $keys = [
+            $this->getDefinitionCacheKey($definition),
+            $this->getCriteriaHash($criteria),
+            $this->getContextHash($context),
+            $this->cacheHash,
+        ];
 
         return md5(implode('-', $keys));
     }
@@ -76,6 +97,7 @@ class EntityCacheKeyGenerator
             $this->getDefinitionCacheKey($definition),
             $this->getAggregationHash($criteria),
             $this->getContextHash($context),
+            $this->cacheHash,
         ];
 
         return md5(implode('-', $keys));

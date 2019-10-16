@@ -79,6 +79,26 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         static::assertCount(4, $csvRows);
     }
 
+    public function testSkipGenerateByCronjobFalseProductExports(): void
+    {
+        $this->createTestEntity(false);
+        $this->clearQueue();
+        $this->getTaskHandler()->run();
+
+        $url = sprintf('/api/v%s/_action/message-queue/consume', PlatformRequest::API_VERSION);
+        $client = $this->getBrowser();
+        $client->request('POST', $url, ['receiver' => 'default']);
+
+        static::assertSame(200, $client->getResponse()->getStatusCode());
+        $response = json_decode($client->getResponse()->getContent(), true);
+        static::assertArrayHasKey('handledMessages', $response);
+        static::assertIsInt($response['handledMessages']);
+        static::assertEquals(0, $response['handledMessages']);
+
+        $filePath = sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
+        static::assertFalse($this->fileSystem->has($filePath));
+    }
+
     private function getTaskHandler(): ProductExportGenerateTaskHandler
     {
         return new ProductExportGenerateTaskHandler(
@@ -111,7 +131,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         return $this->getSalesChannelDomain()->getId();
     }
 
-    private function createTestEntity(): string
+    private function createTestEntity($generateByCronjob = true): string
     {
         $this->createProductStream();
 
@@ -130,7 +150,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
                 'storefrontSalesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
                 'salesChannelId' => $this->getSalesChannelId(),
                 'salesChannelDomainId' => $this->getSalesChannelDomainId(),
-                'generateByCronjob' => false,
+                'generateByCronjob' => $generateByCronjob,
             ],
         ], $this->context);
 

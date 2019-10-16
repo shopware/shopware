@@ -68,6 +68,7 @@ class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
                 ->addAssociation('salesChannelDomain.salesChannel')
                 ->addAssociation('salesChannelDomain.language.locale')
                 ->addAssociation('productStream.filters.queries')
+                ->addFilter(new EqualsFilter('generateByCronjob', true))
                 ->addFilter(
                     new MultiFilter(
                         'OR',

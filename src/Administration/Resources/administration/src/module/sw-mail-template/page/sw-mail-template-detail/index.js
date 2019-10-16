@@ -110,6 +110,7 @@ Component.register('sw-mail-template-detail', {
             const criteria = new Criteria();
             criteria.addAssociation('salesChannels.salesChannel');
             criteria.addAssociation('mailTemplateType');
+            this.isLoading = true;
             this.mailTemplateRepository.get(this.mailTemplateId, this.context, criteria).then((item) => {
                 this.mailTemplate = item;
                 this.mailTemplateSalesChannels = this.createSalesChannelCollection();
@@ -154,27 +155,30 @@ Component.register('sw-mail-template-detail', {
         },
 
         onSave() {
+            const updatePromises = [];
             const mailTemplateSubject = this.mailTemplate.subject || this.placeholder(this.mailTemplate, 'subject');
 
             this.isSaveSuccessful = false;
             this.isLoading = true;
             this.handleSalesChannel();
-            return this.mailTemplateRepository.save(this.mailTemplate, this.context).then(() => {
-                this.mailTemplateSalesChannelsAssoc.forEach((salesChannelAssoc) => {
-                    this.mailTemplateSalesChannelAssociationRepository.save(salesChannelAssoc, this.context);
-                });
-                this.isLoading = false;
-                this.isSaveSuccessful = true;
-            }).then(() => {
+            this.mailTemplateSalesChannelsAssoc.forEach((salesChannelAssoc) => {
+                updatePromises.push(
+                    this.mailTemplateSalesChannelAssociationRepository.save(salesChannelAssoc, this.context)
+                );
+            });
+            updatePromises.push(this.mailTemplateRepository.save(this.mailTemplate, this.context).then(() => {
                 this.mailTemplate.salesChannels.forEach((salesChannelAssoc) => {
                     if (
                         typeof salesChannelAssoc.salesChannelId !== 'undefined' &&
                         !this.salesChannelIsSelected(salesChannelAssoc.salesChannelId)
                     ) {
-                        this.mailTemplateSalesChannelAssociationRepository.delete(salesChannelAssoc.id, this.context);
+                        updatePromises.push(
+                            this.mailTemplateSalesChannelAssociationRepository.delete(
+                                salesChannelAssoc.id, this.context
+                            )
+                        );
                     }
                 });
-                this.loadEntityData();
             }).catch((error) => {
                 let errormsg = '';
                 this.isLoading = false;
@@ -189,6 +193,9 @@ Component.register('sw-mail-template-detail', {
                         { subject: mailTemplateSubject }
                     ) + errormsg
                 });
+            }));
+            Promise.all(updatePromises).then(() => {
+                this.loadEntityData();
             });
         },
 
@@ -237,6 +244,7 @@ Component.register('sw-mail-template-detail', {
                 this.selectedType = {};
                 return;
             }
+            this.isLoading = true;
             this.getMailTemplateType();
             this.mailTemplateTypeRepository.get(id, this.context).then((item) => {
                 this.selectedType = item;
@@ -316,6 +324,7 @@ Component.register('sw-mail-template-detail', {
                     this.mailTemplateSalesChannels.push(salesChannelAssoc.salesChannel);
                 }
             });
+            this.isLoading = false;
         },
         handleSalesChannel() {
             // check selected saleschannels and associate to config

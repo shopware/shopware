@@ -8,20 +8,22 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTaskHandler;
-use Shopware\Core\Content\ProductExport\Service\ProductExporter;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductExportGenerateTaskHandlerTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use QueueTestBehaviour;
+    use AdminFunctionalTestBehaviour;
 
     /**
      * @var EntityRepositoryInterface
@@ -54,8 +56,18 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
     public function testRun(): void
     {
         $this->createTestEntity();
-
+        $this->clearQueue();
         $this->getTaskHandler()->run();
+
+        $url = sprintf('/api/v%s/_action/message-queue/consume', PlatformRequest::API_VERSION);
+        $client = $this->getBrowser();
+        $client->request('POST', $url, ['receiver' => 'default']);
+
+        static::assertSame(200, $client->getResponse()->getStatusCode());
+        $response = json_decode($client->getResponse()->getContent(), true);
+        static::assertArrayHasKey('handledMessages', $response);
+        static::assertIsInt($response['handledMessages']);
+        static::assertEquals(1, $response['handledMessages']);
 
         $filePath = sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
         $fileContent = $this->fileSystem->read($filePath);

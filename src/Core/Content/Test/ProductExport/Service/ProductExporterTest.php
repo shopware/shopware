@@ -10,21 +10,17 @@ use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Service\ProductExporter;
 use Shopware\Core\Content\ProductExport\Service\ProductExporterInterface;
+use Shopware\Core\Content\ProductExport\Service\ProductExportFileHandler;
 use Shopware\Core\Content\ProductExport\Service\ProductExportGenerator;
-use Shopware\Core\Content\ProductExport\Service\ProductExportRenderer;
-use Shopware\Core\Content\ProductExport\Service\ProductExportValidator;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Translation\Translator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductExporterTest extends TestCase
@@ -83,23 +79,11 @@ class ProductExporterTest extends TestCase
     {
         $this->createTestEntity();
 
-        $generator = new ProductExportGenerator(
-            $this->getContainer()->get(ProductStreamBuilder::class),
-            $this->getContainer()->get('sales_channel.product.repository'),
-            $this->getContainer()->get(ProductExportRenderer::class),
-            $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get(ProductExportValidator::class),
-            $this->getContainer()->get(SalesChannelContextService::class),
-            $this->getContainer()->get(Translator::class),
-            1
-        );
-
         $service = new ProductExporter(
             $this->getContainer()->get('product_export.repository'),
-            $this->getContainer()->get('shopware.filesystem.private'),
-            $generator,
+            $this->getContainer()->get(ProductExportGenerator::class),
             $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->getParameter('product_export.directory')
+            $this->getContainer()->get(ProductExportFileHandler::class)
         );
 
         $service->export($this->salesChannelContext, new ExportBehavior());

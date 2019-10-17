@@ -52,7 +52,9 @@
       "headline": "Our recommendations",
       "message": "Here you will find a selection of useful extensions for your shop. First select a region that is relevant for you. Then you can browse through different categories.",
       "availableInRegion": "Available in region",
-      "category": "Category"
+      "category": "Category",
+      "topRecommendations": "Top recommendations",
+      "otherRecommendations": "Other recommendations"
     },
     "shopwareAccount": {
       "headline": "Shopware Account",

@@ -35,6 +35,14 @@ Component.register('sw-first-run-wizard-plugins', {
         showSpacer() {
             return this.categoryLead.length > 0
                 && this.notCategoryLead.length > 0;
+        },
+
+        showCategoryLead() {
+            return this.categoryLead.length > 0;
+        },
+
+        showNotCategoryLead() {
+            return this.notCategoryLead.length > 0;
         }
 
     },

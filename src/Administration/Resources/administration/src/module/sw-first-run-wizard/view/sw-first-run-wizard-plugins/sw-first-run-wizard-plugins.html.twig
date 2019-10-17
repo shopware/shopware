@@ -40,7 +40,12 @@
 
         <sw-loader v-show="isLoading" size="48"></sw-loader>
 
-        <div class="plugins-category-lead" v-show="categoryLead.length > 0">
+        <h3 v-show="showCategoryLead"
+            class="recommended-plugins__headline is--capitalized">
+            {{ $tc('sw-first-run-wizard.recommendedPlugins.topRecommendations') }}
+        </h3>
+        
+        <div class="plugins-category-lead" v-show="showCategoryLead">
             <sw-plugin-card v-for="plugin in categoryLead"
                             :key="plugin.name"
                             :plugin="plugin"
@@ -50,14 +55,20 @@
         </div>
 
         <hr v-if="showSpacer" class="spacer" />
+        
+        <h3 v-show="showNotCategoryLead"
+            class="recommended-plugins__headline is--capitalized">
+            {{ $tc('sw-first-run-wizard.recommendedPlugins.otherRecommendations') }}
+        </h3>
 
-        <div class="plugins-not-category-lead" v-show="notCategoryLead.length > 0">
+        <div class="plugins-not-category-lead" v-show="showNotCategoryLead">
             <sw-container v-if="plugins"
                           columns="1fr 1fr"
                           gap="24px 0">
                 <sw-plugin-card v-for="plugin in notCategoryLead"
                                 :key="plugin.name"
-                                :plugin="plugin">
+                                :plugin="plugin"
+                                :showDescription="false">
                 </sw-plugin-card>
             </sw-container>
         </div>

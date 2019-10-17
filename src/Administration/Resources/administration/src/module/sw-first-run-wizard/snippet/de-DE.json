@@ -51,7 +51,9 @@
       "headline": "Unsere Empfehlungen",
       "message": "Hier findet Du eine Auswahl an sinnvollen Erweiterungen für Deinen Shop. Wähle zunächst eine Region aus, die für Dich relevant ist. Danach kannst Du durch verschiedene Kategorien stöbern.",
       "availableInRegion": "Verfügbar in Region",
-      "category": "Kategorie"
+      "category": "Kategorie",
+      "topRecommendations": "Empfehlungen",
+      "otherRecommendations": "Weitere Empfehlungen"
     },
     "shopwareAccount": {
       "headline": "Shopware Account",

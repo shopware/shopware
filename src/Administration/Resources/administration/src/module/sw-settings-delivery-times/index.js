@@ -11,7 +11,7 @@ Module.register('sw-settings-delivery-time', {
     type: 'core',
     name: 'settings-delivery-time',
     title: 'sw-settings-delivery-time.general.mainMenuItemGeneral',
-    description: 'Delivery times section in the settings module',
+    description: 'sw-settings-delivery-time.general.description',
     color: '#9AA8B5',
     icon: 'default-action-settings',
     favicon: 'icon-module-settings.png',

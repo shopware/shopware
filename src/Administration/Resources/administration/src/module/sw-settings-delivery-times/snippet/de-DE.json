@@ -7,6 +7,7 @@
   "sw-settings-delivery-time": {
     "general": {
       "mainMenuItemGeneral": "Lieferzeiten",
+      "description": "Einstellungsmodul zur Verwaltung von Lieferzeiten",
       "buttonCancel": "Abbrechen",
       "buttonCreate": "Lieferzeit anlegen",
       "buttonSave": "Speichern",

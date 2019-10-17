@@ -10,4 +10,13 @@
         width: 100%;
         height: auto;
     }
+
+    &__icon {
+        $icon-width: 50px;
+        $icon-heigth: $icon-width;
+
+        height: $icon-heigth;
+        width: $icon-width;
+        position: absolute;
+    }
 }

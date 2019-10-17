@@ -56,6 +56,7 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
         $criteria->addAssociation('manufacturer');
         $criteria->addAssociation('mainCategories.category');
         $criteria->addAssociation('categories');
+        $criteria->addAssociation('children');
     }
 
     public function getMapping(Entity $product, ?SalesChannelEntity $salesChannel): SeoUrlMapping
@@ -108,10 +109,12 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
             }
         }
 
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+
         $manufacturerIds = array_unique(array_merge(...$manufacturerIds));
 
-        if (count($manufacturerIds) > 0) {
-            $context = Context::createDefaultContext();
+        if (!empty($manufacturerIds)) {
             $categoryIds = $context->disableCache(function (Context $context) use ($manufacturerIds) {
                 return $this->productRepository->searchIds(
                     (new Criteria())->addFilter(new EqualsAnyFilter('manufacturerId', $manufacturerIds)),
@@ -120,6 +123,17 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
             });
             // ... and fetch the affected products
             $ids = array_merge($ids, $categoryIds);
+        }
+
+        if (!empty($ids)) {
+            $childIds = $context->disableCache(function (Context $context) use ($ids) {
+                $criteria = new Criteria();
+                $criteria->addFilter(new EqualsAnyFilter('parentId', $ids));
+
+                return $this->productRepository->searchIds($criteria, $context)->getids();
+            });
+
+            $ids = array_merge($ids, $childIds);
         }
 
         return new SeoUrlExtractIdResult($ids);

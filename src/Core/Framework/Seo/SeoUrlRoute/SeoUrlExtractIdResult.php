@@ -16,7 +16,7 @@ class SeoUrlExtractIdResult
 
     public function __construct(array $ids, bool $reindex = false)
     {
-        $this->ids = $ids;
+        $this->ids = array_unique($ids);
         $this->reindex = $reindex;
     }
 

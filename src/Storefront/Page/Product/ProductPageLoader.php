@@ -10,6 +10,7 @@ use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -124,12 +125,57 @@ class ProductPageLoader
             $this->loadSlotData($cmsPage, $salesChannelContext, $product);
             $page->setCmsPage($cmsPage);
         }
+        $this->loadOptions($page);
+        $this->loadMetaData($page);
 
         $this->eventDispatcher->dispatch(
             new ProductPageLoadedEvent($page, $salesChannelContext, $request)
         );
 
         return $page;
+    }
+
+    private function loadOptions(ProductPage $page): void
+    {
+        $options = new PropertyGroupOptionCollection();
+        $optionIds = $page->getProduct()->getOptionIds();
+
+        foreach ($page->getConfiguratorSettings() as $group) {
+            $groupOptions = $group->getOptions();
+            if ($groupOptions === null) {
+                continue;
+            }
+            foreach ($optionIds as $optionId) {
+                if ($groupOptions->has($optionId)) {
+                    $options->add($groupOptions->get($optionId));
+                }
+            }
+        }
+
+        $page->setSelectedOptions($options);
+    }
+
+    private function loadMetaData(ProductPage $page): void
+    {
+        $metaDescription = $page->getProduct()->getTranslation('additionalText')
+            ?? $page->getProduct()->getTranslation('description');
+        $page->setMetaDescription((string) $metaDescription);
+
+        if ((string) $page->getProduct()->getTranslation('metaTitle') !== '') {
+            $page->setMetaTitle((string) $page->getProduct()->getTranslation('metaTitle'));
+
+            return;
+        }
+
+        $metaTitleParts = [$page->getProduct()->getTranslation('name')];
+
+        foreach ($page->getSelectedOptions() as $option) {
+            $metaTitleParts[] = $option->getName();
+        }
+
+        $metaTitleParts[] = $page->getProduct()->getProductNumber();
+
+        $page->setMetaTitle(implode(' | ', $metaTitleParts));
     }
 
     private function loadSlotData(

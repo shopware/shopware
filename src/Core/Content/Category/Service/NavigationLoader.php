@@ -199,7 +199,7 @@ class NavigationLoader
             return false;
         }
 
-        if (mb_strpos($active->getPath(), '|' . $rootId . '|')) {
+        if (mb_strpos($active->getPath(), '|' . $rootId . '|') !== false) {
             return true;
         }
 

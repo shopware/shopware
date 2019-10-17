@@ -149,7 +149,7 @@ class ImageTypeDetectorTest extends TestCase
     public function testDetectWorksForUpperCase(): void
     {
         $type = $this->getImageTypeDetector()->detect(
-            $this->createMediaFile(__DIR__ . '/../fixtures/shopware-logo.PNG'),
+            $this->createMediaFile(__DIR__ . '/../fixtures/shopware-logo-1.PNG'),
             null
         );
 

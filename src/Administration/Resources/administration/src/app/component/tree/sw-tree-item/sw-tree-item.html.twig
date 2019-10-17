@@ -24,7 +24,8 @@
 
                 {% block sw_tree_item_element_selection %}
                     <div class="sw-tree-item__selection">
-                        <sw-field :disabled="currentEditElement === item.data.id"
+                        <sw-field v-if="displayCheckbox"
+                                  :disabled="currentEditElement === item.data.id"
                                   @change="toggleItemCheck($event, item)"
                                   type="checkbox"
                                   :ghostValue="checkedGhost"

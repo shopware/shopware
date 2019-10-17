@@ -69,6 +69,19 @@ class SalesChannelApiControllerTest extends TestCase
         static::assertSame($response['errors'][0]['code'], 'FRAMEWORK__READ_PROTECTED');
     }
 
+    public function testLoadManyToManyAssociation(): void
+    {
+        $id = $this->createTestData();
+
+        $this->browser->request(
+            'GET',
+            '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '?associations[options][associations][group][]'
+        );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        static::assertArrayNotHasKey('errors', $response);
+    }
+
     public function testLoadRestrictedAssociation(): void
     {
         $id = $this->createTestData();

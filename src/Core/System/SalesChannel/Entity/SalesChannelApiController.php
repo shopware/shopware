@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\ReadProtectedExceptio
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -130,8 +131,14 @@ class SalesChannelApiController
             if (!$field || !$field instanceof AssociationField) {
                 continue;
             }
+
+            $referenceDefinition = $field->getReferenceDefinition();
+            if ($field instanceof ManyToManyAssociationField) {
+                $referenceDefinition = $field->getToManyReferenceDefinition();
+            }
+
             /* @var AssociationField $field */
-            $this->checkProtectedAssociations($associationCriteria, $field->getReferenceDefinition());
+            $this->checkProtectedAssociations($associationCriteria, $referenceDefinition);
         }
 
         $aggregationAccessors = [];

@@ -126,7 +126,8 @@
       "labelSelectStateButton":"Update status",
       "headlineErrorStateChange":"Error",
       "labelErrorStateChange":"An error occured while updating the status. Additional information:",
-      "labelErrorNoAction":"Current status invalid."
+      "labelErrorNoAction":"Current status invalid.",
+      "labelNoTransactionState": "No transaction yet"
     },
     "documentCard": {
       "searchBarPlaceholder": "Search all documents...",

@@ -49,14 +49,22 @@ Component.register('sw-order-state-history-card', {
             return this.repositoryFactory.create('state_machine_history');
         },
 
+        transaction() {
+            return this.order.transactions[0];
+        },
+
         stateMachineHistoryCriteria() {
             const criteria = new Criteria(1, 50);
-            criteria.addFilter(
-                Criteria.equalsAny(
-                    'state_machine_history.entityId.id',
-                    [this.order.id, this.order.transactions[0].id]
-                )
-            );
+
+            if (this.transaction) {
+                criteria.addFilter(
+                    Criteria.equalsAny(
+                        'state_machine_history.entityId.id',
+                        [this.order.id, this.transaction.id]
+                    )
+                );
+            }
+
             criteria.addFilter(
                 Criteria.equalsAny(
                     'state_machine_history.entityName',
@@ -87,7 +95,9 @@ Component.register('sw-order-state-history-card', {
                 this.getTransitionOptions()
             ]).then(() => {
                 this.$emit('options-change', 'order.states', this.orderOptions);
-                this.$emit('options-change', 'order_transaction.states', this.transactionOptions);
+                if (this.transaction) {
+                    this.$emit('options-change', 'order_transaction.states', this.transactionOptions);
+                }
             }).catch((error) => {
                 this.createNotificationError(error);
             }).finally(() => {
@@ -101,7 +111,9 @@ Component.register('sw-order-state-history-card', {
                 this.context
             ).then((fetchedEntries) => {
                 this.orderHistory = this.buildStateHistory(this.order, fetchedEntries);
-                this.transactionHistory = this.buildStateHistory(this.order.transactions[0], fetchedEntries);
+                if (this.transaction) {
+                    this.transactionHistory = this.buildStateHistory(this.transaction, fetchedEntries);
+                }
 
                 return Promise.resolve(fetchedEntries);
             });
@@ -141,27 +153,33 @@ Component.register('sw-order-state-history-card', {
         },
 
         getTransitionOptions() {
+            const statePromises = [this.stateMachineService.getState('order', this.order.id)];
+            if (this.transaction) {
+                statePromises.push(this.stateMachineService.getState('order_transaction', this.transaction.id));
+            }
+
             return Promise.all(
                 [
                     this.getAllStates(),
-                    this.stateMachineService.getState('order', this.order.id),
-                    this.stateMachineService.getState('order_transaction', this.order.transactions[0].id)
+                    ...statePromises
                 ]
             ).then((data) => {
                 const allStates = data[0];
                 const orderState = data[1];
-                const orderTransactionState = data[2];
-
                 this.orderOptions = this.buildTransitionOptions(
                     'order.state',
                     allStates,
                     orderState.data.transitions
                 );
-                this.transactionOptions = this.buildTransitionOptions(
-                    'order_transaction.state',
-                    allStates,
-                    orderTransactionState.data.transitions
-                );
+
+                if (this.transaction) {
+                    const orderTransactionState = data[2];
+                    this.transactionOptions = this.buildTransitionOptions(
+                        'order_transaction.state',
+                        allStates,
+                        orderTransactionState.data.transitions
+                    );
+                }
 
                 return Promise.resolve();
             });
@@ -234,7 +252,7 @@ Component.register('sw-order-state-history-card', {
 
             this.stateMachineService.transitionState(
                 'order_transaction',
-                this.order.transactions[0].id,
+                this.transaction.id,
                 actionName
             ).then(() => {
                 this.$emit('order-state-change');

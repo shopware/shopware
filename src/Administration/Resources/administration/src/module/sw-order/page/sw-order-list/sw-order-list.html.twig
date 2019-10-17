@@ -95,7 +95,9 @@
 
                                     {% block sw_order_list_grid_columns_transaction_state %}
                                         <template slot="column-transactions[0].stateMachineState.name" slot-scope="{ item }">
-                                            <sw-label :variant="getVariantFromPaymentState(item)" appearance="pill">
+                                            <sw-label v-if="item.transactions && item.transactions[0]"
+                                                      :variant="getVariantFromPaymentState(item)"
+                                                      appearance="pill">
                                                 {{ item.transactions[0].stateMachineState.name }}
                                             </sw-label>
                                         </template>

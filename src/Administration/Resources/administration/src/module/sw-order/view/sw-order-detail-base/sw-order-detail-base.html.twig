@@ -22,14 +22,13 @@
                                   columns="minmax(min-content, 1fr) minmax(min-content, 1fr) 1fr"
                                   gap="0 15px">
                         {% block sw_order_detail_base_status_change_transaction %}
-                            <sw-order-state-select
-                                    class="sw-order-state-select__payment-state"
-                                    :transitionOptions="transactionOptions"
-                                    roundedStyle
-                                    v-if="!isLoading"
-                                    @state-select="onQuickTransactionStatusChange"
-                                    :placeholder="transactionOptionPlaceholder"
-                                    :backgroundStyle="transactionOptionsBackground">
+                            <sw-order-state-select v-if="!isLoading && this.transaction"
+                                                   roundedStyle
+                                                   class="sw-order-state-select__payment-state"
+                                                   :transitionOptions="transactionOptions"
+                                                   @state-select="onQuickTransactionStatusChange"
+                                                   :placeholder="transactionOptionPlaceholder"
+                                                   :backgroundStyle="transactionOptionsBackground">
                             </sw-order-state-select>
                         {% endblock %}
 

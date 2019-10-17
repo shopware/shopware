@@ -77,6 +77,12 @@ Component.register('sw-tree-item', {
             type: String,
             required: false,
             default: ''
+        },
+
+        displayCheckbox: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 

@@ -5,6 +5,21 @@
             <sw-card v-if="salesChannel" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleGeneralSettings')" key="edit">
 
                 {% block sw_sales_channel_detail_base_general %}
+
+                    {% block sw_sales_channel_detail_base_general_input_product_comparison_template %}
+                        <sw-select-field
+                            :label="$tc('sw-sales-channel.detail.productComparison.template')"
+                            :placeholder="$tc('sw-sales-channel.detail.productComparison.placeholderSelectTemplate')"
+                            :options="templateOptions"
+                            @change="$emit('template-selected', arguments[0])"
+                        >
+                            <option v-for="option in templateOptions"
+                                    :value="option.name">
+                                {{ $tc(option.translationKey) }}
+                            </option>
+                        </sw-select-field>
+                    {% endblock %}
+
                     <sw-container columns="1fr 200px" gap="0px 30px">
                         {% block sw_sales_channel_detail_base_general_input_name %}
                             <sw-field

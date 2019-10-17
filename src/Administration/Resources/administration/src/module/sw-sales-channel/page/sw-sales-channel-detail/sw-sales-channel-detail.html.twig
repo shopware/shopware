@@ -73,6 +73,8 @@
                                  :isLoading="isLoading"
                                  :productComparisonAccessUrl="productComparisonAccessUrl"
                                  :key="$route.params.id"
+                                 :templateOptions="templateOptions"
+                                 @template-selected="onTemplateSelected"
                                  @access-key-changed="generateAccessUrl"
                                  @domain-changed="generateAccessUrl"
                                  @invalid-file-name="setInvalidFileName(true)"

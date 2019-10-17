@@ -51,6 +51,11 @@ Component.register('sw-sales-channel-detail-base', {
         productComparisonAccessUrl: {
             type: String,
             default: ''
+        },
+
+        templateOptions: {
+            type: Array,
+            default: []
         }
     },
 

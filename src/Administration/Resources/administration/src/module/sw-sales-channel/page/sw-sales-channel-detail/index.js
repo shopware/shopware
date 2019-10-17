@@ -9,7 +9,8 @@ Component.register('sw-sales-channel-detail', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'context',
+        'productExportService'
     ],
 
     mixins: [
@@ -30,7 +31,9 @@ Component.register('sw-sales-channel-detail', {
             isSaveSuccessful: false,
             newProductExport: null,
             productComparisonAccessUrl: null,
-            invalidFileName: false
+            invalidFileName: false,
+            templateOptions: [],
+            templates: null
         };
     },
 
@@ -114,6 +117,7 @@ Component.register('sw-sales-channel-detail', {
     methods: {
         createdComponent() {
             this.loadEntityData();
+            this.loadProductExportTemplates();
         },
 
         loadEntityData() {
@@ -162,6 +166,18 @@ Component.register('sw-sales-channel-detail', {
             return criteria;
         },
 
+        onTemplateSelected(templateName) {
+            // TODO: Check wether there is data before applying new data.
+            // TODO: Show notifications and enable abortion of template execution
+            if (this.templates !== null && this.templates[templateName] !== undefined) {
+                const selectedTemplate = this.templates[templateName];
+                const productExport = this.productExport;
+                Object.keys(selectedTemplate).forEach((value) => {
+                    productExport[value] = selectedTemplate[value];
+                });
+            }
+        },
+
         loadStorefrontSalesChannels() {
             const criteria = new Criteria();
 
@@ -199,6 +215,13 @@ Component.register('sw-sales-channel-detail', {
             const salesChannelDomainUrl = this.productExport.salesChannelDomain.url.replace(/\/+$/g, '');
             this.productComparisonAccessUrl =
                 `${salesChannelDomainUrl}/export/${this.productExport.accessKey}/${this.productExport.fileName}`;
+        },
+
+        loadProductExportTemplates() {
+            this.productExportService.getTemplates().then((data) => {
+                this.templateOptions = Object.values(data.templates);
+                this.templates = data.templates;
+            });
         },
 
         saveFinish() {

@@ -19,7 +19,9 @@ Component.register('sw-settings-delivery-time-list', {
     data() {
         return {
             deliveryTimes: null,
-            isLoading: false
+            isLoading: false,
+            sortBy: 'createdAt',
+            sortDirection: 'DESC'
         };
     },
 
@@ -39,6 +41,7 @@ Component.register('sw-settings-delivery-time-list', {
         getList() {
             const criteria = new Criteria(this.page, this.limit);
             criteria.setTerm(this.term);
+            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
             this.isLoading = true;
 

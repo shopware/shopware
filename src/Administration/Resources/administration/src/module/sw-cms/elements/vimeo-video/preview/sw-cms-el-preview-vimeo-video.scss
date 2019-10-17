@@ -1,4 +1,4 @@
-.sw-cms-el-preview-youtube-video {
+.sw-cms-el-preview-vimeo-video {
     position: relative;
     display: flex;
     overflow: hidden;
@@ -11,8 +11,10 @@
     }
 
     &__icon {
+        $icon-width: 50px;
         $icon-heigth: 50px;
 
+        width: $icon-width;
         height: $icon-heigth;
         position: absolute;
     }

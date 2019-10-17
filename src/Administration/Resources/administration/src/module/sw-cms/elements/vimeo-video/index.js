@@ -1,46 +1,50 @@
-import './component';
 import './config';
+import './component';
 import './preview';
 
 const { Application } = Shopware;
 
 Application.getContainer('service').cmsService.registerCmsElement({
-    name: 'youtube-video',
-    label: 'YouTube video',
-    component: 'sw-cms-el-youtube-video',
-    configComponent: 'sw-cms-el-config-youtube-video',
-    previewComponent: 'sw-cms-el-preview-youtube-video',
+    name: 'vimeo-video',
+    label: 'Vimeo video',
+    component: 'sw-cms-el-vimeo-video',
+    configComponent: 'sw-cms-el-config-vimeo-video',
+    previewComponent: 'sw-cms-el-preview-vimeo-video',
     defaultConfig: {
         videoID: {
             source: 'static',
             value: '',
             required: true
         },
-        autoPlay: {
+        autoplay: {
             source: 'static',
             value: false
+        },
+        byLine: {
+            source: 'static',
+            value: false
+        },
+        color: {
+            source: 'static',
+            value: ''
+        },
+        doNotTrack: {
+            source: 'static',
+            value: true
         },
         loop: {
             source: 'static',
             value: false
         },
-        showControls: {
+        portrait: {
             source: 'static',
             value: true
         },
-        start: {
+        title: {
             source: 'static',
-            value: null
+            value: true
         },
-        end: {
-            source: 'static',
-            value: null
-        },
-        displayMode: {
-            source: 'static',
-            value: 'standard'
-        },
-        advancedPrivacyMode: {
+        controls: {
             source: 'static',
             value: true
         }

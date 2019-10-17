@@ -271,7 +271,7 @@ class SyncServiceTest extends TestCase
 
         $errors = $results[0]['error'];
         static::assertCount(1, $errors);
-        static::assertEquals('FRAMEWORK__WRITE_DEPRECATED_FIELD', $errors[0]['code']);
+        static::assertEquals('FRAMEWORK__WRITE_REMOVED_FIELD', $errors[0]['code']);
         static::assertEquals('/price', $errors[0]['source']['pointer']);
 
         $this->connection->beginTransaction();

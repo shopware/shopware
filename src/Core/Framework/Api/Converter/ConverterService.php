@@ -3,12 +3,12 @@
 namespace Shopware\Core\Framework\Api\Converter;
 
 use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionException;
-use Shopware\Core\Framework\Api\Converter\Exceptions\QueryDeprecatedEntityException;
-use Shopware\Core\Framework\Api\Converter\Exceptions\QueryDeprecatedFieldException;
 use Shopware\Core\Framework\Api\Converter\Exceptions\QueryFutureEntityException;
 use Shopware\Core\Framework\Api\Converter\Exceptions\QueryFutureFieldException;
-use Shopware\Core\Framework\Api\Converter\Exceptions\WriteDeprecatedFieldException;
+use Shopware\Core\Framework\Api\Converter\Exceptions\QueryRemovedEntityException;
+use Shopware\Core\Framework\Api\Converter\Exceptions\QueryRemovedFieldException;
 use Shopware\Core\Framework\Api\Converter\Exceptions\WriteFutureFieldException;
+use Shopware\Core\Framework\Api\Converter\Exceptions\WriteRemovedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -28,6 +28,10 @@ class ConverterService
      */
     private $converterRegistry;
 
+    private $deprecations;
+
+    private $fromFuture;
+
     public function __construct(ConverterRegistry $converterRegistry)
     {
         $this->converterRegistry = $converterRegistry;
@@ -35,13 +39,11 @@ class ConverterService
 
     public function isAllowed(string $entityName, ?string $fieldName, int $apiVersion): bool
     {
-        $futureConverter = $this->converterRegistry->getFutureConverter($apiVersion);
-        if ($futureConverter->isFromFuture($entityName, $fieldName)) {
+        if ($this->isFromFuture($entityName, $fieldName, $apiVersion)) {
             return false;
         }
 
-        $deprecatedConverter = $this->converterRegistry->getDeprecationConverter($apiVersion);
-        if ($deprecatedConverter->isDeprecated($entityName, $fieldName)) {
+        if ($this->isDeprecated($entityName, $fieldName, $apiVersion)) {
             return false;
         }
 
@@ -60,7 +62,7 @@ class ConverterService
 
     public function convertEntity(EntityDefinition $definition, Entity $entity, int $apiVersion): array
     {
-        $payload = json_decode(json_encode($entity), true);
+        $payload = $entity->jsonSerialize();
 
         $payload = $this->stripNotAllowedFields($definition, $payload, $apiVersion);
 
@@ -118,22 +120,20 @@ class ConverterService
         $rootDefinition = $rootEntity['definition'];
 
         foreach ($entities as $entity) {
-            $futureConverter = $this->converterRegistry->getFutureConverter($apiVersion);
-            if ($futureConverter->isFromFuture($rootDefinition->getEntityName())) {
+            if ($this->isFromFuture($rootDefinition->getEntityName(), null, $apiVersion)) {
                 throw new QueryFutureEntityException($rootDefinition->getEntityName(), $apiVersion);
             }
 
-            if ($futureConverter->isFromFuture($rootDefinition->getEntityName(), $entity['entity'])) {
+            if ($this->isFromFuture($rootDefinition->getEntityName(), $entity['entity'], $apiVersion)) {
                 throw new QueryFutureFieldException($entity['entity'], $rootDefinition->getEntityName(), $apiVersion);
             }
 
-            $deprecatedConverter = $this->converterRegistry->getDeprecationConverter($apiVersion);
-            if ($deprecatedConverter->isDeprecated($rootDefinition->getEntityName())) {
-                throw new QueryDeprecatedEntityException($rootDefinition->getEntityName(), $apiVersion);
+            if ($this->isDeprecated($rootDefinition->getEntityName(), null, $apiVersion)) {
+                throw new QueryRemovedEntityException($rootDefinition->getEntityName(), $apiVersion);
             }
 
-            if ($deprecatedConverter->isDeprecated($rootDefinition->getEntityName(), $entity['entity'])) {
-                throw new QueryDeprecatedFieldException($entity['entity'], $rootDefinition->getEntityName(), $apiVersion);
+            if ($this->isDeprecated($rootDefinition->getEntityName(), $entity['entity'], $apiVersion)) {
+                throw new QueryRemovedFieldException($entity['entity'], $rootDefinition->getEntityName(), $apiVersion);
             }
 
             $rootDefinition = $entity['field'] instanceof ManyToManyAssociationField ? $entity['field']->getToManyReferenceDefinition() : $entity['definition'];
@@ -149,10 +149,8 @@ class ConverterService
 
     private function validateFields(EntityDefinition $entity, array $payload, int $apiVersion, ApiConversionException $conversionException, string $pointer): array
     {
-        $converted = $payload;
         foreach ($payload as $field => $value) {
-            $futureConverter = $this->converterRegistry->getFutureConverter($apiVersion);
-            if ($futureConverter->isFromFuture($entity->getEntityName(), $field)) {
+            if ($this->isFromFuture($entity->getEntityName(), $field, $apiVersion)) {
                 $conversionException->add(
                     new WriteFutureFieldException($field, $entity->getEntityName(), $apiVersion),
                     $pointer . '/' . $field
@@ -160,12 +158,10 @@ class ConverterService
 
                 continue;
             }
-            $converted = $futureConverter->convertField($entity->getEntityName(), $field, $converted);
 
-            $deprecatedConverter = $this->converterRegistry->getDeprecationConverter($apiVersion);
-            if ($deprecatedConverter->isDeprecated($entity->getEntityName(), $field)) {
+            if ($this->isDeprecated($entity->getEntityName(), $field, $apiVersion)) {
                 $conversionException->add(
-                    new WriteDeprecatedFieldException($field, $entity->getEntityName(), $apiVersion),
+                    new WriteRemovedFieldException($field, $entity->getEntityName(), $apiVersion),
                     $pointer . '/' . $field
                 );
 
@@ -173,7 +169,9 @@ class ConverterService
             }
         }
 
-        return $converted;
+        $futureConverter = $this->converterRegistry->getFutureConverter($apiVersion);
+
+        return $futureConverter->convert($entity->getEntityName(), $payload);
     }
 
     private function validateQueryField(EntityDefinition $entity, string $concatenatedFields, int $apiVersion, SearchRequestException $searchException, string $pointer = ''): void
@@ -184,18 +182,16 @@ class ConverterService
             $fieldName = array_shift($parts);
         }
 
-        $futureConverter = $this->converterRegistry->getFutureConverter($apiVersion);
-        if ($futureConverter->isFromFuture($entity->getEntityName(), $fieldName)) {
+        if ($this->isFromFuture($entity->getEntityName(), $fieldName, $apiVersion)) {
             $searchException->add(
                 new QueryFutureFieldException($fieldName, $entity->getEntityName(), $apiVersion),
                 $pointer . '/' . $fieldName
             );
         }
 
-        $deprecatedConverter = $this->converterRegistry->getDeprecationConverter($apiVersion);
-        if ($deprecatedConverter->isDeprecated($entity->getEntityName(), $fieldName)) {
+        if ($this->isDeprecated($entity->getEntityName(), $fieldName, $apiVersion)) {
             $searchException->add(
-                new QueryDeprecatedFieldException($fieldName, $entity->getEntityName(), $apiVersion),
+                new QueryRemovedFieldException($fieldName, $entity->getEntityName(), $apiVersion),
                 $pointer . '/' . $fieldName
             );
         }
@@ -218,15 +214,13 @@ class ConverterService
     private function stripNotAllowedFields(EntityDefinition $definition, $payload, int $apiVersion): array
     {
         foreach ($payload as $field => $value) {
-            $futureConverter = $this->converterRegistry->getFutureConverter($apiVersion);
-            if ($futureConverter->isFromFuture($definition->getEntityName(), $field)) {
+            if ($this->isFromFuture($definition->getEntityName(), $field, $apiVersion)) {
                 unset($payload[$field]);
 
                 continue;
             }
 
-            $deprecatedConverter = $this->converterRegistry->getDeprecationConverter($apiVersion);
-            if ($deprecatedConverter->isDeprecated($definition->getEntityName(), $field)) {
+            if ($this->isDeprecated($definition->getEntityName(), $field, $apiVersion)) {
                 unset($payload[$field]);
 
                 continue;
@@ -271,5 +265,25 @@ class ConverterService
         }
 
         return $payload;
+    }
+
+    private function isDeprecated(string $entityName, ?string $fieldName, int $apiVersion): bool
+    {
+        if (!isset($this->deprecations[$apiVersion][$entityName][$fieldName])) {
+            $deprecatedConverter = $this->converterRegistry->getDeprecationConverter($apiVersion);
+            $this->deprecations[$apiVersion][$entityName][$fieldName] = $deprecatedConverter->isDeprecated($entityName, $fieldName);
+        }
+
+        return $this->deprecations[$apiVersion][$entityName][$fieldName];
+    }
+
+    private function isFromFuture(string $entityName, ?string $fieldName, int $apiVersion): bool
+    {
+        if (!isset($this->fromFuture[$apiVersion][$entityName][$fieldName])) {
+            $futureConverter = $this->converterRegistry->getFutureConverter($apiVersion);
+            $this->fromFuture[$apiVersion][$entityName][$fieldName] = $futureConverter->isFromFuture($entityName, $fieldName);
+        }
+
+        return $this->fromFuture[$apiVersion][$entityName][$fieldName];
     }
 }

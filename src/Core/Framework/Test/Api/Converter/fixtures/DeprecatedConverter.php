@@ -15,14 +15,9 @@ class DeprecatedConverter extends ApiConverter
     {
         return [
             DeprecatedDefinition::ENTITY_NAME => [
-                'price' => function (array $payload) {
-                    $payload['prices'] = [$payload['price']];
-                    unset($payload['price']);
-
-                    return $payload;
-                },
-                'tax' => true,
-                'taxId' => true,
+                'price',
+                'tax',
+                'taxId',
             ],
             DeprecatedEntityDefinition::ENTITY_NAME => true,
         ];
@@ -32,9 +27,16 @@ class DeprecatedConverter extends ApiConverter
     {
         return [
             DeprecatedDefinition::ENTITY_NAME => [
-                'prices',
-                'product',
-                'productId',
+                'prices' => function (array $payload) {
+                    if (array_key_exists('price', $payload)) {
+                        $payload['prices'] = [$payload['price']];
+                        unset($payload['price']);
+                    }
+
+                    return $payload;
+                },
+                'product' => true,
+                'productId' => true,
             ],
             NewEntityDefinition::ENTITY_NAME => true,
         ];

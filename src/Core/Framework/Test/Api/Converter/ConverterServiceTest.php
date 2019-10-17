@@ -7,10 +7,10 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Converter\ConverterRegistry;
 use Shopware\Core\Framework\Api\Converter\ConverterService;
 use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionException;
-use Shopware\Core\Framework\Api\Converter\Exceptions\QueryDeprecatedEntityException;
-use Shopware\Core\Framework\Api\Converter\Exceptions\QueryDeprecatedFieldException;
 use Shopware\Core\Framework\Api\Converter\Exceptions\QueryFutureEntityException;
 use Shopware\Core\Framework\Api\Converter\Exceptions\QueryFutureFieldException;
+use Shopware\Core\Framework\Api\Converter\Exceptions\QueryRemovedEntityException;
+use Shopware\Core\Framework\Api\Converter\Exceptions\QueryRemovedFieldException;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
@@ -191,13 +191,13 @@ class ConverterServiceTest extends TestCase
         $errors = iterator_to_array($conversionException->getErrors());
         static::assertCount(3, $errors);
 
-        static::assertEquals('FRAMEWORK__WRITE_DEPRECATED_FIELD', $errors[0]['code']);
+        static::assertEquals('FRAMEWORK__WRITE_REMOVED_FIELD', $errors[0]['code']);
         static::assertEquals('/price', $errors[0]['source']['pointer']);
 
-        static::assertEquals('FRAMEWORK__WRITE_DEPRECATED_FIELD', $errors[1]['code']);
+        static::assertEquals('FRAMEWORK__WRITE_REMOVED_FIELD', $errors[1]['code']);
         static::assertEquals('/taxId', $errors[1]['source']['pointer']);
 
-        static::assertEquals('FRAMEWORK__WRITE_DEPRECATED_FIELD', $errors[2]['code']);
+        static::assertEquals('FRAMEWORK__WRITE_REMOVED_FIELD', $errors[2]['code']);
         static::assertEquals('/tax', $errors[2]['source']['pointer']);
     }
 
@@ -247,7 +247,7 @@ class ConverterServiceTest extends TestCase
             ],
         ];
 
-        $this->expectException(QueryDeprecatedFieldException::class);
+        $this->expectException(QueryRemovedFieldException::class);
         $this->converterService->validateEntityPath($entityPath, 2);
     }
 
@@ -266,7 +266,7 @@ class ConverterServiceTest extends TestCase
             ],
         ];
 
-        $this->expectException(QueryDeprecatedEntityException::class);
+        $this->expectException(QueryRemovedEntityException::class);
         $this->converterService->validateEntityPath($entityPath, 2);
     }
 
@@ -352,13 +352,13 @@ class ConverterServiceTest extends TestCase
         $errors = iterator_to_array($exception->getErrors());
         static::assertCount(3, $errors);
 
-        static::assertEquals('FRAMEWORK__QUERY_DEPRECATED_FIELD', $errors[0]['code']);
+        static::assertEquals('FRAMEWORK__QUERY_REMOVED_FIELD', $errors[0]['code']);
         static::assertEquals('/price', $errors[0]['source']['pointer']);
 
-        static::assertEquals('FRAMEWORK__QUERY_DEPRECATED_FIELD', $errors[1]['code']);
+        static::assertEquals('FRAMEWORK__QUERY_REMOVED_FIELD', $errors[1]['code']);
         static::assertEquals('/tax', $errors[1]['source']['pointer']);
 
-        static::assertEquals('FRAMEWORK__QUERY_DEPRECATED_FIELD', $errors[2]['code']);
+        static::assertEquals('FRAMEWORK__QUERY_REMOVED_FIELD', $errors[2]['code']);
         static::assertEquals('/taxId', $errors[2]['source']['pointer']);
     }
 

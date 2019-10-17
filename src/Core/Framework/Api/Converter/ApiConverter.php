@@ -15,7 +15,7 @@ abstract class ApiConverter
             return array_key_exists($entityName, $this->getDeprecations()) && !is_array($this->getDeprecations()[$entityName]);
         }
 
-        return array_key_exists($fieldName, $this->getDeprecations()[$entityName] ?? []);
+        return \in_array($fieldName, $this->getDeprecations()[$entityName] ?? [], true);
     }
 
     public function isFromFuture(string $entityName, ?string $fieldName = null): bool
@@ -24,18 +24,20 @@ abstract class ApiConverter
             return array_key_exists($entityName, $this->getNewFields()) && !is_array($this->getNewFields()[$entityName]);
         }
 
-        return \in_array($fieldName, $this->getNewFields()[$entityName] ?? [], true);
+        return array_key_exists($fieldName, $this->getNewFields()[$entityName] ?? []);
     }
 
-    public function convertField(string $entityName, string $fieldName, array $payload): array
+    public function convert(string $entityName, array $payload): array
     {
-        if (!$this->isDeprecated($entityName, $fieldName) || !\is_callable($this->getDeprecations()[$entityName][$fieldName])) {
-            return $payload;
+        foreach ($this->getNewFields()[$entityName] ?? [] as $field => $converterFn) {
+            if (!is_callable($converterFn)) {
+                continue;
+            }
+
+            $payload = $converterFn($payload);
         }
 
-        $converterFn = $this->getDeprecations()[$entityName][$fieldName];
-
-        return $converterFn($payload);
+        return $payload;
     }
 
     /**

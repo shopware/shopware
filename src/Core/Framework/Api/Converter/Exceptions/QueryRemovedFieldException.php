@@ -5,13 +5,14 @@ namespace Shopware\Core\Framework\Api\Converter\Exceptions;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-class QueryDeprecatedEntityException extends ShopwareHttpException
+class QueryRemovedFieldException extends ShopwareHttpException
 {
-    public function __construct(string $entityName, int $apiVersion)
+    public function __construct(string $field, string $entityName, int $apiVersion)
     {
         parent::__construct(
-            'The entity "{{ entityName }}" is deprecated in v{{ apiVersion }} of the API and cannot be used as criteria or in the path',
+            'The field "{{ field }}" on entity "{{ entityName }}" was removed in v{{ apiVersion }} of the API and cannot be used as criteria or in the path',
             [
+                'field' => $field,
                 'entityName' => $entityName,
                 'apiVersion' => $apiVersion,
             ]
@@ -25,6 +26,6 @@ class QueryDeprecatedEntityException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
-        return 'FRAMEWORK__QUERY_DEPRECATED_ENTITY';
+        return 'FRAMEWORK__QUERY_REMOVED_FIELD';
     }
 }

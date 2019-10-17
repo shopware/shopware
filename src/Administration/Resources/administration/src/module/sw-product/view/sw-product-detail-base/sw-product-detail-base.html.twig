@@ -115,7 +115,7 @@
                      v-if="reviewItemData"
                      class="sw-product-detail-base__review-card"
                      :isLoading="product.isLoading">
-                <template slot="grid">
+                <template #grid>
                     <sw-data-grid
                         v-if="total"
                         ref="gridReview"

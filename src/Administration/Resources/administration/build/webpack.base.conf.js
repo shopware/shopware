@@ -82,8 +82,7 @@ module.exports = {
                         '@babel/preset-env', {
                             modules: false,
                             targets: {
-                                node: 'current',
-                                ie: 11
+                                browsers: ['last 2 versions', 'edge >= 17']
                             }
                         }
                     ]]

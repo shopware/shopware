@@ -578,6 +578,7 @@ Component.register('sw-cms-detail', {
             blockClone.id = newBlock.id;
             blockClone.position = block.position + 1;
             blockClone.sectionId = section.id;
+            blockClone.sectionPosition = block.sectionPosition;
             blockClone.slots = [];
 
             Object.assign(newBlock, blockClone);

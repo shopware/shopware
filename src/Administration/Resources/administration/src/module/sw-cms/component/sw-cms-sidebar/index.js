@@ -183,9 +183,17 @@ Component.register('sw-cms-sidebar', {
                     this.currentDragSectionIndex -= 1;
                 }
 
-                // delete block from old section and add it to the new one
+                // clone dragged block
+                const blockClone = this.cloneBlock(dragData.block, this.page.sections[dropSectionIndex].id);
+
+                // delete block from old section
                 this.page.sections[removeIndex].blocks.remove(dragData.block.id);
-                this.page.sections[dropSectionIndex].blocks.add(dragData.block);
+
+                // set dragData.block to the cloned block to keep the reference
+                dragData.block = blockClone;
+
+                // add cloned block to new section
+                this.page.sections[dropSectionIndex].blocks.add(blockClone);
             } else {
                 // move item inside the section
                 this.page.sections[dropSectionIndex].blocks.moveItem(dragData.block.position, dropData.block.position);
@@ -193,6 +201,36 @@ Component.register('sw-cms-sidebar', {
 
             this.$emit('block-navigator-sort');
             this.pageUpdate();
+        },
+
+        cloneBlock(block, sectionId) {
+            const newBlock = this.blockRepository.create();
+
+            const blockClone = cloneDeep(block);
+            blockClone.id = newBlock.id;
+            blockClone.position = block.position + 1;
+            blockClone.sectionId = sectionId;
+            blockClone.sectionPosition = block.sectionPosition;
+            blockClone.slots = [];
+
+            Object.assign(newBlock, blockClone);
+
+            this.cloneSlotsInBlock(block, newBlock);
+
+            return newBlock;
+        },
+
+        cloneSlotsInBlock(block, newBlock) {
+            block.slots.forEach((slot) => {
+                const element = this.slotRepository.create();
+                element.blockId = newBlock.id;
+                element.slot = slot.slot;
+                element.type = slot.type;
+                element.config = cloneDeep(slot.config);
+                element.data = cloneDeep(slot.data);
+
+                newBlock.slots.push(element);
+            });
         },
 
         getDragData(block, sectionIndex) {

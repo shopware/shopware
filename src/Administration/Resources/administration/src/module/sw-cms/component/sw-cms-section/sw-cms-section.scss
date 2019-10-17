@@ -2,8 +2,10 @@
 
 .sw-cms-stage.is--mobile {
     .sw-cms-section.is--sidebar {
-        display: flex;
-        flex-direction: column;
+        .sw-cms-section__wrapper {
+            display: flex;
+            flex-direction: column;
+        }
     }
 }
 

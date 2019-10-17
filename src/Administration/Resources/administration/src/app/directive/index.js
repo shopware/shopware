@@ -1,5 +1,4 @@
-import './autofocus.directive';
-import './dragdrop.directive';
-import './fixed.directive';
-import './tooltip.directive';
-import './popover.directive';
+export default () => {
+    const context = require.context('./', false, /(?<!index)\.js$/);
+    return context.keys().forEach(item => context(item));
+};

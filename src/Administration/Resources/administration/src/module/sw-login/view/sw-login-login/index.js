@@ -1,13 +1,12 @@
 import getErrorCode from 'src/core/data/error-codes/login.error-codes';
-import { initializeUserNotifications } from 'src/app/state/notification.store';
 import template from './sw-login-login.html.twig';
 
-const { Component, Mixin, State, Application } = Shopware;
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-login-login', {
     template,
 
-    inject: ['loginService', 'userService', 'repositoryFactory', 'context', 'licenseViolationService'],
+    inject: ['loginService', 'userService', 'context', 'licenseViolationService'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -18,12 +17,6 @@ Component.register('sw-login-login', {
             username: '',
             password: ''
         };
-    },
-
-    computed: {
-        localeRepository() {
-            return this.repositoryFactory.create('locale');
-        }
     },
 
     created() {
@@ -50,7 +43,6 @@ Component.register('sw-login-login', {
         },
 
         handleLoginSuccess() {
-            const contextService = Application.getContainer('init');
             this.password = '';
 
             this.$emit('login-success');
@@ -59,29 +51,19 @@ Component.register('sw-login-login', {
                 setTimeout(resolve, 300);
             });
 
-            // Fetch the user info when the login was successful and save it in current context
-            const userInfoPromise = this.userService.getUser().then((response) => {
-                const data = response.data;
-                delete data.password;
-
-                this.localeRepository.get(data.localeId, this.context).then(({ code }) => {
-                    this.$store.dispatch('setAdminLocale', code);
-                });
-
-                contextService.currentUser = data;
-                this.$store.commit('adminUser/setCurrentUser', data);
-                initializeUserNotifications();
-            });
-
             this.licenseViolationService.removeTimeFromLocalStorage(this.licenseViolationService.key.showViolationsKey);
 
-            return Promise.all([
-                animationPromise,
-                userInfoPromise,
-                State.getStore('language').init()
-            ]).then(() => {
+            return animationPromise.then(() => {
                 this.$parent.isLoginSuccess = false;
                 this.forwardLogin();
+
+                const shouldReload = sessionStorage.getItem('sw-login-should-reload');
+
+                if (shouldReload) {
+                    sessionStorage.removeItem('sw-login-should-reload');
+                    // reload page to rebuild the administration with all dependencies
+                    this.$router.go();
+                }
             });
         },
 
@@ -90,12 +72,13 @@ Component.register('sw-login-login', {
             sessionStorage.removeItem('sw-admin-previous-route');
 
             const firstRunWizard = this.context.firstRunWizard;
+
             if (firstRunWizard && !this.$router.history.current.name.startsWith('sw.first.run.wizard.')) {
                 this.$router.push({ name: 'sw.first.run.wizard.index' });
                 return;
             }
 
-            if (previousRoute && previousRoute.name && previousRoute.fullPath) {
+            if (previousRoute && previousRoute.fullPath) {
                 this.$router.push(previousRoute.fullPath);
                 return;
             }

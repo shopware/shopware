@@ -1,4 +1,3 @@
-import { EntityDefinition } from 'src/core/shopware';
 import Repository from './repository.data';
 
 export default class RepositoryFactory {
@@ -23,7 +22,7 @@ export default class RepositoryFactory {
             route = `/${entityName.replace(/_/g, '-')}`;
         }
 
-        const definition = EntityDefinition.get(entityName);
+        const definition = Shopware.EntityDefinition.get(entityName);
         return new Repository(
             route,
             definition.entity,

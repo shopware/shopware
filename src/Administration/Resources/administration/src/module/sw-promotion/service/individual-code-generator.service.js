@@ -1,4 +1,3 @@
-import { Application } from 'src/core/shopware';
 import EventEmitter from 'events';
 import CodeGenerator from '../service/code-generator.service';
 import Criteria from '../../../core/data-new/criteria.data';
@@ -23,7 +22,7 @@ export default class IndividualCodeGenerator extends EventEmitter {
         this.chunkSize = 100;
         this.maxRetryCount = 5;
 
-        this.syncService = Application.getContainer('service').syncService;
+        this.syncService = Shopware.Service('syncService');
         this.httpClient = this.syncService.httpClient;
     }
 

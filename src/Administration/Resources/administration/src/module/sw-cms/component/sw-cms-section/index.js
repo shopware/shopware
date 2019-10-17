@@ -1,7 +1,7 @@
 import template from './sw-cms-section.html.twig';
 import './sw-cms-section.scss';
 
-const { Component, Application } = Shopware;
+const { Component } = Shopware;
 
 Component.register('sw-cms-section', {
     template,
@@ -72,8 +72,7 @@ Component.register('sw-cms-section', {
         },
 
         sectionStyles() {
-            const initContainer = Application.getContainer('init');
-            const context = initContainer.contextService;
+            const context = Shopware.Context;
             let backgroundMedia = null;
 
             if (this.section.backgroundMedia) {

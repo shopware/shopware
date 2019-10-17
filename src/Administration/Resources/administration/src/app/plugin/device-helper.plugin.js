@@ -1,6 +1,5 @@
-import DeviceHelper from 'src/core/helper/device.helper';
-
 const { warn } = Shopware.Utils.debug;
+const { DeviceHelper } = Shopware.Helper;
 
 let pluginInstalled = false;
 

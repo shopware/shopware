@@ -1,9 +1,9 @@
-import { mapApiErrors } from 'src/app/service/map-errors.service';
 import template from './sw-customer-card.html.twig';
 import './sw-customer-card.scss';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+const { mapApiErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-customer-card', {
     template,

@@ -120,7 +120,7 @@ class ApplicationBootstrapper {
      *
      * @example
      * Shopware.Application.addInitializer('httpClient', (container) => {
-     *    return HttpFactory(container.contextService);
+     *    return HttpFactory(container.context);
      * });
      *
      * @param {String} name Name of the initializer
@@ -159,31 +159,12 @@ class ApplicationBootstrapper {
      * @returns {ApplicationBootstrapper}
      */
     registerContext(context) {
-        return this.addInitializer('context', () => {
-            return context;
-        });
-    }
+        this.addServiceProvider('context', () => {
+            const ContextFactory = Shopware.Classes._private.ContextFactory;
 
-    /**
-     * Registers an initializer middleware for either every initializer in the container or a defined one.
-     *
-     * @example
-     * Shopware.Application.addInitializerMiddleware((container, next) => {
-     *    // Do something with the container
-     *    next();
-     * });
-     *
-     * @example
-     * Shopware.Application.addInitializerMiddleware('httpClient', (service, next) => {
-     *    // Do something with the service
-     *    next();
-     * });
-     *
-     * @param args
-     * @returns {module:core/application.ApplicationBootstrapper}
-     */
-    addInitializerMiddleware(...args) {
-        return this._addMiddleware('init', args);
+            return ContextFactory(context);
+        });
+        return this;
     }
 
     /**
@@ -231,33 +212,11 @@ class ApplicationBootstrapper {
      * @returns {module:core/application.ApplicationBootstrapper}
      */
     initializeFeatureFlags() {
-        const config = this.getContainer('init').context.features;
+        const config = this.getContainer('service').context.features;
 
         Shopware.FeatureConfig.init(config);
 
         return this;
-    }
-
-    /**
-     * Registers a decorator for either every initializer in the container or a defined one.
-     *
-     * @example
-     * Shopware.Application.addInitializerDecorator((container, next) => {
-     *    // Do something with the container
-     *    next();
-     * });
-     *
-     * @example
-     * Shopware.Application.addInitializerDecorator('httpClient', (service, next) => {
-     *    // Do something with the service
-     *    next();
-     * });
-     *
-     * @param args
-     * @returns {module:core/application.ApplicationBootstrapper}
-     */
-    addInitializerDecorator(...args) {
-        return this._addDecorator('init', args);
     }
 
     /**
@@ -308,7 +267,7 @@ class ApplicationBootstrapper {
     start(context = {}) {
         return this.registerContext(context)
             .initializeFeatureFlags()
-            .createApplicationRoot();
+            .startBootProcess();
     }
 
     /**
@@ -329,56 +288,129 @@ class ApplicationBootstrapper {
     }
 
     /**
+     * Boot the application depending on login status
+     *
+     * @returns {Promise<module:core/application.ApplicationBootstrapper>}
+     */
+    startBootProcess() {
+        const loginService = this.getContainer('service').loginService;
+        const isUserLoggedIn = loginService.isLoggedIn();
+
+        // if user is not logged in
+        if (!isUserLoggedIn) {
+            loginService.logout();
+            return this.bootLogin();
+        }
+
+        return this.bootFullApplication();
+    }
+
+    /**
+     * Boot the login.
+     *
+     * @returns {Promise<module:core/application.ApplicationBootstrapper>}
+     */
+    bootLogin() {
+        // set force reload after successful login
+        sessionStorage.setItem('sw-login-should-reload', 'true');
+
+        /**
+         * Login Application Booting:
+         *
+         * 1. Initialize all login initializer
+         * 2. Initialize the conversion of dependencies in view adapter
+         * 3. Create the application root
+         */
+
+        return this.initializeLoginInitializer()
+            .then(() => this.view.initDependencies())
+            .then(() => this.createApplicationRoot())
+            .catch((error) => this.createApplicationRootError(error));
+    }
+
+    /**
+     * Boot the whole application.
+     *
+     * @returns {Promise<module:core/application.ApplicationBootstrapper>}
+     */
+    bootFullApplication() {
+        const initContainer = this.getContainer('init');
+
+        /**
+         * Normal Application Booting:
+         *
+         * 1. Initialize all initializer
+         * 2. Load plugins
+         * 3. Wait until plugin promises are resolved
+         * 4. Initialize the conversion of dependencies in view adapter
+         * 5. Create the application root
+         */
+
+        return this.initializeInitializers(initContainer)
+            .then(() => this.loadPlugins())
+            .then(() => Promise.all(Shopware.Plugin.getBootPromises()))
+            .then(() => this.view.initDependencies())
+            .then(() => this.createApplicationRoot())
+            .catch((error) => this.createApplicationRootError(error));
+    }
+
+    /**
      * Creates the application root and injects the provider container into the
      * view instance to keep the dependency injection of Vue.js in place.
      *
      * @returns {Promise<module:core/application.ApplicationBootstrapper>}
      */
     createApplicationRoot() {
-        const container = this.getContainer('init');
+        const initContainer = this.getContainer('init');
+        const serviceContainer = this.getContainer('service');
+        const router = initContainer.router.getRouterInstance();
 
-        return this.instantiateInitializers(container).then(() => {
-            const router = container.router.getRouterInstance();
-            const contextService = container.contextService;
+        // We're in a test environment, we're not needing an application root
+        if (serviceContainer.context.environment === 'testing') {
+            return Promise.resolve(this);
+        }
 
-            // We're in a test environment, we're not needing an application root
-            if (contextService.environment === 'testing') {
-                return this;
-            }
+        this.view.init(
+            '#app',
+            router,
+            this.getContainer('service')
+        );
 
-            this.view.init(
-                '#app',
-                router,
-                this.getContainer('service')
-            );
-
-            const firstRunWizard = container.context.firstRunWizard;
-            if (firstRunWizard && !router.history.current.name.startsWith('sw.first.run.wizard.')) {
-                router.push({
-                    name: 'sw.first.run.wizard.index'
-                });
-            }
-
-            return this;
-        }).catch((error) => {
-            const router = container.router.getRouterInstance();
-
-            this.view.init(
-                '#app',
-                router,
-                this.getContainer('service')
-            );
-
-            this.view.root.initError = error;
-
+        const firstRunWizard = serviceContainer.context.firstRunWizard;
+        if (firstRunWizard && !router.history.current.name.startsWith('sw.first.run.wizard.')) {
             router.push({
-                name: 'error'
+                name: 'sw.first.run.wizard.index'
             });
+        }
+
+        return Promise.resolve(this);
+    }
+
+    /**
+     * Creates the application root and show the error message.
+     *
+     * @returns {Promise<module:core/application.ApplicationBootstrapper>}
+     */
+    createApplicationRootError(error) {
+        console.error(error);
+        const container = this.getContainer('init');
+        const router = container.router.getRouterInstance();
+
+        this.view.init(
+            '#app',
+            router,
+            this.getContainer('service')
+        );
+
+        this.view.root.initError = error;
+
+        router.push({
+            name: 'error'
         });
     }
 
     /**
-     * Instantiates the initializers right away cause these are the mandatory services for the application
+     * Initialize the initializers right away cause these are the mandatory services for the application
      * to boot successfully.
      *
      * @private
@@ -386,21 +418,170 @@ class ApplicationBootstrapper {
      * @param {String} [prefix='init']
      * @returns {Promise<any[]>}
      */
-    instantiateInitializers(container, prefix = 'init') {
+    initializeInitializers(container, prefix = 'init') {
         const services = container.$list().map((serviceName) => {
             return `${prefix}.${serviceName}`;
         });
         this.$container.digest(services);
 
+        const asyncInitializers = this.getAsyncInitializers(container);
+        return Promise.all(asyncInitializers);
+    }
+
+    /**
+     * Initialize the initializers right away cause these are the mandatory services for the application
+     * to boot successfully.
+     *
+     * @private
+     * @param {Bottle.IContainer} container Bottle container
+     * @param {String} [prefix='init']
+     * @returns {Promise<any[]>}
+     */
+    initializeLoginInitializer() {
+        const loginInitializer = [
+            'login',
+            'baseComponents',
+            'coreState',
+            'locale',
+            'apiServices',
+            'svgIcons'
+        ];
+
+        const initContainer = this.getContainer('init');
+        loginInitializer.forEach((key) => {
+            const exists = initContainer.hasOwnProperty(key);
+
+            if (!exists) {
+                console.error(`The initializer "${key}" does not exists`);
+            }
+        });
+
+        this.$container.digest(loginInitializer.map(key => `init.${key}`));
+
+        const asyncInitializers = this.getAsyncInitializers(loginInitializer);
+        return Promise.all(asyncInitializers);
+    }
+
+    getAsyncInitializers(initializer) {
+        const initContainer = this.getContainer('init');
         const asyncInitializers = [];
-        Object.keys(container).forEach((serviceKey) => {
-            const service = container[serviceKey];
+        Object.keys(initializer).forEach((serviceKey) => {
+            const service = initContainer[serviceKey];
             if (service && service.constructor.name === 'Promise') {
                 asyncInitializers.push(service);
             }
         });
 
-        return Promise.all(asyncInitializers);
+        return asyncInitializers;
+    }
+
+    /**
+     * Load all plugins from the server and inject them into the Site.
+     * @private
+     * @returns {Promise<any[]>}
+     */
+    loadPlugins() {
+        const isDevelopmentMode = process.env.NODE_ENV;
+
+        // only in webpack dev mode
+        if (isDevelopmentMode === 'development') {
+            return fetch('./sw-plugin-dev.json')
+                .then((rawResponse) => rawResponse.json())
+                .then((plugins) => {
+                    const injectAllPlugins = Object.values(plugins).map((plugin) => this.injectPlugin(plugin));
+                    return Promise.all(injectAllPlugins);
+                });
+        }
+
+        // in production
+        const context = this.getContainer('service').context;
+        const plugins = context.config.bundles;
+
+        const injectAllPlugins = Object.values(plugins).map((plugin) => this.injectPlugin(plugin));
+        return Promise.all(injectAllPlugins);
+    }
+
+    /**
+     * Inject plugin scripts and styles
+     * @private
+     * @param {Object} plugin
+     * @returns {Promise<any[]>}
+     */
+    injectPlugin(plugin) {
+        let allScripts = [];
+        let allStyles = [];
+
+        // load multiple js scripts
+        if (plugin.js && Array.isArray(plugin.js)) {
+            allScripts = plugin.js.map(src => this.injectJs(src));
+        } else if (plugin.js) {
+            allScripts.push(this.injectJs(plugin.js));
+        }
+
+        // load multiple css styling
+        if (plugin.css && Array.isArray(plugin.css)) {
+            allStyles = plugin.css.map(src => this.injectCss(src));
+        } else if (plugin.css) {
+            allStyles.push(this.injectCss(plugin.css));
+        }
+
+        return Promise.all([...allScripts, ...allStyles]);
+    }
+
+    /**
+     * Inject js to end of body
+     * @private
+     * @param {String} scriptSrc
+     * @returns {Promise<any[]>}
+     */
+    injectJs(scriptSrc) {
+        return new Promise((resolve, reject) => {
+            // create script tag with src
+            const script = document.createElement('script');
+            script.src = scriptSrc;
+            script.async = true;
+
+            // resolve when script was loaded succcessfully
+            script.onload = () => {
+                resolve();
+            };
+
+            // when script get not loaded successfully
+            script.onerror = () => {
+                reject();
+            };
+
+            // Append the script to the end of body
+            document.body.appendChild(script);
+        });
+    }
+
+    /**
+     * Inject js to end of head
+     * @private
+     * @param {String} styleSrc
+     * @returns {Promise<any[]>}
+     */
+    injectCss(styleSrc) {
+        return new Promise((resolve, reject) => {
+            // create style link with src
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = styleSrc;
+
+            // resolve when script was loaded succcessfully
+            link.onload = () => {
+                resolve();
+            };
+
+            // when style get not loaded successfully
+            link.onerror = () => {
+                reject();
+            };
+
+            // Append the style to the end of head
+            document.head.appendChild(link);
+        });
     }
 }
 

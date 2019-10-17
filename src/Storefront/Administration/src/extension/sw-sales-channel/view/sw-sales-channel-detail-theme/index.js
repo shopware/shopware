@@ -44,7 +44,7 @@ Component.register('sw-sales-channel-detail-theme', {
         'salesChannel.extensions.themes': {
             deep: true,
             handler() {
-                if (!this.salesChannel.extensions || this.salesChannel.extensions.themes.length < 1) {
+                if (!this.salesChannel || !this.salesChannel.extensions || this.salesChannel.extensions.themes.length < 1) {
                     return;
                 }
 

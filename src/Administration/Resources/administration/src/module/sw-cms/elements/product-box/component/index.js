@@ -1,7 +1,7 @@
 import template from './sw-cms-el-product-box.html.twig';
 import './sw-cms-el-product-box.scss';
 
-const { Application, Component, Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-cms-el-product-box', {
     template,
@@ -35,8 +35,7 @@ Component.register('sw-cms-el-product-box', {
         },
 
         mediaUrl() {
-            const initContainer = Application.getContainer('init');
-            const context = initContainer.contextService;
+            const context = Shopware.Context;
 
             if (this.product.cover && this.product.cover.media) {
                 if (this.product.cover.media.id) {

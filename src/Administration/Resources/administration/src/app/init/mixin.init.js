@@ -1,5 +1,7 @@
-import 'src/app/mixin';
+import mixin from 'src/app/mixin';
 
-export default function createCoreMixins() {
-    return true;
+const createdAppMixin = mixin();
+
+export default function createAppMixin() {
+    return createdAppMixin;
 }

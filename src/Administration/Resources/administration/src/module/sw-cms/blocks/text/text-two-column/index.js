@@ -1,9 +1,7 @@
 import './component';
 import './preview';
 
-const { Application } = Shopware;
-
-Application.getContainer('service').cmsService.registerCmsBlock({
+Shopware.Service('cmsService').registerCmsBlock({
     name: 'text-two-column',
     label: 'Two column text',
     category: 'text',

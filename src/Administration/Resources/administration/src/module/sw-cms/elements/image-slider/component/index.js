@@ -1,7 +1,7 @@
 import template from './sw-cms-el-image-slider.html.twig';
 import './sw-cms-el-image-slider.scss';
 
-const { Application, Component, Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-cms-el-image-slider', {
     template,
@@ -81,9 +81,7 @@ Component.register('sw-cms-el-image-slider', {
         },
 
         contextAssetPath() {
-            const initContainer = Application.getContainer('init');
-
-            return initContainer.contextService.assetsPath;
+            return Shopware.Context.assetsPath;
         }
     },
 

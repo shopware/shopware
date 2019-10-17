@@ -1,5 +1,7 @@
-import 'src/app/filter';
+import filter from 'src/app/filter';
 
-export default function createCoreFilter() {
-    return true;
+const createdAppFilter = filter();
+
+export default function creatAppFilter() {
+    return createdAppFilter;
 }

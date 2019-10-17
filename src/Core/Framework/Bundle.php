@@ -81,6 +81,30 @@ abstract class Bundle extends SymfonyBundle
         return $this->getNamespace() . '\Migration';
     }
 
+    public function getAdministrationStyles(): array
+    {
+        $bundleName = str_replace('_', '-', $this->getContainerPrefix());
+        $filename = $bundleName . '.css';
+
+        if (!file_exists($this->getPath() . '/Resources/public/administration/css/' . $filename)) {
+            return [];
+        }
+
+        return [$filename];
+    }
+
+    public function getAdministrationScripts(): array
+    {
+        $bundleName = str_replace('_', '-', $this->getContainerPrefix());
+        $filename = $bundleName . '.js';
+
+        if (!file_exists($this->getPath() . '/Resources/public/administration/js/' . $filename)) {
+            return [];
+        }
+
+        return [$filename];
+    }
+
     public function configureRoutes(RouteCollectionBuilder $routes, string $environment): void
     {
         $fileSystem = new Filesystem();

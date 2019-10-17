@@ -1,5 +1,3 @@
-import { mapPageErrors } from 'src/app/service/map-errors.service';
-import { mapState, mapGetters } from 'vuex';
 import template from './sw-product-detail.html.twig';
 import swProductDetailState from './state';
 import errorConfiguration from './error.cfg.json';
@@ -7,6 +5,7 @@ import errorConfiguration from './error.cfg.json';
 const { Component, Mixin, State } = Shopware;
 const { Criteria } = Shopware.Data;
 const { hasOwnProperty } = Shopware.Utils.object;
+const { mapPageErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-detail', {
     template,

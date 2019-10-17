@@ -163,6 +163,22 @@ exports.pluginDefinitionWalker = function (baseWebPackConfig, pluginList) {
 };
 
 /**
+ * Filters main assets from output
+ *
+ * @param {JSON} output
+ * @returns {String}
+ */
+exports.filterAssetsOutput = function (output) {
+    const filteredOutput = { ...output };
+
+    ['', 'app', 'commons', 'runtime', 'vendors-node'].forEach((output) => {
+        delete filteredOutput[output];
+    });
+
+    return JSON.stringify(filteredOutput);
+};
+
+/**
  * Injects the sw-devmode-loader into the given webpack configuration. It enables the feature "open in editor" for the
  * Vue.js DevTools when PhpStorm is installed on the developers system.
  *
@@ -227,7 +243,7 @@ exports.injectHtmlPlugin = function (config, featureFlags) {
         templateParameters: {
             featureFlags: JSON.stringify(featureFlags)
         },
-        inject: 'head'
+        inject: false
     });
 };
 

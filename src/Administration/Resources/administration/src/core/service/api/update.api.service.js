@@ -56,7 +56,10 @@ class UpdateService extends ApiService {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .get(`/_action/${this.getApiBasePath()}/unpack?offset=${offset}&deactivationFilter=${pluginDeactivationStrategy}`, { headers })
+            .get(
+                `/_action/${this.getApiBasePath()}/unpack?offset=${offset}&deactivationFilter=${pluginDeactivationStrategy}`,
+                { headers }
+            )
             .then((response) => {
                 return ApiService.handleResponse(response);
             });

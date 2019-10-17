@@ -3,6 +3,7 @@ const merge = require('webpack-merge');
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const WebpackPluginInjector = require('@shopware/webpack-plugin-injector');
+const AssetsPlugin = require('assets-webpack-plugin');
 const config = require('../config');
 const utils = require('./utils');
 
@@ -37,7 +38,18 @@ let mergedWebpackConfig = merge(baseWebpackConfig, {
             baseWebpackConfig,
             utils.loadFeatureFlags(process.env.ENV_FILE)
         ),
-        new FriendlyErrorsPlugin()
+        new FriendlyErrorsPlugin(),
+        new AssetsPlugin({
+            filename: 'sw-plugin-dev.json',
+            fileTypes: ['js', 'css'],
+            includeAllFileTypes: false,
+            fullPath: true,
+            useCompilerPath: true,
+            prettyPrint: true,
+            keepInMemory: true,
+            processOutput: utils.filterAssetsOutput
+        })
+
     ]
 });
 

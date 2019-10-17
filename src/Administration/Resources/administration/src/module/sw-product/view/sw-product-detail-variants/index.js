@@ -1,9 +1,9 @@
-import { mapState, mapGetters } from 'vuex';
 import template from './sw-product-detail-variants.html.twig';
 import './sw-product-detail-variants.scss';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
+const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-detail-variants', {
     template,

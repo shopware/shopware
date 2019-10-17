@@ -1,7 +1,7 @@
 /**
  * @module core/helper/device
  */
-const utils = Shopware.Utils;
+import utils from 'src/core/service/util.service';
 
 /**
  * The DeviceHelper provides methods to get device and browser information like the current viewport size.

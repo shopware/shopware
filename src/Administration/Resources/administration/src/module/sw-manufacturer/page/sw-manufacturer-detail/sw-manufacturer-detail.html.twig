@@ -120,6 +120,7 @@
                          v-if="customFieldSets.length > 0"
                          :isLoading="manufacturerIsLoading">
                     <sw-custom-field-set-renderer
+                            v-if="manufacturer"
                             :entity="manufacturer"
                             :sets="customFieldSets">
                     </sw-custom-field-set-renderer>

@@ -47,11 +47,8 @@ describe('Dashboard: Test first sight of the Administration', () => {
         // Check today stats
         cy.get('.sw-dashboard-index__intro-content').contains('Welcome to Shopware 6');
         cy.get('.sw-dashboard-index__intro-image img')
-            .should(
-                'have.attr',
-                'src',
-                `${Cypress.config('baseUrl')}/bundles//administration/static/img/dashboard-logo.svg`
-            );
+            .should('have.attr', 'src')
+            .should('include', '/bundles/administration/static/img/dashboard-logo.svg');
         cy.get('.sw-dashboard-index__intro-stats-today-single-stat-number-value').should('be.visible');
         cy.get('.sw-dashboard-index__intro-stats-today-single-stat-number-value').contains('1');
         cy.get('.sw-dashboard-index__intro-stats-today-single-stat-number-value').contains(product.price[0].gross);

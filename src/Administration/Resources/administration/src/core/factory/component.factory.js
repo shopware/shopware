@@ -12,7 +12,8 @@ export default {
     getComponentTemplate,
     getComponentRegistry,
     getOverrideRegistry,
-    getComponentHelper
+    getComponentHelper,
+    registerComponentHelper
 };
 
 /**
@@ -60,6 +61,27 @@ function getOverrideRegistry() {
  */
 function getComponentHelper() {
     return componentHelper;
+}
+
+/**
+ * Register a new component helper function
+ *
+ * @returns {Boolean}
+ */
+function registerComponentHelper(name, helperFunction) {
+    if (!name || !name.length) {
+        warn('ComponentFactory/ComponentHelper', 'A ComponentHelper always needs a name.', helperFunction);
+        return false;
+    }
+
+    if (componentHelper.hasOwnProperty(name)) {
+        warn('ComponentFactory/ComponentHelper', `A ComponentHelper with the name ${name} already exists.`, helperFunction);
+        return false;
+    }
+
+    componentHelper[name] = helperFunction;
+
+    return true;
 }
 
 /**

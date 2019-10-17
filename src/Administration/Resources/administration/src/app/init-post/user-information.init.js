@@ -2,13 +2,12 @@ import { initializeUserNotifications } from 'src/app/state/notification.store';
 
 const { State } = Shopware;
 
-export default function initializeUserContext(container) {
-    const serviceContainer = this.getContainer('service');
-    const loginService = serviceContainer.loginService;
-    const userService = serviceContainer.userService;
-    const contextService = container.contextService;
-
+export default function initializeUserContext() {
     return new Promise((resolve) => {
+        const loginService = Shopware.Service('loginService');
+        const context = Shopware.Context;
+        const userService = Shopware.Service('userService');
+
         // The user isn't logged in
         if (!loginService.isLoggedIn()) {
             // Remove existing login info from the locale storage
@@ -22,7 +21,7 @@ export default function initializeUserContext(container) {
             const data = response.data;
             delete data.password;
 
-            contextService.currentUser = data;
+            context.currentUser = data;
             State.getStore('adminUser').state.currentUser = data;
             initializeUserNotifications();
             resolve();

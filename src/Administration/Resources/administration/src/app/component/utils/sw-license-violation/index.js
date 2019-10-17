@@ -13,7 +13,6 @@ Shopware.Component.register('sw-license-violation', {
         'pluginService',
         'cacheApiService',
         'loginService',
-        'repositoryFactory',
         'context'
     ],
 
@@ -47,7 +46,8 @@ Shopware.Component.register('sw-license-violation', {
         },
 
         pluginRepository() {
-            return this.repositoryFactory.create('plugin');
+            const repositoryFactory = Shopware.Service('repositoryFactory');
+            return repositoryFactory.create('plugin');
         },
 
         pluginCriteria() {

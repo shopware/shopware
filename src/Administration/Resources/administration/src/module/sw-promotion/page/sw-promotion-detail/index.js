@@ -1,4 +1,3 @@
-import { mapPageErrors } from 'src/app/service/map-errors.service';
 import template from './sw-promotion-detail.html.twig';
 import errorConfig from './error-config.json';
 import swPromotionDetailState from './state';
@@ -7,6 +6,7 @@ import entityHydrator from '../../helper/promotion-entity-hydrator.helper';
 
 const { Component, Mixin, State } = Shopware;
 const { Criteria } = Shopware.Data;
+const { mapPageErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-promotion-detail', {
     template,

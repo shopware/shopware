@@ -1,9 +1,8 @@
-import { mapApiErrors } from 'src/app/service/map-errors.service';
-import { mapState, mapGetters } from 'vuex';
 import template from './sw-product-category-form.html.twig';
 
 const { Component } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
+const { mapApiErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-category-form', {
     template,

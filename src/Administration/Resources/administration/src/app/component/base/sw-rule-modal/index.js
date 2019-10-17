@@ -1,9 +1,9 @@
-import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-rule-modal.html.twig';
 import './sw-rule-modal.scss';
 
 const { Component, Mixin, State } = Shopware;
 const { warn } = Shopware.Utils.debug;
+const { LocalStore } = Shopware.DataDeprecated;
 
 /**
  * @status ready

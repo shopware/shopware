@@ -284,6 +284,72 @@ See `2019-09-02-cms-remove-store.md` for more information
         * `entity` contains components working with the api such as `sw-entity-multi-select` or `sw-entity-tag-select`
     * Components work with v-model and do not mutate the value property anymore
     * Components are based on the sw-field base components to provide a consistent styling, error handling etc for all form fields
+    
+* **Important Change:** Removed module export of `Shopware` and all children
+
+     Before:
+     ```
+        import Application from 'src/core/shopware';
+     ```
+  
+    After:
+    ```
+        const Application = Shopware.Application;
+    ```
+  
+* **Important Change:** `context` is now only available in `service`
+
+     Before:
+     ```
+        const context = Shopware.Application.getContainer('init').contextService;
+     ```
+  
+    After:
+    ```
+        const context = Shopware.Application.getContainer('service').context;
+    ```
+  
+* **Important Change:** You can use specific helper functions for components with `getComponentHelper()`
+
+     Before:
+     ```
+        import { mapApiErrors } from 'src/app/service/map-errors.service';
+        import { mapState, mapGetters } from 'vuex';
+     ```
+  
+    After:
+    ```
+        const { mapApiErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
+  
+* **Important Change:** All factories and services are initialized before app starts
+
+   Before:
+   ```
+      import deDeSnippets from './snippet/de-DE.json';
+      import enGBSnippets from './snippet/en-GB.json';
+      
+      Shopware.Application.addInitializerDecorator('locale', (localeFactory) => {
+          localeFactory.extend('de-DE', deDeSnippets);
+          localeFactory.extend('en-GB', enGBSnippets);
+      
+          return localeFactory;
+      });
+   ```
+
+  After:
+  ```
+      import deDeSnippets from './snippet/de-DE.json';
+      import enGBSnippets from './snippet/en-GB.json';
+       
+      Shopware.Locale.extend('de-DE', deDeSnippets);
+      Shopware.Locale.extend('en-GB', enGBSnippets);
+  ```
+    
+* Refactored administration booting process
+    * Plugins are now injected asynchronous after initialization of all dependencies
+    * Plugins have full access to all functionalities which are used by the `app`
+    * The booting of the login is separated from the application booting. Therefore the login is not expandable with plugins anymore.
+    
 * We unified the implementation of `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria` and the Admin criteria `src/core/data-new/criteria.data.js`
     * Removed `addAssociationPath`
     * Changed signature of `addAssociation`

@@ -1,9 +1,7 @@
 import './component';
 import './preview';
 
-const { Application } = Shopware;
-
-Application.getContainer('service').cmsService.registerCmsBlock({
+Shopware.Service('cmsService').registerCmsBlock({
     name: 'product-listing',
     label: 'Product listing',
     category: 'commerce',

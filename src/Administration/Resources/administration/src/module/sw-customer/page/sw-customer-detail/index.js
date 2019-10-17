@@ -1,9 +1,9 @@
-import { mapPageErrors } from 'src/app/service/map-errors.service';
 import template from './sw-customer-detail.html.twig';
 import errorConfig from './error-config.json';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+const { mapPageErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-customer-detail', {
     template,

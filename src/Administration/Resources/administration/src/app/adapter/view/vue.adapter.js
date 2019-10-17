@@ -9,16 +9,16 @@ import VueRouter from 'vue-router';
 import VueI18n from 'vue-i18n';
 import VueMeta from 'vue-meta';
 import VuePlugins from 'src/app/plugin';
-import EntityStore from 'src/core/data/EntityStore';
 
 const { Component, State, Mixin } = Shopware;
+const { EntityStore } = Shopware.DataDeprecated;
 
 export default class VueAdapter extends ViewAdapter {
     /**
      * @constructor
      */
-    constructor({ componentFactory, stateFactory, filterFactory, directiveFactory, localeFactory }) {
-        super({ componentFactory, stateFactory, filterFactory, directiveFactory, localeFactory });
+    constructor(Application) {
+        super(Application);
 
         this.vueComponents = {};
     }
@@ -74,6 +74,30 @@ export default class VueAdapter extends ViewAdapter {
     }
 
     /**
+     * Initialize of all dependencies.
+     *
+     * @memberOf module:app/adapter/view/vue
+     * @returns {Object}
+     */
+    initDependencies() {
+        const initContainer = this.Application.getContainer('init');
+
+        // initialize all components
+        this.initComponents();
+
+        // initialize all module locales
+        this.initModuleLocales();
+
+        // initialize all module routes
+        const allRoutes = this.applicationFactory.module.getModuleRoutes();
+        initContainer.router.addModuleRoutes(allRoutes);
+
+        // create routes for core and plugins
+        initContainer.router.createRouterInstance();
+    }
+
+
+    /**
      * Initializes all core components as Vue components.
      *
      * @memberOf module:app/adapter/view/vue
@@ -87,6 +111,23 @@ export default class VueAdapter extends ViewAdapter {
         });
 
         return this.vueComponents;
+    }
+
+    /**
+     * Initializes all core components as Vue components.
+     *
+     * @memberOf module:app/adapter/view/vue
+     * @returns {Object}
+     */
+    initModuleLocales() {
+        // Extend default snippets with module specific snippets
+        const moduleSnippets = this.applicationFactory.module.getModuleSnippets();
+
+        Object.keys(moduleSnippets).forEach((key) => {
+            this.applicationFactory.locale.extend(key, moduleSnippets[key]);
+        });
+
+        return this.applicationFactory.locale;
     }
 
     /**
@@ -214,7 +255,7 @@ export default class VueAdapter extends ViewAdapter {
      * @returns {Boolean}
      */
     initDirectives() {
-        const registry = this.directiveFactory.getDirectiveRegistry();
+        const registry = this.Application.getContainer('factory').directive.getDirectiveRegistry();
 
         registry.forEach((directive, name) => {
             Vue.directive(name, directive);
@@ -231,7 +272,7 @@ export default class VueAdapter extends ViewAdapter {
      * @returns {Boolean}
      */
     initFilters() {
-        const registry = this.filterFactory.getRegistry();
+        const registry = this.Application.getContainer('factory').filter.getRegistry();
 
         registry.forEach((factoryMethod, name) => {
             Vue.filter(name, factoryMethod);

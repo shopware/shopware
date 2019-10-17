@@ -4,8 +4,6 @@
 import Axios from 'axios';
 import RefreshTokenHelper from 'src/core/helper/refresh-token.helper';
 
-const { Application } = Shopware;
-
 /**
  * Initializes the HTTP client with the provided context. The context provides the API end point and will be used as
  * the base url for the HTTP client.
@@ -67,12 +65,12 @@ function refreshTokenInterceptor(client) {
                     originalRequest.url = originalRequest.url.replace(originalRequest.baseURL, '');
                     resolve(Axios(originalRequest));
                 }, (err) => {
-                    if (!Application.getApplicationRoot()) {
+                    if (!Shopware.Application.getApplicationRoot()) {
                         reject(err);
                         window.location.reload();
                         return;
                     }
-                    Application.getApplicationRoot().$router.push({ name: 'sw.login.index' });
+                    Shopware.Application.getApplicationRoot().$router.push({ name: 'sw.login.index' });
                     reject(err);
                 });
             });

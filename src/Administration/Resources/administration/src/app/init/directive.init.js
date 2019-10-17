@@ -1,5 +1,7 @@
-import 'src/app/directive';
+import directives from 'src/app/directive';
 
-export default function createCoreDirectives() {
-    return true;
+const createdAppDirectives = directives();
+
+export default function createAppDirectives() {
+    return createdAppDirectives;
 }

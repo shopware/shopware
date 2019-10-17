@@ -1,9 +1,8 @@
-import { mapApiErrors } from 'src/app/service/map-errors.service';
-import { mapState, mapGetters } from 'vuex';
 import template from './sw-product-price-form.html.twig';
 import './sw-product-price-form.scss';
 
 const { Component, Mixin } = Shopware;
+const { mapApiErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-price-form', {
     template,

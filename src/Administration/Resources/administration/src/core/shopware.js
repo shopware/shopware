@@ -1,135 +1,356 @@
-// Necessary cause the unit test aren't having the shopware module globally available.
-let Shopware = global.Shopware;
+/**
+ * Shopware End Developer API
+ * @module Shopware
+ * @ignore
+ */
+const Bottle = require('bottlejs');
 
-try {
-    Shopware = window.Shopware;
-} catch (err) {} // eslint-disable-line
+const ModuleFactory = require('src/core/factory/module.factory').default;
+const ComponentFactory = require('src/core/factory/component.factory').default;
+const TemplateFactory = require('src/core/factory/template.factory').default;
+const EntityFactory = require('src/core/factory/entity.factory').default;
+const StateFactory = require('src/core/factory/state.factory').default;
+const MixinFactory = require('src/core/factory/mixin.factory').default;
+const FilterFactory = require('src/core/factory/filter.factory').default;
+const DirectiveFactory = require('src/core/factory/directive.factory').default;
+const LocaleFactory = require('src/core/factory/locale.factory').default;
+const ShortcutFactory = require('src/core/factory/shortcut.factory').default;
+const PluginBootFactory = require('src/core/factory/plugin-boot.factory').default;
+const ApiServiceFactory = require('src/core/factory/api-service.factory').default;
+const EntityDefinitionFactory = require('src/core/factory/entity-definition.factory').default;
+const WorkerNotificationFactory = require('src/core/factory/worker-notification.factory').default;
 
-if (Shopware === undefined) {
-    Shopware = require('src/core/common.js'); // eslint-disable-line
-}
+const FeatureConfig = require('src/core/feature-config').default;
+const ShopwareError = require('src/core/data/ShopwareError').default;
+const ApiService = require('src/core/service/api.service').default;
+const utils = require('src/core/service/util.service').default;
+const FlatTreeHelper = require('src/core/helper/flattree.helper').default;
+const InfiniteScrollingHelper = require('src/core/helper/infinite-scrolling.helper').default;
+const SanitizerHelper = require('src/core/helper/sanitizer.helper').default;
+const DeviceHelper = require('src/core/helper/device.helper').default;
+const MiddlewareHelper = require('src/core/helper/middleware.helper').default;
+const data = require('src/core/data-new/index').default;
+const dataDeprecated = require('src/core/data/index').default;
+const ApplicationBootstrapper = require('src/core/application').default;
 
-export const Module = {
-    register: Shopware.Module.register,
-    getModuleRegistry: Shopware.Module.getModuleRegistry,
-    getModuleRoutes: Shopware.Module.getModuleRoutes,
-    getModuleByEntityName: Shopware.Module.getModuleByEntityName
+const RefreshTokenHelper = require('src/core/helper/refresh-token.helper').default;
+const HttpFactory = require('src/core/factory/http.factory').default;
+const RepositoryFactory = require('src/core/data-new/repository-factory.data').default;
+const ContextFactory = require('src/core/factory/context.factory').default;
+const RouterFactory = require('src/core/factory/router.factory').default;
+const ApiServices = require('src/core/service/api').default;
+
+const container = new Bottle({
+    strict: true
+});
+
+const application = new ApplicationBootstrapper(container);
+
+application
+    .addFactory('component', () => {
+        return ComponentFactory;
+    })
+    .addFactory('template', () => {
+        return TemplateFactory;
+    })
+    .addFactory('module', () => {
+        return ModuleFactory;
+    })
+    .addFactory('entity', () => {
+        return EntityFactory;
+    })
+    .addFactory('state', () => {
+        return StateFactory;
+    })
+    .addFactory('mixin', () => {
+        return MixinFactory;
+    })
+    .addFactory('filter', () => {
+        return FilterFactory;
+    })
+    .addFactory('directive', () => {
+        return DirectiveFactory;
+    })
+    .addFactory('locale', () => {
+        return LocaleFactory;
+    })
+    .addFactory('shortcut', () => {
+        return ShortcutFactory;
+    })
+    .addFactory('plugin', () => {
+        return PluginBootFactory;
+    })
+    .addFactory('apiService', () => {
+        return ApiServiceFactory;
+    })
+    .addFactory('entityDefinition', () => {
+        return EntityDefinitionFactory;
+    })
+    .addFactory('workerNotification', () => {
+        return WorkerNotificationFactory;
+    });
+
+const Shopware = {
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    Module: {
+        register: ModuleFactory.registerModule,
+        getModuleRegistry: ModuleFactory.getModuleRegistry,
+        getModuleRoutes: ModuleFactory.getModuleRoutes,
+        getModuleByEntityName: ModuleFactory.getModuleByEntityName
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    Component: {
+        register: ComponentFactory.register,
+        extend: ComponentFactory.extend,
+        override: ComponentFactory.override,
+        build: ComponentFactory.build,
+        getTemplate: ComponentFactory.getComponentTemplate,
+        getComponentRegistry: ComponentFactory.getComponentRegistry,
+        getComponentHelper: ComponentFactory.getComponentHelper,
+        registerComponentHelper: ComponentFactory.registerComponentHelper
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    Template: {
+        register: TemplateFactory.registerComponentTemplate,
+        extend: TemplateFactory.extendComponentTemplate,
+        override: TemplateFactory.registerTemplateOverride,
+        getRenderedTemplate: TemplateFactory.getRenderedTemplate,
+        find: TemplateFactory.findCustomTemplate,
+        findOverride: TemplateFactory.findCustomTemplate
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    Entity: {
+        addDefinition: EntityFactory.addEntityDefinition,
+        getDefinition: EntityFactory.getEntityDefinition,
+        getDefinitionRegistry: EntityFactory.getDefinitionRegistry,
+        getRawEntityObject: EntityFactory.getRawEntityObject,
+        getPropertyBlacklist: EntityFactory.getPropertyBlacklist,
+        getRequiredProperties: EntityFactory.getRequiredProperties,
+        getAssociatedProperties: EntityFactory.getAssociatedProperties,
+        getTranslatableProperties: EntityFactory.getTranslatableProperties
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    State: {
+        registerStore: StateFactory.registerStore,
+        getStore: StateFactory.getStore,
+        getStoreRegistry: StateFactory.getStoreRegistry
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    Mixin: {
+        register: MixinFactory.register,
+        getByName: MixinFactory.getByName
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    Filter: {
+        register: FilterFactory.register,
+        getByName: FilterFactory.getByName
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    Directive: {
+        register: DirectiveFactory.registerDirective,
+        getByName: DirectiveFactory.getDirectiveByName
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    Locale: {
+        register: LocaleFactory.register,
+        extend: LocaleFactory.extend,
+        getByName: LocaleFactory.getLocaleByName
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    Shortcut: {
+        getShortcutRegistry: ShortcutFactory.getShortcutRegistry,
+        getPathByCombination: ShortcutFactory.getPathByCombination,
+        register: ShortcutFactory.register
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    Plugin: {
+        addBootPromise: PluginBootFactory.addBootPromise,
+        getBootPromises: PluginBootFactory.getBootPromises
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    Service: (serviceName) => {
+        this.get = (name) => application.getContainer('service')[name];
+        this.list = () => application.getContainer('service').$list();
+        this.register = (name, service) => application.addServiceProvider(name, service);
+        this.registerMiddleware = (...args) => application.addServiceProviderMiddleware(...args);
+        this.registerDecorator = (...args) => application.addServiceProviderDecorator(...args);
+
+        return serviceName ? this.get(serviceName) : this;
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    get Context() {
+        return application.getContainer('service').context;
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {module:core/service/utils}
+     */
+    Utils: utils,
+
+    /**
+     * @memberOf module:Shopware
+     * @type {module:core/application}
+     */
+    Application: application,
+
+    /**
+     * @memberOf module:Shopware
+     * @type {module:core/feature-config}
+     */
+    FeatureConfig: FeatureConfig,
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    ApiService: {
+        register: ApiServiceFactory.register,
+        getByName: ApiServiceFactory.getByName,
+        getRegistry: ApiServiceFactory.getRegistry,
+        getServices: ApiServiceFactory.getServices,
+        has: ApiServiceFactory.has
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    EntityDefinition: {
+        getScalarTypes: EntityDefinitionFactory.getScalarTypes,
+        getJsonTypes: EntityDefinitionFactory.getJsonTypes,
+        getDefinitionRegistry: EntityDefinitionFactory.getDefinitionRegistry,
+        get: EntityDefinitionFactory.get,
+        add: EntityDefinitionFactory.add,
+        remove: EntityDefinitionFactory.remove,
+        getTranslatedFields: EntityDefinitionFactory.getTranslatedFields,
+        getAssociationFields: EntityDefinitionFactory.getAssociationFields,
+        getRequiredFields: EntityDefinitionFactory.getRequiredFields
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    WorkerNotification: {
+        register: WorkerNotificationFactory.register,
+        getRegistry: WorkerNotificationFactory.getRegistry,
+        override: WorkerNotificationFactory.override,
+        remove: WorkerNotificationFactory.remove,
+        initialize: WorkerNotificationFactory.initialize
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    Defaults: {
+        systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+        defaultLanguageIds: ['2fbb5fe2e29a4d70aa5854ce7ce3e20b'],
+        versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425'
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    Data: data,
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     * @deprecated 6.1
+     */
+    DataDeprecated: dataDeprecated,
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    Classes: {
+        _private: {
+            HttpFactory: HttpFactory,
+            RepositoryFactory: RepositoryFactory,
+            ContextFactory: ContextFactory,
+            RouterFactory: RouterFactory
+        },
+        ShopwareError: ShopwareError,
+        ApiService: ApiService
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    Helper: {
+        FlatTreeHelper: FlatTreeHelper,
+        InfiniteScrollingHelper: InfiniteScrollingHelper,
+        MiddlewareHelper: MiddlewareHelper,
+        RefreshTokenHelper: RefreshTokenHelper,
+        SanitizerHelper: SanitizerHelper,
+        DeviceHelper: DeviceHelper
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @private
+     * @type {Object}
+     */
+    _private: {
+        ApiServices: ApiServices
+    }
 };
 
-export const Component = {
-    register: Shopware.Component.register,
-    extend: Shopware.Component.extend,
-    override: Shopware.Component.override,
-    build: Shopware.Component.build,
-    getTemplate: Shopware.Component.getTemplate,
-    getComponentRegistry: Shopware.Component.getComponentRegistry,
-    getComponentHelper: Shopware.Component.getComponentHelper
-};
-
-export const Template = {
-    register: Shopware.Template.register,
-    extend: Shopware.Template.extend,
-    override: Shopware.Template.override,
-    getRenderedTemplate: Shopware.Template.getRenderedTemplate,
-    find: Shopware.Template.find,
-    findOverride: Shopware.Template.findOverride
-};
-
-export const Application = Shopware.Application;
-
-export const State = {
-    registerStore: Shopware.State.registerStore,
-    getStore: Shopware.State.getStore,
-    getStoreRegistry: Shopware.State.getStoreRegistry
-};
-
-export const Mixin = {
-    register: Shopware.Mixin.register,
-    getByName: Shopware.Mixin.getByName
-};
-
-export const Filter = {
-    register: Shopware.Filter.register,
-    getByName: Shopware.Filter.getByName
-};
-
-export const Directive = {
-    register: Shopware.Directive.register,
-    getByName: Shopware.Directive.getByName
-};
-
-export const Locale = {
-    register: Shopware.Locale.register,
-    getByName: Shopware.Locale.getByName,
-    extend: Shopware.Locale.extend
-};
-
-export const Shortcut = {
-    register: Shopware.Shortcut.register,
-    getPathByCombination: Shopware.Shortcut.getPathByCombination,
-    getShortcutRegistry: Shopware.Shortcut.getShortcutRegistry
-};
-
-export const Entity = {
-    addDefinition: Shopware.Entity.addDefinition,
-    getDefinition: Shopware.Entity.getDefinition,
-    getDefinitionRegistry: Shopware.Entity.getDefinitionRegistry,
-    getRawEntityObject: Shopware.Entity.getRawEntityObject,
-    getPropertyBlacklist: Shopware.Entity.getPropertyBlacklist,
-    getRequiredProperties: Shopware.Entity.getRequiredProperties,
-    getAssociatedProperties: Shopware.Entity.getAssociatedProperties,
-    getTranslatableProperties: Shopware.Entity.getTranslatableProperties
-};
-
-export const ApiService = {
-    register: Shopware.ApiService.register,
-    getByName: Shopware.ApiService.getByName,
-    getRegistry: Shopware.ApiService.getRegistry,
-    getServices: Shopware.ApiService.getServices,
-    has: Shopware.ApiService.has
-};
-
-export const EntityDefinition = {
-    getScalarTypes: Shopware.EntityDefinition.getScalarTypes,
-    getJsonTypes: Shopware.EntityDefinition.getJsonTypes,
-    getDefinitionRegistry: Shopware.EntityDefinition.getDefinitionRegistry,
-    get: Shopware.EntityDefinition.get,
-    add: Shopware.EntityDefinition.add,
-    remove: Shopware.EntityDefinition.remove,
-    getTranslatedFields: Shopware.EntityDefinition.getTranslatedFields,
-    getAssociationFields: Shopware.EntityDefinition.getAssociationFields,
-    getRequiredFields: Shopware.EntityDefinition.getRequiredFields
-};
-
-export const WorkerNotification = {
-    register: Shopware.WorkerNotification.register,
-    getRegistry: Shopware.WorkerNotification.getRegistry,
-    add: Shopware.WorkerNotification.add,
-    remove: Shopware.WorkerNotification.remove,
-    override: Shopware.WorkerNotification.override,
-    initialize: Shopware.WorkerNotification.initialize
-};
-
-export const Defaults = {
-    systemLanguageId: Shopware.Defaults.systemLanguageId,
-    defaultLanguageIds: Shopware.Defaults.defaultLanguageIds,
-    versionId: Shopware.Defaults.versionId
-};
-
-export default {
-    Module,
-    Component,
-    Template,
-    Application,
-    State,
-    Mixin,
-    Entity,
-    Filter,
-    Directive,
-    Locale,
-    Shortcut,
-    ApiService,
-    EntityDefinition,
-    Defaults,
-    WorkerNotification
-};
+window.Shopware = Shopware;
+module.exports = Shopware;

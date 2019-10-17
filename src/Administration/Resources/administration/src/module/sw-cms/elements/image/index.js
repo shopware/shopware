@@ -2,9 +2,7 @@ import './component';
 import './config';
 import './preview';
 
-const { Application } = Shopware;
-
-Application.getContainer('service').cmsService.registerCmsElement({
+Shopware.Service('cmsService').registerCmsElement({
     name: 'image',
     label: 'Image',
     component: 'sw-cms-el-image',

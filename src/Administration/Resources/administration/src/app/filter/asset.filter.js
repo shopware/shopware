@@ -1,12 +1,11 @@
-const { Application, Filter } = Shopware;
+const { Filter } = Shopware;
 
 Filter.register('asset', (value) => {
     if (!value) {
         return '';
     }
 
-    const initContainer = Application.getContainer('init');
-    const context = initContainer.contextService;
+    const context = Shopware.Context;
 
     return `${context.assetsPath}${value}`;
 });

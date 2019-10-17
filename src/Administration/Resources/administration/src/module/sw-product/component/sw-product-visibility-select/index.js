@@ -1,7 +1,7 @@
-import { mapState } from 'vuex';
 import template from './sw-product-visibility-select.html.twig';
 
 const { Component } = Shopware;
+const { mapState } = Shopware.Component.getComponentHelper();
 
 Component.extend('sw-product-visibility-select', 'sw-entity-multi-select', {
     template,

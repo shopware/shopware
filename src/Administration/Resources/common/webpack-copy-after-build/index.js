@@ -78,7 +78,9 @@ WebpackCopyAfterBuild.prototype.apply = function webpackCopyAfterBuild(compiler)
                     from = `${outputPath}/${filePath}`;
                 }
 
-                await copyFileUsingFsStreams(from, to);
+                if (fs.existsSync(from)) {
+                    await copyFileUsingFsStreams(from, to);
+                }
 
                 if (fs.existsSync(from)) {
                     fs.unlinkSync(from);

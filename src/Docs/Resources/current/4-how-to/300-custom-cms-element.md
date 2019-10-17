@@ -58,7 +58,7 @@ First of all, access our `Applicaton` wrapper, which will grant you access to th
 mentioned `registerCmsElement` method.
 
 ```js
-Shopware.Application.getContainer('service').cmsService.registerCmsElement();
+Shopware.Service('cmsService').registerCmsElement();
 ```
 
 The method `registerCmsElement` takes a configuration object, containing the following necessary data:
@@ -85,7 +85,7 @@ defaultConfig
 Go ahead and create this configuration object yourself.
 Here's what it should look like after having set all of those options:
 ```js
-Shopware.Application.getContainer('service').cmsService.registerCmsElement({
+Shopware.Service('cmsService').registerCmsElement({
     name: 'youtube',
     label: 'YouTube Video',
     component: 'sw-cms-el-youtube',
@@ -227,7 +227,7 @@ One last thing: Import your preview component in your element's `index.js` file,
 ```js
 import './preview';
 
-Shopware.Application.getContainer('service').cmsService.registerCmsElement({
+Shopware.Service('cmsService').registerCmsElement({
 ...
 }
 ```
@@ -363,7 +363,7 @@ That's it for this component! Import it in your element's `index.js` file.
 import './component';
 import './preview';
 
-Shopware.Application.getContainer('service').cmsService.registerCmsElement({
+Shopware.Service('cmsService').registerCmsElement({
 ...
 }
 ```

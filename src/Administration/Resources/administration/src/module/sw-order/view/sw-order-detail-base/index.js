@@ -1,6 +1,6 @@
 import template from './sw-order-detail-base.html.twig';
 
-const { Component, Application } = Shopware;
+const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const format = Shopware.Utils.format;
 
@@ -273,7 +273,7 @@ Component.register('sw-order-detail-base', {
             this.orderRepository.mergeVersion(this.versionContext.versionId, this.versionContext).catch((error) => {
                 this.$emit('error', error);
             }).finally(() => {
-                this.versionContext.versionId = Application.getContainer('init').contextService.liveVersionId;
+                this.versionContext.versionId = Shopware.Context.liveVersionId;
                 this.reloadEntityData();
             });
         },
@@ -290,7 +290,7 @@ Component.register('sw-order-detail-base', {
                 this.$emit('error', error);
             });
 
-            this.versionContext.versionId = Application.getContainer('init').contextService.liveVersionId;
+            this.versionContext.versionId = Shopware.Context.liveVersionId;
             this.reloadEntityData().then(() => {
                 this.$emit('editing-change', false);
             });

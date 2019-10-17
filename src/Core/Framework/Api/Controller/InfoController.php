@@ -6,9 +6,12 @@ use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Api\Exception\ApiBrowserNotPublicException;
+use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Kernel;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Asset\Packages;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -39,16 +42,30 @@ class InfoController extends AbstractController
      */
     private $isApiBrowserPublic;
 
+    /**
+     * @var Packages
+     */
+    private $packages;
+
+    /**
+     * @var Kernel
+     */
+    private $kernel;
+
     public function __construct(
         DefinitionService $definitionService,
         ParameterBagInterface $params,
         BusinessEventRegistry $actionEventRegistry,
-        bool $isApiBrowserPublic
+        bool $isApiBrowserPublic,
+        Kernel $kernel,
+        Packages $packages
     ) {
         $this->definitionService = $definitionService;
         $this->params = $params;
         $this->actionEventRegistry = $actionEventRegistry;
         $this->isApiBrowserPublic = $isApiBrowserPublic;
+        $this->packages = $packages;
+        $this->kernel = $kernel;
     }
 
     /**
@@ -115,6 +132,7 @@ class InfoController extends AbstractController
                 'enableAdminWorker' => $this->params->get('shopware.admin_worker.enable_admin_worker'),
                 'transports' => $this->params->get('shopware.admin_worker.transports'),
             ],
+            'bundles' => $this->getBundles(),
         ]);
     }
 
@@ -128,5 +146,42 @@ class InfoController extends AbstractController
         ];
 
         return $this->json($data);
+    }
+
+    private function getBundles(): array
+    {
+        $assets = [];
+        $package = $this->packages->getPackage();
+
+        foreach ($this->kernel->getBundles() as $bundle) {
+            if (!$bundle instanceof Bundle) {
+                continue;
+            }
+
+            $bundleName = mb_strtolower($bundle->getName());
+
+            $styles = array_map(static function (string $filename) use ($package, $bundleName) {
+                $url = sprintf('bundles/%s/administration/css/%s', $bundleName, $filename);
+
+                return $package->getUrl($url);
+            }, $bundle->getAdministrationStyles());
+
+            $scripts = array_map(static function (string $filename) use ($package, $bundleName) {
+                $url = sprintf('bundles/%s/administration/js/%s', $bundleName, $filename);
+
+                return $package->getUrl($url);
+            }, $bundle->getAdministrationScripts());
+
+            if (empty($styles) && empty($scripts)) {
+                continue;
+            }
+
+            $assets[$bundle->getName()] = [
+                'css' => $styles,
+                'js' => $scripts,
+            ];
+        }
+
+        return $assets;
     }
 }

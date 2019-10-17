@@ -7,23 +7,34 @@ let enabled = false;
  * Starts the worker
  */
 export default function initializeWorker() {
-    const loginService = this.getContainer('service').loginService;
-    const context = this.getContainer('init').contextService;
+    const loginService = Shopware.Service('loginService');
+    const context = Shopware.Context;
     const workerNotificationFactory = this.getContainer('factory').workerNotification;
+    const configService = Shopware.Service('configService');
 
     registerThumbnailMiddleware(workerNotificationFactory);
 
-    return function configureWorker() {
-        // Enable worker notification listener regardless of the config
-        enableWorkerNotificationListener(
-            loginService,
-            context
-        );
+    function getConfig() {
+        return configService.getConfig().then((response) => {
+            context.config = response;
 
-        if (context.config.adminWorker.enableAdminWorker && !enabled) {
-            enableAdminWorker(loginService, context, context.config.adminWorker);
-        }
-    };
+            // Enable worker notification listener regardless of the config
+            enableWorkerNotificationListener(
+                loginService,
+                context
+            );
+
+            if (context.config.adminWorker.enableAdminWorker && !enabled) {
+                enableAdminWorker(loginService, context, context.config.adminWorker);
+            }
+        });
+    }
+
+    if (loginService.isLoggedIn()) {
+        return getConfig().catch();
+    }
+
+    return loginService.addOnLoginListener(getConfig);
 }
 
 function enableAdminWorker(loginService, context, config) {

@@ -1,6 +1,5 @@
-import CriteriaFactory from 'src/core/factory/criteria.factory';
-
 const { Mixin } = Shopware;
+const { CriteriaFactory } = Shopware.DataDeprecated;
 const types = Shopware.Utils.types;
 const { debug } = Shopware.Utils;
 

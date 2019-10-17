@@ -33,7 +33,7 @@ module.exports = {
         }
     },
     entry: {
-        commons: [`${resolve('src')}/core/common.js`, `${resolve('src')}/core/shopware.js`],
+        commons: [`${resolve('src')}/core/shopware.js`],
         app: `${resolve('src')}/app/main.js`
     },
     output: {
@@ -116,13 +116,6 @@ module.exports = {
                     limit: 10000,
                     name: utils.assetsPath('fonts/[name].[hash:7].[ext]')
                 }
-            },
-            {
-                test: require.resolve('../src/core/common.js'),
-                use: [{
-                    loader: 'expose-loader',
-                    options: 'Shopware'
-                }]
             },
             {
                 test: /\.worker\.(js|tsx?|vue)$/,

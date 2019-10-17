@@ -1,5 +1,5 @@
-import HttpClient from 'src/core/factory/http.factory';
+const HttpClient = Shopware.Classes._private.HttpFactory;
 
-export default function initializeHttpClient(container) {
-    return HttpClient(container.contextService);
+export default function initializeHttpClient() {
+    return HttpClient(Shopware.Context);
 }

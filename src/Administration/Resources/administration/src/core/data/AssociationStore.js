@@ -1,5 +1,3 @@
-import { types, string } from 'src/core/service/util.service';
-import { hasOwnProperty, deepCopyObject } from 'src/core/service/utils/object.utils';
 import EntityStore from './EntityStore';
 
 /**
@@ -68,7 +66,7 @@ export default class AssociationStore extends EntityStore {
     populateParentEntity(items) {
         const parentProp = this.parentEntity.draft[this.associationKey];
 
-        if (parentProp && types.isArray(parentProp)) {
+        if (parentProp && Shopware.Utils.types.isArray(parentProp)) {
             parentProp.splice(0, parentProp.length);
             parentProp.push(...items);
         }
@@ -92,6 +90,7 @@ export default class AssociationStore extends EntityStore {
      * @return {Array}
      */
     getDeletionPayload() {
+        const string = Shopware.Utils.string;
         const deletionPayload = [];
 
         Object.keys(this.store).forEach((id) => {
@@ -117,12 +116,12 @@ export default class AssociationStore extends EntityStore {
     }
 
     add(entity) {
-        if (!hasOwnProperty(entity, 'id')) {
+        if (!Shopware.Utils.object.hasOwnProperty(entity, 'id')) {
             return false;
         }
 
         const newEntity = this.create(entity.id);
-        newEntity.setLocalData(deepCopyObject(entity));
+        newEntity.setLocalData(Shopware.Utils.object.deepCopyObject(entity));
         newEntity.isLocal = true;
 
         return true;

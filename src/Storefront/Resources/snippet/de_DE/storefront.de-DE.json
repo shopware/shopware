@@ -63,7 +63,9 @@
         "shipping-method-blocked": "Die gewählte Versandart %name% ist nicht verfügbar.",
         "shipping-address-blocked": "Lieferungen an die gewählte Lieferadresse sind nicht möglich.",
         "VIOLATION::TOO_SHORT_ERROR": "%field% ist zu kurz.",
-        "product-not-found": "Das Produkt wurde nicht gefunden"
+        "product-not-found": "Das Produkt wurde nicht gefunden",
+        "message-403-ajax": "Deine Sitzung ist abelaufen. Bitte lade die Seite neu und versuche es erneut.",
+        "message-403": "Deine Sitzung ist abgelaufen. Bitte lade die letzte Seite neu und versuche es erneut."
     },
     "account": {
         "myAccount": "Mein Konto",

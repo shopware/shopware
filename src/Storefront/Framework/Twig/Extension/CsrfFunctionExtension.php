@@ -16,8 +16,8 @@ class CsrfFunctionExtension extends AbstractExtension
 
     public function createCsrfPlaceholder($intent, $parameters = []): string
     {
-        $attributes = array_key_exists('attributes', $parameters) ? $parameters['attributes'] : '';
+        $mode = array_key_exists('mode', $parameters) ? $parameters['mode'] : 'input';
 
-        return sprintf('<!-- csrf.%s %s -->', $intent, $attributes);
+        return sprintf('<!-- csrf.%s mode.%s -->', $intent, $mode);
     }
 }

@@ -48,13 +48,13 @@ class CsrfReplaceHelper
         $replacements = [];
         $patterns = [];
         $matches = [];
-        if (preg_match_all('/<!-- csrf\.(.*) (.*) -->/', $content, $matches)) {
+        if (preg_match_all('/<!-- csrf\.(.*) mode\.(.*) -->/', $content, $matches)) {
             foreach ($matches[1] as $key => $intent) {
-                $replacements[] = sprintf(
-                    '<input type="hidden" name="_csrf_token" value="%s" %s>',
-                    $this->csrfTokenManager->getToken($intent),
-                    $matches[2][$key]
-                );
+                if ($matches[2][$key] === 'input') {
+                    $replacements[] = $this->getInputReplacement($intent);
+                } else {
+                    $replacements[] = $this->getTokenReplacement($intent);
+                }
 
                 $patterns[] = sprintf('/<!-- csrf\.%s .* -->/', preg_quote($intent));
             }
@@ -64,5 +64,18 @@ class CsrfReplaceHelper
         }
 
         return $response;
+    }
+
+    private function getTokenReplacement($intent)
+    {
+        return $this->csrfTokenManager->getToken($intent)->getValue();
+    }
+
+    private function getInputReplacement($intent): string
+    {
+        return sprintf(
+            '<input type="hidden" name="_csrf_token" value="%s">',
+            $this->csrfTokenManager->getToken($intent)->getValue()
+        );
     }
 }

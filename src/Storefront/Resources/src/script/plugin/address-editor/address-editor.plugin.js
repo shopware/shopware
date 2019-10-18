@@ -19,6 +19,7 @@ export default class AddressEditorPlugin extends Plugin {
         changeBilling: false,
         editorModalClass: 'address-editor-modal',
         closeEditorClass: 'js-close-address-editor',
+        csrfToken: '',
     };
 
     init() {
@@ -75,6 +76,7 @@ export default class AddressEditorPlugin extends Plugin {
                 changeShipping: this.options.changeShipping,
                 changeBilling: this.options.changeBilling,
             },
+            '_csrf_token': this.options.csrfToken,
         };
     }
 

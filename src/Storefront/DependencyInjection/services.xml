@@ -80,6 +80,8 @@
         <service id="Shopware\Storefront\Framework\Csrf\CsrfRouteListener">
             <argument id="security.csrf.token_manager" type="service"/>
             <argument>%storefront.csrf.enabled%</argument>
+            <argument id="session" type="service"/>
+            <argument id="translator" type="service"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

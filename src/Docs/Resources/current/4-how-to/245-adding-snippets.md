@@ -117,12 +117,8 @@ In case of just adding snippets without registering a module you can also feed t
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
 
-Shopware.Application.addInitializerDecorator('locale', locale => {
-    locale.extend('de-DE', deDE);
-    locale.extend('en-GB', enGB);
-
-    return locale;
-});
+Shopware.Locale.extend('de-DE', deDE);
+Shopware.Locale.extend('en-GB', enGB);
 ```
 
 ## Extending Storefront snippets
@@ -215,19 +211,14 @@ or artificial languages like pirate speech, we recommend adding a new snippet se
 
 ### Administration
 
-New languages aren't registered at all, so that's your first job. Using the ```Application.addInitializerDecorator``` the
-only thing you have to do is to register a basic snippet `.json` file and associate it using the `localeFactory`. That
+New languages aren't registered at all, so that's your first job. Using the ```Shopware.Locale``` the
+only thing you have to do is to register a basic snippet `.json` file using the `register` method. That
 should look like this:
 
 ```js
 import deAT from './snippet/de-AT.json';
 
-Shopware.Application.addInitializerDecorator('locale', (localeFactory) => {
-    const locale = 'de-AT';
-    localeFactory.register(locale, deAT);
-
-    return localeFactory;
-});
+Shopware.Locale.register('de-AT', deAT);
 ```
 
 ### Storefront

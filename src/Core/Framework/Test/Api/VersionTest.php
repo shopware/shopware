@@ -29,7 +29,6 @@ class VersionTest extends TestCase
     {
         return [
             ['GET', '/api/v1/_info/swagger.html'],
-            ['GET', '/api/v1/_info/entity-schema.json'],
         ];
     }
 

@@ -5,8 +5,13 @@ const ErrorResolverError = Shopware.DataDeprecated.ErrorResolver;
 export default function initializeRepositoryFactory(container) {
     const httpClient = container.httpClient;
     const factoryContainer = this.getContainer('factory');
+    const serviceContainer = this.getContainer('service');
 
-    return httpClient.get('_info/entity-schema.json').then(({ data }) => {
+    return httpClient.get('_info/entity-schema.json', {
+        headers: {
+            Authorization: `Bearer ${serviceContainer.loginService.getToken()}`
+        }
+    }).then(({ data }) => {
         const entityDefinitionFactory = factoryContainer.entityDefinition;
         Object.keys(data).forEach((entityName) => {
             entityDefinitionFactory.add(entityName, data[entityName]);

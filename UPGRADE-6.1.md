@@ -146,6 +146,7 @@ Core
 * We've moved the seo module into the core. Replace the namespace `Shopware\Storefront\Framework\Seo\` with `Shopware\Core\Framework\Seo\`
 * Switch the usage of `\Shopware\Core\Framework\Migration\MigrationStep::addForwardTrigger()` and `\Shopware\Core\Framework\Migration\MigrationStep::addBackwardTrigger()`, as the execution conditions were switched. 
 * `\Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity::$trackingCode` has been replaced with `\Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity::$trackingCodes`.
+* Add Bearer Auth Token to requests to `/api/v{version}/_info/entity-schema.json` and `/api/v{version}/_info/business-events.json` routes
 
 Administration
 --------------

@@ -99,7 +99,7 @@ class InfoController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_info/entity-schema.json", defaults={"auth_required"=false}, name="api.info.entity-schema", methods={"GET"})
+     * @Route("/api/v{version}/_info/entity-schema.json", name="api.info.entity-schema", methods={"GET"})
      */
     public function entitySchema(): JsonResponse
     {
@@ -137,7 +137,7 @@ class InfoController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_info/business-events.json", defaults={"auth_required"=false}, name="api.info.events", methods={"GET"})
+     * @Route("/api/v{version}/_info/business-events.json", name="api.info.events", methods={"GET"})
      */
     public function events(): JsonResponse
     {

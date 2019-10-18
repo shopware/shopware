@@ -27,7 +27,7 @@ class InfoControllerTest extends TestCase
         $client = $this->getBrowser();
         $client->request('GET', $url);
 
-        static::assertSame(json_encode($expected), $client->getResponse()->getContent(), print_r($client->getResponse()->getContent(), true));
         static::assertSame(200, $client->getResponse()->getStatusCode());
+        static::assertSame(json_encode($expected), $client->getResponse()->getContent(), print_r($client->getResponse()->getContent(), true));
     }
 }

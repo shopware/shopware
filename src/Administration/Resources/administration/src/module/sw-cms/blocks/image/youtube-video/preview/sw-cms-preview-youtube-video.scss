@@ -10,4 +10,11 @@
         width: 100%;
         height: auto;
     }
+
+    &__icon {
+        $icon-heigth: 50px;
+
+        height: $icon-heigth;
+        position: absolute;
+    }
 }

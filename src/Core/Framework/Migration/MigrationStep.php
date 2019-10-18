@@ -34,7 +34,7 @@ abstract class MigrationStep
      */
     protected function addForwardTrigger(Connection $connection, string $name, string $table, string $time, string $event, string $statements): void
     {
-        $this->addTrigger($connection, $name, $table, $time, $event, $statements, '');
+        $this->addTrigger($connection, $name, $table, $time, $event, $statements, 'IS NULL');
     }
 
     /**
@@ -43,7 +43,7 @@ abstract class MigrationStep
      */
     protected function addBackwardTrigger(Connection $connection, string $name, string $table, string $time, string $event, string $statements): void
     {
-        $this->addTrigger($connection, $name, $table, $time, $event, $statements, 'IS NULL');
+        $this->addTrigger($connection, $name, $table, $time, $event, $statements, '');
     }
 
     protected function addTrigger(Connection $connection, string $name, string $table, string $time, string $event, string $statements, string $condition): void

@@ -33,7 +33,10 @@ Component.register('sw-sales-channel-detail', {
             productComparisonAccessUrl: null,
             invalidFileName: false,
             templateOptions: [],
-            templates: null
+            templates: null,
+            templateName: null,
+            showTemplateModal: false,
+            selectedTemplate: null
         };
     },
 
@@ -170,12 +173,39 @@ Component.register('sw-sales-channel-detail', {
             // TODO: Check wether there is data before applying new data.
             // TODO: Show notifications and enable abortion of template execution
             if (this.templates !== null && this.templates[templateName] !== undefined) {
-                const selectedTemplate = this.templates[templateName];
-                const productExport = this.productExport;
-                Object.keys(selectedTemplate).forEach((value) => {
-                    productExport[value] = selectedTemplate[value];
+                this.selectedTemplate = this.templates[templateName];
+                let contentChanged = false;
+
+                Object.keys(this.selectedTemplate).forEach((value) => {
+                    if (this.productExport[value] !== this.selectedTemplate[value]) {
+                        contentChanged = true;
+                    }
                 });
+
+                if (!contentChanged) {
+                    return;
+                }
+
+                this.showTemplateModal = true;
             }
+        },
+
+        onTemplateModalClose() {
+            this.selectedTemplate = null;
+            this.templateName = null;
+            this.showTemplateModal = false;
+        },
+
+        onTemplateModalConfirm() {
+            Object.keys(this.selectedTemplate).forEach((value) => {
+                this.productExport[value] = this.selectedTemplate[value];
+            });
+            this.onTemplateModalClose();
+
+            this.createNotificationInfo({
+                title: this.$tc('sw-sales-channel.detail.productComparison.template.message.template-applied-title'),
+                message: this.$tc('sw-sales-channel.detail.productComparison.template.message.template-applied-message')
+            });
         },
 
         loadStorefrontSalesChannels() {

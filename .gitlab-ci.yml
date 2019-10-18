@@ -7,7 +7,7 @@ variables:
     GIT_STRATEGY: clone
 
 stages:
-    - Static analyzes
+    - Static analysis
     - unit
     - E2E
     - Build
@@ -47,8 +47,8 @@ default:
 
 # Stage: static
 
-Javascript analyze:
-    stage: Static analyzes
+Javascript analysis:
+    stage: Static analysis
     before_script: []
     script:
         - cd src/Administration/Resources
@@ -60,8 +60,8 @@ Javascript analyze:
         reports:
             junit: src/Administration/Resources/administration/eslint.junit.xml
 
-PHP analyze:
-    stage: Static analyzes
+PHP analysis:
+    stage: Static analysis
     services:
         -   name: mysql:5.7
             alias: mysql
@@ -80,7 +80,7 @@ PHP analyze:
 # stage: unit
 .phpunit_base:
     stage: unit
-    needs: [PHP analyze]
+    needs: [PHP analysis]
     services:
         -   name: mysql:5.7
             alias: mysql
@@ -186,7 +186,7 @@ MariaDB 10.4:
 
 Administration (Jest):
     stage: unit
-    needs: [Javascript analyze]
+    needs: [Javascript analysis]
     services:
         -   name: mariadb:10.3
             alias: mysql
@@ -201,7 +201,7 @@ Administration (Jest):
 
 Storefront (Jest):
     stage: unit
-    needs: [Javascript analyze]
+    needs: [Javascript analysis]
     variables:
         PROJECT_ROOT: $CI_PROJECT_DIR/development
     services:

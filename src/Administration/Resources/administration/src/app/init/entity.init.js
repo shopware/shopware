@@ -57,7 +57,7 @@ export default function initializeEntities(container) {
         return apiService;
     }
 
-    return httpClient.get('_info/entity-schema.json', {
+    return httpClient.get('_info/open-api-schema.json', {
         headers: {
             Authorization: `Bearer ${loginService.getToken()}`
         }

@@ -19,11 +19,8 @@ class ApiRouteScope extends AbstractRouteScope
     {
         /** @var Context $requestContext */
         $requestContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
-        if ($request->attributes->get('auth_required') === false) {
-            return $requestContext->getSource() instanceof SystemSource;
-        }
 
-        return $requestContext->getSource() instanceof AdminApiSource;
+        return $requestContext->getSource() instanceof AdminApiSource || $requestContext->getSource() instanceof SystemSource;
     }
 
     public function getId(): string

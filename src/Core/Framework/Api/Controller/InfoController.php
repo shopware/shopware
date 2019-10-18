@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Api\Controller;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
-use Shopware\Core\Framework\Api\Exception\ApiBrowserNotPublicException;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -38,11 +37,6 @@ class InfoController extends AbstractController
     private $actionEventRegistry;
 
     /**
-     * @var bool
-     */
-    private $isApiBrowserPublic;
-
-    /**
      * @var Packages
      */
     private $packages;
@@ -56,43 +50,33 @@ class InfoController extends AbstractController
         DefinitionService $definitionService,
         ParameterBagInterface $params,
         BusinessEventRegistry $actionEventRegistry,
-        bool $isApiBrowserPublic,
         Kernel $kernel,
         Packages $packages
     ) {
         $this->definitionService = $definitionService;
         $this->params = $params;
         $this->actionEventRegistry = $actionEventRegistry;
-        $this->isApiBrowserPublic = $isApiBrowserPublic;
         $this->packages = $packages;
         $this->kernel = $kernel;
     }
 
     /**
-     * @Route("/api/v{version}/_info/openapi3.json", defaults={"auth_required"=false}, name="api.info.openapi3", methods={"GET"})
+     * @Route("/api/v{version}/_info/openapi3.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required%"}, name="api.info.openapi3", methods={"GET"})
      *
      * @throws \Exception
      */
     public function info(): JsonResponse
     {
-        if (!$this->isApiBrowserPublic) {
-            throw new ApiBrowserNotPublicException();
-        }
-
         $data = $this->definitionService->generate(OpenApi3Generator::FORMAT);
 
         return $this->json($data);
     }
 
     /**
-     * @Route("/api/v{version}/_info/open-api-schema.json", defaults={"auth_required"=false}, name="api.info.open-api-schema", methods={"GET"})
+     * @Route("/api/v{version}/_info/open-api-schema.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required%"}, name="api.info.open-api-schema", methods={"GET"})
      */
     public function openApiSchema(): JsonResponse
     {
-        if (!$this->isApiBrowserPublic) {
-            throw new ApiBrowserNotPublicException();
-        }
-
         $data = $this->definitionService->getSchema(OpenApi3Generator::FORMAT);
 
         return $this->json($data);
@@ -109,14 +93,10 @@ class InfoController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_info/swagger.html", defaults={"auth_required"=false}, name="api.info.swagger", methods={"GET"})
+     * @Route("/api/v{version}/_info/swagger.html", defaults={"auth_required"="%shopware.api.api_browser.auth_required%"}, name="api.info.swagger", methods={"GET"})
      */
     public function infoHtml(): Response
     {
-        if (!$this->isApiBrowserPublic) {
-            throw new ApiBrowserNotPublicException();
-        }
-
         return $this->render('@Framework/swagger.html.twig', ['schemaUrl' => 'api.info.openapi3']);
     }
 

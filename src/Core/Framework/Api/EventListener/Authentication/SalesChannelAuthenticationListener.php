@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -24,9 +25,15 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
      */
     private $connection;
 
-    public function __construct(Connection $connection)
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
+
+    public function __construct(Connection $connection, ContainerInterface $container)
     {
         $this->connection = $connection;
+        $this->container = $container;
     }
 
     public static function getSubscribedEvents(): array
@@ -40,8 +47,15 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        if ($request->attributes->get('auth_required', null) === false) {
+        $authRequired = $request->attributes->get('auth_required');
+        if ($authRequired === false) {
             return;
+        }
+
+        if (is_string($authRequired) && $this->container->hasParameter($authRequired)) {
+            if ($this->container->getParameter($authRequired)) {
+                return;
+            }
         }
 
         if (mb_stripos($request->getPathInfo(), self::$routePrefix) !== 0) {

@@ -49,6 +49,13 @@
                     <p class="sw-text-editor-toolbar-button__link-menu-text">{{ $tc('sw-text-editor-toolbar.link.linkTo') }}</p>
                     <sw-field v-model="buttonConfig.value" type="text" :placeholder="$tc('sw-text-editor-toolbar.link.placeholder')"></sw-field>
                     <sw-field v-model="buttonConfig.newTab" type="switch" :label="$tc('sw-text-editor-toolbar.link.openInNewTab')"></sw-field>
+                    <sw-field v-model="buttonConfig.displayAsButton" type="switch" :label="$tc('sw-text-editor-toolbar.link.displayAsButton')"></sw-field>
+                    <sw-field v-if="buttonConfig.displayAsButton"
+                              v-model="buttonConfig.buttonVariant"
+                              :options="buttonConfig.buttonVariantList"
+                              type="select"
+                              :label="$tc('sw-text-editor-toolbar.link.buttonVariant')">
+                    </sw-field>
                     <div class="sw-text-editor-toolbar-button__link-menu-buttons">
                         {% block sw_text_editor_toolbar_button_link_menu_buttons %}
                             <sw-button size="small" variant="primary" @click="handleButtonClick(buttonConfig)">{{ $tc('sw-text-editor-toolbar.link.insert') }}</sw-button>

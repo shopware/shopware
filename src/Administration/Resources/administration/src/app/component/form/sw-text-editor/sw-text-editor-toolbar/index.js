@@ -363,13 +363,18 @@ Component.register('sw-text-editor-toolbar', {
 
             this.keepSelection(true);
 
-            if (button.value) {
+            if (button.value && (!button.displayAsButton || button.buttonVariant.length > 0)) {
                 if (!this.selection || this.selection.rangeCount < 1) {
                     button.expanded = false;
                     return;
                 }
 
-                this.$emit('on-set-link', this.prepareLink(button.value), target);
+                this.$emit(
+                    'on-set-link',
+                    this.prepareLink(button.value),
+                    target,
+                    button.displayAsButton ? button.buttonVariant : ''
+                );
                 this.range = document.getSelection().getRangeAt(0);
                 this.range.setStart(this.range.startContainer, 0);
                 button.expanded = false;

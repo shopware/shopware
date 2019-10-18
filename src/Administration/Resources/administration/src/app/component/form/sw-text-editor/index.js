@@ -206,6 +206,26 @@ Component.register('sw-text-editor', {
                         icon: 'default-text-editor-link',
                         expanded: false,
                         newTab: false,
+                        displayAsButton: false,
+                        buttonVariant: '',
+                        buttonVariantList: [
+                            {
+                                id: 'primary',
+                                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantPrimary')
+                            },
+                            {
+                                id: 'secondary',
+                                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantSecondary')
+                            },
+                            {
+                                id: 'primary-sm',
+                                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantPrimarySmall')
+                            },
+                            {
+                                id: 'secondary-sm',
+                                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantSecondarySmall')
+                            }
+                        ],
                         value: '',
                         tag: 'a'
                     },
@@ -493,12 +513,27 @@ Component.register('sw-text-editor', {
             });
         },
 
-        onSetLink(value, target) {
+        onSetLink(value, target, buttonVariant) {
             if (!this.selection.toString()) {
                 return;
             }
 
-            this.onTextStyleChange('insertHTML', `<a target="${target}" href="${value}">${this.selection}</a>`);
+            const classes = [];
+            const attributes = [
+                `target="${target}"`,
+                `href="${value}"`
+            ];
+
+            if (buttonVariant) {
+                classes.push('btn');
+                classes.push(...buttonVariant.split('-').map(cls => `btn-${cls}`));
+            }
+
+            if (classes.length > 0) {
+                attributes.push(`class="${classes.join(' ')}"`);
+            }
+
+            this.onTextStyleChange('insertHTML', `<a ${attributes.join(' ')}>${this.selection}</a>`);
             this.selection = document.getSelection();
         },
 

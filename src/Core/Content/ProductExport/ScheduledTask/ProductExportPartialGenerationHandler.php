@@ -85,7 +85,7 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
      */
     public function handle($productExportPartialGeneration): void
     {
-        $criteria = new Criteria(array_filter([$productExportPartialGeneration->getProductExportId()]));
+        $criteria = new Criteria([$productExportPartialGeneration->getProductExportId()]);
         $criteria
             ->addAssociation('salesChannel')
             ->addAssociation('salesChannelDomain.salesChannel')
@@ -136,8 +136,7 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
                 new ProductExportPartialGeneration(
                     $productExportPartialGeneration->getProductExportId(),
                     $productExportPartialGeneration->getSalesChannelId(),
-                    $productExportPartialGeneration->getOffset() + $this->readBufferSize,
-                    $productExportPartialGeneration->getOffset() + $this->readBufferSize * 2 >= $exportResult->getTotal()
+                    $productExportPartialGeneration->getOffset() + $this->readBufferSize
                 )
             );
 

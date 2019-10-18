@@ -22,8 +22,14 @@ class ExportBehavior
     /** @var int */
     private $offset;
 
-    public function __construct(bool $ignoreCache = false, bool $includeInactive = false, $batchMode = false, $generateHeader = true, $generateFooter = true, $offset = 0)
-    {
+    public function __construct(
+        bool $ignoreCache = false,
+        bool $includeInactive = false,
+        bool $batchMode = false,
+        bool $generateHeader = true,
+        bool $generateFooter = true,
+        int $offset = 0
+    ) {
         $this->ignoreCache = $ignoreCache;
         $this->includeInactive = $includeInactive;
         $this->batchMode = $batchMode;

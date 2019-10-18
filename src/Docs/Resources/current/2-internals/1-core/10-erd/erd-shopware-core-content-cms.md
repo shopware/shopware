@@ -12,6 +12,11 @@ The Content Management System to set up complex storefronts
 A content page containing content blocks and related to categories.
 
 
+### Table `cms_section`
+
+__EMPTY__
+
+
 ### Table `cms_block`
 
 The layout of a part of a page.

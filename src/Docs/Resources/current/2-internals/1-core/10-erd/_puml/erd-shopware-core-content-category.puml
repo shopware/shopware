@@ -47,7 +47,6 @@ Table(ShopwareCoreContentCategoryCategoryDefinition, "category\n(Category tree)"
    cmsPageId foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   canonicalUrl CanonicalUrlAssociation
    translated json
 }
 TranslationTable(ShopwareCoreContentCategoryAggregateCategoryTranslationCategoryTranslationDefinition, "category_translation\n((Translations))") {
@@ -78,7 +77,9 @@ ForeignTable(ShopwareCoreContentCmsCmsPageDefinition, "cms_page") {
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }
-ForeignTable(ShopwareStorefrontFrameworkSeoSeoUrlSeoUrlDefinition, "seo_url") {
+ForeignTable(ShopwareCoreFrameworkSeoMainCategoryMainCategoryDefinition, "main_category") {
+}
+ForeignTable(ShopwareCoreFrameworkSeoSeoUrlSeoUrlDefinition, "seo_url") {
 }
 ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
@@ -95,7 +96,8 @@ ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreContentProductAggr
 ShopwareCoreContentCategoryAggregateCategoryTagCategoryTagDefinition --> ShopwareCoreContentCategoryCategoryDefinition
 ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreContentCmsCmsPageDefinition
 ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
-ShopwareCoreContentCategoryCategoryDefinition --> ShopwareStorefrontFrameworkSeoSeoUrlSeoUrlDefinition
+ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreFrameworkSeoMainCategoryMainCategoryDefinition
+ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreFrameworkSeoSeoUrlSeoUrlDefinition
 ShopwareCoreContentCategoryAggregateCategoryTranslationCategoryTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareCoreContentCategoryAggregateCategoryTagCategoryTagDefinition --> ShopwareCoreSystemTagTagDefinition
 @enduml

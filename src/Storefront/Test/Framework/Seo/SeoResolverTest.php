@@ -7,10 +7,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Seo\SeoResolver;
+use Shopware\Core\Framework\Seo\SeoResolverInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Storefront\Framework\Seo\SeoResolver;
-use Shopware\Storefront\Framework\Seo\SeoResolverInterface;
 
 class SeoResolverTest extends TestCase
 {

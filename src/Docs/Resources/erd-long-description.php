@@ -443,11 +443,11 @@ Contains `quantityFrom` as a selection criteria to provide different prices for 
 EOD
     ,
     'Shopware\\Core\\Checkout\\Shipping\\Aggregate\\ShippingMethodRules\\ShippingMethodRuleDefinition' => '',
-    Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlDefinition::class => <<<'EOD'
+    'Shopware\\Storefront\\Framework\\Seo\\SeoUrl\\SeoUrlDefinition' => <<<'EOD'
 Search engine optimized urls manually created from user input to optimize for different search engines and make the storefronts content a more prominent search result.
 EOD
     ,
-    Shopware\Storefront\Framework\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition::class => <<<'EOD'
+    'Shopware\\Storefront\\Framework\\Seo\\SeoUrlTemplate\\SeoUrlTemplateDefinition' => <<<'EOD'
 A template to generate seo urls from.
 EOD
     ,
@@ -625,6 +625,26 @@ __EMPTY__
 EOD
     ,
     'Shopware\\Core\\Framework\\Acl' => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    Shopware\Core\Framework\Seo\SeoUrl\SeoUrlDefinition::class => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    Shopware\Core\Framework\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition::class => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    Shopware\Core\Framework\Seo\MainCategory\MainCategoryDefinition::class => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionDefinition::class => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    'Shopware\\Core\\Framework\\Seo' => <<<'EOD'
 __EMPTY__
 EOD
     ,

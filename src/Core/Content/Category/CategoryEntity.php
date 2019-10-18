@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Seo\MainCategory\MainCategoryCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tag\TagCollection;
 
@@ -159,6 +160,11 @@ class CategoryEntity extends Entity
      * @var string|null
      */
     protected $description;
+
+    /**
+     * @var MainCategoryCollection|null
+     */
+    protected $mainCategories;
 
     public function getParentId(): ?string
     {
@@ -484,6 +490,16 @@ class CategoryEntity extends Entity
         $data['translated']['breadcrumb'] = $data['breadcrumb'] = $this->getBreadcrumb();
 
         return $data;
+    }
+
+    public function getMainCategories(): ?MainCategoryCollection
+    {
+        return $this->mainCategories;
+    }
+
+    public function setMainCategories(?MainCategoryCollection $mainCategories): void
+    {
+        $this->mainCategories = $mainCategories;
     }
 
     private function sortBreadcrumb(): array

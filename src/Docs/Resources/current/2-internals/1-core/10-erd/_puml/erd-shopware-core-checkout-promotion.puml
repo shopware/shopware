@@ -68,6 +68,9 @@ Table(ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPromotionDiscountDe
    not_null(value) float
    not_null(considerAdvancedRules) bool
    maxValue float
+   sorterKey string
+   applierKey string
+   usageKey string
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }

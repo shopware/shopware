@@ -6,13 +6,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
-use Shopware\Storefront\Framework\Seo\SeoUrlPlaceholderHandler;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -25,13 +25,13 @@ class SeoUrlReplacerServiceTest extends TestCase
     use StorefrontSalesChannelTestHelper;
 
     /**
-     * @var SeoUrlPlaceholderHandler
+     * @var SeoUrlPlaceholderHandlerInterface
      */
     private $seoUrlReplacer;
 
     public function setUp(): void
     {
-        $this->seoUrlReplacer = $this->getContainer()->get(SeoUrlPlaceholderHandler::class);
+        $this->seoUrlReplacer = $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class);
     }
 
     public function testGenerateReplace(): void

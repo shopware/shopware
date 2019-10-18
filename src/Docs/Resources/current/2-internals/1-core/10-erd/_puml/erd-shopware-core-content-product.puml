@@ -79,7 +79,6 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    customFields translated
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   canonicalUrl CanonicalUrlAssociation
    translated json
 }
 Table(ShopwareCoreContentProductAggregateProductCategoryProductCategoryDefinition, "product_category\n(M:N Mapping)") {
@@ -144,6 +143,7 @@ Table(ShopwareCoreContentProductAggregateProductKeywordDictionaryProductKeywordD
 Table(ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition, "product_review\n(__EMPTY__)") {
    primary_key(id) id
    not_null(productId) foreignKey
+   not_null(productVersionId) referenceVersion
    not_null(customerId) foreignKey
    not_null(salesChannelId) foreignKey
    not_null(languageId) foreignKey
@@ -156,7 +156,6 @@ Table(ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition, "
    comment longText
    not_null(updatedAt) updatedAt
    not_null(createdAt) createdAt
-   not_null(productVersionId) referenceVersion
 }
 Table(ShopwareCoreContentProductAggregateProductManufacturerProductManufacturerDefinition, "product_manufacturer\n(Manufacturer)") {
    primary_key(id) id
@@ -231,7 +230,9 @@ ForeignTable(ShopwareCoreSystemTaxTaxDefinition, "tax") {
 }
 ForeignTable(ShopwareCoreSystemUnitUnitDefinition, "unit") {
 }
-ForeignTable(ShopwareStorefrontFrameworkSeoSeoUrlSeoUrlDefinition, "seo_url") {
+ForeignTable(ShopwareCoreFrameworkSeoMainCategoryMainCategoryDefinition, "main_category") {
+}
+ForeignTable(ShopwareCoreFrameworkSeoSeoUrlSeoUrlDefinition, "seo_url") {
 }
 ForeignTable(ShopwareCoreContentCategoryCategoryDefinition, "category") {
 }
@@ -269,7 +270,8 @@ ShopwareCoreContentProductAggregateProductOptionProductOptionDefinition --> Shop
 ShopwareCoreContentProductAggregateProductVisibilityProductVisibilityDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductSearchKeywordProductSearchKeywordDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition --> ShopwareCoreContentProductProductDefinition
-ShopwareCoreContentProductProductDefinition --> ShopwareStorefrontFrameworkSeoSeoUrlSeoUrlDefinition
+ShopwareCoreContentProductProductDefinition --> ShopwareCoreFrameworkSeoMainCategoryMainCategoryDefinition
+ShopwareCoreContentProductProductDefinition --> ShopwareCoreFrameworkSeoSeoUrlSeoUrlDefinition
 ShopwareCoreContentProductAggregateProductCategoryProductCategoryDefinition --> ShopwareCoreContentCategoryCategoryDefinition
 ShopwareCoreContentProductAggregateProductTagProductTagDefinition --> ShopwareCoreSystemTagTagDefinition
 ShopwareCoreContentProductAggregateProductConfiguratorSettingProductConfiguratorSettingDefinition --> ShopwareCoreContentMediaMediaDefinition

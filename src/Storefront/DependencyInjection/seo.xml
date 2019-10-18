@@ -5,110 +5,6 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="Shopware\Storefront\Framework\Seo\DataAbstractionLayer\Indexing\SeoUrlIndexer" public="true">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Seo\SeoUrlGenerator"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Seo\SeoUrlPersister"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Seo\SeoUrlTemplate\SeoUrlTemplateLoader"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteRegistry"/>
-            <argument type="service" id="language.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <argument type="service" id="sales_channel.repository"/>
-            <argument type="service" id="messenger.bus.shopware"/>
-
-            <tag name="shopware.dal_indexing.indexer" priority="250"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlDefinition" >
-            <tag name="shopware.entity.definition" entity="seo_url" />
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition" >
-            <tag name="shopware.entity.definition" entity="seo_url_template" />
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\MainCategory\MainCategoryDefinition">
-            <tag name="shopware.entity.definition" entity="main_category" />
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\MainCategory\SalesChannel\SalesChannelMainCategoryDefinition">
-            <tag name="shopware.sales_channel.entity.definition" entity="main_category"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\Extension\SalesChannelExtension">
-            <tag name="shopware.entity.extension"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\Extension\LanguageExtension">
-            <tag name="shopware.entity.extension"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\Extension\ProductExtension">
-            <tag name="shopware.entity.extension"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\Extension\CategoryExtension">
-            <tag name="shopware.entity.extension"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\Entity\Serializer\SeoUrlFieldSerializer">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor" />
-            <tag name="shopware.field_serializer" priority="200"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\Entity\Dbal\SeoUrlAssociationFieldResolver">
-            <argument type="service" id="Shopware\Storefront\Framework\Seo\Entity\Dbal\SeoUrlJoinBuilder"/>
-
-            <tag name="shopware.field_resolver" priority="200"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\Entity\Dbal\SeoUrlJoinBuilder" />
-
-        <service id="Shopware\Storefront\Framework\Seo\SeoUrlGenerator">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="slugify"/>
-            <argument type="service" id="router.default"/>
-            <argument type="service" id="request_stack"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\SeoUrlPersister">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="seo_url.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument type="service" id="Shopware\Core\Framework\Cache\CacheClearer"/>
-            <argument type="service" id="slugify"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\SeoUrlTemplate\SeoUrlTemplateLoader">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="seo_url_template.repository"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteRegistry"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteRegistry">
-            <argument type="tagged" tag="shopware.seo_url.route"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\SeoResolver" public="true">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\Api\SeoActionController" public="true">
-            <argument type="service" id="Shopware\Storefront\Framework\Seo\SeoUrlGenerator"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Seo\SeoUrlPersister"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteRegistry"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Seo\Validation\SeoUrlValidationService"/>
-            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
-            <argument type="service" id="sales_channel.repository"/>
-
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
-
         <service id="Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute">
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
             <argument type="service" id="product.repository"/>
@@ -123,18 +19,16 @@
             <tag name="shopware.seo_url.route"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Seo\Validation\SeoUrlValidationService"/>
-
-        <service id="Shopware\Storefront\Framework\Twig\Extension\SeoUrlFunctionExtension">
-            <argument type="service" id="twig.extension.routing"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Seo\SeoUrlPlaceholderHandler" />
-            <tag name="twig.extension"/>
+        <service id="Shopware\Storefront\Framework\Seo\StorefrontSeoUrlPlaceholderHandler" decorates="Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface">
+            <argument type="service" id="Shopware\Storefront\Framework\Seo\StorefrontSeoUrlPlaceholderHandler.inner"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Seo\SeoUrlPlaceholderHandler" public="true">
-            <argument type="service" id="request_stack"/>
-            <argument type="service" id="router.default"/>
-            <argument type="service" id="seo_url.repository"/>
+        <service id="Shopware\Storefront\Framework\Seo\Extension\ProductExtension">
+            <tag name="shopware.entity.extension"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Seo\Extension\CategoryExtension">
+            <tag name="shopware.entity.extension"/>
         </service>
     </services>
 </container>

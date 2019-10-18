@@ -22,35 +22,6 @@ skinparam backgroundColor #FFFFFF
 
 ' entities
 
-Table(ShopwareStorefrontFrameworkSeoSeoUrlSeoUrlDefinition, "seo_url\n(Seo urls)") {
-   primary_key(id) id
-   salesChannelId foreignKey
-   not_null(languageId) foreignKey
-   not_null(foreignKey) id
-   not_null(routeName) string
-   not_null(pathInfo) string
-   not_null(seoPathInfo) string
-   isCanonical bool
-   isModified bool
-   isDeleted bool
-   isValid bool
-   url string
-   autoIncrement int
-   customFields customFields
-   not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
-}
-Table(ShopwareStorefrontFrameworkSeoSeoUrlTemplateSeoUrlTemplateDefinition, "seo_url_template\n(Template)") {
-   primary_key(id) id
-   salesChannelId foreignKey
-   not_null(entityName) string
-   not_null(routeName) string
-   not_null(template) string
-   isValid bool
-   customFields customFields
-   not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
-}
 Table(ShopwareStorefrontThemeThemeDefinition, "theme\n(__EMPTY__)") {
    primary_key(id) id
    technicalName string
@@ -87,18 +58,15 @@ Table(ShopwareStorefrontThemeAggregateThemeMediaDefinition, "theme_media\n(M:N M
    primary_key(themeId) foreignKey
    primary_key(mediaId) foreignKey
 }
+ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
+}
 ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }
-ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
-}
 
 ' relationshipd
 
-ShopwareStorefrontFrameworkSeoSeoUrlSeoUrlDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
-ShopwareStorefrontFrameworkSeoSeoUrlSeoUrlDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
-ShopwareStorefrontFrameworkSeoSeoUrlTemplateSeoUrlTemplateDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareStorefrontThemeAggregateThemeTranslationDefinition --> ShopwareStorefrontThemeThemeDefinition
 ShopwareStorefrontThemeAggregateThemeSalesChannelDefinition --> ShopwareStorefrontThemeThemeDefinition
 ShopwareStorefrontThemeAggregateThemeMediaDefinition --> ShopwareStorefrontThemeThemeDefinition

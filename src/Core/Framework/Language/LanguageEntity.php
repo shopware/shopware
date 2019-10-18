@@ -27,6 +27,7 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGr
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationCollection;
+use Shopware\Core\Framework\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationCollection;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationCollection;
@@ -290,6 +291,11 @@ class LanguageEntity extends Entity
      * @var ProductReviewCollection|null
      */
     protected $productReviews;
+
+    /**
+     * @var SeoUrlCollection|null
+     */
+    protected $seoUrlTranslations;
 
     public function getMailHeaderFooterTranslations(): ?MailHeaderFooterCollection
     {
@@ -779,5 +785,15 @@ class LanguageEntity extends Entity
     public function setProductReviews(?ProductReviewCollection $productReviews): void
     {
         $this->productReviews = $productReviews;
+    }
+
+    public function getSeoUrlTranslations(): ?SeoUrlCollection
+    {
+        return $this->seoUrlTranslations;
+    }
+
+    public function setSeoUrlTranslations(?SeoUrlCollection $seoUrlTranslations): void
+    {
+        $this->seoUrlTranslations = $seoUrlTranslations;
     }
 }

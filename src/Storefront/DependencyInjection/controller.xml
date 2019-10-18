@@ -134,7 +134,7 @@
             <argument type="service" id="Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder"/>
             <argument type="service" id="Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductReviewService"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Seo\SeoUrlPlaceholderHandler"/>
+            <argument type="service" id="Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

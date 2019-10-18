@@ -21,6 +21,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Language\LanguageCollection;
 use Shopware\Core\Framework\Language\LanguageEntity;
+use Shopware\Core\Framework\Seo\MainCategory\MainCategoryCollection;
+use Shopware\Core\Framework\Seo\SeoUrl\SeoUrlCollection;
+use Shopware\Core\Framework\Seo\SeoUrlTemplate\SeoUrlTemplateCollection;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyCollection;
@@ -259,6 +262,21 @@ class SalesChannelEntity extends Entity
      * @var ProductReviewCollection|null
      */
     protected $productReviews;
+
+    /**
+     * @var SeoUrlCollection|null
+     */
+    protected $seoUrls;
+
+    /**
+     * @var SeoUrlTemplateCollection|null
+     */
+    protected $seoUrlTemplates;
+
+    /**
+     * @var MainCategoryCollection|null
+     */
+    protected $mainCategories;
 
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {
@@ -708,5 +726,35 @@ class SalesChannelEntity extends Entity
     public function setProductReviews(?ProductReviewCollection $productReviews): void
     {
         $this->productReviews = $productReviews;
+    }
+
+    public function getSeoUrls(): ?SeoUrlCollection
+    {
+        return $this->seoUrls;
+    }
+
+    public function setSeoUrls(?SeoUrlCollection $seoUrls): void
+    {
+        $this->seoUrls = $seoUrls;
+    }
+
+    public function getSeoUrlTemplates(): ?SeoUrlTemplateCollection
+    {
+        return $this->seoUrlTemplates;
+    }
+
+    public function setSeoUrlTemplates(?SeoUrlTemplateCollection $seoUrlTemplates): void
+    {
+        $this->seoUrlTemplates = $seoUrlTemplates;
+    }
+
+    public function getMainCategories(): ?MainCategoryCollection
+    {
+        return $this->mainCategories;
+    }
+
+    public function setMainCategories(?MainCategoryCollection $mainCategories): void
+    {
+        $this->mainCategories = $mainCategories;
     }
 }

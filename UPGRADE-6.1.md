@@ -143,6 +143,7 @@ Core
 * If you invalidated the entity cache over the `shopware.cache` service, use the `\Shopware\Core\Framework\Cache\CacheClearer` instead.
 * All customer events in `Shopware\Core\Checkout\Customer\Event` now get the `Shopware\Core\Syste\SalesChannel\SalesChannelContext` instead of `Shopware\Core\Framework\Context` and a `salesChannelId`
 * Implement `getName` for classes that implement `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface`
+* We've moved the seo module into the core. Replace the namespace `Shopware\Core\Framework\Seo\` with `Shopware\Storefront\Framework\Seo\`
 
 Administration
 --------------

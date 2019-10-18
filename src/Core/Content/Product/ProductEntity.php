@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Pricing\ListingPriceCollection;
 use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Pricing\PriceCollection;
+use Shopware\Core\Framework\Seo\MainCategory\MainCategoryCollection;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Unit\UnitEntity;
@@ -369,6 +370,11 @@ class ProductEntity extends Entity
      * @var float|null
      */
     protected $ratingAverage;
+
+    /**
+     * @var MainCategoryCollection|null
+     */
+    protected $mainCategories;
 
     public function __construct()
     {
@@ -1101,5 +1107,15 @@ class ProductEntity extends Entity
     public function setDisplayGroup(string $displayGroup): void
     {
         $this->displayGroup = $displayGroup;
+    }
+
+    public function getMainCategories(): ?MainCategoryCollection
+    {
+        return $this->mainCategories;
+    }
+
+    public function setMainCategories(?MainCategoryCollection $mainCategories): void
+    {
+        $this->mainCategories = $mainCategories;
     }
 }

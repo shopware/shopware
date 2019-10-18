@@ -9,11 +9,11 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
+use Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\Router;
-use Shopware\Storefront\Framework\Seo\SeoUrlPlaceholderHandler;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -44,7 +44,7 @@ class StorefrontRoutingTest extends TestCase
     private $oldContext;
 
     /**
-     * @var SeoUrlPlaceholderHandler
+     * @var SeoUrlPlaceholderHandlerInterface
      */
     private $seoUrlReplacer;
 
@@ -55,7 +55,7 @@ class StorefrontRoutingTest extends TestCase
             $this->getContainer()->get(Connection::class)
         );
 
-        $this->seoUrlReplacer = $this->getContainer()->get(SeoUrlPlaceholderHandler::class);
+        $this->seoUrlReplacer = $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class);
 
         $this->requestStack = $this->getContainer()->get('request_stack');
         while ($this->requestStack->pop()) {

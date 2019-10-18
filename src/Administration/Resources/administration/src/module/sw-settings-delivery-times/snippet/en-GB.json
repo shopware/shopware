@@ -1,0 +1,42 @@
+{
+  "global": {
+    "error-codes": {
+      "DELIVERY_TIME_MIN_INVALID": "The minimum value should not be higher than the maximum value."
+    }
+  },
+  "sw-settings-delivery-time": {
+    "general": {
+      "mainMenuItemGeneral": "Delivery times",
+      "description": "Settings module for managing delivery times",
+      "buttonCancel": "Cancel",
+      "buttonCreate": "Add delivery time",
+      "buttonSave": "Save",
+      "placeholder": "Search all delivery times"
+    },
+    "list": {
+      "textHeadline": "Delivery times",
+      "columnName": "Name",
+      "columnUnit": "Unit",
+      "columnMin": "Minimum",
+      "columnMax": "Maximum",
+      "columnUnit_day": "Day",
+      "columnUnit_week": "Week",
+      "columnUnit_month": "Month",
+      "columnUnit_year": "Year",
+      "errorLoad": "Unable to load the delivery times list."
+    },
+    "detail": {
+      "textHeadlineNew": "New delivery time",
+      "labelName": "Name",
+      "labelUnit": "Unit",
+      "labelMin": "Minimum",
+      "labelMax": "Maximum",
+      "selectionUnitDay": "Day",
+      "selectionUnitWeek": "Week",
+      "selectionUnitMonth": "Month",
+      "selectionUnitYear": "Year",
+      "errorLoad": "Unable to load the delivery time.",
+      "errorSave": "The delivery time could not be saved."
+    }
+  }
+}

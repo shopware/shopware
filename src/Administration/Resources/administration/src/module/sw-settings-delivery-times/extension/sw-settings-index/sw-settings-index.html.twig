@@ -1,0 +1,13 @@
+{% block sw_settings_content_card_slot_shop %}
+    {% parent %}
+
+    {% block sw_settings_delivery_time_item %}
+       <sw-settings-item id="sw-settings-delivery-time"
+                         :label="$tc('sw-settings-delivery-time.general.mainMenuItemGeneral')"
+                         :to="{ name: 'sw.settings.delivery.time.index' }">
+            <template slot="icon">
+                <sw-icon name="default-time-clock"></sw-icon>
+            </template>
+       </sw-settings-item>
+   {% endblock %}
+{% endblock %}

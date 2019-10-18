@@ -1,0 +1,42 @@
+{
+  "global": {
+    "error-codes": {
+      "DELIVERY_TIME_MIN_INVALID": "Der Minimalwert sollte nicht größer sein als der Maximalwert."
+    }
+  },
+  "sw-settings-delivery-time": {
+    "general": {
+      "mainMenuItemGeneral": "Lieferzeiten",
+      "description": "Einstellungsmodul zur Verwaltung von Lieferzeiten",
+      "buttonCancel": "Abbrechen",
+      "buttonCreate": "Lieferzeit anlegen",
+      "buttonSave": "Speichern",
+      "placeholder": "Durchsuche alle Lieferzeiten"
+    },
+    "list": {
+      "textHeadline": "Lieferzeiten",
+      "columnName": "Name",
+      "columnUnit": "Einheit",
+      "columnMin": "Minimum",
+      "columnMax": "Maximum",
+      "columnUnit_day": "Tag",
+      "columnUnit_week": "Woche",
+      "columnUnit_month": "Woche",
+      "columnUnit_year": "Jahr",
+      "errorLoad": "Die Lieferzeiten konnten nicht geladen werden."
+    },
+    "detail": {
+      "textHeadlineNew": "Neue Lieferzeit",
+      "labelName": "Name",
+      "labelUnit": "Einheit",
+      "labelMin": "Minimum",
+      "labelMax": "Maximum",
+      "selectionUnitDay": "Tag",
+      "selectionUnitWeek": "Woche",
+      "selectionUnitMonth": "Monat",
+      "selectionUnitYear": "Jahr",
+      "errorLoad": "Die Lieferzeit konnte nicht geladen werden.",
+      "errorSave": "Die Lieferzeit konnte nicht gespeichert werden."
+    }
+  }
+}

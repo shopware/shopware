@@ -1,5 +1,4 @@
-import { Module, Application } from 'src/core/shopware';
-
+const { Module, Application } = Shopware;
 const ModuleFactory = Module;
 const register = ModuleFactory.register;
 

@@ -69,6 +69,9 @@ module.exports = {
                     removeSVGTagAttrs: false
                 }
             });
+        },
+        babel: {
+            plugins: ['@babel/plugin-transform-modules-commonjs'],
         }
     },
     generate: {

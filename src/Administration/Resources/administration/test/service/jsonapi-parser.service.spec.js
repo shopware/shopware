@@ -1,5 +1,6 @@
 import jsonApiParserService from 'src/core/service/jsonapi-parser.service';
-import { Application } from 'src/core/shopware';
+
+const Application = Shopware.Application;
 
 describe('core/service/jsonapi-parser.service.js', () => {
     it(

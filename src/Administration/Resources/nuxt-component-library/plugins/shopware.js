@@ -1,4 +1,4 @@
-const Shopware = require('src/core/common');
+const Shopware = require('src/core/shopware');
 
 // Expose shopware object globally
 global.Shopware = Shopware;
@@ -19,9 +19,9 @@ const ContextFactory = require('src/core/factory/context.factory').default;
 
 const { State } = Shopware;
 
-require('src/app/mixin/index');
-require('src/app/directive/index');
-require('src/app/filter/index');
+require('src/app/mixin/index').default();
+require('src/app/directive/index').default();
+require('src/app/filter/index').default();
 
 // Vue plugins
 Vue.use(VueI18n);
@@ -58,7 +58,7 @@ function registerBaseComponents(baseComponents, componentFactory) {
         componentFactory.register(component.name, component);
     });
 }
-registerBaseComponents(require('src/app/component/components').default, Shopware.Component);
+registerBaseComponents(require('src/app/component/components').default(), Shopware.Component);
 
 const components = Shopware.Component.getComponentRegistry();
 const factoryContainer = Shopware.Application.getContainer('factory');

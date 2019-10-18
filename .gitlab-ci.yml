@@ -342,6 +342,7 @@ Component Library:
         - npm run --prefix src/Administration/Resources lerna -- bootstrap
         - npm install --prefix src/Administration/Resources/nuxt-component-library/
         - npm run --prefix src/Administration/Resources/nuxt-component-library/ generate
+        - "[[ -d build/artifacts/component-library/ ]] && (ls -1qA build/artifacts/component-library/ | grep -q .)"
     artifacts:
         paths:
             - build/artifacts/component-library/

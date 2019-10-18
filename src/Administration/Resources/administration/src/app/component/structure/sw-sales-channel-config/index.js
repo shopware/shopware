@@ -1,6 +1,6 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-sales-channel-config.html.twig';
 
+const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-sales-channel-config', {

@@ -54,10 +54,7 @@ Component.register('sw-theme-manager-detail', {
         },
 
         defaultThemeAsset() {
-            const initContainer = Application.getContainer('init');
-            const context = initContainer.contextService;
-
-            return `url('${context.assetsPath}/administration/static/img/theme/default_theme_preview.jpg')`;
+            return `url('${Shopware.Context.assetsPath}/administration/static/img/theme/default_theme_preview.jpg')`;
         },
 
         deleteDisabledToolTip() {

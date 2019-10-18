@@ -10,6 +10,12 @@ Component.register('sw-cms-el-product-listing', {
         Mixin.getByName('cms-element')
     ],
 
+    data() {
+        return {
+            demoProductCount: 8
+        };
+    },
+
     computed: {
         demoProductElement() {
             return {
@@ -49,9 +55,21 @@ Component.register('sw-cms-el-product-listing', {
         this.createdComponent();
     },
 
+    mounted() {
+        this.mountedComponent();
+    },
+
     methods: {
         createdComponent() {
             this.initElementConfig('product-listing');
+        },
+
+        mountedComponent() {
+            const section = this.$el.closest('.sw-cms-section');
+
+            if (section.classList.contains('is--sidebar')) {
+                this.demoProductCount = 6;
+            }
         }
     }
 });

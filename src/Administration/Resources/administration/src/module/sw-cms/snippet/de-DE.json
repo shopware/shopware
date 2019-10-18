@@ -42,7 +42,7 @@
         "duplicate": "Duplizieren"
       },
       "labelSidebarMobile": "Mobiles Sidebar Verhalten",
-      "labelSidebarMobileOptionOffcanvas": "Off-canvas",
+      "labelSidebarMobileOptionHidden": "Nicht angezeigt",
       "labelSidebarMobileOptionWrap": "Umbrechen"
     },
     "createWizard": {

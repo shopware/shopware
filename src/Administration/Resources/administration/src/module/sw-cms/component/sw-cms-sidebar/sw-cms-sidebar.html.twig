@@ -128,7 +128,7 @@
                                             <sw-select-field v-if="section.type === 'sidebar'"
                                                              :label="$tc('sw-cms.sidebar.labelSidebarMobile')"
                                                              v-model="section.mobileBehavior">
-                                                <option value="offcanvas">{{ $tc('sw-cms.sidebar.labelSidebarMobileOptionOffcanvas') }}</option>
+                                                <option value="hidden">{{ $tc('sw-cms.sidebar.labelSidebarMobileOptionHidden') }}</option>
                                                 <option value="wrap">{{ $tc('sw-cms.sidebar.labelSidebarMobileOptionWrap') }}</option>
                                             </sw-select-field>
                                         {% endblock %}

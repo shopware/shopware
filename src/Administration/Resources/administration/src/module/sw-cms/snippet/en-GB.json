@@ -43,7 +43,7 @@
         "duplicate": "Duplicate"
       },
       "labelSidebarMobile": "Mobile sidebar behavior",
-      "labelSidebarMobileOptionOffcanvas": "Off-canvas",
+      "labelSidebarMobileOptionHidden": "Hidden",
       "labelSidebarMobileOptionWrap": "Wrap"
     },
     "createWizard": {

@@ -6,7 +6,7 @@ const { Application } = Shopware;
 Application.getContainer('service').cmsService.registerCmsBlock({
     name: 'vimeo-video',
     label: 'vimeo Video',
-    category: 'image',
+    category: 'video',
     component: 'sw-cms-block-vimeo-video',
     previewComponent: 'sw-cms-preview-vimeo-video',
     defaultConfig: {

@@ -4,7 +4,7 @@ import './preview';
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'youtube-video',
     label: 'YouTube Video',
-    category: 'image',
+    category: 'video',
     component: 'sw-cms-block-youtube-video',
     previewComponent: 'sw-cms-preview-youtube-video',
     defaultConfig: {

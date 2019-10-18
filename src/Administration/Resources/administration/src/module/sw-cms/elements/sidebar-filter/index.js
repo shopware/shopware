@@ -1,5 +1,6 @@
 import { Application } from 'src/core/shopware';
 import './component';
+import './config';
 import './preview';
 
 Application.getContainer('service').cmsService.registerCmsElement({

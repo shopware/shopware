@@ -1,11 +1,11 @@
 {% block sw_plugin_card %}
     <div class="sw-plugin-card">
-        <sw-container columns="150px 1fr" justify="left" align="start">
+        <sw-container justify="left" align="start">
             <img :src="plugin.iconPath" class="sw-plugin-card__icon"/>
             <div class="sw-plugin-card__info">
                 <div class="sw-plugin-card__label">{{ plugin.label }}</div>
                 <div class="sw-plugin-card__manufacturer">{{ plugin.manufacturer }}</div>
-                <div class="sw-plugin-card__short-description">{{ plugin.shortDescription | truncate(140) }}</div>
+                <div v-if="showDescription" class="sw-plugin-card__short-description">{{ plugin.shortDescription | truncate(140) }}</div>
 
                 <div v-if="pluginIsNotActive"
                      class="bottom">

@@ -12,6 +12,11 @@ Component.register('sw-plugin-card', {
         plugin: {
             type: Object,
             required: true
+        },
+        showDescription: {
+            type: Boolean,
+            default: true,
+            required: false
         }
     },
 

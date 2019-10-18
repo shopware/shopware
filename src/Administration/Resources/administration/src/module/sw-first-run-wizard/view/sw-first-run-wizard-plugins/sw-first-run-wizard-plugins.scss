@@ -9,6 +9,10 @@
         font-weight: 600;
         line-height: 25px;
         margin-top: 20px;
+
+        &.is--capitalized {
+            text-transform: capitalize;
+        }
     }
 
     .recommended-plugins__description {
@@ -51,9 +55,30 @@
         margin: 20px 0;
     }
 
+    .sw-container {
+        grid-template-columns: 168px 1fr;
+    }
+
     .plugins-category-lead {
         .sw-plugin-card {
             margin-bottom: 24px;
+        }
+    }
+
+    .plugins-not-category-lead {
+        .sw-plugin-card__icon {
+            width: 96px;
+            height: 96px;
+        }
+
+        .bottom {
+            display: flex;
+            flex: 1;
+            align-items: flex-end;
+        }
+
+        .sw-container {
+            grid-template-columns: 136px 1fr;
         }
     }
 

@@ -85,19 +85,6 @@ Service decoration can be us in a variety of ways.
 Services can be initialized right after their creation and single methods can get an altered behaviour.
 Like in the service registration a script that is part of the `main.js` is needed.
 
-For an extended initialization example the locale service gets new snippets assigned like this:
- 
-```javascript
-import snippets from '../snippet/en-GB.json';
-
-Shopware.Application.addInitializerDecorator('locale', locale => {
-    locale.extend('en-GB', snippets);
-    return locale;
-});
-```
-
-This function is called right after the initialization of the service registration and adds snippets for the code `en-GB`.
-
 If you need to alter a service method return value or add an additional parameter you can also do this using decoration.
 For this example a `funny` attribute is added to the requested jokes by the previously registered `JokeService`:
 

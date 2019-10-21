@@ -217,14 +217,9 @@ class ManufacturerReader extends AbstractPremappingReader
  the plugin, like this:
  
  ```javascript
- import { Application } from 'src/core/shopware';
  import enGBSnippets from './snippet/en-GB.json';
  
- Application.addInitializerDecorator('locale', (localeFactory) => {
-     localeFactory.extend('en-GB', enGBSnippets);
- 
-     return localeFactory;
- });
+ Shopware.Locale.extend('en-GB', enGBSnippets);
  ```
  Now your new premapping card has a correct title.
  

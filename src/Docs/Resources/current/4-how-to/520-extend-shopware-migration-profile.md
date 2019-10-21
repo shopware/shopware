@@ -176,11 +176,7 @@ At last you have to create the `main.js` in the `Resources/administration` direc
 ```javascript
 import enGBSnippets from './snippet/en-GB.json';
 
-Shopware.Application.addInitializerDecorator('locale', (localeFactory) => {
-    localeFactory.extend('en-GB', enGBSnippets);
-
-    return localeFactory;
-});
+Shopware.Locale.extend('en-GB', enGBSnippets);
 ```
 
 As you see in the code above, you register your snippet file for the `en-GB` locale. Now the count entity description

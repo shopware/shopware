@@ -132,7 +132,6 @@
         "stylelint-webpack-plugin": "0.10.5",
         "svg-inline-loader": "0.8.0",
         "url-loader": "2.1.0",
-        "vue-loader": "15.7.1",
         "vue-style-loader": "4.1.2",
         "webpack-dev-middleware": "3.7.0",
         "webpack-hot-middleware": "2.25.0"

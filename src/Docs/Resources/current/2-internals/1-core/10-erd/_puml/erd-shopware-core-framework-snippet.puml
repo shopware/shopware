@@ -35,7 +35,7 @@ Table(ShopwareCoreFrameworkSnippetSnippetDefinition, "snippet\n(Translation Stri
    primary_key(id) id
    not_null(setId) foreignKey
    not_null(translationKey) string
-   not_null(value) longText
+   not_null(value) longTextWithHtml
    not_null(author) string
    customFields customFields
    not_null(createdAt) createdAt

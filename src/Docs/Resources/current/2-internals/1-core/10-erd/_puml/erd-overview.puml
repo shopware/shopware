@@ -52,6 +52,11 @@ Table(ShopwareCoreFrameworkScheduledTask, "Shopware\Core\Framework\ScheduledTask
 Table(ShopwareCoreFrameworkLanguage, "Shopware\Core\Framework\Language\n(Languages)") {
    language Table
 }
+Table(ShopwareCoreFrameworkSeo, "Shopware\Core\Framework\Seo\n(__EMPTY__)") {
+   seo_url Table
+   seo_url_template Table
+   main_category Table
+}
 Table(ShopwareCoreSystemSalesChannel, "Shopware\Core\System\SalesChannel\n(Sales channels)") {
    sales_channel Table
    sales_channel_translation Table
@@ -183,6 +188,7 @@ Table(ShopwareCoreContentProperty, "Shopware\Core\Content\Property\n(Property)")
 Table(ShopwareCoreContentCms, "Shopware\Core\Content\Cms\n(Content Management)") {
    cms_page Table
    cms_page_translation Table
+   cms_section Table
    cms_block Table
    cms_slot Table
    cms_slot_translation Table
@@ -252,8 +258,6 @@ Table(ShopwareCoreCheckoutShipping, "Shopware\Core\Checkout\Shipping\n(Shipping)
    shipping_method_translation Table
 }
 Table(ShopwareStorefront, "Shopware\Storefront\n(Storefront)") {
-   seo_url Table
-   seo_url_template Table
    theme Table
    theme_translation Table
    theme_sales_channel Table
@@ -293,7 +297,11 @@ ShopwareCoreCheckoutDocument --> ShopwareCoreFrameworkLanguage
 ShopwareCoreSystemNumberRange --> ShopwareCoreFrameworkLanguage
 ShopwareCoreContentDeliveryTime --> ShopwareCoreFrameworkLanguage
 ShopwareCoreCheckoutPromotion --> ShopwareCoreFrameworkLanguage
+ShopwareCoreFrameworkSeo --> ShopwareCoreFrameworkLanguage
 ShopwareStorefront --> ShopwareCoreFrameworkLanguage
+ShopwareCoreSystemSalesChannel --> ShopwareCoreFrameworkSeo
+ShopwareCoreContentProduct --> ShopwareCoreFrameworkSeo
+ShopwareCoreContentCategory --> ShopwareCoreFrameworkSeo
 ShopwareCoreSystemSalesChannel --> ShopwareCoreSystemSalesChannel
 ShopwareCoreCheckoutCustomer --> ShopwareCoreSystemSalesChannel
 ShopwareCoreSystemCurrency --> ShopwareCoreSystemSalesChannel
@@ -346,7 +354,6 @@ ShopwareCoreContentCategory --> ShopwareCoreContentCategory
 ShopwareCoreContentMedia --> ShopwareCoreContentCategory
 ShopwareCoreContentProduct --> ShopwareCoreContentCategory
 ShopwareCoreContentCms --> ShopwareCoreContentCategory
-ShopwareCoreContentCategory --> ShopwareStorefront
 ShopwareCoreContentMedia --> ShopwareCoreContentMedia
 ShopwareCoreContentProduct --> ShopwareCoreContentMedia
 ShopwareCoreContentProperty --> ShopwareCoreContentMedia
@@ -359,7 +366,6 @@ ShopwareCoreContentCms --> ShopwareCoreContentMedia
 ShopwareStorefront --> ShopwareCoreContentMedia
 ShopwareCoreContentProduct --> ShopwareCoreContentProduct
 ShopwareCoreContentDeliveryTime --> ShopwareCoreContentProduct
-ShopwareCoreContentProduct --> ShopwareStorefront
 ShopwareCoreContentProperty --> ShopwareCoreContentProduct
 ShopwareCoreContentRule --> ShopwareCoreContentProduct
 ShopwareCoreCheckoutCustomer --> ShopwareCoreContentProduct

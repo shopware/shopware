@@ -11,6 +11,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Seo\SeoUrlRoute\SeoUrlExtractIdResult;
+use Shopware\Core\Framework\Seo\SeoUrlRoute\SeoUrlMapping;
+use Shopware\Core\Framework\Seo\SeoUrlRoute\SeoUrlRouteConfig;
+use Shopware\Core\Framework\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 

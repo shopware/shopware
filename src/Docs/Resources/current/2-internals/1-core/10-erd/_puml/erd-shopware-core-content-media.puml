@@ -136,6 +136,8 @@ ForeignTable(ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinit
 }
 ForeignTable(ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition, "cms_block") {
 }
+ForeignTable(ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition, "cms_section") {
+}
 ForeignTable(ShopwareCoreContentCmsCmsPageDefinition, "cms_page") {
 }
 ForeignTable(ShopwareCoreCheckoutDocumentDocumentDefinition, "document") {
@@ -167,6 +169,7 @@ ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreCheckoutPaymentPaymentMe
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentProductAggregateProductConfiguratorSettingProductConfiguratorSettingDefinition
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition
+ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentCmsCmsPageDefinition
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreCheckoutDocumentDocumentDefinition
 ShopwareCoreContentMediaMediaDefinition --> ShopwareStorefrontThemeThemeDefinition

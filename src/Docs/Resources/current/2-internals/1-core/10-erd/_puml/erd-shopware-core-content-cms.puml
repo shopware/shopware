@@ -43,13 +43,30 @@ TranslationTable(ShopwareCoreContentCmsAggregateCmsPageTranslationCmsPageTransla
    primary_key(cmsPageId) foreignKey
    primary_key(languageId) foreignKey
 }
-Table(ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition, "cms_block\n(Content Block)") {
+Table(ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition, "cms_section\n(__EMPTY__)") {
    primary_key(id) id
    not_null(position) int
    not_null(type) string
    locked writeLockIndicator
    name string
    sizingMode string
+   mobileBehavior string
+   backgroundColor string
+   backgroundMediaId foreignKey
+   backgroundMediaMode string
+   cssClass string
+   not_null(pageId) foreignKey
+   customFields customFields
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition, "cms_block\n(Content Block)") {
+   primary_key(id) id
+   not_null(position) int
+   not_null(type) string
+   locked writeLockIndicator
+   name string
+   sectionPosition string
    marginTop string
    marginBottom string
    marginLeft string
@@ -58,7 +75,7 @@ Table(ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition, "cms_block\n(Co
    backgroundMediaId foreignKey
    backgroundMediaMode string
    cssClass string
-   not_null(pageId) foreignKey
+   not_null(sectionId) foreignKey
    customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
@@ -95,11 +112,13 @@ ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 
 ' relationshipd
 
-ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition --> ShopwareCoreContentCmsCmsPageDefinition
+ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition --> ShopwareCoreContentCmsCmsPageDefinition
 ShopwareCoreContentCmsAggregateCmsPageTranslationCmsPageTranslationDefinition --> ShopwareCoreContentCmsCmsPageDefinition
 ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreContentCategoryCategoryDefinition
 ShopwareCoreContentCmsAggregateCmsPageTranslationCmsPageTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition --> ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition
 ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentCmsAggregateCmsSlotCmsSlotDefinition --> ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition
 ShopwareCoreContentCmsAggregateCmsSlotTranslationCmsSlotTranslationDefinition --> ShopwareCoreContentCmsAggregateCmsSlotCmsSlotDefinition

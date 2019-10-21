@@ -54,6 +54,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\WhitelistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\Seo\MainCategory\MainCategoryDefinition;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -232,6 +233,9 @@ class ProductDefinition extends EntityDefinition
             (new OneToManyAssociationField('searchKeywords', ProductSearchKeywordDefinition::class, 'product_id'))
                 ->addFlags(new CascadeDelete(), new Inherited(), new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('productReviews', ProductReviewDefinition::class, 'product_id'))
+                ->addFlags(new CascadeDelete()),
+
+            (new OneToManyAssociationField('mainCategories', MainCategoryDefinition::class, 'product_id'))
                 ->addFlags(new CascadeDelete()),
         ]);
     }

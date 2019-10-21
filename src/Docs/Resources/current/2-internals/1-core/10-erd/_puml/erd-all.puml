@@ -168,6 +168,43 @@ Table(ShopwareCoreFrameworkLanguageLanguageDefinition, "language\n(Language)") {
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
+Table(ShopwareCoreFrameworkSeoSeoUrlSeoUrlDefinition, "seo_url\n(__EMPTY__)") {
+   primary_key(id) id
+   salesChannelId foreignKey
+   not_null(languageId) foreignKey
+   not_null(foreignKey) id
+   not_null(routeName) string
+   not_null(pathInfo) string
+   not_null(seoPathInfo) string
+   isCanonical bool
+   isModified bool
+   isDeleted bool
+   url string
+   customFields customFields
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreFrameworkSeoSeoUrlTemplateSeoUrlTemplateDefinition, "seo_url_template\n(__EMPTY__)") {
+   primary_key(id) id
+   salesChannelId foreignKey
+   not_null(entityName) string
+   not_null(routeName) string
+   not_null(template) string
+   isValid bool
+   customFields customFields
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreFrameworkSeoMainCategoryMainCategoryDefinition, "main_category\n(__EMPTY__)") {
+   primary_key(id) id
+   not_null(productId) foreignKey
+   not_null(productVersionId) referenceVersion
+   not_null(categoryId) foreignKey
+   not_null(categoryVersionId) referenceVersion
+   not_null(salesChannelId) foreignKey
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
 Table(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel\n(Sales Channel)") {
    primary_key(id) id
    not_null(typeId) foreignKey
@@ -358,7 +395,7 @@ Table(ShopwareCoreFrameworkSnippetSnippetDefinition, "snippet\n(Translation Stri
    primary_key(id) id
    not_null(setId) foreignKey
    not_null(translationKey) string
-   not_null(value) longText
+   not_null(value) longTextWithHtml
    not_null(author) string
    customFields customFields
    not_null(createdAt) createdAt
@@ -604,7 +641,6 @@ Table(ShopwareCoreContentCategoryCategoryDefinition, "category\n(Category tree)"
    cmsPageId foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   canonicalUrl CanonicalUrlAssociation
    translated json
 }
 TranslationTable(ShopwareCoreContentCategoryAggregateCategoryTranslationCategoryTranslationDefinition, "category_translation\n((Translations))") {
@@ -772,7 +808,6 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    customFields translated
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-   canonicalUrl CanonicalUrlAssociation
    translated json
 }
 Table(ShopwareCoreContentProductAggregateProductCategoryProductCategoryDefinition, "product_category\n(M:N Mapping)") {
@@ -837,6 +872,7 @@ Table(ShopwareCoreContentProductAggregateProductKeywordDictionaryProductKeywordD
 Table(ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition, "product_review\n(__EMPTY__)") {
    primary_key(id) id
    not_null(productId) foreignKey
+   not_null(productVersionId) referenceVersion
    not_null(customerId) foreignKey
    not_null(salesChannelId) foreignKey
    not_null(languageId) foreignKey
@@ -849,7 +885,6 @@ Table(ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition, "
    comment longText
    not_null(updatedAt) updatedAt
    not_null(createdAt) createdAt
-   not_null(productVersionId) referenceVersion
 }
 Table(ShopwareCoreContentProductAggregateProductManufacturerProductManufacturerDefinition, "product_manufacturer\n(Manufacturer)") {
    primary_key(id) id
@@ -1071,13 +1106,30 @@ TranslationTable(ShopwareCoreContentCmsAggregateCmsPageTranslationCmsPageTransla
    primary_key(cmsPageId) foreignKey
    primary_key(languageId) foreignKey
 }
-Table(ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition, "cms_block\n(Content Block)") {
+Table(ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition, "cms_section\n(__EMPTY__)") {
    primary_key(id) id
    not_null(position) int
    not_null(type) string
    locked writeLockIndicator
    name string
    sizingMode string
+   mobileBehavior string
+   backgroundColor string
+   backgroundMediaId foreignKey
+   backgroundMediaMode string
+   cssClass string
+   not_null(pageId) foreignKey
+   customFields customFields
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition, "cms_block\n(Content Block)") {
+   primary_key(id) id
+   not_null(position) int
+   not_null(type) string
+   locked writeLockIndicator
+   name string
+   sectionPosition string
    marginTop string
    marginBottom string
    marginLeft string
@@ -1086,7 +1138,7 @@ Table(ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition, "cms_block\n(Co
    backgroundMediaId foreignKey
    backgroundMediaMode string
    cssClass string
-   not_null(pageId) foreignKey
+   not_null(sectionId) foreignKey
    customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
@@ -1580,6 +1632,9 @@ Table(ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPromotionDiscountDe
    not_null(value) float
    not_null(considerAdvancedRules) bool
    maxValue float
+   sorterKey string
+   applierKey string
+   usageKey string
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -1671,35 +1726,6 @@ TranslationTable(ShopwareCoreCheckoutShippingAggregateShippingMethodTranslationS
    primary_key(shippingMethodId) foreignKey
    primary_key(languageId) foreignKey
 }
-Table(ShopwareStorefrontFrameworkSeoSeoUrlSeoUrlDefinition, "seo_url\n(Seo urls)") {
-   primary_key(id) id
-   salesChannelId foreignKey
-   not_null(languageId) foreignKey
-   not_null(foreignKey) id
-   not_null(routeName) string
-   not_null(pathInfo) string
-   not_null(seoPathInfo) string
-   isCanonical bool
-   isModified bool
-   isDeleted bool
-   isValid bool
-   url string
-   autoIncrement int
-   customFields customFields
-   not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
-}
-Table(ShopwareStorefrontFrameworkSeoSeoUrlTemplateSeoUrlTemplateDefinition, "seo_url_template\n(Template)") {
-   primary_key(id) id
-   salesChannelId foreignKey
-   not_null(entityName) string
-   not_null(routeName) string
-   not_null(template) string
-   isValid bool
-   customFields customFields
-   not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
-}
 Table(ShopwareStorefrontThemeThemeDefinition, "theme\n(__EMPTY__)") {
    primary_key(id) id
    technicalName string
@@ -1789,8 +1815,13 @@ ShopwareCoreContentMailTemplateAggregateMailTemplateTypeTranslationMailTemplateT
 ShopwareCoreCheckoutPromotionAggregatePromotionTranslationPromotionTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareCoreSystemNumberRangeAggregateNumberRangeTranslationNumberRangeTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
-ShopwareStorefrontFrameworkSeoSeoUrlSeoUrlDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreFrameworkSeoSeoUrlSeoUrlDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareStorefrontThemeAggregateThemeTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreFrameworkSeoSeoUrlSeoUrlDefinition
+ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreFrameworkSeoSeoUrlTemplateSeoUrlTemplateDefinition
+ShopwareCoreContentProductProductDefinition --> ShopwareCoreFrameworkSeoMainCategoryMainCategoryDefinition
+ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreFrameworkSeoMainCategoryMainCategoryDefinition
+ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreFrameworkSeoMainCategoryMainCategoryDefinition
 ShopwareCoreSystemSalesChannelAggregateSalesChannelTranslationSalesChannelTranslationDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreSystemSalesChannelAggregateSalesChannelCurrencySalesChannelCurrencyDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreSystemSalesChannelAggregateSalesChannelLanguageSalesChannelLanguageDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
@@ -1816,8 +1847,6 @@ ShopwareCoreSystemNumberRangeAggregateNumberRangeSalesChannelNumberRangeSalesCha
 ShopwareCoreCheckoutPromotionAggregatePromotionSalesChannelPromotionSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigSalesChannelDocumentBaseConfigSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
-ShopwareStorefrontFrameworkSeoSeoUrlSeoUrlDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
-ShopwareStorefrontFrameworkSeoSeoUrlTemplateSeoUrlTemplateDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareStorefrontThemeAggregateThemeSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreSystemCountryCountryDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelCountrySalesChannelCountryDefinition
 ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelCurrencySalesChannelCurrencyDefinition
@@ -1884,7 +1913,7 @@ ShopwareCoreContentProductAggregateProductCategoryProductCategoryDefinition --> 
 ShopwareCoreContentProductAggregateProductCategoryTreeProductCategoryTreeDefinition --> ShopwareCoreContentCategoryCategoryDefinition
 ShopwareCoreContentCategoryAggregateCategoryTagCategoryTagDefinition --> ShopwareCoreContentCategoryCategoryDefinition
 ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreContentCategoryCategoryDefinition
-ShopwareCoreContentCategoryCategoryDefinition --> ShopwareStorefrontFrameworkSeoSeoUrlSeoUrlDefinition
+ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreFrameworkSeoSeoUrlSeoUrlDefinition
 ShopwareCoreContentMediaAggregateMediaTranslationMediaTranslationDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentMediaAggregateMediaTagMediaTagDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentMediaAggregateMediaThumbnailMediaThumbnailDefinition --> ShopwareCoreContentMediaMediaDefinition
@@ -1899,6 +1928,7 @@ ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreContentMediaM
 ShopwareCoreContentProductAggregateProductConfiguratorSettingProductConfiguratorSettingDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreCheckoutDocumentDocumentDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareStorefrontThemeThemeDefinition --> ShopwareCoreContentMediaMediaDefinition
@@ -1923,7 +1953,7 @@ ShopwareCoreContentProductAggregateProductOptionProductOptionDefinition --> Shop
 ShopwareCoreContentProductAggregateProductVisibilityProductVisibilityDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductSearchKeywordProductSearchKeywordDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition --> ShopwareCoreContentProductProductDefinition
-ShopwareCoreContentProductProductDefinition --> ShopwareStorefrontFrameworkSeoSeoUrlSeoUrlDefinition
+ShopwareCoreContentProductProductDefinition --> ShopwareCoreFrameworkSeoSeoUrlSeoUrlDefinition
 ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition --> ShopwareCoreContentProductAggregateProductConfiguratorSettingProductConfiguratorSettingDefinition
 ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition
 ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition --> ShopwareCoreContentProductAggregateProductPropertyProductPropertyDefinition
@@ -1949,8 +1979,9 @@ ShopwareCoreContentProductStreamAggregateProductStreamFilterProductStreamFilterD
 ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition --> ShopwareCoreContentPropertyPropertyGroupDefinition
 ShopwareCoreContentPropertyAggregatePropertyGroupTranslationPropertyGroupTranslationDefinition --> ShopwareCoreContentPropertyPropertyGroupDefinition
 ShopwareCoreContentPropertyAggregatePropertyGroupOptionTranslationPropertyGroupOptionTranslationDefinition --> ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition
-ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition --> ShopwareCoreContentCmsCmsPageDefinition
+ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition --> ShopwareCoreContentCmsCmsPageDefinition
 ShopwareCoreContentCmsAggregateCmsPageTranslationCmsPageTranslationDefinition --> ShopwareCoreContentCmsCmsPageDefinition
+ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition --> ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition
 ShopwareCoreContentCmsAggregateCmsSlotCmsSlotDefinition --> ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition
 ShopwareCoreContentCmsAggregateCmsSlotTranslationCmsSlotTranslationDefinition --> ShopwareCoreContentCmsAggregateCmsSlotCmsSlotDefinition
 ShopwareCoreContentMailTemplateAggregateMailTemplateTranslationMailTemplateTranslationDefinition --> ShopwareCoreContentMailTemplateMailTemplateDefinition

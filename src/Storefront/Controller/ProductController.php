@@ -4,11 +4,11 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Content\Product\SalesChannel\ProductReviewService;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
-use Shopware\Storefront\Framework\Seo\SeoUrlPlaceholderHandler;
 use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader;
@@ -43,7 +43,7 @@ class ProductController extends StorefrontController
     private $productReviewService;
 
     /**
-     * @var SeoUrlPlaceholderHandler
+     * @var SeoUrlPlaceholderHandlerInterface
      */
     private $seoUrlPlaceholderHandler;
 
@@ -52,7 +52,7 @@ class ProductController extends StorefrontController
         ProductCombinationFinder $combinationFinder,
         MinimalQuickViewPageLoader $minimalQuickViewPageLoader,
         ProductReviewService $productReviewService,
-        SeoUrlPlaceholderHandler $seoUrlPlaceholderHandler
+        SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler
     ) {
         $this->productPageLoader = $productPageLoader;
         $this->combinationFinder = $combinationFinder;

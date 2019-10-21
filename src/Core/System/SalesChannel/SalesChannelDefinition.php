@@ -32,6 +32,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Language\LanguageDefinition;
+use Shopware\Core\Framework\Seo\MainCategory\MainCategoryDefinition;
+use Shopware\Core\Framework\Seo\SeoUrl\SeoUrlDefinition;
+use Shopware\Core\Framework\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRangeSalesChannelDefinition;
@@ -120,6 +123,10 @@ class SalesChannelDefinition extends EntityDefinition
             new OneToManyAssociationField('promotionSalesChannels', PromotionSalesChannelDefinition::class, 'sales_channel_id', 'id'),
             new OneToManyAssociationField('documentBaseConfigSalesChannels', DocumentBaseConfigSalesChannelDefinition::class, 'sales_channel_id', 'id'),
             new OneToManyAssociationField('productReviews', ProductReviewDefinition::class, 'sales_channel_id', 'id'),
+
+            new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'sales_channel_id', 'id'),
+            new OneToManyAssociationField('seoUrlTemplates', SeoUrlTemplateDefinition::class, 'sales_channel_id'),
+            new OneToManyAssociationField('mainCategories', MainCategoryDefinition::class, 'sales_channel_id'),
         ]);
     }
 }

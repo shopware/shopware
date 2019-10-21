@@ -3,13 +3,13 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\Router;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
-use Shopware\Storefront\Framework\Seo\SeoUrlPlaceholderHandler;
 use Shopware\Storefront\Theme\Twig\ThemeTemplateFinder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,8 +41,8 @@ abstract class StorefrontController extends AbstractController
             throw new \RuntimeException('Symfony render implementation changed. Providing a response is no longer supported');
         }
 
-        /** @var SeoUrlPlaceholderHandler $seoUrlReplacer */
-        $seoUrlReplacer = $this->container->get(SeoUrlPlaceholderHandler::class);
+        /** @var SeoUrlPlaceholderHandlerInterface $seoUrlReplacer */
+        $seoUrlReplacer = $this->container->get(SeoUrlPlaceholderHandlerInterface::class);
         $seoUrlReplacer->replacePlaceholder($request, $response);
 
         /* @var StorefrontResponse $response */

@@ -144,8 +144,10 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
 
 * Administration
 * Core
+    * Moved the seo module from the storefront into the core.
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures
+    * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain
 
 **Removals**
 

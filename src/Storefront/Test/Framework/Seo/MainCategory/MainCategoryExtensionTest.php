@@ -11,13 +11,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Seo\MainCategory\MainCategoryCollection;
+use Shopware\Core\Framework\Seo\MainCategory\MainCategoryEntity;
+use Shopware\Core\Framework\Seo\SeoUrl\SeoUrlCollection;
+use Shopware\Core\Framework\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Seo\MainCategory\MainCategoryCollection;
-use Shopware\Storefront\Framework\Seo\MainCategory\MainCategoryEntity;
-use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlCollection;
-use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Shopware\Storefront\Test\Framework\Seo\StorefrontSalesChannelTestHelper;
 
@@ -61,10 +61,9 @@ class MainCategoryExtensionTest extends TestCase
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->first();
 
-        static::assertNotNull($product->getExtension('mainCategories'));
-        static::assertInstanceOf(MainCategoryCollection::class, $product->getExtension('mainCategories'));
-        static::assertEmpty($product->getExtension('mainCategories'));
-        static::assertNull($product->getExtension('mainCategory'));
+        static::assertNotNull($product->getMainCategories());
+        static::assertInstanceOf(MainCategoryCollection::class, $product->getMainCategories());
+        static::assertEmpty($product->getMainCategories());
 
         // update main category
         /** @var IdSearchResult $categories */
@@ -84,10 +83,10 @@ class MainCategoryExtensionTest extends TestCase
 
         $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->first();
 
-        static::assertNotNull($product->getExtension('mainCategories'));
-        static::assertInstanceOf(MainCategoryCollection::class, $product->getExtension('mainCategories'));
+        static::assertNotNull($product->getMainCategories());
+        static::assertInstanceOf(MainCategoryCollection::class, $product->getMainCategories());
         /** @var MainCategoryCollection $mainCategories */
-        $mainCategories = $product->getExtension('mainCategories');
+        $mainCategories = $product->getMainCategories();
         static::assertCount(1, $mainCategories);
 
         /** @var MainCategoryEntity $mainCategory */
@@ -134,7 +133,7 @@ class MainCategoryExtensionTest extends TestCase
         $product = $products->first();
 
         /** @var MainCategoryCollection $mainCategories */
-        $mainCategories = $product->getExtension('mainCategories');
+        $mainCategories = $product->getMainCategories();
         static::assertNotNull($mainCategories);
         static::assertCount(1, $mainCategories);
 
@@ -189,8 +188,8 @@ class MainCategoryExtensionTest extends TestCase
         /** @var ProductEntity $product */
         $product = $products->first();
 
-        static::assertNotNull($product->getExtension('mainCategories'));
-        static::assertEmpty($product->getExtension('mainCategories'));
+        static::assertNotNull($product->getMainCategories());
+        static::assertEmpty($product->getMainCategories());
     }
 
     private function createTestProduct(array $additionalPayload = [], ?Context $context = null): string

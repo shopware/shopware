@@ -9,7 +9,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
@@ -17,6 +20,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\HttpFoundation\Response;
 
 class ApiControllerTest extends TestCase
@@ -1529,12 +1533,17 @@ EOF;
 
     public function testWriteExtensionWithExtensionKey(): void
     {
+        $field = (new OneToManyAssociationField('testSeoUrls', SeoUrlDefinition::class, 'sales_channel_id'))
+            ->addFlags(new Extension());
+
+        $this->getContainer()->get(SalesChannelDefinition::class)->getFields()->addNewField($field);
+
         $salesChannelId = Uuid::randomHex();
         $this->createSalesChannel($salesChannelId);
 
         $data = [
             'extensions' => [
-                'seoUrls' => [
+                'testSeoUrls' => [
                     [
                         'languageId' => Defaults::LANGUAGE_SYSTEM,
                         'foreignKey' => $salesChannelId,
@@ -1559,7 +1568,7 @@ EOF;
                 ],
             ],
             'associations' => [
-                'seoUrls' => [],
+                'testSeoUrls' => [],
             ],
         ];
 
@@ -1581,7 +1590,7 @@ EOF;
 
         $extension = $included[0];
         static::assertEquals('extension', $extension['type']);
-        static::assertArrayHasKey('seoUrls', $extension['relationships']);
+        static::assertArrayHasKey('testSeoUrls', $extension['relationships']);
 
         $seoUrl = $included[1];
         static::assertEquals('seo_url', $seoUrl['type']);
@@ -1601,11 +1610,16 @@ EOF;
 
     public function testCanWriteExtensionWithoutExtensionKey(): void
     {
+        $field = (new OneToManyAssociationField('testSeoUrls', SeoUrlDefinition::class, 'sales_channel_id'))
+            ->addFlags(new Extension());
+
+        $this->getContainer()->get(SalesChannelDefinition::class)->getFields()->addNewField($field);
+
         $salesChannelId = Uuid::randomHex();
         $this->createSalesChannel($salesChannelId);
 
         $data = [
-            'seoUrls' => [
+            'testSeoUrls' => [
                 [
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'foreignKey' => $salesChannelId,
@@ -1629,7 +1643,7 @@ EOF;
                 ],
             ],
             'associations' => [
-                'seoUrls' => [],
+                'testSeoUrls' => [],
             ],
         ];
 
@@ -1651,7 +1665,7 @@ EOF;
 
         $extension = $included[0];
         static::assertEquals('extension', $extension['type']);
-        static::assertArrayHasKey('seoUrls', $extension['relationships']);
+        static::assertArrayHasKey('testSeoUrls', $extension['relationships']);
 
         $seoUrls = $included[1];
         static::assertEquals('seo_url', $seoUrls['type']);

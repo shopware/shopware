@@ -16,7 +16,7 @@ Component.register('sw-sales-channel-detail-base', {
     inject: [
         'salesChannelService',
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     props: {
@@ -114,7 +114,7 @@ Component.register('sw-sales-channel-detail-base', {
             const criteria = new Criteria();
             criteria.addAssociation('themes');
             this.salesChannelRepository
-                .get(this.$route.params.id, this.context, criteria)
+                .get(this.$route.params.id, this.apiContext, criteria)
                 .then((entity) => {
                     if (entity.extensions.themes !== undefined && entity.extensions.themes.length >= 1) {
                         return;
@@ -144,13 +144,13 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         deleteSalesChannel(salesChannelId) {
-            this.salesChannelRepository.delete(salesChannelId, this.context).then(() => {
+            this.salesChannelRepository.delete(salesChannelId, this.apiContext).then(() => {
                 this.$root.$emit('sales-channel-change');
             });
         },
 
         onClickAddDomain() {
-            const newDomain = this.domainRepository.create(this.context);
+            const newDomain = this.domainRepository.create(this.apiContext);
             newDomain.snippetSetId = this.defaultSnippetSetId;
 
             this.salesChannel.domains.add(newDomain);
@@ -174,7 +174,7 @@ Component.register('sw-sales-channel-detail-base', {
                     return;
                 }
 
-                this.domainRepository.delete(domain.id, this.context);
+                this.domainRepository.delete(domain.id, this.apiContext);
             });
         },
 

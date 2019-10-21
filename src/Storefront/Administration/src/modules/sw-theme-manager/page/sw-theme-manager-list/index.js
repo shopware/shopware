@@ -76,7 +76,7 @@ Component.register('sw-theme-manager-list', {
                 criteria.setTerm(this.term);
             }
 
-            return this.themeRepository.search(criteria, this.context).then((searchResult) => {
+            return this.themeRepository.search(criteria, this.apiContext).then((searchResult) => {
                 this.total = searchResult.total;
                 this.themes = searchResult;
                 this.isLoading = false;
@@ -102,7 +102,7 @@ Component.register('sw-theme-manager-list', {
         },
 
         onChangeLanguage(languageId) {
-            this.context.languageId = languageId;
+            this.apiContext.languageId = languageId;
             this.resetList();
         },
 
@@ -163,7 +163,7 @@ Component.register('sw-theme-manager-list', {
 
         saveTheme(theme) {
             this.isLoading = true;
-            return this.themeRepository.save(theme, this.context).then(() => {
+            return this.themeRepository.save(theme, this.apiContext).then(() => {
                 this.isLoading = false;
             }).catch(() => {
                 this.isLoading = false;

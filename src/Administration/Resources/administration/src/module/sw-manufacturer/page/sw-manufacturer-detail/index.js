@@ -8,7 +8,7 @@ const { mapApiErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-manufacturer-detail', {
     template,
 
-    inject: ['repositoryFactory', 'context'],
+    inject: ['repositoryFactory', 'apiContext'],
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -111,13 +111,13 @@ Component.register('sw-manufacturer-detail', {
             }
 
             this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
-            this.manufacturer = this.manufacturerRepository.create(this.context);
+            this.manufacturer = this.manufacturerRepository.create(this.apiContext);
         },
 
         loadEntityData() {
             this.isLoading = true;
 
-            this.manufacturerRepository.get(this.manufacturerId, this.context).then((manufacturer) => {
+            this.manufacturerRepository.get(this.manufacturerId, this.apiContext).then((manufacturer) => {
                 this.isLoading = false;
                 this.manufacturer = manufacturer;
             });
@@ -173,7 +173,7 @@ Component.register('sw-manufacturer-detail', {
         onSave() {
             this.isLoading = true;
 
-            this.manufacturerRepository.save(this.manufacturer, this.context).then(() => {
+            this.manufacturerRepository.save(this.manufacturer, this.apiContext).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
                 if (this.manufacturerId === null) {

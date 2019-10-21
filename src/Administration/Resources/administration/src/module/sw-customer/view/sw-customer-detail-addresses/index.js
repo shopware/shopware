@@ -13,7 +13,7 @@ Component.register('sw-customer-detail-addresses', {
 
     inject: [
         'repositoryFactory',
-        'context',
+        'apiContext',
         'customerAddressService'
     ],
 
@@ -109,7 +109,7 @@ Component.register('sw-customer-detail-addresses', {
             this.isLoading = true;
 
             if (!this.activeCustomer.id && this.$route.params.id) {
-                this.customerRepository.get(this.$route.params.id, this.context).then((customer) => {
+                this.customerRepository.get(this.$route.params.id, this.apiContext).then((customer) => {
                     this.activeCustomer = customer;
                     this.isLoading = false;
                 });
@@ -175,7 +175,7 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         createNewCustomerAddress() {
-            const newAddress = this.addressRepository.create(this.context);
+            const newAddress = this.addressRepository.create(this.apiContext);
             newAddress.customerId = this.activeCustomer.id;
 
             this.currentAddress = newAddress;
@@ -197,7 +197,7 @@ Component.register('sw-customer-detail-addresses', {
             let address = this.activeCustomer.addresses.get(this.currentAddress.id);
 
             if (typeof address === 'undefined' || address === null) {
-                address = this.addressRepository.create(this.context, this.currentAddress.id);
+                address = this.addressRepository.create(this.apiContext, this.currentAddress.id);
             }
 
             Object.assign(address, this.currentAddress);
@@ -237,7 +237,7 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         onEditAddress(id) {
-            const currentAddress = this.addressRepository.create(this.context, id);
+            const currentAddress = this.addressRepository.create(this.apiContext, id);
 
             // assign values and id to new address
             Object.assign(currentAddress, this.activeCustomer.addresses.get(id));

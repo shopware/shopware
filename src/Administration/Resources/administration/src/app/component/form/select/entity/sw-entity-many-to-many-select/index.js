@@ -14,7 +14,7 @@ Component.register('sw-entity-many-to-many-select', {
         event: 'change'
     },
 
-    inject: { repositoryFactory: 'repositoryFactory', adminContext: 'context' },
+    inject: { repositoryFactory: 'repositoryFactory', adminContext: 'apiContext' },
 
     props: {
         labelProperty: {
@@ -200,7 +200,7 @@ Component.register('sw-entity-many-to-many-select', {
                 this.searchCriteria.filters = this.criteria.filters;
             }
 
-            return this.searchRepository.search(this.searchCriteria, this.context)
+            return this.searchRepository.search(this.searchCriteria, this.apiContext)
                 .then((searchResult) => {
                     if (searchResult.length <= 0) {
                         this.isLoading = false;

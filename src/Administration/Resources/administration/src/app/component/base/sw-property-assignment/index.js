@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-property-assignment', {
     template,
 
-    inject: ['repositoryFactory', 'context'],
+    inject: ['repositoryFactory', 'apiContext'],
 
     props: {
         propertyCollection: {
@@ -119,7 +119,7 @@ Component.register('sw-property-assignment', {
             );
 
             // Fetch groups with options
-            this.groupRepository.search(groupSearchCriteria, this.context).then((res) => {
+            this.groupRepository.search(groupSearchCriteria, this.apiContext).then((res) => {
                 this.groups = res;
             });
 

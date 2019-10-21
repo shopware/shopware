@@ -9,7 +9,7 @@ Component.register('sw-settings-number-range-list', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     mixins: [
@@ -70,7 +70,7 @@ Component.register('sw-settings-number-range-list', {
             criteria.addAssociation('numberRangeSalesChannels');
             criteria.addAssociation('numberRangeSalesChannels.salesChannel');
 
-            this.numberRangeRepository.search(criteria, this.context).then((items) => {
+            this.numberRangeRepository.search(criteria, this.apiContext).then((items) => {
                 this.total = items.total;
                 this.numberRange = items;
                 this.isLoading = false;
@@ -109,7 +109,7 @@ Component.register('sw-settings-number-range-list', {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.numberRangeRepository.delete(id, this.context).then(() => {
+            return this.numberRangeRepository.delete(id, this.apiContext).then(() => {
                 this.getList();
             });
         },

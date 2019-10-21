@@ -19,7 +19,7 @@ Component.register('sw-product-detail-properties', {
     computed: {
         ...mapState('swProductDetail', [
             'product',
-            'context'
+            'apiContext'
         ]),
 
         ...mapGetters('swProductDetail', [
@@ -41,7 +41,7 @@ Component.register('sw-product-detail-properties', {
         },
 
         checkIfPropertiesExists() {
-            this.propertyRepository.search(new Criteria(1, 1), this.context).then((res) => {
+            this.propertyRepository.search(new Criteria(1, 1), this.apiContext).then((res) => {
                 this.propertiesAvailable = res.total > 0;
             });
         }

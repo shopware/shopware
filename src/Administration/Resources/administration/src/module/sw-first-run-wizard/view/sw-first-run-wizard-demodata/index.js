@@ -12,7 +12,7 @@ Component.register('sw-first-run-wizard-demodata', {
         'storeService',
         'pluginService',
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     data() {
@@ -110,7 +110,7 @@ Component.register('sw-first-run-wizard-demodata', {
                 .setLimit(1);
 
             this.pluginRepository
-                .search(pluginCriteria, this.context)
+                .search(pluginCriteria, this.apiContext)
                 .then((result) => {
                     if (result.total < 1) {
                         return;

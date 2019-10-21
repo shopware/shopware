@@ -18,7 +18,7 @@ Component.extend('sw-settings-delivery-time-create', 'sw-settings-delivery-time-
         createdComponent() {
             this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
 
-            this.deliveryTime = this.deliveryTimeRepository.create(this.context);
+            this.deliveryTime = this.deliveryTimeRepository.create(this.apiContext);
         }
     }
 });

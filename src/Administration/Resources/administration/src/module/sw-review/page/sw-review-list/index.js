@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-review-list', {
     template,
 
-    inject: ['repositoryFactory', 'context'],
+    inject: ['repositoryFactory', 'apiContext'],
 
     data() {
         return {
@@ -86,7 +86,7 @@ Component.register('sw-review-list', {
             this.isLoading = true;
 
             this.repository
-                .search(this.criteria, this.context)
+                .search(this.criteria, this.apiContext)
                 .then((result) => {
                     this.total = result.total;
                     this.items = result;

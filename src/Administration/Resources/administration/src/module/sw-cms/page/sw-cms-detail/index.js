@@ -17,7 +17,7 @@ Component.register('sw-cms-detail', {
         'cmsPageService',
         'cmsService',
         'cmsDataResolverService',
-        'context'
+        'apiContext'
     ],
 
     mixins: [
@@ -47,7 +47,7 @@ Component.register('sw-cms-detail', {
             currentMappingEntity: null,
             currentMappingEntityRepo: null,
             demoEntityId: null,
-            currentLanguageId: this.context.languageId
+            currentLanguageId: this.apiContext.languageId
         };
     },
 
@@ -150,7 +150,7 @@ Component.register('sw-cms-detail', {
         },
 
         isSystemDefaultLanguage() {
-            return this.currentLanguageId === this.context.systemLanguageId;
+            return this.currentLanguageId === this.apiContext.systemLanguageId;
         },
 
         addBlockTitle() {
@@ -209,7 +209,7 @@ Component.register('sw-cms-detail', {
                     Criteria.equals('typeId', defaultStorefrontId)
                 );
 
-                this.salesChannelRepository.search(criteria, this.context).then((response) => {
+                this.salesChannelRepository.search(criteria, this.apiContext).then((response) => {
                     this.salesChannels = response;
 
                     if (this.salesChannels.length > 0) {
@@ -237,7 +237,7 @@ Component.register('sw-cms-detail', {
             criteria.addAssociation('folder');
             criteria.addFilter(Criteria.equals('entity', this.cmsPageState.pageEntityName));
 
-            return this.defaultFolderRepository.search(criteria, this.context).then((searchResult) => {
+            return this.defaultFolderRepository.search(criteria, this.apiContext).then((searchResult) => {
                 const defaultFolder = searchResult.first();
                 if (defaultFolder.folder.id) {
                     return defaultFolder.folder.id;
@@ -254,7 +254,7 @@ Component.register('sw-cms-detail', {
         loadPage(pageId) {
             this.isLoading = true;
 
-            this.pageRepository.get(pageId, this.context, this.loadPageCriteria).then((page) => {
+            this.pageRepository.get(pageId, this.apiContext, this.loadPageCriteria).then((page) => {
                 this.page = { sections: [] };
                 this.page = page;
 
@@ -326,7 +326,7 @@ Component.register('sw-cms-detail', {
                 criteria.addAssociation('media');
             }
 
-            this.currentMappingEntityRepo.search(criteria, this.context).then((response) => {
+            this.currentMappingEntityRepo.search(criteria, this.apiContext).then((response) => {
                 this.demoEntityId = response[0].id;
                 this.$store.commit('cmsPageState/setCurrentDemoEntity', response[0]);
             });
@@ -348,9 +348,9 @@ Component.register('sw-cms-detail', {
         onChangeLanguage() {
             this.isLoading = true;
 
-            return this.salesChannelRepository.search(new Criteria(), this.context).then((response) => {
+            return this.salesChannelRepository.search(new Criteria(), this.apiContext).then((response) => {
                 this.salesChannels = response;
-                this.currentLanguageId = this.context.languageId;
+                this.currentLanguageId = this.apiContext.languageId;
                 return this.loadPage(this.pageId);
             });
         },
@@ -374,13 +374,13 @@ Component.register('sw-cms-detail', {
                 return;
             }
 
-            this.currentMappingEntityRepo.get(demoEntityId, this.context).then((entity) => {
+            this.currentMappingEntityRepo.get(demoEntityId, this.apiContext).then((entity) => {
                 if (!entity) {
                     return;
                 }
 
                 if (this.cmsPageState.currentMappingEntity === 'category' && entity.mediaId !== null) {
-                    this.repositoryFactory.create('media').get(entity.mediaId, this.context).then((media) => {
+                    this.repositoryFactory.create('media').get(entity.mediaId, this.apiContext).then((media) => {
                         entity.media = media;
                         this.$store.commit('cmsPageState/setCurrentDemoEntity', entity);
                     });
@@ -395,7 +395,7 @@ Component.register('sw-cms-detail', {
                 return;
             }
 
-            const section = this.sectionRepository.create(this.context);
+            const section = this.sectionRepository.create(this.apiContext);
             section.type = type;
             section.sizingMode = 'boxed';
             section.position = index;
@@ -514,7 +514,7 @@ Component.register('sw-cms-detail', {
 
             this.isLoading = true;
 
-            return this.pageRepository.save(this.page, this.context).then(() => {
+            return this.pageRepository.save(this.page, this.apiContext).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
 

@@ -8,7 +8,7 @@ const EntityCollection = Shopware.Data.EntityCollection;
 Component.register('sw-seo-url', {
     template,
 
-    inject: ['context', 'repositoryFactory'],
+    inject: ['apiContext', 'repositoryFactory'],
 
     mixins: [],
 
@@ -120,7 +120,7 @@ Component.register('sw-seo-url', {
             salesChannelCriteria.setIds([]);
             salesChannelCriteria.addAssociation('type');
 
-            this.salesChannelRepository.search(salesChannelCriteria, this.context).then((salesChannelCollection) => {
+            this.salesChannelRepository.search(salesChannelCriteria, this.apiContext).then((salesChannelCollection) => {
                 this.$store.commit('swSeoUrl/setSalesChannelCollection', salesChannelCollection);
             });
         },
@@ -130,7 +130,7 @@ Component.register('sw-seo-url', {
             const seoUrlCollection = new EntityCollection(
                 this.seoUrlRepository.route,
                 this.seoUrlRepository.schema.entity,
-                this.context, new Criteria()
+                this.apiContext, new Criteria()
             );
 
             const defaultSeoUrlData = this.urls.find((entityData) => {
@@ -141,13 +141,13 @@ Component.register('sw-seo-url', {
                 this.showEmptySeoUrlError = true;
             }
 
-            const defaultSeoUrlEntity = this.seoUrlRepository.create(this.context);
+            const defaultSeoUrlEntity = this.seoUrlRepository.create(this.apiContext);
             Object.assign(defaultSeoUrlEntity, defaultSeoUrlData);
             seoUrlCollection.add(defaultSeoUrlEntity);
             this.$store.commit('swSeoUrl/setDefaultSeoUrl', defaultSeoUrlEntity);
 
             this.urls.forEach((entityData) => {
-                const entity = this.seoUrlRepository.create(this.context);
+                const entity = this.seoUrlRepository.create(this.apiContext);
                 Object.assign(entity, entityData);
 
                 seoUrlCollection.add(entity);
@@ -175,14 +175,14 @@ Component.register('sw-seo-url', {
         },
 
         refreshCurrentSeoUrl() {
-            const actualLanguageId = this.context.languageId;
+            const actualLanguageId = this.apiContext.languageId;
 
             const currentSeoUrl = this.seoUrlCollection.find((entity) => {
                 return entity.languageId === actualLanguageId && entity.salesChannelId === this.currentSalesChannelId;
             });
 
             if (!currentSeoUrl) {
-                const entity = this.seoUrlRepository.create(this.context);
+                const entity = this.seoUrlRepository.create(this.apiContext);
                 entity.foreignKey = this.defaultSeoUrl.foreignKey;
                 entity.isCanonical = true;
                 entity.languageId = actualLanguageId;

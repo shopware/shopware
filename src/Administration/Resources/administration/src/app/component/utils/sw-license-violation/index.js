@@ -13,7 +13,7 @@ Shopware.Component.register('sw-license-violation', {
         'pluginService',
         'cacheApiService',
         'loginService',
-        'context'
+        'apiContext'
     ],
 
     mixins: [
@@ -125,7 +125,7 @@ Shopware.Component.register('sw-license-violation', {
 
             this.addLoading('fetchPlugins');
 
-            this.pluginRepository.search(this.pluginCriteria, this.context)
+            this.pluginRepository.search(this.pluginCriteria, this.apiContext)
                 .then((response) => {
                     this.plugins = response;
                 })

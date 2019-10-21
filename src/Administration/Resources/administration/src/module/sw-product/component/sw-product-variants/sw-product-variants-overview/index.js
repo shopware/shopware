@@ -42,7 +42,7 @@ Component.register('sw-product-variants-overview', {
 
     computed: {
         ...mapState('swProductDetail', [
-            'context',
+            'apiContext',
             'product',
             'currencies',
             'taxes',
@@ -153,7 +153,7 @@ Component.register('sw-product-variants-overview', {
 
                 // Start search
                 this.productRepository
-                    .search(searchCriteria, this.context)
+                    .search(searchCriteria, this.apiContext)
                     .then((res) => {
                         this.total = res.total;
                         this.$store.commit('swProductDetail/setVariants', res);
@@ -368,7 +368,7 @@ Component.register('sw-product-variants-overview', {
                 return `${acc}${index > 0 ? ' - ' : ''}${option.translated.name}`;
             }, '');
 
-            this.productRepository.save(variation, this.context).then(() => {
+            this.productRepository.save(variation, this.apiContext).then(() => {
                 // create success notification
                 const titleSaveSuccess = this.$tc('sw-product.detail.titleSaveSuccess');
                 const messageSaveSuccess = this.$tc('sw-product.detail.messageSaveSuccess', 0, {
@@ -408,7 +408,7 @@ Component.register('sw-product-variants-overview', {
             this.modalLoading = true;
             this.showDeleteModal = false;
 
-            this.productRepository.delete(item.id, this.context).then(() => {
+            this.productRepository.delete(item.id, this.apiContext).then(() => {
                 this.modalLoading = false;
 
                 this.createNotificationSuccess({

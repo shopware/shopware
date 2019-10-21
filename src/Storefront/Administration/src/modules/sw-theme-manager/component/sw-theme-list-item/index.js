@@ -35,7 +35,7 @@ Component.register('sw-theme-list-item', {
         },
 
         defaultThemeAsset() {
-            const context = Application.getContainer('service').context;
+            const context = Shopware.Context.Api;
 
             return `url('${context.assetsPath}/administration/static/img/theme/default_theme_preview.jpg')`;
         },

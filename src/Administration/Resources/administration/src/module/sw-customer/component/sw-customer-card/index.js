@@ -10,7 +10,7 @@ Component.register('sw-customer-card', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     mixins: [
@@ -87,7 +87,7 @@ Component.register('sw-customer-card', {
     methods: {
         createdComponent() {
             const criteria = new Criteria(1, 500);
-            return this.salutationRepository.search(criteria, this.context).then((searchResult) => {
+            return this.salutationRepository.search(criteria, this.apiContext).then((searchResult) => {
                 this.salutations = searchResult;
             });
         },

@@ -9,7 +9,7 @@ Component.register('sw-customer-list', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     mixins: [
@@ -75,7 +75,7 @@ Component.register('sw-customer-list', {
         getList() {
             this.isLoading = true;
 
-            this.customerRepository.search(this.defaultCriteria, this.context).then((items) => {
+            this.customerRepository.search(this.defaultCriteria, this.apiContext).then((items) => {
                 this.total = items.total;
                 this.customers = items;
                 this.isLoading = false;
@@ -97,7 +97,7 @@ Component.register('sw-customer-list', {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.customerRepository.delete(id, this.context).then(() => {
+            return this.customerRepository.delete(id, this.apiContext).then(() => {
                 this.getList();
             });
         },

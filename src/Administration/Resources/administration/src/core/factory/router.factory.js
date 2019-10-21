@@ -347,8 +347,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
     }
 
     function getAssetPath() {
-        const context = Shopware.Context;
-        return context.assetsPath;
+        return Shopware.Context.Api.assetsPath;
     }
 
     function setModuleFavicon(routeDestination, assetsPath) {

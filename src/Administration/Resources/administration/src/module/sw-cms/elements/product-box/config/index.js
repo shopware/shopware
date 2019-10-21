@@ -13,7 +13,7 @@ Component.register('sw-cms-el-config-product-box', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     computed: {
@@ -22,7 +22,7 @@ Component.register('sw-cms-el-config-product-box', {
         },
 
         productSelectContext() {
-            const context = Object.assign({}, this.context);
+            const context = Object.assign({}, this.apiContext);
             context.inheritance = true;
 
             return context;

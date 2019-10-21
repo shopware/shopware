@@ -5,7 +5,7 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-settings-country-detail', {
     template,
 
-    inject: ['repositoryFactory', 'context'],
+    inject: ['repositoryFactory', 'apiContext'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -59,7 +59,7 @@ Component.register('sw-settings-country-detail', {
 
         loadEntityData() {
             this.isLoading = true;
-            this.countryRepository.get(this.countryId, this.context).then(country => {
+            this.countryRepository.get(this.countryId, this.apiContext).then(country => {
                 this.country = country;
 
                 this.isLoading = false;
@@ -79,7 +79,7 @@ Component.register('sw-settings-country-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return this.countryRepository.save(this.country, this.context).then(() => {
+            return this.countryRepository.save(this.country, this.apiContext).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
             }).catch(() => {
@@ -103,7 +103,7 @@ Component.register('sw-settings-country-detail', {
             const deletePromises = [];
 
             Object.keys(selection).forEach(id => {
-                deletePromises.push(this.countryStateRepository.delete(id, this.context));
+                deletePromises.push(this.countryStateRepository.delete(id, this.apiContext));
             });
 
             Promise.all(deletePromises).then(() => {
@@ -115,7 +115,7 @@ Component.register('sw-settings-country-detail', {
         },
 
         onAddCountryState() {
-            this.currentCountryState = this.countryStateRepository.create(this.context);
+            this.currentCountryState = this.countryStateRepository.create(this.apiContext);
         },
 
         onSearchCountryState() {
@@ -136,7 +136,7 @@ Component.register('sw-settings-country-detail', {
             if (this.country.isNew()) {
                 this.country.states.add(this.currentCountryState);
             } else {
-                this.countryStateRepository.save(this.currentCountryState, this.context).then(() => {
+                this.countryStateRepository.save(this.currentCountryState, this.apiContext).then(() => {
                     this.refreshCountryStateList();
                 });
             }
@@ -150,7 +150,7 @@ Component.register('sw-settings-country-detail', {
 
         onClickCountryState(item) {
             // Create a copy with the same id which will be edited
-            const copy = this.countryStateRepository.create(this.context, item.id);
+            const copy = this.countryStateRepository.create(this.apiContext, item.id);
             copy._isNew = false;
 
             this.currentCountryState = Object.assign(copy, item);

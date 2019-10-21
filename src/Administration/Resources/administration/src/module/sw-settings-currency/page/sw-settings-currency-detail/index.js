@@ -6,7 +6,7 @@ const { mapApiErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-settings-currency-detail', {
     template,
 
-    inject: ['repositoryFactory', 'context'],
+    inject: ['repositoryFactory', 'apiContext'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -89,7 +89,7 @@ Component.register('sw-settings-currency-detail', {
             this.isLoading = true;
             if (this.currencyId) {
                 this.currencyId = this.$route.params.id;
-                this.currencyRepository.get(this.currencyId, this.context).then((currency) => {
+                this.currencyRepository.get(this.currencyId, this.apiContext).then((currency) => {
                     this.currency = currency;
                     this.isLoading = false;
                 });
@@ -97,12 +97,12 @@ Component.register('sw-settings-currency-detail', {
             }
 
             this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
-            this.currency = this.currencyRepository.create(this.context);
+            this.currency = this.currencyRepository.create(this.apiContext);
             this.isLoading = false;
         },
 
         loadEntityData() {
-            this.currency = this.currencyRepository.get(this.currencyId, this.context).then((currency) => {
+            this.currency = this.currencyRepository.get(this.currencyId, this.apiContext).then((currency) => {
                 this.currency = currency;
             });
         },
@@ -115,13 +115,13 @@ Component.register('sw-settings-currency-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return this.currencyRepository.save(this.currency, this.context).then(() => {
+            return this.currencyRepository.save(this.currency, this.apiContext).then(() => {
                 this.isSaveSuccessful = true;
                 if (!this.currencyId) {
                     this.$router.push({ name: 'sw.settings.currency.detail', params: { id: this.currency.id } });
                 }
 
-                this.currencyRepository.get(this.currency.id, this.context).then((updatedCurrency) => {
+                this.currencyRepository.get(this.currency.id, this.apiContext).then((updatedCurrency) => {
                     this.currency = updatedCurrency;
                     this.isLoading = false;
                 });

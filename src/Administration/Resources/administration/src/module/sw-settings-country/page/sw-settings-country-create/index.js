@@ -27,7 +27,7 @@ Component.extend('sw-settings-country-create', 'sw-settings-country-detail', {
             }
 
             if (this.$route.params.id) {
-                this.country = this.countryRepository.create(this.context, this.$route.params.id);
+                this.country = this.countryRepository.create(this.apiContext, this.$route.params.id);
                 this.countryStateRepository = this.repositoryFactory.create(
                     this.country.states.entity,
                     this.country.states.source

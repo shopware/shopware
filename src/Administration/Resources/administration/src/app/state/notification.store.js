@@ -45,7 +45,7 @@ function _mergeNotificationUpdate(originalNotification, notificationUpdate) {
 }
 
 function _getStorageKey() {
-    const userId = State.getStore('adminUser').state.currentUser;
+    const userId = State.getStore('adminUser').state.currentUser.id;
     if (!userId) {
         return null;
     }

@@ -6,7 +6,7 @@ const { Component, Mixin } = Shopware;
 Component.extend('sw-product-variants-configurator-selection', 'sw-property-search', {
     template,
 
-    inject: ['repositoryFactory', 'context'],
+    inject: ['repositoryFactory', 'apiContext'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -74,7 +74,7 @@ Component.extend('sw-product-variants-configurator-selection', 'sw-property-sear
                 return;
             }
 
-            const newOption = this.configuratorSettingsRepository.create(this.context);
+            const newOption = this.configuratorSettingsRepository.create(this.apiContext);
             newOption.optionId = item.id;
             newOption.option = item;
 

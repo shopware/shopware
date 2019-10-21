@@ -9,7 +9,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-number-range-detail', {
     template,
 
-    inject: ['numberRangeService', 'repositoryFactory', 'context'],
+    inject: ['numberRangeService', 'repositoryFactory', 'apiContext'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -212,7 +212,7 @@ Component.register('sw-settings-number-range-detail', {
             numberRangeSalesChannelCriteria.addFilter(
                 Criteria.equals('numberRangeTypeId', id)
             );
-            numberRangeSalesChannels.search(numberRangeSalesChannelCriteria, this.context).then((responseSalesChannels) => {
+            numberRangeSalesChannels.search(numberRangeSalesChannelCriteria, this.apiContext).then((responseSalesChannels) => {
                 const assignedSalesChannelIds = [];
                 responseSalesChannels.forEach((salesChannel) => {
                     assignedSalesChannelIds.push(salesChannel.salesChannelId);

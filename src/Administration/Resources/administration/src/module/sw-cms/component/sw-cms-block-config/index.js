@@ -9,7 +9,7 @@ Component.register('sw-cms-block-config', {
     inject: [
         'repositoryFactory',
         'cmsService',
-        'context'
+        'apiContext'
     ],
 
     model: {
@@ -60,7 +60,7 @@ Component.register('sw-cms-block-config', {
         successfulUpload(media) {
             this.block.backgroundMediaId = media.targetId;
 
-            this.mediaRepository.get(media.targetId, this.context).then((mediaItem) => {
+            this.mediaRepository.get(media.targetId, this.apiContext).then((mediaItem) => {
                 this.block.backgroundMedia = mediaItem;
                 this.$emit('block-update', this.block);
             });

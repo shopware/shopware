@@ -21,9 +21,9 @@ Component.extend('sw-mail-template-create', 'sw-mail-template-detail', {
             }
 
             if (this.$route.params.id) {
-                this.mailTemplate = this.mailTemplateRepository.create(this.context, this.$route.params.id);
+                this.mailTemplate = this.mailTemplateRepository.create(this.apiContext, this.$route.params.id);
             } else {
-                this.mailTemplate = this.mailTemplateRepository.create(this.context);
+                this.mailTemplate = this.mailTemplateRepository.create(this.apiContext);
             }
 
             this.mailTemplateId = this.mailTemplate.id;

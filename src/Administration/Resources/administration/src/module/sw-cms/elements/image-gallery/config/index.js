@@ -14,7 +14,7 @@ Component.register('sw-cms-el-config-image-gallery', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     data() {
@@ -68,7 +68,7 @@ Component.register('sw-cms-el-config-image-gallery', {
                     Criteria.equalsAny('id', mediaIds)
                 );
 
-                this.mediaRepository.search(criteria, this.context).then((response) => {
+                this.mediaRepository.search(criteria, this.apiContext).then((response) => {
                     this.mediaItems = response;
                 });
             }

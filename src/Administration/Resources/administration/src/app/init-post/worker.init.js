@@ -8,7 +8,7 @@ let enabled = false;
  */
 export default function initializeWorker() {
     const loginService = Shopware.Service('loginService');
-    const context = Shopware.Context;
+    const context = Shopware.Context.App;
     const workerNotificationFactory = this.getContainer('factory').workerNotification;
     const configService = Shopware.Service('configService');
 

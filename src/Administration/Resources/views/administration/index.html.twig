@@ -57,23 +57,29 @@
         basePath:           /next/web
         pathInfo:           /admin
     */
-    const applicationContext = {
-        host: '{{ app.request.host }}',
-        port: {{ app.request.port }},
-        scheme: '{{ app.request.scheme }}',
-        schemeAndHttpHost: '{{ app.request.schemeAndHttpHost }}',
-        uri: '{{ app.request.uri }}',
-        basePath: '{{ app.request.basePath }}',
-        pathInfo: '{{ app.request.pathInfo }}',
-        features: {{ features|json_encode|raw }},
-        systemLanguageId: '{{ systemLanguageId }}',
-        defaultLanguageIds: {{ defaultLanguageIds|json_encode|raw }},
-        liveVersionId: '{{ liveVersionId }}',
-        firstRunWizard: {{ firstRunWizard ? 'true' : 'false' }},
-        systemCurrencyId: '{{ systemCurrencyId }}'
+    const shopwareConfig = {
+        apiContext: {
+            host: '{{ app.request.host }}',
+            port: {{ app.request.port }},
+            scheme: '{{ app.request.scheme }}',
+            schemeAndHttpHost: '{{ app.request.schemeAndHttpHost }}',
+            uri: '{{ app.request.uri }}',
+            basePath: '{{ app.request.basePath }}',
+            pathInfo: '{{ app.request.pathInfo }}',
+            liveVersionId: '{{ liveVersionId }}'
+        },
+        appContext: {
+            features: {{ features|json_encode|raw }},
+            firstRunWizard: {{ firstRunWizard ? 'true' : 'false' }},
+            systemCurrencyId: '{{ systemCurrencyId }}'
+        },
+        language: {
+            systemLanguageId: '{{ systemLanguageId }}',
+            defaultLanguageIds: {{ defaultLanguageIds|json_encode|raw }}
+        }
     };
 
-    Shopware.Application.start(applicationContext);
+    Shopware.Application.start(shopwareConfig);
 </script>
 
 </body>

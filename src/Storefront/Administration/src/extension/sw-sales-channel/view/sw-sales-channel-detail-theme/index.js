@@ -14,7 +14,7 @@ Component.register('sw-sales-channel-detail-theme', {
 
     inject: [
         'repositoryFactory',
-        'context',
+        'apiContext',
         'themeService'
     ],
 
@@ -79,7 +79,7 @@ Component.register('sw-sales-channel-detail-theme', {
             const criteria = new Criteria();
             criteria.addAssociation('previewMedia');
 
-            this.themeRepository.get(themeId, this.context, criteria).then((theme) => {
+            this.themeRepository.get(themeId, this.apiContext, criteria).then((theme) => {
                 this.theme = theme;
             });
         },

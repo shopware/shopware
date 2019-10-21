@@ -16,7 +16,7 @@ const { warn } = Shopware.Utils.debug;
 Component.register('sw-language-switch', {
     template,
 
-    inject: ['context'],
+    inject: ['apiContext'],
 
     props: {
         disabled: {
@@ -102,7 +102,7 @@ Component.register('sw-language-switch', {
             if (this.changeGlobalLanguage) {
                 this.languageStore.setCurrentId(this.languageId).then(() => {
                     localStorage.setItem('sw-admin-current-language', this.languageId);
-                    this.context.languageId = this.languageId;
+                    this.apiContext.languageId = this.languageId;
                     this.$root.$emit('on-change-application-language', { languageId: this.languageId });
                 });
             }

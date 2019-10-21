@@ -23,7 +23,6 @@ Component.register('sw-plugin-list', {
     inject: [
         'pluginService',
         'systemConfigApiService',
-        'context',
         'cacheApiService',
         'licenseViolationService'
     ],

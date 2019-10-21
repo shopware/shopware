@@ -9,7 +9,7 @@ const types = Shopware.Utils.types;
 Component.register('sw-promotion-basic-form', {
     template,
 
-    inject: ['repositoryFactory', 'context'],
+    inject: ['repositoryFactory', 'apiContext'],
 
     mixins: [
         Mixin.getByName('placeholder')
@@ -60,7 +60,7 @@ Component.register('sw-promotion-basic-form', {
             const promotionRepository = this.repositoryFactory.create('promotion');
             const criteria = (new Criteria()).addFilter(Criteria.equalsAny('id', this.promotion.exclusionIds));
 
-            promotionRepository.search(criteria, this.context).then((excluded) => {
+            promotionRepository.search(criteria, this.apiContext).then((excluded) => {
                 this.excludedPromotions = excluded;
             });
         },
@@ -80,7 +80,7 @@ Component.register('sw-promotion-basic-form', {
         },
 
         createPromotionCollection() {
-            return new EntityCollection('/promotion', 'promotion', this.context, new Criteria());
+            return new EntityCollection('/promotion', 'promotion', this.apiContext, new Criteria());
         }
     }
 });

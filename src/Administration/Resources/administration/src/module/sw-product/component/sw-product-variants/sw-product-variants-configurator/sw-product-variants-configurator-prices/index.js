@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-product-variants-configurator-prices', {
     template,
 
-    inject: ['repositoryFactory', 'context'],
+    inject: ['repositoryFactory', 'apiContext'],
 
     props: {
         product: {
@@ -90,7 +90,7 @@ Component.register('sw-product-variants-configurator-prices', {
 
         loadCurrencies() {
             this.currencyRepository
-                .search(new Criteria(), this.context)
+                .search(new Criteria(), this.apiContext)
                 .then((searchResult) => {
                     this.currencies = searchResult;
                 });

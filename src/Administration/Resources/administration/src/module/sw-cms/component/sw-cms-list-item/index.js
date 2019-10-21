@@ -46,13 +46,13 @@ Component.register('sw-cms-list-item', {
         },
 
         defaultLayoutAsset() {
-            const context = Shopware.Context;
+            const context = Shopware.Context.Api;
 
             return `url(${context.assetsPath}/administration/static/img/cms/default_preview_${this.page.type}.jpg)`;
         },
 
         defaultItemLayoutAssetBackground() {
-            const context = Shopware.Context;
+            const context = Shopware.Context.Api;
             const path = 'administration/static/img/cms';
 
             if (this.page.sections.length < 1) {

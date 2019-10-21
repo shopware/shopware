@@ -1,11 +1,8 @@
 import { initializeUserNotifications } from 'src/app/state/notification.store';
 
-const { State } = Shopware;
-
 export default function initializeUserContext() {
     return new Promise((resolve) => {
         const loginService = Shopware.Service('loginService');
-        const context = Shopware.Context;
         const userService = Shopware.Service('userService');
 
         // The user isn't logged in
@@ -17,12 +14,10 @@ export default function initializeUserContext() {
         }
 
         userService.getUser().then((response) => {
-            // Populate the current user to the context object
             const data = response.data;
             delete data.password;
 
-            context.currentUser = data;
-            State.getStore('adminUser').state.currentUser = data;
+            Shopware.State.getStore('adminUser').state.currentUser = data;
             initializeUserNotifications();
             resolve();
         }).catch(() => {

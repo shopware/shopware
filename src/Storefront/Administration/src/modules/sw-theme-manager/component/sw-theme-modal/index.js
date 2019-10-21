@@ -9,7 +9,7 @@ Component.register('sw-theme-modal', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     mixins: [
@@ -48,7 +48,7 @@ Component.register('sw-theme-modal', {
                 criteria.setTerm(this.term);
             }
 
-            return this.themeRepository.search(criteria, this.context).then((searchResult) => {
+            return this.themeRepository.search(criteria, this.apiContext).then((searchResult) => {
                 this.total = searchResult.total;
                 this.themes = searchResult;
                 this.isLoading = false;

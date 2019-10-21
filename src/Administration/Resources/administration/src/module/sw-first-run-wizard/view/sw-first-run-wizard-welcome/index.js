@@ -12,7 +12,7 @@ Component.register('sw-first-run-wizard-welcome', {
         'userService',
         'loginService',
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     data() {
@@ -92,7 +92,7 @@ Component.register('sw-first-run-wizard-welcome', {
         setUserData(userProfile) {
             this.userProfile = userProfile;
             return new Promise((resolve) => {
-                resolve(this.userRepository.get(this.userProfile.id, this.context));
+                resolve(this.userRepository.get(this.userProfile.id, this.apiContext));
             });
         },
 
@@ -124,11 +124,11 @@ Component.register('sw-first-run-wizard-welcome', {
         },
 
         onConfirmLanguageSwitch() {
-            this.userRepository.save(this.user, this.context)
+            this.userRepository.save(this.user, this.apiContext)
                 .then(() => {
                     this.showConfirmLanguageSwitchModal = false;
 
-                    this.localeRepository.get(this.user.localeId, this.context).then(({ code }) => {
+                    this.localeRepository.get(this.user.localeId, this.apiContext).then(({ code }) => {
                         this.$store.dispatch('setAdminLocale', code);
                         window.localStorage.setItem('sw-admin-locale', code);
                         document.location.reload();
@@ -161,7 +161,7 @@ Component.register('sw-first-run-wizard-welcome', {
             languageCriteria.addSorting(Criteria.sort('locale.territory', 'ASC'));
             languageCriteria.limit = 10;
 
-            return this.languageRepository.search(languageCriteria, this.context).then((result) => {
+            return this.languageRepository.search(languageCriteria, this.apiContext).then((result) => {
                 this.languages = [];
                 result.forEach((lang) => {
                     lang.customLabel = `${lang.locale.translated.name} (${lang.locale.translated.territory})`;

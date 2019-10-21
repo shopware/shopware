@@ -9,7 +9,7 @@ Component.register('sw-newsletter-recipient-detail', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     mixins: [
@@ -54,14 +54,14 @@ Component.register('sw-newsletter-recipient-detail', {
 
             recipientCriteria.addFilter(Criteria.equals('id', this.$route.params.id));
             recipientCriteria.addAssociation('tags');
-            this.newsletterRecipientStore.search(recipientCriteria, this.context).then((newsletterRecipient) => {
+            this.newsletterRecipientStore.search(recipientCriteria, this.apiContext).then((newsletterRecipient) => {
                 this.newsletterRecipient = newsletterRecipient.first();
                 this.isLoading = false;
             });
         },
 
         onClickSave() {
-            this.newsletterRecipientStore.save(this.newsletterRecipient, this.context).then(() => {
+            this.newsletterRecipientStore.save(this.newsletterRecipient, this.apiContext).then(() => {
                 this.createNotificationSuccess({
                     title: this.$tc('sw-newsletter-recipient.detail.titleSaveSuccess'),
                     message: this.$tc(

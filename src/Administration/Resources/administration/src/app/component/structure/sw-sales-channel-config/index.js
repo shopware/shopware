@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-sales-channel-config', {
     template,
 
-    inject: ['systemConfigApiService', 'repositoryFactory', 'context'],
+    inject: ['systemConfigApiService', 'repositoryFactory', 'apiContext'],
 
     props: {
         domain: {
@@ -66,7 +66,7 @@ Component.register('sw-sales-channel-config', {
     methods: {
         createdComponent() {
             if (!this.salesChannel.length) {
-                this.salesChannelRepository.search(new Criteria(), this.context).then(res => {
+                this.salesChannelRepository.search(new Criteria(), this.apiContext).then(res => {
                     res.add({
                         id: null,
                         translated: {

@@ -13,7 +13,7 @@ Component.register('sw-settings-delivery-time-list', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     data() {
@@ -46,7 +46,7 @@ Component.register('sw-settings-delivery-time-list', {
             this.isLoading = true;
 
             this.deliveryTimeRepository
-                .search(criteria, this.context)
+                .search(criteria, this.apiContext)
                 .then((deliveryTime) => {
                     this.total = deliveryTime.total;
                     this.deliveryTimes = deliveryTime;

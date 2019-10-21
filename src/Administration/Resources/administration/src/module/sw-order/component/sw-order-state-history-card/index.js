@@ -14,7 +14,7 @@ Component.register('sw-order-state-history-card', {
         'orderService',
         'stateMachineService',
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
     props: {
         title: {
@@ -108,7 +108,7 @@ Component.register('sw-order-state-history-card', {
         getStateHistoryEntries() {
             return this.stateMachineHistoryRepository.search(
                 this.stateMachineHistoryCriteria,
-                this.context
+                this.apiContext
             ).then((fetchedEntries) => {
                 this.orderHistory = this.buildStateHistory(this.order, fetchedEntries);
                 if (this.transaction) {
@@ -186,7 +186,7 @@ Component.register('sw-order-state-history-card', {
         },
 
         getAllStates() {
-            return this.stateMachineStateRepository.search(this.stateMachineStateCriteria(), this.context);
+            return this.stateMachineStateRepository.search(this.stateMachineStateCriteria(), this.apiContext);
         },
 
         stateMachineStateCriteria() {

@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-language-detail', {
     template,
 
-    inject: ['repositoryFactory', 'context'],
+    inject: ['repositoryFactory', 'apiContext'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -114,14 +114,14 @@ Component.register('sw-settings-language-detail', {
         createdComponent() {
             if (!this.languageId) {
                 this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
-                this.language = this.languageRepository.create(this.context);
+                this.language = this.languageRepository.create(this.apiContext);
             } else {
                 this.loadEntityData();
             }
 
             this.languageRepository.search(
                 this.usedLocaleCriteria,
-                this.context
+                this.apiContext
             ).then(({ aggregations }) => {
                 this.usedLocales = aggregations.usedLocales.buckets;
             });
@@ -129,7 +129,7 @@ Component.register('sw-settings-language-detail', {
 
         loadEntityData() {
             this.isLoading = true;
-            this.languageRepository.get(this.languageId, this.context).then((language) => {
+            this.languageRepository.get(this.languageId, this.apiContext).then((language) => {
                 this.isLoading = false;
                 this.language = language;
             }).catch(() => {
@@ -164,7 +164,7 @@ Component.register('sw-settings-language-detail', {
 
         onSave() {
             this.isLoading = true;
-            this.languageRepository.save(this.language, this.context).then(() => {
+            this.languageRepository.save(this.language, this.apiContext).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
                 if (!this.languageId) {

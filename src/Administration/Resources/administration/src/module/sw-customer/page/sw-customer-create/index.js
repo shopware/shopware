@@ -31,13 +31,13 @@ Component.extend('sw-customer-create', 'sw-customer-detail', {
 
     methods: {
         createdComponent() {
-            this.customer = this.customerRepository.create(this.context, this.$route.params.id);
+            this.customer = this.customerRepository.create(this.apiContext, this.$route.params.id);
             const addressRepository = this.repositoryFactory.create(
                 this.customer.addresses.entity,
                 this.customer.addresses.source
             );
 
-            const defaultAddress = addressRepository.create(this.context);
+            const defaultAddress = addressRepository.create(this.apiContext);
 
             this.customer.addresses.add(defaultAddress);
             this.customer.defaultBillingAddressId = defaultAddress.id;

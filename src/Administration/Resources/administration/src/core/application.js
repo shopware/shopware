@@ -120,7 +120,7 @@ class ApplicationBootstrapper {
      *
      * @example
      * Shopware.Application.addInitializer('httpClient', (container) => {
-     *    return HttpFactory(container.context);
+     *    return HttpFactory(container.apiContext);
      * });
      *
      * @param {String} name Name of the initializer
@@ -152,14 +152,38 @@ class ApplicationBootstrapper {
         return this;
     }
 
+    registerConfig(config) {
+        // TODO: Refactor context factory
+        this.registerApiContext(config.apiContext);
+        this.registerAppContext(config.appContext);
+        // TODO: Register language
+
+        return this;
+    }
+
     /**
-     * Registers the application context (api path, path to resources etc.)
+     * Registers the api context (api path, path to resources etc.)
      *
      * @param {Object} context
      * @returns {ApplicationBootstrapper}
      */
-    registerContext(context) {
-        this.addServiceProvider('context', () => {
+    registerApiContext(context) {
+        this.addServiceProvider('apiContext', () => {
+            const ContextFactory = Shopware.Classes._private.ContextFactory;
+
+            return ContextFactory(context);
+        });
+        return this;
+    }
+
+    /**
+     * Registers the app context (firstRunWizard, etc.)
+     *
+     * @param {Object} context
+     * @returns {ApplicationBootstrapper}
+     */
+    registerAppContext(context) {
+        this.addServiceProvider('appContext', () => {
             const ContextFactory = Shopware.Classes._private.ContextFactory;
 
             return ContextFactory(context);
@@ -212,9 +236,9 @@ class ApplicationBootstrapper {
      * @returns {module:core/application.ApplicationBootstrapper}
      */
     initializeFeatureFlags() {
-        const config = this.getContainer('service').context.features;
+        const appContext = this.getContainer('service').appContext;
 
-        Shopware.FeatureConfig.init(config);
+        Shopware.FeatureConfig.init(appContext.features);
 
         return this;
     }
@@ -261,11 +285,11 @@ class ApplicationBootstrapper {
     /**
      * Starts the bootstrapping process of the application.
      *
-     * @param {Object} [context={}]
+     * @param {Object} [config={}]
      * @returns {module:core/application.ApplicationBootstrapper}
      */
-    start(context = {}) {
-        return this.registerContext(context)
+    start(config = {}) {
+        return this.registerConfig(config)
             .initializeFeatureFlags()
             .startBootProcess();
     }
@@ -366,7 +390,7 @@ class ApplicationBootstrapper {
         const router = initContainer.router.getRouterInstance();
 
         // We're in a test environment, we're not needing an application root
-        if (serviceContainer.context.environment === 'testing') {
+        if (serviceContainer.appContext.environment === 'testing') {
             return Promise.resolve(this);
         }
 
@@ -376,7 +400,7 @@ class ApplicationBootstrapper {
             this.getContainer('service')
         );
 
-        const firstRunWizard = serviceContainer.context.firstRunWizard;
+        const firstRunWizard = serviceContainer.appContext.firstRunWizard;
         if (firstRunWizard && !router.history.current.name.startsWith('sw.first.run.wizard.')) {
             router.push({
                 name: 'sw.first.run.wizard.index'
@@ -478,7 +502,7 @@ class ApplicationBootstrapper {
     /**
      * Load all plugins from the server and inject them into the Site.
      * @private
-     * @returns {Promise<any[]>}
+     * @returns {Promise<any[][]>}
      */
     loadPlugins() {
         const isDevelopmentMode = process.env.NODE_ENV;
@@ -494,8 +518,8 @@ class ApplicationBootstrapper {
         }
 
         // in production
-        const context = this.getContainer('service').context;
-        const plugins = context.config.bundles;
+        const appContext = this.getContainer('service').appContext;
+        const plugins = appContext.config.bundles;
 
         const injectAllPlugins = Object.values(plugins).map((plugin) => this.injectPlugin(plugin));
         return Promise.all(injectAllPlugins);

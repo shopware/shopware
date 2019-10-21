@@ -9,7 +9,7 @@ Component.register('sw-product-stream-list', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     mixins: [
@@ -70,7 +70,7 @@ Component.register('sw-product-stream-list', {
             const naturalSort = this.sortBy === 'createdAt';
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, naturalSort));
 
-            this.productStreamRepository.search(criteria, this.context).then((items) => {
+            this.productStreamRepository.search(criteria, this.apiContext).then((items) => {
                 this.total = items.total;
                 this.productStreams = items;
                 this.isLoading = false;
@@ -92,7 +92,7 @@ Component.register('sw-product-stream-list', {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.productStreamRepository.delete(id, this.context).then(() => {
+            return this.productStreamRepository.delete(id, this.apiContext).then(() => {
                 this.getList();
             });
         },

@@ -9,7 +9,7 @@ Component.register('sw-sales-channel-detail', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     mixins: [
@@ -107,7 +107,7 @@ Component.register('sw-sales-channel-detail', {
 
             this.isLoading = true;
             this.salesChannelRepository
-                .get(this.$route.params.id, this.context, criteria)
+                .get(this.$route.params.id, this.apiContext, criteria)
                 .then((entity) => {
                     this.salesChannel = entity;
                     this.isLoading = false;
@@ -122,7 +122,7 @@ Component.register('sw-sales-channel-detail', {
                 .addSorting(Criteria.sort('config.customFieldPosition'));
 
             this.customFieldRepository
-                .search(criteria, this.context)
+                .search(criteria, this.apiContext)
                 .then((searchResult) => {
                     this.customFieldSets = searchResult;
                 });
@@ -138,7 +138,7 @@ Component.register('sw-sales-channel-detail', {
             this.isSaveSuccessful = false;
 
             this.salesChannelRepository
-                .save(this.salesChannel, this.context)
+                .save(this.salesChannel, this.apiContext)
                 .then(() => {
                     this.isLoading = false;
                     this.isSaveSuccessful = true;

@@ -8,7 +8,7 @@ Component.register('sw-mail-header-footer-list', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     mixins: [
@@ -47,7 +47,7 @@ Component.register('sw-mail-header-footer-list', {
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('salesChannels');
 
-            this.mailHeaderFooterRepository.search(criteria, this.context).then((items) => {
+            this.mailHeaderFooterRepository.search(criteria, this.apiContext).then((items) => {
                 this.total = items.total;
                 this.mailHeaderFooters = items;
                 this.isLoading = false;

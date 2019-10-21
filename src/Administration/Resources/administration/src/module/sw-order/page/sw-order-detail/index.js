@@ -12,7 +12,7 @@ Component.register('sw-order-detail', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     data() {

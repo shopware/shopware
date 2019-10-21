@@ -19,7 +19,7 @@ const Criteria = Shopware.Data.Criteria;
  *      - promotion: Promotion Entity
  */
 Component.register('sw-promotion-individualcodes', {
-    inject: ['repositoryFactory', 'context'],
+    inject: ['repositoryFactory', 'apiContext'],
     template,
 
     mixins: [
@@ -109,7 +109,7 @@ Component.register('sw-promotion-individualcodes', {
     },
     methods: {
         createdComponent() {
-            this.codeGenerator = new IndividualCodeGenerator(this.promotion.id, this.repository, this.context);
+            this.codeGenerator = new IndividualCodeGenerator(this.promotion.id, this.repository, this.apiContext);
             this.codeGenerator.on('generate-begin', this.onGenerateBegin);
             this.codeGenerator.on('generate-cleared', this.onGenerateCleared);
             this.codeGenerator.on('generate-progress', this.onGenerateProgress);
@@ -266,7 +266,7 @@ Component.register('sw-promotion-individualcodes', {
                 // thus we iterate through ids that need to be deleted in here.
                 // wait for this async call, because the calling
                 // function might need to refresh our grid afterwards.
-                const promise = await this.repository.delete(code.id, this.context)
+                const promise = await this.repository.delete(code.id, this.apiContext)
                     .then(() => {
                         return true;
                     })
@@ -306,7 +306,7 @@ Component.register('sw-promotion-individualcodes', {
 
             // load all our individual codes of our promotion
             // into our local promotion object.
-            this.repository.search(criteria, this.context).then((codeCollection) => {
+            this.repository.search(criteria, this.apiContext).then((codeCollection) => {
                 // assign our ui data
                 this.totalCodesCount = codeCollection.total;
                 this.gridPageDataSource = codeCollection;

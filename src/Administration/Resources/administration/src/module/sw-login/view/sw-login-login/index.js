@@ -6,7 +6,7 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-login-login', {
     template,
 
-    inject: ['loginService', 'userService', 'context', 'licenseViolationService'],
+    inject: ['loginService', 'userService', 'licenseViolationService'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -71,7 +71,7 @@ Component.register('sw-login-login', {
             const previousRoute = JSON.parse(sessionStorage.getItem('sw-admin-previous-route'));
             sessionStorage.removeItem('sw-admin-previous-route');
 
-            const firstRunWizard = this.context.firstRunWizard;
+            const firstRunWizard = Shopware.Context.App.firstRunWizard;
 
             if (firstRunWizard && !this.$router.history.current.name.startsWith('sw.first.run.wizard.')) {
                 this.$router.push({ name: 'sw.first.run.wizard.index' });

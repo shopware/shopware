@@ -39,8 +39,8 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
             this.$store.commit('adminMenu/collapseSidebar');
 
             if (!this.isSystemDefaultLanguage) {
-                this.languageStore.setCurrentId(this.context.systemLanguageId);
-                this.currentLanguageId = this.context.systemLanguageId;
+                this.languageStore.setCurrentId(this.apiContext.systemLanguageId);
+                this.currentLanguageId = this.apiContext.systemLanguageId;
             }
 
             this.page = this.pageRepository.create();
@@ -72,7 +72,7 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
 
             this.isLoading = true;
 
-            return this.pageRepository.save(this.page, this.context).then(() => {
+            return this.pageRepository.save(this.page, this.apiContext).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
             }).catch((exception) => {

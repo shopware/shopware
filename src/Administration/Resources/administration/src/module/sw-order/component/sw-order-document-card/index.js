@@ -16,7 +16,7 @@ Component.register('sw-order-document-card', {
         'documentService',
         'numberRangeService',
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     mixins: [
@@ -139,7 +139,7 @@ Component.register('sw-order-document-card', {
         createdComponent() {
             this.cardLoading = true;
 
-            this.documentTypeRepository.search(this.documentTypeCriteria, this.context).then((response) => {
+            this.documentTypeRepository.search(this.documentTypeCriteria, this.apiContext).then((response) => {
                 this.documentTypes = response;
                 this.cardLoading = false;
             });
@@ -148,7 +148,7 @@ Component.register('sw-order-document-card', {
         getList() {
             this.documentsLoading = true;
 
-            return this.documentRepository.search(this.documentCriteria, this.context).then((response) => {
+            return this.documentRepository.search(this.documentCriteria, this.apiContext).then((response) => {
                 this.total = response.total;
                 this.documents = response;
                 this.documentsLoading = false;
@@ -226,7 +226,7 @@ Component.register('sw-order-document-card', {
                         this.documentService.generateDocumentLink(
                             response.data.documentId,
                             response.data.documentDeepLink,
-                            this.context,
+                            this.apiContext,
                             true
                         ),
                         '_blank'
@@ -243,14 +243,14 @@ Component.register('sw-order-document-card', {
                     this.order.deepLinkCode,
                     this.currentDocumentType.technicalName,
                     config,
-                    this.context
+                    this.apiContext
                 ),
                 '_blank'
             );
         },
 
         onDownload(id, deepLink) {
-            window.open(this.documentService.generateDocumentLink(id, deepLink, this.context, false), '_blank');
+            window.open(this.documentService.generateDocumentLink(id, deepLink, this.apiContext, false), '_blank');
         }
     }
 });

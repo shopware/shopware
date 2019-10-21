@@ -10,7 +10,7 @@ Component.register('sw-newsletter-recipient-list', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     mixins: [
@@ -68,14 +68,14 @@ Component.register('sw-newsletter-recipient-list', {
 
     methods: {
         createdComponent() {
-            this.tagCollection = new EntityCollection('/tag', 'tag', this.context, new Criteria());
+            this.tagCollection = new EntityCollection('/tag', 'tag', this.apiContext, new Criteria());
 
             const criteria = new Criteria(1, 100);
-            this.languageStore.search(criteria, this.context).then((items) => {
+            this.languageStore.search(criteria, this.apiContext).then((items) => {
                 this.languageFilters = items;
             });
 
-            this.salesChannelStore.search(criteria, this.context).then((items) => {
+            this.salesChannelStore.search(criteria, this.apiContext).then((items) => {
                 this.salesChannelFilters = items;
             });
 
@@ -92,7 +92,7 @@ Component.register('sw-newsletter-recipient-list', {
             });
 
             this.repository = this.repositoryFactory.create('newsletter_recipient');
-            this.repository.search(criteria, this.context).then((searchResult) => {
+            this.repository.search(criteria, this.apiContext).then((searchResult) => {
                 this.items = searchResult;
                 this.total = searchResult.total;
 

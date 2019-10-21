@@ -10,7 +10,7 @@ Component.register('sw-customer-detail', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     mixins: [
@@ -139,11 +139,11 @@ Component.register('sw-customer-detail', {
                 if (!this.createMode) {
                     this.customerRepository.get(
                         this.customerId,
-                        this.context,
+                        this.apiContext,
                         this.defaultCriteria
                     ).then((customer) => {
                         this.customer = customer;
-                        this.languageRepository.get(this.customer.languageId, this.context).then((language) => {
+                        this.languageRepository.get(this.customer.languageId, this.apiContext).then((language) => {
                             this.language = language;
                             this.isLoading = false;
                         });
@@ -172,7 +172,7 @@ Component.register('sw-customer-detail', {
 
             const criteria = new Criteria(1, 100);
             criteria.addAssociation('languages');
-            this.salesChannelRepository.search(criteria, this.context).then((searchResult) => {
+            this.salesChannelRepository.search(criteria, this.apiContext).then((searchResult) => {
                 searchResult.forEach((salesChannel) => {
                     if (salesChannel.id === this.customer.salesChannelId) {
                         this.languages = salesChannel.languages;
@@ -181,30 +181,30 @@ Component.register('sw-customer-detail', {
                 this.salesChannels = searchResult;
             });
 
-            this.customerGroupRepository.search(new Criteria(1, 100), this.context).then((searchResult) => {
+            this.customerGroupRepository.search(new Criteria(1, 100), this.apiContext).then((searchResult) => {
                 this.customerGroups = searchResult;
             });
 
             const countryCriteria = new Criteria(1, 100);
             countryCriteria.addSorting(Criteria.sort('name'));
-            this.countryRepository.search(countryCriteria, this.context).then((searchResult) => {
+            this.countryRepository.search(countryCriteria, this.apiContext).then((searchResult) => {
                 this.countries = searchResult;
             });
 
-            this.paymentMethodRepository.search(new Criteria(1, 100), this.context).then((searchResult) => {
+            this.paymentMethodRepository.search(new Criteria(1, 100), this.apiContext).then((searchResult) => {
                 this.paymentMethods = searchResult;
             });
 
             this.customFieldSetRepository.search(
                 this.buildCustomFieldCriteria('customer'),
-                this.context
+                this.apiContext
             ).then((searchResult) => {
                 this.customerCustomFieldSets = searchResult.filter(set => set.customFields.length > 0);
             });
 
             this.customFieldSetRepository.search(
                 this.buildCustomFieldCriteria('customer_address'),
-                this.context
+                this.apiContext
             ).then((searchResult) => {
                 this.customerAddressCustomFieldSets = searchResult.filter(set => set.customFields.length > 0);
             });
@@ -227,7 +227,7 @@ Component.register('sw-customer-detail', {
             }
             this.isLoading = true;
 
-            return this.customerRepository.save(this.customer, this.context).then(() => {
+            return this.customerRepository.save(this.customer, this.apiContext).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
                 this.createdComponent();

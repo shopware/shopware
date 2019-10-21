@@ -8,7 +8,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-promotion-detail-discounts', {
     template,
 
-    inject: ['repositoryFactory', 'context'],
+    inject: ['repositoryFactory', 'apiContext'],
 
     data() {
         return {
@@ -81,7 +81,7 @@ Component.register('sw-promotion-detail-discounts', {
                 this.discounts.entity,
                 this.discounts.source
             );
-            const newDiscount = promotionDiscountRepository.create(this.context);
+            const newDiscount = promotionDiscountRepository.create(this.apiContext);
             newDiscount.promotionId = this.promotion.id;
             newDiscount.scope = DiscountScopes.CART;
             newDiscount.type = DiscountTypes.PERCENTAGE;

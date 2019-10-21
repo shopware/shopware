@@ -229,8 +229,9 @@ const Shopware = {
      * @memberOf module:Shopware
      * @type {Object}
      */
-    get Context() {
-        return application.getContainer('service').context;
+    Context: {
+        get App() { return application.getContainer('service').appContext; },
+        get Api() { return application.getContainer('service').apiContext; }
     },
 
     /**

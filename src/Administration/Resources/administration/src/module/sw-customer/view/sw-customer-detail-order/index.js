@@ -9,7 +9,7 @@ Component.register('sw-customer-detail-order', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     props: {
@@ -94,7 +94,7 @@ Component.register('sw-customer-detail-order', {
             criteria.addAssociation('stateMachineState')
                 .addAssociation('currency');
 
-            this.orderRepository.search(criteria, this.context).then((orders) => {
+            this.orderRepository.search(criteria, this.apiContext).then((orders) => {
                 this.orders = orders;
                 this.isLoading = false;
             });

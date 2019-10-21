@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 use Composer\Autoload\ClassLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Test\Filesystem\Adapter\MemoryAdapterFactory;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DependencyInjection\ResettableContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -108,7 +107,10 @@ class KernelLifecycleManager
 
         $pluginLoader = new DbalKernelPluginLoader(self::$classLoader, null, static::$class::getConnection());
 
-        $cacheId = Uuid::randomHex();
+        // This hash MUST be constant as long as NEXT-5273 is not resolved.
+        // Otherwise tests using a dataprovider wither services (such as JsonSalesChannelEntityEncoderTest)
+        // will fail randomly
+        $cacheId = 'h8f3f0ee9c61829627676afd6294bb029';
 
         return new static::$class($env, $debug, $pluginLoader, $cacheId);
     }

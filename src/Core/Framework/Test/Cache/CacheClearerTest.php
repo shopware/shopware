@@ -60,6 +60,7 @@ class CacheClearerTest extends TestCase
 
         static::assertNotContains($second->getCacheDir(), $oldCacheDirs);
 
+        /** @var CacheClearer $clearer */
         $clearer = $this->getContainer()->get(CacheClearer::class);
         $clearer->clear();
 

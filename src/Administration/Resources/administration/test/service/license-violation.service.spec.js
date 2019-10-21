@@ -1,5 +1,6 @@
 import LicenseViolationService from 'src/app/service/license-violations.service';
-import { Application } from 'src/core/shopware';
+
+const Application = Shopware.Application;
 
 describe('app/service/license-violation.service.js', () => {
     const licenseViolationService = LicenseViolationService(Application.getContainer('service').storeService);

@@ -353,4 +353,5 @@ const Shopware = {
 };
 
 window.Shopware = Shopware;
-module.exports = Shopware;
+exports.default = Shopware;
+module.exports = exports.default;

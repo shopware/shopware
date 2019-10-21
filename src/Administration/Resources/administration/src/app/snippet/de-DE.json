@@ -4,6 +4,13 @@
       "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "Dieses Feld darf nicht leer sein",
       "INVALID_MEDIA_URL": "Bitte gib eine valide URL ein, um eine Datei hochzuladen."
     },
+    "form": {
+      "applyAction": "Anwenden",
+      "cancelAction": "Abbrechen",
+      "deleteAction": "Löschen",
+      "editAction": "Bearbeiten",
+      "saveAction": "Speichern"
+    },
     "notification": {
       "notificationSaveErrorTitle": "Fehler",
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",

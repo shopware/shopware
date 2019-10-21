@@ -8,7 +8,7 @@ Mixin.register('position', {
     methods: {
         /**
          * Returns a new position value using the the current max position + 1
-         * starting with 0
+         * starting with 1
          *
          * @param {Repository} repository
          * @param {Criteria} criteria - Criteria for cases when the position isn't unique itself
@@ -24,7 +24,7 @@ Mixin.register('position', {
                 const position = parseInt(result.aggregations.maxPosition.max, 10);
 
                 if (Number.isNaN(position)) {
-                    return Promise.resolve(0);
+                    return Promise.resolve(1);
                 }
 
                 return Promise.resolve(position + 1);

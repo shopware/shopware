@@ -27,6 +27,11 @@ Component.register('sw-cms-create-wizard', {
                 landingpage: 'default-web-dashboard',
                 product_list: 'default-shopping-basket',
                 product_detail: 'default-action-tags'
+            },
+            steps: {
+                pageType: 1,
+                sectionType: 2,
+                pageName: 3
             }
         };
     },
@@ -51,7 +56,31 @@ Component.register('sw-cms-create-wizard', {
         }
     },
 
+    watch: {
+        step(newStep) {
+            if (this.getStepName(newStep) === 'sectionType') {
+                this.page.sections = [];
+            }
+        }
+    },
+
     methods: {
+        goToStep(stepName) {
+            this.step = this.steps[stepName];
+        },
+
+        getStepName(stepValue) {
+            const find = Object.entries(this.steps).find((step) => {
+                return stepValue === step[1];
+            });
+
+            if (!find) {
+                return '';
+            }
+
+            return find[0];
+        },
+
         getPageTypeName() {
             return this.pageTypeNames[this.page.type];
         },
@@ -63,24 +92,18 @@ Component.register('sw-cms-create-wizard', {
 
         onPageTypeSelect(type) {
             this.page.type = type;
-            this.step = 2;
+
+            this.goToStep('sectionType');
         },
 
         onSectionSelect(section) {
-            this.step = 3;
+            this.goToStep('pageName');
+
             this.$emit('on-section-select', section);
         },
 
         onCompletePageCreation() {
             this.$emit('wizard-complete');
-        },
-
-        goStepBack() {
-            if (this.step === 3) {
-                this.page.sections = [];
-            }
-
-            this.step -= 1;
         }
     }
 });

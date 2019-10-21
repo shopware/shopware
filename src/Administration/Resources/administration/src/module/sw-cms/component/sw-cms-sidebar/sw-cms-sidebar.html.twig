@@ -110,11 +110,19 @@
                                     <div class="sw-cms-sidebar-section-settings__config">
 
                                         {% block sw_cms_sidebar_section_config_name %}
-                                            <sw-field type="text"
-                                                      :label="$tc('sw-cms.detail.labelSectionNameField')"
-                                                      :placeholder="placeholder(section, 'name')"
-                                                      v-model="section.name">
-                                            </sw-field>
+                                            <sw-text-field
+                                                :label="$tc('sw-cms.detail.labelSectionNameField')"
+                                                :placeholder="placeholder(section, 'name')"
+                                                v-model="section.name">
+                                            </sw-text-field>
+                                        {% endblock %}
+
+                                        {% block sw_cms_sidebar_section_config_css_classes_field %}
+                                            <sw-text-field
+                                                v-model="section.cssClass"
+                                                :label="$tc('sw-cms.detail.labelCssClassField')"
+                                                :helpText="$tc('sw-cms.detail.helpTextCssClassField')">
+                                            </sw-text-field>
                                         {% endblock %}
 
                                         {% block sw_cms_sidebar_section_config_sizing_field %}

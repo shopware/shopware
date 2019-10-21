@@ -54,7 +54,7 @@
                     {% endblock %}
 
                     {% block sw_cms_create_wizard_second_step_back %}
-                        <div class="sw-cms-create-wizard__back" @click="goStepBack">
+                        <div class="sw-cms-create-wizard__back" @click="goToStep('pageType')">
                             <sw-icon name="default-arrow-simple-left" small></sw-icon> {{ $tc('sw-cms.createWizard.stepBack') }}
                         </div>
                     {% endblock %}
@@ -108,7 +108,7 @@
                     </div>
 
                     {% block sw_cms_create_wizard_third_step_back %}
-                        <div class="sw-cms-create-wizard__back" @click="goStepBack">
+                        <div class="sw-cms-create-wizard__back" @click="goToStep('sectionType')">
                             <sw-icon name="default-arrow-simple-left" small></sw-icon> {{ $tc('sw-cms.createWizard.stepBack') }}
                         </div>
                     {% endblock %}

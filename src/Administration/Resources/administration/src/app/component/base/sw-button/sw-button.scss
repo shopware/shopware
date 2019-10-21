@@ -3,7 +3,7 @@
 $sw-button-transition: all 0.15s ease-out;
 
 .sw-button {
-    border: 1px solid $color-gray-300;
+    border: 1px solid $color-gray-400;
     background: $color-gray-50;
     color: $color-darkgray-200;
     transition: $sw-button-transition;
@@ -35,12 +35,13 @@ $sw-button-transition: all 0.15s ease-out;
         visibility: hidden;
     }
 
-    &:hover {
+    &:hover:not(.sw-button--disabled),
+    &:hover:not([disabled]) {
         background: $color-gray-100;
         border-color: $color-gray-400;
     }
 
-    &:active {
+    &:active:not(.sw-button--disabled) {
         background: $color-gray-200;
         border-color: $color-gray-400;
     }
@@ -48,17 +49,16 @@ $sw-button-transition: all 0.15s ease-out;
     &:disabled,
     &.sw-button--disabled {
         color: $color-gray-500;
-        pointer-events: none;
-        cursor: default;
+        border-color: $color-gray-200;
+        cursor: not-allowed;
+
+        .sw-icon {
+            color: $color-gray-400;
+        }
     }
 
     .sw-icon {
         color: $color-gray-800;
-    }
-
-    &.sw-button--square:not([disabled]) .sw-icon,
-    &.sw-button--square:not(.sw-button--disabled) .sw-icon {
-        color: $color-darkgray-200;
     }
 
     &.sw-button--primary {
@@ -135,6 +135,10 @@ $sw-button-transition: all 0.15s ease-out;
         &.sw-button--disabled {
             background: $color-module-yellow-200;
             color: $color-gray-800;
+
+            .sw-icon {
+                color: $color-gray-400;
+            }
         }
     }
 
@@ -171,6 +175,10 @@ $sw-button-transition: all 0.15s ease-out;
         &:disabled,
         &.sw-button--disabled {
             background: $color-crimson-200;
+
+            .sw-icon {
+                color: $color-white;
+            }
         }
     }
 
@@ -196,6 +204,10 @@ $sw-button-transition: all 0.15s ease-out;
             background-color: transparent;
             border-color: $color-shopware-brand-200;
             color: $color-shopware-brand-200;
+
+            .sw-icon {
+                color: $color-shopware-brand-200;
+            }
         }
     }
 

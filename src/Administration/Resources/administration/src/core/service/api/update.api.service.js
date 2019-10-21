@@ -59,8 +59,7 @@ class UpdateService extends ApiService {
             .get(
                 `/_action/${this.getApiBasePath()}/unpack?offset=${offset}&deactivationFilter=${pluginDeactivationStrategy}`,
                 { headers }
-            )
-            .then((response) => {
+            ).then((response) => {
                 return ApiService.handleResponse(response);
             });
     }

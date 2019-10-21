@@ -3,7 +3,7 @@
         <sw-page class="sw-settings-payment-list">
 
             {% block sw_settings_payment_list_search_bar %}
-                <template slot="search-bar">
+                <template #search-bar>
                     <sw-search-bar initialSearchType="payment_method"
                                    :placeholder="$tc('sw-settings-payment.general.placeholderSearchBar')"
                                    :initialSearch="term"
@@ -13,7 +13,7 @@
             {% endblock %}
 
             {% block sw_settings_payment_list_smart_bar_header %}
-                <template slot="smart-bar-header">
+                <template #smart-bar-header>
                     {% block sw_settings_payment_list_smart_bar_header_title %}
                         <h2>
                             {% block sw_settings_payment_list_smart_bar_header_title_text %}
@@ -31,7 +31,7 @@
             {% endblock %}
 
             {% block sw_settings_payment_list_smart_bar_actions %}
-                <template slot="smart-bar-actions">
+                <template #smart-bar-actions>
                     {% block sw_settings_payment_list_smart_bar_actions_add %}
                         <sw-button :routerLink="{ name: 'sw.settings.payment.create' }" variant="primary">
                             {{ $tc('sw-settings-payment.list.buttonAddPaymentMethod') }}
@@ -41,37 +41,50 @@
             {% endblock %}
 
             {% block sw_settings_payment_list_content %}
-                <template slot="content">
+                <template #content>
                     {% block sw_settings_payment_list_content %}
                         <div class="sw-settings-payment-list__content">
                             {% block sw_settings_payment_list_grid %}
-                                <sw-entity-listing ref="swSettingsPaymentGrid"
-                                                   v-if="payment"
+                                <sw-entity-listing v-if="payment"
+                                                   ref="swSettingsPaymentGrid"
                                                    class="sw-settings-payment-list-grid"
                                                    :items="payment"
                                                    :columns="getPaymentColumns()"
                                                    :repository="paymentRepository"
-                                                   :fullPage="false"
                                                    detailRoute="sw.settings.payment.detail"
                                                    :showSelection="false"
                                                    :isLoading="isLoading"
                                                    @inline-edit-save="onInlineEditSave">
 
-                                    <template #column-active="{ item, isInlineEdit }">
-                                        <template v-if="isInlineEdit">
-                                            {% block sw_settings_payment_list_columns_active_editor %}
-                                                <sw-field type="checkbox"
-                                                          v-model="item.active">
-                                                </sw-field>
-                                            {% endblock %}
+                                    {% block sw_settings_payment_list_column_active %}
+                                        <template #column-active="{ item, isInlineEdit }">
+                                            <template v-if="isInlineEdit">
+                                                {% block sw_settings_payment_list_column_active_editor %}
+                                                    <sw-field type="checkbox"
+                                                              v-model="item.active">
+                                                    </sw-field>
+                                                {% endblock %}
+                                            </template>
+                                            <template v-else>
+                                                {% block sw_settings_payment_list_column_active_label %}
+                                                    <sw-icon name="small-default-checkmark-line-medium" small v-if="item.active" class="is--active"></sw-icon>
+                                                    <sw-icon name="small-default-x-line-medium" small v-else class="is--inactive"></sw-icon>
+                                                {% endblock %}
+                                            </template>
                                         </template>
-                                        <template v-else>
-                                            {% block sw_settings_payment_list_columns_active_label %}
-                                                <sw-icon name="small-default-checkmark-line-medium" small v-if="item.active" class="is--active"></sw-icon>
-                                                <sw-icon name="small-default-x-line-medium" small v-else class="is--inactive"></sw-icon>
-                                            {% endblock %}
+                                    {% endblock %}
+
+                                    {% block sw_settings_payment_list_column_position %}
+                                        <template #column-position="{ item }">
+                                            <sw-data-grid-column-position
+                                                v-model="payment"
+                                                :item="item"
+                                                :disabled="disablePositioning"
+                                                :showValue="true"
+                                                @position-changed="onPositionChanged">
+                                            </sw-data-grid-column-position>
                                         </template>
-                                    </template>
+                                    {% endblock %}
 
                                     {% block sw_settings_payment_list_grid_columns_actions %}
                                         <template #actions="{ item }">

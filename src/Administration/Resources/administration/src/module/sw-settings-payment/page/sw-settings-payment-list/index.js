@@ -3,6 +3,7 @@ import './sw-settings-payment-list.scss';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+const utils = Shopware.Utils;
 
 Component.register('sw-settings-payment-list', {
     template,
@@ -13,15 +14,17 @@ Component.register('sw-settings-payment-list', {
     ],
 
     mixins: [
-        Mixin.getByName('listing')
+        Mixin.getByName('listing'),
+        Mixin.getByName('notification'),
+        Mixin.getByName('position')
     ],
 
     data() {
         return {
-            entityName: 'payment',
+            entityName: 'payment_method',
             payment: null,
-            sortBy: 'name',
             isLoading: false,
+            sortBy: 'position',
             sortDirection: 'ASC',
             naturalSorting: true,
             showDeleteModal: false
@@ -36,7 +39,11 @@ Component.register('sw-settings-payment-list', {
 
     computed: {
         paymentRepository() {
-            return this.repositoryFactory.create('payment_method');
+            return this.repositoryFactory.create(this.entityName);
+        },
+
+        disablePositioning() {
+            return (!!this.term) || (this.sortBy !== 'position');
         }
     },
 
@@ -91,6 +98,20 @@ Component.register('sw-settings-payment-list', {
             });
         },
 
+        onPositionChanged: utils.debounce(function syncPayment(payment) {
+            this.payment = payment;
+
+            this.paymentRepository.sync(payment, this.context)
+                .then(this.getList)
+                .catch(() => {
+                    this.getList();
+                    this.createNotificationError({
+                        title: this.$tc('sw-settings-payment.detail.titleSaveError'),
+                        message: this.$tc('sw-settings-payment.detail.messageSaveError')
+                    });
+                });
+        }, 800),
+
         getPaymentColumns() {
             return [{
                 property: 'name',
@@ -107,6 +128,9 @@ Component.register('sw-settings-payment-list', {
             }, {
                 property: 'description',
                 label: this.$tc('sw-settings-payment.list.columnDescription')
+            }, {
+                property: 'position',
+                label: this.$tc('sw-settings-payment.list.columnPosition')
             }];
         }
     }

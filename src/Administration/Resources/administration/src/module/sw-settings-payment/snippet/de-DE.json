@@ -10,6 +10,7 @@
       "columnName": "Name",
       "columnDescription": "Beschreibung",
       "columnActive": "Aktiv",
+      "columnPosition": "Position",
       "buttonAddPaymentMethod": "Zahlungsart anlegen",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",

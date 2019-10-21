@@ -37,6 +37,9 @@ class SeoUrlTemplateApiService extends ApiService {
                 headers: this.getBasicHeaders(additionalHeaders)
             }
         ).then((response) => {
+            if (response.status === 204) {
+                return null;
+            }
             return ApiService.handleResponse(response);
         });
     }

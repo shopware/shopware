@@ -39,6 +39,7 @@ class SeoActionControllerTest extends TestCase
 
     public function testValidateInvalid(): void
     {
+        $this->createTestProduct();
         $template = new SeoUrlTemplateEntity();
         $template->setRouteName('frontend.detail.page');
         $template->setTemplate('{{ product.name }');
@@ -55,6 +56,7 @@ class SeoActionControllerTest extends TestCase
 
     public function testValidateValid(): void
     {
+        $this->createTestProduct();
         $template = new SeoUrlTemplateEntity();
         $template->setRouteName('frontend.detail.page');
         $template->setTemplate('{{ product.name }}');

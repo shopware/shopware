@@ -12,7 +12,8 @@
       "preview": "Preview:",
       "placeholderSelectVariables": "Search and select...",
       "labelSalesChannelSelect": "Sales channel",
-      "textUrlPreviewNotPossible": "A preview for this template could not be generated"
+      "textUrlPreviewNotPossible": "A preview for this template could not be generated.",
+      "textUrlNoEntitiesForPreview": "There are no entities to generate a preview for."
     },
     "routeNames": {
       "frontend-detail-page": "Product detail page",

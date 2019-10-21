@@ -24,6 +24,7 @@ Component.register('sw-seo-url-template-card', {
             previewLoadingStates: {},
             errorMessages: {},
             previews: {},
+            noEntityError: [],
             variableStores: {},
             seoUrlTemplateRepository: {},
             salesChannelId: null,
@@ -261,8 +262,19 @@ Component.register('sw-seo-url-template-card', {
         fetchSeoUrlPreview(entity) {
             this.$set(this.previewLoadingStates, entity.id, true);
             this.seoUrlTemplateService.preview(entity).then((response) => {
+                this.noEntityError = this.noEntityError.filter((elem) => {
+                    return elem !== entity.id;
+                });
                 this.$set(this.previews, entity.id, response);
-                if (response.length < 1) {
+                if (response === null) {
+                    this.noEntityError.push(entity.id);
+
+                    this.$set(
+                        this.errorMessages,
+                        entity.id,
+                        this.$tc('sw-seo-url-template-card.general.textUrlNoEntitiesForPreview')
+                    );
+                } else if (response.length === 0) {
                     this.$set(
                         this.errorMessages,
                         entity.id,

@@ -38,7 +38,6 @@ $sw-button-transition: all 0.15s ease-out;
     &:hover:not(.sw-button--disabled),
     &:hover:not([disabled]) {
         background: $color-gray-100;
-        border-color: $color-gray-400;
     }
 
     &:active:not(.sw-button--disabled) {

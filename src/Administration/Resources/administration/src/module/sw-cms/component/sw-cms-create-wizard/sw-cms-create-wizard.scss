@@ -16,6 +16,25 @@
         font-size: 32px;
         font-weight: normal;
     }
+
+    .sw-cms-create-wizard__back {
+        margin: 20px 0;
+        color: $color-shopware-brand-500;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        .sw-icon {
+            margin: 1px 4px 0 0;
+        }
+    }
+
+    .sw-cms-stage-section-selection {
+        height: auto;
+        margin: 40px 0 20px;
+    }
 }
 
 .sw-cms-create-wizard__step-1 {
@@ -23,7 +42,7 @@
         display: grid;
         grid-template-columns: 1fr 1fr 1fr 1fr;
         gap: 20px;
-        margin: 40px 0;
+        margin: 40px 0 20px;
     }
 
     .sw-cms-create-wizard__page-type {

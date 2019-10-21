@@ -52,7 +52,8 @@
       "chooseSectionHelpText": "Sektionen teilen deine Arbeitsbühne in Bereiche, in denen du kreativ werden kannst. Du kannst Sektionen miteinander kombinieren und jederzeit wieder entfernen oder verschieben.",
       "chooseNameTitle": "Wie soll Dein Layout heißen?",
       "createLayout": "Layout erstellen",
-      "abortCreation": "Abbrechen"
+      "abortCreation": "Abbrechen",
+      "stepBack": "Zurück"
     },
     "detail": {
       "labelButtonSave": "Speichern",

@@ -73,6 +73,14 @@ Component.register('sw-cms-create-wizard', {
 
         onCompletePageCreation() {
             this.$emit('wizard-complete');
+        },
+
+        goStepBack() {
+            if (this.step === 3) {
+                this.page.sections = [];
+            }
+
+            this.step -= 1;
         }
     }
 });

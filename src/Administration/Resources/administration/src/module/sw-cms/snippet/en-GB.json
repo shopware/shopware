@@ -53,7 +53,8 @@
       "chooseSectionHelpText": "Sections divide your working platform into areas where you can get creative. You can combine sections and move or delete them at any time.",
       "chooseNameTitle": "What should your layout be called?",
       "createLayout": "Create layout",
-      "abortCreation": "Abort"
+      "abortCreation": "Abort",
+      "stepBack": "Back"
     },
     "detail": {
       "labelButtonSave": "Save",

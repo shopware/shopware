@@ -18,4 +18,9 @@ class NullApiConverter extends ApiConverter
     {
         return [];
     }
+
+    protected function getConverterFunctions(): array
+    {
+        return [];
+    }
 }

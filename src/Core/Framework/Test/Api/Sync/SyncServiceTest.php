@@ -381,7 +381,7 @@ class SyncServiceTest extends TestCase
                 new EntityWrittenEvent(
                     'deprecated',
                     [
-                        new EntityWriteResult($id, [], 'deprecated', null),
+                        new EntityWriteResult($id, [], 'deprecated', EntityWriteResult::OPERATION_INSERT),
                     ],
                     Context::createDefaultContext()
                 ),

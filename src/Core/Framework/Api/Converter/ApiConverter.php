@@ -24,17 +24,14 @@ abstract class ApiConverter
             return array_key_exists($entityName, $this->getNewFields()) && !is_array($this->getNewFields()[$entityName]);
         }
 
-        return array_key_exists($fieldName, $this->getNewFields()[$entityName] ?? []);
+        return \in_array($fieldName, $this->getNewFields()[$entityName] ?? [], true);
     }
 
     public function convert(string $entityName, array $payload): array
     {
-        foreach ($this->getNewFields()[$entityName] ?? [] as $field => $converterFn) {
-            if (!is_callable($converterFn)) {
-                continue;
-            }
-
-            $payload = $converterFn($payload);
+        $converterFns = $this->getConverterFunctions();
+        if (array_key_exists($entityName, $converterFns)) {
+            $payload = $converterFns[$entityName]($payload);
         }
 
         return $payload;
@@ -49,4 +46,11 @@ abstract class ApiConverter
      * Returns the new fields introduced in this Api version
      */
     abstract protected function getNewFields(): array;
+
+    /**
+     * Returns the function to convert the entities
+     *
+     * @return callable[]
+     */
+    abstract protected function getConverterFunctions(): array;
 }

@@ -27,18 +27,25 @@ class DeprecatedConverter extends ApiConverter
     {
         return [
             DeprecatedDefinition::ENTITY_NAME => [
-                'prices' => function (array $payload) {
-                    if (array_key_exists('price', $payload)) {
-                        $payload['prices'] = [$payload['price']];
-                        unset($payload['price']);
-                    }
-
-                    return $payload;
-                },
-                'product' => true,
-                'productId' => true,
+                'prices',
+                'product',
+                'productId',
             ],
             NewEntityDefinition::ENTITY_NAME => true,
+        ];
+    }
+
+    protected function getConverterFunctions(): array
+    {
+        return [
+            DeprecatedDefinition::ENTITY_NAME => function (array $payload) {
+                if (array_key_exists('price', $payload)) {
+                    $payload['prices'] = [$payload['price']];
+                    unset($payload['price']);
+                }
+
+                return $payload;
+            },
         ];
     }
 }

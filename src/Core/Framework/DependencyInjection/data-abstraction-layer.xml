@@ -309,7 +309,7 @@
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber\UpdateSubscriber">
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber\RegisteredIndexerSubscriber">
             <argument type="service" id="Shopware\Core\Framework\Migration\IndexerQueuer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IndexerMessageSender"/>
 

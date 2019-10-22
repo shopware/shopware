@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
 
@@ -67,6 +68,11 @@ class SalesChannelCustomerControllerTest extends TestCase
      */
     private $systemConfigService;
 
+    /**
+     * @var KernelBrowser
+     */
+    private $browser;
+
     protected function setUp(): void
     {
         $this->serializer = $this->getContainer()->get('serializer');
@@ -82,6 +88,8 @@ class SalesChannelCustomerControllerTest extends TestCase
         $ruleLoader = $this->getContainer()->get(CartRuleLoader::class);
         $rulesProperty = ReflectionHelper::getProperty(CartRuleLoader::class, 'rules');
         $rulesProperty->setValue($ruleLoader, null);
+
+        $this->browser = $this->createCustomSalesChannelBrowser(['id' => Defaults::SALES_CHANNEL]);
     }
 
     public function testLogin(): void
@@ -90,11 +98,11 @@ class SalesChannelCustomerControllerTest extends TestCase
         $password = 'shopware';
         $customerId = $this->createCustomer($password, $email);
 
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/customer/login', [
+        $this->browser->request('POST', '/sales-channel-api/v1/customer/login', [
             'username' => $email,
             'password' => $password,
         ]);
-        $response = $this->getSalesChannelBrowser()->getResponse();
+        $response = $this->browser->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(200, $response->getStatusCode());
@@ -102,9 +110,9 @@ class SalesChannelCustomerControllerTest extends TestCase
         static::assertArrayHasKey('sw-context-token', $content);
         static::assertNotEmpty($content['sw-context-token']);
 
-        $this->getSalesChannelBrowser()->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/customer');
-        $response = $this->getSalesChannelBrowser()->getResponse();
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
+        $this->browser->request('GET', '/sales-channel-api/v1/customer');
+        $response = $this->browser->getResponse();
 
         $content = json_decode($response->getContent(), true);
 
@@ -121,11 +129,11 @@ class SalesChannelCustomerControllerTest extends TestCase
         $email = Uuid::randomHex() . '@example.com';
         $password = 'shopware';
 
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/customer/login', [
+        $this->browser->request('POST', '/sales-channel-api/v1/customer/login', [
             'username' => $email,
             'password' => $password,
         ]);
-        $response = $this->getSalesChannelBrowser()->getResponse();
+        $response = $this->browser->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(401, $response->getStatusCode());
@@ -133,8 +141,8 @@ class SalesChannelCustomerControllerTest extends TestCase
         static::assertArrayHasKey('errors', $content);
         static::assertNotEmpty($content['errors']);
 
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/customer');
-        $response = $this->getSalesChannelBrowser()->getResponse();
+        $this->browser->request('GET', '/sales-channel-api/v1/customer');
+        $response = $this->browser->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(403, $response->getStatusCode());
@@ -156,11 +164,11 @@ class SalesChannelCustomerControllerTest extends TestCase
             ],
         ], $this->context);
 
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/customer/login', [
+        $this->browser->request('POST', '/sales-channel-api/v1/customer/login', [
             'username' => $email,
             'password' => $password,
         ]);
-        $response = $this->getSalesChannelBrowser()->getResponse();
+        $response = $this->browser->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(200, $response->getStatusCode());
@@ -168,9 +176,9 @@ class SalesChannelCustomerControllerTest extends TestCase
         static::assertArrayHasKey('sw-context-token', $content);
         static::assertNotEmpty($content['sw-context-token']);
 
-        $this->getSalesChannelBrowser()->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/customer');
-        $response = $this->getSalesChannelBrowser()->getResponse();
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
+        $this->browser->request('GET', '/sales-channel-api/v1/customer');
+        $response = $this->browser->getResponse();
 
         $content = json_decode($response->getContent(), true);
 
@@ -189,15 +197,15 @@ class SalesChannelCustomerControllerTest extends TestCase
     public function testLogout(): void
     {
         $this->createCustomerAndLogin();
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/customer/logout');
-        $response = $this->getSalesChannelBrowser()->getResponse();
+        $this->browser->request('POST', '/sales-channel-api/v1/customer/logout');
+        $response = $this->browser->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         static::assertNull($content);
 
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/customer');
-        $response = $this->getSalesChannelBrowser()->getResponse();
+        $this->browser->request('GET', '/sales-channel-api/v1/customer');
+        $response = $this->browser->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(403, $response->getStatusCode());
@@ -209,8 +217,8 @@ class SalesChannelCustomerControllerTest extends TestCase
     {
         $customerId = $this->createCustomerAndLogin();
 
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/customer');
-        $response = $this->getSalesChannelBrowser()->getResponse();
+        $this->browser->request('GET', '/sales-channel-api/v1/customer');
+        $response = $this->browser->getResponse();
         $content = json_decode($response->getContent(), true);
 
         $customer = $this->serialize($this->readCustomer($customerId));
@@ -226,8 +234,8 @@ class SalesChannelCustomerControllerTest extends TestCase
         $customerId = $this->createCustomerAndLogin();
         $addressId = $this->createCustomerAddress($customerId);
 
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/customer/address/' . $addressId);
-        $response = $this->getSalesChannelBrowser()->getResponse();
+        $this->browser->request('GET', '/sales-channel-api/v1/customer/address/' . $addressId);
+        $response = $this->browser->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(200, $response->getStatusCode());
@@ -246,8 +254,8 @@ class SalesChannelCustomerControllerTest extends TestCase
         $customerId = $this->createCustomerAndLogin();
         $this->createCustomerAddress($customerId);
 
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/customer/address');
-        $response = $this->getSalesChannelBrowser()->getResponse();
+        $this->browser->request('GET', '/sales-channel-api/v1/customer/address');
+        $response = $this->browser->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(200, $response->getStatusCode());
@@ -271,8 +279,8 @@ class SalesChannelCustomerControllerTest extends TestCase
             'company' => 'Shopware AG',
         ];
 
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/customer/address', $address);
-        $response = $this->getSalesChannelBrowser()->getResponse();
+        $this->browser->request('POST', '/sales-channel-api/v1/customer/address', $address);
+        $response = $this->browser->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
@@ -302,7 +310,7 @@ class SalesChannelCustomerControllerTest extends TestCase
         static::assertInstanceOf(CustomerAddressEntity::class, $customerAddress);
         static::assertEquals($addressId, $customerAddress->getId());
 
-        $this->getSalesChannelBrowser()->request('DELETE', '/sales-channel-api/v1/customer/address/' . $addressId);
+        $this->browser->request('DELETE', '/sales-channel-api/v1/customer/address/' . $addressId);
 
         $customerAddress = $this->readCustomerAddress($customerId);
         static::assertNull($customerAddress);
@@ -312,8 +320,8 @@ class SalesChannelCustomerControllerTest extends TestCase
     {
         $customerId = $this->createCustomerAndLogin();
         $addressId = $this->createCustomerAddress($customerId);
-        $this->getSalesChannelBrowser()->request('PATCH', '/sales-channel-api/v1/customer/address/' . $addressId . '/default-shipping');
-        $response = $this->getSalesChannelBrowser()->getResponse();
+        $this->browser->request('PATCH', '/sales-channel-api/v1/customer/address/' . $addressId . '/default-shipping');
+        $response = $this->browser->getResponse();
         $content = json_decode($response->getContent(), true);
 
         $customer = $this->readCustomer($customerId);
@@ -329,8 +337,8 @@ class SalesChannelCustomerControllerTest extends TestCase
     {
         $customerId = $this->createCustomerAndLogin();
         $addressId = $this->createCustomerAddress($customerId);
-        $this->getSalesChannelBrowser()->request('PATCH', '/sales-channel-api/v1/customer/address/' . $addressId . '/default-billing');
-        $response = $this->getSalesChannelBrowser()->getResponse();
+        $this->browser->request('PATCH', '/sales-channel-api/v1/customer/address/' . $addressId . '/default-billing');
+        $response = $this->browser->getResponse();
         $content = json_decode($response->getContent(), true);
 
         $customer = $this->readCustomer($customerId);
@@ -346,9 +354,9 @@ class SalesChannelCustomerControllerTest extends TestCase
     {
         $personal = $this->getCustomerRegisterData();
 
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/customer', $personal);
+        $this->browser->request('POST', '/sales-channel-api/v1/customer', $personal);
 
-        $response = $this->getSalesChannelBrowser()->getResponse();
+        $response = $this->browser->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), print_r($response->getContent(), true));
@@ -417,8 +425,8 @@ class SalesChannelCustomerControllerTest extends TestCase
             'password' => 'shopware',
         ];
 
-        $this->getSalesChannelBrowser()->request('PATCH', '/sales-channel-api/v1/customer/email', $payload);
-        $response = $this->getSalesChannelBrowser()->getResponse();
+        $this->browser->request('PATCH', '/sales-channel-api/v1/customer/email', $payload);
+        $response = $this->browser->getResponse();
         $content = json_decode($response->getContent(), true);
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($content, true));
 
@@ -441,8 +449,8 @@ class SalesChannelCustomerControllerTest extends TestCase
             'newPasswordConfirm' => $password,
         ];
 
-        $this->getSalesChannelBrowser()->request('PATCH', '/sales-channel-api/v1/customer/password', $payload);
-        $response = $this->getSalesChannelBrowser()->getResponse();
+        $this->browser->request('PATCH', '/sales-channel-api/v1/customer/password', $payload);
+        $response = $this->browser->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
@@ -466,8 +474,8 @@ class SalesChannelCustomerControllerTest extends TestCase
             'birthdayMonth' => 5,
             'birthdayDay' => 3,
         ];
-        $this->getSalesChannelBrowser()->request('PATCH', '/sales-channel-api/v1/customer', $data);
-        $response = $this->getSalesChannelBrowser()->getResponse();
+        $this->browser->request('PATCH', '/sales-channel-api/v1/customer', $data);
+        $response = $this->browser->getResponse();
         $content = json_decode($response->getContent(), true);
 
         $customer = $this->readCustomer($customerId);
@@ -490,8 +498,8 @@ class SalesChannelCustomerControllerTest extends TestCase
 
     public function testGetOrdersWithoutLogin(): void
     {
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/customer/order');
-        $response = $this->getSalesChannelBrowser()->getResponse();
+        $this->browser->request('GET', '/sales-channel-api/v1/customer/order');
+        $response = $this->browser->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
@@ -504,8 +512,8 @@ class SalesChannelCustomerControllerTest extends TestCase
         $this->createCustomerAndLogin();
         $this->createOrder();
 
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/customer/order');
-        $response = $this->getSalesChannelBrowser()->getResponse();
+        $this->browser->request('GET', '/sales-channel-api/v1/customer/order');
+        $response = $this->browser->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), print_r($content, true));
@@ -520,8 +528,8 @@ class SalesChannelCustomerControllerTest extends TestCase
         $this->createOrder();
         $this->createOrder();
 
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/customer/order?limit=2');
-        $response = $this->getSalesChannelBrowser()->getResponse();
+        $this->browser->request('GET', '/sales-channel-api/v1/customer/order?limit=2');
+        $response = $this->browser->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
@@ -536,8 +544,8 @@ class SalesChannelCustomerControllerTest extends TestCase
         $this->createOrder();
         $this->createOrder();
 
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/customer/order?limit=2&page=2');
-        $response = $this->getSalesChannelBrowser()->getResponse();
+        $this->browser->request('GET', '/sales-channel-api/v1/customer/order?limit=2&page=2');
+        $response = $this->browser->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
@@ -550,16 +558,16 @@ class SalesChannelCustomerControllerTest extends TestCase
         $email = $email ?? Uuid::randomHex() . '@example.com';
         $customerId = $this->createCustomer($password, $email);
 
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/customer/login', [
+        $this->browser->request('POST', '/sales-channel-api/v1/customer/login', [
             'username' => $email,
             'password' => $password,
         ]);
-        $response = $this->getSalesChannelBrowser()->getResponse();
+        $response = $this->browser->getResponse();
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         $content = json_decode($response->getContent(), true);
-        $this->getSalesChannelBrowser()->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
 
         return $customerId;
     }
@@ -586,6 +594,7 @@ class SalesChannelCustomerControllerTest extends TestCase
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethod' => [
                     'name' => 'Invoice',
+                    'active' => true,
                     'description' => 'Default payment method',
                     'handlerIdentifier' => SyncTestPaymentHandler::class,
                     'availabilityRule' => [
@@ -600,6 +609,11 @@ class SalesChannelCustomerControllerTest extends TestCase
                                     'amount' => 0,
                                 ],
                             ],
+                        ],
+                    ],
+                    'salesChannels' => [
+                        [
+                            'id' => Defaults::SALES_CHANNEL,
                         ],
                     ],
                 ],
@@ -683,8 +697,7 @@ class SalesChannelCustomerControllerTest extends TestCase
         $productNumber = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
-        $browser = $this->getSalesChannelBrowser();
-        $salesChannelId = $browser->getServerParameter('test-sales-channel-id');
+        $salesChannelId = $this->browser->getServerParameter('test-sales-channel-id');
 
         $this->productRepository->create([
             [
@@ -704,20 +717,20 @@ class SalesChannelCustomerControllerTest extends TestCase
 
         // create new cart
 
-        $browser->request('POST', '/sales-channel-api/v1/checkout/cart');
-        $response = $browser->getResponse();
+        $this->browser->request('POST', '/sales-channel-api/v1/checkout/cart');
+        $response = $this->browser->getResponse();
 
         static::assertEquals(200, $response->getStatusCode(), $response->getContent());
 
         // add product
-        $browser->request('POST', '/sales-channel-api/v1/checkout/cart/product/' . $productId);
-        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
+        $this->browser->request('POST', '/sales-channel-api/v1/checkout/cart/product/' . $productId);
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
         // finish checkout
-        $browser->request('POST', '/sales-channel-api/v1/checkout/order');
-        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
+        $this->browser->request('POST', '/sales-channel-api/v1/checkout/order');
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
-        $order = json_decode($browser->getResponse()->getContent(), true);
+        $order = json_decode($this->browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('data', $order);
 
         $order = $order['data'];

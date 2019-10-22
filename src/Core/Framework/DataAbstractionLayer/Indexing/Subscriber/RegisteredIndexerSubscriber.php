@@ -4,10 +4,11 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IndexerMessageSender;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
+use Shopware\Core\Framework\Store\Event\FirstRunWizardFinishedEvent;
 use Shopware\Core\Framework\Update\Event\UpdateFinishedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class UpdateSubscriber implements EventSubscriberInterface
+class RegisteredIndexerSubscriber implements EventSubscriberInterface
 {
     /**
      * @var IndexerMessageSender
@@ -28,14 +29,15 @@ class UpdateSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            UpdateFinishedEvent::class => 'updateFinished',
+            UpdateFinishedEvent::class => 'runRegisteredIndexers',
+            FirstRunWizardFinishedEvent::class => 'runRegisteredIndexers',
         ];
     }
 
     /**
      * @internal
      */
-    public function updateFinished(UpdateFinishedEvent $event): void
+    public function runRegisteredIndexers(): void
     {
         $queuedIndexers = $this->indexerQueuer->getIndexers();
 

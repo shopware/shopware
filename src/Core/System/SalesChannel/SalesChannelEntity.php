@@ -278,6 +278,11 @@ class SalesChannelEntity extends Entity
      */
     protected $mainCategories;
 
+    /**
+     * @var string[]|null
+     */
+    protected $paymentMethodIds;
+
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {
         return $this->mailHeaderFooter;
@@ -756,5 +761,21 @@ class SalesChannelEntity extends Entity
     public function setMainCategories(?MainCategoryCollection $mainCategories): void
     {
         $this->mainCategories = $mainCategories;
+    }
+
+    /**
+     * @return string[]|null
+     */
+    public function getPaymentMethodIds(): ?array
+    {
+        return $this->paymentMethodIds;
+    }
+
+    /**
+     * @param string[] $paymentMethodIds
+     */
+    public function setPaymentMethodIds(array $paymentMethodIds): void
+    {
+        $this->paymentMethodIds = $paymentMethodIds;
     }
 }

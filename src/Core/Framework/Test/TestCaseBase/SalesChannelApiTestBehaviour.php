@@ -141,6 +141,7 @@ trait SalesChannelApiTestBehaviour
     private function createSalesChannel(array $salesChannelOverride = []): array
     {
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $paymentMethod = $this->getAvailablePaymentMethod();
 
         $salesChannel = array_merge([
             'id' => Uuid::randomHex(),
@@ -150,7 +151,8 @@ trait SalesChannelApiTestBehaviour
             'languageId' => Defaults::LANGUAGE_SYSTEM,
             'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
             'currencyId' => Defaults::CURRENCY,
-            'paymentMethodId' => $this->getAvailablePaymentMethod()->getId(),
+            'paymentMethodId' => $paymentMethod->getId(),
+            'paymentMethods' => [['id' => $paymentMethod->getId()]],
             'shippingMethodId' => $this->getAvailableShippingMethod()->getId(),
             'navigationCategoryId' => $this->getValidCategoryId(),
             'countryId' => $this->getValidCountryId(),

@@ -1413,6 +1413,11 @@ class RecalculationServiceTest extends TestCase
                     ],
                 ],
             ],
+            'salesChannels' => [
+                [
+                    'id' => Defaults::SALES_CHANNEL,
+                ],
+            ],
         ];
 
         $repository->create([$data], $this->context);

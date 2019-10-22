@@ -47,7 +47,9 @@ trait BasicTestDataBehaviour
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('payment_method.repository');
 
-        $paymentMethods = $repository->search(new Criteria(), Context::createDefaultContext())->getEntities();
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('active', true));
+        $paymentMethods = $repository->search($criteria, Context::createDefaultContext())->getEntities();
 
         /** @var PaymentMethodEntity $paymentMethod */
         foreach ($paymentMethods as $paymentMethod) {

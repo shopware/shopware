@@ -39,23 +39,6 @@ class CachedSnippetFinder implements SnippetFinderInterface
         return $snippets;
     }
 
-    public function getAvailableLocales(): array
-    {
-        $cacheKey = 'admin_snippet_locales';
-        $item = $this->cache->getItem($cacheKey);
-
-        if ($item->isHit()) {
-            return $item->get();
-        }
-
-        $locales = $this->snippetFinder->getAvailableLocales();
-
-        $item->set($locales);
-        $this->cache->save($item);
-
-        return $locales;
-    }
-
     private function getCacheKey(string $locale): string
     {
         return 'admin_snippet_' . $locale;

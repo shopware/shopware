@@ -128,7 +128,6 @@
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventRegistry"/>
             <argument type="service" id="kernel" />
             <argument type="service" id="assets.packages" />
-            <argument type="service" id="Shopware\Administration\Snippet\SnippetFinder" />
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

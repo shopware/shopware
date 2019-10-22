@@ -28,19 +28,6 @@ class SnippetFinder implements SnippetFinderInterface
         return $this->parseFiles($snippetFiles);
     }
 
-    public function getAvailableLocales(): array
-    {
-        $locales = [];
-        $files = $this->findSnippetFiles(null, false);
-
-        foreach ($files as $file) {
-            $locale = basename($file, '.json');
-            $locales[$locale] = true;
-        }
-
-        return array_keys($locales);
-    }
-
     private function getPluginPaths(): array
     {
         $activePlugins = $this->kernel->getPluginLoader()->getPluginInstances()->getActives();

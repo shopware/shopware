@@ -169,9 +169,7 @@ class ApplicationBootstrapper {
      */
     registerApiContext(context) {
         this.addServiceProvider('apiContext', () => {
-            const ContextFactory = Shopware.Classes._private.ContextFactory;
-
-            return ContextFactory(context);
+            return Shopware.Classes._private.ApiContextFactory(context);
         });
         return this;
     }
@@ -184,9 +182,7 @@ class ApplicationBootstrapper {
      */
     registerAppContext(context) {
         this.addServiceProvider('appContext', () => {
-            const ContextFactory = Shopware.Classes._private.ContextFactory;
-
-            return ContextFactory(context);
+            return Shopware.Classes._private.AppContextFactory(context);
         });
         return this;
     }

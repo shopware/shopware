@@ -67,7 +67,7 @@ Component.register('sw-settings-currency-list', {
         },
 
         onChangeLanguage(languageId) {
-            this.apiContext.languageId = languageId;
+            Shopware.State.getStore('language').setCurrentId(languageId);
             this.getList();
         },
 

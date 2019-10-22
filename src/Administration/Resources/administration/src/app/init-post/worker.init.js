@@ -21,11 +21,11 @@ export default function initializeWorker() {
             // Enable worker notification listener regardless of the config
             enableWorkerNotificationListener(
                 loginService,
-                context
+                Shopware.Context.Api
             );
 
             if (context.config.adminWorker.enableAdminWorker && !enabled) {
-                enableAdminWorker(loginService, context, context.config.adminWorker);
+                enableAdminWorker(loginService, Shopware.Context.Api, context.config.adminWorker);
             }
         });
     }
@@ -42,7 +42,10 @@ function enableAdminWorker(loginService, context, config) {
 
     if (loginService.isLoggedIn()) {
         worker.postMessage({
-            context,
+            context: {
+                languageId: context.languageId,
+                apiResourcePath: context.apiResourcePath
+            },
             bearerAuth: loginService.getBearerAuthentication(),
             host: window.location.origin,
             transports: config.transports
@@ -53,7 +56,10 @@ function enableAdminWorker(loginService, context, config) {
         worker.terminate();
         worker = getWorker(loginService);
         worker.postMessage({
-            context,
+            context: {
+                languageId: context.languageId,
+                apiResourcePath: context.apiResourcePath
+            },
             bearerAuth: auth,
             host: window.location.origin,
             transports: config.transports

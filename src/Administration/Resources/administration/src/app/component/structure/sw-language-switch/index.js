@@ -101,8 +101,6 @@ Component.register('sw-language-switch', {
 
             if (this.changeGlobalLanguage) {
                 this.languageStore.setCurrentId(this.languageId).then(() => {
-                    localStorage.setItem('sw-admin-current-language', this.languageId);
-                    this.apiContext.languageId = this.languageId;
                     this.$root.$emit('on-change-application-language', { languageId: this.languageId });
                 });
             }

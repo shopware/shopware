@@ -13,13 +13,9 @@ export default class LanguageStore extends EntityStore {
     ) {
         super('language', apiService, EntityClass);
 
-        this.systemLanguageId = Shopware.Context.Api.systemLanguageId;
-
         if (!currentLanguageId || !currentLanguageId.length) {
-            currentLanguageId = this.systemLanguageId;
+            this.setCurrentId(this.systemLanguageId);
         }
-
-        this.currentLanguageId = currentLanguageId;
     }
 
     /**
@@ -29,8 +25,9 @@ export default class LanguageStore extends EntityStore {
      * @return {Promise<{}>}
      */
     setCurrentId(languageId) {
-        this.currentLanguageId = languageId;
         Shopware.Context.Api.languageId = languageId;
+        localStorage.setItem('sw-admin-current-language', languageId);
+
         return this.getByIdAsync(languageId);
     }
 
@@ -56,7 +53,35 @@ export default class LanguageStore extends EntityStore {
         return this;
     }
 
+    getDefaultLanguageIds() {
+        return this.defaultLanguageIds;
+    }
+
+    get systemLanguageId() {
+        return Shopware.Context.Api.systemLanguageId;
+    }
+
+    set systemLanguageId(newValue) {
+        Shopware.Context.Api.systemLanguageId = newValue;
+    }
+
+    get currentLanguageId() {
+        return Shopware.Context.Api.languageId;
+    }
+
+    set currentLanguageId(newValue) {
+        Shopware.Context.Api.languageId = newValue;
+    }
+
+    get defaultLanguageIds() {
+        return Shopware.Context.Api.defaultLanguageIds;
+    }
+
+    set defaultLanguageIds(newValue) {
+        Shopware.Context.Api.defaultLanguageIds = newValue;
+    }
+
     init() {
-        return this.getByIdAsync(this.currentLanguageId);
+        return this.getByIdAsync(this.getCurrentId());
     }
 }

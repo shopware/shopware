@@ -163,7 +163,7 @@ Component.register('sw-cms-list', {
         },
 
         onChangeLanguage(languageId) {
-            this.apiContext.languageId = languageId;
+            Shopware.State.getStore('language').setCurrentId(languageId);
             this.resetList();
         },
 

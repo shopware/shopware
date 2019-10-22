@@ -39,8 +39,7 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
             this.$store.commit('adminMenu/collapseSidebar');
 
             if (!this.isSystemDefaultLanguage) {
-                this.languageStore.setCurrentId(this.apiContext.systemLanguageId);
-                this.currentLanguageId = this.apiContext.systemLanguageId;
+                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
             }
 
             this.page = this.pageRepository.create();

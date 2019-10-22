@@ -286,7 +286,10 @@ Component.register('sw-product-detail', {
         loadProduct() {
             this.$store.commit('swProductDetail/setLoading', ['product', true]);
 
-            this.productRepository.get(this.productId || this.product.id, this.apiContext, this.productCriteria).then((res) => {
+            this.productRepository.get(
+                this.productId || this.product.id,
+                this.apiContext, this.productCriteria
+            ).then((res) => {
                 this.$store.commit('swProductDetail/setProduct', res);
 
                 if (this.product.parentId) {
@@ -346,7 +349,7 @@ Component.register('sw-product-detail', {
         },
 
         onChangeLanguage(languageId) {
-            this.apiContext.languageId = languageId;
+            Shopware.State.getStore('language').setCurrentId(languageId);
             this.initState();
         },
 

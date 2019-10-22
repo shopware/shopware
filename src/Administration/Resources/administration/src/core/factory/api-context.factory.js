@@ -12,7 +12,6 @@ export default function createContext(context = {}) {
 
     Object.assign(context, {
         installationPath,
-        environment: process.env.NODE_ENV,
         apiPath: apiPath,
         apiResourcePath: `${apiPath}/v1`,
         assetsPath: getAssetsPath(installationPath, isDevMode),

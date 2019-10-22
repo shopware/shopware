@@ -36,7 +36,8 @@ const ApplicationBootstrapper = require('src/core/application').default;
 const RefreshTokenHelper = require('src/core/helper/refresh-token.helper').default;
 const HttpFactory = require('src/core/factory/http.factory').default;
 const RepositoryFactory = require('src/core/data-new/repository-factory.data').default;
-const ContextFactory = require('src/core/factory/context.factory').default;
+const ApiContextFactory = require('src/core/factory/api-context.factory').default;
+const AppContextFactory = require('src/core/factory/app-context.factory').default;
 const RouterFactory = require('src/core/factory/router.factory').default;
 const ApiServices = require('src/core/service/api').default;
 
@@ -323,7 +324,8 @@ const Shopware = {
         _private: {
             HttpFactory: HttpFactory,
             RepositoryFactory: RepositoryFactory,
-            ContextFactory: ContextFactory,
+            ApiContextFactory: ApiContextFactory,
+            AppContextFactory: AppContextFactory,
             RouterFactory: RouterFactory
         },
         ShopwareError: ShopwareError,

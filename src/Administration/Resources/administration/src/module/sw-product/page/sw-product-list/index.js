@@ -136,7 +136,7 @@ Component.register('sw-product-list', {
         },
 
         onChangeLanguage(languageId) {
-            this.apiContext.languageId = languageId;
+            Shopware.State.getStore('language').setCurrentId(languageId);
             this.getList();
         },
 

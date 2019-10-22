@@ -18,6 +18,7 @@
                     {% block page_account_address_form_create %}
                         <form method="post"
                               action="{{ path('frontend.account.address.create') }}"
+                              data-form-csrf-handler="true"
                               data-form-validation="true">
 
                             {% block page_account_address_form_create_csrf %}

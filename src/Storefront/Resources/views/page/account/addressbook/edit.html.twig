@@ -18,6 +18,7 @@
                     {% block page_account_address_form_edit %}
                         <form method="post"
                               action="{{ path('frontend.account.address.edit.save', { 'addressId': page.address.id }) }}"
+                              data-form-csrf-handler="true"
                               data-form-validation="true">
 
                             {% block page_account_address_form_edit_csrf %}

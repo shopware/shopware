@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Twig\Extension;
 
+use Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
@@ -16,8 +17,20 @@ class CsrfFunctionExtension extends AbstractExtension
 
     public function createCsrfPlaceholder($intent, $parameters = []): string
     {
-        $mode = array_key_exists('mode', $parameters) ? $parameters['mode'] : 'input';
+        $mode = $parameters['mode'] ?? 'input';
 
-        return sprintf('<!-- csrf.%s mode.%s -->', $intent, $mode);
+        if ($mode === 'input') {
+            return $this->createInput($intent);
+        }
+
+        return CsrfPlaceholderHandler::CSRF_PLACEHOLDER . $intent . '#';
+    }
+
+    private function createInput(string $intent): string
+    {
+        return sprintf(
+            '<input type="hidden" name="_csrf_token" value="%s">',
+            CsrfPlaceholderHandler::CSRF_PLACEHOLDER . $intent . '#'
+        );
     }
 }

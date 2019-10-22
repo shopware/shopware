@@ -13,6 +13,7 @@
                 <form class="login-form"
                       action="{{ path('frontend.account.login') }}"
                       method="post"
+                      data-form-csrf-handler="true"
                       data-form-validation="true">
 
                     {% block component_account_login_form_csrf %}

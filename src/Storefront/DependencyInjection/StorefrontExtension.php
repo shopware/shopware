@@ -18,10 +18,10 @@ class StorefrontExtension extends Extension
 
         $config = $this->processConfiguration($configuration, $configs);
 
-        $this->AddConfig($container, 'storefront', $config);
+        $this->addConfig($container, 'storefront', $config);
     }
 
-    private function AddConfig(ContainerBuilder $container, string $alias, array $options): void
+    private function addConfig(ContainerBuilder $container, string $alias, array $options): void
     {
         foreach ($options as $key => $option) {
             $container->setParameter($alias . '.' . $key, $option);

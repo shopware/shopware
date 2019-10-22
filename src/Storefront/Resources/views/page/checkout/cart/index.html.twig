@@ -61,6 +61,7 @@
                 {% block page_checkout_cart_add_product %}
                     <div class="col-md-4 cart-add-product-container">
                         <form action="{{ path('frontend.checkout.product.add-by-number') }}"
+                              data-form-csrf-handler="true"
                               class="cart-add-product"
                               method="post">
 
@@ -192,6 +193,7 @@
         {% block page_checkout_cart_add_promotion %}
             <form action="{{ path('frontend.checkout.promotion.add') }}"
                   class="cart-add-promotion"
+                  data-form-csrf-handler="true"
                   method="post">
 
                 {% block page_checkout_cart_add_promotion_csrf %}

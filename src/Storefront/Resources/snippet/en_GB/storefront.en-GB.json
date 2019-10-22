@@ -64,8 +64,8 @@
         "shipping-address-blocked": "Shippings to the selected shipping address are not possible.",
         "VIOLATION::TOO_SHORT_ERROR": "%field% is too short.",
         "product-not-found": "The product could not be found",
-        "message-403-ajax": "Your session is expired. Please reload the page and try again.",
-        "message-403": "Your session is expired. Please return to the last page and try again."
+        "message-403-ajax": "Your session has expired. Please reload the page and try again.",
+        "message-403": "Your session has expired. Please return to the last page and try again."
     },
     "account": {
         "myAccount": "My account",

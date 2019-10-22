@@ -6,11 +6,11 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class CsrfWrongModeException extends ShopwareHttpException
 {
-    public function __construct(string $mode)
+    public function __construct(string $requiredMode)
     {
         parent::__construct(
             'CSRF has the wrong mode. Please make sure the mode is set to "{{mode}}"',
-            ['mode' => $mode]
+            ['mode' => $requiredMode]
         );
     }
 

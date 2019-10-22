@@ -34,6 +34,7 @@
                             {% block page_contact_form %}
                                 <form action="{{ path('frontend.page.contact.send') }}"
                                       method="post"
+                                      data-form-csrf-handler="true"
                                       data-form-validation="true">
 
                                     {% block page_contact_form_csrf %}

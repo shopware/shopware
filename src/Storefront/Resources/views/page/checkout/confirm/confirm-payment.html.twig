@@ -90,6 +90,7 @@
                                     <form id="confirmPaymentForm"
                                           name="confirmPaymentForm"
                                           action="{{ path('frontend.checkout.configure') }}"
+                                          data-form-csrf-handler="true"
                                           method="post">
 
                                         {% block page_checkout_confirm_payment_form_csrf %}

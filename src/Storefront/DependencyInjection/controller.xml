@@ -174,7 +174,7 @@
         </service>
 
         <service id="Shopware\Storefront\Controller\CsrfController">
-            <argument id="security.csrf.token_manager" type="service"/>
+            <argument type="service" id="security.csrf.token_manager"/>
             <argument>%storefront.csrf.enabled%</argument>
             <argument>%storefront.csrf.mode%</argument>
         </service>

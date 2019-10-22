@@ -4,15 +4,17 @@ namespace Shopware\Storefront\Test\Framework\Csrf;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Storefront\Framework\Csrf\CsrfReplaceHelper;
+use Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
+use Twig\Loader\LoaderInterface;
 
-class CsrfReplaceHelperTest extends TestCase
+class CsrfPlaceholderHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /** @var LoaderInterface */
     private $originalLoader;
 
     /**
@@ -36,7 +38,7 @@ class CsrfReplaceHelperTest extends TestCase
 
     public function testCsrfReplacement(): void
     {
-        $csrfReplaceHelper = $this->createCsrfReplaceHelper();
+        $csrfPlaceholderHandler = $this->createCsrfPlaceholderHandler();
 
         $response = new Response($this->getContentWithCsrfPLaceholder(), 200, ['Content-Type' => 'text/html']);
 
@@ -46,7 +48,7 @@ class CsrfReplaceHelperTest extends TestCase
             $response->getContent()
         );
 
-        $response = $csrfReplaceHelper->replaceCsrfToken($response);
+        $response = $csrfPlaceholderHandler->replaceCsrfToken($response);
 
         $expectedContent = file_get_contents(__DIR__ . '/../../fixtures/Storefront/Resources/views/csrfTest/csrfTestReplaced.html.twig');
         $expectedContent = preg_replace(
@@ -63,33 +65,33 @@ class CsrfReplaceHelperTest extends TestCase
 
     public function testReplaceWithCsrfDisabledShouldNotReplace(): void
     {
-        $csrfReplaceHelper = $this->createCsrfReplaceHelper(false);
+        $csrfPlaceholderHandler = $this->createCsrfPlaceholderHandler(false);
         $expectedResponse = new Response($this->getContentWithCsrfPLaceholder(), 200, ['Content-Type' => 'text/html']);
-        $response = $csrfReplaceHelper->replaceCsrfToken($expectedResponse);
+        $response = $csrfPlaceholderHandler->replaceCsrfToken($expectedResponse);
         static::assertSame($expectedResponse, $response);
     }
 
     public function testReplaceWithAjaxModeShouldNotReplace(): void
     {
-        $csrfReplaceHelper = $this->createCsrfReplaceHelper(true, 'ajax');
-        $expectedResponse = new Response($this->getContentWithCsrfPLaceholder(), 200, ['Content-Type' => 'text/javascript']);
-        $response = $csrfReplaceHelper->replaceCsrfToken($expectedResponse);
+        $csrfPlaceholderHandler = $this->createCsrfPlaceholderHandler(true, 'ajax');
+        $expectedResponse = new Response($this->getContentWithCsrfPLaceholder(), 200, ['Content-Type' => 'text/html']);
+        $response = $csrfPlaceholderHandler->replaceCsrfToken($expectedResponse);
         static::assertSame($expectedResponse, $response);
     }
 
     public function testReplaceWithWrongContentTypeShouldNotReplace(): void
     {
-        $csrfReplaceHelper = $this->createCsrfReplaceHelper();
+        $csrfPlaceholderHandler = $this->createCsrfPlaceholderHandler();
         $expectedResponse = new Response($this->getContentWithCsrfPLaceholder(), 200, ['Content-Type' => 'text/javascript']);
-        $response = $csrfReplaceHelper->replaceCsrfToken($expectedResponse);
+        $response = $csrfPlaceholderHandler->replaceCsrfToken($expectedResponse);
         static::assertSame($expectedResponse, $response);
     }
 
     public function testReplaceWithOtherStatusCodeShouldNotReplace(): void
     {
-        $csrfReplaceHelper = $this->createCsrfReplaceHelper();
+        $csrfPlaceholderHandler = $this->createCsrfPlaceholderHandler();
         $expectedResponse = new Response($this->getContentWithCsrfPLaceholder(), 404, ['Content-Type' => 'text/html']);
-        $response = $csrfReplaceHelper->replaceCsrfToken($expectedResponse);
+        $response = $csrfPlaceholderHandler->replaceCsrfToken($expectedResponse);
         static::assertSame($expectedResponse, $response);
     }
 
@@ -100,9 +102,9 @@ class CsrfReplaceHelperTest extends TestCase
         return $template->render();
     }
 
-    private function createCsrfReplaceHelper(bool $csrfEnabled = true, string $csrfMode = 'twig')
+    private function createCsrfPlaceholderHandler(bool $csrfEnabled = true, string $csrfMode = 'twig')
     {
-        return new CsrfReplaceHelper(
+        return new CsrfPlaceholderHandler(
             $this->getContainer()->get('security.csrf.token_manager'),
             $csrfEnabled,
             $csrfMode

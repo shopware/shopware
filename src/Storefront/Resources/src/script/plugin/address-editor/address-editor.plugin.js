@@ -70,14 +70,19 @@ export default class AddressEditorPlugin extends Plugin {
      * @private
      */
     _getRequestData() {
-        return {
+        const data = {
             id: this.options.id,
             changeableAddresses: {
                 changeShipping: this.options.changeShipping,
                 changeBilling: this.options.changeBilling,
             },
-            '_csrf_token': this.options.csrfToken,
         };
+
+        if (window.csrf.enabled && window.csrf.mode === 'twig') {
+            data['_csrf_token'] = this.options.csrfToken;
+        }
+
+        return data;
     }
 
     /**

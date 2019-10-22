@@ -28,6 +28,7 @@
                             {% block page_account_profile_personal_form %}
                                 <form id="profilePersonalForm"
                                       method="post"
+                                      data-form-csrf-handler="true"
                                       action="{{ path('frontend.account.profile.save') }}"
                                       data-form-validation="true">
 
@@ -126,6 +127,7 @@
                                               class="card-body"
                                               method="post"
                                               action="{{ path('frontend.account.profile.email.save') }}"
+                                              data-form-csrf-handler="true"
                                               data-form-validation="true">
 
                                             {% block page_account_profile_mail_form_csrf %}
@@ -266,6 +268,7 @@
                                         <form id="profilePasswordForm"
                                               class="card-body"
                                               method="post"
+                                              data-form-csrf-handler="true"
                                               action="{{ path('frontend.account.profile.password.save') }}"
                                               data-form-validation="true">
 

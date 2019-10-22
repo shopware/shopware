@@ -9,21 +9,44 @@ Of course the core boundary is the important bit here. If modules in the core li
 ## CSRF protection
 
 Every storefront `POST` request is checked for a valid CSRF token to prevent [Cross-Site-Request-Forgery](https://de.wikipedia.org/wiki/Cross-Site-Request-Forgery) attacks.
+Shopware provides two different mechanisms for token generation: 
+* The default recommended method is to generate CSRF tokens server side via twig and include them in forms.
+* Ajax can also be used to generate token and append them to `POST` requests. The CSRF mode has to be set so `ajax` for this to work. This mode is needed if a third party cache provider like varnish should be used. More on this in the caching section below.
+
+CSRF protection can be configured via [Symfony configuration files](https://symfony.com/doc/current/configuration.html).
+`packages/storefront.yaml`: 
+```yaml
+storefront:
+    csrf:
+        enabled: true   // true/false to turn protection on/off
+        mode: twig      // Valid modes are `twig` or `ajax`
+```
 
 ### Append CSRF token to forms
 
-To generate a valid CSRF token for a form submit the twig function `sw_csrf` can be used.
-Here is a small example: 
+Here is an example for a `twig`- and `ajax`- mode compatible form:
 ```twig
-  <form name="ExampleForm" method="post" action="{{ path("exmaple.route") }}">
+  <form 
+    name="ExampleForm" 
+    method="post" 
+    action="{{ path("exmaple.route") }}"
+    data-form-csrf-handler="true">
       <!-- some form fields -->
     
       {{ sw_csrf('example.route') }}
     
   </form>
 ```
-
-* Important: Note that the parameter of the `sw_csrf` function must match the route name for the action. Every token is only valid for a specific route.
+* The `sw_csrf` function is used to generate a valid CSRF token with twig and append it as a hidden input field to the form. It accepts also a `mode` parameter which can be set to `token` or `input`(default):
+    ```twig
+    {{ sw_csrf('example.route', {"mode": "token"}) }}
+    ```
+    * Mode `token` renders only a blank token. This can be used to create a own input element or to hand over the token to a JS plugin.
+    * Mode `input` renders a hidden input field with the token as value
+    * Important: Note that the parameter of the `sw_csrf` function must match the route name for the action. Every token is only valid for a specific route.
+* The data attribute `data-form-csrf-handler="true"` initialises the JS plugin if the `csrf` mdoe is set to `ajax`. This will fetch a valid token on submit and then appends it to the form.
+    * The `FormCsrfHandler` plugin is only needed for native form submits.
+    * `POST` requests made with the `http-client.service` are automatically protected when `csrf` mode is set to `ajax`
 
 ### Exclude controller action from CSRF checks
 
@@ -35,8 +58,8 @@ It is possible to exclude a controller `POST` action from CSRF checks in the rou
 public function exampleAction() {}
 ```
 
-* Be aware that this is not recommended and could create a security vulnerability
+* Be aware that this is not recommended and could create a security vulnerability.
 
 ### Caching and CSRF
-The implementation is actual for twig only and works fine with the http cache. But if a external cache is used, like varnish for example a individual implementation is required. 
-Therefore the `crsf` `mode` can be set to `ajax`(default is `twig`) in the `storefront.yaml` configuration. Then the `\Shopware\Storefront\Controller\CsrfController` can be used to create CSRF tokens. A ajax implementation has to be written to replace the placeholder for CSRF tokens in the DOM for newly created ones.
+The default configuration for the `csrf` mode is `twig` and works fine with the shopware http cache. If an external cache (e.g. varnish) is used, the mode needs to be `ajax`. 
+A valid CRSF token is then fetched before a `POST` request and appended.

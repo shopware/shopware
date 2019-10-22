@@ -4,7 +4,8 @@
             {% block page_account_address_actions_set_default_shipping %}
                 {% if defaultShippingAddress.id != address.id %}
                     <form action="{{ path('frontend.account.address.set-default-address', {'type': 'shipping', 'addressId': address.id}) }}"
-                        method="post">
+                          data-form-csrf-handler="true"
+                          method="post">
 
                         {% block page_account_address_actions_set_default_shipping_csrf %}
                             {{ sw_csrf('frontend.account.address.set-default-address') }}
@@ -22,7 +23,8 @@
             {% block page_account_address_actions_set_default_billing %}
                 {% if defaultBillingAddress.id != address.id %}
                     <form action="{{ path('frontend.account.address.set-default-address', {'type': 'billing', 'addressId': address.id}) }}"
-                        method="post">
+                          data-form-csrf-handler="true"
+                          method="post">
 
                         {% block page_account_address_actions_set_default_billing_csrf %}
                             {{ sw_csrf('frontend.account.address.set-default-address') }}
@@ -55,6 +57,7 @@
                 {% if defaultShippingAddress.id != address.id and defaultBillingAddress.id != address.id %}
                     <div class="col-auto">
                         <form action="{{ path('frontend.account.address.delete', {'addressId': address.id}) }}"
+                              data-form-csrf-handler="true"
                               class="address-action-delete"
                               method="post">
 

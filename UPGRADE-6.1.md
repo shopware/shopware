@@ -571,7 +571,7 @@ To migrate your existing data run `bin/console database:migrate --all Shopware\\
             }
         }
     });
-```
+    ```
 
 Storefront
 ----------
@@ -627,16 +627,16 @@ SHOPWARE_HTTP_DEFAULT_TTL=7200
 
 * CSRF implementation
     * Every `POST` method needs to append a CSRF token now
-    * CSRF tokens can be generated in twig, here is a small example for a typical form:
+    * CSRF tokens can be generated in twig or via ajax, if configured. Here is a small twig example for a typical form:
     ```twig
-      <form name="ExampleForm" method="post" action="{{ path("exmaple.route") }}">
+      <form name="ExampleForm" method="post" action="{{ path("exmaple.route") }}" data-form-csrf-handler="true">
           <!-- some form fields -->
         
           {{ sw_csrf('example.route') }}
         
       </form>
     ```
-    * Important: The CSRF function needs the route name as parameter, because a token is only valid for a specific route
+    * Important: The CSRF function needs the route name as parameter, because a token is only valid for a specific route in twig mode
     * To prevent a CSRF check in a controller action you can set `"csrf_protected"=false` to the `defaults` in your route annotation:
     ```php
        /**

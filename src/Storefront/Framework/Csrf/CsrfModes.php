@@ -2,9 +2,13 @@
 
 namespace Shopware\Storefront\Framework\Csrf;
 
-class CsrfModes
+final class CsrfModes
 {
     public const MODE_TWIG = 'twig';
 
     public const MODE_AJAX = 'ajax';
+
+    private function __construct()
+    {
+    }
 }

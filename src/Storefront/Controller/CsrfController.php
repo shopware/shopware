@@ -39,9 +39,9 @@ class CsrfController extends StorefrontController
     }
 
     /**
-     * @Route("/csrf/generate", name="frontend.csrf.generateToken", options={"seo"="false"}, defaults={"csrf_protected"=false}, methods={"POST"})
+     * @Route("/csrf/generate", name="frontend.csrf.generateToken", defaults={"csrf_protected"=false, "XmlHttpRequest"=true}, methods={"POST"})
      */
-    public function generateCsrf(Request $request)
+    public function generateCsrf(Request $request): JsonResponse
     {
         if (!$this->csrfEnabled) {
             throw new CsrfNotEnabledException();
@@ -51,7 +51,9 @@ class CsrfController extends StorefrontController
             throw new CsrfWrongModeException(CsrfModes::MODE_AJAX);
         }
 
-        $token = $this->csrfTokenManager->getToken($request->get('intent'));
+        $intent = $request->request->get('intent', 'ajax');
+
+        $token = $this->csrfTokenManager->getToken($intent);
 
         return new JsonResponse(['token' => $token->getValue()]);
     }

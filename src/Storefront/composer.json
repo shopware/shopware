@@ -28,11 +28,11 @@
         "symfony/http-foundation": "4.3.5",
         "symfony/http-kernel": "4.3.5",
         "symfony/routing": "4.3.5",
+        "symfony/security-csrf": "4.3.5",
         "symfony/service-contracts": "1.1.7",
         "symfony/validator": "4.3.5",
         "twig/extensions": "1.5.4",
-        "twig/twig": "2.11.3",
-        "symfony/security-csrf": "4.3"
+        "twig/twig": "2.11.3"
     },
     "require-dev": {
         "phpunit/phpunit": "8.4.0"

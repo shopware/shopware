@@ -25,7 +25,9 @@
                         {% endblock %}
 
                         {% block page_account_payment_form %}
-                            <form action="{{ path('frontend.account.payment.save') }}" method="post">
+                            <form action="{{ path('frontend.account.payment.save') }}"
+                                  method="post"
+                                  data-form-csrf-handler="true">
 
                                 {% block page_account_payment_form_csrf %}
                                     {{ sw_csrf('frontend.account.payment.save') }}

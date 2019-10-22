@@ -124,6 +124,7 @@
                     'frontend.cms.page': '{{ path('frontend.cms.page') }}',
                     'frontend.cms.navigation.page': '{{ path('frontend.cms.navigation.page') }}',
                     'frontend.account.addressbook': '{{ path('frontend.account.addressbook') }}',
+                    'frontend.csrf.generateToken': '{{ path('frontend.csrf.generateToken') }}',
                 };
             </script>
         {% endblock %}
@@ -132,6 +133,15 @@
             {# Register the available viewport breakpoints the window.breakpoints object #}
             <script>
                 window.breakpoints = {{ shopware.theme.breakpoint|json_encode()|raw }};
+            </script>
+        {% endblock %}
+
+        {% block base_script_csrf %}
+            <script>
+                window.csrf = {
+                    'enabled': '{{ shopware.csrfEnabled }}',
+                    'mode': '{{ shopware.csrfMode }}'
+                }
             </script>
         {% endblock %}
 

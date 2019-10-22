@@ -31,11 +31,28 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
      */
     private $themeService;
 
-    public function __construct(RequestStack $requestStack, SystemConfigService $systemConfigService, ThemeService $themeService)
-    {
+    /**
+     * @var bool
+     */
+    private $csrfEnabled;
+
+    /**
+     * @var string
+     */
+    private $csrfMode;
+
+    public function __construct(
+        RequestStack $requestStack,
+        SystemConfigService $systemConfigService,
+        ThemeService $themeService,
+        bool $csrfEnabled,
+        string $csrfMode
+    ) {
         $this->requestStack = $requestStack;
         $this->systemConfigService = $systemConfigService;
         $this->themeService = $themeService;
+        $this->csrfEnabled = $csrfEnabled;
+        $this->csrfMode = $csrfMode;
     }
 
     public function getGlobals(): array
@@ -65,6 +82,8 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
                 ),
                 'theme' => $this->getThemeConfig($context->getSalesChannel()->getId(), $themeId),
                 'dateFormat' => DATE_ATOM,
+                'csrfEnabled' => $this->csrfEnabled,
+                'csrfMode' => $this->csrfMode,
             ],
             'controllerName' => $controllerInfo->getName(),
             'controllerAction' => $controllerInfo->getAction(),

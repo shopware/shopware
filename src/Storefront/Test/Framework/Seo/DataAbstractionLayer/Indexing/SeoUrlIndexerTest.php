@@ -424,6 +424,79 @@ class SeoUrlIndexerTest extends TestCase
         static::assertCount(1, $seoUrls);
     }
 
+    public function testInheritance(): void
+    {
+        $parentId = Uuid::randomHex();
+        $child1Id = Uuid::randomHex();
+        $child2Id = Uuid::randomHex();
+
+        $products = [
+            [
+                'id' => $parentId,
+                'manufacturer' => [
+                    'id' => Uuid::randomHex(),
+                    'name' => 'amazing brand',
+                ],
+                'name' => 'foo',
+                'productNumber' => 'P1',
+                'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'tax'],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 12, 'linked' => false]],
+                'stock' => 0,
+            ],
+            [
+                'id' => $child1Id,
+                'parentId' => $parentId,
+                'productNumber' => 'C1',
+                'stock' => 0,
+            ],
+            [
+                'id' => $child2Id,
+                'parentId' => $parentId,
+                'productNumber' => 'C2',
+                'stock' => 0,
+            ],
+        ];
+
+        $this->productRepository->upsert($products, Context::createDefaultContext());
+
+        // update parent
+        $update = [
+            'id' => $parentId,
+            'name' => 'updated',
+        ];
+
+        $this->productRepository->update([$update], Context::createDefaultContext());
+
+        $criteria = new Criteria([$parentId, $child1Id, $child2Id]);
+        $criteria->addAssociation('seoUrls');
+        $products = $this->productRepository->search($criteria, Context::createDefaultContext());
+
+        /** @var ProductEntity $parent */
+        $parent = $products->get($parentId);
+        /** @var SeoUrlCollection $seoUrls */
+        $seoUrls = $parent->getExtension('seoUrls');
+        static::assertCount(2, $seoUrls);
+        /** @var SeoUrlEntity $canonical */
+        $canonical = $seoUrls->filterByProperty('isCanonical', true)->first();
+        static::assertSame('updated/P1', $canonical->getSeoPathInfo());
+
+        /** @var ProductEntity $child1 */
+        $child1 = $products->get($child1Id);
+        /** @var SeoUrlCollection $seoUrls */
+        $seoUrls = $child1->getExtension('seoUrls');
+        static::assertCount(2, $seoUrls);
+        $canonical = $seoUrls->filterByProperty('isCanonical', true)->first();
+        static::assertSame('updated/C1', $canonical->getSeoPathInfo());
+
+        /** @var ProductEntity $child2 */
+        $child2 = $products->get($child2Id);
+        /** @var SeoUrlCollection $seoUrls */
+        $seoUrls = $child2->getExtension('seoUrls');
+        static::assertCount(2, $seoUrls);
+        $canonical = $seoUrls->filterByProperty('isCanonical', true)->first();
+        static::assertSame('updated/C2', $canonical->getSeoPathInfo());
+    }
+
     public function testIndex(): void
     {
         $productDefinition = $this->getContainer()->get(ProductDefinition::class);

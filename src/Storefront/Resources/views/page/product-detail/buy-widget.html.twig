@@ -65,7 +65,7 @@
                 {% block page_product_detail_data %}
                     {% block page_product_detail_data_rich_snippet_url %}
                         <meta itemprop="url"
-                              content="{{ productUrl(page.product) }}"/>
+                              content="{{ seoUrl('frontend.detail.page', { productId: page.product.id }) }}"/>
                     {% endblock %}
 
                     {% block page_product_detail_data_rich_snippet_price_range %}

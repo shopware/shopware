@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Page\Product;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Shopware\Storefront\Page\Page;
@@ -32,6 +33,21 @@ class ProductPage extends Page
      * @var ReviewLoaderResult
      */
     protected $reviewLoaderResult;
+
+    /**
+     * @var string
+     */
+    protected $metaTitle;
+
+    /**
+     * @var string
+     */
+    protected $metaDescription;
+
+    /**
+     * @var PropertyGroupOptionCollection
+     */
+    protected $selectedOptions;
 
     public function getProduct(): SalesChannelProductEntity
     {
@@ -91,5 +107,35 @@ class ProductPage extends Page
     public function getTotalReviews(): int
     {
         return $this->reviewLoaderResult->getTotalReviews();
+    }
+
+    public function getMetaTitle(): string
+    {
+        return $this->metaTitle;
+    }
+
+    public function setMetaTitle(string $metaTitle): void
+    {
+        $this->metaTitle = $metaTitle;
+    }
+
+    public function getMetaDescription(): string
+    {
+        return $this->metaDescription;
+    }
+
+    public function setMetaDescription(string $metaDescription): void
+    {
+        $this->metaDescription = $metaDescription;
+    }
+
+    public function getSelectedOptions(): PropertyGroupOptionCollection
+    {
+        return $this->selectedOptions;
+    }
+
+    public function setSelectedOptions(PropertyGroupOptionCollection $selectedOptions): void
+    {
+        $this->selectedOptions = $selectedOptions;
     }
 }

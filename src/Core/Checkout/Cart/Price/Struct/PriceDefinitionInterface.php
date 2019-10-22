@@ -35,7 +35,7 @@ interface PriceDefinitionInterface
 
     /**
      * Returns the constraints of this PriceDefinitions. These are used by PriceDefinitions which calculate their final
-     * price from the results of other PriceDefintions to filter the items they want to apply to. This is used for
+     * price from the results of other PriceDefinitions to filter the items they want to apply to. This is used for
      * example to create discounts, which only apply to items of a certain type.
      *
      * @see PercentagePriceDefinition

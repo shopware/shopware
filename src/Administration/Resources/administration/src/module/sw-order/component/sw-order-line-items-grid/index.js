@@ -47,7 +47,7 @@ Component.register('sw-order-line-items-grid', {
         },
 
         getLineItemColumns() {
-            const columnDefintions = [{
+            const columnDefinitions = [{
                 property: 'label',
                 dataIndex: 'label',
                 label: this.$tc('sw-order.detailBase.columnProductName'),
@@ -85,7 +85,7 @@ Component.register('sw-order-line-items-grid', {
             }];
 
             if (this.order.price.taxStatus !== 'tax-free') {
-                columnDefintions.push(
+                columnDefinitions.push(
                     {
                         property: 'price.taxRules[0]',
                         label: this.$tc('sw-order.detailBase.columnTax'),
@@ -97,7 +97,7 @@ Component.register('sw-order-line-items-grid', {
                 );
             }
 
-            return columnDefintions;
+            return columnDefinitions;
         }
     },
     methods: {

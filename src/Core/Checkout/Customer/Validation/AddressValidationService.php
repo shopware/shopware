@@ -42,6 +42,10 @@ class AddressValidationService implements ValidationServiceInterface
             $definition->add('additionalAddressLine2', new NotBlank());
         }
 
+        if ($this->systemConfigService->get('core.loginRegistration.showPhoneNumberField') && $this->systemConfigService->get('core.loginRegistration.phoneNumberFieldRequired')) {
+            $definition->add('phoneNumber', new NotBlank());
+        }
+
         return $definition;
     }
 

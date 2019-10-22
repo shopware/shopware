@@ -141,6 +141,24 @@ class AccountRegistrationServiceTest extends TestCase
         static::assertNotEmpty($customerId);
     }
 
+    public function testRegistrationWithRequiredPhoneNumber(): void
+    {
+        $this->systemConfigService->set('core.loginRegistration.showPhoneNumber', true);
+        $this->systemConfigService->set('core.loginRegistration.requirePhoneNumber', true);
+
+        $data = $this->getRegistrationData();
+
+        $this->expectException(ConstraintViolationException::class);
+        $this->accountRegistrationService->register($data, false, $this->salesChannelContext);
+
+        /** @var DataBag $billingAddress */
+        $billingAddress = $data->get('billingAddress');
+        $billingAddress->set('phoneNumber', '12345');
+
+        $customerId = $this->accountRegistrationService->register($data, false, $this->salesChannelContext);
+        static::assertNotEmpty($customerId);
+    }
+
     private function getRegistrationData($isGuest = false): DataBag
     {
         $data = [

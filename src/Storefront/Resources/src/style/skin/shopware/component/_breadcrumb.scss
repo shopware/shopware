@@ -7,19 +7,32 @@ https://getbootstrap.com/docs/4.3/components/breadcrumb/
 */
 
 .breadcrumb {
-    border-bottom: 1px solid $border-color;
-    padding-left: 0;
-    padding-right: 0;
-}
-
-.breadcrumb-item {
-    .breadcrumb-link {
-        color: $body-color;
+    svg {
+        height: $font-size-base;
+        width: auto;
+        top: 3px;
     }
 
-    &.active {
-        .breadcrumb-link {
-            color: $primary;
+    .breadcrumb-container {
+        display: flex;
+    }
+
+    .breadcrumb-placeholder {
+        margin: 0 $spacer-sm;
+    }
+
+    a {
+        color: $gray-600;
+        font-size: $font-size-base;
+
+        &:hover {
+            color: $sw-color-brand-primary;
+            text-decoration: none;
+        }
+
+        &.is-active {
+            color: $sw-color-brand-primary;
+            font-weight: $font-weight-bolder;
         }
     }
 }

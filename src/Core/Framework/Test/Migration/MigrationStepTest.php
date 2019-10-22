@@ -34,7 +34,7 @@ class MigrationStepTest extends TestCase
     public function testUpdateForwardTriggerIsExecutedIfMigrationIsNotActive(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
-        $connection->executeUpdate('SET @MIGRATION_1_IS_ACTIVE = NULL');
+        $connection->executeUpdate('SET @MIGRATION_1_IS_ACTIVE = TRUE');
 
         $migration = new MigrationWithForwardTrigger();
         $migration->update($connection);
@@ -57,7 +57,7 @@ class MigrationStepTest extends TestCase
     public function testUpdateForwardTriggerIsSkippedIfMigrationIsActive(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
-        $connection->executeUpdate('SET @MIGRATION_1_IS_ACTIVE = TRUE');
+        $connection->executeUpdate('SET @MIGRATION_1_IS_ACTIVE = NULL');
 
         $migration = new MigrationWithForwardTrigger();
         $migration->update($connection);
@@ -80,7 +80,7 @@ class MigrationStepTest extends TestCase
     public function testUpdateBackwardTriggerIsSkippedIfMigrationIsNotActive(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
-        $connection->executeUpdate('SET @MIGRATION_2_IS_ACTIVE = NULL');
+        $connection->executeUpdate('SET @MIGRATION_2_IS_ACTIVE = TRUE');
 
         $migration = new MigrationWithBackwardTrigger();
         $migration->update($connection);
@@ -103,7 +103,7 @@ class MigrationStepTest extends TestCase
     public function testUpdateBackwardTriggerIsExecutedIfMigrationIsActive(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
-        $connection->executeUpdate('SET @MIGRATION_2_IS_ACTIVE = TRUE');
+        $connection->executeUpdate('SET @MIGRATION_2_IS_ACTIVE = NULL');
 
         $migration = new MigrationWithBackwardTrigger();
         $migration->update($connection);

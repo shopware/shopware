@@ -279,7 +279,7 @@ class Kernel extends HttpKernel
         $nonDestructiveMigrations = $connection->executeQuery('
             SELECT `creation_timestamp`
             FROM `migration`
-            WHERE `update_destructive` IS NULL
+            WHERE `update` IS NOT NULL AND `update_destructive` IS NULL
         ')->fetchAll(FetchMode::COLUMN);
 
         $activeMigrations = $this->container->getParameter('migration.active');

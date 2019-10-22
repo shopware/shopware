@@ -80,7 +80,6 @@
 
         <service id="Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelApiSchemaController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
-            <argument>%shopware.api.api_browser.public%</argument>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

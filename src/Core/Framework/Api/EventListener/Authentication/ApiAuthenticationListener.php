@@ -10,7 +10,6 @@ use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use League\OAuth2\Server\ResourceServer;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -48,25 +47,18 @@ class ApiAuthenticationListener implements EventSubscriberInterface
      */
     private $psrHttpFactory;
 
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
-
     public function __construct(
         ResourceServer $resourceServer,
         AuthorizationServer $authorizationServer,
         UserRepositoryInterface $userRepository,
         RefreshTokenRepositoryInterface $refreshTokenRepository,
-        PsrHttpFactory $psrHttpFactory,
-        ContainerInterface $container
+        PsrHttpFactory $psrHttpFactory
     ) {
         $this->resourceServer = $resourceServer;
         $this->authorizationServer = $authorizationServer;
         $this->userRepository = $userRepository;
         $this->refreshTokenRepository = $refreshTokenRepository;
         $this->psrHttpFactory = $psrHttpFactory;
-        $this->container = $container;
     }
 
     public static function getSubscribedEvents(): array

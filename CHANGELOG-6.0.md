@@ -149,6 +149,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
 **Additions / Changes**
 
 * Administration
+    * Moved the sw-product-maintain-currencies-modal to sw-maintain-currencies-modal.
 * Core
     * Moved the seo module from the storefront into the core.
     * Switched the execution condition of `\Shopware\Core\Framework\Migration\MigrationStep::addBackwardTrigger()` and `\Shopware\Core\Framework\Migration\MigrationStep::addForwardTrigger()` to match the execution conditions in the methods documentation.

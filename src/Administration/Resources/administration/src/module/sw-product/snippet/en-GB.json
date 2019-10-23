@@ -276,12 +276,6 @@
         "save": "Save",
         "useForListing": "Display in listings"
       }
-    },
-    "maintainCurrenciesModal": {
-      "apply": "Apply",
-      "cancel": "Cancel",
-      "maintainCurrencies": "Currency dependent pricing",
-      "columnPrice": "Prices (gross / net)"
     }
   }
 }

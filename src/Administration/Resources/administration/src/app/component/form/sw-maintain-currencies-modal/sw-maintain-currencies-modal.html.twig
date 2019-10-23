@@ -1,40 +1,40 @@
-{% block sw_product_maintain_currencies_modal %}
-    <sw-modal class="sw-product-maintain-currencies-modal"
-              :title="$tc('sw-product.maintainCurrenciesModal.maintainCurrencies')"
+{% block sw_maintain_currencies_modal %}
+    <sw-modal class="sw-maintain-currencies-modal"
+              :title="$tc('sw-maintain-currencies-modal.title')"
               @modal-close="onCancel">
 
-        {% block sw_product_maintain_currencies_modal_grid %}
+        {% block sw_maintain_currencies_modal_grid %}
             <sw-data-grid :dataSource="currencies"
                           :columns="maintainCurrencyColumns"
                           :showSelection="false"
                           :compactMode="false"
                           :showActions="false">
 
-                {% block sw_product_maintain_currencies_modal_grid_column_name %}
+                {% block sw_maintain_currencies_modal_grid_column_name %}
                     <template slot="column-name" slot-scope="{ item }">
 
-                        {% block sw_product_maintain_currencies_modal_grid_column_name_inherit_field %}
-                            <sw-inheritance-switch v-if="!item.isDefault"
-                                                   class="sw-product-price-form__inherited-icon"
+                        {% block sw_maintain_currencies_modal_grid_column_name_inherit_field %}
+                            <sw-inheritance-switch v-if="!item.isSystemDefault"
+                                                   class="sw-price-form__inherited-icon"
                                                    :isInherited="isCurrencyInherited(item)"
                                                    @inheritance-restore="onInheritanceRestore(item.id)"
                                                    @inheritance-remove="onInheritanceRemove(item)">
                             </sw-inheritance-switch>
                         {% endblock %}
 
-                        {% block sw_product_maintain_currencies_modal_grid_column_name_item_name %}
+                        {% block sw_maintain_currencies_modal_grid_column_name_item_name %}
                             <p>{{ item.translated.name || item.name }}</p>
                         {% endblock %}
                     </template>
                 {% endblock %}
 
-                {% block sw_product_maintain_currencies_modal_grid_column_price %}
+                {% block sw_maintain_currencies_modal_grid_column_price %}
                     <template slot="column-price" slot-scope="{ item }">
 
-                        {% block sw_product_maintain_currencies_modal_grid_column_price_field %}
+                        {% block sw_maintain_currencies_modal_grid_column_price_field %}
                             <sw-price-field :price="prices"
                                             :defaultPrice="defaultPrice"
-                                            :taxRate="productTaxRate"
+                                            :taxRate="taxRate"
                                             :label="false"
                                             enableInheritance
                                             :currency="item">
@@ -45,18 +45,18 @@
             </sw-data-grid>
         {% endblock %}
 
-        {% block sw_product_maintain_currencies_modal_footer %}
+        {% block sw_maintain_currencies_modal_footer %}
             <template slot="modal-footer">
 
-                {% block sw_product_maintain_currencies_modal_footer_button_cancel %}
+                {% block sw_maintain_currencies_modal_footer_button_cancel %}
                     <sw-button size="small" @click="onCancel">
-                        {{ $tc('sw-product.maintainCurrenciesModal.cancel') }}
+                        {{ $tc('global.default.cancel') }}
                     </sw-button>
                 {% endblock %}
 
-                {% block sw_product_maintain_currencies_modal_footer_button_apply %}
+                {% block sw_maintain_currencies_modal_footer_button_apply %}
                     <sw-button variant="primary" size="small" @click="onApply">
-                        {{ $tc('sw-product.maintainCurrenciesModal.apply') }}
+                        {{ $tc('global.default.apply') }}
                     </sw-button>
                 {% endblock %}
             </template>

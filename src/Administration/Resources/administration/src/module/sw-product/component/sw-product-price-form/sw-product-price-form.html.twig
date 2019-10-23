@@ -95,13 +95,13 @@
         </sw-container>
 
         {% block sw_product_price_form_maintain_currencies_modal %}
-            <sw-product-maintain-currencies-modal v-if="displayMaintainCurrencies"
-                                                  :currencies="currencies"
-                                                  :product="product"
-                                                  :defaultPrice="defaultPrice"
-                                                  :productTaxRate="productTaxRate"
-                                                  @modal-close="onMaintainCurrenciesClose">
-            </sw-product-maintain-currencies-modal>
+            <sw-maintain-currencies-modal v-if="displayMaintainCurrencies"
+                                          :currencies="currencies"
+                                          :prices="product.price"
+                                          :defaultPrice="defaultPrice"
+                                          :taxRate="productTaxRate"
+                                          @modal-close="onMaintainCurrenciesClose">
+            </sw-maintain-currencies-modal>
         {% endblock %}
     </div>
 {% endblock %}

@@ -47,12 +47,8 @@ Component.register('sw-product-price-form', {
             }];
         },
 
-        onMaintainCurrenciesClose(event) {
-            const { action, changeSet } = event;
-
-            if (action === 'apply' && changeSet !== null) {
-                Object.assign(this.product, changeSet);
-            }
+        onMaintainCurrenciesClose(prices) {
+            this.product.price = prices;
 
             this.displayMaintainCurrencies = false;
         }

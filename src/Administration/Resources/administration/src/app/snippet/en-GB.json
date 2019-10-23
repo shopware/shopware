@@ -779,5 +779,9 @@
       "discard": "Discard changes",
       "keepEditing": "Keep editing"
     }
+  },
+  "sw-maintain-currencies-modal": {
+    "title": "Currency dependent pricing",
+    "columnPrice": "Prices (gross / net)"
   }
 }

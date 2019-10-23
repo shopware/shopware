@@ -1,10 +1,9 @@
-import template from './sw-product-maintain-currencies-modal.html.twig';
-import './sw-product-maintain-currencies-modal.scss';
+import template from './sw-maintain-currencies-modal.html.twig';
+import './sw-maintain-currencies-modal.scss';
 
 const { Component } = Shopware;
-const { deepCopyObject } = Shopware.Utils.object;
 
-Component.register('sw-product-maintain-currencies-modal', {
+Component.register('sw-maintain-currencies-modal', {
     template,
 
     props: {
@@ -13,8 +12,8 @@ Component.register('sw-product-maintain-currencies-modal', {
             required: true
         },
 
-        product: {
-            type: Object,
+        prices: {
+            type: Array,
             required: true
         },
 
@@ -23,7 +22,7 @@ Component.register('sw-product-maintain-currencies-modal', {
             required: true
         },
 
-        productTaxRate: {
+        taxRate: {
             type: Object,
             required: true
         }
@@ -31,7 +30,7 @@ Component.register('sw-product-maintain-currencies-modal', {
 
     data() {
         return {
-            prices: null
+            clonePrices: null
         };
     },
 
@@ -48,7 +47,7 @@ Component.register('sw-product-maintain-currencies-modal', {
                     width: '150px'
                 }, {
                     property: 'price',
-                    label: this.$tc('sw-product.maintainCurrenciesModal.columnPrice'),
+                    label: this.$tc('sw-maintain-currencies-modal.columnPrice'),
                     visible: true,
                     allowResize: false,
                     primary: true,
@@ -64,7 +63,7 @@ Component.register('sw-product-maintain-currencies-modal', {
 
     methods: {
         createdComponent() {
-            this.prices = deepCopyObject(this.product.price);
+            this.clonePrices = Shopware.Utils.object.cloneDeep(this.prices);
         },
 
         convertPrice(value, currency) {
@@ -102,19 +101,11 @@ Component.register('sw-product-maintain-currencies-modal', {
         },
 
         onCancel() {
-            this.$emit('modal-close', {
-                action: 'cancel',
-                changeSet: null
-            });
+            this.$emit('modal-close', this.clonePrices);
         },
 
         onApply() {
-            const price = this.prices;
-
-            this.$emit('modal-close', {
-                action: 'apply',
-                changeSet: { price }
-            });
+            this.$emit('modal-close', this.prices);
         }
     }
 });

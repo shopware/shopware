@@ -448,7 +448,7 @@ class CategoryEntity extends Entity
 
     public function getBreadcrumb(): array
     {
-        return array_values($this->sortBreadcrumb());
+        return array_values($this->getBreadcrumbMapping());
     }
 
     public function setBreadcrumb(?array $breadcrumb): void
@@ -458,26 +458,25 @@ class CategoryEntity extends Entity
 
     public function buildSeoBreadcrumb(?string $navigationCategoryId): ?array
     {
-        $categoryBreadcrumb = $this->getBreadcrumb();
+        $categoryBreadcrumb = $this->getBreadcrumbMapping();
 
         // If the current SalesChannel is null ( which refers to the default template SalesChannel) or
         // this category has no root, we return the full breadcrumb
         if ($navigationCategoryId === null) {
-            return array_values($categoryBreadcrumb);
+            return $categoryBreadcrumb;
         }
 
-        $categoryPath = $this->getPath();
-        if ($categoryPath === null) {
+        // root case
+        if (count($categoryBreadcrumb) < 2) {
             return null;
         }
 
         // Check where this category is located in relation to the navigation entry point of the sales channel
-        $pathArray = array_slice(explode('|', $categoryPath), 1, -1);
-        $salesChannelPos = array_search($navigationCategoryId, $pathArray, true);
+        $salesChannelPos = array_search($navigationCategoryId, array_keys($categoryBreadcrumb), true);
 
         if ($salesChannelPos !== false) {
             // Remove all breadcrumbs preceding the navigation category
-            return array_slice(array_values($categoryBreadcrumb), $salesChannelPos + 1);
+            return array_slice($categoryBreadcrumb, $salesChannelPos + 1);
         }
 
         return $categoryBreadcrumb;
@@ -502,7 +501,7 @@ class CategoryEntity extends Entity
         $this->mainCategories = $mainCategories;
     }
 
-    private function sortBreadcrumb(): array
+    private function getBreadcrumbMapping(): array
     {
         if ($this->breadcrumb === null) {
             return [];

@@ -30,7 +30,16 @@
                         </div>
                     {% endblock %}
 
+                {% block sw_cms_create_wizard_first_step_abort %}
+                    <router-link class="sw-cms-create-wizard__back" :to="{ name: 'sw.cms.index' }">
+                        <sw-icon name="small-default-x-line-medium" small></sw-icon> {{ $tc('sw-cms.createWizard.abortCreation') }}
+                    </router-link>
+                {% endblock %}
+
+                {% block sw_cms_create_wizard_first_step_helptext %}
                     <p class="sw-cms-create-wizard__step1-helptext">{{ $tc('sw-cms.createWizard.choosePageTypeHelpText') }}</p>
+                {% endblock %}
+
                 </div>
             {% endblock %}
 
@@ -44,7 +53,15 @@
                         </div>
                     {% endblock %}
 
-                    <p class="sw-cms-create-wizard__step2-helptext">{{ $tc('sw-cms.createWizard.chooseSectionHelpText') }}</p>
+                    {% block sw_cms_create_wizard_second_step_back %}
+                        <div class="sw-cms-create-wizard__back" @click="goToStep('pageType')">
+                            <sw-icon name="default-arrow-simple-left" small></sw-icon> {{ $tc('sw-cms.createWizard.stepBack') }}
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_cms_create_wizard_second_step_helptext %}
+                        <p class="sw-cms-create-wizard__step2-helptext">{{ $tc('sw-cms.createWizard.chooseSectionHelpText') }}</p>
+                    {% endblock %}
                 </div>
             {% endblock %}
 
@@ -89,6 +106,12 @@
                             </div>
                         {% endblock %}
                     </div>
+
+                    {% block sw_cms_create_wizard_third_step_back %}
+                        <div class="sw-cms-create-wizard__back" @click="goToStep('sectionType')">
+                            <sw-icon name="default-arrow-simple-left" small></sw-icon> {{ $tc('sw-cms.createWizard.stepBack') }}
+                        </div>
+                    {% endblock %}
                 </div>
             {% endblock %}
         </div>

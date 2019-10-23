@@ -77,12 +77,13 @@
     display: grid;
     grid-template-columns: 50% 50%;
     list-style: none;
-    cursor: pointer;
     border-bottom: 1px solid $color-gray-300;
     padding-bottom: 24px;
     margin-bottom: 16px;
 
     .sw-cms-sidebar-section-settings__quickaction {
+        cursor: pointer;
+        
         &.is--danger {
             .sw-icon {
                 color: $color-crimson-500;

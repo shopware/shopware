@@ -22,6 +22,14 @@
         {% set blockClasses = ['bg-color']|merge(blockClasses) %}
     {% endif %}
 
+    {% set columns = 3 %}
+    {% set isInSidebar = block.sectionPosition == 'sidebar' %}
+    {% set sidebarClasses = '' %}
+
+    {% if isInSidebar == true %}
+        {% set sidebarClasses = 'has--sidebar' %}
+    {% endif %}
+
     <div class="cms-block {{ blockClasses|join(' ') }}"
          style="{% if blockBgColor %} background-color: {{ blockBgColor }};{% endif %}{% if blockBgImg %}background-image: url({{ blockBgImg }}); background-size: {{ block.backgroundMediaMode }};{% endif %}">
 
@@ -30,7 +38,7 @@
                  style="{% if padding %}padding: {{ padding }};{% endif %}">
 
                 {% block section_content_block_row %}
-                    <div class="row cms-row">
+                    <div class="cms-block-container-row row cms-row {{ sidebarClasses }}">
                         {% sw_include "@Storefront/block/cms-block-" ~ block.type ~ ".html.twig" ignore missing %}
                     </div>
                 {% endblock %}

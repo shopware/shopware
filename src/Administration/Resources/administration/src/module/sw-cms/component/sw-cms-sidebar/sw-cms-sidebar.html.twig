@@ -70,7 +70,11 @@
                         ref="sectionConfigSidebar">
                         {% block sw_cms_sidebar_page_section_settings_header %}
                             <span slot="header">
-                                <template v-if="section.type === 'sidebar'">
+                                <template v-if="section.name">
+                                    {{ $tc('sw-cms.section.layoutSection') }} - {{ section.name }}
+                                </template>
+
+                                <template v-else-if="section.type === 'sidebar'">
                                     {{ $tc('sw-cms.section.isSidebar') }}
                                 </template>
 
@@ -105,6 +109,22 @@
                                 {% block sw_cms_sidebar_section_config %}
                                     <div class="sw-cms-sidebar-section-settings__config">
 
+                                        {% block sw_cms_sidebar_section_config_name %}
+                                            <sw-text-field
+                                                :label="$tc('sw-cms.detail.labelSectionNameField')"
+                                                :placeholder="placeholder(section, 'name')"
+                                                v-model="section.name">
+                                            </sw-text-field>
+                                        {% endblock %}
+
+                                        {% block sw_cms_sidebar_section_config_css_classes_field %}
+                                            <sw-text-field
+                                                v-model="section.cssClass"
+                                                :label="$tc('sw-cms.detail.labelCssClassField')"
+                                                :helpText="$tc('sw-cms.detail.helpTextCssClassField')">
+                                            </sw-text-field>
+                                        {% endblock %}
+
                                         {% block sw_cms_sidebar_section_config_sizing_field %}
                                             <sw-select-field :label="$tc('sw-cms.detail.labelSizingField')" v-model="section.sizingMode">
                                                 <option value="boxed">{{ $tc('sw-cms.detail.labelSizingOptionBoxed') }}</option>
@@ -116,7 +136,7 @@
                                             <sw-select-field v-if="section.type === 'sidebar'"
                                                              :label="$tc('sw-cms.sidebar.labelSidebarMobile')"
                                                              v-model="section.mobileBehavior">
-                                                <option value="offcanvas">{{ $tc('sw-cms.sidebar.labelSidebarMobileOptionOffcanvas') }}</option>
+                                                <option value="hidden">{{ $tc('sw-cms.sidebar.labelSidebarMobileOptionHidden') }}</option>
                                                 <option value="wrap">{{ $tc('sw-cms.sidebar.labelSidebarMobileOptionWrap') }}</option>
                                             </sw-select-field>
                                         {% endblock %}
@@ -262,7 +282,11 @@
 
                                 {% block sw_cms_sidebar_navigator_section_header %}
                                     <div class="sw-cms-sidebar__navigator-section-header">
-                                        <template v-if="section.type === 'sidebar'">
+                                        <template v-if="section.name">
+                                            {{ $tc('sw-cms.section.layoutSection') }} - {{ section.name }}
+                                        </template>
+
+                                        <template v-else-if="section.type === 'sidebar'">
                                             {{ $tc('sw-cms.section.isSidebar') }}
                                         </template>
 

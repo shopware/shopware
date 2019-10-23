@@ -106,10 +106,9 @@
                         {% block sw_cms_detail_stage_wrapper %}
                             <div class="sw-cms-detail__stage" v-else>
 
-                                {% block sw_cms_detail_stage_empty_stade %}
+                                {% block sw_cms_detail_stage_empty_stage %}
                                     <div class="sw-cms-detail__empty-stage"
-                                         v-if="!isLoading && !pageHasSections"
-                                         v-droppable="{ dragGroup: 'cms-stage', data: { dropIndex: 0 } }">
+                                         v-if="!isLoading && !pageHasSections">
 
                                         {% block sw_cms_detail_stage_empty_stade_content %}
                                             <div class="sw-cms-detail__empty-stage-content">

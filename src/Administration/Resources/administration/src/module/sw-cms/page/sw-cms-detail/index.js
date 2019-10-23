@@ -374,19 +374,20 @@ Component.register('sw-cms-detail', {
                 return;
             }
 
-            const demoEntity = this.currentMappingEntityRepo.get(demoEntityId, this.context);
+            this.currentMappingEntityRepo.get(demoEntityId, this.context).then((entity) => {
+                if (!entity) {
+                    return;
+                }
 
-            if (!demoEntity) {
-                return;
-            }
-
-            if (this.cmsPageState.currentMappingEntity === 'category' && demoEntity.mediaId !== null) {
-                this.repositoryFactory.create('media').get(demoEntity.mediaId, this.context).then((media) => {
-                    demoEntity.media = media;
-                });
-            }
-
-            this.$store.commit('cmsPageState/setCurrentDemoEntity', demoEntity);
+                if (this.cmsPageState.currentMappingEntity === 'category' && entity.mediaId !== null) {
+                    this.repositoryFactory.create('media').get(entity.mediaId, this.context).then((media) => {
+                        entity.media = media;
+                        this.$store.commit('cmsPageState/setCurrentDemoEntity', entity);
+                    });
+                } else {
+                    this.$store.commit('cmsPageState/setCurrentDemoEntity', entity);
+                }
+            });
         },
 
         onAddSection(type, index) {
@@ -440,6 +441,26 @@ Component.register('sw-cms-detail', {
             }
 
             const sections = this.page.sections;
+
+            if (sections.length < 1) {
+                this.createNotificationWarning({
+                    title: this.$tc('sw-cms.detail.notificationTitleMissingSections'),
+                    message: this.$tc('sw-cms.detail.notificationMessageMissingSections')
+                });
+
+                return Promise.reject();
+            }
+
+            if (sections.length === 1 && sections[0].blocks.length === 0) {
+                this.createNotificationWarning({
+                    title: this.$tc('sw-cms.detail.notificationTitleMissingBlocks'),
+                    message: this.$tc('sw-cms.detail.notificationMessageMissingBlocks')
+                });
+
+                this.pageConfigOpen('blocks');
+                return Promise.reject();
+            }
+
             let foundEmptyRequiredField = [];
 
             sections.forEach((section) => {
@@ -557,6 +578,7 @@ Component.register('sw-cms-detail', {
             blockClone.id = newBlock.id;
             blockClone.position = block.position + 1;
             blockClone.sectionId = section.id;
+            blockClone.sectionPosition = block.sectionPosition;
             blockClone.slots = [];
 
             Object.assign(newBlock, blockClone);
@@ -592,15 +614,16 @@ Component.register('sw-cms-detail', {
             Object.assign(newSection, sectionClone);
 
             section.blocks.forEach((block) => {
-                const clonedBlock = this.blockRepository.create();
-                clonedBlock.sectionId = newSection.id;
-                clonedBlock.slot = block.slot;
-                clonedBlock.type = block.type;
-                clonedBlock.config = cloneDeep(block.config);
-                clonedBlock.data = cloneDeep(block.data);
+                const newBlock = this.blockRepository.create();
 
-                this.cloneSlotsInBlock(block, clonedBlock);
-                newSection.blocks.push(clonedBlock);
+                const blockClone = cloneDeep(block);
+                blockClone.id = newBlock.id;
+                blockClone.position = block.position + 1;
+                blockClone.sectionId = section.id;
+                blockClone.slots = [];
+
+                this.cloneSlotsInBlock(block, blockClone);
+                newSection.blocks.push(blockClone);
             });
 
             this.page.sections.splice(newSection.position, 0, newSection);

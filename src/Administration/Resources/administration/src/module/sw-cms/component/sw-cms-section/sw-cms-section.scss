@@ -2,8 +2,10 @@
 
 .sw-cms-stage.is--mobile {
     .sw-cms-section.is--sidebar {
-        display: flex;
-        flex-direction: column;
+        .sw-cms-section__wrapper {
+            display: flex;
+            flex-direction: column;
+        }
     }
 }
 
@@ -11,9 +13,10 @@
     position: relative;
     background-repeat: no-repeat;
     background-position: center center;
-    padding: 0;
-    min-height: 400px;
+    padding: 12px;
     border-top: 1px solid $color-gray-300;
+    display: grid;
+    align-items: center;
 
     &.has--shadow-top {
         box-shadow: 0 -5px 5px -5px $color-gray-300;
@@ -57,9 +60,10 @@
         padding: 20px;
 
         .sw-cms-section__wrapper {
+            display: grid;
             max-width: 1080px;
             width: 100%;
-            margin: auto;
+            margin: 0 auto;
         }
     }
 

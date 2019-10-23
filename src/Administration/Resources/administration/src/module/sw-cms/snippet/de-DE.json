@@ -42,7 +42,7 @@
         "duplicate": "Duplizieren"
       },
       "labelSidebarMobile": "Mobiles Sidebar Verhalten",
-      "labelSidebarMobileOptionOffcanvas": "Off-canvas",
+      "labelSidebarMobileOptionHidden": "Nicht angezeigt",
       "labelSidebarMobileOptionWrap": "Umbrechen"
     },
     "createWizard": {
@@ -52,7 +52,8 @@
       "chooseSectionHelpText": "Sektionen teilen deine Arbeitsbühne in Bereiche, in denen du kreativ werden kannst. Du kannst Sektionen miteinander kombinieren und jederzeit wieder entfernen oder verschieben.",
       "chooseNameTitle": "Wie soll Dein Layout heißen?",
       "createLayout": "Layout erstellen",
-      "abortCreation": "Abbrechen"
+      "abortCreation": "Abbrechen",
+      "stepBack": "Zurück"
     },
     "detail": {
       "labelButtonSave": "Speichern",
@@ -96,8 +97,8 @@
       "labelBackgroundMediaModeContain": "Beinhalten",
       "labelBackgroundMediaModeCover": "Füllen",
       "labelBackgroundMediaModeAuto": "Auto",
-      "labelBlockCssClassField": "CSS-Klassen",
-      "helpTextBlockCssClassField": "Du kannst eine, oder mehrere, mit Leerzeichen getrennte, CSS-Klassen hinzufügen",
+      "labelCssClassField": "CSS-Klassen",
+      "helpTextCssClassField": "Du kannst eine, oder mehrere, mit Leerzeichen getrennte, CSS-Klassen hinzufügen",
       "labelBlockTopMarginField": "Oberer Abstand",
       "labelBlockBottomMarginField": "Unterer Abstand",
       "labelBlockLeftMarginField": "Linker Abstand",
@@ -111,6 +112,10 @@
       "notificationTitleMissingBlockFields": "Fehlende Konfiguration",
       "notificationMessageMissingBlockFields": "Konfiguration erforderlich. Bitte fülle alle Elemente mit Daten.",
       "notificationTitlePageError": "Layout konnte nicht gespeichert werden!",
+      "notificationTitleMissingSections": "Fehlende Konfiguration",
+      "notificationMessageMissingSections": "Du kannst keine leere Seite speichern. Bitte füge eine Sektion hinzu.",
+      "notificationTitleMissingBlocks": "Fehlende Konfiguration",
+      "notificationMessageMissingBlocks": "Du kannst keine leere Seite speichern. Bitte füge Blöcke hinzu.",
       "notificationTitleMissingElements": "Fehlende Elementkonfiguration!",
       "notificationMessageMissingElements": "Bitte konfiguriere alle Elemente Deines Layouts.",
       "alertTitleTranslations": "Übersetzungen zurzeit nicht verfügbar!",

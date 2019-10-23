@@ -2,12 +2,11 @@
     <div class="sw-cms-el-product-listing">
 
         <div class="sw-cms-el-product-listing__content">
-            <sw-cms-el-product-box :element="demoProductElement"></sw-cms-el-product-box>
-            <sw-cms-el-product-box :element="demoProductElement"></sw-cms-el-product-box>
-            <sw-cms-el-product-box :element="demoProductElement"></sw-cms-el-product-box>
-            <sw-cms-el-product-box :element="demoProductElement"></sw-cms-el-product-box>
-            <sw-cms-el-product-box :element="demoProductElement"></sw-cms-el-product-box>
-            <sw-cms-el-product-box :element="demoProductElement"></sw-cms-el-product-box>
+            <sw-cms-el-product-box
+                :element="demoProductElement"
+                v-for="index in demoProductCount"
+                :key="index">
+            </sw-cms-el-product-box>
         </div>
 
         <div class="sw-cms-el-product-listing__pagination">

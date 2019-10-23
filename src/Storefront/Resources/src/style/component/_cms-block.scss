@@ -12,6 +12,12 @@ specific styling for elements dependent on their parent block
         background-repeat: no-repeat;
         background-position: 50%;
     }
+
+    .cms-block-container {
+        .cms-block-container-row {
+            flex-direction: row;
+        }
+    }
 }
 
 .cms-block-center-text {
@@ -86,6 +92,20 @@ specific styling for elements dependent on their parent block
 
     .right {
         height: 100%;
+    }
+}
+
+@include media-breakpoint-up(lg) {
+    .cms-block-container {
+        .cms-block-container-row.has--sidebar {
+            flex-direction: column;
+
+            > div {
+                flex-basis: 0;
+                flex-grow: 1;
+                max-width: 100%;
+            }
+        }
     }
 }
 

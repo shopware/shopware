@@ -120,7 +120,7 @@ Component.register('sw-settings-language-list', {
         },
 
         isDefault(languageId) {
-            return Shopware.State.getStore('language').getDefaultLanguageIds().includes(languageId);
+            return Shopware.StateDeprecated.getStore('language').getDefaultLanguageIds().includes(languageId);
         }
     }
 });

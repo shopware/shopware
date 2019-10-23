@@ -2,7 +2,7 @@ import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-custom-field-list.html.twig';
 import './sw-custom-field-list.scss';
 
-const { Component, State, Mixin } = Shopware;
+const { Component, StateDeprecated, Mixin } = Shopware;
 const types = Shopware.Utils.types;
 
 Component.register('sw-custom-field-list', {
@@ -42,7 +42,7 @@ Component.register('sw-custom-field-list', {
             return this.set.getAssociation('customFields');
         },
         customFieldStore() {
-            return State.getStore('custom_field');
+            return StateDeprecated.getStore('custom_field');
         }
     },
 

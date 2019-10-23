@@ -2,7 +2,7 @@ import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-media-modal-folder-settings.html.twig';
 import './sw-media-modal-folder-settings.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 
 /**
  * @private
@@ -37,19 +37,19 @@ Component.register('sw-media-modal-folder-settings', {
 
     computed: {
         mediaFolderStore() {
-            return State.getStore('media_folder');
+            return StateDeprecated.getStore('media_folder');
         },
 
         mediaThumbnailSizeStore() {
-            return State.getStore('media_thumbnail_size');
+            return StateDeprecated.getStore('media_thumbnail_size');
         },
 
         mediaDefaultFolderStore() {
-            return State.getStore('media_default_folder');
+            return StateDeprecated.getStore('media_default_folder');
         },
 
         mediaFolderConfigurationStore() {
-            return State.getStore('media_folder_configuration');
+            return StateDeprecated.getStore('media_folder_configuration');
         },
 
         mediaFolderConfigurationThumbnailSizeStore() {

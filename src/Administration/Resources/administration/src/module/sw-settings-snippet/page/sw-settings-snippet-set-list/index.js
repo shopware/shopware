@@ -1,7 +1,7 @@
 import template from './sw-settings-snippet-set-list.html.twig';
 import './sw-settings-snippet-set-list.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 
 Component.register('sw-settings-snippet-set-list', {
     template,
@@ -36,7 +36,7 @@ Component.register('sw-settings-snippet-set-list', {
 
     computed: {
         snippetSetStore() {
-            return State.getStore('snippet_set');
+            return StateDeprecated.getStore('snippet_set');
         }
     },
 

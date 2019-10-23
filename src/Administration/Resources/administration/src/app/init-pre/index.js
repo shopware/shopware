@@ -3,7 +3,9 @@
  * They can decorate the following initializer.
  */
 import initApiServices from './api-services.init';
+import initVuex from './vuex.init';
 
 export default {
-    apiServices: initApiServices
+    apiServices: initApiServices,
+    vuex: initVuex
 };

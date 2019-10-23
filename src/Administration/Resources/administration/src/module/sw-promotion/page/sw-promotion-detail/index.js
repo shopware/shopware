@@ -4,7 +4,7 @@ import swPromotionDetailState from './state';
 import IndividualCodeGenerator from '../../service/individual-code-generator.service';
 import entityHydrator from '../../helper/promotion-entity-hydrator.helper';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
 
@@ -63,7 +63,7 @@ Component.register('sw-promotion-detail', {
         },
 
         languageStore() {
-            return State.getStore('language');
+            return StateDeprecated.getStore('language');
         },
 
         tooltipSave() {

@@ -1,6 +1,6 @@
 import template from './sw-condition-shipping-country.html.twig';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 
 /**
  * @public
@@ -27,7 +27,7 @@ Component.extend('sw-condition-shipping-country', 'sw-condition-base', {
 
     methods: {
         getCountryStore() {
-            return State.getStore('country');
+            return StateDeprecated.getStore('country');
         }
     }
 });

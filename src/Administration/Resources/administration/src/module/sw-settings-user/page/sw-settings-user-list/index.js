@@ -1,6 +1,6 @@
 import template from './sw-settings-user-list.html.twig';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 
 Component.register('sw-settings-user-list', {
     template,
@@ -32,7 +32,7 @@ Component.register('sw-settings-user-list', {
 
     computed: {
         userStore() {
-            return State.getStore('user');
+            return StateDeprecated.getStore('user');
         },
 
         userColumns() {

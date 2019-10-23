@@ -10,6 +10,7 @@ const ComponentFactory = require('src/core/factory/component.factory').default;
 const TemplateFactory = require('src/core/factory/template.factory').default;
 const EntityFactory = require('src/core/factory/entity.factory').default;
 const StateFactory = require('src/core/factory/state.factory').default;
+const StateFactoryDeprecated = require('src/core/factory/state-deprecated.factory').default;
 const MixinFactory = require('src/core/factory/mixin.factory').default;
 const FilterFactory = require('src/core/factory/filter.factory').default;
 const DirectiveFactory = require('src/core/factory/directive.factory').default;
@@ -62,6 +63,9 @@ application
     })
     .addFactory('state', () => {
         return StateFactory;
+    })
+    .addFactory('stateDeprecated', () => {
+        return StateFactoryDeprecated;
     })
     .addFactory('mixin', () => {
         return MixinFactory;
@@ -149,12 +153,15 @@ const Shopware = {
     /**
      * @memberOf module:Shopware
      * @type {Object}
+     * @deprecated
      */
-    State: {
-        registerStore: StateFactory.registerStore,
-        getStore: StateFactory.getStore,
-        getStoreRegistry: StateFactory.getStoreRegistry
+    StateDeprecated: {
+        registerStore: StateFactoryDeprecated.registerStore,
+        getStore: StateFactoryDeprecated.getStore,
+        getStoreRegistry: StateFactoryDeprecated.getStoreRegistry
     },
+
+    State: StateFactory(),
 
     /**
      * @memberOf module:Shopware
@@ -232,7 +239,8 @@ const Shopware = {
      */
     Context: {
         get App() { return application.getContainer('service').appContext; },
-        get Api() { return application.getContainer('service').apiContext; }
+        get Api() { return application.getContainer('service').apiContext; },
+        set Test(bla) { console.log(bla); }
     },
 
     /**

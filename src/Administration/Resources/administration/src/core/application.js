@@ -460,6 +460,7 @@ class ApplicationBootstrapper {
     initializeLoginInitializer() {
         const loginInitializer = [
             'login',
+            'vuex',
             'baseComponents',
             'coreState',
             'locale',

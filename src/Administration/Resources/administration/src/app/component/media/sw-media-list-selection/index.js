@@ -1,7 +1,7 @@
 import template from './sw-media-list-selection.html.twig';
 import './sw-media-list-selection.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 
 Component.register('sw-media-list-selection', {
     template,
@@ -60,11 +60,11 @@ Component.register('sw-media-list-selection', {
         },
 
         uploadStore() {
-            return State.getStore('upload');
+            return StateDeprecated.getStore('upload');
         },
 
         mediaStore() {
-            return State.getStore('media');
+            return StateDeprecated.getStore('media');
         },
 
         gridAutoRows() {

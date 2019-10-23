@@ -1,7 +1,7 @@
 import template from './sw-property-search.html.twig';
 import './sw-property-search.scss';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 const utils = Shopware.Utils;
 
 Component.register('sw-property-search', {
@@ -49,11 +49,11 @@ Component.register('sw-property-search', {
         },
 
         groupStore() {
-            return State.getStore('property_group');
+            return StateDeprecated.getStore('property_group');
         },
 
         optionStore() {
-            return State.getStore('property_group_option');
+            return StateDeprecated.getStore('property_group_option');
         }
     },
 

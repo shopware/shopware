@@ -1,6 +1,6 @@
 import template from './sw-price-rule-modal.html.twig';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 
 Component.extend('sw-price-rule-modal', 'sw-rule-modal', {
     template,
@@ -19,7 +19,7 @@ Component.extend('sw-price-rule-modal', 'sw-rule-modal', {
 
     computed: {
         currencyStore() {
-            return State.getStore('currency');
+            return StateDeprecated.getStore('currency');
         },
         currencySuffix() {
             if (!this.currentCurrency) {

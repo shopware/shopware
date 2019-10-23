@@ -1,10 +1,10 @@
-const { Mixin, State } = Shopware;
+const { Mixin, StateDeprecated } = Shopware;
 const types = Shopware.Utils.types;
 
 Mixin.register('placeholder', {
     computed: {
         languageStore() {
-            return State.getStore('language');
+            return StateDeprecated.getStore('language');
         }
     },
 

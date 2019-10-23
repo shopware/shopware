@@ -1,9 +1,9 @@
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 
 Component.extend('sw-settings-delivery-time-create', 'sw-settings-delivery-time-detail', {
     computed: {
         languageStore() {
-            return State.getStore('language');
+            return StateDeprecated.getStore('language');
         }
     },
 

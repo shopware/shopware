@@ -1,6 +1,6 @@
 import template from './sw-property-detail.html.twig';
 
-const { Component, State, Mixin } = Shopware;
+const { Component, StateDeprecated, Mixin } = Shopware;
 
 Component.register('sw-property-detail', {
     template,
@@ -36,7 +36,7 @@ Component.register('sw-property-detail', {
         },
 
         groupStore() {
-            return State.getStore('property_group');
+            return StateDeprecated.getStore('property_group');
         },
 
         tooltipSave() {

@@ -1,6 +1,6 @@
 export default class InfiniteScrollingHelper {
     constructor(entityName, limit) {
-        this.store = Shopware.State.getStore(entityName);
+        this.store = Shopware.StateDeprecated.getStore(entityName);
         this.page = 1;
         this.limit = limit;
         this.done = false;

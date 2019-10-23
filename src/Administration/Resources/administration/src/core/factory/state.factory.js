@@ -1,51 +1,25 @@
-/**
- * @module core/factory/state
- */
-export default {
-    registerStore,
-    getStore,
-    getStoreRegistry
+export default () => {
+    return Object.create({
+        // TODO: add _store to prototype
+        _store: undefined,
+
+        _setStore(store) {
+            this._store = store;
+        },
+
+        _getStore() {
+            return this._store;
+        },
+
+        _registerProperty(name, property) {
+            Object.defineProperty(this, name, {
+                value: property,
+                writable: false,
+                enumerable: true,
+                configurable: true
+            });
+
+            return this;
+        }
+    });
 };
-
-/**
- * Registry for the state stores.
- *
- * @type {Map<any, any>}
- */
-const storeRegistry = new Map();
-
-/**
- * Register a new state storage.
- *
- * @param name
- * @param store
- * @return {any}
- */
-function registerStore(name, store) {
-    if (!name || !name.length) {
-        return null;
-    }
-
-    storeRegistry.set(name, store);
-
-    return getStore(name);
-}
-
-/**
- * Get a store by name.
- *
- * @param name
- * @return {any}
- */
-function getStore(name) {
-    return storeRegistry.get(name);
-}
-
-/**
- * Get the complete store registry.
- *
- * @return {Map<any, any>}
- */
-function getStoreRegistry() {
-    return storeRegistry;
-}

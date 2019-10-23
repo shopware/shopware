@@ -2,14 +2,14 @@ import VuexModules from 'src/app/state/index';
 
 export default function createAppStates() {
     const factoryContainer = this.getContainer('factory');
-    const stateFactory = factoryContainer.state;
+    const stateFactoryDeprecated = factoryContainer.stateDeprecated;
     const UploadStore = Shopware.DataDeprecated.UploadStore;
 
-    stateFactory.registerStore('upload', new UploadStore(
+    stateFactoryDeprecated.registerStore('upload', new UploadStore(
         Shopware.Service('mediaService')
     ));
 
     return Object.keys(VuexModules).map((storeModule) => {
-        return stateFactory.registerStore(storeModule, VuexModules[storeModule]);
+        return Shopware.State.registerModule(storeModule, VuexModules[storeModule]);
     });
 }

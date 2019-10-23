@@ -2,7 +2,7 @@ import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-settings-rule-detail.html.twig';
 import './sw-settings-rule-detail.scss';
 
-const { Component, State, Mixin } = Shopware;
+const { Component, StateDeprecated, Mixin } = Shopware;
 const { warn } = Shopware.Utils.debug;
 
 Component.register('sw-settings-rule-detail', {
@@ -88,7 +88,7 @@ Component.register('sw-settings-rule-detail', {
         },
 
         ruleStore() {
-            return State.getStore('rule');
+            return StateDeprecated.getStore('rule');
         },
 
         moduleTypeStore() {

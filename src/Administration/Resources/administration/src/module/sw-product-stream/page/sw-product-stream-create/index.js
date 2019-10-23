@@ -1,6 +1,6 @@
 import template from './sw-product-stream-create.html.twig';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 const utils = Shopware.Utils;
 
 Component.extend('sw-product-stream-create', 'sw-product-stream-detail', {
@@ -16,7 +16,7 @@ Component.extend('sw-product-stream-create', 'sw-product-stream-detail', {
 
     computed: {
         languageStore() {
-            return State.getStore('language');
+            return StateDeprecated.getStore('language');
         }
     },
 

@@ -1,6 +1,6 @@
 import template from './sw-condition-line-item.html.twig';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 
 /**
  * @public
@@ -27,7 +27,7 @@ Component.extend('sw-condition-line-item', 'sw-condition-base', {
 
     methods: {
         getProductStore() {
-            return State.getStore('product');
+            return StateDeprecated.getStore('product');
         }
     }
 });

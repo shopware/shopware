@@ -1,7 +1,7 @@
 import template from './sw-settings-language-detail.html.twig';
 import './sw-settings-language-detail.scss';
 
-const { Component, State, Mixin } = Shopware;
+const { Component, StateDeprecated, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-settings-language-detail', {
@@ -53,7 +53,7 @@ Component.register('sw-settings-language-detail', {
         },
 
         languageStore() {
-            return State.getStore('language');
+            return StateDeprecated.getStore('language');
         },
 
         isIsoCodeRequired() {

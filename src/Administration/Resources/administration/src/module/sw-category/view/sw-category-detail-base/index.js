@@ -8,7 +8,7 @@ const { mapApiErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-category-detail-base', {
     template,
 
-    inject: ['repositoryFactory', 'context'],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('placeholder')

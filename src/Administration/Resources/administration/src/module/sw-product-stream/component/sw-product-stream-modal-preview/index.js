@@ -2,7 +2,7 @@ import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-product-stream-modal-preview.html.twig';
 import './sw-product-stream-modal-preview.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 
 Component.register('sw-product-stream-modal-preview', {
     template,
@@ -27,7 +27,7 @@ Component.register('sw-product-stream-modal-preview', {
     },
     computed: {
         productStore() {
-            return State.getStore('product');
+            return StateDeprecated.getStore('product');
         }
     },
     filters: {

@@ -1,6 +1,6 @@
 import template from './sw-mail-header-footer-detail.html.twig';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 const { warn } = Shopware.Utils.debug;
 
 Component.register('sw-mail-header-footer-detail', {
@@ -37,11 +37,11 @@ Component.register('sw-mail-header-footer-detail', {
         },
 
         mailHeaderFooterStore() {
-            return State.getStore('mail_header_footer');
+            return StateDeprecated.getStore('mail_header_footer');
         },
 
         salesChannelStore() {
-            return State.getStore('sales_channel');
+            return StateDeprecated.getStore('sales_channel');
         },
 
         salesChannelAssociationStore() {

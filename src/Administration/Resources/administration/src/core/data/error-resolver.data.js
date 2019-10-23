@@ -2,7 +2,7 @@ export default class ErrorResolver {
     constructor() {
         this.EntityDefinition = Shopware.EntityDefinition;
         this.ShopwareError = Shopware.Classes.ShopwareError;
-        this.errorStore = Shopware.State.getStore('error');
+        this.errorStore = Shopware.StateDeprecated.getStore('error');
     }
 
     resetApiErrors() {

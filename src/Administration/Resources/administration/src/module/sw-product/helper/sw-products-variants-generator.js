@@ -1,7 +1,7 @@
 import EntityStore from 'src/core/data/EntityStore';
 import EventEmitter from 'events';
 
-const { State } = Shopware;
+const { StateDeprecated } = Shopware;
 const { deepCopyObject } = Shopware.Utils.object;
 const { md5 } = Shopware.Utils.format;
 
@@ -14,12 +14,12 @@ export default class VariantsGenerator extends EventEmitter {
         // set dependencies
         this.syncService = Shopware.Service('syncService');
         this.EntityStore = EntityStore;
-        this.State = State;
+        this.StateDeprecated = StateDeprecated;
         this.httpClient = this.syncService.httpClient;
 
         // local data
         this.languageId = null;
-        this.languageStore = this.State.getStore('language');
+        this.languageStore = this.StateDeprecated.getStore('language');
     }
 
     createNewVariants(forceGenerating, currencies, product) {

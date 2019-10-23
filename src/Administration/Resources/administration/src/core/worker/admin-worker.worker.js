@@ -51,7 +51,6 @@ function consumeMessages(messageQueueService, receiver) {
         })
         .catch((error) => {
             const { response: { status } } = error;
-            console.log('error', error);
 
             if (status === 401) {
                 postMessage('expiredToken');

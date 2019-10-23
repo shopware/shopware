@@ -1,6 +1,6 @@
 import template from './sw-condition-currency.html.twig';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 
 /**
  * @public
@@ -27,7 +27,7 @@ Component.extend('sw-condition-currency', 'sw-condition-base', {
 
     methods: {
         getCurrencyStore() {
-            return State.getStore('currency');
+            return StateDeprecated.getStore('currency');
         }
     }
 });

@@ -2,7 +2,7 @@ import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-newsletter-recipient-list.html.twig';
 import './sw-newsletter-recipient-list.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
 Component.register('sw-newsletter-recipient-list', {
@@ -58,7 +58,7 @@ Component.register('sw-newsletter-recipient-list', {
         },
 
         tagStore() {
-            return State.getStore('tag');
+            return StateDeprecated.getStore('tag');
         },
 
         tagAssociationStore() {

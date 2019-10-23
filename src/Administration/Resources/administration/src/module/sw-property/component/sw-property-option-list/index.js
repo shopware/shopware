@@ -1,7 +1,7 @@
 import template from './sw-property-option-list.html.twig';
 import './sw-property-option-list.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 
 Component.register('sw-property-option-list', {
     template,
@@ -39,7 +39,7 @@ Component.register('sw-property-option-list', {
         },
 
         languageStore() {
-            return State.getStore('language');
+            return StateDeprecated.getStore('language');
         }
     },
 

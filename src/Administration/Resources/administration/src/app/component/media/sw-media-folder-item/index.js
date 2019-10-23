@@ -1,7 +1,7 @@
 import template from './sw-media-folder-item.html.twig';
 import './sw-media-folder-item.scss';
 
-const { Component, Application, Mixin, State } = Shopware;
+const { Component, Application, Mixin, StateDeprecated } = Shopware;
 
 Component.register('sw-media-folder-item', {
     template,
@@ -35,7 +35,7 @@ Component.register('sw-media-folder-item', {
 
     computed: {
         mediaDefaultFolderStore() {
-            return State.getStore('media_default_folder');
+            return StateDeprecated.getStore('media_default_folder');
         },
 
         moduleFactory() {

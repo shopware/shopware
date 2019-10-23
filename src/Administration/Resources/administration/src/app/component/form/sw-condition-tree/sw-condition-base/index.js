@@ -1,7 +1,7 @@
 import template from './sw-condition-base.html.twig';
 import './sw-condition-base.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -59,7 +59,7 @@ Component.register('sw-condition-base', {
             return {};
         },
         errorStore() {
-            return State.getStore('error');
+            return StateDeprecated.getStore('error');
         },
         isApiCLass() {
             return this.isApi() ? 'is--api' : '';

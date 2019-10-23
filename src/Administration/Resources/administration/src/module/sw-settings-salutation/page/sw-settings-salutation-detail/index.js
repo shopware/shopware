@@ -1,6 +1,6 @@
 import template from './sw-settings-salutation-detail.html.twig';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 const { Criteria } = Shopware.Data;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const { mapApiErrors } = Shopware.Component.getComponentHelper();
@@ -57,7 +57,7 @@ Component.register('sw-settings-salutation-detail', {
         },
 
         languageStore() {
-            return State.getStore('language');
+            return StateDeprecated.getStore('language');
         },
 
         entityDescription() {

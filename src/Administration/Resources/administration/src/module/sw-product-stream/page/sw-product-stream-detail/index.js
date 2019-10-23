@@ -2,7 +2,7 @@ import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-product-stream-detail.html.twig';
 import './sw-product-stream-detail.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 const { warn } = Shopware.Utils.debug;
 
 Component.register('sw-product-stream-detail', {
@@ -90,13 +90,13 @@ Component.register('sw-product-stream-detail', {
             return this.placeholder(this.productStream, 'name');
         },
         productStreamStore() {
-            return State.getStore('product_stream');
+            return StateDeprecated.getStore('product_stream');
         },
         productStreamFilterStore() {
-            return State.getStore('product_stream_filter');
+            return StateDeprecated.getStore('product_stream_filter');
         },
         customFieldSetStore() {
-            return State.getStore('custom_field_set');
+            return StateDeprecated.getStore('custom_field_set');
         },
         tooltipSave() {
             const systemKey = this.$device.getSystemKey();
@@ -146,7 +146,8 @@ Component.register('sw-product-stream-detail', {
         },
 
         isSystemLanguage() {
-            const isSystem = State.getStore('language').systemLanguageId === State.getStore('language').currentLanguageId;
+            const languageStore = StateDeprecated.getStore('language');
+            const isSystem = languageStore.systemLanguageId === languageStore.currentLanguageId;
             return isSystem ? 'required' : null;
         },
 

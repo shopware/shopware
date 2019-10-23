@@ -2,7 +2,7 @@ import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-media-folder-content.html.twig';
 import './sw-media-folder-content.scss';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 
 Component.register('sw-media-folder-content', {
     template,
@@ -33,7 +33,7 @@ Component.register('sw-media-folder-content', {
 
     computed: {
         mediaFolderStore() {
-            return State.getStore('media_folder');
+            return StateDeprecated.getStore('media_folder');
         }
     },
 

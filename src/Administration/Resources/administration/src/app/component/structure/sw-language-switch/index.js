@@ -1,7 +1,7 @@
 import template from './sw-language-switch.html.twig';
 import './sw-language-switch.scss';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 const { warn } = Shopware.Utils.debug;
 
 /**
@@ -50,7 +50,7 @@ Component.register('sw-language-switch', {
 
     computed: {
         languageStore() {
-            return State.getStore('language');
+            return StateDeprecated.getStore('language');
         }
     },
 

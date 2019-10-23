@@ -1,6 +1,6 @@
 import template from './sw-settings-customer-group-detail.html.twig';
 
-const { Component, State, Mixin } = Shopware;
+const { Component, StateDeprecated, Mixin } = Shopware;
 const { mapApiErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-settings-customer-group-detail', {
@@ -47,7 +47,7 @@ Component.register('sw-settings-customer-group-detail', {
         },
 
         languageStore() {
-            return State.getStore('language');
+            return StateDeprecated.getStore('language');
         },
 
         customerGroupRepository() {

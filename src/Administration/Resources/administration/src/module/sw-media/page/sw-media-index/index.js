@@ -1,7 +1,7 @@
 import template from './sw-media-index.html.twig';
 import './sw-media-index.scss';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 
 Component.register('sw-media-index', {
     template,
@@ -32,15 +32,15 @@ Component.register('sw-media-index', {
 
     computed: {
         mediaItemStore() {
-            return State.getStore('media');
+            return StateDeprecated.getStore('media');
         },
 
         mediaFolderStore() {
-            return State.getStore('media_folder');
+            return StateDeprecated.getStore('media_folder');
         },
 
         uploadStore() {
-            return State.getStore('upload');
+            return StateDeprecated.getStore('upload');
         },
 
         currentFolder() {

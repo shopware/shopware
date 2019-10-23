@@ -1,7 +1,7 @@
 import template from './sw-product-media-form.html.twig';
 import './sw-product-media-form.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 const { mapGetters } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-media-form', {
@@ -90,7 +90,7 @@ Component.register('sw-product-media-form', {
         },
 
         uploadStore() {
-            return State.getStore('upload');
+            return StateDeprecated.getStore('upload');
         },
 
         gridAutoRows() {

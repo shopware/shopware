@@ -99,12 +99,13 @@ class VuexErrorStore {
         };
     }
 
+    // TODO: remove and replace usages with Shopware.State.['yourFunction']
     get $store() {
         if (typeof this._store === 'object') {
             return this._store;
         }
 
-        this._store = State.getStore('vuex');
+        this._store = State._store;
         return this._store;
     }
 

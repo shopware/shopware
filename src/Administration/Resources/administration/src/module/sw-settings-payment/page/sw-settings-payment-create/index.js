@@ -1,6 +1,6 @@
 import template from './sw-settings-payment-create.html.twig';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 const utils = Shopware.Utils;
 
 Component.extend('sw-settings-payment-create', 'sw-settings-payment-detail', {
@@ -16,7 +16,7 @@ Component.extend('sw-settings-payment-create', 'sw-settings-payment-detail', {
 
     computed: {
         languageStore() {
-            return State.getStore('language');
+            return StateDeprecated.getStore('language');
         }
     },
 

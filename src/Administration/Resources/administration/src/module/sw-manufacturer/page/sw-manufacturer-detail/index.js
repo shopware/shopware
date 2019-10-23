@@ -2,7 +2,7 @@ import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-manufacturer-detail.html.twig';
 import './sw-manufacturer-detail.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 const { mapApiErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-manufacturer-detail', {
@@ -59,15 +59,15 @@ Component.register('sw-manufacturer-detail', {
         },
 
         languageStore() {
-            return State.getStore('language');
+            return StateDeprecated.getStore('language');
         },
 
         mediaStore() {
-            return State.getStore('media');
+            return StateDeprecated.getStore('media');
         },
 
         customFieldSetStore() {
-            return State.getStore('custom_field_set');
+            return StateDeprecated.getStore('custom_field_set');
         },
 
         mediaUploadTag() {

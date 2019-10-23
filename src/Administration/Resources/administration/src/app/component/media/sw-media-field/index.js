@@ -2,7 +2,7 @@ import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-media-field.html.twig';
 import './sw-media-field.scss';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -62,7 +62,7 @@ Component.register('sw-media-field', {
 
     computed: {
         mediaStore() {
-            return State.getStore('media');
+            return StateDeprecated.getStore('media');
         },
 
         mediaFieldClasses() {

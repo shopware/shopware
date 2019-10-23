@@ -1,6 +1,6 @@
 import template from './sw-property-create.html.twig';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 const utils = Shopware.Utils;
 
 Component.extend('sw-property-create', 'sw-property-detail', {
@@ -16,7 +16,7 @@ Component.extend('sw-property-create', 'sw-property-detail', {
 
     computed: {
         languageStore() {
-            return State.getStore('language');
+            return StateDeprecated.getStore('language');
         }
     },
 

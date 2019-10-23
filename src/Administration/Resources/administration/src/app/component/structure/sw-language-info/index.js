@@ -1,7 +1,7 @@
 import template from './sw-language-info.html.twig';
 import './sw-language-info.scss';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 
 /**
  * @public
@@ -45,7 +45,7 @@ Component.register('sw-language-info', {
 
     computed: {
         languageStore() {
-            return State.getStore('language');
+            return StateDeprecated.getStore('language');
         },
         infoText() {
             const language = this.language;

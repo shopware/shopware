@@ -7,7 +7,7 @@ export default function initializeEntities(container) {
     const httpClient = container.httpClient;
     const loginService = Shopware.Service('loginService');
     const entityFactory = factoryContainer.entity;
-    const stateFactory = factoryContainer.state;
+    const stateFactoryDeprecated = factoryContainer.stateDeprecated;
     const apiServiceFactory = factoryContainer.apiService;
 
     const languageId = localStorage.getItem('sw-admin-current-language');
@@ -20,7 +20,7 @@ export default function initializeEntities(container) {
      */
     function registerEntityStore(entityName, apiService) {
         const store = new EntityStore(entityName, apiService, EntityProxy);
-        stateFactory.registerStore(entityName, store);
+        stateFactoryDeprecated.registerStore(entityName, store);
         return true;
     }
 
@@ -75,7 +75,7 @@ export default function initializeEntities(container) {
                     EntityProxy,
                     languageId
                 );
-                stateFactory.registerStore(entityName, languageStore);
+                stateFactoryDeprecated.registerStore(entityName, languageStore);
                 return;
             }
 
@@ -84,7 +84,7 @@ export default function initializeEntities(container) {
 
         if (loginService.isLoggedIn()) {
             // init the language store if logged in
-            stateFactory.getStore('language').init();
+            stateFactoryDeprecated.getStore('language').init();
         }
 
         return entityFactory;

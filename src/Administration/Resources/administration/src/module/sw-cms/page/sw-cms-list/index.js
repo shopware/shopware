@@ -1,7 +1,7 @@
 import template from './sw-cms-list.html.twig';
 import './sw-cms-list.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-cms-list', {
@@ -50,7 +50,7 @@ Component.register('sw-cms-list', {
         },
 
         languageStore() {
-            return State.getStore('language');
+            return StateDeprecated.getStore('language');
         },
 
         columnConfig() {
@@ -163,7 +163,7 @@ Component.register('sw-cms-list', {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.getStore('language').setCurrentId(languageId);
+            Shopware.StateDeprecated.getStore('language').setCurrentId(languageId);
             this.resetList();
         },
 

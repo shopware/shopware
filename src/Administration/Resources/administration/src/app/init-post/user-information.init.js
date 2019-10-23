@@ -17,7 +17,8 @@ export default function initializeUserContext() {
             const data = response.data;
             delete data.password;
 
-            Shopware.State.getStore('adminUser').state.currentUser = data;
+            // TODO: replace with native wrapper function
+            Shopware.State.get('adminUser').currentUser = data;
             initializeUserNotifications();
             resolve();
         }).catch(() => {

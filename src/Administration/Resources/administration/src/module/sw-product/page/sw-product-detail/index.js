@@ -2,7 +2,7 @@ import template from './sw-product-detail.html.twig';
 import swProductDetailState from './state';
 import errorConfiguration from './error.cfg.json';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 const { Criteria } = Shopware.Data;
 const { hasOwnProperty } = Shopware.Utils.object;
 const { mapPageErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
@@ -76,7 +76,7 @@ Component.register('sw-product-detail', {
         },
 
         languageStore() {
-            return State.getStore('language');
+            return StateDeprecated.getStore('language');
         },
 
         productRepository() {
@@ -349,7 +349,7 @@ Component.register('sw-product-detail', {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.getStore('language').setCurrentId(languageId);
+            Shopware.StateDeprecated.getStore('language').setCurrentId(languageId);
             this.initState();
         },
 

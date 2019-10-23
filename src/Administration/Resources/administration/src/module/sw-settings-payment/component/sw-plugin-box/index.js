@@ -1,7 +1,7 @@
 import template from './sw-plugin-box.html.twig';
 import './sw-plugin-box.scss';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 
 Component.register('sw-plugin-box', {
     template,
@@ -25,7 +25,7 @@ Component.register('sw-plugin-box', {
 
     computed: {
         pluginStore() {
-            return State.getStore('plugin');
+            return StateDeprecated.getStore('plugin');
         }
     },
 

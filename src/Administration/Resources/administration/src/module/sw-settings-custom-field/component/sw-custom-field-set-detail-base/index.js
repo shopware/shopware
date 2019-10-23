@@ -1,7 +1,7 @@
 import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-custom-field-detail-base.html.twig';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 
 Component.register('sw-custom-field-set-detail-base', {
     template,
@@ -36,7 +36,7 @@ Component.register('sw-custom-field-set-detail-base', {
             return [this.$root.$i18n.fallbackLocale];
         },
         localeStore() {
-            return State.getStore('locale');
+            return StateDeprecated.getStore('locale');
         },
         customFieldSetRelationStore() {
             return this.set.getAssociation('relations');

@@ -76,7 +76,7 @@ Component.register('sw-settings-country-list', {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.getStore('language').setCurrentId(languageId);
+            Shopware.StateDeprecated.getStore('language').setCurrentId(languageId);
             this.getList();
         },
 

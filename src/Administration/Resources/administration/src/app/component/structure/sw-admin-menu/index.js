@@ -1,7 +1,7 @@
 import template from './sw-admin-menu.html.twig';
 import './sw-admin-menu.scss';
 
-const { Component, State, Mixin } = Shopware;
+const { Component, StateDeprecated, Mixin } = Shopware;
 const { dom } = Shopware.Utils;
 const { mapState } = Shopware.Component.getComponentHelper();
 
@@ -43,7 +43,7 @@ Component.register('sw-admin-menu', {
         },
 
         userStore() {
-            return State.getStore('user');
+            return StateDeprecated.getStore('user');
         },
 
         currentLocale() {

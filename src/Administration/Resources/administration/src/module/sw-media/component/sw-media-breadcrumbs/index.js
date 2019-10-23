@@ -1,7 +1,7 @@
 import template from './sw-media-breadcrumbs.html.twig';
 import './sw-media-breadcrumbs.scss';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 
 Component.register('sw-media-breadcrumbs', {
     template,
@@ -33,7 +33,7 @@ Component.register('sw-media-breadcrumbs', {
 
     computed: {
         mediaFolderStore() {
-            return State.getStore('media_folder');
+            return StateDeprecated.getStore('media_folder');
         },
 
         rootFolder() {

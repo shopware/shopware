@@ -47,7 +47,7 @@ Component.register('sw-cms-detail', {
             currentMappingEntity: null,
             currentMappingEntityRepo: null,
             demoEntityId: null,
-            currentLanguageId: Shopware.State.getStore('language').languageId
+            currentLanguageId: Shopware.StateDeprecated.getStore('language').languageId
         };
     },
 
@@ -150,7 +150,7 @@ Component.register('sw-cms-detail', {
         },
 
         isSystemDefaultLanguage() {
-            return this.currentLanguageId === Shopware.State.getStore('language').systemLanguageId;
+            return this.currentLanguageId === Shopware.StateDeprecated.getStore('language').systemLanguageId;
         },
 
         addBlockTitle() {
@@ -350,7 +350,7 @@ Component.register('sw-cms-detail', {
 
             return this.salesChannelRepository.search(new Criteria(), this.apiContext).then((response) => {
                 this.salesChannels = response;
-                this.currentLanguageId = Shopware.State.getStore('language').languageId;
+                this.currentLanguageId = Shopware.StateDeprecated.getStore('language').languageId;
                 return this.loadPage(this.pageId);
             });
         },

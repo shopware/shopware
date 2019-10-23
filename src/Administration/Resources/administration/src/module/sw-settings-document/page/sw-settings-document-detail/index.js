@@ -3,7 +3,7 @@ import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-settings-document-detail.html.twig';
 import './sw-settings-document-detail.scss';
 
-const { Component, State, Mixin } = Shopware;
+const { Component, StateDeprecated, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-settings-document-detail', {
@@ -305,15 +305,15 @@ Component.register('sw-settings-document-detail', {
         },
 
         documentBaseConfigStore() {
-            return State.getStore('document_base_config');
+            return StateDeprecated.getStore('document_base_config');
         },
 
         documentTypeStore() {
-            return State.getStore('document_type');
+            return StateDeprecated.getStore('document_type');
         },
 
         salesChannelStore() {
-            return State.getStore('sales_channel');
+            return StateDeprecated.getStore('sales_channel');
         },
 
         documentBaseConfigSalesChannelAssociationStore() {

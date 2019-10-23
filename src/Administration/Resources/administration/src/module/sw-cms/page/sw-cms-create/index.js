@@ -1,6 +1,6 @@
 import template from './sw-cms-create.html.twig';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 const utils = Shopware.Utils;
 
 Component.extend('sw-cms-create', 'sw-cms-detail', {
@@ -26,7 +26,7 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
 
     computed: {
         languageStore() {
-            return State.getStore('language');
+            return StateDeprecated.getStore('language');
         },
 
         pageHasSections() {

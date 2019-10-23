@@ -152,7 +152,7 @@ export default class EntityStore {
      * @return {EntityStore}
      */
     getLanguageStore() {
-        return Shopware.State.getStore('language');
+        return Shopware.StateDeprecated.getStore('language');
     }
 
     /**

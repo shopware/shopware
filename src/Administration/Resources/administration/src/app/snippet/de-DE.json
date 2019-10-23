@@ -4,12 +4,12 @@
       "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "Dieses Feld darf nicht leer sein",
       "INVALID_MEDIA_URL": "Bitte gib eine valide URL ein, um eine Datei hochzuladen."
     },
-    "form": {
-      "applyAction": "Anwenden",
-      "cancelAction": "Abbrechen",
-      "deleteAction": "Löschen",
-      "editAction": "Bearbeiten",
-      "saveAction": "Speichern"
+    "default": {
+      "apply": "Anwenden",
+      "cancel": "Abbrechen",
+      "delete": "Löschen",
+      "edit": "Bearbeiten",
+      "save": "Speichern"
     },
     "notification": {
       "notificationSaveErrorTitle": "Fehler",

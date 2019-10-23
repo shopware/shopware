@@ -101,7 +101,7 @@ class ProductRatingAverageIndexer implements IndexerInterface
             return null;
         }
 
-        $this->update($ids, []);
+        $this->update(Uuid::fromHexToBytesList($ids), []);
 
         return $iterator->getOffset();
     }

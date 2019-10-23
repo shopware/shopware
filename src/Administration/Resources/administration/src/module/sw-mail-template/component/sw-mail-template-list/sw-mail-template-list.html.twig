@@ -1,28 +1,32 @@
 {% block sw_mail_template_list_grid %}
-    <sw-card :isLoading="isLoading"
+    <sw-card
+        :isLoading="isLoading"
         :title="$tc('sw-mail-template.list.titleMailTemplateList')">
-        <sw-entity-listing
-            v-if="mailTemplates"
-            class="sw-mail-templates-list-grid"
-            :items="mailTemplates"
-            :columns="getListColumns()"
-            :repository="mailTemplateRepository"
-            detailRoute="sw.mail.template.detail"
-            :fullPage="false"
-            :isLoading="isLoading">
-            <template #column-salesChannels.salesChannel.name="{ item}">
-                {% block sw_mail_template_list_columns_sales_channels_label %}
-                    {{  getSalesChannelsString(item) }}
-                {% endblock %}
-            </template>
 
-            <template #more-actions="{ item }">
-                {% block sw_mail_template_list_grid_columns_actions_duplicate %}
-                    <sw-context-menu-item @click="onDuplicate(item.id)">
-                        {{ $tc('sw-mail-template.list.contextMenuDuplicate') }}
-                    </sw-context-menu-item>
-                {% endblock %}
-            </template>
-        </sw-entity-listing>
+        <template #grid>
+            <sw-entity-listing
+                v-if="mailTemplates"
+                class="sw-mail-templates-list-grid"
+                :items="mailTemplates"
+                :columns="getListColumns()"
+                :repository="mailTemplateRepository"
+                detailRoute="sw.mail.template.detail"
+                :fullPage="false"
+                :isLoading="isLoading">
+                <template #column-salesChannels.salesChannel.name="{ item }">
+                    {% block sw_mail_template_list_columns_sales_channels_label %}
+                        {{  getSalesChannelsString(item) }}
+                    {% endblock %}
+                </template>
+
+                <template #more-actions="{ item }">
+                    {% block sw_mail_template_list_grid_columns_actions_duplicate %}
+                        <sw-context-menu-item @click="onDuplicate(item.id)">
+                            {{ $tc('sw-mail-template.list.contextMenuDuplicate') }}
+                        </sw-context-menu-item>
+                    {% endblock %}
+                </template>
+            </sw-entity-listing>
+        </template>
     </sw-card>
 {% endblock %}

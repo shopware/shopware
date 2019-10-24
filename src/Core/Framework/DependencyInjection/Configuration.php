@@ -84,8 +84,8 @@ class Configuration implements ConfigurationInterface
             ->integerNode('max_limit')->end()
             ->arrayNode('api_browser')
                 ->children()
-                ->booleanNode('public')
-                    ->defaultFalse()
+                ->booleanNode('auth_required')
+                    ->defaultTrue()
                 ->end()
             ->end()
             ->end();

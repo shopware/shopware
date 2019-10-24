@@ -25,33 +25,15 @@ class VersionTest extends TestCase
         ]);
     }
 
-    public function unprotectedRoutesDataProvider(): array
-    {
-        return [
-            ['GET', '/api/v1/_info/swagger.html'],
-        ];
-    }
-
     public function protectedRoutesDataProvider(): array
     {
         return [
             ['GET', '/api/v1/product'],
             ['GET', '/api/v1/tax'],
             ['POST', '/api/v1/_action/sync'],
+            ['GET', '/api/v1/_info/swagger.html'],
+            ['GET', '/api/v1/_info/entity-schema.json'],
         ];
-    }
-
-    /**
-     * @dataProvider unprotectedRoutesDataProvider
-     */
-    public function testNonVersionRoutesAreUnprotected(string $method, string $url): void
-    {
-        $this->unauthorizedClient->request($method, $url);
-        static::assertNotEquals(
-            Response::HTTP_UNAUTHORIZED,
-            $this->unauthorizedClient->getResponse()->getStatusCode(),
-            'Route should not be protected. (URL: ' . $url . ')'
-        );
     }
 
     public function testAuthShouldNotBeProtected(): void
@@ -72,7 +54,7 @@ class VersionTest extends TestCase
     /**
      * @dataProvider protectedRoutesDataProvider
      */
-    public function testVersionRoutesAreProtected(string $method, string $url): void
+    public function testRoutesAreProtected(string $method, string $url): void
     {
         $this->unauthorizedClient->request($method, $url);
         static::assertEquals(

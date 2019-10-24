@@ -26,10 +26,6 @@ class FrameworkExtension extends Extension
         foreach ($options as $key => $option) {
             $container->setParameter($alias . '.' . $key, $option);
 
-            if ($alias . '.' . $key === 'shopware.api.api_browser.public') {
-                $container->setParameter('shopware.api.api_browser.auth_required', !(bool) $option);
-            }
-
             if (\is_array($option)) {
                 $this->addShopwareConfig($container, $alias . '.' . $key, $option);
             }

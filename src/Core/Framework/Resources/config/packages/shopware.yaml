@@ -17,7 +17,7 @@ shopware:
         max_limit: 500
         allowed_limits: [1, 5, 9, 10, 25, 50, 75, 100, 500]
         api_browser:
-            public: true
+            auth_required: true
 
     admin_worker:
         enable_admin_worker: true

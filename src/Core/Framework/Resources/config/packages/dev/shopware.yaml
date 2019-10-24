@@ -2,3 +2,7 @@ shopware:
     cache:
         entity_cache:
             enabled: false
+
+    api:
+        api_browser:
+            auth_required: false

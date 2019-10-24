@@ -48,7 +48,7 @@ describe('Product: Editing context prices', () => {
 
         // Select price rule group
         cy.get(`${emptySelectRule}`)
-            .typeSingleSelect('All customers');
+            .typeSingleSelect('All customers', `${emptySelectRule}`);
 
         // change quantityEnd of first rule
         cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--0 input[name="sw-field--item-quantityEnd"]`)
@@ -86,7 +86,7 @@ describe('Product: Editing context prices', () => {
 
         // Add rule to second price rule group
         cy.get(`${priceGroup}-1 .sw-product-detail-context-prices__empty-state ${emptySelectRule}`)
-            .typeSingleSelect('Sunday sales');
+            .typeSingleSelect('Sunday sales', `${priceGroup}-1 .sw-product-detail-context-prices__empty-state ${emptySelectRule}`);
 
         // Save price rule groups
         cy.get(page.elements.productSaveAction).click();

@@ -4,12 +4,12 @@
       "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "This value should not be blank",
       "INVALID_MEDIA_URL": "Please enter a valid URL to upload a file."
     },
-    "form": {
-      "applyAction": "Apply",
-      "cancelAction": "Cancel",
-      "deleteAction": "Delete",
-      "editAction": "Edit",
-      "saveAction": "Save"
+    "default": {
+      "apply": "Apply",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "save": "Save"
     },
     "notification": {
       "notificationSaveErrorTitle": "Error",

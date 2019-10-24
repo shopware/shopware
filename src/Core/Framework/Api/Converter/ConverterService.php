@@ -28,8 +28,14 @@ class ConverterService
      */
     private $converterRegistry;
 
+    /**
+     * @var array[int]array[string]string
+     */
     private $deprecations;
 
+    /**
+     * @var array[int]array[string]string
+     */
     private $fromFuture;
 
     public function __construct(ConverterRegistry $converterRegistry)

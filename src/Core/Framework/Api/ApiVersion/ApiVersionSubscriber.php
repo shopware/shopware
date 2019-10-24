@@ -30,6 +30,7 @@ class ApiVersionSubscriber implements EventSubscriberInterface
     {
         $path = $event->getRequest()->getPathInfo();
         $matches = [];
+        // https://regex101.com/r/BHG1ab/1
         if (!preg_match('/^\/(api|sales-channel-api)\/v(?P<version>\d)\/.*$/', $path, $matches)) {
             return;
         }

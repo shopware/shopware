@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 class ApiConversionException extends ShopwareHttpException
 {
     /**
-     * @var array
+     * @var array[string]\Throwable[]
      */
     private $exceptions;
 

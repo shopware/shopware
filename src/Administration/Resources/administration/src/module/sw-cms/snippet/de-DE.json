@@ -111,6 +111,8 @@
       "notificationMessageMissingFields": "Bitte fülle alle erforderlichen Konfigurationsfelder aus.",
       "notificationTitleMissingBlockFields": "Fehlende Konfiguration",
       "notificationMessageMissingBlockFields": "Konfiguration erforderlich. Bitte fülle alle Elemente mit Daten.",
+      "notificationTitleMissingProductListing": "Fehler",
+      "notificationMessageMissingProductListing": "Speichern nicht möglich. Bitte füge einen Produkt listing Block hinzu oder änderen den Layout Typ.",
       "notificationTitlePageError": "Layout konnte nicht gespeichert werden!",
       "notificationTitleMissingSections": "Fehlende Konfiguration",
       "notificationMessageMissingSections": "Du kannst keine leere Seite speichern. Bitte füge eine Sektion hinzu.",

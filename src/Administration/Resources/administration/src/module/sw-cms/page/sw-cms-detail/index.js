@@ -432,12 +432,37 @@ Component.register('sw-cms-detail', {
 
                 const warningTitle = this.$tc('sw-cms.detail.notificationTitleMissingFields');
                 const warningMessage = this.$tc('sw-cms.detail.notificationMessageMissingFields');
-                this.createNotificationWarning({
+                this.createNotificationError({
                     title: warningTitle,
                     message: warningMessage
                 });
 
                 return Promise.reject();
+            }
+
+            if (this.page.type === 'product_list') {
+                let foundListingBlock = false;
+
+                this.page.sections.forEach((section) => {
+                    section.blocks.forEach((block) => {
+                        if (block.type === 'product-listing') {
+                            foundListingBlock = true;
+                        }
+                    });
+                });
+
+                if (!foundListingBlock) {
+                    this.createNotificationError({
+                        title: this.$tc('sw-cms.detail.notificationTitleMissingProductListing'),
+                        message: this.$tc('sw-cms.detail.notificationMessageMissingProductListing')
+                    });
+
+                    this.cmsBlocks['product-listing'].hidden = false;
+
+                    this.pageConfigOpen('blocks');
+                    return Promise.reject();
+                }
+                this.cmsBlocks['product-listing'].hidden = true;
             }
 
             const sections = this.page.sections;
@@ -637,7 +662,7 @@ Component.register('sw-cms-detail', {
 
                 listingBlock.type = 'product-listing';
                 listingBlock.position = 0;
-                // ToDo: Fix with NEXT-5073
+
                 listingBlock.sectionId = this.page.sections[0].id;
                 listingBlock.setionPosition = 'main';
 
@@ -654,7 +679,7 @@ Component.register('sw-cms-detail', {
                 listingEl.config = {};
 
                 listingBlock.slots.push(listingEl);
-                // ToDo: Fix with NEXT-5073
+
                 this.page.sections[0].blocks.splice(0, 0, listingBlock);
             } else {
                 this.page.sections.forEach((section) => {

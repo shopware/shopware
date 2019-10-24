@@ -1,4 +1,4 @@
-import OffCanvas from 'asst/script/plugin/offcanvas.plugin';
+import OffCanvas from 'src/script/plugin/offcanvas/offcanvas.plugin';
 
 export default class HtmlOffCanvas extends OffCanvas {
 

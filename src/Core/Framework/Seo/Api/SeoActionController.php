@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Seo\Exception\InvalidTemplateException;
+use Shopware\Core\Framework\Seo\Exception\NoEntitiesForPreviewException;
 use Shopware\Core\Framework\Seo\Exception\SeoUrlRouteNotFoundException;
 use Shopware\Core\Framework\Seo\SeoUrlGenerator;
 use Shopware\Core\Framework\Seo\SeoUrlPersister;
@@ -103,11 +104,15 @@ class SeoActionController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/seo-url-template/preview", name="api.seo-url-template.preview", methods={"POST"}, requirements={"version"="\d+"})
      */
-    public function preview(Request $request, Context $context): JsonResponse
+    public function preview(Request $request, Context $context): Response
     {
         $this->validateSeoUrlTemplate($request);
         $seoUrlTemplate = $request->request->all();
-        $preview = $this->getPreview($seoUrlTemplate, $context);
+        try {
+            $preview = $this->getPreview($seoUrlTemplate, $context);
+        } catch (NoEntitiesForPreviewException $e) {
+            return new Response('', Response::HTTP_NO_CONTENT);
+        }
 
         return new JsonResponse($preview);
     }
@@ -198,6 +203,10 @@ class SeoActionController extends AbstractController
         $criteria = new Criteria();
         $criteria->setLimit(10);
         $ids = $repository->searchIds($criteria, $context)->getIds();
+
+        if (empty($ids)) {
+            throw new NoEntitiesForPreviewException($repository->getDefinition()->getEntityName(), $seoUrlTemplate['routeName']);
+        }
 
         $salesChannelId = $seoUrlTemplate['salesChannelId'] ?? null;
         /** @var SalesChannelEntity|null $salesChannel */

@@ -12,7 +12,8 @@
       "preview": "Vorschau:",
       "placeholderSelectVariables": "Auswählen ...",
       "labelSalesChannelSelect": "Verkaufskanal",
-      "textUrlPreviewNotPossible": "Für dieses Template ist keine Vorschau möglich."
+      "textUrlPreviewNotPossible": "Für dieses Template ist keine Vorschau möglich.",
+      "textUrlNoEntitiesForPreview": "Es sind keine Entitäten dieses Typ vorhanden, um eine vorschau zu generieren."
     },
     "routeNames": {
       "frontend-detail-page": "Produktdetailseite",

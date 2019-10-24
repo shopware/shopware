@@ -80,6 +80,9 @@
                                     <span v-else>
                                         {{ $tc('sw-seo-url-template-card.general.textUrlPreviewNotPossible') }}
                                     </span>
+                                    <span v-if="noEntityError.includes(seoUrlTemplate.id)">
+                                        {{ $tc('sw-seo-url-template-card.general.textUrlNoEntitiesForPreview') }}
+                                    </span>
                                 </div>
                             {% endblock %}
                         </div>

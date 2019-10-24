@@ -1,17 +1,8 @@
 export default () => {
-    return Object.create({
-        // TODO: add _store to prototype
-        _store: undefined,
+    const State = function State() {};
 
-        _setStore(store) {
-            this._store = store;
-        },
-
-        _getStore() {
-            return this._store;
-        },
-
-        _registerProperty(name, property) {
+    const PrivateState = function PrivateState() {
+        this._registerProperty = function registerProperty(name, property) {
             Object.defineProperty(this, name, {
                 value: property,
                 writable: false,
@@ -20,6 +11,23 @@ export default () => {
             });
 
             return this;
-        }
-    });
+        };
+
+        this._registerPrivateProperty = this._registerProperty.bind(this);
+
+        this._registerGetterMethod = function registerGetterMethod(name, getMethod, setMethod) {
+            Object.defineProperty(this, name, {
+                get: getMethod,
+                set: setMethod,
+                enumerable: true,
+                configurable: true
+            });
+
+            return this;
+        };
+    };
+
+    State.prototype = new PrivateState();
+
+    return new State();
 };

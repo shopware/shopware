@@ -9,17 +9,17 @@ export default function initializeVuex() {
         strict: false
     });
 
-    Shopware.State._setStore(store);
+    Shopware.State._registerPrivateProperty('_store', store);
+    Shopware.State._registerProperty('list', () => Object.keys(store.state));
     Shopware.State._registerProperty('get', (name) => store.state[name]);
-    Shopware.State._registerProperty('getters', store.getters);
-    Shopware.State._registerProperty('commit', store.commit);
-    Shopware.State._registerProperty('dispatch', store.dispatch);
-    Shopware.State._registerProperty('watch', store.watch);
-    Shopware.State._registerProperty('subscribe', store.subscribe);
-    Shopware.State._registerProperty('subscribeAction', store.subscribeAction);
-    Shopware.State._registerProperty('registerModule', store.registerModule);
-    Shopware.State._registerProperty('registerModule', store.registerModule);
-    Shopware.State._registerProperty('unregisterModule', store.unregisterModule);
+    Shopware.State._registerGetterMethod('getters', () => store.getters);
+    Shopware.State._registerProperty('commit', (...args) => store.commit(...args));
+    Shopware.State._registerProperty('dispatch', (...args) => store.dispatch(...args));
+    Shopware.State._registerProperty('watch', (...args) => store.watch(...args));
+    Shopware.State._registerProperty('subscribe', (...args) => store.subscribe(...args));
+    Shopware.State._registerProperty('subscribeAction', (...args) => store.subscribeAction(...args));
+    Shopware.State._registerProperty('registerModule', (...args) => store.registerModule(...args));
+    Shopware.State._registerProperty('unregisterModule', (...args) => store.unregisterModule(...args));
 
     return store;
 }

@@ -27,8 +27,6 @@ export default class LanguageStore extends EntityStore {
     setCurrentId(languageId) {
         Shopware.Context.Api.languageId = languageId;
         localStorage.setItem('sw-admin-current-language', languageId);
-
-        return this.getByIdAsync(languageId);
     }
 
     /**

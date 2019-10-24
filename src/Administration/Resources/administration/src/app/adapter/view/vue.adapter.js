@@ -37,7 +37,7 @@ export default class VueAdapter extends ViewAdapter {
         this.initFilters();
         this.initTitle();
 
-        const store = State._getStore();
+        const store = State._store;
         const i18n = this.initLocales(store);
         const components = this.getComponents();
 

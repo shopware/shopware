@@ -212,13 +212,14 @@ Component.register('sw-settings-number-range-detail', {
             numberRangeSalesChannelCriteria.addFilter(
                 Criteria.equals('numberRangeTypeId', id)
             );
-            numberRangeSalesChannels.search(numberRangeSalesChannelCriteria, this.apiContext).then((responseSalesChannels) => {
-                const assignedSalesChannelIds = [];
-                responseSalesChannels.forEach((salesChannel) => {
-                    assignedSalesChannelIds.push(salesChannel.salesChannelId);
+            numberRangeSalesChannels.search(numberRangeSalesChannelCriteria, this.apiContext)
+                .then((responseSalesChannels) => {
+                    const assignedSalesChannelIds = [];
+                    responseSalesChannels.forEach((salesChannel) => {
+                        assignedSalesChannelIds.push(salesChannel.salesChannelId);
+                    });
+                    this.getPossibleSalesChannels(assignedSalesChannelIds);
                 });
-                this.getPossibleSalesChannels(assignedSalesChannelIds);
-            });
         },
         getPossibleSalesChannels(assignedSalesChannelIds) {
             this.setSalesChannelCriteria(assignedSalesChannelIds);

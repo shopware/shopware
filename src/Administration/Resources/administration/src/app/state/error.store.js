@@ -1,9 +1,11 @@
-const { State, Application } = Shopware;
+const { Application } = Shopware;
 const { ErrorStore } = Shopware.DataDeprecated;
 const utils = Shopware.Utils;
 
 class VuexErrorStore {
     constructor() {
+        this.namespaced = true;
+
         this.state = {
             system: {},
             api: {}
@@ -97,28 +99,6 @@ class VuexErrorStore {
                 commit('removeSystemError', { id });
             }
         };
-    }
-
-    // TODO: remove and replace usages with Shopware.State.['yourFunction']
-    get $store() {
-        if (typeof this._store === 'object') {
-            return this._store;
-        }
-
-        this._store = State._store;
-        return this._store;
-    }
-
-    addApiError(expression, error) {
-        return this.$store.dispatch('addApiError', { expression, error });
-    }
-
-    addSystemError(error, id = utils.createId()) {
-        return this.$store.dispatch('addSystemError', { error, id });
-    }
-
-    resetApiErrors() {
-        return this.$store.dispatch('resetApiErrors');
     }
 }
 

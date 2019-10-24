@@ -1,5 +1,6 @@
 /**
  * @module core/factory/context
+ * @param {Object} context
  * @type factory
  */
 export default function createContext(context = {}) {

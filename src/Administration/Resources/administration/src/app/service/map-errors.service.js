@@ -6,7 +6,7 @@ export function mapApiErrors(subject, properties = []) {
         const getter = string.camelCase(`${subject}.${property}.error`);
         map[getter] = function getterApiError() {
             if (this[subject] && typeof this[subject].getEntityName === 'function') {
-                return this.$store.getters.getApiError(this[subject], property);
+                return Shopware.State.getters['error/getApiError'](this[subject], property);
             }
             return null;
         };
@@ -21,7 +21,7 @@ export function mapPageErrors(errorConfig) {
         const subjects = errorConfig[routeName];
         map[`${string.camelCase(routeName)}Error`] = function getterPropertyError() {
             return Object.keys(subjects).some((entityName) => {
-                return this.$store.getters.existsErrorInProperty(entityName, subjects[entityName]);
+                return Shopware.State.getters['error/existsErrorInProperty'](entityName, subjects[entityName]);
             });
         };
     });

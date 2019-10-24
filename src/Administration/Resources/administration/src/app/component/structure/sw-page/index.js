@@ -143,7 +143,7 @@ Component.register('sw-page', {
     },
 
     beforeDestroy() {
-        this.$store.dispatch('resetApiErrors');
+        this.$store.dispatch('error/resetApiErrors');
         this.beforeDestroyComponent();
     },
 

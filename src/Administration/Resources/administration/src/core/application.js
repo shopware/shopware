@@ -153,10 +153,8 @@ class ApplicationBootstrapper {
     }
 
     registerConfig(config) {
-        // TODO: Refactor context factory
         this.registerApiContext(config.apiContext);
         this.registerAppContext(config.appContext);
-        // TODO: Register language
 
         return this;
     }

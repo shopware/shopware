@@ -66,16 +66,13 @@
             uri: '{{ app.request.uri }}',
             basePath: '{{ app.request.basePath }}',
             pathInfo: '{{ app.request.pathInfo }}',
-            liveVersionId: '{{ liveVersionId }}'
+            liveVersionId: '{{ liveVersionId }}',
+            systemLanguageId: '{{ systemLanguageId }}'
         },
         appContext: {
             features: {{ features|json_encode|raw }},
             firstRunWizard: {{ firstRunWizard ? 'true' : 'false' }},
             systemCurrencyId: '{{ systemCurrencyId }}'
-        },
-        language: {
-            systemLanguageId: '{{ systemLanguageId }}',
-            defaultLanguageIds: {{ defaultLanguageIds|json_encode|raw }}
         }
     };
 

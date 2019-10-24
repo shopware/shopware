@@ -2,18 +2,12 @@
 
 namespace Shopware\Core\Content\Sitemap\Provider;
 
-use Shopware\Core\Content\Sitemap\Struct\Url;
+use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 interface UrlProviderInterface
 {
-    /**
-     * @return Url[]
-     */
-    public function getUrls(SalesChannelContext $salesChannelContext): array;
+    public function getName(): string;
 
-    /**
-     * Resets the provider for next sitemap generation
-     */
-    public function reset();
+    public function getUrls(SalesChannelContext $salesChannelContext, int $limit, ?int $offset = null): UrlResult;
 }

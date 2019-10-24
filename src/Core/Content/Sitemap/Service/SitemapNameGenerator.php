@@ -30,8 +30,10 @@ class SitemapNameGenerator implements SitemapNameGeneratorInterface
         $number = 1;
         do {
             $path = 'sitemap/salesChannel-' . $sitemapKey . '/' . str_ireplace(
-                    ['{number}'],
-                    [$number], $this->pattern);
+                ['{number}'],
+                [$number],
+                $this->pattern
+            );
             ++$number;
         } while ($this->filesystem->has($path));
 

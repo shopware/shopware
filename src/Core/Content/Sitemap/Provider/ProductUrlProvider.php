@@ -4,10 +4,12 @@ namespace Shopware\Core\Content\Sitemap\Provider;
 
 use function array_column;
 use function array_filter;
+use function count;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
+use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -31,43 +33,37 @@ class ProductUrlProvider implements UrlProviderInterface
     private $router;
 
     /**
-     * @var int
-     */
-    private $batchsize;
-
-    /**
      * @var ConfigHandler
      */
     private $configHandler;
 
-    /**
-     * @var int
-     */
-    private $counter = 0;
-
     public function __construct(
         SalesChannelRepositoryInterface $productRepository,
         RouterInterface $router,
-        ConfigHandler $configHandler,
-        int $batchsize
+        ConfigHandler $configHandler
     ) {
         $this->productRepository = $productRepository;
         $this->router = $router;
         $this->configHandler = $configHandler;
-        $this->batchsize = $batchsize;
+    }
+
+    public function getName(): string
+    {
+        return 'product';
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getUrls(SalesChannelContext $salesChannelContext): array
+    public function getUrls(SalesChannelContext $salesChannelContext, int $limit, ?int $offset = null): UrlResult
     {
-        $products = $this->getProducts($salesChannelContext);
+        $products = $this->getProducts($salesChannelContext, $limit, $offset);
 
         $urls = [];
         $url = new Url();
         /** @var ProductEntity $product */
         foreach ($products as $product) {
+            /** @var \DateTimeInterface $lastmod */
             $lastmod = $product->getUpdatedAt() ?: $product->getCreatedAt();
 
             $newUrl = clone $url;
@@ -80,21 +76,25 @@ class ProductUrlProvider implements UrlProviderInterface
             $urls[] = $newUrl;
         }
 
-        return $urls;
+        if (count($urls) < $limit) { // last run
+            $nextOffset = null;
+        } elseif ($offset === null) { // first run
+            $nextOffset = $limit;
+        } else { // 1+n run
+            $nextOffset = $offset + $limit;
+        }
+
+        return new UrlResult($urls, $nextOffset);
     }
 
-    public function reset(): void
+    private function getProducts(SalesChannelContext $salesChannelContext, int $limit, ?int $offset): ProductCollection
     {
-        $this->counter = 0;
-    }
-
-    private function getProducts(SalesChannelContext $salesChannelContext): ProductCollection
-    {
-        $offset = $this->counter++ * $this->batchsize;
-
         $productsCriteria = new Criteria();
-        $productsCriteria->setLimit($this->batchsize)
-            ->setOffset($offset);
+        $productsCriteria->setLimit($limit);
+
+        if ($offset !== null) {
+            $productsCriteria->setOffset($offset);
+        }
 
         $excludedProductIds = $this->getExcludedProductIds($salesChannelContext);
         if (!empty($excludedProductIds)) {

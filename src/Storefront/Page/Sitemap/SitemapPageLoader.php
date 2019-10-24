@@ -60,17 +60,13 @@ class SitemapPageLoader
     {
         $sitemaps = $this->sitemapLister->getSitemaps($salesChannelContext);
 
-        $lastGenerated = (int) $this->systemConfigService->get('core.sitemap.sitemapLastRefresh');
-        $refreshInterval = (int) $this->systemConfigService->get('core.sitemap.sitemapRefreshTime');
-
         // If there are no sitemaps yet (or they are too old) and the generation strategy is "live", generate sitemaps
-        if ((int) $this->systemConfigService->get('core.sitemap.sitemapRefreshStrategy') === SitemapExporterInterface::STRATEGY_LIVE
-            && (empty($sitemaps) || time() > $refreshInterval + $lastGenerated)) {
+        if ((int)$this->systemConfigService->get('core.sitemap.sitemapRefreshStrategy') === SitemapExporterInterface::STRATEGY_LIVE) {
             // Close session to prevent session locking from waiting in case there is another request coming in
             $this->session->save();
 
             try {
-                $this->sitemapExporter->generate($salesChannelContext);
+                $this->generateSitemap($salesChannelContext, true);
             } catch (AlreadyLockedException $exception) {
                 // Silent catch, lock couldn't be acquired. Some other process already generates the sitemap.
             }
@@ -86,5 +82,13 @@ class SitemapPageLoader
         );
 
         return $page;
+    }
+
+    private function generateSitemap(SalesChannelContext $salesChannelContext, bool $force, ?string $lastProvider = null, ?int $offset = null): void
+    {
+        $result = $this->sitemapExporter->generate($salesChannelContext, $force, $lastProvider, $offset);
+        if ($result->isFinish() === false) {
+            $this->generateSitemap($salesChannelContext, $force, $result->getProvider(), $result->getOffset());
+        }
     }
 }

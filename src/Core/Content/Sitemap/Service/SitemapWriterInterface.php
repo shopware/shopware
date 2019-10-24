@@ -2,17 +2,36 @@
 
 namespace Shopware\Core\Content\Sitemap\Service;
 
+use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 interface SitemapWriterInterface
 {
-    public const SITEMAP_URL_LIMIT = 49999;
+    /**
+     * @return resource
+     */
+    public function createFile(string $fileName);
 
-    public function writeFile(SalesChannelContext $salesChannelContext, array $urls = []): bool;
+    /**
+     * @return resource
+     */
+    public function openFile(string $fileName);
 
-    public function closeFiles(): void;
+    /**
+     * @param Url[]    $urls
+     * @param resource $fileHandle
+     */
+    public function writeUrlsToFile(array $urls, $fileHandle): void;
 
-    public function lock(SalesChannelContext $salesChannelContext): bool;
+    /**
+     * @param resource $fileHandle
+     */
+    public function closeFile($fileHandle): void;
 
-    public function unlock(SalesChannelContext $salesChannelContext): bool;
+    /**
+     * @param resource $fileHandle
+     */
+    public function finishFile($fileHandle): void;
+
+    public function moveFile(string $fileName, SalesChannelContext $salesChannelContext): void;
 }

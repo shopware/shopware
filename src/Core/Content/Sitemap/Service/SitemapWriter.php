@@ -2,15 +2,18 @@
 
 namespace Shopware\Core\Content\Sitemap\Service;
 
-use League\Flysystem\Exception;
+use function file_exists;
+use function file_get_contents;
+use function gzclose;
+use function gzopen;
+use function gzwrite;
 use League\Flysystem\FilesystemInterface;
-use Psr\Cache\CacheItemPoolInterface;
-use Psr\Log\LoggerInterface;
-use Shopware\Core\Content\Sitemap\Exception\UnknownFileException;
-use Shopware\Core\Content\Sitemap\Struct\Sitemap;
+use function rtrim;
+use Shopware\Core\Content\ImportExport\Exception\FileNotReadableException;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
+use function sys_get_temp_dir;
+use function unlink;
 
 class SitemapWriter implements SitemapWriterInterface
 {
@@ -19,212 +22,86 @@ class SitemapWriter implements SitemapWriterInterface
      */
     private $filesystem;
 
-    /**
-     * @var SitemapNameGeneratorInterface
-     */
-    private $sitemapNameGenerator;
-
-    /**
-     * @var array
-     */
-    private $files = [];
-
-    /**
-     * @var array<Sitemap[]>
-     */
-    private $sitemaps = [];
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var CacheItemPoolInterface
-     */
-    private $cache;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    public function __construct(
-        SitemapNameGeneratorInterface $sitemapNameGenerator,
-        FilesystemInterface $filesystem,
-        LoggerInterface $logger,
-        CacheItemPoolInterface $cache,
-        SystemConfigService $systemConfigService
-    ) {
-        $this->sitemapNameGenerator = $sitemapNameGenerator;
+    public function __construct(FilesystemInterface $filesystem)
+    {
         $this->filesystem = $filesystem;
-        $this->logger = $logger;
-        $this->cache = $cache;
-        $this->systemConfigService = $systemConfigService;
+    }
+
+    public function createFile(string $fileName)
+    {
+        $filePath = $this->getTmpFilePath($fileName);
+
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
+
+        $fileHandle = gzopen($filePath, 'ab');
+
+        if ($fileHandle === false) {
+            throw new FileNotReadableException($filePath);
+        }
+
+        $fileHandle = $this->openFile($fileName);
+
+        gzwrite($fileHandle, '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">');
+
+        return $fileHandle;
+    }
+
+    public function openFile(string $fileName)
+    {
+        $filePath = $this->getTmpFilePath($fileName);
+
+        $fileHandle = gzopen($filePath, 'ab');
+
+        if ($fileHandle === false) {
+            throw new FileNotReadableException($filePath);
+        }
+
+        return $fileHandle;
     }
 
     /**
-     * @param Url[] $urls
-     *
-     * @throws UnknownFileException
+     * @param Url[]    $urls
+     * @param resource $fileHandle
      */
-    public function writeFile(SalesChannelContext $salesChannelContext, array $urls = []): bool
+    public function writeUrlsToFile(array $urls, $fileHandle): void
     {
-        if (empty($urls)) {
-            return false;
-        }
-
-        $fileKey = $this->getSitemapKey($salesChannelContext);
-
-        $this->openFile($fileKey);
         foreach ($urls as $url) {
-            if ($this->files[$fileKey]['urlCount'] >= self::SITEMAP_URL_LIMIT) {
-                $this->closeFile($fileKey);
-
-                $this->openFile($fileKey);
-            }
-
-            ++$this->files[$fileKey]['urlCount'];
-            $this->write($this->files[$fileKey]['fileHandle'], (string) $url);
+            gzwrite($fileHandle, (string) $url);
         }
-
-        return true;
     }
 
-    /**
-     * Closes open file handles and moves sitemaps to their target location.
-     *
-     * @throws UnknownFileException
-     */
-    public function closeFiles(): void
+    public function closeFile($fileHandle): void
     {
-        foreach ($this->files as $filekey => $params) {
-            $this->closeFile($filekey);
-        }
-
-        $this->moveFiles();
-    }
-
-    public function lock(SalesChannelContext $salesChannelContext): bool
-    {
-        $cacheKey = $this->generateCacheKeyForSalesChannel($salesChannelContext);
-        if ($this->cache->hasItem($cacheKey)) {
-            return false;
-        }
-
-        $lifeTime = (int) $this->systemConfigService->get('core.sitemap.sitemapRefreshTime');
-
-        $lock = $this->cache->getItem($cacheKey);
-        $lock->set(sprintf('Locked: %s', (new \DateTime('NOW', new \DateTimeZone('UTC')))->format(\DateTime::ATOM)))
-            ->expiresAfter($lifeTime);
-
-        return $this->cache->save($lock);
-    }
-
-    public function unlock(SalesChannelContext $salesChannelContext): bool
-    {
-        return $this->cache->deleteItem($this->generateCacheKeyForSalesChannel($salesChannelContext));
-    }
-
-    /**
-     * @throws UnknownFileException
-     */
-    private function closeFile(string $filekey): bool
-    {
-        if (!array_key_exists($filekey, $this->files)) {
-            throw new UnknownFileException(sprintf('No open file "%s"', $filekey));
-        }
-
-        $fileHandle = $this->files[$filekey]['fileHandle'];
-        $this->write($fileHandle, '</urlset>');
-
         gzclose($fileHandle);
-
-        if (!array_key_exists($filekey, $this->sitemaps)) {
-            $this->sitemaps[$filekey] = [];
-        }
-
-        $this->sitemaps[$filekey][] = new Sitemap(
-            $this->files[$filekey]['fileName'],
-            $this->files[$filekey]['urlCount']
-        );
-
-        unset($this->files[$filekey]);
-
-        return true;
     }
 
-    private function openFile(string $fileKey): bool
+    public function finishFile($fileHandle): void
     {
-        if (array_key_exists($fileKey, $this->files)) {
-            return true;
-        }
-
-        $filePath = sprintf(
-            '%s/sitemap-salesChannel-%s-%d.xml.gz',
-            rtrim(sys_get_temp_dir(), '/'),
-            $fileKey,
-            microtime(true) * 10000
-        );
-
-        $fileHandler = gzopen($filePath, 'wb');
-
-        if (!$fileHandler) {
-            $this->logger->error(sprintf('Could not generate sitemap file, unable to write to "%s"', $filePath));
-
-            return false;
-        }
-
-        $this->files[$fileKey] = [
-            'fileHandle' => $fileHandler,
-            'fileName' => $filePath,
-            'urlCount' => 0,
-        ];
-
-        $this->write($fileHandler, '<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">');
-
-        return true;
+        gzwrite($fileHandle, '</urlset>');
+        $this->closeFile($fileHandle);
     }
 
-    /**
-     * @param resource $fileHandler
-     */
-    private function write($fileHandler, string $content): void
+    public function moveFile(string $fileName, SalesChannelContext $salesChannelContext): void
     {
-        gzwrite($fileHandler, $content);
-    }
+        $sitemapPath = $this->getPath($fileName, $salesChannelContext);
 
-    /**
-     * Makes sure all files get closed and replaces the old sitemaps with the freshly generated ones
-     */
-    private function moveFiles(): void
-    {
-        /** @var Sitemap[] $sitemaps */
-        foreach ($this->sitemaps as $filekey => $sitemaps) {
-            // Delete old sitemaps for this siteId
-            foreach ($this->filesystem->listContents('sitemap/salesChannel-' . $filekey) as $file) {
-                $this->filesystem->delete($file['path']);
-            }
-
-            // Move new sitemaps into place
-            foreach ($sitemaps as $sitemap) {
-                $sitemapFileName = $this->sitemapNameGenerator->getSitemapFilename($filekey);
-                try {
-                    $this->filesystem->write($sitemapFileName, file_get_contents($sitemap->getFilename()));
-                } catch (Exception $exception) {
-                    // If we could not move the file to it's target, we remove it here to not clutter tmp dir
-                    unlink($sitemap->getFilename());
-
-                    $this->logger->error(sprintf('Could not move sitemap to "%s" in the location for sitemaps', $sitemapFileName));
-                }
-            }
+        if ($this->filesystem->has($sitemapPath)) {
+            $this->filesystem->delete($sitemapPath);
         }
+
+        $this->filesystem->write($sitemapPath, file_get_contents($this->getTmpFilePath($fileName)));
     }
 
-    private function generateCacheKeyForSalesChannel(SalesChannelContext $salesChannelContext): string
+    private function getTmpFilePath(string $fileName): string
     {
-        return sprintf('sitemap-exporter-running-%s-%s', $salesChannelContext->getSalesChannel()->getId(), $salesChannelContext->getSalesChannel()->getLanguageId());
+        return rtrim(sys_get_temp_dir(), '/') . '/' . $fileName;
+    }
+
+    private function getPath(string $fileName, SalesChannelContext $salesChannelContext): string
+    {
+        return 'sitemap/salesChannel-' . $this->getSitemapKey($salesChannelContext) . '/' . $fileName;
     }
 
     private function getSitemapKey(SalesChannelContext $salesChannelContext): string

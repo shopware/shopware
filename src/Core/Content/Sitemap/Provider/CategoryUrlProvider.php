@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Content\Sitemap\Provider;
 
+use function count;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
+use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -29,43 +31,37 @@ class CategoryUrlProvider implements UrlProviderInterface
     private $router;
 
     /**
-     * @var int
-     */
-    private $batchsize;
-
-    /**
      * @var ConfigHandler
      */
     private $configHandler;
 
-    /**
-     * @var int
-     */
-    private $counter = 0;
-
     public function __construct(
         SalesChannelRepositoryInterface $categoryRepository,
         RouterInterface $router,
-        ConfigHandler $configHandler,
-        int $batchsize
+        ConfigHandler $configHandler
     ) {
         $this->categoryRepository = $categoryRepository;
         $this->router = $router;
         $this->configHandler = $configHandler;
-        $this->batchsize = $batchsize;
+    }
+
+    public function getName(): string
+    {
+        return 'category';
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getUrls(SalesChannelContext $salesChannelContext): array
+    public function getUrls(SalesChannelContext $salesChannelContext, int $limit, ?int $offset = null): UrlResult
     {
-        $categories = $this->getCategories($salesChannelContext);
+        $categories = $this->getCategories($salesChannelContext, $limit, $offset);
 
         $urls = [];
         $url = new Url();
         /** @var CategoryEntity $category */
         foreach ($categories as $category) {
+            /** @var \DateTimeInterface $lastmod */
             $lastmod = $category->getUpdatedAt() ?: $category->getCreatedAt();
 
             $newUrl = clone $url;
@@ -78,21 +74,25 @@ class CategoryUrlProvider implements UrlProviderInterface
             $urls[] = $newUrl;
         }
 
-        return $urls;
+        if (count($urls) < $limit) { // last run
+            $nextOffset = null;
+        } elseif ($offset === null) { // first run
+            $nextOffset = $limit;
+        } else { // 1+n run
+            $nextOffset = $offset + $limit;
+        }
+
+        return new UrlResult($urls, $nextOffset);
     }
 
-    public function reset(): void
+    private function getCategories(SalesChannelContext $salesChannelContext, int $limit, ?int $offset): CategoryCollection
     {
-        $this->counter = 0;
-    }
-
-    private function getCategories(SalesChannelContext $salesChannelContext): CategoryCollection
-    {
-        $offset = $this->counter++ * $this->batchsize;
-
         $categoriesCriteria = new Criteria();
-        $categoriesCriteria->setLimit($this->batchsize)
-            ->setOffset($offset);
+        $categoriesCriteria->setLimit($limit);
+
+        if ($offset !== null) {
+            $categoriesCriteria->setOffset($offset);
+        }
 
         $excludedCategoryIds = $this->getExcludedCategoryIds($salesChannelContext);
         if (!empty($excludedCategoryIds)) {

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -57,7 +58,8 @@ class SitemapGenerateCommand extends Command
                 'salesChannelId',
                 'i',
                 InputOption::VALUE_OPTIONAL,
-                'Generate sitemap only for for this sales channel')
+                'Generate sitemap only for for this sales channel'
+            )
             ->addOption(
                 'force',
                 'f',
@@ -104,7 +106,7 @@ class SitemapGenerateCommand extends Command
                 $output->writeln(sprintf('Generating sitemaps for sales channel #%s (%s) and language %s...', $salesChannel->getId(), $salesChannel->getName(), $languageId));
 
                 try {
-                    $this->sitemapExporter->generate($salesChannelContext, $input->getOption('force'));
+                    $this->generateSitemap($salesChannelContext, $input->getOption('force'), null, null, $output);
                 } catch (AlreadyLockedException $exception) {
                     $output->writeln(sprintf('ERROR: %s', $exception->getMessage()));
                 }
@@ -114,5 +116,13 @@ class SitemapGenerateCommand extends Command
         $output->writeln('done!');
 
         return null;
+    }
+
+    private function generateSitemap(SalesChannelContext $salesChannelContext, bool $force, ?string $lastProvider = null, ?int $offset = null): void
+    {
+        $result = $this->sitemapExporter->generate($salesChannelContext, $force, $lastProvider, $offset);
+        if ($result->isFinish() === false) {
+            $this->generateSitemap($salesChannelContext, $force, $result->getProvider(), $result->getOffset());
+        }
     }
 }

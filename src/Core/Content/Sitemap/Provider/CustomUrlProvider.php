@@ -5,15 +5,11 @@ namespace Shopware\Core\Content\Sitemap\Provider;
 use function in_array;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
+use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CustomUrlProvider implements UrlProviderInterface
 {
-    /**
-     * @var bool
-     */
-    private $allExported = false;
-
     /**
      * @var ConfigHandler
      */
@@ -24,23 +20,16 @@ class CustomUrlProvider implements UrlProviderInterface
         $this->configHandler = $configHandler;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function reset(): void
+    public function getName(): string
     {
-        $this->allExported = false;
+        return 'custom';
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getUrls(SalesChannelContext $salesChannelContext): array
+    public function getUrls(SalesChannelContext $salesChannelContext, int $limit, ?int $offset = null): UrlResult
     {
-        if ($this->allExported) {
-            return [];
-        }
-
         $sitemapCustomUrls = $this->configHandler->get(ConfigHandler::CUSTOM_URLS_KEY);
 
         $urls = [];
@@ -60,9 +49,7 @@ class CustomUrlProvider implements UrlProviderInterface
             $urls[] = $newUrl;
         }
 
-        $this->allExported = true;
-
-        return $urls;
+        return new UrlResult($urls, null);
     }
 
     private function isAvailableForSalesChannel(array $url, ?string $salesChannelId): bool

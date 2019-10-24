@@ -5,11 +5,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
         <service id="Shopware\Core\Content\Sitemap\Service\SitemapWriter">
-            <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapNameGenerator"/>
             <argument type="service" id="shopware.filesystem.public"/>
-            <argument type="service" id="logger"/>
-            <argument type="service" id="shopware.cache"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Core\Content\Sitemap\Service\SitemapNameGenerator">
@@ -20,6 +16,8 @@
             <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapWriter"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="tagged" tag="shopware.sitemap_url_provider"/>
+            <argument type="service" id="serializer.mapping.cache.symfony"/>
+            <argument>%shopware.sitemap.batchsize%</argument>
         </service>
 
         <service id="Shopware\Core\Content\Sitemap\Service\SitemapLister">
@@ -35,7 +33,6 @@
             <argument type="service" id="sales_channel.category.repository"/>
             <argument type="service" id="router.default"/>
             <argument type="service" id="Shopware\Core\Content\Sitemap\Service\ConfigHandler"/>
-            <argument>%shopware.sitemap.batchsize%</argument>
 
             <tag name="shopware.sitemap_url_provider"/>
         </service>
@@ -50,7 +47,6 @@
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="router.default"/>
             <argument type="service" id="Shopware\Core\Content\Sitemap\Service\ConfigHandler"/>
-            <argument>%shopware.sitemap.batchsize%</argument>
 
             <tag name="shopware.sitemap_url_provider"/>
         </service>

@@ -49,11 +49,13 @@ class Url extends Struct
      */
     public function __toString()
     {
-        return sprintf('<url><loc>%s</loc><lastmod>%s</lastmod><changefreq>%s</changefreq><priority>%.1f</priority></url>',
+        return sprintf(
+            '<url><loc>%s</loc><lastmod>%s</lastmod><changefreq>%s</changefreq><priority>%.1f</priority></url>',
             $this->getLoc(),
             $this->getLastmod()->format('Y-m-d'),
             $this->getChangefreq(),
-            $this->getPriority());
+            $this->getPriority()
+        );
     }
 
     public function getLoc(): string

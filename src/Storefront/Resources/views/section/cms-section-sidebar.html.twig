@@ -1,8 +1,9 @@
 {% block page_content_section_sidebar %}
     {% set sectionMobileBehaviorClass = 'cms-section-sidebar-mobile-' ~ section.mobileBehavior %}
-    <div class="cms-section-sidebar {{ sectionMobileBehaviorClass }} row">
+    {% set layout = section.sizingMode ? section.sizingMode|replace({"_": "-"}) : "container" %}
 
-        {# @var section \Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionEntity #}
+    <div class="cms-section-sidebar {{ sectionMobileBehaviorClass }} {{ layout }} row">
+
         {% set sidebarBlocks = section.blocks.filterBySectionPosition('sidebar') %}
         {% set mainContentBlocks = section.blocks.filterBySectionPosition('main') %}
 

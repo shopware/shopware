@@ -1,5 +1,6 @@
 {% block page_content_section_default %}
-    <div class="cms-section-default">
+    {% set layout = section.sizingMode ? section.sizingMode|replace({"_": "-"}) : "container" %}
+    <div class="cms-section-default {{ layout }}">
         {% for block in section.blocks %}
 
             {% block section_default_content_block %}

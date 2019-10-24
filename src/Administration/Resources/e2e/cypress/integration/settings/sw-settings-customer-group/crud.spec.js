@@ -56,7 +56,8 @@ describe('Customer group: Test crud operations', () => {
         // Check usage of customer group in sales channel
         salesChannelPage.openSalesChannel('Headless');
         cy.get('.sw-sales-channel-detail__select-navigation-category-id').scrollIntoView();
-        cy.get('.sw-sales-channel-detail__select-customer-group').typeSingleSelectAndCheck('E2E Merchant');
+        cy.get('.sw-sales-channel-detail__select-customer-group')
+            .typeSingleSelectAndCheck('E2E Merchant', '.sw-sales-channel-detail__select-customer-group');
     });
 
     it('@package @settings: update and read customer group', () => {

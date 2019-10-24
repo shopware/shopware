@@ -32,7 +32,8 @@ describe('Delivery times group: Test crud operations', () => {
 
         // Fill all fields
         cy.get('#sw-field--deliveryTime-name').type('Very long delivery');
-        cy.get('.sw-delivery-time-detail__field-unit').typeSingleSelectAndCheck('Month');
+        cy.get('.sw-delivery-time-detail__field-unit')
+            .typeSingleSelectAndCheck('Month', '.sw-delivery-time-detail__field-unit');
         cy.get('#sw-field--deliveryTime-min').type('1');
         cy.get('#sw-field--deliveryTime-max').type('2');
 
@@ -67,7 +68,7 @@ describe('Delivery times group: Test crud operations', () => {
 
         cy.get('.product-deliverability-form').scrollIntoView();
         cy.get('#deliveryTimeId')
-            .typeSingleSelectAndCheck('Very long delivery');
+            .typeSingleSelectAndCheck('Very long delivery', '#deliveryTimeId');
     });
 
     it('@settings: Try to create delivery time with empty required fields', () => {
@@ -122,7 +123,8 @@ describe('Delivery times group: Test crud operations', () => {
         cy.get('.smart-bar__header h2').contains('Express');
 
         cy.get('#sw-field--deliveryTime-name').clearTypeAndCheck('Turtle');
-        cy.get('.sw-delivery-time-detail__field-unit').typeSingleSelectAndCheck('Week');
+        cy.get('.sw-delivery-time-detail__field-unit')
+            .typeSingleSelectAndCheck('Week', '.sw-delivery-time-detail__field-unit');
 
         cy.get('.sw-settings-delivery-time-detail__save').click();
 

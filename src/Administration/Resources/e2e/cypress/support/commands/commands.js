@@ -162,11 +162,11 @@ Cypress.Commands.add('typeMultiSelectAndCheck', {
  * @name typeSingleSelect
  * @function
  * @param {String} value - Desired value of the element
- * @param {Object} [options={}] - Options concerning swSelect usage
+ * @param {String} selector - selector of the element
  */
 Cypress.Commands.add('typeSingleSelect', {
     prevSubject: 'element'
-}, (subject, value) => {
+}, (subject, value, selector) => {
     const resultPrefix = '.sw-select';
     const inputCssSelector = `.sw-select__selection input`;
 
@@ -176,22 +176,22 @@ Cypress.Commands.add('typeSingleSelect', {
     // type in the search term if available
     if (value) {
         cy.get('.sw-select-result-list').should('be.visible');
-        cy.get(`${subject.selector} ${inputCssSelector}`).clear();
-        cy.get(`${subject.selector} ${inputCssSelector}`).type(value);
-        cy.get(`${subject.selector} ${inputCssSelector}`).should('have.value', value);
+        cy.get(`${selector} ${inputCssSelector}`).clear();
+        cy.get(`${selector} ${inputCssSelector}`).type(value);
+        cy.get(`${selector} ${inputCssSelector}`).should('have.value', value);
 
         // Wait the debounce time for the search to begin
         cy.wait(500);
 
-        cy.get(`${subject.selector}.sw-loader__element`).should('not.exist');
+        cy.get(`${selector}.sw-loader__element`).should('not.exist');
 
-        cy.get(`${subject.selector} .is--disabled`)
+        cy.get(`${selector} .is--disabled`)
             .should('not.exist');
 
-        cy.get(`${subject.selector} .sw-select-result__result-item-text`)
+        cy.get(`${selector} .sw-select-result__result-item-text`)
             .should('be.visible');
 
-        cy.get(`${subject.selector} .sw-select-result__result-item-text`)
+        cy.get(`${selector} .sw-select-result__result-item-text`)
             .contains(value).click({force: true});
     } else {
         // Select the first element
@@ -207,12 +207,12 @@ Cypress.Commands.add('typeSingleSelect', {
  * @name typeSingleSelectAndCheck
  * @function
  * @param {String} value - Desired value of the element
- * @param {Object} [options={}] - Options concerning swSelect usage
+ * @param {String} selector - Options concerning swSelect usage
  */
 Cypress.Commands.add('typeSingleSelectAndCheck', {
     prevSubject: 'element'
-}, (subject, value) => {
-    cy.get(subject).typeSingleSelect(value);
+}, (subject, value, selector) => {
+    cy.get(subject).typeSingleSelect(value, selector);
 
     // expect the placeholder for an empty select field not be shown and search for the value
     cy.get(`${subject.selector} .sw-select__selection .is--placeholder`).should('not.exist');

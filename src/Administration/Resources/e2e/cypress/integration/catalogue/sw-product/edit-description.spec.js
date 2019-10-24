@@ -16,7 +16,7 @@ describe('Product: Edit a products description in various ways', () => {
             });
     });
 
-    it('@catalogue: test the text editor\'s link functionality', () => {
+    it.skip('@catalogue: test the text editor\'s link functionality', () => {
         const page = new ProductPageObject();
         const productName = 'This is an example product with links';
         const exampleDomain = 'example.com';

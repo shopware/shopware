@@ -23,31 +23,38 @@ export default class SalesChannelPageObject extends GeneralPageObject {
         cy.get('.sw-sales-channel-detail__select-payment-method').typeMultiSelectAndCheck('Invoice', {
             searchTerm: 'Invoice'
         });
-        cy.get('.sw-sales-channel-detail__assign-payment-method').typeSingleSelectAndCheck('Invoice');
+        cy.get('.sw-sales-channel-detail__assign-payment-method')
+            .typeSingleSelectAndCheck('Invoice', '.sw-sales-channel-detail__assign-payment-method');
 
         cy.get('.sw-sales-channel-detail__select-shipping-method').typeMultiSelectAndCheck('Standard', {
             searchTerm: 'Standard'
         });
-        cy.get('.sw-sales-channel-detail__assign-shipping-method').typeSingleSelectAndCheck('Standard');
+        cy.get('.sw-sales-channel-detail__assign-shipping-method')
+            .typeSingleSelectAndCheck('Standard', '.sw-sales-channel-detail__assign-shipping-method');
 
         cy.get('.sw-sales-channel-detail__select-countries').typeMultiSelectAndCheck('Germany', {
             searchTerm: 'Germany'
         });
-        cy.get('.sw-sales-channel-detail__assign-countries').typeSingleSelectAndCheck('Germany');
+        cy.get('.sw-sales-channel-detail__assign-countries')
+            .typeSingleSelectAndCheck('Germany', '.sw-sales-channel-detail__assign-countries');
 
         cy.get('.sw-sales-channel-detail__select-currencies').typeMultiSelectAndCheck('Euro', {
             searchTerm: 'Euro'
         });
-        cy.get('.sw-sales-channel-detail__assign-currencies').typeSingleSelectAndCheck('Euro');
+        cy.get('.sw-sales-channel-detail__assign-currencies')
+            .typeSingleSelectAndCheck('Euro', '.sw-sales-channel-detail__assign-currencies');
 
         cy.get('.sw-sales-channel-detail__select-languages').typeMultiSelectAndCheck('English', {
             searchTerm: 'English'
         });
-        cy.get('.sw-sales-channel-detail__assign-languages').typeSingleSelectAndCheck('English');
+        cy.get('.sw-sales-channel-detail__assign-languages')
+            .typeSingleSelectAndCheck('English','.sw-sales-channel-detail__assign-languages');
 
-        cy.get('.sw-sales-channel-detail__select-customer-group').typeSingleSelectAndCheck('Standard customer group');
+        cy.get('.sw-sales-channel-detail__select-customer-group')
+            .typeSingleSelectAndCheck('Standard customer group', '.sw-sales-channel-detail__select-customer-group');
 
-        cy.get('.sw-sales-channel-detail__select-navigation-category-id').typeSingleSelectAndCheck('Catalogue #1');
+        cy.get('.sw-sales-channel-detail__select-navigation-category-id')
+            .typeSingleSelectAndCheck('Catalogue #1', '.sw-sales-channel-detail__select-navigation-category-id');
     }
 
     openSalesChannel(salesChannelName, position = 0) {

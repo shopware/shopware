@@ -115,7 +115,8 @@ describe('Order: Read order', () => {
         // select product
         cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--label').dblclick();
 
-        cy.get('.sw-order-product-select__single-select').typeSingleSelectAndCheck('Product name');
+        cy.get('.sw-order-product-select__single-select')
+            .typeSingleSelectAndCheck('Product name', '.sw-order-product-select__single-select');
         cy.get('.sw-data-grid__inline-edit-save').click();
         cy.wait('@orderAddProductCall').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
@@ -145,7 +146,8 @@ describe('Order: Read order', () => {
         // select product
         cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--label').dblclick();
 
-        cy.get('.sw-order-product-select__single-select').typeSingleSelectAndCheck('Awesome product');
+        cy.get('.sw-order-product-select__single-select')
+            .typeSingleSelectAndCheck('Awesome product', '.sw-order-product-select__single-select');
         cy.get('#sw-field--item-quantity').clear().type('010');
 
         cy.get('.sw-data-grid__inline-edit-save').click();
@@ -288,7 +290,7 @@ describe('Order: Read order', () => {
         });
     });
 
-    it('@package @order: can edit existing line items', () => {
+    it.skip('@package @order: can edit existing line items', () => {
 
         const page = new OrderPageObject();
 

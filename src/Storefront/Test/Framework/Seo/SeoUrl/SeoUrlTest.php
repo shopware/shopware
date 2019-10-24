@@ -8,17 +8,18 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\Seo\SeoUrl\SeoUrlEntity;
+use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
-use Shopware\Storefront\Test\Framework\Seo\StorefrontSalesChannelTestHelper;
 
-class SeoUrlExtensionTest extends TestCase
+class SeoUrlTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use StorefrontSalesChannelTestHelper;
@@ -53,10 +54,10 @@ class SeoUrlExtensionTest extends TestCase
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->first();
 
-        static::assertInstanceOf(SeoUrlCollection::class, $product->getExtension('seoUrls'));
+        static::assertInstanceOf(SeoUrlCollection::class, $product->getSeoUrls());
 
         /** @var SeoUrlCollection $seoUrls */
-        $seoUrls = $product->getExtension('seoUrls');
+        $seoUrls = $product->getSeoUrls();
         $seoUrl = $seoUrls->first();
         static::assertInstanceOf(SeoUrlEntity::class, $seoUrl);
         static::assertEquals('foo-bar/P1234', $seoUrl->getSeoPathInfo());
@@ -93,10 +94,10 @@ class SeoUrlExtensionTest extends TestCase
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->first();
 
-        static::assertInstanceOf(SeoUrlCollection::class, $product->getExtension('seoUrls'));
+        static::assertInstanceOf(SeoUrlCollection::class, $product->getSeoUrls());
 
         /** @var SeoUrlCollection $seoUrls */
-        $seoUrls = $product->getExtension('seoUrls');
+        $seoUrls = $product->getSeoUrls();
         /** @var SeoUrlEntity $canonicalUrl */
         $canonicalUrl = $seoUrls
             ->filterByProperty('isCanonical', true)
@@ -119,10 +120,10 @@ class SeoUrlExtensionTest extends TestCase
 
         $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->first();
 
-        static::assertInstanceOf(SeoUrlCollection::class, $product->getExtension('seoUrls'));
+        static::assertInstanceOf(SeoUrlCollection::class, $product->getSeoUrls());
 
         /** @var SeoUrlEntity $canonicalUrl */
-        $canonicalUrl = $product->getExtension('seoUrls')
+        $canonicalUrl = $product->getSeoUrls()
             ->filterByProperty('isCanonical', true)
             ->filterByProperty('salesChannelId', $salesChannelId)
             ->first();
@@ -341,7 +342,7 @@ class SeoUrlExtensionTest extends TestCase
         /** @var ProductEntity $product */
         $product = $productRepo->search($criteria, Context::createDefaultContext())->first();
 
-        static::assertInstanceOf(SeoUrlCollection::class, $product->getExtension('seoUrls'));
+        static::assertInstanceOf(SeoUrlCollection::class, $product->getSeoUrls());
     }
 
     public function testSearchWithFilter(): void
@@ -363,7 +364,12 @@ class SeoUrlExtensionTest extends TestCase
             ],
             'stock' => 0,
             'seoUrls' => [
-                ['id' => Uuid::randomHex(), 'pathInfo' => 'foo', 'seoPathInfo' => 'asdf'],
+                [
+                    'id' => Uuid::randomHex(),
+                    'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
+                    'pathInfo' => 'foo',
+                    'seoPathInfo' => 'asdf',
+                ],
             ],
         ]], Context::createDefaultContext());
 
@@ -380,7 +386,7 @@ class SeoUrlExtensionTest extends TestCase
 
         /** @var ProductEntity $product */
         $product = $products->first();
-        static::assertInstanceOf(SeoUrlCollection::class, $product->getExtension('seoUrls'));
+        static::assertInstanceOf(SeoUrlCollection::class, $product->getSeoUrls());
     }
 
     public function testInsert(): void
@@ -392,22 +398,24 @@ class SeoUrlExtensionTest extends TestCase
         $this->upsertProduct([
             'id' => $id,
             'name' => 'awesome product',
-            'extensions' => [
-                'seoUrls' => [
-                    [
-                        'id' => $seoUrlId1,
-                        'salesChannelId' => Defaults::SALES_CHANNEL,
-                        'pathInfo' => '/detail/' . $id,
-                        'seoPathInfo' => 'awesome v2',
-                        'isCanonical' => true,
-                    ],
-                    [
-                        'id' => $seoUrlId2,
-                        'salesChannelId' => Defaults::SALES_CHANNEL,
-                        'pathInfo' => '/detail/' . $id,
-                        'seoPathInfo' => 'awesome',
-                        'isCanonical' => null,
-                    ],
+            'seoUrls' => [
+                [
+                    'id' => $seoUrlId1,
+                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
+                    'pathInfo' => '/detail/' . $id,
+                    'seoPathInfo' => 'awesome v2',
+                    'isCanonical' => true,
+                    'isModified' => true,
+                ],
+                [
+                    'id' => $seoUrlId2,
+                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
+                    'pathInfo' => '/detail/' . $id,
+                    'seoPathInfo' => 'awesome',
+                    'isCanonical' => null,
+                    'isModified' => true,
                 ],
             ],
         ]);
@@ -421,14 +429,13 @@ class SeoUrlExtensionTest extends TestCase
         static::assertNotNull($first);
 
         /** @var SeoUrlCollection $seoUrls */
-        $seoUrls = $first->getExtensionOfType('seoUrls', SeoUrlCollection::class);
+        $seoUrls = $first->getSeoUrls();
         static::assertNotNull($seoUrls);
 
         /** @var SeoUrlEntity|null $seoUrl */
         $seoUrl = $seoUrls->filterByProperty('id', $seoUrlId1)->first();
         static::assertNotNull($seoUrl);
 
-        static::assertTrue($seoUrl->getIsModified());
         static::assertTrue($seoUrl->getIsCanonical());
         static::assertFalse($seoUrl->getIsDeleted());
 
@@ -446,15 +453,14 @@ class SeoUrlExtensionTest extends TestCase
 
         $this->upsertProduct([
             'id' => $id,
-            'extensions' => [
-                'seoUrls' => [
-                    [
-                        'id' => $seoUrlId,
-                        'salesChannelId' => Defaults::SALES_CHANNEL,
-                        'pathInfo' => $pathInfo,
-                        'seoPathInfo' => 'awesome',
-                        'isCanonical' => true,
-                    ],
+            'seoUrls' => [
+                [
+                    'id' => $seoUrlId,
+                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
+                    'pathInfo' => $pathInfo,
+                    'seoPathInfo' => 'awesome',
+                    'isCanonical' => true,
                 ],
             ],
         ]);
@@ -467,14 +473,10 @@ class SeoUrlExtensionTest extends TestCase
 
         static::assertNotNull($first);
 
-        /** @var SeoUrlCollection $seoUrls */
-        $seoUrls = $first->getExtensionOfType('seoUrls', SeoUrlCollection::class);
-
         /** @var SeoUrlEntity|null $seoUrl */
-        $seoUrl = $seoUrls->filterByProperty('id', $seoUrlId)->first();
+        $seoUrl = $first->getSeoUrls()->filterByProperty('id', $seoUrlId)->first();
         static::assertNotNull($seoUrl);
 
-        static::assertTrue($seoUrl->getIsModified());
         static::assertTrue($seoUrl->getIsCanonical());
         static::assertFalse($seoUrl->getIsDeleted());
 
@@ -492,7 +494,7 @@ class SeoUrlExtensionTest extends TestCase
             static::assertEquals($case['categoryId'], $category->getId());
 
             /** @var SeoUrlCollection $seoUrls */
-            $seoUrls = $category->getExtension('seoUrls');
+            $seoUrls = $category->getSeoUrls();
             static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
             $seoUrls = $seoUrls->filterByProperty('salesChannelId', $salesChannelId);
             $expectedCount = $case['expected'] === null ? 0 : 1;
@@ -512,7 +514,7 @@ class SeoUrlExtensionTest extends TestCase
         }
     }
 
-    private function upsertProduct($data): void
+    private function upsertProduct($data): EntityWrittenContainerEvent
     {
         $defaults = [
             'productNumber' => Uuid::randomHex(),
@@ -525,7 +527,8 @@ class SeoUrlExtensionTest extends TestCase
             'stock' => 0,
         ];
         $data = array_merge($defaults, $data);
-        $this->productRepository->upsert([$data], Context::createDefaultContext());
+
+        return $this->productRepository->upsert([$data], Context::createDefaultContext());
     }
 
     private function createTestProduct(): string

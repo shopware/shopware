@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
+use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader;
@@ -78,18 +79,24 @@ class ProductController extends StorefrontController
      * @HttpCache()
      * @Route("/detail/{productId}/switch", name="frontend.detail.switch", methods={"GET"}, defaults={"XmlHttpRequest": true})
      */
-    public function switch(string $productId, Request $request, SalesChannelContext $context): JsonResponse
+    public function switch(string $productId, Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
         $switchedOption = $request->query->get('switched');
 
         $newOptions = json_decode($request->query->get('options'), true);
 
-        $redirect = $this->combinationFinder->find($productId, $switchedOption, $newOptions, $context);
+        $redirect = $this->combinationFinder->find($productId, $switchedOption, $newOptions, $salesChannelContext);
 
-        $url = $this->seoUrlPlaceholderHandler->generateResolved(
-            $request,
-            'frontend.detail.page',
-            ['productId' => $redirect->getVariantId()]
+        $host = $request->attributes->get(RequestTransformer::SALES_CHANNEL_ABSOLUTE_BASE_URL)
+            . $request->attributes->get(RequestTransformer::SALES_CHANNEL_BASE_URL);
+
+        $url = $this->seoUrlPlaceholderHandler->replace(
+            $this->seoUrlPlaceholderHandler->generate(
+                'frontend.detail.page',
+                ['productId' => $redirect->getVariantId()]
+            ),
+            $host,
+            $salesChannelContext
         );
 
         return new JsonResponse(['url' => $url]);

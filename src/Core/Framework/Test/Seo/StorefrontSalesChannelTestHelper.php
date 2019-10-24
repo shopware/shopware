@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Framework\Seo;
+namespace Shopware\Core\Framework\Test\Seo;
 
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Defaults;

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityAggregationResultLo
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchResultLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositorySearchDetector;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
@@ -67,13 +68,11 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
      */
     public function search(Criteria $criteria, SalesChannelContext $salesChannelContext): EntitySearchResult
     {
-        if ($this->definition instanceof SalesChannelDefinitionInterface) {
-            $this->definition->processCriteria($criteria, $salesChannelContext);
-        }
-
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $salesChannelContext);
+        } else {
+            $this->processCriteria($criteria, $salesChannelContext);
         }
 
         if (!RepositorySearchDetector::isSearchRequired($this->definition, $criteria)) {
@@ -131,9 +130,7 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
 
     public function aggregate(Criteria $criteria, SalesChannelContext $salesChannelContext): AggregationResultCollection
     {
-        if ($this->definition instanceof SalesChannelDefinitionInterface) {
-            $this->definition->processCriteria($criteria, $salesChannelContext);
-        }
+        $this->processCriteria($criteria, $salesChannelContext);
 
         $result = $this->aggregator->aggregate($this->definition, $criteria, $salesChannelContext->getContext());
 
@@ -145,9 +142,7 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
 
     public function searchIds(Criteria $criteria, SalesChannelContext $salesChannelContext): IdSearchResult
     {
-        if ($this->definition instanceof SalesChannelDefinitionInterface) {
-            $this->definition->processCriteria($criteria, $salesChannelContext);
-        }
+        $this->processCriteria($criteria, $salesChannelContext);
 
         return $this->doSearch($criteria, $salesChannelContext);
     }
@@ -174,5 +169,51 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
         $this->eventDispatcher->dispatch($event, $event->getName());
 
         return $result;
+    }
+
+    private function processCriteria(Criteria $topCriteria, SalesChannelContext $salesChannelContext): void
+    {
+        if (!$this->definition instanceof SalesChannelDefinitionInterface) {
+            return;
+        }
+
+        $queue = [
+            ['definition' => $this->definition, 'criteria' => $topCriteria],
+        ];
+
+        $maxCount = 100;
+
+        $processed = [];
+
+        // process all associations breadth-first
+        while (!empty($queue) && --$maxCount > 0) {
+            $cur = array_shift($queue);
+
+            /** @var EntityDefinition $definition */
+            $definition = $cur['definition'];
+            /** @var Criteria $criteria */
+            $criteria = $cur['criteria'];
+
+            if (isset($processed[get_class($definition)])) {
+                continue;
+            }
+
+            if ($definition instanceof SalesChannelDefinitionInterface) {
+                $definition->processCriteria($criteria, $salesChannelContext);
+            }
+
+            $processed[get_class($definition)] = true;
+
+            foreach ($criteria->getAssociations() as $associationName => $associationCriteria) {
+                // find definition
+                $field = $definition->getField($associationName);
+                if (!$field instanceof AssociationField) {
+                    continue;
+                }
+
+                $referenceDefinition = $field->getReferenceDefinition();
+                $queue[] = ['definition' => $referenceDefinition, 'criteria' => $associationCriteria];
+            }
+        }
     }
 }

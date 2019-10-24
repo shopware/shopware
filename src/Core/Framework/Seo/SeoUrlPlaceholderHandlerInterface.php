@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Framework\Seo;
 
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 interface SeoUrlPlaceholderHandlerInterface
 {
     public function generate($name, $parameters = []): string;
 
-    public function replacePlaceholder(Request $request, Response $response, ?string $host = null): void;
-
-    public function generateResolved(Request $request, $name, $parameters = [], ?string $host = null): string;
+    public function replace(string $content, string $host, SalesChannelContext $context): string;
 }

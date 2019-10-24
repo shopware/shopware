@@ -148,6 +148,7 @@ Core
 * `\Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity::$trackingCode` has been replaced with `\Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity::$trackingCodes`.
 * Add Bearer Auth Token to requests to `/api/v{version}/_info/entity-schema.json` and `/api/v{version}/_info/business-events.json` routes
 * Removed `shopware.api.api_browser.public` config value, use `shopware.api.api_browser.auth_required = true` instead, to limit access to the open api routes
+* Replace `product/category.extensions.seoUrls` with `product/category.seoUrls`
 
 Administration
 --------------

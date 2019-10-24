@@ -122,6 +122,13 @@
             <argument type="service" id="Shopware\Core\Framework\Api\Converter\ConverterRegistry"/>
         </service>
 
+        <!-- Api version -->
+        <service id="Shopware\Core\Framework\Api\ApiVersion\ApiVersionSubscriber">
+            <argument>%kernel.supported_api_versions%</argument>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <!-- API Docs -->
         <service id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>

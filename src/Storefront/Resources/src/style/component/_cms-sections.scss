@@ -7,13 +7,13 @@ General styling for cms sections
 .cms-section {
     overflow: hidden;
 
-    &.boxed {
-        @extend .container;
-    }
-
     &.bg-image {
         background-repeat: no-repeat;
         background-position: 50%;
+    }
+
+    .boxed {
+        @extend .container;
     }
 
     .cms-section-sidebar {

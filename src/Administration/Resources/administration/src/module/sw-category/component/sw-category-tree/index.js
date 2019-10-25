@@ -95,33 +95,34 @@ Component.register('sw-category-tree', {
             this.loadedCategories = {};
             this.loadedParentIds = [];
 
-            if (this.category.path === null) {
-                this.loadRootCategories().then(() => {
-                    this.isLoadingInitialData = false;
-                });
-                return;
-            }
+            this.loadRootCategories()
+                .then(() => {
+                    if (this.category.path === null) {
+                        this.isLoadingInitialData = false;
+                        return Promise.resolve();
+                    }
 
-            const parentIds = this.category.path.split('|').filter((id) => !!id);
-            const parentPromises = [];
+                    const parentIds = this.category.path.split('|').filter((id) => !!id);
+                    const parentPromises = [];
 
-            parentIds.forEach((id) => {
-                const searchCriteria = (new Criteria(1, 1))
-                    .addAssociation('children');
+                    parentIds.forEach((id) => {
+                        const searchCriteria = (new Criteria(1, 1))
+                            .addAssociation('children');
 
-                searchCriteria.getAssociation('children')
-                    .setLimit(500);
+                        searchCriteria.getAssociation('children')
+                            .setLimit(500);
 
-                const promise = this.categoryRepository.get(id, this.context, searchCriteria)
-                    .then((result) => {
-                        this.addCategories([result, ...result.children]);
+                        const promise = this.categoryRepository.get(id, this.context, searchCriteria)
+                            .then((result) => {
+                                this.addCategories([result, ...result.children]);
+                            });
+                        parentPromises.push(promise);
                     });
-                parentPromises.push(promise);
-            });
 
-            Promise.all(parentPromises).then(() => {
-                this.isLoadingInitialData = false;
-            });
+                    return Promise.all(parentPromises).then(() => {
+                        this.isLoadingInitialData = false;
+                    });
+                });
         },
 
         onUpdatePositions({ draggedItem, oldParentId, newParentId }) {

@@ -119,14 +119,14 @@ Component.register('sw-rule-modal', {
             }
         },
         saveAndClose() {
-            const titleSaveSuccess = this.$tc('sw-rule-modal.titleSaveSuccess');
+            const titleSaveSuccess = this.$tc('global.default.success');
             const messageSaveSuccess = this.$tc(
                 'sw-rule-modal.messageSaveSuccess',
                 0,
                 { name: this.rule.name }
             );
 
-            const titleSaveError = this.$tc('sw-rule-modal.titleSaveError');
+            const titleSaveError = this.$tc('global.default.error');
             const messageSaveError = this.$tc(
                 'sw-rule-modal.messageSaveError', 0, { name: this.rule.name }
             );

@@ -248,7 +248,7 @@ Component.register('sw-promotion-detail', {
             } catch (error) {
                 this.isLoading = false;
                 this.createNotificationError({
-                    title: this.$tc('global.notification.notificationSaveErrorTitle'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc(
                         'global.notification.notificationSaveErrorMessage',
                         0,
@@ -287,7 +287,7 @@ Component.register('sw-promotion-detail', {
                         .catch((error) => {
                             this.isLoading = false;
                             this.createNotificationError({
-                                title: this.$tc('global.notification.notificationSaveErrorTitle'),
+                                title: this.$tc('global.default.error'),
                                 message: this.$tc(
                                     'global.notification.notificationSaveErrorMessage',
                                     0,

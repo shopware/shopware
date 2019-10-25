@@ -5,10 +5,10 @@
                 <slot name="actions">
                     {% block sw_grid_row_slot_actions %}
                         <sw-button @click="onInlineEditCancel(id, index)" size="small">
-                            {{ $tc('global.sw-grid-row.buttonInlineEditCancel') }}
+                            {{ $tc('global.default.cancel') }}
                         </sw-button>
                         <sw-button class="sw-grid-row__inline-edit-action" variant="primary" @click="onInlineEditFinish" size="small">
-                            {{ $tc('global.sw-grid-row.buttonInlineEditSave') }}
+                            {{ $tc('global.default.save') }}
                         </sw-button>
                     {% endblock %}
                 </slot>

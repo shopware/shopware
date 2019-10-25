@@ -157,7 +157,7 @@ Component.register('sw-media-modal-move', {
                     item.save().then(() => {
                         item.isLoading = false;
                         this.createNotificationSuccess({
-                            title: this.$root.$tc('global.sw-media-modal-move.notification.successSingle.title'),
+                            title: this.$root.$tc('global.default.success'),
                             message: this.$root.$tc(
                                 'global.sw-media-modal-move.notification.successSingle.message',
                                 1,
@@ -168,7 +168,7 @@ Component.register('sw-media-modal-move', {
                     }).catch(() => {
                         item.isLoading = false;
                         this.createNotificationError({
-                            title: this.$root.$tc('global.sw-media-modal-move.notification.errorSingle.title'),
+                            title: this.$root.$tc('global.default.error'),
                             message: this.$root.$tc(
                                 'global.sw-media-modal-move.notification.errorSingle.message',
                                 1,
@@ -190,13 +190,13 @@ Component.register('sw-media-modal-move', {
                 'media-move-modal-items-move',
                 Promise.all(movePromises).then((ids) => {
                     this.createNotificationSuccess({
-                        title: this.$root.$tc('global.sw-media-modal-move.notification.successOverall.title'),
+                        title: this.$root.$tc('global.default.success'),
                         message: this.$root.$tc('global.sw-media-modal-move.notification.successOverall.message')
                     });
                     return ids;
                 }).catch(() => {
                     this.createNotificationError({
-                        title: this.$root.$tc('global.sw-media-modal-move.notification.errorOverall.title'),
+                        title: this.$root.$tc('global.default.error'),
                         message: this.$root.$tc('global.sw-media-modal-move.notification.errorOverall.message')
                     });
                 })

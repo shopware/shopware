@@ -56,7 +56,7 @@ Component.register('sw-settings-delivery-time-list', {
                 })
                 .catch((exception) => {
                     this.createNotificationError({
-                        title: this.$tc('global.notification.notificationSaveErrorTitle'),
+                        title: this.$tc('global.default.error'),
                         message: this.$tc('sw-settings-delivery-time.list.errorLoad')
                     });
 

@@ -155,13 +155,13 @@
                                                 <template #modal-footer>
                                                     {% block sw_plugin_list_delete_modal_cancel %}
                                                         <sw-button @click="onCloseDeleteModal" size="small">
-                                                            {{ $tc('global.entity-components.deleteCancel') }}
+                                                            {{ $tc('global.default.cancel') }}
                                                         </sw-button>
                                                     {% endblock %}
 
                                                     {% block sw_plugin_list_delete_modal_confirm %}
                                                         <sw-button @click="onConfirmDelete(item)" variant="primary" size="small">
-                                                            {{ $tc('global.entity-components.deleteConfirm') }}
+                                                            {{ $tc('global.default.delete') }}
                                                         </sw-button>
                                                     {% endblock %}
                                                 </template>

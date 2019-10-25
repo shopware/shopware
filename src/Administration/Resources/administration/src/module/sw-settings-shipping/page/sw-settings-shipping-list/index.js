@@ -75,7 +75,7 @@ Component.register('sw-settings-shipping-list', {
                 });
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$tc('global.notification.notificationSaveErrorTitle'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-shipping.list.messageSaveError', 0, { name })
                 });
             }).finally(() => {
@@ -95,7 +95,7 @@ Component.register('sw-settings-shipping-list', {
                 });
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$tc('global.notification.notificationSaveErrorTitle'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-shipping.list.messageDeleteError', 0, { name })
                 });
             }).finally(() => {

@@ -59,7 +59,7 @@ Component.register('sw-error', {
 
         statusCode() {
             if (!this.error.response) {
-                return this.$tc('sw-error.general.statusCodePlaceholder');
+                return this.$tc('global.default.error');
             }
 
             return this.error.response.status;

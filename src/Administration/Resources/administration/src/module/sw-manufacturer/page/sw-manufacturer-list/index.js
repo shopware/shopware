@@ -41,7 +41,7 @@ Component.register('sw-manufacturer-list', {
                 primary: true
             }, {
                 property: 'link',
-                label: this.$t('sw-manufacturer.list.columnLink'),
+                label: this.$tc('sw-manufacturer.list.columnLink'),
                 inlineEdit: 'string'
             }];
         },

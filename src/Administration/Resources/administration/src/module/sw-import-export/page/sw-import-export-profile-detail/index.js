@@ -67,7 +67,7 @@ Component.register('sw-import-export-profile-detail', {
             const importExportProfileName = this.importExportProfile.name;
 
             const notificationSaveError = {
-                title: this.$tc('global.notification.notificationSaveErrorTitle'),
+                title: this.$tc('global.default.error'),
                 message: this.$tc(
                     'global.notification.notificationSaveErrorMessage', 0, { name: importExportProfileName }
                 )

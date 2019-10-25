@@ -95,7 +95,7 @@ Component.register('sw-property-detail', {
         onSave() {
             const entityName = this.group.name || this.placeholder(this.group, 'name');
 
-            const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
+            const titleSaveError = this.$tc('global.default.error');
             const messageSaveError = this.$tc(
                 'global.notification.notificationSaveErrorMessage', 0, { entityName: entityName }
             );

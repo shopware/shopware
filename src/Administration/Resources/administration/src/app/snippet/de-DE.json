@@ -5,16 +5,17 @@
       "INVALID_MEDIA_URL": "Bitte gib eine valide URL ein, um eine Datei hochzuladen."
     },
     "default": {
+      "add": "Hinzufügen",
       "apply": "Anwenden",
       "cancel": "Abbrechen",
       "delete": "Löschen",
       "edit": "Bearbeiten",
-      "save": "Speichern"
+      "error": "Fehler",
+      "save": "Speichern",
+      "success": "Erfolg"
     },
     "notification": {
-      "notificationSaveErrorTitle": "Fehler",
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",
-      "notificationSaveSuccessTitle": "Erfolg",
       "notificationSaveSuccessMessage": "Die Entität \"{entityName}\" wurde erfolgreich gespeichert."
     },
     "notification-center": {
@@ -22,15 +23,12 @@
       "emptyText": "Bravo, alles erledigt.",
       "deleteModal": {
         "title": "Mitteilungen löschen",
-        "textConfirm": "Möchtest Du wirklich alle Mitteilungen löschen?",
-        "cancel": "Abbrechen",
-        "delete": "Löschen"
+        "textConfirm": "Möchtest Du wirklich alle Mitteilungen löschen?"
       },
       "worker-listener": {
         "thumbnailGeneration": {
           "title": "Vorschaubilder werden generiert",
           "message": "Keine Bilder verbleibend. | Ein Bild verbleibend. | {n} Bilder verbleibend.",
-          "titleSuccess": "Vorschaubilder fertiggestellt",
           "messageSuccess": "Generierung der Vorschaubilder wurde abgeschlossen."
         }
       },
@@ -41,7 +39,6 @@
       "shopware-updates-listener": {
         "updatesAvailableTitle": "Eine neue Shopware Version {version} ist verfügbar",
         "updatesAvailableMessage": "Starte den Auto-Updater um die Installation zu starten",
-        "cancel": "Schließen",
         "updateNow": "Update öffnen"
       }
     },
@@ -56,24 +53,15 @@
         "mainMenuItemMarketing": "Marketing"
       }
     },
-    "sw-address": {
-      "edit": "Bearbeiten"
-    },
     "entity-components": {
-      "editAction": "Bearbeiten",
-      "deleteAction": "Löschen",
       "deleteMessage": "Soll der Eintrag wirklich gelöscht werden? | Sollen diese {count} Einträge wirklich gelöscht werden?",
-      "deleteCancel": "Abbrechen",
-      "deleteConfirm": "Löschen",
       "deleteTitle": "Eintrag löschen",
       "placeholderToManyAssociationCard": "Nach Assoziationen suchen",
       "labelRemoveAssociation": "Zuweisung aufheben"
     },
     "sw-field": {
       "notification": {
-        "notificationCopySuccessTitle": "Erfolg",
         "notificationCopySuccessMessage": "Der Text wurde in die Zwischenablage kopiert.",
-        "notificationCopyFailureTitle": "Fehler",
         "notificationCopyFailureMessage": "Der Text konnte nicht in die Zwischenablage kopiert werden."
       },
       "titleShowPassword": "Passwort anzeigen",
@@ -113,18 +101,12 @@
       "listItemAdd": "\"{term}\" hinzufügen",
       "placeholder": "Tags durchsuchen ..."
     },
-    "sw-grid-row": {
-      "buttonInlineEditCancel": "Abbrechen",
-      "buttonInlineEditSave": "Speichern"
-    },
     "sw-data-grid": {
       "tooltipListSettings": "Listeneinstellungen",
       "labelSettingsCompactMode": "Kompaktmodus verwenden",
       "labelSettingsPreviewImages": "Vorschaubilder anzeigen",
       "labelColumnHide": "Spalte ausblenden",
-      "labelSelectionCount": "Ausgewählt:",
-      "titleButtonInlineEditSave": "Speichern",
-      "titleButtonInlineEditCancel": "Abbrechen"
+      "labelSelectionCount": "Ausgewählt:"
     },
     "sw-pagination": {
       "labelItemsPerPage": "Einträge pro Seite:"
@@ -138,7 +120,6 @@
       "labelUnlink": "Verknüpfung aufheben"
     },
     "sw-media-folder-item": {
-      "labelContextMenuDelete": "Löschen",
       "labelContextMenuRename": "Umbenennen",
       "labelContextMenuMove": "Verschieben",
       "labelContextMenuShowMedia": "Medien anzeigen",
@@ -146,17 +127,14 @@
       "labelContextMenuDissolve": "Auflösen",
       "notification": {
         "errorBlankItemName": {
-          "title": "Fehler",
           "message": "Der Ordner konnte nicht gespeichert werden. Bitte füge einen Ordnernamen hinzu."
         },
         "renamingError": {
-          "title": "Fehler",
           "message": "Fehler beim Speichern des Ordners."
         }
       }
     },
     "sw-media-media-item": {
-      "labelContextMenuDelete": "Löschen",
       "labelContextMenuCopyLink": "Link kopieren",
       "labelContextMenuReplace": "Ersetzen",
       "labelContextMenuRename": "Umbenennen",
@@ -164,15 +142,12 @@
       "labelContextMenuMove": "Verschieben",
       "notification": {
         "errorBlankItemName": {
-          "title": "Fehler",
           "message": "Das Medium konnte nicht umbenannt werden. Bitte füge einen Dateinamen hinzu."
         },
         "renamingSuccess": {
-          "title": "Erfolg",
           "message": "Medium erfolgreich umbenannt."
         },
         "renamingError": {
-          "title": "Fehler",
           "message": "Fehler beim Umbenennen."
         }
       },
@@ -188,27 +163,15 @@
         "media": "Möchtest Du die Datei \"{name}\" wirklich löschen? | Möchtest Du diese {count} Dateien wirklich löschen?",
         "folder": "Möchtest Du den Ordner \"{name}\" wirklich löschen?<br>Es werden auch alle Unterordner und Medien in diesem Ordner gelöscht. | Möchtest Du diese {count} Ordner wirklich löschen?<br>Es werden auch alle Unterordner und Medien in diesem Ordner gelöscht.",
         "mediaAndFolder": "Möchtest Du {mediaCount} Dateien und {folderCount} Ordner wirklich löschen?<br>Es werden auch alle Unterordner und Dateien aus den Ordner gelöscht."
-
       },
-      "buttonDelete": "Löschen",
-      "buttonCancel": "Abbrechen",
       "notification": {
-        "successSingle": {
-          "title": "Erfolg",
-          "message": {
-            "media": "Datei \"{name}\" erfolgreich gelöscht.",
-            "folder": "Ordner \"{name}\" erfolgreich gelöscht."
-          }
-        },
         "errorSingle": {
-          "title": "Fehler",
           "message": {
             "media": "Fehler beim löschen der Datei \"{name}\".",
             "folder": "Fehler beim löschen des Ordners \"{name}\"."
           }
         },
         "successOverall": {
-          "title": "Erfolg",
           "message": {
             "media": "Keine Datei erfolgreich gelöscht. | Eine Datei erfolgreich gelöscht. | {count} / {total} Dateien erfolgreich gelöscht.",
             "folder": "Kein Ordner erfolgreich gelöscht. | Ein Ordner erfolgreich gelöscht. | {count} / {total} Ordner erfolgreich gelöscht.",
@@ -216,7 +179,6 @@
           }
         },
         "errorOverall": {
-          "title": "Fehler",
           "message": {
             "media": "Die Dateien konnten nicht gelöscht werden.",
             "folder": "Die Ordner konnten nicht gelöscht werden.",
@@ -229,22 +191,17 @@
       "titleModal": "Ordner auflösen",
       "dissolveMessage": "Möchtest Du \"{folderName}\" wirklich auflösen? | Möchtest Du diese {count} Ordner wirklich auflösen?",
       "buttonDissolve": "Auflösen",
-      "buttonCancel": "Abbrechen",
       "notification": {
         "successSingle": {
-          "title": "Erfolg",
           "message": "Ordner \"{folderName}\" erfolgreich aufgelöst."
         },
         "errorSingle": {
-          "title": "Fehler",
           "message": "Fehler beim Auflösen von \"{folderName}\"."
         },
         "successOverall": {
-          "title": "Erfolg",
           "message": "Ordner erfolgreich aufgelöst."
         },
         "errorOverall": {
-          "title": "Fehler",
           "message": "Die Ordner konnten nicht aufgelöst werden."
         }
       }
@@ -255,7 +212,6 @@
       "buttonReplace": "Datei ersetzen",
       "buttonRename": "Datei umbennen",
       "buttonSkip": "Datei überspringen",
-      "buttonCancel": "Abbrechen",
       "labelSaveSelection": "Auswahl merken und für {count} weitere anwenden",
       "labelOptionReplace": "Hochladen und ersetzen",
       "labelOptionRename": "Hochladen und umbenennen",
@@ -266,22 +222,17 @@
     "sw-media-modal-move": {
       "titleModal": "\"{mediaName}\" verschieben | {count} Objekte verschieben",
       "buttonMove": "Verschieben",
-      "buttonAbort": "Abbrechen",
       "notification": {
         "successSingle": {
-          "title": "Erfolg",
           "message": "\"{mediaName}\" erfolgreich verschoben."
         },
         "errorSingle": {
-          "title": "Fehler",
           "message": "Fehler beim Verschieben von \"{mediaName}\"."
         },
         "successOverall": {
-          "title": "Erfolg",
           "message": "Objekte erfolgreich verschoben."
         },
         "errorOverall": {
-          "title": "Fehler",
           "message": "Fehler beim Verschieben."
         }
       }
@@ -289,7 +240,6 @@
     "sw-media-modal-replace": {
       "titleModal": "Medien ersetzen",
       "buttonUpload": "Upload",
-      "buttonCancel": "Abbrechen",
       "buttonReplace": "Ersetzen",
       "warningFileExtension": "Die neue Datei hat eine andere Dateiendung ({extension}). Die Datei muss bei Suchmaschinen ggf. neu indexiert werden."
     },
@@ -307,11 +257,9 @@
       "notification": {
         "success": {
           "title": "Medienupload",
-          "message": "Keine Datei erfolgreich gespeichert | Eine Datei erfolgreich gespeichert | {count} / {total} Dateien erfolgreich gespeichert.",
-          "titleSuccess": "Medienupload abgeschlossen"
+          "message": "Keine Datei erfolgreich gespeichert | Eine Datei erfolgreich gespeichert | {count} / {total} Dateien erfolgreich gespeichert."
         },
         "failure": {
-          "title": "Fehler",
           "message": "Fehler beim Hochladen."
         },
         "illegalFilename": {
@@ -324,7 +272,6 @@
     "sw-media-url-form": {
       "title": "Datei über URL hochladen",
       "upload": "Hochladen",
-      "cancel": "Abbrechen",
       "example": "https://www.beispiel.de",
       "labelFileExtension": "Dateiendung",
       "missingFileExtension": "In der angegebenen URL konnte keine Dateiendung gefunden werden. Bitte gib eine Dateiendung an."
@@ -340,25 +287,19 @@
       "labelThumbnailSize": "Thumbnail-Größe",
       "labelEditList": "Liste bearbeiten",
       "labelStopEdit": "Bearbeiten beenden",
-      "labelSave": "Speichern",
-      "labelCancel": "Abbrechen",
       "labelKeepProportions": "Seitenverhältnis beibehalten",
-      "titleDeleteThumbnails": "Löschen",
       "notification": {
         "success": {
-          "title": "Erfolg",
           "message": "Einstellungen erfolgreich gespeichert."
         },
         "error": {
-          "title": "Fehler",
           "message": "Fehler beim Speichern der Einstellungen."
         }
       },
       "labelDefaultFolder": "Standardspeicherort für:"
     },
     "sw-media-add-thumbnail-form": {
-      "labelMaximumSize": "Maximalmaße",
-      "labelAdd": "Hinzufügen"
+      "labelMaximumSize": "Maximalmaße"
     },
     "sw-sidebar-media-item": {
       "title": "Medien",
@@ -479,7 +420,6 @@
         "deleteAllConditions": "Alle entfernen",
         "createBefore": "Davor erstellen",
         "createAfter": "Danach erstellen",
-        "delete": "Löschen",
         "hasDeliveryFreeItemRule": "Versandfreie Artikel",
         "timeRangeRule": "Zeitraum",
         "weightOfCartRule": "Warenkorb Gewicht",
@@ -490,7 +430,7 @@
     "sw-product-image": {
       "context": {
         "buttonAsCover": "Als Cover nutzen",
-        "buttonDelete": "Entfernen"
+        "buttonRemove": "Entfernen"
       }
     },
     "sw-simple-search-field": {
@@ -548,6 +488,7 @@
       "shipping_method": "Versandart | Versandarten",
       "snippet": "Textbaustein | Textbausteine",
       "tax": "Steuern",
+      "theme": "Theme | Themes",
       "unit": "Maßeinheit | Maßeinheiten",
       "user": "Benutzer",
       "delivery_time": "Lieferzeit | Lieferzeiten"
@@ -592,18 +533,14 @@
         "createSub": "Neues Unterlement",
         "createBefore": "Neues Element davor",
         "createAfter": "Neues Element danach",
-        "edit": "Bearbeiten",
-        "actionsDisabledInLanguage": "Elemente können nur in der Systemstandardsprache erstellt werden",
-        "delete": "Löschen"
+        "actionsDisabledInLanguage": "Elemente können nur in der Systemstandardsprache erstellt werden"
       }
     },
     "modal": {
       "modalTitleDelete": "Element löschen",
       "textDeleteConfirm": "Möchtest Du das Element \"{name}\" wirklich löschen?",
       "textDeleteMultipleConfirm": "Möchtest Du die \"{count}\" gewählten Elemente wirklich löschen?",
-      "textDeleteChildrenConfirm": "Alle unterliegenden Kategorien werden auch gelöscht.",
-      "buttonDelete": "Löschen",
-      "buttonCancel": "Abbrechen"
+      "textDeleteChildrenConfirm": "Alle unterliegenden Kategorien werden auch gelöscht."
     }
   },
   "sw-category-tree-field": {
@@ -611,7 +548,6 @@
   },
   "sw-error": {
     "general": {
-      "statusCodePlaceholder": "Fehler",
       "messagePlaceholder": "Es ist ein Fehler aufgetreten. Die Seite konnte nicht geladen werden.",
       "textLink": "Zurück"
     }
@@ -634,9 +570,7 @@
   "sw-language-switch": {
     "messageModalUnsavedChanges": "Du hast in der aktuellen Sprache noch ungespeicherte Änderungen. Möchtest Du diese jetzt speichern?",
     "titleModalUnsavedChanges": "Nicht gespeicherte Änderungen",
-    "titleModalButtonCancelUnsavedChanges": "Abbrechen",
-    "titleModalButtonRevertUnsavedChanges": "Änderungen verwerfen",
-    "titleModalButtonSaveChanges": "Speichern"
+    "titleModalButtonRevertUnsavedChanges": "Änderungen verwerfen"
   },
   "sw-inheritance-warning": {
     "infoTextInheritedField": "{moduleName} hat vererbte Felder. Das bedeutet, dass solange der vererbte Zustand aktiv ist, der Inhalt vererbt wird. Vererbte Felder können durch Anklicken des Link-Symbols aufgelöst werden. Ein erneuter Klick auf das Symbol setzt den vererbten Zustand wieder zurück."
@@ -659,21 +593,14 @@
     "messageModalUnsavedChanges": "Du hast noch ungespeicherte Änderungen in diesem Verkaufskanal. Möchtest Du diese jetzt speichern?",
     "placeholderSelect": "Suchen ...",
     "titleModalUnsavedChanges": "Nicht gespeicherte Änderungen",
-    "titleModalButtonCancelUnsavedChanges": "Abbrechen",
     "titleModalButtonRevertUnsavedChanges": "Änderungen verwerfen",
-    "titleModalButtonSaveChanges": "Speichern",
     "labelDefaultOption": "Alle Verkaufskanäle"
   },
   "sw-config-form-renderer": {
     "placeholder": "Bitte \"{name}\" ausfüllen ...",
     "option": "Für die Sprache \"{locale}\" wurde kein Label gesetzt ...",
     "configLoadErrorMessage": "Beim Laden der Konfiguration ist ein Fehler aufgetreten: | Beim Laden der Konfiguration sind Fehler aufgetreten:",
-    "configLoadErrorTitle": "Fehler beim Laden der Konfiguration!"
-  },
-  "sw-custom-field-set-renderer": {
-    "general":{
-      "labelButtonSave": "Speichern"
-    }
+    "configLoadErrorTitle": "Fehler beim Laden der Konfiguration."
   },
   "locale": {
     "de-DE": "Deutsch",
@@ -687,12 +614,8 @@
     "placeholderName": "Lege einen Namen für diese Regel fest ...",
     "labelPriority": "Priorität",
     "placeholderPriority": "Lege eine Priorität für diese Regel fest ...",
-    "buttonAbort": "Abbrechen",
-    "buttonSave": "Speichern",
-    "titleSaveSuccess": "Erfolg",
     "messageSaveSuccess": "Die Regel \"{name}\" wurde erfolgreich gespeichert.",
     "ruleCard": "Bedingungen",
-    "titleSaveError": "Fehler",
     "messageSaveError": "Beim Speichern der Regel \"{name}\" ist ein Fehler aufgetreten."
   },
   "sw-select-rule-create": {

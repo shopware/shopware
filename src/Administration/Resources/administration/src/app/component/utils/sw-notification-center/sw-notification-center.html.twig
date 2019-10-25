@@ -20,13 +20,13 @@
                 {% block sw_notification_center_content_header %}
                     <div class="sw-notification-center__header">
                         <h3 class="sw-notification-center__title">
-                            {{ $t('global.notification-center.title') }}
+                            {{ $tc('global.notification-center.title') }}
                         </h3>
 
                         {% block sw_notification_center_content_context_menu %}
                             <sw-context-button>
                                 <sw-context-menu-item variant="danger" @click="openDeleteModal">
-                                    {{ $t('global.notification-center.deleteModal.title') }}
+                                    {{ $tc('global.notification-center.deleteModal.title') }}
                                 </sw-context-menu-item>
                             </sw-context-button>
                         {% endblock %}
@@ -42,7 +42,7 @@
                         </sw-notification-center-item>
                         <div v-if="notifications.length === 0"
                              class="sw-notification-center__empty-text">
-                            {{ $t('global.notification-center.emptyText') }}
+                            {{ $tc('global.notification-center.emptyText') }}
                         </div>
                     </div>
                 {% endblock %}
@@ -64,7 +64,7 @@
                             {% block sw_notification_center_delete_modal_cancel %}
                             <sw-button @click="onCloseDeleteModal"
                                        size="small">
-                                {{ $tc('global.notification-center.deleteModal.cancel') }}
+                                {{ $tc('global.default.cancel') }}
                             </sw-button>
                         {% endblock %}
 
@@ -72,7 +72,7 @@
                             <sw-button @click="onConfirmDelete"
                                        variant="primary"
                                        size="small">
-                                {{ $tc('global.notification-center.deleteModal.delete') }}
+                                {{ $tc('global.default.delete') }}
                             </sw-button>
                         {% endblock %}
                     </template>

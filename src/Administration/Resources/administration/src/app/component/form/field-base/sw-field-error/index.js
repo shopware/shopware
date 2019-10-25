@@ -24,7 +24,7 @@ Component.register('sw-field-error', {
             }
 
             const translationKey = `global.error-codes.${this.error.code}`;
-            const translation = this.$t(translationKey, this.error.parameters || {});
+            const translation = this.$tc(translationKey, this.error.parameters || {});
 
             if (translation === translationKey) {
                 return this.error.detail;

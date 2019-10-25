@@ -73,8 +73,8 @@ Component.register('sw-settings-shopware-updates-wizard', {
             this.$emit('update-started');
             this.updaterIsRunning = true;
             this.createNotificationSuccess({
-                title: this.$t('sw-settings-shopware-updates.notifications.title'),
-                message: this.$t('sw-settings-shopware-updates.notifications.updateStarted')
+                title: this.$tc('sw-settings-shopware-updates.notifications.title'),
+                message: this.$tc('sw-settings-shopware-updates.notifications.updateStarted')
             });
 
             this.downloadUpdate(0);
@@ -91,14 +91,14 @@ Component.register('sw-settings-shopware-updates-wizard', {
                     this.downloadUpdate(response.offset);
                 } else {
                     this.createNotificationError({
-                        title: this.$t('sw-settings-shopware-updates.notifications.title'),
-                        message: this.$t('sw-settings-shopware-updates.notifications.downloadFailed')
+                        title: this.$tc('sw-settings-shopware-updates.notifications.title'),
+                        message: this.$tc('sw-settings-shopware-updates.notifications.downloadFailed')
                     });
                 }
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$t('sw-settings-shopware-updates.notifications.title'),
-                    message: this.$t('sw-settings-shopware-updates.notifications.downloadFailed')
+                    title: this.$tc('sw-settings-shopware-updates.notifications.title'),
+                    message: this.$tc('sw-settings-shopware-updates.notifications.downloadFailed')
                 });
             });
         },
@@ -114,8 +114,8 @@ Component.register('sw-settings-shopware-updates-wizard', {
                     this.unpackUpdate(response.offset);
                 } else {
                     this.createNotificationError({
-                        title: this.$t('sw-settings-shopware-updates.notifications.title'),
-                        message: this.$t('sw-settings-shopware-updates.notifications.unpackFailed')
+                        title: this.$tc('sw-settings-shopware-updates.notifications.title'),
+                        message: this.$tc('sw-settings-shopware-updates.notifications.unpackFailed')
                     });
                 }
             });
@@ -141,7 +141,7 @@ Component.register('sw-settings-shopware-updates-wizard', {
             }
 
             return {
-                message: this.$t('sw-settings-shopware-updates.infos.requirementsNotMet'),
+                message: this.$tc('sw-settings-shopware-updates.infos.requirementsNotMet'),
                 position: 'bottom'
             };
         },

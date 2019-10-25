@@ -68,7 +68,7 @@ Component.register('sw-media-media-item', {
             this.mediaService.renameMedia(item.id, updatedName).then(() => {
                 this.mediaStore.getByIdAsync(item.id).then(() => {
                     this.createNotificationSuccess({
-                        title: this.$tc('global.sw-media-media-item.notification.renamingSuccess.title'),
+                        title: this.$tc('global.default.success'),
                         message: this.$tc('global.sw-media-media-item.notification.renamingSuccess.message')
                     });
                 });
@@ -79,7 +79,7 @@ Component.register('sw-media-media-item', {
                 item.isLoading = false;
                 endInlineEdit();
                 this.createNotificationError({
-                    title: this.$tc('global.sw-media-media-item.notification.renamingError.title'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('global.sw-media-media-item.notification.renamingError.message')
                 });
             });
@@ -87,7 +87,7 @@ Component.register('sw-media-media-item', {
 
         rejectRenaming(endInlineEdit) {
             this.createNotificationError({
-                title: this.$tc('global.sw-media-media-item.notification.errorBlankItemName.title'),
+                title: this.$tc('global.default.error'),
                 message: this.$tc('global.sw-media-media-item.notification.errorBlankItemName.message')
             });
 

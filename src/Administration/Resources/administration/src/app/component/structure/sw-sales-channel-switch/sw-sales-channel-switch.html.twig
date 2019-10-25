@@ -13,7 +13,7 @@
                         {% block sw_sales_channel_switch_footer_button_close %}
                             <sw-button @click="onCloseChangesModal"
                                        size="small">
-                                {{ $tc('sw-sales-channel-switch.titleModalButtonCancelUnsavedChanges') }}
+                                {{ $tc('global.default.cancel') }}
                             </sw-button>
                         {% endblock %}
 
@@ -28,7 +28,7 @@
                             <sw-button @click="onClickSaveChanges"
                                        variant="primary"
                                        size="small">
-                                {{ $tc('sw-sales-channel-switch.titleModalButtonSaveChanges') }}
+                                {{ $tc('global.default.save') }}
                             </sw-button>
                         {% endblock %}
                     </template>

@@ -384,7 +384,7 @@ Component.register('sw-product-variants-overview', {
                 this.getList();
             }).catch(() => {
                 // create error notification
-                const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
+                const titleSaveError = this.$tc('global.default.error');
                 const messageSaveError = this.$tc(
                     'global.notification.notificationSaveErrorMessage', 0, { entityName: productName }
                 );

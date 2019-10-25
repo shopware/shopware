@@ -79,7 +79,7 @@
 
                             <template #delete-action="{ item, showDelete }">
                                 <sw-context-menu-item @click="showDelete(item.id)" :disabled="item.hasOrders" variant="danger">
-                                    {{ $tc('global.entity-components.deleteAction') }}
+                                    {{ $tc('global.default.delete') }}
                                 </sw-context-menu-item>
                             </template>
 

@@ -14,7 +14,7 @@ Add `a` links with `link` class or optional variant classes like `link-danger` o
 ```html
 <template #bulk>
     <a class="link link-danger" @click="showBulkDeleteModal = true">
-        {{ $tc('global.entity-components.deleteAction') }}
+        {{ $tc('global.default.delete') }}
     </a>
 
     <a class="link" @click="showBulkAwesomeModal = true">
@@ -39,11 +39,11 @@ Typical modal using the `#bulk-modal` slot with content as you already know e.g.
 
         <template #modal-footer>
             <sw-button @click="showBulkDeleteModal = false" size="small">
-                {{ $tc('global.entity-components.deleteCancel') }}
+                {{ $tc('global.default.cancel') }}
             </sw-button>
 
             <sw-button @click="deleteItems" variant="primary" size="small" :isLoading="isBulkLoading">
-                {{ $tc('global.entity-components.deleteAction') }}
+                {{ $tc('global.default.delete') }}
             </sw-button>
         </template>
     </sw-modal>

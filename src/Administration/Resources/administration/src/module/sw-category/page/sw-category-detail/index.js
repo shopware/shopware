@@ -333,7 +333,7 @@ Component.register('sw-category-detail', {
 
                 const categoryName = this.category.name || this.category.translated.name;
                 this.createNotificationError({
-                    title: this.$tc('global.notification.notificationSaveErrorTitle'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc(
                         'global.notification.notificationSaveErrorMessage',
                         0,

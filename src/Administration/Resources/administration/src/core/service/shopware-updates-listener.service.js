@@ -27,9 +27,9 @@ export default function addShopwareUpdatesListener(loginService, serviceContaine
 
     function createUpdatesAvailableNotification(response) {
         const cancelLabel =
-            getApplicationRootReference().$t('global.notification-center.shopware-updates-listener.cancel');
+            getApplicationRootReference().$tc('global.default.cancel');
         const updateLabel =
-            getApplicationRootReference().$t('global.notification-center.shopware-updates-listener.updateNow');
+            getApplicationRootReference().$tc('global.notification-center.shopware-updates-listener.updateNow');
 
         const notification = {
             title: getApplicationRootReference().$t(

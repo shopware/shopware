@@ -40,7 +40,7 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        if ($request->attributes->get('auth_required', null) === false) {
+        if (!$request->attributes->get('auth_required', true)) {
             return;
         }
 

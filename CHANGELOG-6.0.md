@@ -152,6 +152,12 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
 * Core
     * Moved the seo module from the storefront into the core.
     * Switched the execution condition of `\Shopware\Core\Framework\Migration\MigrationStep::addBackwardTrigger()` and `\Shopware\Core\Framework\Migration\MigrationStep::addForwardTrigger()` to match the execution conditions in the methods documentation.
+    * When a sub entity is written or deleted, a written event is dispatched for the configured root entity. 
+        - Example for mapping entities: Writing a `product_category` entity now also dispatches a `product.written` and `category.written` event
+        - Example for simple sub entities: Writing a `product_price` entity now also dispatches a `product_category` event
+        - Example for nested sub entities: Writing a `order_delivery_position` entity now also dispatches a `order_delivery.written` and a `order.written` event
+    * Required authentication for requests to `/api/v{version}/_info/business-events.json` and `/api/v{version}/_info/entity-schema.json` routes
+    * Added `shopware.api.api_browser.auth_required` config value to configure if the access to the open api routes must be authenticated
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain
@@ -160,10 +166,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
 
 * Administration
 * Core
-    * When a sub entity is written or deleted, a written event is dispatched for the configured root entity. 
-        - Example for mapping entities: Writing a `product_category` entity now also dispatches a `product.written` and `category.written` event
-        - Example for simple sub entities: Writing a `product_price` entity now also dispatches a `product_category` event
-        - Example for nested sub entities: Writing a `order_delivery_position` entity now also dispatches a `order_delivery.written` and a `order.written` event
+    * Removed `shopware.api.api_browser.public` config value
 * Storefront
     * Removed `\Shopware\Storefront\Framework\Cache\CacheWarmer\Navigation\NavigationRouteMessage`
     * Removed `\Shopware\Storefront\Framework\Cache\CacheWarmer\Product\ProductRouteMessage`

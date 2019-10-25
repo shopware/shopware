@@ -14,6 +14,7 @@
                  public="true">
             <argument type="service" id="Shopware\Core\Framework\Twig\TemplateFinder"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient"/>
+            <argument type="service" id="Shopware\Administration\Snippet\SnippetFinder"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -21,6 +22,15 @@
 
         <service id="Shopware\Administration\Framework\Routing\AdministrationRouteScope">
             <tag name="shopware.route_scope"/>
+        </service>
+
+        <service id="Shopware\Administration\Snippet\SnippetFinder">
+            <argument type="service" id="kernel" />
+        </service>
+
+        <service id="Shopware\Administration\Snippet\CachedSnippetFinder" decorates="Shopware\Administration\Snippet\SnippetFinder">
+            <argument type="service" id="Shopware\Administration\Snippet\CachedSnippetFinder.inner" />
+            <argument type="service" id="cache.object" />
         </service>
     </services>
 </container>

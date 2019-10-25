@@ -97,7 +97,7 @@ class ApiAuthenticationListener implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        if ($request->attributes->get('auth_required') === false) {
+        if (!$request->attributes->get('auth_required', true)) {
             return;
         }
 

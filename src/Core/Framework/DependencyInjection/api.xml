@@ -3,7 +3,6 @@
 <container xmlns="http://symfony.com/schema/dic/services"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
-
     <services>
         <service id="Shopware\Core\Framework\Routing\RequestTransformerInterface"
                  class="Shopware\Core\Framework\Routing\RequestTransformer"
@@ -127,7 +126,6 @@
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
             <argument type="service" id="parameter_bag"/>
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventRegistry"/>
-            <argument>%shopware.api.api_browser.public%</argument>
             <argument type="service" id="kernel" />
             <argument type="service" id="assets.packages" />
             <call method="setContainer">

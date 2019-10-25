@@ -1,17 +1,27 @@
-import EntityProxy from 'src/core/data/EntityProxy';
-import CriteriaFactory from 'src/core/factory/criteria.factory';
+import pageState from './state';
 import template from './sw-category-detail.html.twig';
 import './sw-category-detail.scss';
 
 const { Component, Mixin, State } = Shopware;
+const { Criteria, ChangesetGenerator } = Shopware.Data;
 const { cloneDeep, merge } = Shopware.Utils.object;
-const { warn } = Shopware.Utils.debug;
 const type = Shopware.Utils.types;
 
 Component.register('sw-category-detail', {
     template,
 
-    inject: ['cmsPageService', 'cmsService'],
+    inject: [
+        'cmsPageService',
+        'cmsService',
+        'repositoryFactory',
+        'context'
+    ],
+
+    provide() {
+        return {
+            openMediaSidebar: this.openMediaSidebar
+        };
+    },
 
     mixins: [
         Mixin.getByName('notification'),
@@ -23,23 +33,24 @@ Component.register('sw-category-detail', {
         ESCAPE: 'cancelEdit'
     },
 
+    props: {
+        categoryId: {
+            type: String,
+            required: false,
+            default: null
+        }
+    },
+
     data() {
         return {
-            category: null,
-            cmsPage: null,
-            cmsPageState: this.$store.state.cmsPageState,
-            categories: [],
+            term: '',
             isLoading: false,
-            isLoadingCategory: false,
-            isLoadingInitialData: true,
-            mediaItem: null,
+            isSaveSuccessful: false,
             isMobileViewport: null,
             splitBreakpoint: 1024,
             isDisplayingLeavePageWarning: false,
             nextRoute: null,
-            disableContextMenu: false,
-            term: '',
-            isSaveSuccessful: false
+            currentLanguageId: this.context.languageId
         };
     },
 
@@ -54,20 +65,28 @@ Component.register('sw-category-detail', {
             return this.category ? this.placeholder(this.category, 'name') : '';
         },
 
-        categoryStore() {
-            return State.getStore('category');
+        categoryRepository() {
+            return this.repositoryFactory.create('category');
         },
 
-        cmsPageStore() {
-            return State.getStore('cms_page');
+        cmsPageRepository() {
+            return this.repositoryFactory.create('cms_page');
         },
 
-        mediaStore() {
-            return State.getStore('media');
+        category() {
+            return this.$store.state.swCategoryDetail.category;
         },
 
-        uploadStore() {
-            return State.getStore('upload');
+        cmsPage() {
+            return this.$store.state.cmsPageState.currentPage;
+        },
+
+        cmsPageId() {
+            return this.category ? this.category.cmsPageId : null;
+        },
+
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
         },
 
         languageStore() {
@@ -99,18 +118,34 @@ Component.register('sw-category-detail', {
     },
 
     watch: {
-        '$route.params.id'() {
+        categoryId() {
             this.setCategory();
-            this.$refs.searchBar.clearSearchTerm();
+        },
+
+        cmsPageId() {
+            if (!this.isLoading) {
+                this.category.slotConfig = null;
+                this.$store.dispatch('cmsPageState/resetCmsPageState')
+                    .then(this.getAssignedCmsPage);
+            }
         }
+    },
+
+    beforeCreate() {
+        this.$store.registerModule('swCategoryDetail', pageState);
+        this.$store.dispatch('cmsPageState/resetCmsPageState');
     },
 
     created() {
         this.createdComponent();
     },
 
+    beforeDestroy() {
+        this.$store.unregisterModule('swCategoryDetail');
+    },
+
     beforeRouteLeave(to, from, next) {
-        if (this.category && this.category.hasChanges()) {
+        if (this.category && this.categoryRepository.hasChanges(this.category)) {
             this.isDisplayingLeavePageWarning = true;
             this.nextRoute = to;
             next(false);
@@ -125,16 +160,12 @@ Component.register('sw-category-detail', {
             this.checkViewport();
             this.registerListener();
 
-            this.disableContextMenu = this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId;
-
-            this.getCategories().then(() => {
-                this.setCategory();
-            });
+            this.setCategory();
         },
 
         registerListener() {
             this.$device.onResize({
-                listener: this.checkViewport.bind(this)
+                listener: this.checkViewport
             });
         },
 
@@ -149,66 +180,28 @@ Component.register('sw-category-detail', {
             this.isMobileViewport = this.$device.getViewportWidth() < this.splitBreakpoint;
         },
 
-        getCategories(parentId = null) {
-            if (parentId === null) {
-                this.isLoading = true;
+        getAssignedCmsPage() {
+            if (this.cmsPageId === null) {
+                return Promise.resolve(null);
             }
 
-            const params = {
-                page: 1,
-                limit: 500,
-                criteria: CriteriaFactory.equals('category.parentId', parentId),
-                associations: {
-                    media: {},
-                    navigationSalesChannels: {},
-                    serviceSalesChannels: {},
-                    footerSalesChannels: {}
-                }
-            };
-            return this.categoryStore.getList(params, true).then((response) => {
-                this.categories = Object.values(this.categoryStore.store);
-                this.isLoading = false;
-                this.isLoadingInitialData = false;
-                return response.items;
-            });
-        },
+            const criteria = new Criteria(1, 1);
+            criteria.setIds([this.cmsPageId]);
+            criteria.addAssociation('previewMedia');
+            criteria.addAssociation('sections');
+            criteria.getAssociation('sections').addSorting(Criteria.sort('position'));
 
-        getAssignedCmsPage(cmsPageId) {
-            this.$store.commit('cmsPageState/removeCurrentPage');
+            criteria.addAssociation('sections.blocks');
+            criteria.getAssociation('sections.blocks')
+                .addSorting(Criteria.sort('position', 'ASC'))
+                .addAssociation('slots');
 
-            if (cmsPageId === null) {
-                this.cmsPage = null;
-                return false;
-            }
-
-            const params = {
-                page: 1,
-                limit: 1,
-                criteria: CriteriaFactory.equals('cms_page.id', cmsPageId),
-                associations: {
-                    previewMedia: {},
-                    sections: {
-                        sort: 'position',
-                        associations: {
-                            blocks: {
-                                sort: 'position',
-                                associations: {
-                                    slots: {}
-                                }
-                            }
-                        }
-                    }
-                }
-            };
-
-            return this.cmsPageStore.getList(params, true).then((response) => {
-                const cmsPage = new EntityProxy('cms_page', this.cmsPageService, response.items[0].id, null);
-                cmsPage.setData(response.items[0], false, true, false);
-
+            return this.cmsPageRepository.search(criteria, this.context).then((response) => {
+                const cmsPage = response.get(this.cmsPageId);
                 if (this.category.slotConfig !== null) {
-                    cmsPage.getAssociation('sections').forEach((section) => {
-                        section.getAssociation('blocks').forEach((block) => {
-                            block.getAssociation('slots').forEach((slot) => {
+                    cmsPage.sections.forEach((section) => {
+                        section.blocks.forEach((block) => {
+                            block.slots.forEach((slot) => {
                                 if (this.category.slotConfig[slot.id]) {
                                     merge(slot.config, cloneDeep(this.category.slotConfig[slot.id]));
                                 }
@@ -217,9 +210,8 @@ Component.register('sw-category-detail', {
                     });
                 }
 
-                this.cmsPage = cmsPage;
-                this.$store.commit('cmsPageState/setCurrentPage', this.cmsPage);
-
+                this.updateCmsPageDataMapping();
+                this.$store.commit('cmsPageState/setCurrentPage', cmsPage);
                 return this.cmsPage;
             });
         },
@@ -233,57 +225,30 @@ Component.register('sw-category-detail', {
             this.$store.commit('cmsPageState/setCurrentDemoEntity', this.category);
         },
 
-        onCmsPageChange(cmsPageId) {
-            this.category.slotConfig = null;
-
-            this.getAssignedCmsPage(cmsPageId);
-        },
-
         setCategory() {
-            const categoryId = this.$route.params.id;
             this.isLoading = true;
 
-            if (!this.category) {
-                this.isLoadingCategory = true;
-            }
-
-            if (this.category) {
-                this.category.discardChanges();
-            }
-
-            if (this.$route.params.id) {
-                return this.getCategory(categoryId).then(response => {
-                    this.category = response;
-                    this.getAssignedCmsPage(this.category.cmsPageId);
-                    this.updateCmsPageDataMapping();
-
-                    this.$nextTick(() => {
-                        if (this.$refs.categoryView &&
-                            this.$refs.categoryView.$refs &&
-                            this.$refs.categoryView.$refs.categoryRouterView &&
-                            type.isFunction(this.$refs.categoryView.$refs.categoryRouterView.getList)) {
-                            this.$refs.categoryView.$refs.categoryRouterView.getList();
-                        }
+            if (this.categoryId === null) {
+                return this.$store.dispatch('swCategoryDetail/setActiveCategory', { category: null })
+                    .then(() => this.$store.dispatch('cmsPageState/resetCmsPageState'))
+                    .then(() => {
+                        this.isLoading = false;
                     });
-
-                    this.mediaItem = this.category.mediaId ? this.mediaStore.getById(this.category.mediaId) : null;
-                    this.isLoading = false;
-                    this.isLoadingCategory = false;
-                });
             }
-            this.isLoading = false;
-            this.isLoadingCategory = false;
-            this.category = null;
-            this.mediaItem = null;
-            return Promise.resolve;
-        },
 
-        onRefreshCategories() {
-            this.getCategories();
+            return this.$store.dispatch('swCategoryDetail/loadActiveCategory', {
+                repository: this.categoryRepository,
+                context: this.context,
+                id: this.categoryId
+            }).then(() => this.$store.dispatch('cmsPageState/resetCmsPageState'))
+                .then(this.getAssignedCmsPage)
+                .then(() => {
+                    this.isLoading = false;
+                });
         },
 
         onSaveCategories() {
-            return this.categoryStore.sync();
+            return this.categoryRepository.save(this.category, this.context);
         },
 
         openChangeModal(destination) {
@@ -298,86 +263,49 @@ Component.register('sw-category-detail', {
 
         onLeaveModalConfirm(destination) {
             this.isDisplayingLeavePageWarning = false;
-            this.category.discardChanges();
             this.$nextTick(() => {
                 this.$router.push({ name: destination.name, params: destination.params });
             });
         },
 
         cancelEdit() {
-            this.category.discardChanges();
             this.resetCategory();
         },
 
         resetCategory() {
             this.$router.push({ name: 'sw.category.index' });
-            this.isLoading = true;
-            this.category = null;
-            this.mediaItem = null;
         },
 
-        getCategory(categoryId) {
-            return this.categoryStore.getByIdAsync(categoryId);
-        },
-
-        onUploadAdded(uploadTag) {
-            this.isLoading = true;
-            this.mediaStore.sync().then(() => {
-                return this.uploadStore.runUploads(uploadTag);
-            }).finally(() => {
-                this.isLoading = false;
-            });
-        },
-
-        openSidebar() {
+        openMediaSidebar() {
             this.$refs.mediaSidebarItem.openContent();
         },
 
-        setMediaItem(media) {
-            this.mediaItem = media;
-            this.category.mediaId = media.id;
-        },
-
-        onDropMedia(dragItem) {
-            this.setMediaItem(dragItem);
-        },
-
-        removeMediaItem() {
-            this.category.mediaId = null;
-            this.mediaItem = null;
-        },
-
-        onUnlinkLogo() {
-            this.mediaItem = null;
-            this.category.mediaId = null;
-        },
-
-        onChangeLanguage() {
-            this.disableContextMenu = this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId;
-            this.isLoadingInitialData = true;
-            this.getCategories().then(() => {
-                this.setCategory();
+        setMediaItemFromSidebar(sideBarMedia) {
+            // be consistent and fetch from repository
+            this.mediaRepository.get(sideBarMedia.id, this.context).then((media) => {
+                this.category.mediaId = media.id;
+                this.category.media = media;
             });
         },
 
+        onChangeLanguage(newLanguageId) {
+            this.currentLanguageId = newLanguageId;
+            this.setCategory();
+        },
+
         abortOnLanguageChange() {
-            return this.category ? this.category.hasChanges() : false;
+            return this.category ? this.categoryRepository.hasChanges(this.category) : false;
         },
 
         saveOnLanguageChange() {
             return this.onSave();
         },
 
-
         saveFinish() {
             this.isSaveSuccessful = false;
         },
 
         onSave() {
-            const categoryName = this.category.name || this.category.translated.name;
-            const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
-            const messageSaveError = this.$tc('global.notification.notificationSaveErrorMessage',
-                0, { entityName: categoryName });
             this.isSaveSuccessful = false;
 
             const pageOverrides = this.getCmsPageOverrides();
@@ -387,49 +315,62 @@ Component.register('sw-category-detail', {
             }
 
             this.isLoading = true;
-            return this.category.save().then(() => {
+            return this.categoryRepository.save(this.category, this.context).then(() => {
                 this.isSaveSuccessful = true;
-                this.setCategory();
-            }).catch(exception => {
+                return this.setCategory();
+            }).catch(() => {
                 this.isLoading = false;
+
+                const categoryName = this.category.name || this.category.translated.name;
                 this.createNotificationError({
-                    title: titleSaveError,
-                    message: messageSaveError
+                    title: this.$tc('global.notification.notificationSaveErrorTitle'),
+                    message: this.$tc(
+                        'global.notification.notificationSaveErrorMessage',
+                        0,
+                        { entityName: categoryName }
+                    )
                 });
-                warn(this._name, exception.message, exception.response);
             });
         },
 
-        getCmsPageOverrides(page = this.cmsPage) {
-            if (page === null) {
+        getCmsPageOverrides() {
+            if (this.cmsPage === null) {
                 return null;
             }
 
+            const changesetGenerator = new ChangesetGenerator();
+            const { changes } = changesetGenerator.generate(this.cmsPage);
+
             const slotOverrides = {};
-            const changedBlocks = page.getChangedAssociations().blocks;
+            if (changes === null) {
+                return slotOverrides;
+            }
 
-            if (type.isArray(changedBlocks)) {
-                changedBlocks.forEach((block) => {
-                    if (block.slots && block.slots.length > 0) {
-                        block.slots.forEach((slot) => {
-                            if (type.isPlainObject(slot.config)) {
-                                const slotConfig = {};
+            if (type.isArray(changes.sections)) {
+                changes.sections.forEach((section) => {
+                    if (type.isArray(section.blocks)) {
+                        section.blocks.forEach((block) => {
+                            if (type.isArray(block.slots)) {
+                                block.slots.forEach((slot) => {
+                                    if (type.isPlainObject(slot.config)) {
+                                        const slotConfig = {};
 
-                                Object.keys(slot.config).forEach((key) => {
-                                    if (slot.config[key].value !== null) {
-                                        slotConfig[key] = slot.config[key];
+                                        Object.keys(slot.config).forEach((key) => {
+                                            if (slot.config[key].value !== null) {
+                                                slotConfig[key] = slot.config[key];
+                                            }
+                                        });
+
+                                        if (Object.keys(slotConfig).length > 0) {
+                                            slotOverrides[slot.id] = slotConfig;
+                                        }
                                     }
                                 });
-
-                                if (Object.keys(slotConfig).length > 0) {
-                                    slotOverrides[slot.id] = slotConfig;
-                                }
                             }
                         });
                     }
                 });
             }
-
             return slotOverrides;
         }
     }

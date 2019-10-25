@@ -6,20 +6,19 @@
             :items="categories"
             :sortable="true"
             :searchable="false"
-            :activeTreeItemId="activeTreeItemId"
+            :activeTreeItemId="categoryId"
             :translationContext="translationContext"
             :onChangeRoute="changeCategory"
             :disableContextMenu="disableContextMenu"
+            @batch-delete="deleteCheckedItems"
             @delete-element="onDeleteCategory"
-            @save-tree-items="saveCategories"
             @drag-end="onUpdatePositions"
-            @get-tree-items="onGetTreeItems">
-
+            @get-tree-items="onGetTreeItems"
+            @editing-end="syncSiblings">
 
             {% block sw_category_tree_items %}
                 <template
-                    slot="items"
-                    slot-scope="{
+                    #items="{
                         treeItems,
                         sortable,
                         draggedItem,
@@ -30,7 +29,7 @@
                         disableContextMenu
                     }">
                     <sw-tree-item
-                        v-for="(item, index) in treeItems"
+                        v-for="item in treeItems"
                         :key="item.id"
                         :item="item"
                         :active="item.active"
@@ -46,6 +45,6 @@
             {% endblock %}
         </sw-tree>
 
-        <sw-loader v-if="isLoadingInitialData"></sw-loader>
+        <sw-loader v-else></sw-loader>
     </div>
 {% endblock %}

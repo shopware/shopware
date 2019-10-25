@@ -1,6 +1,5 @@
 {% block sw_category_view %}
     <sw-card-view class="sw-category-view">
-
         {% block sw_category_view_language_info %}
             <sw-language-info
                 :entityDescription="placeholder(category, 'name', $tc('sw-manufacturer.detail.textHeadline'))">
@@ -30,20 +29,7 @@
         {% endblock %}
 
         {% block sw_category_view_content %}
-            <router-view
-                ref="categoryRouterView"
-                :category="category"
-                :cmsPage="cmsPage"
-                :mediaItem="mediaItem"
-                :isLoading="isLoading"
-                @media-drop="$emit('media-drop', $event)"
-                @layout-change="onCmsLayoutChange"
-                @sidebar-open="openSidebar"
-                @media-set="setMediaItem"
-                @media-upload="onUploadAdded"
-                @media-remove="onUnlinkLogo">
-            </router-view>
+            <router-view :isLoading="isLoading"></router-view>
         {% endblock %}
-
     </sw-card-view>
 {% endblock %}

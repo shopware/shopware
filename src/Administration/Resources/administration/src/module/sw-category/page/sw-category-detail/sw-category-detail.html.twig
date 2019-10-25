@@ -1,7 +1,6 @@
 {% block sw_category %}
     <sw-page class="sw-category" :class="pageClasses">
-
-        <template slot="search-bar">
+        <template #search-bar>
             {% block sw_category_search_bar %}
                 <sw-search-bar
                     initialSearchType="category"
@@ -13,14 +12,14 @@
             {% endblock %}
         </template>
 
-        <template slot="smart-bar-header">
+        <template #smart-bar-header>
             {% block sw_category_smart_bar_header %}
                 <h2 v-if="category">{{ placeholder(category, 'name') }}</h2>
                 <h2 v-else>{{ $tc('sw-category.general.headlineCategories') }}</h2>
             {% endblock %}
         </template>
 
-        <template slot="language-switch">
+        <template #language-switch>
             {% block sw_category_language_switch %}
                 <sw-language-switch
                     @on-change="onChangeLanguage"
@@ -30,7 +29,7 @@
             {% endblock %}
         </template>
 
-        <template slot="smart-bar-actions">
+        <template #smart-bar-actions>
             <template v-if="category">
                 {% block sw_category_smart_bar_abort %}
                     <sw-button :disabled="isLoading" v-tooltip.bottom="tooltipCancel" @click="cancelEdit">
@@ -53,39 +52,24 @@
             </template>
         </template>
 
-        <template slot="side-content">
+        <template #side-content>
             {% block sw_category_side_content %}
                 <sw-category-tree
-                    :categories="categories"
-                    :isLoadingInitialData="isLoadingInitialData"
-                    :activeCategory="category"
-                    :disableContextMenu="disableContextMenu"
-                    @save="onSaveCategories"
-                    @refresh="onRefreshCategories"
-                    @details-reset="resetCategory"
-                    @children-load="getCategories"
+                    :categoryId="categoryId"
+                    :currentLanguageId="currentLanguageId"
                     @unsaved-changes="openChangeModal"
                 ></sw-category-tree>
             {% endblock %}
         </template>
 
         {% block sw_category_content %}
-            <template slot="content">
+            <template #content>
 
                 {% block sw_category_content_view %}
                     <sw-category-view
                         v-if="category"
                         ref="categoryView"
-                        :category="category"
-                        :cmsPage="cmsPage"
-                        :mediaItem="mediaItem"
                         :isLoading="isLoading"
-                        @media-drop="onDropMedia"
-                        @page-change="getAssignedCmsPage"
-                        @sidebar-open="openSidebar"
-                        @media-set="setMediaItem"
-                        @media-upload="onUploadAdded"
-                        @media-remove="onUnlinkLogo"
                     ></sw-category-view>
                 {% endblock %}
 
@@ -97,7 +81,7 @@
                 {% endblock %}
 
                 {% block sw_category_content_loader %}
-                    <sw-loader v-if="isLoadingInitialData || isLoadingCategory"></sw-loader>
+                    <sw-loader v-if="isLoading"></sw-loader>
                 {% endblock %}
 
                 {% block sw_category_content_empty %}
@@ -108,15 +92,17 @@
         {% endblock %}
 
         {% block sw_category_sidebar %}
-            <sw-sidebar slot="sidebar">
-                <sw-sidebar-media-item ref="mediaSidebarItem">
-                    <template slot="context-menu-items" slot-scope="media">
-                        <sw-context-menu-item @click="setMediaItem(media.mediaItem)">
-                            {{ $tc('sw-category.general.useAsLogo') }}
-                        </sw-context-menu-item>
-                    </template>
-                </sw-sidebar-media-item>
-            </sw-sidebar>
+            <template #sidebar>
+                <sw-sidebar>
+                    <sw-sidebar-media-item ref="mediaSidebarItem">
+                        <template #context-menu-items="media">
+                            <sw-context-menu-item @click="setMediaItemFromSidebar(media.mediaItem)">
+                                {{ $tc('sw-category.general.useAsLogo') }}
+                            </sw-context-menu-item>
+                        </template>
+                    </sw-sidebar-media-item>
+                </sw-sidebar>
+            </template>
         {% endblock %}
     </sw-page>
 {% endblock %}

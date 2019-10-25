@@ -1,3 +1,5 @@
+import Criteria from './criteria.data';
+
 export default class EntityCollection extends Array {
     constructor(source, entity, context, criteria = null, entities = [], total = null, aggregations = null) {
         super();
@@ -173,5 +175,22 @@ export default class EntityCollection extends Array {
                 this.aggregations
             );
         };
+    }
+
+    /**
+     * Returns a new collection from given one with
+     * @param collection
+     * @returns {EntityCollection}
+     */
+    static fromCollection(collection) {
+        return new EntityCollection(
+            collection.source,
+            collection.entity,
+            collection.context,
+            Criteria.fromCriteria(collection.criteria),
+            collection,
+            collection.total,
+            collection.aggregations
+        );
     }
 }

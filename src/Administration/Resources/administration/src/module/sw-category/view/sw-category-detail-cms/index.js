@@ -6,23 +6,9 @@ const { Component } = Shopware;
 Component.register('sw-category-detail-cms', {
     template,
 
-    props: {
-        category: {
-            type: Object,
-            required: true
-        },
-        cmsPage: {
-            type: Object,
-            default: null
-        },
-        mediaItem: {
-            type: Object,
-            required: false,
-            default: null
-        },
-        isLoading: {
-            type: Boolean,
-            required: true
+    computed: {
+        cmsPage() {
+            return this.$store.state.cmsPageState.currentPage;
         }
     }
 });

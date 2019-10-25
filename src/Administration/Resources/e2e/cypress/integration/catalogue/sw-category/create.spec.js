@@ -20,7 +20,7 @@ describe('Category: Create several categories', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/category?_response=true',
+            url: '/api/v1/category',
             method: 'post'
         }).as('saveData');
 
@@ -35,7 +35,7 @@ describe('Category: Create several categories', () => {
 
         // Verify category
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+            expect(xhr).to.have.property('status', 204);
         });
         cy.get('.sw-confirm-field__button-list').then((btn) => {
             if (btn.attr('style').includes('display: none;')) {
@@ -53,7 +53,7 @@ describe('Category: Create several categories', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/category?_response=true',
+            url: '/api/v1/category',
             method: 'post'
         }).as('saveData');
 
@@ -68,7 +68,7 @@ describe('Category: Create several categories', () => {
 
         // Verify category
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+            expect(xhr).to.have.property('status', 204);
         });
         cy.get('.sw-confirm-field__button-list').then((btn) => {
             if (btn.attr('style').includes('display: none;')) {
@@ -86,7 +86,7 @@ describe('Category: Create several categories', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/category?_response=true',
+            url: '/api/v1/category',
             method: 'post'
         }).as('saveData');
         cy.route({
@@ -115,7 +115,7 @@ describe('Category: Create several categories', () => {
 
         // Save and verify category
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+            expect(xhr).to.have.property('status', 204);
         });
         cy.get('.sw-confirm-field__button-list').then((btn) => {
             if (btn.attr('style').includes('display: none;')) {
@@ -135,7 +135,7 @@ describe('Category: Create several categories', () => {
         cy.get('#categoryActive').click();
         cy.get('.sw-category-detail__save-action').click();
         cy.wait('@editCategory').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+            expect(xhr).to.have.property('status', 204);
         });
 
         // Verify category in Storefront

@@ -32,10 +32,10 @@
         "base": {
             "general": {
                 "categoryNameLabel": "Name",
-                "linkLabel": "Link destination",
                 "headlineInformationCard": "General",
                 "isCategoryActiveLabel": "Category is active",
                 "useAsLink": "Use as link",
+                "labelCategoryTags": "Tags",
 
                 "types": {
                     "title": "Category type",
@@ -83,21 +83,16 @@
                 "example": "Example:",
                 "internalExampleText": "/my-category",
                 "externalDesc": "To set external links, insert the complete web address:",
-                "internalDesc": "If you want to create an internal link, just add the path that follows the domain:"
+                "internalDesc": "If you want to create an internal link, just add the path that follows the domain:",
+                "linkLabel": "Link destination"
             },
 
             "products": {
                 "productAssignmentHeadline": "Product assignment",
                 "productAssignmentPlaceholder": "Search and assign products...",
-                "productAssignmentActionDetails": "Details",
-                "productAssignmentActionRemove": "Remove",
-                "productAssignmentActionUndo": "Undo",
-                "productAssignmentEmptyText": "No products found",
-                "productAssignmentEmptyStateTitle": "No products assigned",
-                "productAssignmentEmptyStateSubline": "Use search to add products",
+                "productAssignmentEmptyStateDescription": "No products assigned",
                 "columnNameLabel": "Name",
-                "columnManufacturerLabel": "Manufacturer",
-                "showSubcategoryProductsLabel": "Show products from subcategories"
+                "columnManufacturerLabel": "Manufacturer"
             }
         },
 

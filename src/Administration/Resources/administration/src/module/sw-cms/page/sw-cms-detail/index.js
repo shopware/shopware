@@ -597,6 +597,11 @@ Component.register('sw-cms-detail', {
         },
 
         onBlockDuplicate(block, section) {
+            this.cloneBlockInSection(block, section);
+            this.updateSectionAndBlockPositions();
+        },
+
+        cloneBlockInSection(block, section) {
             const newBlock = this.blockRepository.create();
 
             const blockClone = cloneDeep(block);
@@ -611,7 +616,6 @@ Component.register('sw-cms-detail', {
             this.cloneSlotsInBlock(block, newBlock);
 
             section.blocks.splice(newBlock.position, 0, newBlock);
-            this.updateSectionAndBlockPositions();
         },
 
         cloneSlotsInBlock(block, newBlock) {
@@ -639,16 +643,7 @@ Component.register('sw-cms-detail', {
             Object.assign(newSection, sectionClone);
 
             section.blocks.forEach((block) => {
-                const newBlock = this.blockRepository.create();
-
-                const blockClone = cloneDeep(block);
-                blockClone.id = newBlock.id;
-                blockClone.position = block.position + 1;
-                blockClone.sectionId = section.id;
-                blockClone.slots = [];
-
-                this.cloneSlotsInBlock(block, blockClone);
-                newSection.blocks.push(blockClone);
+                this.cloneBlockInSection(block, newSection);
             });
 
             this.page.sections.splice(newSection.position, 0, newSection);

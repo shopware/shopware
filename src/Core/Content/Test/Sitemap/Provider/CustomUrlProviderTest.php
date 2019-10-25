@@ -20,7 +20,7 @@ class CustomUrlProviderTest extends TestCase
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
 
-        static::assertSame([], $customUrlProvider->getUrls($salesChannelContext));
+        static::assertSame([], $customUrlProvider->getUrls($salesChannelContext, 100)->getUrls());
     }
 
     public function testGetUrlsReturnsAllUrlsForSalesChannel(): void
@@ -48,7 +48,7 @@ class CustomUrlProviderTest extends TestCase
 
         $customUrlProvider = $this->getCustomUrlProvider($configHandlerStub);
 
-        static::assertCount(1, $customUrlProvider->getUrls($salesChannelContext));
+        static::assertCount(1, $customUrlProvider->getUrls($salesChannelContext, 100)->getUrls());
     }
 
     public function testGetUrlsReturnsAllUrlsForSalesChannelIdNull(): void
@@ -82,10 +82,12 @@ class CustomUrlProviderTest extends TestCase
 
         $customUrlProvider = $this->getCustomUrlProvider($configHandlerStub);
 
-        $urls = $customUrlProvider->getUrls($salesChannelContext);
+        $urls = $customUrlProvider->getUrls($salesChannelContext, 100)->getUrls();
+
+        [$firstUrl, $secondUrl] = $urls;
         static::assertCount(2, $urls);
-        static::assertSame('bar', $urls[0]->getLoc());
-        static::assertSame('fooBar', $urls[1]->getLoc());
+        static::assertSame('bar', $firstUrl->getLoc());
+        static::assertSame('fooBar', $secondUrl->getLoc());
     }
 
     public function testGetUrlsReturnsNoUrlsWrongSalesChannelId(): void
@@ -107,7 +109,7 @@ class CustomUrlProviderTest extends TestCase
 
         $customUrlProvider = $this->getCustomUrlProvider($configHandlerStub);
 
-        static::assertEmpty($customUrlProvider->getUrls($salesChannelContext));
+        static::assertEmpty($customUrlProvider->getUrls($salesChannelContext, 100)->getUrls());
     }
 
     private function getCustomUrlProvider(ConfigHandler $configHandlerStub): CustomUrlProvider

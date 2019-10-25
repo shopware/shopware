@@ -14,7 +14,7 @@ use function sprintf;
 class SitemapExporter implements SitemapExporterInterface
 {
     /**
-     * @var SitemapWriter
+     * @var SitemapWriterInterface
      */
     private $sitemapWriter;
 
@@ -42,7 +42,7 @@ class SitemapExporter implements SitemapExporterInterface
      * @param \IteratorAggregate<int, UrlProviderInterface> $urlProvider
      */
     public function __construct(
-        SitemapWriter $sitemapWriter,
+        SitemapWriterInterface $sitemapWriter,
         SystemConfigService $systemConfigService,
         \IteratorAggregate $urlProvider,
         CacheItemPoolInterface $cache,

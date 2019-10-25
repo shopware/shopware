@@ -61,7 +61,7 @@ class SitemapPageLoader
         $sitemaps = $this->sitemapLister->getSitemaps($salesChannelContext);
 
         // If there are no sitemaps yet (or they are too old) and the generation strategy is "live", generate sitemaps
-        if ((int)$this->systemConfigService->get('core.sitemap.sitemapRefreshStrategy') === SitemapExporterInterface::STRATEGY_LIVE) {
+        if ((int) $this->systemConfigService->get('core.sitemap.sitemapRefreshStrategy') === SitemapExporterInterface::STRATEGY_LIVE) {
             // Close session to prevent session locking from waiting in case there is another request coming in
             $this->session->save();
 

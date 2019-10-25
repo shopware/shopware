@@ -2,15 +2,17 @@
 
 namespace Shopware\Core\Content\Test\Sitemap\Service;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\Directory;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
-use Shopware\Core\Content\Sitemap\Service\SitemapNameGeneratorInterface;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Sitemap\Service\SitemapWriter;
+use Shopware\Core\Content\Sitemap\Struct\Url;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 class SitemapWriterTest extends TestCase
 {
@@ -18,37 +20,55 @@ class SitemapWriterTest extends TestCase
 
     private $systemConfigService;
 
+    /**
+     * @var SalesChannelContext
+     */
+    private $salesChannelContext;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $this->salesChannelContext = $contextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
     }
 
-    public function testLocks(): void
+    public function testSitemapIsCreated(): void
     {
         $this->systemConfigService->set('core.sitemap.sitemapRefreshTime', 3600);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $filesystem = $this->getPublicFilesystem();
 
-        $sitemapNameGenerator = $this->createMock(SitemapNameGeneratorInterface::class);
-        $filesystem = $this->createMock(FilesystemInterface::class);
-        $logger = $this->createMock(LoggerInterface::class);
+        $sitemapWriter = new SitemapWriter($filesystem);
 
-        $sitemapWriter = new SitemapWriter($sitemapNameGenerator, $filesystem, $logger, new ArrayAdapter(), $this->systemConfigService);
+        $url = new Url();
 
-        // Check we can lock the Shop
-        static::assertTrue($sitemapWriter->lock($salesChannelContext));
+        $url->setLoc('https://shopware.com');
+        $url->setLastmod(new \DateTime());
+        $url->setChangefreq('weekly');
+        $url->setResource(CategoryEntity::class);
+        $url->setIdentifier(Uuid::randomHex());
 
-        // Check that we cannot lock the Shop again now
-        static::assertFalse($sitemapWriter->lock($salesChannelContext));
+        $fileHandle = $sitemapWriter->createFile('test.gz');
+        static::assertIsResource($fileHandle);
 
-        // Check we can unlock the shop
-        static::assertTrue($sitemapWriter->unlock($salesChannelContext));
+        $sitemapWriter->writeUrlsToFile([$url], $fileHandle);
+        $sitemapWriter->finishFile($fileHandle);
+        $sitemapWriter->moveFile('test.gz', $this->salesChannelContext);
 
-        // Check we can lock the shop again
-        static::assertTrue($sitemapWriter->lock($salesChannelContext));
+        /** @var Directory $directory */
+        $directory = $filesystem->get('sitemap/');
 
-        // Finally unlock Shop again
-        static::assertTrue($sitemapWriter->unlock($salesChannelContext));
+        [$sitemapDir] = $directory->getContents();
+
+        $salesChannelId = $this->salesChannelContext->getSalesChannel()->getId();
+
+        $domainId = $this->salesChannelContext->getSalesChannel()->getLanguageId();
+        $expectedPath = 'sitemap/salesChannel-' . $salesChannelId . '-' . $domainId;
+
+        static::assertSame($expectedPath, $sitemapDir['path']);
+
+        $sitemap = $expectedPath . '/test.gz';
+        static::assertTrue($filesystem->has($sitemap));
     }
 }

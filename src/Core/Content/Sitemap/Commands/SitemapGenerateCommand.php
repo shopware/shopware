@@ -106,7 +106,7 @@ class SitemapGenerateCommand extends Command
                 $output->writeln(sprintf('Generating sitemaps for sales channel #%s (%s) and language %s...', $salesChannel->getId(), $salesChannel->getName(), $languageId));
 
                 try {
-                    $this->generateSitemap($salesChannelContext, $input->getOption('force'), null, null, $output);
+                    $this->generateSitemap($salesChannelContext, $input->getOption('force'));
                 } catch (AlreadyLockedException $exception) {
                     $output->writeln(sprintf('ERROR: %s', $exception->getMessage()));
                 }

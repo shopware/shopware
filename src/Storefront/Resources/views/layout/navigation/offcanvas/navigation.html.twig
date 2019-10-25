@@ -16,7 +16,7 @@
     {# @var page \Shopware\Storefront\Page\Page   #}
     {% set offcanvasNavigation = page.header.navigation.children(page.header.navigation.active.id) %}
     {% if offcanvasNavigation is null %}
-        {% set offcanvasNavigation = page.header.navigation %}
+        {% set offcanvasNavigation = page.navigation %}
     {% endif %}
 
     {% block layout_navigation_offcanvas_navigation %}

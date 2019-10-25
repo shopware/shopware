@@ -19,7 +19,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class SalesChannelCmsPageController extends AbstractController
 {
     /**
-     * @var SalesChannelCmsPageLoader
+     * @var SalesChannelCmsPageLoaderInterface
      */
     private $cmsPageLoader;
 
@@ -29,7 +29,7 @@ class SalesChannelCmsPageController extends AbstractController
     private $cmsPageDefinition;
 
     public function __construct(
-        SalesChannelCmsPageLoader $cmsPageLoader,
+        SalesChannelCmsPageLoaderInterface $cmsPageLoader,
         CmsPageDefinition $cmsPageDefinition
     ) {
         $this->cmsPageLoader = $cmsPageLoader;

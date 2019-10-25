@@ -8,13 +8,16 @@ use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
+use Shopware\Core\Content\Cms\Events\CmsPageLoadedEvent;
+use Shopware\Core\Content\Cms\Events\CmsPageLoaderCriteriaEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class SalesChannelCmsPageLoader
+class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
 {
     /**
      * @var EntityRepositoryInterface
@@ -26,10 +29,19 @@ class SalesChannelCmsPageLoader
      */
     private $slotDataResolver;
 
-    public function __construct(EntityRepositoryInterface $cmsPageRepository, CmsSlotsDataResolver $slotDataResolver)
-    {
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    public function __construct(
+        EntityRepositoryInterface $cmsPageRepository,
+        CmsSlotsDataResolver $slotDataResolver,
+        EventDispatcherInterface $eventDispatcher
+    ) {
         $this->cmsPageRepository = $cmsPageRepository;
         $this->slotDataResolver = $slotDataResolver;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function load(
@@ -39,6 +51,7 @@ class SalesChannelCmsPageLoader
         ?array $config = null,
         ?ResolverContext $resolverContext = null
     ): EntitySearchResult {
+        $this->eventDispatcher->dispatch(new CmsPageLoaderCriteriaEvent($request, $criteria, $context));
         $config = $config ?? [];
 
         // ensure sections, blocks and slots are loaded, slots and blocks can be restricted by caller
@@ -84,6 +97,8 @@ class SalesChannelCmsPageLoader
             // step 5, resolve slot data
             $this->loadSlotData($page, $resolverContext);
         }
+
+        $this->eventDispatcher->dispatch(new CmsPageLoadedEvent($request, $pages->getEntities(), $context));
 
         return $pages;
     }

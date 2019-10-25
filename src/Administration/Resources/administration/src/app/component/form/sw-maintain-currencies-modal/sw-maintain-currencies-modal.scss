@@ -1,6 +1,6 @@
 @import "~scss/variables";
 
-.sw-modal.sw-product-maintain-currencies-modal {
+.sw-modal.sw-maintain-currencies-modal {
     .sw-modal__body {
         padding: 0;
         border-bottom: 1px solid $color-steam-cloud;
@@ -13,7 +13,7 @@
             height: auto;
         }
 
-        .sw-product-price-form__inherited-icon.sw-inheritance-switch {
+        .sw-price-form__inherited-icon.sw-inheritance-switch {
             cursor: pointer;
             margin-right: 5px;
         }

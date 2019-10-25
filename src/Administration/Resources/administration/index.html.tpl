@@ -18,7 +18,7 @@
 <body>
     <div id="app"></div>
     <script type="text/javascript">
-        Shopware.Application.start({ features: <%= featureFlags %>, firstRunWizard: false });
+        Shopware.Application.start({ features: <%= featureFlags %>, firstRunWizard: false, systemCurrencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca' });
     </script>
 </body>
 </html>

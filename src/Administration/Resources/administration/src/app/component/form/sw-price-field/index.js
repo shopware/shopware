@@ -93,7 +93,7 @@ Component.register('sw-price-field', {
             }
         },
 
-        'taxRate.taxRate': function taxRateWatcher() {
+        'taxRate.id': function taxRateWatcher() {
             if (this.priceForCurrency.linked === true) {
                 this.convertGrossToNet(this.priceForCurrency.gross);
             }

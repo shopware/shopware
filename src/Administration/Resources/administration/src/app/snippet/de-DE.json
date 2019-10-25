@@ -779,5 +779,9 @@
       "discard": "Änderungen verwerfen",
       "keepEditing": "Weiter bearbeiten"
     }
+  },
+  "sw-maintain-currencies-modal": {
+    "title": "Währungen pflegen",
+    "columnPrice": "Preise (Brutto / Netto)"
   }
 }

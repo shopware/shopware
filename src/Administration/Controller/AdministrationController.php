@@ -50,6 +50,7 @@ class AdministrationController extends AbstractController
             'features' => FeatureConfig::getAll(),
             'systemLanguageId' => Defaults::LANGUAGE_SYSTEM,
             'defaultLanguageIds' => [Defaults::LANGUAGE_SYSTEM],
+            'systemCurrencyId' => Defaults::CURRENCY,
             'liveVersionId' => Defaults::LIVE_VERSION,
             'firstRunWizard' => $this->firstRunWizardClient->frwShouldRun(),
         ]);

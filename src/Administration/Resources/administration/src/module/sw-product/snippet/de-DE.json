@@ -275,12 +275,6 @@
         "save": "Speichern",
         "useForListing": "Im Listing auffächern"
       }
-    },
-    "maintainCurrenciesModal": {
-      "apply": "Übernehmen",
-      "cancel": "Abbrechen",
-      "maintainCurrencies": "Währungen pflegen",
-      "columnPrice": "Preise (Brutto / Netto)"
     }
   }
 }

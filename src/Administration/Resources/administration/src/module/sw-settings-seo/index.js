@@ -1,3 +1,7 @@
+import './component/sw-seo-url-template-card';
+import './component/sw-seo-url';
+import './component/sw-seo-main-category';
+
 import './extension/sw-settings-index';
 import './page/sw-settings-seo';
 import deDE from './snippet/de-DE.json';

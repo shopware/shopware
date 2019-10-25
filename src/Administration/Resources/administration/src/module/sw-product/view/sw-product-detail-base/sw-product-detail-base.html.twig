@@ -91,6 +91,27 @@
             </sw-card>
         {% endblock %}
 
+        {% block sw_product_detail_base_settings_seo_card %}
+        <sw-seo-url v-if="product.seoUrls"
+                    :isLoading="loading.product"
+                    :urls="product.seoUrls">
+
+            <template #seo-additional="props">
+                {% block sw_product_detail_base_settings_seo_card_additions %}
+                <sw-seo-main-category v-if="product.mainCategories"
+                                      :currentSalesChannelId="props.currentSalesChannelId"
+                                      :categories="product.categories"
+                                      :mainCategories="product.mainCategories"
+                                      :isLoading="loading.product"
+                                      @main-category-add="onMainCategoryAdded">
+                </sw-seo-main-category>
+                {% endblock %}
+
+            </template>
+        </sw-seo-url>
+        {% endblock %}
+
+
         {% block sw_product_detail_base_packaging_card %}
             <sw-card :title="$tc('sw-product.detailBase.cardTitlePackaging')" :isLoading="loading.product">
                 {% block sw_product_detail_base_packaging_form %}

@@ -10,5 +10,35 @@
   "sw-settings-seo-entity-detail": {
     "labelMetaTitle": "Meta-Title",
     "labelAdditionalText": "Meta-Description"
+  },
+  "sw-seo-url-template-card": {
+    "general": {
+      "titleCard": "SEO url templates",
+      "labelPossibleValues": "Possible variables",
+      "tooltipValidTemplate": "Template valid",
+      "tooltipInvalidTemplate": "Invalid template",
+      "titleSaveError": "Error",
+      "messageSaveError": "Not all templates are valid.",
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "SEO url templates have been saved.",
+      "preview": "Preview:",
+      "placeholderSelectVariables": "Search and select...",
+      "labelSalesChannelSelect": "Sales channel",
+      "textUrlPreviewNotPossible": "A preview for this template could not be generated",
+      "textUrlNoEntitiesForPreview": "There are no entities to generate a preview for."
+    },
+    "routeNames": {
+      "frontend-detail-page": "Product detail page",
+      "frontend-navigation-page": "Category page"
+    }
+  },
+  "sw-seo-url": {
+    "titleCard": "Canonical urls",
+    "labelSalesChannelSelect": "Sales channel",
+    "labelSeoPathInfo": "SEO path",
+    "textEmptySeoUrls": "There are no canonical urls yet.",
+    "textSeoUrlsDisallowedForHeadless": "SEO URLs cannot be assigned to headless sales channels.",
+    "labelMainCategory": "Main category",
+    "placeholderMainCategory": "Choose a main category..."
   }
 }

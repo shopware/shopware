@@ -13,6 +13,7 @@ Component.register('sw-settings-seo', {
 
     methods: {
         onClickSave() {
+            this.$refs.seoUrlTemplateCard.onClickSave();
         }
     }
 });

@@ -22,11 +22,16 @@ export default {
 
         loadActiveCategory({ commit }, { repository, id, context }) {
             const criteria = new Criteria();
+
+            criteria.getAssociation('seoUrls')
+                .addFilter(Criteria.equals('isCanonical', true));
+
             criteria.addAssociation('tags')
                 .addAssociation('media')
                 .addAssociation('navigationSalesChannels')
                 .addAssociation('serviceSalesChannels')
                 .addAssociation('footerSalesChannels');
+
 
             return repository.get(id, context, criteria).then((category) => {
                 commit('setActiveCategory', { category });

@@ -193,6 +193,10 @@ Component.register('sw-product-detail-base', {
             this.limit = data.limit;
 
             this.reloadReviews();
+        },
+
+        onMainCategoryAdded(mainCategory) {
+            this.product.mainCategories.push(mainCategory);
         }
     }
 });

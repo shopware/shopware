@@ -453,13 +453,13 @@ export default class Criteria {
     }
 
     /**
-     * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter.
+     * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter.
      * This allows to filter documents where the field matches a defined range
      *
      * Sql representation: `{field} = {value}`
      *
      * @param {string} field
-     * @param {string|number} value
+     * @param {string|number|boolean} value
      *
      * @returns {Object}}
      */

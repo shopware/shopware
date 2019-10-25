@@ -46,7 +46,7 @@
 
                 {% block sw_tree_item_element_content %}
                     <div class="sw-tree-item__content" ref="item">
-                        <slot name="content" :item="item" :openTreeItem="openTreeItem">
+                        <slot name="content" v-bind="{ item, openTreeItem, getName }">
                             {% block sw_tree_items_item_content_edit %}
                                 <template v-if="currentEditElement === item.data.id">
                                     <sw-confirm-field class="sw-tree-detail__edit-tree-item"
@@ -63,9 +63,9 @@
                             {% block sw_tree_items_item_content_default %}
                                 <template v-else>
                                     <a v-if="onChangeRoute" class="tree-link" @click="onChangeRoute(item)">
-                                        <span class="sw-tree-item__label">{{ item.data.name || item.data.translated.name }}</span>
+                                        <span class="sw-tree-item__label">{{ getName(item) }}</span>
                                     </a>
-                                    <span v-else class="sw-tree-item__label">{{ item.data.name || item.data.translated.name }}</span>
+                                    <span v-else class="sw-tree-item__label">{{ getName(item) }}</span>
                                 </template>
                             {% endblock %}
                         </slot>
@@ -143,9 +143,9 @@
                                           :displayCheckbox="displayCheckbox"
                                           :disableContextMenu="disableContextMenu">
                                 {% block sw_tree_item_children_items_slots %}
-                                    <template slot="content" slot-scope="{ item, openTreeItem }">
+                                    <template #content="{ item, openTreeItem, getName: innerGetName }">
                                         {% block sw_tree_item_children_items_slot_content %}
-                                            <sw-vnode-renderer :node="$scopedSlots.content({ item, openTreeItem })"
+                                            <sw-vnode-renderer :node="$scopedSlots.content({ item, openTreeItem, getName })"
                                                                v-if="$scopedSlots.content"></sw-vnode-renderer>
                                             {% block sw_tree_item_children_items_slot_content_default_block %}
                                                 <template v-else>
@@ -165,9 +165,9 @@
                                                     {% block sw_tree_item_children_items_slot_content_default %}
                                                         <template v-else>
                                                             <a v-if="onChangeRoute" class="tree-link" @click="onChangeRoute(item)">
-                                                                <span class="sw-tree-item__label">{{ item.data.name || item.data.translated.name }}</span>
+                                                                <span class="sw-tree-item__label">{{ getName(item) }}</span>
                                                             </a>
-                                                            <span v-else class="sw-tree-item__label">{{ item.data.name || item.data.translated.name }}</span>
+                                                            <span v-else class="sw-tree-item__label">{{ getName(item) }}</span>
                                                         </template>
                                                     {% endblock %}
                                                 </template>
@@ -175,12 +175,12 @@
                                         {% endblock %}
                                     </template>
 
-                                    <template slot="actions" slot-scope="{ item, openTreeItem }">
+                                    <template #actions="{ item, openTreeItem }">
                                         {% block sw_tree_item_children_items_slot_actions %}
                                             <sw-vnode-renderer :node="$scopedSlots.actions({ item, openTreeItem })"
                                                                v-if="$scopedSlots.actions"></sw-vnode-renderer>
                                             <div v-else class="sw-tree-item__actions">
-                                                <slot name="actions" :item="item" :openTreeItem="openTreeItem">
+                                                <slot name="actions" v-bind="{ item, openTreeItem }">
                                                     <sw-context-button v-tooltip="toolTip" :disabled="isDisabled">
                                                         {% block sw_tree_items_actions_before %}
                                                             <sw-context-menu-item

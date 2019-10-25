@@ -57,6 +57,12 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Navigation sidebar is now a globally expandable & collapsable with `this.$store.commit('adminMenu/collapseSidebar)` and `this.$store.commit('adminMenu/expandSidebar)`
     * Added Services functions to Shopware object for easier access
     * Added Context to Shopware object for easier access
+    * Added a new component `sw-many-to-many-assignment-card` which can be used to display many to many associations within a paginated grid
+    * The `sw-tree` component now emits the `editing-end` when the user finished adding new items. Eventdata is an object with `parentId` property 
+    * `sw-tree`'s `drag-end` event now emits information about the old and new parentId of the dragged element.
+    * The changeset generator now ommits write protected fields
+    * We added `fromCollection` and `fromCriteria` methods to criteria/collections to deep copy them if needed
+   
 * Core
     * Added DAL support for multi primary keys.
     * Added API endpoints for translation definitions

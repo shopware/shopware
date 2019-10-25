@@ -65,7 +65,9 @@
       "deleteMessage": "Soll der Eintrag wirklich gelöscht werden? | Sollen diese {count} Einträge wirklich gelöscht werden?",
       "deleteCancel": "Abbrechen",
       "deleteConfirm": "Löschen",
-      "deleteTitle": "Eintrag löschen"
+      "deleteTitle": "Eintrag löschen",
+      "placeholderToManyAssociationCard": "Nach Assoziationen suchen",
+      "labelRemoveAssociation": "Zuweisung aufheben"
     },
     "sw-field": {
       "notification": {

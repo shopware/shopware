@@ -1,4 +1,4 @@
-import { types } from 'src/core/service/util.service';
+import { types, object } from 'src/core/service/util.service';
 
 export default class Criteria {
     constructor(page = 1, limit = 25) {
@@ -13,6 +13,10 @@ export default class Criteria {
         this.sortings = [];
         this.aggregations = [];
         this.totalCountMode = null;
+    }
+
+    static fromCriteria(criteria) {
+        return object.cloneDeep(criteria);
     }
 
     /**
@@ -71,6 +75,7 @@ export default class Criteria {
      */
     setIds(ids) {
         this.ids = ids;
+        return this;
     }
 
     /**
@@ -87,6 +92,7 @@ export default class Criteria {
         }
 
         this.totalCountMode = (mode < 0 || mode > 2) ? null : mode;
+        return this;
     }
 
     /**

@@ -40,6 +40,10 @@ export default class ChangesetGenerator {
                 return;
             }
 
+            if (field.flags.write_protected) {
+                return;
+            }
+
             let draftValue = castValueToNullIfNecessary(draft[fieldName]);
             let originValue = castValueToNullIfNecessary(origin[fieldName]);
 

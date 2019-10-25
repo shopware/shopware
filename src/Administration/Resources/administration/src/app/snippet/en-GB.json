@@ -65,7 +65,9 @@
       "deleteMessage": "Are you sure you want to delete this item? | Are you sure you want to delete these {count} items?",
       "deleteCancel": "Cancel",
       "deleteConfirm": "Delete",
-      "deleteTitle": "Delete entry"
+      "deleteTitle": "Delete entry",
+      "placeholderToManyAssociationCard": "Search associations",
+      "labelRemoveAssociation": "Remove association"
     },
     "sw-field": {
       "notification": {

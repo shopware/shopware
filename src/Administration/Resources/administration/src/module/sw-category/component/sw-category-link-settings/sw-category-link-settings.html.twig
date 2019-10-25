@@ -1,0 +1,36 @@
+{%  block sw_category_link_settings %}
+    <sw-card class="sw-category-link-settings" :title="$tc('sw-category.base.link.title')" :isLoading="isLoading">
+        {% block sw_category_detail_link_desc_external %}
+            <div class="sw-category-detail-base__link-section">
+                <p>{{ $tc('sw-category.base.link.externalDesc') }}</p>
+
+                <p>
+                    {{ $tc('sw-category.base.link.example') }}
+                    <span class="sw-category-detail-base__link-element">
+                        https://www.shopware.com
+                    </span>
+                </p>
+            </div>
+        {% endblock %}
+
+        {% block sw_category_detail_link_desc_internal %}
+            <div class="sw-category-detail-base__link-section">
+                <p>{{ $tc('sw-category.base.link.internalDesc') }}</p>
+                <p>
+                    {{ $tc('sw-category.base.link.example') }}
+                    <span class="sw-category-detail-base__link-element">
+                        {{ $tc('sw-category.base.link.internalExampleText') }}
+                    </span>
+                </p>
+            </div>
+        {% endblock %}
+
+        {% block sw_category_detail_link_field %}
+            <sw-text-field
+                v-model="category.externalLink"
+                :label="$tc('sw-category.base.link.linkLabel')"
+                :placeholder="$tc('sw-category.base.link.linkLabel')">
+            </sw-text-field>
+        {% endblock %}
+    </sw-card>
+{%  endblock %}

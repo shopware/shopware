@@ -6,12 +6,6 @@
         position: relative;
     }
 
-    .sw-category-detail-base__type-helptext {
-        position: absolute;
-        right: 0;
-        top: 0;
-    }
-
     .sw-category-detail-base__active {
         display: grid;
         align-items: center;
@@ -19,19 +13,6 @@
 
     .sw-category-detail-base__tags {
         margin-bottom: 14px;
-    }
-
-    .sw-category-detail-base__sales-channel-list {
-        margin: 16px 0;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .sw-category-detail-base__sales-channel-entry {
-        color: $color-shopware-blue;
-        text-decoration: none;
-        line-height: 24px;
     }
 
     .sw-category-detail__menu {
@@ -42,71 +23,6 @@
 
     .sw-category-detail-base__description {
         margin-top: 22px;
-    }
-
-    .sw-category-detail-base__layout {
-        display: grid;
-        grid-template-columns: min-content 1fr;
-        gap: 32px;
-
-        .sw-cms-list-item {
-            width: 250px;
-        }
-    }
-
-    .sw-category-detail-base__layout-desc {
-        display: grid;
-        grid-template-rows: min-content 1fr min-content;
-        align-items: baseline;
-
-        .sw-category-detail-base__layout-desc-headline {
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .sw-category-detail-base__layout-desc-subheadline {
-            font-size: 14px;
-        }
-
-        .sw-category-detail-base__layout-desc-headline.is--empty,
-        .sw-category-detail-base__layout-desc-subheadline.is--empty {
-            color: #B3BFCC;
-        }
-
-        .sw-category-detail-base__layout-desc-info {
-            margin-bottom: 16px;
-        }
-
-        .sw-category-detail-base__layout-desc-actions {
-            .sw-button {
-                margin-bottom: 8px;
-                margin-right: 8px;
-            }
-        }
-
-        .sw-category-detail-base__layout-desc-link {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            color: $color-shopware-blue;
-            text-decoration: none;
-            font-size: 14px;
-            margin-top: 8px;
-
-            .sw-icon {
-                margin-left: 8px;
-            }
-        }
-    }
-
-    .sw-category-detail-base__link-section {
-        margin-bottom: 16px;
-        line-height: 22px;
-    }
-
-    .sw-category-detail-base__link-element {
-        margin-left: 2px;
-        font-weight: 600;
     }
 
     .sw-category-detail-base__products {

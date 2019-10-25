@@ -1,6 +1,9 @@
 import './component/sw-category-tree';
 import './component/sw-category-view';
-import './component/sw-category-select';
+import './component/sw-category-sales-channel-card';
+import './component/sw-category-link-settings';
+import './component/sw-category-layout-card';
+import './component/sw-category-detail-menu';
 import './page/sw-category-detail';
 import './view/sw-category-detail-base';
 import './view/sw-category-detail-cms';
@@ -57,6 +60,14 @@ Module.register('sw-category', {
                     meta: {
                         parentPath: 'sw.category.index'
                     }
+                }
+            },
+
+            props: {
+                default(route) {
+                    return {
+                        categoryId: route.params.id
+                    };
                 }
             }
         }

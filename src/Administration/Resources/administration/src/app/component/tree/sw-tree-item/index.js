@@ -245,7 +245,7 @@ Component.register('sw-tree-item', {
             }
         },
 
-        getItems(...args) {
+        getItems(args) {
             return this.$parent.getItems(args);
         },
 
@@ -338,6 +338,14 @@ Component.register('sw-tree-item', {
 
         deleteElement(item) {
             this.parentScope.onDeleteElements(item);
+        },
+
+        getName(item) {
+            if (item.data.translated) {
+                return item.data.name || item.data.translated.name;
+            }
+
+            return item.data.name;
         }
     }
 });

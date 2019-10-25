@@ -7,6 +7,12 @@ Component.override('sw-category-detail', {
 
     methods: {
         onSave() {
+            // if extensions are not set the seo urls are not present in store
+            if (typeof this.$store.getters['swSeoUrl/getNewOrModifiedUrls'] !== 'function') {
+                this.$super('onSave');
+                return;
+            }
+
             this.$super('onSave');
 
             const seoUrls = this.$store.getters['swSeoUrl/getNewOrModifiedUrls']();

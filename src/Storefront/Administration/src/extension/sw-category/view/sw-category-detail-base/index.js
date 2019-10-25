@@ -1,28 +1,31 @@
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-category-detail-base.html.twig';
 
 const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.override('sw-category-detail-base', {
     template,
 
+    inject: ['repositoryFactory', 'context'],
+
     data() {
         return {
-            seoUrlStore: null,
             seoUrls: []
         };
+    },
+    computed: {
+        seoUrlRepository() {
+            return this.repositoryFactory.create('seo_url');
+        }
     },
 
     methods: {
         initSeoUrls() {
-            this.seoUrlStore = this.category.getAssociation('seoUrls');
-            const params = {
-                page: 1,
-                limit: 50,
-                criteria: CriteriaFactory.equals('isCanonical', true)
-            };
-            this.seoUrlStore.getList(params).then((response) => {
-                this.seoUrls = response.items;
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('seo_url.isCanonical', true));
+
+            this.seoUrlRepository.search(criteria, this.context).then((result) => {
+                this.seoUrls = result.item;
             });
         }
     }

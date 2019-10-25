@@ -177,7 +177,17 @@ Component.register('sw-tree', {
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            if (this.activeTreeItemId && this.activeElementId) {
+                this.openTreeById();
+            }
+        },
+
         getItems(parentId = this.rootParentId, searchTerm = null) {
             this.$emit('get-tree-items', parentId, searchTerm);
         },
@@ -209,7 +219,8 @@ Component.register('sw-tree', {
                     children: this.getTreeItems(item.id),
                     initialOpened: false,
                     active: false,
-                    checked: !!this.checkItemsInitial
+                    checked: !!this.checkItemsInitial,
+                    [this.afterIdProperty]: item[this.afterIdProperty]
                 });
             });
             return sort.afterSort(treeItems, this.afterIdProperty);
@@ -238,15 +249,18 @@ Component.register('sw-tree', {
                 return;
             }
 
+            const oldParentId = this.draggedItem.data.parentId;
+            const newParentId = this.droppedItem.data.parentId;
+
             // item moved into other tree, update count
             if (this.draggedItem.data.parentId !== this.droppedItem.data.parentId) {
-                if (this.draggedItem.parentId !== null) {
+                if (this.draggedItem.data.parentId !== null) {
                     const draggedParent = this.findById(this.draggedItem.parentId);
                     draggedParent.childCount -= 1;
                     draggedParent.data.childCount -= 1;
                 }
 
-                if (this.droppedItem.parentId !== null) {
+                if (this.droppedItem.data.parentId !== null) {
                     const droppedParent = this.findById(this.droppedItem.parentId);
                     droppedParent.childCount += 1;
                     droppedParent.data.childCount += 1;
@@ -263,11 +277,19 @@ Component.register('sw-tree', {
                 this.updateSorting(dropTree);
             }
 
+            // bundle drag event data for consumer
+            const eventData = {
+                draggedItem: this.draggedItem,
+                droppedItem: this.droppedItem,
+                oldParentId,
+                newParentId
+            };
+
             // reset event items
             this.draggedItem = null;
             this.droppedItem = null;
 
-            this.$emit('drag-end');
+            this.$emit('drag-end', eventData);
         },
 
         moveDrag(draggedComponent, droppedComponent) {
@@ -466,6 +488,7 @@ Component.register('sw-tree', {
             this.newElementId = null;
             this.currentEditMode = null;
             this.addElementPosition = null;
+            this.$emit('editing-end', { parentId: item.parentId });
         },
 
         onFinishNameingElement(draft, event) {
@@ -487,12 +510,16 @@ Component.register('sw-tree', {
                 return;
             }
 
-            Object.values(this.checkedElements).forEach((itemId) => {
-                const item = this.findById(itemId);
-                if (item) {
-                    this.deleteElement(item);
-                }
-            });
+            if (typeof this.$listeners['batch-delete'] === 'function') {
+                this.$emit('batch-delete', this.checkedElements);
+            } else {
+                Object.values(this.checkedElements).forEach((itemId) => {
+                    const item = this.findById(itemId);
+                    if (item) {
+                        this.deleteElement(item);
+                    }
+                });
+            }
 
             this.checkedElements = {};
             this.checkedElementsCount = 0;

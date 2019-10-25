@@ -113,6 +113,15 @@ Component.register('sw-pagination', {
     watch: {
         page() {
             this.currentPage = this.page;
+        },
+
+        maxPage() {
+            if (this.currentPage > this.maxPage) {
+                this.$emit('page-change', {
+                    page: this.maxPage,
+                    limit: this.perPage
+                });
+            }
         }
     },
 

@@ -10,21 +10,6 @@ Component.register('sw-category-view', {
     ],
 
     props: {
-        category: {
-            type: Object,
-            required: true,
-            default: {}
-        },
-        cmsPage: {
-            type: Object,
-            required: false,
-            default: null
-        },
-        mediaItem: {
-            type: Object,
-            required: false,
-            default: null
-        },
         isLoading: {
             type: Boolean,
             required: true,
@@ -32,21 +17,13 @@ Component.register('sw-category-view', {
         }
     },
 
-    methods: {
-        onUploadAdded({ uploadTag }) {
-            this.$emit('media-upload', uploadTag);
+    computed: {
+        category() {
+            return this.$store.state.swCategoryDetail.category;
         },
-        setMediaItem(mediaItem) {
-            this.$emit('media-set', mediaItem);
-        },
-        onUnlinkLogo() {
-            this.$emit('media-remove');
-        },
-        openSidebar() {
-            this.$emit('sidebar-open');
-        },
-        onCmsLayoutChange(cmsPageId) {
-            this.$emit('page-change', cmsPageId);
+
+        cmsPage() {
+            return this.$store.state.cmsPageState.currentPage;
         }
     }
 });

@@ -383,6 +383,17 @@ function validateDrag() {
     return valid && customDragValidation;
 }
 
+function mergeConfigs(defaultConfig, binding) {
+    const mergedConfig = Object.assign({}, defaultConfig);
+    if (types.isObject(binding.value) && types.isObject(binding.value.data)) {
+        Object.assign(mergedConfig, binding.value);
+    } else {
+        Object.assign(mergedConfig, { data: binding.value });
+    }
+
+    return mergedConfig;
+}
+
 /**
  * Directive for making elements draggable.
  *
@@ -393,33 +404,45 @@ function validateDrag() {
  */
 Directive.register('draggable', {
     inserted(el, binding) {
-        const dragConfig = Object.assign({}, defaultDragConfig);
-
-        if (types.isObject(binding.value)) {
-            Object.assign(dragConfig, binding.value);
-        } else {
-            Object.assign(dragConfig, { data: binding.value });
-        }
+        const dragConfig = mergeConfigs(defaultDragConfig, binding);
+        el.dragConfig = dragConfig;
+        el.boundDragListener = onDrag.bind(this, el, el.dragConfig);
 
         if (!dragConfig.disabled) {
             el.classList.add(dragConfig.draggableCls);
-            el.addEventListener('mousedown', onDrag.bind(this, el, dragConfig));
-            el.addEventListener('touchstart', onDrag.bind(this, el, dragConfig));
+            el.addEventListener('mousedown', el.boundDragListener);
+            el.addEventListener('touchstart', el.boundDragListener);
         }
     },
 
-    unbind(el, binding) {
-        const dragConfig = Object.assign({}, defaultDragConfig);
+    update(el, binding) {
+        const dragConfig = mergeConfigs(defaultDragConfig, binding);
 
-        if (types.isObject(binding.value)) {
-            Object.assign(dragConfig, binding.value);
-        } else {
-            Object.assign(dragConfig, { data: binding.value });
+        if (el.dragConfig.disabled !== dragConfig.disabled) {
+            if (dragConfig.disabled === true) {
+                el.classList.remove(el.dragConfig.draggableCls);
+                el.classList.add(dragConfig.draggableCls);
+                el.addEventListener('mousedown', el.boundDragListener);
+                el.addEventListener('touchstart', el.boundDragListener);
+            } else {
+                el.classList.remove(el.dragConfig.draggableCls);
+                el.removeEventListener('mousedown', el.boundDragListener);
+                el.removeEventListener('touchstart', el.boundDragListener);
+            }
         }
 
+        Object.assign(el.dragConfig, dragConfig);
+    },
+
+    unbind(el, binding) {
+        const dragConfig = mergeConfigs(defaultDragConfig, binding);
+
         el.classList.remove(dragConfig.draggableCls);
-        el.removeEventListener('mousedown', onDrag.bind(this, el, dragConfig));
-        el.removeEventListener('touchstart', onDrag.bind(this, el, dragConfig));
+
+        if (el.boundDragListener) {
+            el.removeEventListener('mousedown', el.boundDragListener);
+            el.removeEventListener('touchstart', el.boundDragListener);
+        }
     }
 });
 
@@ -433,13 +456,7 @@ Directive.register('draggable', {
  */
 Directive.register('droppable', {
     inserted(el, binding) {
-        const dropConfig = Object.assign({}, defaultDropConfig);
-
-        if (types.isObject(binding.value)) {
-            Object.assign(dropConfig, binding.value);
-        } else {
-            Object.assign(dropConfig, { data: binding.value });
-        }
+        const dropConfig = mergeConfigs(defaultDropConfig, binding);
 
         dropZones.push({ el, dropConfig });
 
@@ -449,13 +466,7 @@ Directive.register('droppable', {
     },
 
     unbind(el, binding) {
-        const dropConfig = Object.assign({}, defaultDropConfig);
-
-        if (types.isObject(binding.value)) {
-            Object.assign(dropConfig, binding.value);
-        } else {
-            Object.assign(dropConfig, { data: binding.value });
-        }
+        const dropConfig = mergeConfigs(defaultDropConfig, binding);
 
         dropZones.splice(dropZones.findIndex(zone => zone.el === el), 1);
 

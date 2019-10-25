@@ -32,10 +32,10 @@
         "base": {
             "general": {
                 "categoryNameLabel": "Name",
-                "linkLabel": "Linkziel",
                 "headlineInformationCard": "Allgemein",
                 "isCategoryActiveLabel": "Kategorie ist aktiv",
                 "useAsLink": "Als Link verwenden",
+                "labelCategoryTags": "Tags",
 
                 "types": {
                     "title": "Kategorietyp",
@@ -83,18 +83,14 @@
                 "example": "Beispiel:",
                 "internalExampleText": "/meine-kategorie",
                 "externalDesc": "Um externe Links zu setzen, füge die komplette Webadresse ein:",
-                "internalDesc": "Wenn Du einen internen Link setzen möchtest, füge nur den Pfad ein der auf die Domain folgt:"
+                "internalDesc": "Wenn Du einen internen Link setzen möchtest, füge nur den Pfad ein der auf die Domain folgt:",
+                "linkLabel": "Linkziel"
             },
 
             "products": {
                 "productAssignmentHeadline": "Produktzuweisung",
                 "productAssignmentPlaceholder": "Produkte durchsuchen und zuweisen ...",
-                "productAssignmentActionDetails": "Details",
-                "productAssignmentActionRemove": "Entfernen",
-                "productAssignmentActionUndo": "Rückgängig machen",
-                "productAssignmentEmptyText": "Keine Produkte gefunden",
-                "productAssignmentEmptyStateTitle": "Keine Produkte zugewiesen",
-                "productAssignmentEmptyStateSubline": "Füge über die Suche neue Produkte hinzu",
+                "productAssignmentEmptyStateDescription": "Keine Produkte zugewiesen",
                 "columnNameLabel": "Name",
                 "columnManufacturerLabel": "Hersteller"
             }

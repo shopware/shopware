@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -170,9 +171,7 @@ class SalesChannelContextFactory
         $customerGroup = $customerGroups->get($groupId);
 
         //loads tax rules based on active customer group and delivery address
-        //todo@dr load area based tax rules
-        $criteria = new Criteria();
-        $taxRules = $this->taxRepository->search($criteria, $context);
+        $taxRules = $this->getTaxRules($context);
 
         //detect active payment method, first check if checkout defined other payment method, otherwise validate if customer logged in, at least use shop default
         $payment = $this->getPaymentMethod($options, $context, $salesChannel, $customer);
@@ -211,6 +210,15 @@ class SalesChannelContextFactory
         return $salesChannelContext;
     }
 
+    public function getTaxRules(Context $context): EntitySearchResult
+    {
+        $criteria = new Criteria();
+
+        $criteria->addAssociation('taxAreaRules.taxAreaRuleType');
+
+        return $this->taxRepository->search($criteria, $context);
+    }
+
     private function getPaymentMethod(array $options, Context $context, SalesChannelEntity $salesChannel, ?CustomerEntity $customer): PaymentMethodEntity
     {
         $id = $salesChannel->getPaymentMethodId();
@@ -246,15 +254,15 @@ class SalesChannelContextFactory
     private function getContext(string $salesChannelId, array $session): Context
     {
         $sql = '
-        SELECT 
-          sales_channel.id as sales_channel_id, 
+        SELECT
+          sales_channel.id as sales_channel_id,
           sales_channel.language_id as sales_channel_default_language_id,
           sales_channel.currency_id as sales_channel_currency_id,
           currency.factor as sales_channel_currency_factor,
           currency.decimal_precision as sales_channel_currency_decimal_precision,
           GROUP_CONCAT(LOWER(HEX(sales_channel_language.language_id))) as sales_channel_language_ids
         FROM sales_channel
-            INNER JOIN currency 
+            INNER JOIN currency
                 ON sales_channel.currency_id = currency.id
             LEFT JOIN sales_channel_language
                 ON sales_channel_language.sales_channel_id = sales_channel.id

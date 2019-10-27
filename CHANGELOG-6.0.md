@@ -173,6 +173,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added `campaignCode` and `affiliateCode` columns to customer and order entity
     * Changed the calling of `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getDefaults` which is now only called by newly created entities. The check `$existence->exists()` inside this method is not necessary anymore
     * Added new method `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getChildDefaults`. Use it to define defaults for newly created child entities
+    * Added `taxAreaRules` to provide area specific tax rates
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain

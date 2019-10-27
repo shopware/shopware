@@ -3,8 +3,6 @@
 namespace Shopware\Core\Content\Product;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
@@ -759,13 +757,6 @@ class ProductEntity extends Entity
     public function setRestockTime(int $restockTime): void
     {
         $this->restockTime = $restockTime;
-    }
-
-    public function getTaxRuleCollection(): TaxRuleCollection
-    {
-        return new TaxRuleCollection([
-            new TaxRule($this->getTax()->getTaxRate(), 100),
-        ]);
     }
 
     public function getDeliveryDate(): DeliveryDate

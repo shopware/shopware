@@ -9,7 +9,7 @@
       "textHeadline": "Steuern",
       "textDeleteConfirm": "Bist Du sicher, dass Du die Steuer \"{name}\" löschen möchtest?",
       "columnName": "Name",
-      "columnTaxRate": "Steuersatz",
+      "columnDefaultTaxRate": "Standard Steuersatz",
       "buttonAddTax": "Steuer anlegen",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
@@ -20,16 +20,32 @@
       "buttonDelete": "Löschen"
     },
     "detail": {
-      "textHeadline": "Neue Steuer",
+      "textHeadline": "Neuer Steuersatz",
       "titleCard": "Einstellungen",
       "labelName": "Name",
-      "labelTaxRate": "Steuersatz",
+      "labelDefaultTaxRate": "Standard Steuersatz",
       "placeholderName": "Namen eingeben ...",
-      "placeholderTaxRate": "Steuersatz eingeben ...",
+      "placeholderDefaultTaxRate": "Standard Steuersatz eingeben ...",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
       "notificationErrorTitle": "Fehler",
       "notificationErrorMessage": "Fehler beim Speichern des Steuersatzes."
     }
+  },
+  "taxAreaRuleCard": {
+    "labelTaxRate": "Steuersatz",
+    "labelAppliesOn": "Gilt für",
+    "labelCountryName": "Land",
+    "cardTitle": "Länder",
+    "searchBarPlaceholder": "Suche Länder",
+    "labelCreateNew": "Land hinzufügen",
+    "labelCancel": "Abbrechen",
+    "labelStates": "Staaten",
+    "labelZipCode": "Postleitzahl",
+    "emptyStateDescription": "Füge weitere Steuerraten für verschiedene Länder hinzu.",
+    "createStateDescription": "Speichere zuerst den Steuersatz, um weitere Länder hinzufügen zu können.",
+    "modalTitleDelete": "Land löschen",
+    "textDeleteConfirm": "Bist du dir sicher, dass du das Land \"{name}\" löschen möchtest?",
+    "placeholderStates": "Staaten hinzufügen"
   }
 }

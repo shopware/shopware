@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleCollection;
 
 class CountryEntity extends Entity
 {
@@ -93,6 +94,11 @@ class CountryEntity extends Entity
      * @var array|null
      */
     protected $customFields;
+
+    /**
+     * @var TaxAreaRuleCollection|null
+     */
+    protected $taxAreaRules;
 
     public function getName(): ?string
     {
@@ -252,5 +258,15 @@ class CountryEntity extends Entity
     public function setCustomFields(?array $customFields): void
     {
         $this->customFields = $customFields;
+    }
+
+    public function getTaxAreaRules(): ?TaxAreaRuleCollection
+    {
+        return $this->taxAreaRules;
+    }
+
+    public function setTaxAreaRules(TaxAreaRuleCollection $taxAreaRules): void
+    {
+        $this->taxAreaRules = $taxAreaRules;
     }
 }

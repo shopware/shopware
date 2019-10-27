@@ -3,10 +3,42 @@
 <container xmlns="http://symfony.com/schema/dic/services"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
-
     <services>
         <service id="Shopware\Core\System\Tax\TaxDefinition">
             <tag name="shopware.entity.definition" entity="tax"/>
+        </service>
+
+        <service id="Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition">
+            <tag name="shopware.entity.definition" entity="tax_area_rule"/>
+        </service>
+
+        <service id="Shopware\Core\System\Tax\Aggregate\TaxAreaRuleType\TaxAreaRuleTypeDefinition">
+            <tag name="shopware.entity.definition" entity="tax_area_rule_type"/>
+        </service>
+
+        <service id="Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTypeTranslation\TaxAreaRuleTypeTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="tax_area_rule_type_translation"/>
+        </service>
+
+        <service id="Shopware\Core\System\Tax\Builder\TaxRuleCollectionBuilderInterface"
+                 class="Shopware\Core\System\Tax\Builder\TaxRuleCollectionBuilder">
+            <argument type="tagged" tag="tax.area_rule_type_filter"/>
+        </service>
+
+        <service id="Shopware\Core\System\Tax\TaxAreaRuleType\EntireCountryRuleTypeFilter">
+            <tag name="tax.area_rule_type_filter" priority="200"/>
+        </service>
+
+        <service id="Shopware\Core\System\Tax\TaxAreaRuleType\IndividualStatesRuleTypeFilter">
+            <tag name="tax.area_rule_type_filter" priority="400"/>
+        </service>
+
+        <service id="Shopware\Core\System\Tax\TaxAreaRuleType\ZipCodeRangeRuleTypeFilter">
+            <tag name="tax.area_rule_type_filter" priority="600"/>
+        </service>
+
+        <service id="Shopware\Core\System\Tax\TaxAreaRuleType\ZipCodeRuleTypeFilter">
+            <tag name="tax.area_rule_type_filter" priority="800"/>
         </service>
     </services>
 </container>

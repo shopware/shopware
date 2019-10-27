@@ -1,0 +1,31 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\System\Tax\TaxAreaRuleType;
+
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleEntity;
+
+class EntireCountryRuleTypeFilter implements TaxAreaRuleTypeFilterInterface
+{
+    public const TECHNICAL_NAME = 'entire_country';
+
+    public function getTaxRate(TaxAreaRuleEntity $taxAreaRuleEntity, SalesChannelContext $salesChannelContext): float
+    {
+        if ($taxAreaRuleEntity->getTaxAreaRuleType()->getTechnicalName() !== self::TECHNICAL_NAME
+            || !$this->metPreconditions($taxAreaRuleEntity, $salesChannelContext)
+        ) {
+            throw new NotMatchingTaxAreaRule(self::TECHNICAL_NAME);
+        }
+
+        return $taxAreaRuleEntity->getTaxRate();
+    }
+
+    private function metPreconditions(TaxAreaRuleEntity $taxAreaRuleEntity, SalesChannelContext $salesChannelContext): bool
+    {
+        if (($customer = $salesChannelContext->getCustomer()) && $customer->getActiveBillingAddress() !== null) {
+            return $customer->getActiveBillingAddress()->getCountryId() === $taxAreaRuleEntity->getCountryId();
+        }
+
+        return $salesChannelContext->getShippingLocation()->getCountry()->getId() === $taxAreaRuleEntity->getCountryId();
+    }
+}

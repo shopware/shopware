@@ -13,9 +13,20 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Pricing\PriceRuleEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Tax\Builder\TaxRuleCollectionBuilderInterface;
 
 class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInterface
 {
+    /**
+     * @var TaxRuleCollectionBuilderInterface
+     */
+    private $taxRuleCollectionBuilder;
+
+    public function __construct(TaxRuleCollectionBuilderInterface $taxRuleCollectionBuilder)
+    {
+        $this->taxRuleCollectionBuilder = $taxRuleCollectionBuilder;
+    }
+
     public function build(ProductEntity $product, SalesChannelContext $salesChannelContext, int $quantity = 1): ProductPriceDefinitions
     {
         $listingPrice = $this->buildListingPriceDefinition($product, $salesChannelContext);
@@ -31,7 +42,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
 
     private function buildPriceDefinitions(ProductEntity $product, SalesChannelContext $salesChannelContext): PriceDefinitionCollection
     {
-        $taxRules = $product->getTaxRuleCollection();
+        $taxRules = $this->taxRuleCollectionBuilder->buildTaxRuleCollection($product->getTax(), $salesChannelContext);
 
         $prices = $this->getFirstMatchingPriceRule($product->getPrices(), $salesChannelContext);
 
@@ -68,7 +79,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
 
         return new QuantityPriceDefinition(
             $price * $salesChannelContext->getContext()->getCurrencyFactor(),
-            $product->getTaxRuleCollection(),
+            $this->taxRuleCollectionBuilder->buildTaxRuleCollection($product->getTax(), $salesChannelContext),
             $salesChannelContext->getContext()->getCurrencyPrecision(),
             1,
             true,
@@ -78,7 +89,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
 
     private function buildListingPriceDefinition(ProductEntity $product, SalesChannelContext $salesChannelContext): array
     {
-        $taxRules = $product->getTaxRuleCollection();
+        $taxRules = $this->taxRuleCollectionBuilder->buildTaxRuleCollection($product->getTax(), $salesChannelContext);
 
         $currencyPrecision = $salesChannelContext->getContext()->getCurrencyPrecision();
 
@@ -130,7 +141,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
 
     private function buildPriceDefinitionForQuantity(ProductEntity $product, SalesChannelContext $salesChannelContext, int $quantity): QuantityPriceDefinition
     {
-        $taxRules = $product->getTaxRuleCollection();
+        $taxRules = $this->taxRuleCollectionBuilder->buildTaxRuleCollection($product->getTax(), $salesChannelContext);
 
         /** @var ProductPriceEntity[]|null $prices */
         $prices = $this->getFirstMatchingPriceRule($product->getPrices(), $salesChannelContext);

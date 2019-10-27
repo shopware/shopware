@@ -50,8 +50,8 @@
                             {% block sw_settings_tax_detail_content_field_tax_rate %}
                                 <sw-field type="number"
                                           required
-                                          :label="$tc('sw-settings-tax.detail.labelTaxRate')"
-                                          :placeholder="$tc('sw-settings-tax.detail.placeholderTaxRate')"
+                                          :label="$tc('sw-settings-tax.detail.labelDefaultTaxRate')"
+                                          :placeholder="$tc('sw-settings-tax.detail.placeholderDefaultTaxRate')"
                                           :error="taxTaxRateError"
                                           v-model="tax.taxRate">
                                     <template #suffix>
@@ -63,6 +63,16 @@
                             {% endblock %}
                         </sw-container>
                     </sw-card>
+                {% endblock %}
+
+                {% block sw_settings_tax_detail_rule_card %}
+                    <sw-tax-area-rule-card v-if="tax.id"
+                                           :disabled="!taxId"
+                                           class="sw-settings-tax-detail__tax-area-rule-grid"
+                                           :tax="tax"
+                                           @tax-area-rule-save="saveAndReload"
+                                           :isLoading="isLoading">
+                    </sw-tax-area-rule-card>
                 {% endblock %}
             </sw-card-view>
         {% endblock %}

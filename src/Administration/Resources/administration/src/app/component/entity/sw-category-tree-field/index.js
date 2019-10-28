@@ -164,11 +164,8 @@ Component.register('sw-category-tree-field', {
             document.removeEventListener('keydown', this.handleGeneralKeyEvents);
         },
 
-        getTreeItems(parentIds = null) {
+        getTreeItems(parentId = null) {
             this.isFetching = true;
-
-            // get parent id
-            const parentId = parentIds ? utils.array.flattenDeep(parentIds)[0] : null;
 
             // create criteria
             const categoryCriteria = new Criteria(1, 500);
@@ -177,7 +174,7 @@ Component.register('sw-category-tree-field', {
             // search for categories
             return this.globalCategoryRepository.search(categoryCriteria, this.context).then((searchResult) => {
                 // when requesting root categories, replace the data
-                if (parentIds === null) {
+                if (parentId === null) {
                     this.categories = searchResult;
                     this.isFetching = false;
                     return Promise.resolve();

@@ -7,7 +7,7 @@ The administration's content language is one of Shopware's key USP's.
 It enables users to switch between available languages. Its use will affect the whole administration.
 For example, if you change the content language in the so called `language switch`, every listing or detail page will
 update and use that new language to display and edit content.
-To make sure your custom entity supports translations, look at [overview of translations in the DAL](../../2-internals/1-core/20-data-abstraction-layer/120-translations.md). 
+To make sure your custom entity supports translations, look at [overview of translations in the DAL](./../2-internals/1-core/20-data-abstraction-layer/120-translations.md). 
 
 
 ## Change language in a listing

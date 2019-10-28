@@ -116,11 +116,13 @@ Component.register('sw-pagination', {
         },
 
         maxPage() {
+            if (this.maxPage === 0) {
+                this.firstPage();
+                return;
+            }
+
             if (this.currentPage > this.maxPage) {
-                this.$emit('page-change', {
-                    page: this.maxPage,
-                    limit: this.perPage
-                });
+                this.changePageByPageNumber(this.maxPage);
             }
         }
     },

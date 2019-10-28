@@ -9,7 +9,7 @@ class GoogleProductSearchDe extends AbstractTemplate
     public function __construct()
     {
         $this->name = 'google-product-search-de';
-        $this->translationKey = 'sw-sales-channel.detail.productComparison.template-label.google-product-search-de';
+        $this->translationKey = 'sw-sales-channel.detail.productComparison.templates.template-label.google-product-search-de';
         $this->headerTemplate = '<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>

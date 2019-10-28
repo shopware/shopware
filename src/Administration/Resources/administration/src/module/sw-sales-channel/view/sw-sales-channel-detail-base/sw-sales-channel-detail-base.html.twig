@@ -9,8 +9,8 @@
                     {% block sw_sales_channel_detail_base_general_input_product_comparison_template %}
                         <sw-select-field
                             v-if="isProductComparison"
-                            :label="$tc('sw-sales-channel.detail.productComparison.template')"
-                            :placeholder="$tc('sw-sales-channel.detail.productComparison.placeholderSelectTemplate')"
+                            :label="$tc('sw-sales-channel.detail.productComparison.templates.label')"
+                            :placeholder="$tc('sw-sales-channel.detail.productComparison.templates.placeholderSelectTemplate')"
                             :options="templateOptions"
                             v-model="selectedTemplateName"
                             @change="$emit('template-selected', arguments[0])"
@@ -25,20 +25,20 @@
                     {% block sw_sales_channel_detail_product_comparison_template_modal %}
                         <sw-modal
                             v-if="showTemplateModal"
-                            :title="$tc('sw-sales-channel.detail.productComparison.templates.modal-message')"
+                            :title="$tc('sw-sales-channel.detail.productComparison.templates.modal-title')"
                             @modal-close="$emit('template-modal-close')"
                             @template-modal-confirm="$emit('template-modal-confirm')">
                             {% block sw_sales_channel_detail_product_comparison_template_modal_notification %}
+                                <template>
+                                    <p>{{ $tc('sw-sales-channel.detail.productComparison.templates.modal-message') }}</p>
+                                </template>
                                 <template slot="modal-footer">
-                                    <div>
-                                        <p>{{ $tc('sw-sales-channel.detail.productComparison.templates.modal-message') }}</p>
-                                        <sw-button size="small" @click="$emit('template-modal-close')">
-                                            {{ $tc('sw-sales-channel.detail.productComparison.templates.modal-cancel') }}
-                                        </sw-button>
-                                        <sw-button size="small" variant="primary" @click="$emit('template-modal-confirm')">
-                                            {{ $tc('sw-sales-channel.detail.productComparison.templates.modal-confirm') }}
-                                        </sw-button>
-                                    </div>
+                                    <sw-button size="small" @click="$emit('template-modal-close')">
+                                        {{ $tc('sw-sales-channel.detail.productComparison.templates.modal-cancel') }}
+                                    </sw-button>
+                                    <sw-button size="small" variant="primary" @click="$emit('template-modal-confirm')">
+                                        {{ $tc('sw-sales-channel.detail.productComparison.templates.modal-confirm') }}
+                                    </sw-button>
                                 </template>
                             {% endblock %}
                         </sw-modal>

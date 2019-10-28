@@ -9,7 +9,7 @@ class Idealo extends AbstractTemplate
     public function __construct()
     {
         $this->name = 'idealo';
-        $this->translationKey = 'sw-sales-channel.detail.productComparison.template-label.idealo';
+        $this->translationKey = 'sw-sales-channel.detail.productComparison.templates.template-label.idealo';
         $this->headerTemplate = '"Kategorie",{#- -#}
 "Hersteller",{#- -#}
 "Produktbezeichnung",{#- -#}

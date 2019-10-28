@@ -203,8 +203,8 @@ Component.register('sw-sales-channel-detail', {
             this.onTemplateModalClose();
 
             this.createNotificationInfo({
-                title: this.$tc('sw-sales-channel.detail.productComparison.template.message.template-applied-title'),
-                message: this.$tc('sw-sales-channel.detail.productComparison.template.message.template-applied-message')
+                title: this.$tc('sw-sales-channel.detail.productComparison.templates.message.template-applied-title'),
+                message: this.$tc('sw-sales-channel.detail.productComparison.templates.message.template-applied-message')
             });
         },
 

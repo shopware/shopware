@@ -9,7 +9,7 @@ class BilligerDe extends AbstractTemplate
     public function __construct()
     {
         $this->name = 'billiger_de';
-        $this->translationKey = 'sw-sales-channel.detail.productComparison.template-label.billiger-de';
+        $this->translationKey = 'sw-sales-channel.detail.productComparison.templates.template-label.billiger-de';
         $this->headerTemplate = 'aid,{#- -#}
 brand,{#- -#}
 mpnr,{#- -#}

@@ -254,12 +254,7 @@ class DocumentService
             $mediaFile,
             &$mediaId
         ): void {
-            $mediaId = $mediaService->saveMediaFile(
-                $mediaFile,
-                $fileName,
-                $context,
-                'document'
-            );
+            $mediaId = $mediaService->saveMediaFile($mediaFile, $fileName, $context, 'document');
         });
 
         $document->setDocumentMediaFileId($mediaId);
@@ -324,6 +319,7 @@ class DocumentService
     ): DocumentConfiguration {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('documentTypeId', $documentTypeId));
+        $criteria->addAssociation('logo');
         /** @var DocumentBaseConfigEntity $typeConfig */
         $typeConfig = $this->documentConfigRepository->search($criteria, $context)->first();
 
@@ -448,7 +444,7 @@ class DocumentService
             ->addAssociation('transactions.paymentMethod')
             ->addAssociation('currency')
             ->addAssociation('language.locale')
-            ->addAssociation('addresses')
+            ->addAssociation('addresses.country')
             ->addAssociation('deliveries.positions')
             ->addAssociation('deliveries.shippingMethod');
     }

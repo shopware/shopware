@@ -3,7 +3,7 @@ import './preview';
 
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'image-four-column',
-    label: 'Four column image grid',
+    label: 'sw-cms.blocks.image.imageFourColumn.label',
     category: 'image',
     component: 'sw-cms-block-image-four-column',
     previewComponent: 'sw-cms-preview-image-four-column',

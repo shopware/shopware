@@ -4,8 +4,8 @@
         {% block sw_cms_element_youtube_video_config_video_id %}
             <sw-field v-model="videoID"
                       type="text" 
-                      :label="$tc('sw-cms.elements.labelVideoID')"
-                      :placeholder="$tc('sw-cms.elements.placeholderVideoID')">
+                      :label="$tc('sw-cms.elements.vimeoVideo.config.label.videoId')"
+                      :placeholder="$tc('sw-cms.elements.vimeoVideo.config.placeholder.videoId')">
             </sw-field>
         {% endblock %}
 
@@ -14,30 +14,30 @@
             {% block sw_cms_element_youtube_video_config_autoplay %}
                 <sw-field v-model="element.config.autoPlay.value"
                           type="switch"
-                          :label="$tc('sw-cms.elements.labelAutoPlay')"
-                          :helpText="$tc('sw-cms.elements.helpTextAutoPlay')">
+                          :label="$tc('sw-cms.elements.vimeoVideo.config.label.autoPlay')"
+                          :helpText="$tc('sw-cms.elements.vimeoVideo.config.helpText.autoplay')">
                 </sw-field>
             {% endblock %}
 
             {% block sw_cms_element_youtube_video_config_loop %}
                 <sw-field v-model="element.config.loop.value"
                           type="switch"
-                          :label="$tc('sw-cms.elements.labelLoop')">
+                          :label="$tc('sw-cms.elements.vimeoVideo.config.label.loop')">
                 </sw-field>
             {% endblock %}
 
             {% block sw_cms_element_youtube_video_config_show_controls %}
                 <sw-field v-model="element.config.showControls.value"
                           type="switch"
-                          :label="$tc('sw-cms.elements.labelShowControls')">
+                          :label="$tc('sw-cms.elements.vimeoVideo.config.label.showControls')">
                 </sw-field>
             {% endblock %}
 
             {% block sw_cms_element_youtube_video_config_advanced_privacy_mode %}
                 <sw-field v-model="element.config.advancedPrivacyMode.value"
                           type="switch"
-                          :label="$tc('sw-cms.elements.labelAdvancedPricacy')"
-                          :helpText="$tc('sw-cms.elements.helpTextAdvancedPrivacy')">
+                          :label="$tc('sw-cms.elements.vimeoVideo.config.label.advancedPrivacy')"
+                          :helpText="$tc('sw-cms.elements.vimeoVideo.config.helpText.advancedPrivacy')">
                 </sw-field>
             {% endblock %}
 
@@ -48,7 +48,7 @@
                 <sw-field :value="startValue"
                           @change="setTimeValue($event, 'start')"
                           type="text"
-                          :label="$tc('sw-cms.elements.labelStartValue')"
+                          :label="$tc('sw-cms.elements.vimeoVideo.config.label.start')"
                           placeholder="0:00">
                 </sw-field>
             {% endblock %}
@@ -57,7 +57,7 @@
                 <sw-field :value="endValue"
                           @change="setTimeValue($event, 'end')"
                           type="text"
-                          :label="$tc('sw-cms.elements.labelEndValue')"
+                          :label="$tc('sw-cms.elements.vimeoVideo.config.label.end')"
                           placeholder="0:00">
                 </sw-field>
             {% endblock %}
@@ -66,10 +66,10 @@
 
         {% block sw_cms_element_youtube_video_config_display_mode %}
             <sw-select-field v-model="element.config.displayMode.value"
-                                :placeholder="$tc('sw-cms.elements.placeholderDisplayMode')"
-                                :label="$tc('sw-cms.elements.labelDisplayMode')">
-                <option value="standard">{{ $tc('sw-cms.elements.labelDisplayModeStandard') }}</option>
-                <option value="streched">{{ $tc('sw-cms.elements.labelDisplayModeStreched') }}</option>
+                                :placeholder="$tc('sw-cms.elements.general.config.label.displayMode')"
+                                :label="$tc('sw-cms.elements.general.config.label.displayMode')">
+                <option value="standard">{{ $tc('sw-cms.elements.general.config.label.displayModeStandard') }}</option>
+                <option value="streched">{{ $tc('sw-cms.elements.general.config.label.displayModeStretch') }}</option>
             </sw-select-field>
         {% endblock %}
 

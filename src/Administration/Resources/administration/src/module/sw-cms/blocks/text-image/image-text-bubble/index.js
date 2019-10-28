@@ -3,7 +3,7 @@ import './preview';
 
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'image-text-bubble',
-    label: 'Three column image and text grid with round images',
+    label: 'sw-cms.blocks.textImage.imageTextBubble.label',
     category: 'text-image',
     component: 'sw-cms-block-image-text-bubble',
     previewComponent: 'sw-cms-preview-image-text-bubble',

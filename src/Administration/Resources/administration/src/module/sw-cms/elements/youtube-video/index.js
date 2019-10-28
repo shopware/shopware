@@ -4,7 +4,7 @@ import './preview';
 
 Shopware.Service('cmsService').registerCmsElement({
     name: 'youtube-video',
-    label: 'YouTube video',
+    label: 'sw-cms.elements.youtubeVideo.label',
     component: 'sw-cms-el-youtube-video',
     configComponent: 'sw-cms-el-config-youtube-video',
     previewComponent: 'sw-cms-el-preview-youtube-video',

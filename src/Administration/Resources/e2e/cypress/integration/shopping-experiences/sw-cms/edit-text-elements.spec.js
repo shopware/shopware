@@ -34,7 +34,7 @@ describe('CMS: Check usage and editing of text elements', () => {
 
         // Add simple text block
         cy.get('.sw-cms-section__empty-stage').click();
-        cy.get('.sw-cms-sidebar__block-preview:nth-of-type(2)')
+        cy.get('.sw-cms-sidebar__block-selection > div:nth-of-type(2)')
             .dragTo('.sw-cms-section__empty-stage');
         cy.get('.sw-cms-block').should('be.visible');
         cy.get('.sw-text-editor__content-editor h2').contains('Lorem Ipsum dolor sit amet');
@@ -99,8 +99,8 @@ describe('CMS: Check usage and editing of text elements', () => {
 
         // Add text block with three columns
         cy.get('.sw-cms-section__empty-stage').click();
-        cy.get('.sw-cms-sidebar__block-preview:nth-of-type(6)').scrollIntoView();
-        cy.get('.sw-cms-sidebar__block-preview:nth-of-type(6)')
+        cy.get('.sw-cms-sidebar__block-selection > div:nth-of-type(6)').scrollIntoView();
+        cy.get('.sw-cms-sidebar__block-selection > div:nth-of-type(6)')
             .dragTo('.sw-cms-section__empty-stage');
         cy.get('.sw-cms-block').should('be.visible');
         cy.get('.sw-text-editor__content-editor p').first().contains('Lorem ipsum dolor sit amet');

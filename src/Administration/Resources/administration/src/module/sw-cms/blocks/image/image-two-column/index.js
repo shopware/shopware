@@ -3,7 +3,7 @@ import './preview';
 
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'image-two-column',
-    label: 'Two column image grid',
+    label: 'sw-cms.blocks.image.imageTwoColumn.label',
     category: 'image',
     component: 'sw-cms-block-image-two-column',
     previewComponent: 'sw-cms-preview-image-two-column',

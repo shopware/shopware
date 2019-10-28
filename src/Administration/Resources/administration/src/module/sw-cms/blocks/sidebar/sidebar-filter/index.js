@@ -5,7 +5,7 @@ const { Application } = Shopware;
 
 Application.getContainer('service').cmsService.registerCmsBlock({
     name: 'sidebar-filter',
-    label: 'Filter for product listing',
+    label: 'sw-cms.blocks.sidebar.sidebarFilter.label',
     category: 'sidebar',
     component: 'sw-cms-block-preview-sidebar-filter',
     previewComponent: 'sw-cms-block-preview-sidebar-filter',

@@ -3,7 +3,7 @@ import './preview';
 
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'product-slider',
-    label: 'Product slider',
+    label: 'sw-cms.blocks.commerce.productSlider.label',
     category: 'commerce',
     component: 'sw-cms-block-product-slider',
     previewComponent: 'sw-cms-preview-product-slider',

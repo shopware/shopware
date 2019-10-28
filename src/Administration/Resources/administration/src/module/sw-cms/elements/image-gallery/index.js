@@ -4,7 +4,7 @@ import './preview';
 
 Shopware.Service('cmsService').registerCmsElement({
     name: 'image-gallery',
-    label: 'Image gallery',
+    label: 'sw-cms.elements.imageGallery.label',
     component: 'sw-cms-el-image-gallery',
     configComponent: 'sw-cms-el-config-image-gallery',
     previewComponent: 'sw-cms-el-preview-image-gallery',

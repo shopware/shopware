@@ -2,12 +2,12 @@
 
 .sw-cms-el-preview-gallery {
     display: grid;
-    grid-template-columns: 46px 1fr;
+    grid-template-columns: 24px 1fr;
     grid-gap: 4px;
 
     .sw-cms-el-preview-gallery-preview {
         display: grid;
-        grid-auto-rows: 44px;
+        grid-auto-rows: 16px;
         grid-gap: 4px;
 
         img {
@@ -17,7 +17,12 @@
             object-fit: cover;
             width: 100%;
             height: 100%;
-            padding: 4px;
+            padding: 2px;
         }
+    }
+
+    .sw-cms-el-preview-gallery__slider img {
+        height: 102px;
+        object-fit: cover;
     }
 }

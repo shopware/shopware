@@ -1,6 +1,6 @@
 @import "~scss/variables";
 
-.sw-cms-preview-category-navigation {
+.sw-cms-el-preview-category-navigation {
     width: 100%;
     background: $color-white;
     font-size: 22px;
@@ -8,23 +8,30 @@
     font-weight: 600;
 
     .sw-cms-el-category-placeholder-listing div {
-        margin: 10px 30px;
-        height: 0.7em;
-        border-radius: 4px;
+        margin: 10px 0;
+        height: 0.4em;
+        border-radius: 25px;
         background-color: $color-gray-100;
 
         &.sw-cms-el-category-navigation__placeholder--subcategory {
-            margin: 7px 30px 7px 70px;
+            margin: 7px 20px 7px 20px;
+
+            &:last-of-type {
+                margin-right: 10px;
+            }
         }
     }
 
     hr {
-        max-width: 90%;
+        max-width: 100%;
         margin: 10px auto;
-        border: 1px solid $color-steam-cloud;
+        height: 1px;
+        border: 0 none;
+        background-color: $color-steam-cloud;
     }
 
     p {
-        margin: auto 10px;
+        font-size: 14px;
+        margin: auto 10px auto 0;
     }
 }

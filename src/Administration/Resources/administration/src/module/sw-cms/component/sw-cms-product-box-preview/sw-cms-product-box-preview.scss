@@ -3,12 +3,23 @@
 .sw-cms-product-box-preview {
     height: 100%;
     display: grid;
-    grid-template-rows: 65px 22px auto 22px 26px;
-    align-items: start;
+    grid-template-rows: 80px 25px;
+    align-items: center;
     align-content: stretch;
-    padding: 5px;
+    padding: 0;
     color: $color-gutenberg;
     border-radius: 2px;
+
+    &.has--text {
+        width: 100%;
+        grid-template-rows: 65px 70px 26px;
+        padding: 5px;
+        align-items: start;
+
+        .sw-cms-product-box-preview__action {
+            align-self: end;
+        }
+    }
 
     .sw-cms-product-box-preview__image {
         height: 60px;

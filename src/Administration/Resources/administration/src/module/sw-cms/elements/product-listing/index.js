@@ -4,7 +4,7 @@ import './preview';
 
 Shopware.Service('cmsService').registerCmsElement({
     name: 'product-listing',
-    label: 'Product listing',
+    label: 'sw-cms.elements.productListing.label',
     hidden: true,
     removable: false,
     component: 'sw-cms-el-product-listing',

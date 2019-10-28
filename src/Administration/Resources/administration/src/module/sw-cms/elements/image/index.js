@@ -4,7 +4,7 @@ import './preview';
 
 Shopware.Service('cmsService').registerCmsElement({
     name: 'image',
-    label: 'Image',
+    label: 'sw-cms.elements.image.label',
     component: 'sw-cms-el-image',
     configComponent: 'sw-cms-el-config-image',
     previewComponent: 'sw-cms-el-preview-image',

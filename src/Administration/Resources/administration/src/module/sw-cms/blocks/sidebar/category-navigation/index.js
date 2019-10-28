@@ -5,7 +5,7 @@ const { Application } = Shopware;
 
 Application.getContainer('service').cmsService.registerCmsBlock({
     name: 'category-navigation',
-    label: 'Category navigation',
+    label: 'sw-cms.blocks.sidebar.categoryNavigation.label',
     category: 'sidebar',
     component: 'sw-cms-block-category-navigation',
     previewComponent: 'sw-cms-block-preview-category-navigation',

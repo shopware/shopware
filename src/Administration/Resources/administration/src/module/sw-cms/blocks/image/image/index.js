@@ -3,7 +3,7 @@ import './preview';
 
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'image',
-    label: 'Image',
+    label: 'sw-cms.blocks.image.image.label',
     category: 'image',
     component: 'sw-cms-block-image',
     previewComponent: 'sw-cms-preview-image',

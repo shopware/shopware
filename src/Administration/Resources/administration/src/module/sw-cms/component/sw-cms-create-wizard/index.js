@@ -17,10 +17,10 @@ Component.register('sw-cms-create-wizard', {
         return {
             step: 1,
             pageTypeNames: {
-                page: this.$tc('sw-cms.detail.labelPageTypeShopPage'),
-                landingpage: this.$tc('sw-cms.detail.labelPageTypeLandingpage'),
-                product_list: this.$tc('sw-cms.detail.labelPageTypeCategory'),
-                product_detail: this.$tc('sw-cms.detail.labelPageTypeProduct')
+                page: this.$tc('sw-cms.detail.label.pageTypeShopPage'),
+                landingpage: this.$tc('sw-cms.detail.label.pageTypeLandingpage'),
+                product_list: this.$tc('sw-cms.detail.label.pageTypeCategory'),
+                product_detail: this.$tc('sw-cms.detail.label.pageTypeProduct')
             },
             pageTypeIcons: {
                 page: 'default-object-lightbulb',

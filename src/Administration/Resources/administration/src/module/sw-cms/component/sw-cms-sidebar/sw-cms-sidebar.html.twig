@@ -3,21 +3,21 @@
 
         {% block sw_cms_sidebar_page_settings %}
             <sw-sidebar-item icon="default-action-settings"
-                             :title="$tc('sw-cms.detail.sidebarTitlePageSettings')"
+                             :title="$tc('sw-cms.detail.sidebar.titlePageSettings')"
                              ref="pageConfigSidebar">
 
                 {% block sw_cms_sidebar_page_settings_content %}
                     <sw-sidebar-collapse :expandOnLoading="true">
 
                         {% block sw_cms_sidebar_page_settings_header %}
-                            <span slot="header">{{ $tc('sw-cms.detail.sidebarHeaderPageSettings') }}</span>
+                            <span slot="header">{{ $tc('sw-cms.detail.sidebar.headerPageSettings') }}</span>
                         {% endblock %}
 
                         {% block sw_cms_sidebar_page_settings_form %}
                             <div class="sw-cms-sidebar__settings" slot="content">
                                 {% block sw_cms_sidebar_page_settings_name_field %}
                                     <sw-field type="text"
-                                              :label="$tc('sw-cms.detail.labelPageName')"
+                                              :label="$tc('sw-cms.detail.label.pageName')"
                                               :placeholder="placeholder(page, 'name')"
                                               v-model="page.name">
                                     </sw-field>
@@ -25,22 +25,22 @@
 
                                 {% block sw_cms_sidebar_page_settings_type_field %}
                                     <sw-select-field
-                                        :label="$tc('sw-cms.detail.labelPageType')"
+                                        :label="$tc('sw-cms.detail.label.pageType')"
                                         :disabled="!isSystemDefaultLanguage"
                                         v-model="page.type"
                                         @change="onPageTypeChange">
                                             {% block sw_cms_sidebar_page_settings_type_field_options %}
                                                 <option value="page">
-                                                    {{ $tc('sw-cms.detail.labelPageTypeShopPage') }}
+                                                    {{ $tc('sw-cms.detail.label.pageTypeShopPage') }}
                                                 </option>
                                                 <option value="landingpage">
-                                                    {{ $tc('sw-cms.detail.labelPageTypeLandingpage') }}
+                                                    {{ $tc('sw-cms.detail.label.pageTypeLandingpage') }}
                                                 </option>
                                                 <option value="product_list">
-                                                    {{ $tc('sw-cms.detail.labelPageTypeCategory') }}
+                                                    {{ $tc('sw-cms.detail.label.pageTypeCategory') }}
                                                 </option>
                                                 <option value="product_detail" disabled>
-                                                    {{ $tc('sw-cms.detail.labelPageTypeProduct') }}
+                                                    {{ $tc('sw-cms.detail.label.pageTypeProduct') }}
                                                 </option>
                                             {% endblock %}
                                     </sw-select-field>
@@ -50,8 +50,8 @@
                                     <sw-entity-single-select
                                         v-if="demoEntity !== null"
                                         ref="cmsDemoSelection"
-                                        :label="$tc('sw-cms.detail.labelDemoEntity')"
-                                        :placeholder="$tc('sw-cms.detail.placeholderDemoEntity')"
+                                        :label="$tc('sw-cms.detail.label.demoEntity')"
+                                        :placeholder="$tc('sw-cms.detail.placeholder.demoEntity')"
                                         :entity="demoEntity"
                                         @input="onDemoEntityChange"
                                         v-model="demoEntityId">
@@ -74,28 +74,38 @@
 
                         {% block sw_cms_sidebar_block_overview_category %}
                             <div class="sw-cms-sidebar__block-category">
-                                <sw-select-field :label="$tc('sw-cms.detail.labelBlockCategorySelection')"
+                                <sw-select-field :label="$tc('sw-cms.detail.label.blockCategorySelection')"
                                                  v-model="currentBlockCategory">
-                                    <option value="text">{{ $tc('sw-cms.detail.labelBlockCategoryText') }}</option>
-                                    <option value="image">{{ $tc('sw-cms.detail.labelBlockCategoryImage') }}</option>
-                                    <option value="video">{{ $tc('sw-cms.detail.labelBlockCategoryVideo') }}</option>
-                                    <option value="text-image">{{ $tc('sw-cms.detail.labelBlockCategoryTextImage') }}</option>
-                                    <option value="commerce">{{ $tc('sw-cms.detail.labelBlockCategoryCommerce') }}</option>
-                                    <option value="sidebar">{{ $tc('sw-cms.detail.labelBlockCategorySidebar') }}</option>
+                                    <option value="text">{{ $tc('sw-cms.detail.label.blockCategoryText') }}</option>
+                                    <option value="image">{{ $tc('sw-cms.detail.label.blockCategoryImage') }}</option>
+                                    <option value="video">{{ $tc('sw-cms.detail.label.blockCategoryVideo') }}</option>
+                                    <option value="text-image">{{ $tc('sw-cms.detail.label.blockCategoryTextImage') }}</option>
+                                    <option value="commerce">{{ $tc('sw-cms.detail.label.blockCategoryCommerce') }}</option>
+                                    <option value="sidebar">{{ $tc('sw-cms.detail.label.blockCategorySidebar') }}</option>
                                 </sw-select-field>
                             </div>
                         {% endblock %}
 
                         {% block sw_cms_sidebar_block_overview_preview %}
                             <div class="sw-cms-sidebar__block-selection">
-                                <div class="sw-cms-sidebar__block-preview"
-                                     v-for="block in cmsBlocks"
+                                <div v-for="block in cmsBlocks"
                                      :key="block.name"
-                                     v-if="block.category === currentBlockCategory && block.hidden !== true"
-                                     v-draggable="{ dragGroup: 'cms-stage', data: { block }, onDrop: onBlockStageDrop }">
+                                     v-if="block.category === currentBlockCategory && block.hidden !== true">
 
-                                    {% block sw_cms_sidebar_block_overview_preview_component %}
-                                        <component :is="block.previewComponent"></component>
+                                     <div class="sw-cms-sidebar__block-preview"
+                                          :class="{ 'has--no-label': !block.label }"
+                                          v-draggable="{ dragGroup: 'cms-stage', data: { block }, onDrop: onBlockStageDrop }">
+
+                                        {% block sw_cms_sidebar_block_overview_preview_component %}
+                                            <component :is="block.previewComponent"></component>
+                                        {% endblock %}
+                                    </div>
+
+                                    {% block sw_cms_sidebar_block_overview_preview_label %}
+                                        <span v-if="block.label"
+                                              class="sw-cms-sidebar__block-label">
+                                              {{ $tc(block.label) }}
+                                        </span>
                                     {% endblock %}
                                 </div>
                             </div>
@@ -183,7 +193,7 @@
 
         {% block sw_cms_sidebar_navigator %}
             <sw-sidebar-item icon="default-os-layers"
-                             :title="$tc('sw-cms.detail.sidebarTitleNavigator')"
+                             :title="$tc('sw-cms.detail.sidebar.titleNavigator')"
                              :disabled="!page.sections.length === 0 || currentDeviceView === 'form'"
                              ref="blockNavigator">
                 {% block sw_cms_sidebar_navigator_content %}
@@ -274,7 +284,7 @@
                                             <div class="sw-cms-sidebar__navigator-empty-element"
                                                  :key="section.id + '_main'"
                                                  v-droppable="getDropData({ position: 0, sectionPosition: 'main' }, sectionIndex)">
-                                            {{ $tc('sw-cms.detail.addBlocks') }}
+                                            {{ $tc('sw-cms.detail.label.addBlocks') }}
                                             </div>
                                         {% endblock %}
                                     </template>
@@ -307,7 +317,7 @@
                                                 <div class="sw-cms-sidebar__navigator-empty-element"
                                                      :key="section.id + '_sidebar'"
                                                      v-droppable="getDropData({ position: 0, sectionPosition: 'sidebar' }, sectionIndex)">
-                                                    {{ $tc('sw-cms.detail.addBlocks') }}
+                                                    {{ $tc('sw-cms.detail.label.addBlocks') }}
                                                 </div>
                                             {% endblock %}
                                         </template>

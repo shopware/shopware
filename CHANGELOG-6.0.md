@@ -62,6 +62,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * `sw-tree`'s `drag-end` event now emits information about the old and new parentId of the dragged element.
     * The changeset generator now ommits write protected fields
     * We added `fromCollection` and `fromCriteria` methods to criteria/collections to deep copy them if needed
+    * Due to the redesign of the cms blocks and elements you can now translate the label of your blocks and elements
    
 * Core
     * Added DAL support for multi primary keys.

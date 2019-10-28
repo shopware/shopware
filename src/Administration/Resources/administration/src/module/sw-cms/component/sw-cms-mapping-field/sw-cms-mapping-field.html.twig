@@ -16,7 +16,7 @@
                                     <div class="sw-cms-mapping-field__action" slot="button">
                                         <sw-icon name="default-action-external" size="16"></sw-icon>
                                         <span class="sw-cms-mapping-field__action-label">
-                                            {{ $tc('sw-cms.detail.labelButtonMappingAction') }}
+                                            {{ $tc('sw-cms.detail.label.buttonMappingAction') }}
                                         </span>
                                     </div>
                                 {% endblock %}
@@ -37,7 +37,7 @@
                             <div class="sw-cms-mapping-field__action-remove" @click="onMappingRemove" v-else>
                                 <sw-icon name="default-basic-x-line" size="14"></sw-icon>
                                 <span class="sw-cms-mapping-field__action-label">
-                                    {{ $tc('sw-cms.detail.labelButtonMappingRemoveAction') }}
+                                    {{ $tc('sw-cms.detail.label.buttonMappingRemoveAction') }}
                                 </span>
                             </div>
                         {% endblock %}
@@ -55,7 +55,7 @@
         <template v-else>
             {% block sw_cms_mapping_field_mapping_value %}
                 <div class="sw-cms-mapping-field__mapping-value">
-                    {{ $tc('sw-cms.detail.labelMappingPreview') }} <b>{{ config.value }}</b>
+                    {{ $tc('sw-cms.detail.label.mappingPreview') }} <b>{{ config.value }}</b>
                 </div>
             {% endblock %}
 
@@ -64,7 +64,7 @@
                     <slot name="preview" :demoValue="demoValue" v-if="demoValue !== null"></slot>
 
                     <sw-alert variant="info" class="sw-cms-mapping-field__empty-demo" v-else>
-                        {{ $tc('sw-cms.detail.labelMappingEmptyPreview') }}
+                        {{ $tc('sw-cms.detail.label.mappingEmptyPreview') }}
                     </sw-alert>
                 </div>
             {% endblock %}

@@ -23,15 +23,15 @@
             <div class="sw-cms-section-config__settings">
 
                 {% block sw_cms_block_config_name_field %}
-                    <sw-text-field :label="$tc('sw-cms.detail.labelBlockNameField')"
-                                   :helpText="$tc('sw-cms.detail.tooltipBlockNameField')"
+                    <sw-text-field :label="$tc('sw-cms.detail.label.blockNameField')"
+                                   :helpText="$tc('sw-cms.detail.tooltip.blockNameField')"
                                    v-model="block.name">
                     </sw-text-field>
                 {% endblock %}
 
                 {% block sw_cms_block_config_background_color_field %}
                     <sw-colorpicker v-model="block.backgroundColor"
-                                    :label="$tc('sw-cms.detail.labelBackgroundColorLabel')"
+                                    :label="$tc('sw-cms.detail.label.backgroundColorLabel')"
                                     :placeholder="$tc('sw-cms.detail.labelBackgroundColorField')">
                     </sw-colorpicker>
                 {% endblock %}
@@ -40,7 +40,7 @@
                     <sw-media-compact-upload
                         :source="block && block.backgroundMedia && block.backgroundMedia.id ? block.backgroundMedia : null"
                         :uploadTag="uploadTag"
-                        :label="$tc('sw-cms.detail.labelBackgroundMediaLabel')"
+                        :label="$tc('sw-cms.detail.label.backgroundMediaLabel')"
                         :defaultFolder="cmsPageState.pageEntityName"
                         :allowMultiSelect="false"
                         @media-upload-remove-image="removeMedia"
@@ -53,12 +53,12 @@
                     </sw-upload-store-listener>
 
                     {% block sw_cms_block_config_background_image_position_field %}
-                        <sw-select-field :label="$tc('sw-cms.detail.labelBackgroundMediaMode')"
+                        <sw-select-field :label="$tc('sw-cms.detail.label.backgroundMediaMode')"
                                          v-model="block.backgroundMediaMode"
                                          :disabled="!block.backgroundMediaId">
-                            <option value="auto">{{ $tc('sw-cms.detail.labelBackgroundMediaModeAuto') }}</option>
-                            <option value="contain">{{ $tc('sw-cms.detail.labelBackgroundMediaModeContain') }}</option>
-                            <option value="cover">{{ $tc('sw-cms.detail.labelBackgroundMediaModeCover') }}</option>
+                            <option value="auto">{{ $tc('sw-cms.detail.label.backgroundMediaModeAuto') }}</option>
+                            <option value="contain">{{ $tc('sw-cms.detail.label.backgroundMediaModeContain') }}</option>
+                            <option value="cover">{{ $tc('sw-cms.detail.label.backgroundMediaModeCover') }}</option>
                         </sw-select-field>
                     {% endblock %}
                 {% endblock %}

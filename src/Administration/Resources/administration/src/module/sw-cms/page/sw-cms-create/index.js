@@ -57,8 +57,8 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
             this.isSaveSuccessful = false;
 
             if ((this.isSystemDefaultLanguage && !this.page.name) || !this.page.type) {
-                const warningTitle = this.$tc('sw-cms.detail.notificationTitleMissingFields');
-                const warningMessage = this.$tc('sw-cms.detail.notificationMessageMissingFields');
+                const warningTitle = this.$tc('sw-cms.detail.notification.titleMissingFields');
+                const warningMessage = this.$tc('sw-cms.detail.notification.messageMissingFields');
                 this.createNotificationWarning({
                     title: warningTitle,
                     message: warningMessage
@@ -77,7 +77,7 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
             }).catch((exception) => {
                 this.isLoading = false;
 
-                const errorNotificationTitle = this.$tc('sw-cms.detail.notificationTitlePageError');
+                const errorNotificationTitle = this.$tc('sw-cms.detail.notification.titlePageError');
                 this.createNotificationError({
                     title: errorNotificationTitle,
                     message: exception.message

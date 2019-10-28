@@ -87,7 +87,7 @@ Here's what it should look like after having set all of those options:
 ```js
 Shopware.Service('cmsService').registerCmsElement({
     name: 'youtube',
-    label: 'YouTube Video',
+    label: 'sw-cms.elements.customYouTubeElement.label',
     component: 'sw-cms-el-youtube',
     configComponent: 'sw-cms-el-config-youtube',
     previewComponent: 'sw-cms-el-preview-youtube',
@@ -104,7 +104,38 @@ Shopware.Service('cmsService').registerCmsElement({
 });
 ```
 
-The properties `name` and `label` do not require further explanation.
+The property `name` does not require further explanation.
+But you need to create a snippet files in you plugin directory for the `label` property.
+
+To do this, create a folder with the name `snippet` in your `sw-cms` folder. After that create the files for the languages. For example `de-DE.json` and `en-GB.json`.
+
+The content of your snippet file should look something like this:
+
+```json
+{
+  "sw-cms": {
+    "elements": {
+       "customYouTubeElement": {
+        "label": "YouTube Video"
+      }
+    }
+  }
+}
+```
+
+Next, import the snippet files into your `main.js`.
+
+```js
+import './module/sw-cms/elements/youtube';
+import deDE from './module/sw-cms/snippet/de-DE.json';
+import enGB from './module/sw-cms/snippet/en-GB.json';
+
+Shopware.Locale.extend('de-DE', deDE);
+Shopware.Locale.extend('en-GB', enGB);
+```
+
+You've now finished the part for the snippets. For more information about snippets, [click here](https://docs.shopware.com/en/shopware-platform-dev-en/how-to/adding-snippets).
+
 For all three fields `component`, `configComponent` and `previewComponent`, components that do not **yet** exist were applied. Those will be created
 in the next few steps as well.
 The `defaultConfig` defines the default values for the element's configurations. There will be a text field to enter a YouTube video's ID, `videoSrc`, and a

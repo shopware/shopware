@@ -6,7 +6,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
-use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
+use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -27,7 +27,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class CmsController extends StorefrontController
 {
     /**
-     * @var SalesChannelCmsPageLoader
+     * @var SalesChannelCmsPageLoaderInterface
      */
     private $cmsPageLoader;
 
@@ -42,7 +42,7 @@ class CmsController extends StorefrontController
     private $listingGateway;
 
     public function __construct(
-        SalesChannelCmsPageLoader $cmsPageLoader,
+        SalesChannelCmsPageLoaderInterface $cmsPageLoader,
         SalesChannelRepositoryInterface $categoryRepository,
         ProductListingGateway $listingGateway
     ) {

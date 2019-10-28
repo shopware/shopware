@@ -6,7 +6,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
-use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
+use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 class NavigationPageLoader
 {
     /**
-     * @var SalesChannelCmsPageLoader
+     * @var SalesChannelCmsPageLoaderInterface
      */
     private $cmsPageLoader;
 
@@ -39,7 +39,7 @@ class NavigationPageLoader
     private $categoryDefinition;
 
     public function __construct(
-        SalesChannelCmsPageLoader $cmsPageLoader,
+        SalesChannelCmsPageLoaderInterface $cmsPageLoader,
         GenericPageLoader $genericLoader,
         EventDispatcherInterface $eventDispatcher,
         EntityDefinition $categoryDefinition

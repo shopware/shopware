@@ -91,20 +91,14 @@ PHP analysis:
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
     script:
         - ./psh.phar init
-        - php -d pcov.enabled=1 -d pcov.directory=$CI_PROJECT_DIR
+        - php
             vendor/bin/phpunit
             --configuration vendor/shopware/platform/phpunit.xml.dist
             --log-junit build/artifacts/phpunit.junit.xml
             --colors=never
-            --coverage-clover build/artifacts/phpunit.clover.xml
-            --coverage-html build/artifacts/phpunit-coverage-html
-            --coverage-text=build/artifacts/phpunit-coverage-text
-        - cat build/artifacts/phpunit-coverage-text | sed -e '/\\Shopware\\.*/d' -e '/\s*Methods:\s*\d*/d'
 
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
     artifacts:
-        paths:
-            - development/build/artifacts/phpunit.clover.xml
         reports:
             junit: development/build/artifacts/phpunit.junit.xml
 

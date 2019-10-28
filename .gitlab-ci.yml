@@ -11,6 +11,7 @@ stages:
     - unit
     - E2E
     - Build
+    - Generate docs
     - Security
     - Deploy
 
@@ -45,7 +46,7 @@ default:
         - cp -v dev-ops/gitlab/.psh.yaml.override .
         - /entrypoint supervisord > /dev/null 2>&1 &
 
-# Stage: static
+# Stage: Static analysis
 
 Javascript analysis:
     stage: Static analysis
@@ -78,6 +79,7 @@ PHP analysis:
             codequality: development/phpstan-report.json
 
 # stage: unit
+
 .phpunit_base:
     stage: unit
     needs: [PHP analysis]
@@ -216,7 +218,7 @@ Storefront (Jest):
         reports:
             junit: development/build/artifacts/storefront.junit.xml
 
-# Stage: e2e
+# Stage: E2E
 
 .job_template: &e2e_definition
     stage: E2E
@@ -346,6 +348,22 @@ Component Library:
     artifacts:
         paths:
             - build/artifacts/component-library/
+
+# Stage: Generate docs
+
+Generating docs:
+    stage: Generate docs
+    dependencies: []
+    needs: []
+    services:
+        -   name: docker:18.09.7-dind
+            alias: docker
+    script:
+        - docker build -t shopware-plattform-plantuml dev-ops/docs/docker/plantuml/.
+        - sh ./dev-ops/docs/scripts/render_puml.sh platform/src/Docs/Resources/current
+        - ./psh.phar init-composer
+        - php dev-ops/docs/scripts/dumpPlatformUpdates.php
+        - php dev-ops/docs/scripts/convertMarkdownToDocs.php convert -i platform/src/Docs/Resources/current/ -o build/docs -u /shopware-platform-dev -s
 
 # Stage: security
 

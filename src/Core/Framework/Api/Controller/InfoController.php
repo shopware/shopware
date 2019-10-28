@@ -61,7 +61,7 @@ class InfoController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_info/openapi3.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required%"}, name="api.info.openapi3", methods={"GET"})
+     * @Route("/api/v{version}/_info/openapi3.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="api.info.openapi3", methods={"GET"})
      *
      * @throws \Exception
      */
@@ -73,7 +73,7 @@ class InfoController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_info/open-api-schema.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required%"}, name="api.info.open-api-schema", methods={"GET"})
+     * @Route("/api/v{version}/_info/open-api-schema.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="api.info.open-api-schema", methods={"GET"})
      */
     public function openApiSchema(): JsonResponse
     {
@@ -93,7 +93,7 @@ class InfoController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_info/swagger.html", defaults={"auth_required"="%shopware.api.api_browser.auth_required%"}, name="api.info.swagger", methods={"GET"})
+     * @Route("/api/v{version}/_info/swagger.html", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="api.info.swagger", methods={"GET"})
      */
     public function infoHtml(): Response
     {

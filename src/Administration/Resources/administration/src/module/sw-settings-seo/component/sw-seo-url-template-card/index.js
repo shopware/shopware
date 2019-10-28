@@ -18,6 +18,7 @@ Component.register('sw-seo-url-template-card', {
         return {
             defaultSeoUrlTemplates: null,
             seoUrlTemplates: null,
+            seoUrlPreviewCriteria: {},
             isLoading: true,
             debouncedPreviews: {},
             previewLoadingStates: {},
@@ -69,6 +70,11 @@ Component.register('sw-seo-url-template-card', {
                 this.seoUrlTemplateRepository.schema.entity,
                 this.context, new Criteria()
             );
+
+            this.seoUrlPreviewCriteria['frontend.navigation.page'] =
+                (new Criteria()).addFilter(
+                    Criteria.not('and', [Criteria.equals('path', null)])
+                );
 
             this.fetchSalesChannels();
             this.fetchSeoUrlTemplates();
@@ -156,7 +162,7 @@ Component.register('sw-seo-url-template-card', {
         },
         getLabel(seoUrlTemplate) {
             const routeName = seoUrlTemplate.routeName.replace(/\./g, '-');
-            if (this.$te(`sw-seo-url-template-card.routeNames.${routeName}`)) {
+            if (this.$tc(`sw-seo-url-template-card.routeNames.${routeName}`)) {
                 return this.$tc(`sw-seo-url-template-card.routeNames.${routeName}`);
             }
 
@@ -260,6 +266,9 @@ Component.register('sw-seo-url-template-card', {
         },
         fetchSeoUrlPreview(entity) {
             this.$set(this.previewLoadingStates, entity.id, true);
+            const criteria = this.seoUrlPreviewCriteria[entity.routeName]
+                ? this.seoUrlPreviewCriteria[entity.routeName] : (new Criteria());
+            entity.criteria = criteria.parse();
             this.seoUrlTemplateService.preview(entity).then((response) => {
                 this.noEntityError = this.noEntityError.filter((elem) => {
                     return elem !== entity.id;

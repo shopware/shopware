@@ -4,19 +4,26 @@ namespace Shopware\Core\Checkout\Payment\Cart;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Struct\CloneTrait;
+use Shopware\Core\Framework\Struct\ExtendableInterface;
+use Shopware\Core\Framework\Struct\ExtendableTrait;
+use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 
-class SyncPaymentTransactionStruct extends Struct
+class SyncPaymentTransactionStruct implements \JsonSerializable, ExtendableInterface
 {
+    use CloneTrait;
+    use JsonSerializableTrait;
+    use ExtendableTrait;
+
     /**
      * @var OrderTransactionEntity
      */
-    private $orderTransaction;
+    protected $orderTransaction;
 
     /**
      * @var OrderEntity
      */
-    private $order;
+    protected $order;
 
     public function __construct(OrderTransactionEntity $orderTransaction, OrderEntity $order)
     {

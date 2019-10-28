@@ -10,7 +10,7 @@ class AsyncPaymentTransactionStruct extends SyncPaymentTransactionStruct
     /**
      * @var string
      */
-    private $returnUrl;
+    protected $returnUrl;
 
     public function __construct(OrderTransactionEntity $orderTransaction, OrderEntity $order, string $returnUrl)
     {

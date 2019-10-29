@@ -26,6 +26,32 @@
         </input-field>
 
         <input-field type="bool">
+            <name>doubleOptInRegistration</name>
+            <label>Double opt in registration</label>
+            <label lang="de-DE">Double-Opt-In-Registrierung</label>
+            <helpText>Activates double opt in for registrations.</helpText>
+            <helpText lang="de-DE">Aktiviert Double-Opt-In für Registrierungen.</helpText>
+        </input-field>
+
+        <input-field type="bool">
+            <name>doubleOptInGuestOrder</name>
+            <label>Double opt in guest order</label>
+            <label lang="de-DE">Double-Opt-In-Gast-Bestellung</label>
+            <helpText>Activates double opt in for guest orders.</helpText>
+            <helpText lang="de-DE">Aktiviert Double-Opt-In für Gast-Bestellungen.</helpText>
+        </input-field>
+
+        <input-field>
+            <name>doubleOptInDomain</name>
+            <label>Double opt in register domain</label>
+            <label lang="de-DE">Double-Opt-In-Anmeldedomain</label>
+            <placeholder>Enter register domain...</placeholder>
+            <placeholder lang="de-DE">Anmeldedomain eingeben...</placeholder>
+            <helpText>Set the domain for the double opt in registration or guest order (example domain: http://localhost:8000)</helpText>
+            <helpText lang="de-DE">Setze die Domain für die Double-Opt-In-Registrierung oder Gastbestellung (Beispiel-Domain: http://localhost:8000)</helpText>
+        </input-field>
+
+        <input-field type="bool">
             <name>requirePasswordConfirmation</name>
             <label>Password must be entered twice</label>
             <label lang="de-DE">Passwort muss zweimal eingegeben werden</label>

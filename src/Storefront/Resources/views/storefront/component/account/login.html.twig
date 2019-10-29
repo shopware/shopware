@@ -38,10 +38,17 @@
 
                     {% block component_account_login_form_error %}
                         {% if loginError %}
-                            {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                                type: "danger",
-                                content: "account.loginBadCredentials"|trans|sw_sanitize
-                            } %}
+                            {% if errorSnippet != null %}
+                                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                                    type: "danger",
+                                    content: errorSnippet|trans|sw_sanitize
+                                } %}
+                            {% else %}
+                                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                                    type: "danger",
+                                    content: "account.loginBadCredentials"|trans|sw_sanitize
+                                } %}
+                            {% endif %}
                         {% endif %}
                     {% endblock %}
 

@@ -58,6 +58,9 @@
         "message-403": "Deine Sitzung ist abgelaufen. Bitte lade die letzte Seite neu und versuche es erneut."
     },
     "account": {
+        "confirmationIsAlreadyDone": "Die Bestätigung ist bereits erfolgt oder die URL ist ungültig.",
+        "doubleOptInMailConfirmationSuccessfully": "Vielen Dank für die Bestätigung Ihrer E-Mail! Sie können Ihre Bestellung nun abschließen.",
+        "doubleOptInRegistrationSuccessfully": "Vielen Dank für Ihre Anmeldung! Ihr Account wurde erfolgreich freigeschaltet.",
         "myAccount": "Mein Konto",
         "registerTitle": "Registrierung",
         "loginHeader": "Ich bin bereits Kunde",
@@ -182,6 +185,10 @@
         "addressDefaultChanged": "Standardadresse erfolgreich geändert.",
         "addressDefaultNotChanged": "Standardadresse konnte nicht geändert werden.",
         "addressSaved": "Adresse erfolgreich gespeichert",
+        "inactiveAccountAlert": "Ihr Kundenkonto wurde noch nicht aktiviert. Wir haben Ihnen einen Aktivierungslink gesendet. Bitte prüfen Sie Ihr E-Mail-Postfach, um die Anmeldung abzuschließen!",
+        "optInGuestAlert": "Vielen Dank für Ihr Interesse! Sie erhalten in Kürze eine Bestätigungs-E-Mail. Klicken Sie auf den darin enthaltenen Link, um Ihre E-Mail-Adresse zu bestätigen.",
+        "optInRegistrationAlert": "Vielen Dank für Ihre Anmeldung! Sie erhalten in Kürze eine Bestätigungs-E-Mail. Klicken Sie auf den darin enthaltenen Link, um die Anmeldung abzuschließen.",
+        "optInSuccessAlert": "Sofern die von Ihnen eingegebene E-Mail Adresse registriert ist, haben wir Ihnen eine Bestätigungs-E-Mail gesendet.",
         "ordersWelcome": "Hier finden Sie ihre Bestellungen nach Datum sortiert.",
         "ordersInfoEmpty": "Sie haben noch keine Bestellung durchgeführt.",
         "orderItemColumnDate": "Datum",
@@ -215,8 +222,7 @@
         "newsletterSettings": "Ja, ich möchte den kostenlosen %shopname% Newsletter erhalten! (Ich weiß, ich kann mich jederzeit hier wieder vom Newsletter abmelden.)",
         "passwordResetTitle": "Passwort vergessen?",
         "passwordResetInfo": "Wenn Sie das Passwort für Ihr Konto vergessen haben, können Sie hier ein neues definieren. Wenn Sie das neue Passwort speichern, wird Ihr altes Passwort ungültig.",
-        "passwordOptInInfo": "Wir senden Ihnen eine Bestätigungs-E-Mail. Klicken Sie auf den darin enthaltenen Link, um Ihr Passwort zu ändern.",
-        "optInSuccessAlert": "Sofern die von Ihnen eingegebene E-Mail Adresse registriert ist, haben wir Ihnen eine Bestätigungs-E-Mail gesendet."
+        "passwordOptInInfo": "Wir senden Ihnen eine Bestätigungs-E-Mail. Klicken Sie auf den darin enthaltenen Link, um Ihr Passwort zu ändern."
     },
     "address": {
         "streetLabel": "Straße und Haus-Nr.",

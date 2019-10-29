@@ -117,6 +117,26 @@ class CustomerEntity extends Entity
     /**
      * @var bool
      */
+    protected $doubleOptInRegistration;
+
+    /**
+     * @var \DateTimeInterface|null
+     */
+    protected $doubleOptInEmailSentDate;
+
+    /**
+     * @var \DateTimeInterface|null
+     */
+    protected $doubleOptInConfirmDate;
+
+    /**
+     * @var string|null
+     */
+    protected $hash;
+
+    /**
+     * @var bool
+     */
     protected $guest;
 
     /**
@@ -422,6 +442,46 @@ class CustomerEntity extends Entity
     public function setActive(bool $active): void
     {
         $this->active = $active;
+    }
+
+    public function getDoubleOptInRegistration(): bool
+    {
+        return $this->doubleOptInRegistration;
+    }
+
+    public function setDoubleOptInRegistration(bool $doubleOptInRegistration): void
+    {
+        $this->doubleOptInRegistration = $doubleOptInRegistration;
+    }
+
+    public function getDoubleOptInEmailSentDate(): ?\DateTimeInterface
+    {
+        return $this->doubleOptInEmailSentDate;
+    }
+
+    public function setDoubleOptInEmailSentDate(\DateTimeInterface $doubleOptInEmailSentDate): void
+    {
+        $this->doubleOptInEmailSentDate = $doubleOptInEmailSentDate;
+    }
+
+    public function getDoubleOptInConfirmDate(): ?\DateTimeInterface
+    {
+        return $this->doubleOptInConfirmDate;
+    }
+
+    public function setDoubleOptInConfirmDate(\DateTimeInterface $doubleOptInConfirmDate): void
+    {
+        $this->doubleOptInConfirmDate = $doubleOptInConfirmDate;
+    }
+
+    public function getHash(): ?string
+    {
+        return $this->hash;
+    }
+
+    public function setHash(string $hash): void
+    {
+        $this->hash = $hash;
     }
 
     public function getGuest(): bool

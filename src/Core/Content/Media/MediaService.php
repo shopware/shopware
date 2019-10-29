@@ -113,9 +113,11 @@ class MediaService
         return $this->fileLoader->loadMediaFile($mediaId, $context);
     }
 
-    public function fetchFile(Request $request): MediaFile
+    public function fetchFile(Request $request, ?string $tempFile = null): MediaFile
     {
-        $tempFile = tempnam(sys_get_temp_dir(), '');
+        if ($tempFile === null) {
+            $tempFile = tempnam(sys_get_temp_dir(), '');
+        }
 
         $contentType = $request->headers->get('content_type');
         if ($contentType === 'application/json') {

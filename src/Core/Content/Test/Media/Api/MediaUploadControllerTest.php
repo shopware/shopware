@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Media\Api;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
@@ -20,16 +21,24 @@ class MediaUploadControllerTest extends TestCase
 
     public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
 
-    /** @var EntityRepositoryInterface */
+    /**
+     * @var EntityRepositoryInterface
+     */
     private $mediaRepository;
 
-    /** @var UrlGeneratorInterface */
+    /**
+     * @var UrlGeneratorInterface
+     */
     private $urlGenerator;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $mediaId;
 
-    /** @var Context */
+    /**
+     * @var Context
+     */
     private $context;
 
     protected function setUp(): void
@@ -60,59 +69,13 @@ class MediaUploadControllerTest extends TestCase
             ],
             file_get_contents(self::TEST_IMAGE)
         );
-        $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->get($this->mediaId);
-
-        $response = $this->getBrowser()->getResponse();
-
-        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
-
-        static::assertNotEmpty($response->headers->get('Location'));
-        static::assertStringEndsWith(
-            '/api/v' . PlatformRequest::API_VERSION . '/media/' . $this->mediaId,
-            $response->headers->get('Location')
-        );
+        $media = $this->getMediaEntity();
 
         $mediaPath = $this->urlGenerator->getRelativeMediaUrl($media);
         static::assertTrue($this->getPublicFilesystem()->has($mediaPath));
         static::assertStringEndsWith($media->getId() . '.' . $media->getFileExtension(), $mediaPath);
 
-        $this->getBrowser()->request(
-            'GET',
-            "/api/v1/media/{$this->mediaId}"
-        );
-
-        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
-
-        static::assertCount(
-            3,
-            $responseData['data']['attributes']['metaData'],
-            print_r($responseData['data']['attributes'], true)
-        );
-        static::assertSame(
-            499,
-            $responseData['data']['attributes']['metaData']['width'],
-            print_r($responseData['data']['attributes'], true)
-        );
-        static::assertCount(
-            3,
-            $responseData['data']['attributes']['mediaType'],
-            print_r($responseData['data']['attributes']['mediaType'], true)
-        );
-        static::assertSame(
-            'IMAGE',
-            $responseData['data']['attributes']['mediaType']['name'],
-            print_r($responseData['data']['attributes']['mediaType'], true)
-        );
-        static::assertCount(
-            1,
-            $responseData['data']['attributes']['mediaType']['flags'],
-            print_r($responseData['data']['attributes']['mediaType']['flags'], true)
-        );
-        static::assertSame(
-            ImageType::TRANSPARENT,
-            $responseData['data']['attributes']['mediaType']['flags'][0],
-            print_r($responseData['data']['attributes']['mediaType']['flags'], true)
-        );
+        $this->assertMediaApiResponse();
     }
 
     public function testUploadFromBinaryUsesFileName(): void
@@ -134,58 +97,13 @@ class MediaUploadControllerTest extends TestCase
             ],
             file_get_contents(self::TEST_IMAGE)
         );
-        $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->get($this->mediaId);
+        $media = $this->getMediaEntity();
+
         $mediaPath = $this->urlGenerator->getRelativeMediaUrl($media);
-        $response = $this->getBrowser()->getResponse();
-
-        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
-
-        static::assertNotEmpty($response->headers->get('Location'));
-        static::assertStringEndsWith(
-            '/api/v' . PlatformRequest::API_VERSION . '/media/' . $this->mediaId,
-            $response->headers->get('Location')
-        );
-
         static::assertTrue($this->getPublicFilesystem()->has($mediaPath));
         static::assertStringEndsWith('new file name', $media->getFileName());
 
-        $this->getBrowser()->request(
-            'GET',
-            "/api/v1/media/{$this->mediaId}"
-        );
-
-        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
-
-        static::assertCount(
-            3,
-            $responseData['data']['attributes']['metaData'],
-            print_r($responseData['data']['attributes'], true)
-        );
-        static::assertSame(
-            499,
-            $responseData['data']['attributes']['metaData']['width'],
-            print_r($responseData['data']['attributes'], true)
-        );
-        static::assertCount(
-            3,
-            $responseData['data']['attributes']['mediaType'],
-            print_r($responseData['data']['attributes']['mediaType'], true)
-        );
-        static::assertSame(
-            'IMAGE',
-            $responseData['data']['attributes']['mediaType']['name'],
-            print_r($responseData['data']['attributes']['mediaType'], true)
-        );
-        static::assertCount(
-            1,
-            $responseData['data']['attributes']['mediaType']['flags'],
-            print_r($responseData['data']['attributes']['mediaType']['flags'], true)
-        );
-        static::assertSame(
-            ImageType::TRANSPARENT,
-            $responseData['data']['attributes']['mediaType']['flags'][0],
-            print_r($responseData['data']['attributes']['mediaType']['flags'], true)
-        );
+        $this->assertMediaApiResponse();
     }
 
     public function testUploadFromURL(): void
@@ -227,43 +145,7 @@ class MediaUploadControllerTest extends TestCase
         );
         static::assertTrue($this->getPublicFilesystem()->has($this->urlGenerator->getRelativeMediaUrl($media)));
 
-        $this->getBrowser()->request(
-            'GET',
-            "/api/v1/media/{$this->mediaId}"
-        );
-
-        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
-
-        static::assertCount(
-            3,
-            $responseData['data']['attributes']['metaData'],
-            print_r($responseData['data']['attributes'], true)
-        );
-        static::assertSame(
-            499,
-            $responseData['data']['attributes']['metaData']['width'],
-            print_r($responseData['data']['attributes'], true)
-        );
-        static::assertCount(
-            3,
-            $responseData['data']['attributes']['mediaType'],
-            print_r($responseData['data']['attributes']['mediaType'], true)
-        );
-        static::assertSame(
-            'IMAGE',
-            $responseData['data']['attributes']['mediaType']['name'],
-            print_r($responseData['data']['attributes']['mediaType'], true)
-        );
-        static::assertCount(
-            1,
-            $responseData['data']['attributes']['mediaType']['flags'],
-            print_r($responseData['data']['attributes']['mediaType']['flags'], true)
-        );
-        static::assertSame(
-            ImageType::TRANSPARENT,
-            $responseData['data']['attributes']['mediaType']['flags'][0],
-            print_r($responseData['data']['attributes']['mediaType']['flags'], true)
-        );
+        $this->assertMediaApiResponse();
     }
 
     public function testRenameMediaFileThrowsExceptionIfFileNameIsNotPresent(): void
@@ -376,5 +258,63 @@ class MediaUploadControllerTest extends TestCase
 
         $result = json_decode($response->getContent(), true);
         static::assertEquals($media->getFileName(), $result['fileName']);
+    }
+
+    private function getMediaEntity(): MediaEntity
+    {
+        /** @var MediaEntity $media */
+        $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->get($this->mediaId);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
+
+        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertStringEndsWith(
+            '/api/v' . PlatformRequest::API_VERSION . '/media/' . $this->mediaId,
+            $response->headers->get('Location')
+        );
+
+        return $media;
+    }
+
+    private function assertMediaApiResponse(): void
+    {
+        $this->getBrowser()->request(
+            'GET',
+            "/api/v1/media/{$this->mediaId}"
+        );
+
+        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+
+        static::assertCount(
+            3,
+            $responseData['data']['attributes']['metaData'],
+            print_r($responseData['data']['attributes'], true)
+        );
+        static::assertSame(
+            499,
+            $responseData['data']['attributes']['metaData']['width'],
+            print_r($responseData['data']['attributes'], true)
+        );
+        static::assertCount(
+            3,
+            $responseData['data']['attributes']['mediaType'],
+            print_r($responseData['data']['attributes']['mediaType'], true)
+        );
+        static::assertSame(
+            'IMAGE',
+            $responseData['data']['attributes']['mediaType']['name'],
+            print_r($responseData['data']['attributes']['mediaType'], true)
+        );
+        static::assertCount(
+            1,
+            $responseData['data']['attributes']['mediaType']['flags'],
+            print_r($responseData['data']['attributes']['mediaType']['flags'], true)
+        );
+        static::assertSame(
+            ImageType::TRANSPARENT,
+            $responseData['data']['attributes']['mediaType']['flags'][0],
+            print_r($responseData['data']['attributes']['mediaType']['flags'], true)
+        );
     }
 }

@@ -251,7 +251,7 @@ class ProductExtension implements EntityExtensionInterface
 ```
 
 For every inherited field you have to add a binary column to the entity, which is used for saving the inherited information in a read optimized manner.
-We can use the `InheritanceUpdaterTrait` for this purpose, so add the following lines to your migration:
+You can use the `InheritanceUpdaterTrait` for this purpose, so add the following lines to your migration:
 
 ```php
 <?php declare(strict_types=1);
@@ -274,6 +274,25 @@ class Migration1554708925Bundle extends MigrationStep
     }
 
     ...
+}
+```
+
+The newly added column will be automatically managed by te DAL through an Indexer. But as there may already be some products in the Database that don't have that column set we have to run the `InheritanceIndexer` during the activation process of the plugin.
+Because running the Indexer may take a longer time it's a bad idea to run the Indexer directly, therefore you can use the  `IndexerMessageSender` to run the Indexer asynchronously in your plugin base class `activate()`-method.
+
+```php
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\InheritanceIndexer;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IndexerMessageSender;
+use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Plugin\Context\ActivateContext;
+
+class BundleExample extends Plugin
+{
+    public function activate(ActivateContext $activateContext): void
+    {
+        $indexerMessageSender = $this->container->get(IndexerMessageSender::class);
+        $indexerMessageSender->partial(new \DateTimeImmutable(), [InheritanceIndexer::getName()]);
+    }
 }
 ```
 

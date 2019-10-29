@@ -170,8 +170,6 @@ Component.register('sw-sales-channel-detail', {
         },
 
         onTemplateSelected(templateName) {
-            // TODO: Check wether there is data before applying new data.
-            // TODO: Show notifications and enable abortion of template execution
             if (this.templates !== null && this.templates[templateName] !== undefined) {
                 this.selectedTemplate = this.templates[templateName];
                 let contentChanged = false;

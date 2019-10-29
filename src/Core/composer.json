@@ -96,7 +96,8 @@
         "true/punycode": "2.1.1",
         "twig/extensions": "1.5.4",
         "twig/twig": "2.12.1",
-        "voku/stop-words": "2.0.1"
+        "voku/stop-words": "2.0.1",
+        "zircote/swagger-php": "3.0.2"
     },
     "require-dev": {
         "ext-tokenizer": "*",

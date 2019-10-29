@@ -8,6 +8,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
+use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\Router;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Theme\Twig\ThemeTemplateFinder;
@@ -25,14 +26,14 @@ abstract class StorefrontController extends AbstractController
 
         $master = $this->get('request_stack')->getMasterRequest();
 
-        $context = $master->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+        $salesChannelContext = $master->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
 
         $activeThemeName = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_NAME);
         $activeThemeBaseName = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME);
 
         $view = $this->resolveView($view, $activeThemeName, $activeThemeBaseName);
 
-        $event = new StorefrontRenderEvent($view, $parameters, $request, $context);
+        $event = new StorefrontRenderEvent($view, $parameters, $request, $salesChannelContext);
         $this->get('event_dispatcher')->dispatch($event);
 
         $response = $this->render($view, $event->getParameters(), new StorefrontResponse());
@@ -41,13 +42,18 @@ abstract class StorefrontController extends AbstractController
             throw new \RuntimeException('Symfony render implementation changed. Providing a response is no longer supported');
         }
 
+        $host = $request->attributes->get(RequestTransformer::SALES_CHANNEL_ABSOLUTE_BASE_URL)
+            . $request->attributes->get(RequestTransformer::SALES_CHANNEL_BASE_URL);
+
         /** @var SeoUrlPlaceholderHandlerInterface $seoUrlReplacer */
         $seoUrlReplacer = $this->container->get(SeoUrlPlaceholderHandlerInterface::class);
-        $seoUrlReplacer->replacePlaceholder($request, $response);
+        $response->setContent(
+            $seoUrlReplacer->replace($response->getContent(), $host, $salesChannelContext)
+        );
 
         /* @var StorefrontResponse $response */
         $response->setData($parameters);
-        $response->setContext($context);
+        $response->setContext($salesChannelContext);
         $response->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, '1');
 
         return $response;

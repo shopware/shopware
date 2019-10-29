@@ -25,6 +25,10 @@
             <tag name="shopware.entity.definition" entity="seo_url" />
         </service>
 
+        <service id="Shopware\Core\Framework\Seo\SeoUrl\SalesChannel\SalesChannelSeoUrlDefinition">
+            <tag name="shopware.sales_channel.entity.definition" entity="seo_url"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition" >
             <tag name="shopware.entity.definition" entity="seo_url_template" />
         </service>
@@ -104,7 +108,7 @@
         <service id="Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface" class="Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandler" public="true">
             <argument type="service" id="request_stack"/>
             <argument type="service" id="router.default"/>
-            <argument type="service" id="seo_url.repository"/>
+            <argument type="service" id="sales_channel.seo_url.repository"/>
         </service>
     </services>
 </container>

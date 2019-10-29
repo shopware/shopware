@@ -28,7 +28,13 @@
         {% block sw_settings_seo_content %}
             <template slot="content">
                 <sw-card-view>
-                    {% block sw_settings_seo_content_inner %}{% endblock %}
+                    {% block sw_settings_seo_content_inner %}
+
+                        {% block sw_settings_seo_content_inner_seo_url_template %}
+                            <sw-seo-url-template-card ref="seoUrlTemplateCard"></sw-seo-url-template-card>
+                        {% endblock %}
+
+                    {% endblock %}
                 </sw-card-view>
             </template>
         {% endblock %}

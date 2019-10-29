@@ -18,17 +18,5 @@
 
             <tag name="shopware.seo_url.route"/>
         </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\StorefrontSeoUrlPlaceholderHandler" decorates="Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface">
-            <argument type="service" id="Shopware\Storefront\Framework\Seo\StorefrontSeoUrlPlaceholderHandler.inner"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\Extension\ProductExtension">
-            <tag name="shopware.entity.extension"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Seo\Extension\CategoryExtension">
-            <tag name="shopware.entity.extension"/>
-        </service>
     </services>
 </container>

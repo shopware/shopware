@@ -10,7 +10,7 @@ const { mapPageErrors, mapState, mapGetters } = Shopware.Component.getComponentH
 Component.register('sw-product-detail', {
     template,
 
-    inject: ['mediaService', 'repositoryFactory', 'context', 'numberRangeService'],
+    inject: ['mediaService', 'repositoryFactory', 'context', 'numberRangeService', 'seoUrlService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -120,13 +120,18 @@ Component.register('sw-product-detail', {
             criteria.getAssociation('tags')
                 .addSorting(Criteria.sort('name', 'ASC'));
 
+            criteria.getAssociation('seoUrls')
+                .addFilter(Criteria.equals('isCanonical', true));
+
             criteria
                 .addAssociation('categories')
                 .addAssociation('visibilities.salesChannel')
                 .addAssociation('options')
                 .addAssociation('configuratorSettings.option')
                 .addAssociation('unit')
-                .addAssociation('productReviews');
+                .addAssociation('productReviews')
+                .addAssociation('seoUrls')
+                .addAssociation('mainCategories');
 
             return criteria;
         },
@@ -378,33 +383,58 @@ Component.register('sw-product-detail', {
         },
 
         onSaveFinished(response) {
-            switch (response) {
-                case 'empty': {
-                    this.isSaveSuccessful = true;
-                    this.$store.commit('resetApiErrors');
-                    break;
-                }
+            const seoUrls = this.$store.getters['swSeoUrl/getNewOrModifiedUrls']();
+            const defaultSeoUrl = this.$store.state.swSeoUrl.defaultSeoUrl;
 
-                case 'success': {
-                    this.isSaveSuccessful = true;
+            const updatePromises = [];
+            if (seoUrls) {
+                seoUrls.forEach(seoUrl => {
+                    if (!seoUrl.seoPathInfo) {
+                        seoUrl.seoPathInfo = defaultSeoUrl.seoPathInfo;
+                        seoUrl.isModified = false;
+                    } else {
+                        seoUrl.isModified = true;
+                    }
 
-                    break;
-                }
-
-                default: {
-                    const productName = this.product.translated ? this.product.translated.name : this.product.name;
-                    const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
-                    const messageSaveError = this.$tc(
-                        'global.notification.notificationSaveErrorMessage', 0, { entityName: productName }
-                    );
-
-                    this.createNotificationError({
-                        title: titleSaveError,
-                        message: messageSaveError
-                    });
-                    break;
-                }
+                    updatePromises.push(this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId));
+                });
             }
+
+            if (response === 'empty' && seoUrls.length > 0) {
+                response = 'success';
+            }
+
+            Promise.all(updatePromises).then(() => {
+                this.$root.$emit('seo-url-save-finish');
+            }).then(() => {
+                switch (response) {
+                    case 'empty': {
+                        this.isSaveSuccessful = true;
+                        this.$store.commit('resetApiErrors');
+                        break;
+                    }
+
+                    case 'success': {
+                        this.isSaveSuccessful = true;
+
+                        break;
+                    }
+
+                    default: {
+                        const productName = this.product.translated ? this.product.translated.name : this.product.name;
+                        const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
+                        const messageSaveError = this.$tc(
+                            'global.notification.notificationSaveErrorMessage', 0, { entityName: productName }
+                        );
+
+                        this.createNotificationError({
+                            title: titleSaveError,
+                            message: messageSaveError
+                        });
+                        break;
+                    }
+                }
+            });
         },
 
         onCancel() {

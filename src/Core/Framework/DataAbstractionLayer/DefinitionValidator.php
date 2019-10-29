@@ -75,7 +75,7 @@ class DefinitionValidator
         'sales_channel_api_context',
     ];
 
-    private const INGNORED_ENTITY_PROPERTIES = [
+    private const IGNORED_ENTITY_PROPERTIES = [
         'id',
         'extensions',
         '_uniqueIdentifier',
@@ -83,6 +83,10 @@ class DefinitionValidator
         'translated',
         'createdAt',
         'updatedAt',
+    ];
+
+    private const GENERIC_FK_FIELDS = [
+        'seo_url.foreignKey',
     ];
 
     /**
@@ -273,7 +277,7 @@ class DefinitionValidator
                 continue;
             }
 
-            if (!$fields->get($property->getName()) && !in_array($property->getName(), self::INGNORED_ENTITY_PROPERTIES, true)) {
+            if (!$fields->get($property->getName()) && !in_array($property->getName(), self::IGNORED_ENTITY_PROPERTIES, true)) {
                 $notices[] = sprintf('Field %s in entity struct is missing in %s', $property->getName(), $definition->getClass());
             }
         }
@@ -592,12 +596,20 @@ class DefinitionValidator
         $foreignKey = $reference->getFields()->getByStorageName($association->getReferenceField());
 
         if (!$foreignKey instanceof FkField) {
-            $associationViolations[$definition->getClass()][] = sprintf(
-                'Missing reference foreign key for column %s for definition association %s.%s',
-                $association->getReferenceField(),
-                $definition->getEntityName(),
-                $association->getPropertyName()
+            $isGeneric = in_array(
+                $reference->getEntityName() . '.' . $foreignKey->getPropertyName(),
+                self::GENERIC_FK_FIELDS,
+                true
             );
+
+            if (!$isGeneric) {
+                $associationViolations[$definition->getClass()][] = sprintf(
+                    'Missing reference foreign key for column %s for definition association %s.%s',
+                    $association->getReferenceField(),
+                    $definition->getEntityName(),
+                    $association->getPropertyName()
+                );
+            }
         }
 
         return $associationViolations;

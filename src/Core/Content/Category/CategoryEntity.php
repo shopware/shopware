@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Seo\MainCategory\MainCategoryCollection;
+use Shopware\Core\Framework\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tag\TagCollection;
 
@@ -165,6 +166,11 @@ class CategoryEntity extends Entity
      * @var MainCategoryCollection|null
      */
     protected $mainCategories;
+
+    /**
+     * @var SeoUrlCollection|null
+     */
+    protected $seoUrls;
 
     public function getParentId(): ?string
     {
@@ -499,6 +505,16 @@ class CategoryEntity extends Entity
     public function setMainCategories(?MainCategoryCollection $mainCategories): void
     {
         $this->mainCategories = $mainCategories;
+    }
+
+    public function getSeoUrls(): ?SeoUrlCollection
+    {
+        return $this->seoUrls;
+    }
+
+    public function setSeoUrls(?SeoUrlCollection $seoUrls): void
+    {
+        $this->seoUrls = $seoUrls;
     }
 
     private function getBreadcrumbMapping(): array

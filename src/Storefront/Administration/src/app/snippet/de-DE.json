@@ -1,34 +1,4 @@
 {
-  "sw-seo-url-template-card": {
-    "general": {
-      "titleCard": "SEO Url Templates",
-      "labelPossibleValues": "Mögliche Variablen",
-      "tooltipValidTemplate": "Das Template ist gültig",
-      "tooltipInvalidTemplate": "Das Template ist nicht gültig",
-      "titleSaveError": "Fehler",
-      "messageSaveError": "Nicht alle SEO Url Templates sind gültig.",
-      "titleSaveSuccess": "Erfolg",
-      "messageSaveSuccess": "Die SEO Url Templates wurden erfolgreich gespeichert.",
-      "preview": "Vorschau:",
-      "placeholderSelectVariables": "Auswählen ...",
-      "labelSalesChannelSelect": "Verkaufskanal",
-      "textUrlPreviewNotPossible": "Für dieses Template ist keine Vorschau möglich.",
-      "textUrlNoEntitiesForPreview": "Es sind keine Entitäten dieses Typ vorhanden, um eine vorschau zu generieren."
-    },
-    "routeNames": {
-      "frontend-detail-page": "Produktdetailseite",
-      "frontend-navigation-page": "Kategorieseite"
-    }
-  },
-  "sw-seo-url": {
-    "titleCard": "Canonical Urls",
-    "labelSalesChannelSelect": "Verkaufskanal",
-    "labelSeoPathInfo": "SEO Pfad",
-    "textEmptySeoUrls": "Es sind noch keine Canonical Urls vorhanden.",
-    "textSeoUrlsDisallowedForHeadless": "Für headless Sales Channel ist die Angabe von SEO URLs nicht möglich.",
-    "labelMainCategory": "Hauptkategorie",
-    "placeholderMainCategory": "Hauptkategorie wählen..."
-  },
   "sales-channel-theme": {
     "title": "Theme Zuweisung",
     "changeLayout": "Theme ändern",

@@ -51,7 +51,8 @@ class ProductLoader
             ->addAssociation('manufacturer')
             ->addAssociation('manufacturer.media')
             ->addAssociation('cover')
-            ->addAssociation('properties.group');
+            ->addAssociation('properties.group')
+            ->addAssociation('mainCategories.category');
 
         $criteria->getAssociation('media')->addSorting(new FieldSorting('position'));
 

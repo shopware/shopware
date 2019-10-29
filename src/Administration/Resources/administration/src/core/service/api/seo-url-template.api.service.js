@@ -1,4 +1,4 @@
-const ApiService = Shopware.Classes.ApiService;
+import ApiService from '../api.service';
 
 /**
  * Gateway for the API end point "seo-url-template"
@@ -8,7 +8,7 @@ const ApiService = Shopware.Classes.ApiService;
 class SeoUrlTemplateApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'seo-url-template') {
         super(httpClient, loginService, apiEndpoint);
-        this.name = 'SeoUrlTemplateService';
+        this.name = 'seoUrlTemplateService';
     }
 
     validate(urlTemplate, additionalParams = {}, additionalHeaders = {}) {

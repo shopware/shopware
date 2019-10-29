@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Framework\Seo\SeoUrl;
+namespace Shopware\Core\Framework\Test\Seo\SeoUrl;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Framework\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
 class SeoUrlRepositoryTest extends TestCase
 {
@@ -26,7 +25,7 @@ class SeoUrlRepositoryTest extends TestCase
             'salesChannelId' => Defaults::SALES_CHANNEL,
             'foreignKey' => $fk,
 
-            'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
+            'routeName' => 'testRoute',
             'pathInfo' => '/ugly/path',
             'seoPathInfo' => '/pretty/path',
 
@@ -54,7 +53,7 @@ class SeoUrlRepositoryTest extends TestCase
             'salesChannelId' => Defaults::SALES_CHANNEL,
             'foreignKey' => $fk,
 
-            'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
+            'routeName' => 'testRoute',
             'pathInfo' => '/ugly/path',
             'seoPathInfo' => '/pretty/path',
 
@@ -91,7 +90,7 @@ class SeoUrlRepositoryTest extends TestCase
             'salesChannelId' => Defaults::SALES_CHANNEL,
             'foreignKey' => $fk,
 
-            'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
+            'routeName' => 'testRoute',
             'pathInfo' => '/ugly/path',
             'seoPathInfo' => '/pretty/path',
 

@@ -1,4 +1,4 @@
-const ApiService = Shopware.Classes.ApiService;
+import ApiService from '../api.service';
 
 /**
  * Gateway for the API end point "seo-url"
@@ -8,7 +8,7 @@ const ApiService = Shopware.Classes.ApiService;
 class SeoUrlApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'seo-url') {
         super(httpClient, loginService, apiEndpoint);
-        this.name = 'SeoUrlService';
+        this.name = 'seoUrlService';
     }
 
     updateCanonicalUrl(seoUrl, languageId, additionalParams = {}, additionalHeaders = {}) {

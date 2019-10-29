@@ -107,6 +107,13 @@
                     </template>
                 </sw-many-to-many-assignment-card>
             {% endblock %}
+
+            {% block sw_category_detail_seo_card %}
+                <sw-seo-url v-if="category.seoUrls"
+                            :isLoading="isLoading"
+                            :urls="category.seoUrls">
+                </sw-seo-url>
+            {% endblock %}
         </template>
     </div>
 {% endblock %}

@@ -14,7 +14,8 @@ Component.register('sw-category-detail', {
         'cmsPageService',
         'cmsService',
         'repositoryFactory',
-        'context'
+        'context',
+        'seoUrlService'
     ],
 
     provide() {
@@ -313,6 +314,15 @@ Component.register('sw-category-detail', {
             if (type.isPlainObject(pageOverrides)) {
                 this.category.slotConfig = cloneDeep(pageOverrides);
             }
+
+            const seoUrls = this.$store.getters['swSeoUrl/getNewOrModifiedUrls']();
+
+            seoUrls.forEach(seoUrl => {
+                if (seoUrl.seoPathInfo) {
+                    seoUrl.isModified = true;
+                    this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId);
+                }
+            });
 
             this.isLoading = true;
             return this.categoryRepository.save(this.category, this.context).then(() => {

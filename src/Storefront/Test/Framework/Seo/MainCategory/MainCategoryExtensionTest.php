@@ -15,11 +15,11 @@ use Shopware\Core\Framework\Seo\MainCategory\MainCategoryCollection;
 use Shopware\Core\Framework\Seo\MainCategory\MainCategoryEntity;
 use Shopware\Core\Framework\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\Seo\SeoUrl\SeoUrlEntity;
+use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
-use Shopware\Storefront\Test\Framework\Seo\StorefrontSalesChannelTestHelper;
 
 class MainCategoryExtensionTest extends TestCase
 {
@@ -142,7 +142,7 @@ class MainCategoryExtensionTest extends TestCase
         static::assertEquals($categoryId, $mainCategory->getCategoryId());
 
         /** @var SeoUrlCollection|null $seoUrls */
-        $seoUrls = $product->getExtension('seoUrls');
+        $seoUrls = $product->getSeoUrls();
         static::assertNotNull($seoUrls);
 
         /** @var SeoUrlEntity|null $canonical */

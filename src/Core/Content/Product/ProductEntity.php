@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Pricing\ListingPriceCollection;
 use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Pricing\PriceCollection;
 use Shopware\Core\Framework\Seo\MainCategory\MainCategoryCollection;
+use Shopware\Core\Framework\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Unit\UnitEntity;
@@ -375,6 +376,11 @@ class ProductEntity extends Entity
      * @var MainCategoryCollection|null
      */
     protected $mainCategories;
+
+    /**
+     * @var SeoUrlCollection|null
+     */
+    protected $seoUrls;
 
     public function __construct()
     {
@@ -1117,5 +1123,15 @@ class ProductEntity extends Entity
     public function setMainCategories(?MainCategoryCollection $mainCategories): void
     {
         $this->mainCategories = $mainCategories;
+    }
+
+    public function getSeoUrls(): ?SeoUrlCollection
+    {
+        return $this->seoUrls;
+    }
+
+    public function setSeoUrls(?SeoUrlCollection $seoUrls): void
+    {
+        $this->seoUrls = $seoUrls;
     }
 }

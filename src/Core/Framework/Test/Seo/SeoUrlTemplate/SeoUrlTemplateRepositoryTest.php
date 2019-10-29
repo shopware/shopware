@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Framework\Seo\SeoUrlTemplate;
+namespace Shopware\Core\Framework\Test\Seo\SeoUrlTemplate;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;

@@ -1,8 +1,6 @@
 import template from './sw-seo-main-category.html.twig';
 
 const { Component } = Shopware;
-const Criteria = Shopware.Data.Criteria;
-const EntityCollection = Shopware.Data.EntityCollection;
 
 Component.register('sw-seo-main-category', {
     template,

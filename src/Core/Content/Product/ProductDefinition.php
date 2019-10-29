@@ -55,6 +55,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\WhitelistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Seo\MainCategory\MainCategoryDefinition;
+use Shopware\Core\Framework\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -237,6 +238,8 @@ class ProductDefinition extends EntityDefinition
 
             (new OneToManyAssociationField('mainCategories', MainCategoryDefinition::class, 'product_id'))
                 ->addFlags(new CascadeDelete()),
+
+            new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'foreign_key'),
         ]);
     }
 }

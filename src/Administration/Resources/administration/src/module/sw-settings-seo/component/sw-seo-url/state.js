@@ -8,7 +8,7 @@ export default {
             seoUrlCollection: null,
             originalSeoUrls: [],
             defaultSeoUrl: null,
-            currentSeoUrl: null,
+            currentSeoUrl: null
         };
     },
 
@@ -31,8 +31,7 @@ export default {
 
         setSalesChannelCollection(state, salesChannelCollection) {
             state.salesChannelCollection = salesChannelCollection;
-        },
-
+        }
     },
 
     getters: {
@@ -40,26 +39,32 @@ export default {
             return state.loading;
         },
 
-        getNewOrModifiedUrls: (state) => () => {
-            const seoUrls = [];
+        getNewOrModifiedUrls: (state) => {
+            return () => {
+                const seoUrls = [];
 
-            state.seoUrlCollection.forEach((seoUrl) => {
-                const originalSeoUrl = state.originalSeoUrls.find((url) => {
-                    return url.id === seoUrl.id;
+                state.seoUrlCollection.forEach((seoUrl) => {
+                    if (seoUrl.seoPathInfo === null) {
+                        return;
+                    }
+
+                    const originalSeoUrl = state.originalSeoUrls.find((url) => {
+                        return url.id === seoUrl.id;
+                    });
+
+                    if (originalSeoUrl && originalSeoUrl.seoPathInfo === seoUrl.seoPathInfo) {
+                        return;
+                    }
+
+                    if (!originalSeoUrl && !seoUrl.seoPathInfo) {
+                        return;
+                    }
+
+                    seoUrls.push(seoUrl);
                 });
 
-                if (originalSeoUrl && originalSeoUrl.seoPathInfo === seoUrl.seoPathInfo) {
-                    return;
-                }
-
-                if (!originalSeoUrl && !seoUrl.seoPathInfo) {
-                    return;
-                }
-
-                seoUrls.push(seoUrl);
-            });
-
-            return seoUrls;
+                return seoUrls;
+            };
         }
     }
 };

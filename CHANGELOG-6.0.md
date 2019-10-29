@@ -123,6 +123,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Removed `sw-multi-select-option` use `sw-result-option` instead
     * Removed module export of `Shopware`
     * Removed plugin functionality in login
+    * Removed direct component registration in modules
     * Removed `sw-single-select-option` use `sw-result-option` instead
     * Removed `Criteria.value` use `Criteria.terms` instead
     * Removed `Criteria.valueCount` use `Criteria.terms` instead

@@ -350,6 +350,53 @@ See `2019-09-02-cms-remove-store.md` for more information
       Shopware.Locale.extend('de-DE', deDeSnippets);
       Shopware.Locale.extend('en-GB', enGBSnippets);
   ```
+  
+* Component have to be registered before they can be used in the modules
+
+   Before:
+   ```
+   export default {
+        name: 'demo-component',
+        ...
+   }
+   ```
+   ```
+      import demoComponent from './page/demo-component';
+      
+      Module.register('demo-module', {
+          routes: {
+              index: {
+                  component: demoComponent,
+                  path: 'index',
+                  meta: {
+                      parentPath: 'sw.demo.index'
+                  }
+              }
+          }
+      });
+   ```
+
+  After:
+  ```
+     Shopware.Component.register('demo-component', {
+          ...
+     });
+  ```
+  ```
+      import './page/demo-component';
+            
+      Module.register('demo-module', {
+        routes: {
+            index: {
+                component: 'demo-component',
+                path: 'index',
+                meta: {
+                    parentPath: 'sw.demo.index'
+                }
+            }
+        }
+      });
+  ```
     
 * Refactored administration booting process
     * Plugins are now injected asynchronous after initialization of all dependencies

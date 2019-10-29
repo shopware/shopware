@@ -2,14 +2,14 @@
     <sw-page class="sw-mail-template-detail">
 
         {% block sw_mail_template_detail_header %}
-            <template slot="smart-bar-header">
+            <template #smart-bar-header>
                 <h2 v-if="mailTemplate">{{ $tc('sw-mail-template.detail.textHeadlineEdit') }}</h2>
                 <h2 v-else class="sw-mail-template-detail__empty-title">{{ $tc('sw-mail-template.detail.textHeadline') }}</h2>
             </template>
         {% endblock %}
 
         {% block sw_mail_template_detail_actions %}
-            <template slot="smart-bar-actions">
+            <template #smart-bar-actions>
                 {% block sw_mail_template_detail_actions_save %}
                     <sw-button-process
                             class="sw-mail-template-detail__save-action"
@@ -26,117 +26,120 @@
         {% endblock %}
 
         {% block sw_mail_template_detail_language_switch %}
-            <sw-language-switch slot="language-switch"
-                                @on-change="onChangeLanguage"
-                                :saveChangesFunction="saveOnLanguageChange"
-                                :abortChangeFunction="abortOnLanguageChange">
-            </sw-language-switch>
+            <template #language-switch>
+                <sw-language-switch @on-change="onChangeLanguage"
+                                    :saveChangesFunction="saveOnLanguageChange"
+                                    :abortChangeFunction="abortOnLanguageChange">
+                </sw-language-switch>
+            </template>
         {% endblock %}
 
         {% block sw_mail_template_detail_content %}
-            <sw-card-view slot="content" sidebar>
-                {% block sw_mail_template_detail_content_language_info %}
-                    <sw-language-info
-                            :entityDescription="placeholder(mailTemplate, 'description', $tc('sw-mail-template.detail.textHeadline'))">
-                    </sw-language-info>
-                {% endblock %}
+            <template #content>
+                <sw-card-view sidebar>
+                    {% block sw_mail_template_detail_content_language_info %}
+                        <sw-language-info
+                                :entityDescription="placeholder(mailTemplate, 'description', $tc('sw-mail-template.detail.textHeadline'))">
+                        </sw-language-info>
+                    {% endblock %}
 
-                {% block sw_mail_template_detail_basic_info %}
-                    <sw-card :title="$tc('sw-mail-template.detail.basic.titleCard')">
-                        {% block sw_mail_template_basic_form_mail_type_field %}
-                            <sw-entity-single-select
-                                id="mailTemplateTypes"
-                                entity="mail_template_type"
-                                v-model="mailTemplate.mailTemplateTypeId"
-                                :label="$tc('sw-mail-template.detail.basic.labelMailType')"
-                                :placeholder="$tc('sw-mail-template.detail.basic.placeholderMailType')"
-                                required
-                                @change="onChangeType"
-                                required>
-                            </sw-entity-single-select>
-                        {% endblock %}
+                    {% block sw_mail_template_detail_basic_info %}
+                        <sw-card :title="$tc('sw-mail-template.detail.basic.titleCard')">
+                            {% block sw_mail_template_basic_form_mail_type_field %}
+                                <sw-entity-single-select
+                                    id="mailTemplateTypes"
+                                    entity="mail_template_type"
+                                    v-model="mailTemplate.mailTemplateTypeId"
+                                    :label="$tc('sw-mail-template.detail.basic.labelMailType')"
+                                    :placeholder="$tc('sw-mail-template.detail.basic.placeholderMailType')"
+                                    required
+                                    @change="onChangeType"
+                                    required>
+                                </sw-entity-single-select>
+                            {% endblock %}
 
-                        {% block sw_mail_template_basic_form_sales_channels_field %}
-                            <sw-entity-multi-select
-                                ref="mailTemplateSalesChannelSelect"
-                                v-model="mailTemplateSalesChannels"
-                                v-if="mailTemplateSalesChannels !== null"
-                                labelProperty="name"
-                                :criteria="salesChannelTypeCriteria"
-                                :label="$tc('sw-mail-template.detail.basic.labelSalesChannels')"
-                                :placeholder="$tc('sw-mail-template.detail.basic.labelSalesChannels')">
-                            </sw-entity-multi-select>
-                        {% endblock %}
+                            {% block sw_mail_template_basic_form_sales_channels_field %}
+                                <sw-entity-multi-select
+                                    ref="mailTemplateSalesChannelSelect"
+                                    v-model="mailTemplateSalesChannels"
+                                    v-if="mailTemplateSalesChannels !== null"
+                                    labelProperty="name"
+                                    :criteria="salesChannelTypeCriteria"
+                                    :label="$tc('sw-mail-template.detail.basic.labelSalesChannels')"
+                                    :placeholder="$tc('sw-mail-template.detail.basic.labelSalesChannels')">
+                                </sw-entity-multi-select>
+                            {% endblock %}
 
-                        {% block sw_mail_template_basic_form_description_field %}
-                            <sw-field type="textarea"
-                                      :label="$tc('sw-mail-template.detail.basic.labelDescription')"
-                                      :placeholder="$tc('sw-mail-template.detail.basic.placeholderDescription')"
-                                      v-model="mailTemplate.description">
-                            </sw-field>
-                        {% endblock %}
-                    </sw-card>
-                {% endblock %}
-
-                {% block sw_mail_template_detail_options_info %}
-                    <sw-card :title="$tc('sw-mail-template.detail.options.titleCard')">
-                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0 30px" class="sw-mail-template-detail-options__container">
-                            <div class="sw-mail-template-detail__options-info-wrapper">
-
-                                {% block sw_mail_template_options_form_subject_field %}
-                                    <sw-field type="text"
-                                              :label="$tc('sw-mail-template.detail.options.labelSubject')"
-                                              :placeholder="placeholder(mailTemplate, 'subject', $tc('sw-mail-template.detail.options.placeholderSubject'))"
-                                              v-model="mailTemplate.subject">
-                                    </sw-field>
-                                {% endblock %}
-                            </div>
-
-                            {% block sw_mail_template_options_form_sender_name_field %}
-                                <sw-field type="text"
-                                          :label="$tc('sw-mail-template.detail.options.labelSenderName')"
-                                          :placeholder="placeholder(mailTemplate, 'senderName', $tc('sw-mail-template.detail.options.placeholderSenderName'))"
-                                          v-model="mailTemplate.senderName">
+                            {% block sw_mail_template_basic_form_description_field %}
+                                <sw-field type="textarea"
+                                          :label="$tc('sw-mail-template.detail.basic.labelDescription')"
+                                          :placeholder="$tc('sw-mail-template.detail.basic.placeholderDescription')"
+                                          v-model="mailTemplate.description">
                                 </sw-field>
                             {% endblock %}
-                        </sw-container>
-                    </sw-card>
-                {% endblock %}
+                        </sw-card>
+                    {% endblock %}
 
-                {% block sw_mail_template_detail_mail_text_info %}
-                    <sw-card :title="$tc('sw-mail-template.detail.mailText.titleCard')">
-                        {% block sw_mail_template_mail_text_form_content_plain_field %}
-                            <sw-code-editor
-                                :label="$tc('sw-mail-template.detail.mailText.labelContentPlain')"
-                                :placeholder="placeholder(mailTemplate, 'contentPlain', $tc('sw-mail-template.detail.mailText.placeholderPlain'))"
-                                name="content_plain"
-                                :completerFunction="outerCompleterFunction"
-                                :editorConfig="editorConfig"
-                                completionMode="entity"
-                                ref="plainEditor"
-                                :key="`${mailTemplate.mailTemplateTypeId}plain`"
-                                v-model="mailTemplate.contentPlain">
-                            </sw-code-editor>
-                        {% endblock %}
+                    {% block sw_mail_template_detail_options_info %}
+                        <sw-card :title="$tc('sw-mail-template.detail.options.titleCard')">
+                            <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0 30px" class="sw-mail-template-detail-options__container">
+                                <div class="sw-mail-template-detail__options-info-wrapper">
 
-                        {% block sw_mail_template_mail_text_form_content_html_field %}
-                            <sw-code-editor
-                                    :label="$tc('sw-mail-template.detail.mailText.labelContentHtml')"
-                                    :placeholder="placeholder(mailTemplate, 'contentHtml', $tc('sw-mail-template.detail.mailText.placeholderHtml'))"
-                                    name="content_html"
+                                    {% block sw_mail_template_options_form_subject_field %}
+                                        <sw-field type="text"
+                                                  :label="$tc('sw-mail-template.detail.options.labelSubject')"
+                                                  :placeholder="placeholder(mailTemplate, 'subject', $tc('sw-mail-template.detail.options.placeholderSubject'))"
+                                                  v-model="mailTemplate.subject">
+                                        </sw-field>
+                                    {% endblock %}
+                                </div>
+
+                                {% block sw_mail_template_options_form_sender_name_field %}
+                                    <sw-field type="text"
+                                              :label="$tc('sw-mail-template.detail.options.labelSenderName')"
+                                              :placeholder="placeholder(mailTemplate, 'senderName', $tc('sw-mail-template.detail.options.placeholderSenderName'))"
+                                              v-model="mailTemplate.senderName">
+                                    </sw-field>
+                                {% endblock %}
+                            </sw-container>
+                        </sw-card>
+                    {% endblock %}
+
+                    {% block sw_mail_template_detail_mail_text_info %}
+                        <sw-card :title="$tc('sw-mail-template.detail.mailText.titleCard')">
+                            {% block sw_mail_template_mail_text_form_content_plain_field %}
+                                <sw-code-editor
+                                    :label="$tc('sw-mail-template.detail.mailText.labelContentPlain')"
+                                    :placeholder="placeholder(mailTemplate, 'contentPlain', $tc('sw-mail-template.detail.mailText.placeholderPlain'))"
+                                    name="content_plain"
                                     :completerFunction="outerCompleterFunction"
                                     :editorConfig="editorConfig"
                                     completionMode="entity"
-                                    :key="`${mailTemplate.mailTemplateTypeId}html`"
-                                    ref="htmlEditor"
-                                    v-model="mailTemplate.contentHtml">
-                            </sw-code-editor>
-                        {% endblock %}
-                    </sw-card>
-                {% endblock %}
-            </sw-card-view>
+                                    ref="plainEditor"
+                                    :key="`${mailTemplate.mailTemplateTypeId}plain`"
+                                    v-model="mailTemplate.contentPlain">
+                                </sw-code-editor>
+                            {% endblock %}
 
-            <template slot="sidebar">
+                            {% block sw_mail_template_mail_text_form_content_html_field %}
+                                <sw-code-editor
+                                        :label="$tc('sw-mail-template.detail.mailText.labelContentHtml')"
+                                        :placeholder="placeholder(mailTemplate, 'contentHtml', $tc('sw-mail-template.detail.mailText.placeholderHtml'))"
+                                        name="content_html"
+                                        :completerFunction="outerCompleterFunction"
+                                        :editorConfig="editorConfig"
+                                        completionMode="entity"
+                                        :key="`${mailTemplate.mailTemplateTypeId}html`"
+                                        ref="htmlEditor"
+                                        v-model="mailTemplate.contentHtml">
+                                </sw-code-editor>
+                            {% endblock %}
+                        </sw-card>
+                    {% endblock %}
+                </sw-card-view>
+            </template>
+
+            <template #sidebar>
                 <sw-sidebar :propagateWidth="true">
                     <sw-sidebar-item icon="default-object-paperplane"
                                      :title="$tc('sw-mail-template.detail.sidebar.titleTestMail')"

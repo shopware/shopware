@@ -2,13 +2,13 @@
     <sw-page class="sw-mail-header-footer-detail">
 
         {% block sw_mail_header_footer_detail_header %}
-            <template slot="smart-bar-header">
+            <template #smart-bar-header>
                 <h2>{{ placeholder(mailHeaderFooter, 'name', $tc('sw-mail-header-footer.detail.textHeadline')) }}</h2>
             </template>
         {% endblock %}
 
         {% block sw_mail_header_footer_detail_actions %}
-            <template slot="smart-bar-actions">
+            <template #smart-bar-actions>
                 {% block sw_mail_header_footer_detail_actions_save %}
                 <sw-button-process
                         class="sw-mail-header-footer-detail__save-action"
@@ -25,113 +25,116 @@
         {% endblock %}
 
         {% block sw_mail_header_footer_detail_language_switch %}
-            <sw-language-switch slot="language-switch"
-                                @on-change="onChangeLanguage"
-                                :saveChangesFunction="saveOnLanguageChange">
-            </sw-language-switch>
+            <template #language-switch>
+                <sw-language-switch @on-change="onChangeLanguage"
+                                    :saveChangesFunction="saveOnLanguageChange">
+                </sw-language-switch>
+            </template>
         {% endblock %}
 
         {% block sw_mail_header_footer_detail_content %}
-            <sw-card-view slot="content" sidebar>
-                {% block sw_mail_header_footer_detail_content_language_info %}
-                    <sw-language-info
-                            :entityDescription="placeholder(mailHeaderFooter, 'name', $tc('sw-mail-header-footer.detail.textHeadline'))">
-                    </sw-language-info>
-                {% endblock %}
+            <template #content>
+                <sw-card-view sidebar>
+                    {% block sw_mail_header_footer_detail_content_language_info %}
+                        <sw-language-info
+                                :entityDescription="placeholder(mailHeaderFooter, 'name', $tc('sw-mail-header-footer.detail.textHeadline'))">
+                        </sw-language-info>
+                    {% endblock %}
 
-                {% block sw_mail_header_footer_detail_basic_info %}
-                    <sw-card :title="$tc('sw-mail-header-footer.detail.basic.titleCard')">
-                        {% block sw_mail_header_footer_basic_form_name_field %}
-                            <sw-field type="text"
-                                      :label="$tc('sw-mail-header-footer.detail.basic.labelName')"
-                                      :placeholder="placeholder(mailHeaderFooter, 'name', $tc('sw-mail-header-footer.detail.basic.placeholderName'))"
-                                      v-model="mailHeaderFooter.name"
-                                      validation="required"
-                                      required>
-                            </sw-field>
-                        {% endblock %}
+                    {% block sw_mail_header_footer_detail_basic_info %}
+                        <sw-card :title="$tc('sw-mail-header-footer.detail.basic.titleCard')">
+                            {% block sw_mail_header_footer_basic_form_name_field %}
+                                <sw-field type="text"
+                                          :label="$tc('sw-mail-header-footer.detail.basic.labelName')"
+                                          :placeholder="placeholder(mailHeaderFooter, 'name', $tc('sw-mail-header-footer.detail.basic.placeholderName'))"
+                                          v-model="mailHeaderFooter.name"
+                                          validation="required"
+                                          required>
+                                </sw-field>
+                            {% endblock %}
 
-                        {% block sw_mail_header_footer_basic_form_description_field %}
-                            <sw-field type="textarea"
-                                      :label="$tc('sw-mail-header-footer.detail.basic.labelDescription')"
-                                      :placeholder="placeholder(mailHeaderFooter, 'description', $tc('sw-mail-header-footer.detail.basic.placeholderDescription'))"
-                                      v-model="mailHeaderFooter.description">
-                            </sw-field>
-                        {% endblock %}
+                            {% block sw_mail_header_footer_basic_form_description_field %}
+                                <sw-field type="textarea"
+                                          :label="$tc('sw-mail-header-footer.detail.basic.labelDescription')"
+                                          :placeholder="placeholder(mailHeaderFooter, 'description', $tc('sw-mail-header-footer.detail.basic.placeholderDescription'))"
+                                          v-model="mailHeaderFooter.description">
+                                </sw-field>
+                            {% endblock %}
 
-                        {% block sw_mail_header_footer_basic_form_sales_channels_field %}
-                            <sw-select id="salesChannels"
-                                        multi
-                                        :label="$tc('sw-mail-header-footer.detail.basic.labelSalesChannels')"
-                                        :placeholder="$tc('sw-mail-header-footer.detail.basic.placeholderSalesChannels')"
-                                        :associationStore="salesChannelAssociationStore"
-                                        :store="salesChannelStore"
-                                        v-model="mailHeaderFooter.salesChannels">
-                            </sw-select>
-                        {% endblock %}
-                    </sw-card>
-                {% endblock %}
+                            {% block sw_mail_header_footer_basic_form_sales_channels_field %}
+                                <sw-select id="salesChannels"
+                                            multi
+                                            :label="$tc('sw-mail-header-footer.detail.basic.labelSalesChannels')"
+                                            :placeholder="$tc('sw-mail-header-footer.detail.basic.placeholderSalesChannels')"
+                                            :associationStore="salesChannelAssociationStore"
+                                            :store="salesChannelStore"
+                                            v-model="mailHeaderFooter.salesChannels">
+                                </sw-select>
+                            {% endblock %}
+                        </sw-card>
+                    {% endblock %}
 
-                {% block sw_mail_header_footer_detail_content_header %}
-                    <sw-card :title="$tc('sw-mail-header-footer.detail.header.titleCard')">
-                        {% block sw_mail_header_footer_detail_content_header_plain_field %}
-                            <sw-code-editor
-                                :label="$tc('sw-mail-header-footer.detail.header.labelPlain')"
-                                :placeholder="placeholder(mailHeaderFooter, 'headerPlain', $tc('sw-mail-header-footer.detail.header.placeholderPlain'))"
-                                name="header_plain"
-                                identifier="header_plain"
-                                :completerFunction="completerFunction"
-                                :editorConfig="editorConfig"
-                                completionMode="entity"
-                                v-model="mailHeaderFooter.headerPlain">
-                            </sw-code-editor>
-                        {% endblock %}
-
-                        {% block sw_mail_header_footer_detail_content_header_html_field %}
-                            <sw-code-editor
-                                    :label="$tc('sw-mail-header-footer.detail.header.labelHtml')"
-                                    :placeholder="placeholder(mailHeaderFooter, 'headerHtml', $tc('sw-mail-header-footer.detail.header.placeholderHtml'))"
-                                    name="header_html"
-                                    identifier="header_html"
+                    {% block sw_mail_header_footer_detail_content_header %}
+                        <sw-card :title="$tc('sw-mail-header-footer.detail.header.titleCard')">
+                            {% block sw_mail_header_footer_detail_content_header_plain_field %}
+                                <sw-code-editor
+                                    :label="$tc('sw-mail-header-footer.detail.header.labelPlain')"
+                                    :placeholder="placeholder(mailHeaderFooter, 'headerPlain', $tc('sw-mail-header-footer.detail.header.placeholderPlain'))"
+                                    name="header_plain"
+                                    identifier="header_plain"
                                     :completerFunction="completerFunction"
                                     :editorConfig="editorConfig"
                                     completionMode="entity"
-                                    v-model="mailHeaderFooter.headerHtml">
-                            </sw-code-editor>
-                        {% endblock %}
-                    </sw-card>
-                {% endblock %}
+                                    v-model="mailHeaderFooter.headerPlain">
+                                </sw-code-editor>
+                            {% endblock %}
 
-                {% block sw_mail_header_footer_detail_content_footer %}
-                    <sw-card :title="$tc('sw-mail-header-footer.detail.footer.titleCard')">
-                        {% block sw_mail_header_footer_detail_content_footer_plain_field %}
-                            <sw-code-editor
-                                :label="$tc('sw-mail-header-footer.detail.footer.labelPlain')"
-                                :placeholder="placeholder(mailHeaderFooter, 'footerPlain', $tc('sw-mail-header-footer.detail.footer.placeholderPlain'))"
-                                name="footer_plain"
-                                identifier="footer_plain"
-                                :completerFunction="completerFunction"
-                                :editorConfig="editorConfig"
-                                completionMode="entity"
-                                v-model="mailHeaderFooter.footerPlain">
-                            </sw-code-editor>
-                        {% endblock %}
+                            {% block sw_mail_header_footer_detail_content_header_html_field %}
+                                <sw-code-editor
+                                        :label="$tc('sw-mail-header-footer.detail.header.labelHtml')"
+                                        :placeholder="placeholder(mailHeaderFooter, 'headerHtml', $tc('sw-mail-header-footer.detail.header.placeholderHtml'))"
+                                        name="header_html"
+                                        identifier="header_html"
+                                        :completerFunction="completerFunction"
+                                        :editorConfig="editorConfig"
+                                        completionMode="entity"
+                                        v-model="mailHeaderFooter.headerHtml">
+                                </sw-code-editor>
+                            {% endblock %}
+                        </sw-card>
+                    {% endblock %}
 
-                        {% block sw_mail_header_footer_detail_content_footer_html_field %}
-                            <sw-code-editor
-                                    :label="$tc('sw-mail-header-footer.detail.footer.labelHtml')"
-                                    :placeholder="placeholder(mailHeaderFooter, 'footerHtml', $tc('sw-mail-header-footer.detail.footer.placeholderHtml'))"
-                                    name="footer_html"
-                                    identifier="footer_html"
+                    {% block sw_mail_header_footer_detail_content_footer %}
+                        <sw-card :title="$tc('sw-mail-header-footer.detail.footer.titleCard')">
+                            {% block sw_mail_header_footer_detail_content_footer_plain_field %}
+                                <sw-code-editor
+                                    :label="$tc('sw-mail-header-footer.detail.footer.labelPlain')"
+                                    :placeholder="placeholder(mailHeaderFooter, 'footerPlain', $tc('sw-mail-header-footer.detail.footer.placeholderPlain'))"
+                                    name="footer_plain"
+                                    identifier="footer_plain"
                                     :completerFunction="completerFunction"
                                     :editorConfig="editorConfig"
                                     completionMode="entity"
-                                    v-model="mailHeaderFooter.footerHtml">
-                            </sw-code-editor>
-                        {% endblock %}
-                    </sw-card>
-                {% endblock %}
-            </sw-card-view>
+                                    v-model="mailHeaderFooter.footerPlain">
+                                </sw-code-editor>
+                            {% endblock %}
+
+                            {% block sw_mail_header_footer_detail_content_footer_html_field %}
+                                <sw-code-editor
+                                        :label="$tc('sw-mail-header-footer.detail.footer.labelHtml')"
+                                        :placeholder="placeholder(mailHeaderFooter, 'footerHtml', $tc('sw-mail-header-footer.detail.footer.placeholderHtml'))"
+                                        name="footer_html"
+                                        identifier="footer_html"
+                                        :completerFunction="completerFunction"
+                                        :editorConfig="editorConfig"
+                                        completionMode="entity"
+                                        v-model="mailHeaderFooter.footerHtml">
+                                </sw-code-editor>
+                            {% endblock %}
+                        </sw-card>
+                    {% endblock %}
+                </sw-card-view>
+            </template>
         {% endblock %}
     </sw-page>
 {% endblock %}

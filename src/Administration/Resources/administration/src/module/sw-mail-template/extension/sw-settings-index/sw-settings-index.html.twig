@@ -4,7 +4,7 @@
     {% block sw_mail_template_item %}
         <template>
             <sw-settings-item id="sw-mail-template" :label="$tc('sw-mail-template.general.mainMenuItemGeneral')" :to="{ name: 'sw.mail.template.index' }">
-                <template slot="icon">
+                <template #icon>
                     <sw-icon name="default-communication-envelope"></sw-icon>
                 </template>
             </sw-settings-item>

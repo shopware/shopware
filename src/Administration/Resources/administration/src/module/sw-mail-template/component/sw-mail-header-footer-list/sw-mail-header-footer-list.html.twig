@@ -1,9 +1,10 @@
 {% block sw_mail_header_footer_list_grid %}
-    <sw-card :isLoading="isLoading"
-        :title="$tc('sw-mail-template.list.titleMailFooterList')">
+    <sw-card
+        :isLoading="isLoading"
+        :title="$tc('sw-mail-header-footer.list.textMailHeaderFooterOverview')">
+
         {% block sw_mail_template_list_grid %}
-            <sw-card :isLoading="isLoading"
-                     :title="$tc('sw-mail-template.list.titleMailTemplateList')">
+            <template #grid>
                 <sw-entity-listing
                     v-if="mailHeaderFooters"
                     class="sw-mail-templates-list-grid"
@@ -27,7 +28,7 @@
                         {% endblock %}
                     </template>
                 </sw-entity-listing>
-            </sw-card>
+            </template>
         {% endblock %}
 
     </sw-card>

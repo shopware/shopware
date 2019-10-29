@@ -66,7 +66,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         $this->readBufferSize = $readBufferSize;
     }
 
-    public function generate(ProductExportEntity $productExport, ExportBehavior $exportBehavior): ProductExportResult
+    public function generate(ProductExportEntity $productExport, ExportBehavior $exportBehavior): ?ProductExportResult
     {
         $context = $this->salesChannelContextService->get(
             $productExport->getStorefrontSalesChannelId(),
@@ -161,6 +161,10 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         );
 
         $this->translator->resetInjection();
+
+        if (empty($content)) {
+            return null;
+        }
 
         return new ProductExportResult(
             $encodingEvent->getEncodedContent(),

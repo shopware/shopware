@@ -11,5 +11,5 @@ interface ProductExportGeneratorInterface
     public function generate(
         ProductExportEntity $productExport,
         ExportBehavior $exportBehavior
-    ): ProductExportResult;
+    ): ?ProductExportResult;
 }

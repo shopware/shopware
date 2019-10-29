@@ -123,8 +123,14 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
             $productExport,
             $exportBehavior
         );
-
         $filePath = $this->productExportFileHandler->getFilePath($productExport, true);
+
+        if ($exportResult === null) {
+            $this->finalizeExport($productExport, $filePath);
+
+            return;
+        }
+
         $this->productExportFileHandler->writeProductExportContent(
             $exportResult->getContent(),
             $filePath,

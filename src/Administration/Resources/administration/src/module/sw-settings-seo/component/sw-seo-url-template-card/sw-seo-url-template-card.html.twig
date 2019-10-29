@@ -53,7 +53,7 @@
                             </sw-inherit-wrapper>
                         {% endblock %}
                         {% block sw_seo_url_template_card_entries_variables %}
-                            <sw-single-select v-if="getVariableOptions(seoUrlTemplate.id)"
+                            <sw-single-select v-if="getVariableOptions(seoUrlTemplate.id) && !noEntityError.includes(seoUrlTemplate.id)"
                                               :value="selectedProperty"
                                               valueProperty="name"
                                               labelProperty="name"
@@ -81,7 +81,7 @@
                                         {{ $tc('sw-seo-url-template-card.general.textUrlPreviewNotPossible') }}
                                     </span>
                                     <span v-if="noEntityError.includes(seoUrlTemplate.id)">
-                                        {{ $tc('sw-seo-url-template-card.general.textUrlNoEntitiesForPreview') }}
+                                        {{ $tc('sw-seo-url-template-card.general.textUrlNoEntitiesForPreview',0,{entity:seoUrlTemplate.entityName}) }}
                                     </span>
                                 </div>
                             {% endblock %}

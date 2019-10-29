@@ -22,14 +22,14 @@ class UrlGenerator implements UrlGeneratorInterface
     /**
      * @var PathnameStrategyInterface
      */
-    private $strategy;
+    private $pathnameStrategy;
 
     public function __construct(
-        PathnameStrategyInterface $strategy,
+        PathnameStrategyInterface $pathnameStrategy,
         RequestStack $requestStack,
         ?string $baseUrl = null
     ) {
-        $this->strategy = $strategy;
+        $this->pathnameStrategy = $pathnameStrategy;
         $this->requestStack = $requestStack;
 
         $this->baseUrl = $this->normalizeBaseUrl($baseUrl);
@@ -45,7 +45,7 @@ class UrlGenerator implements UrlGeneratorInterface
         if ($media->getUploadedAt() !== null) {
             $physicalFileName = sprintf('%d/%s', $media->getUploadedAt()->getTimestamp(), $physicalFileName);
         }
-        $encodedFileName = $this->encodeFilename($physicalFileName);
+        $encodedFileName = $this->encodeFilename($physicalFileName, $media->getId());
 
         $extension = $media->getFileExtension() ? '.' . $media->getFileExtension() : '';
 
@@ -119,12 +119,12 @@ class UrlGenerator implements UrlGeneratorInterface
     /**
      * @throws EmptyMediaFilenameException
      */
-    private function encodeFilename(?string $filename): string
+    private function encodeFilename(?string $filename, ?string $id): string
     {
         if (empty($filename)) {
             throw new EmptyMediaFilenameException();
         }
 
-        return $this->strategy->encode($filename);
+        return $this->pathnameStrategy->encode($filename, $id);
     }
 }

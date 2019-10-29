@@ -4,25 +4,12 @@ namespace Shopware\Core\Content\Media\Pathname\PathnameStrategy;
 
 class PlainPathnameStrategy implements PathnameStrategyInterface
 {
-    public function decode(string $path): string
-    {
-        return basename($path);
-    }
-
     /**
      * {@inheritdoc}
      */
-    public function encode(string $filename): string
+    public function encode(string $filename, string $id): string
     {
         return ltrim($filename, '/');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isEncoded(string $path): bool
-    {
-        return (bool) preg_match('/((media\/(?:archive|image|music|pdf|temp|unknown|video)(?:\/thumbnail)?).*\/((.+)\.(.+)))/', $path);
     }
 
     /**

@@ -68,7 +68,9 @@ class WriteCommandExtractor
             $existence = $this->entityExistenceGateway->getExistence($definition, $pkData, $rawData, $parameters->getCommandQueue());
         }
 
-        $rawData = $this->integrateDefaults($definition, $rawData, $existence);
+        if (!$existence->exists()) {
+            $rawData = $this->integrateDefaults($definition, $rawData, $existence);
+        }
 
         $mainFields = $this->getMainFields($fields);
 

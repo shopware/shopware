@@ -43,10 +43,6 @@ class MediaFolderConfigurationDefinition extends EntityDefinition
 
     public function getDefaults(EntityExistence $existence): array
     {
-        if ($existence->exists()) {
-            return [];
-        }
-
         return [
             'createThumbnails' => true,
             'keepAspectRatio' => true,

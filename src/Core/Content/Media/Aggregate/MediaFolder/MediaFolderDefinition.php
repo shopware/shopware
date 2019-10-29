@@ -45,9 +45,6 @@ class MediaFolderDefinition extends EntityDefinition
 
     public function getDefaults(EntityExistence $existence): array
     {
-        if ($existence->exists()) {
-            return [];
-        }
         if ($existence->isChild()) {
             return [];
         }

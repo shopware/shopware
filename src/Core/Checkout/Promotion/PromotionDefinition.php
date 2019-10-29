@@ -57,10 +57,6 @@ class PromotionDefinition extends EntityDefinition
      */
     public function getDefaults(EntityExistence $existence): array
     {
-        if ($existence->exists()) {
-            return [];
-        }
-
         return [
             'active' => false,
             'exclusive' => false,

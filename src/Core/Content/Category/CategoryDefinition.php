@@ -69,14 +69,10 @@ class CategoryDefinition extends EntityDefinition
 
     public function getDefaults(EntityExistence $existence): array
     {
-        $defaults = parent::getDefaults($existence);
-
-        if (!$existence->exists()) {
-            $defaults['displayNestedProducts'] = true;
-            $defaults['type'] = self::TYPE_PAGE;
-        }
-
-        return $defaults;
+        return [
+            'displayNestedProducts' => true,
+            'type' => self::TYPE_PAGE,
+        ];
     }
 
     protected function defineFields(): FieldCollection

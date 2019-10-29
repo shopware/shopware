@@ -200,7 +200,7 @@
 
         <!-- Controller -->
         <service id="Shopware\Core\Content\Media\Api\MediaUploadController" public="true">
-            <argument type="service" id="Shopware\Core\Content\Media\File\FileFetcher"/>
+            <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileNameProvider"/>
             <argument type="service" id="Shopware\Core\Content\Media\MediaDefinition"/>

@@ -1,5 +1,6 @@
 import ProductFixture from '../service/administration/fixture/product.fixture';
 import CustomerFixture from '../service/administration/fixture/customer.fixture';
+import CategoryFixture from '../service/administration/fixture/category.fixture';
 import ShippingFixture from '../service/administration/fixture/shipping.fixture';
 import CmsFixture from '../service/administration/fixture/cms.fixture';
 import OrderFixture from '../service/saleschannel/fixture/order.fixture';
@@ -40,6 +41,23 @@ Cypress.Commands.add('createProductFixture', (userData = {}) => {
         return Cypress._.merge(result, userData);
     }).then((data) => {
         return fixture.setProductFixture(data);
+    });
+});
+
+/**
+ * Create product fixture using Shopware API at the given endpoint
+ * @memberOf Cypress.Chainable#
+ * @name createCategoryFixture
+ * @function
+ * @param {object} [userData={}] - Additional category data
+ */
+Cypress.Commands.add('createCategoryFixture', (userData = {}) => {
+    const fixture = new CategoryFixture();
+
+    return cy.fixture('category').then((result) => {
+        return Cypress._.merge(result, userData);
+    }).then((data) => {
+        return fixture.setCategoryFixture(data);
     });
 });
 

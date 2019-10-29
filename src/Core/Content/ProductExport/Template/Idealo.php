@@ -10,22 +10,22 @@ class Idealo extends AbstractTemplate
     {
         $this->name = 'idealo';
         $this->translationKey = 'sw-sales-channel.detail.productComparison.templates.template-label.idealo';
-        $this->headerTemplate = '"Kategorie",{#- -#}
-"Hersteller",{#- -#}
-"Produktbezeichnung",{#- -#}
-"Preis",{#- -#}
-"Grundpreis",{#- -#}
-"Hersteller-Artikelnummer",{#- -#}
-"EAN",{#- -#}
-"Versandkosten",{#- -#}
-"Deeplink",{#- -#}
-"Lieferzeit",{#- -#}
-"Artikelnummer",{#- -#}
-"Link Produktbild",{#- -#}
-"Produkt Kurztext",{#- -#}
-"Vorkasse Zuschlag",{#- Change or add your payment methods -#}
-"Nachnahme Zuschlag",{#- Change or add your payment methods -#}
-"Rechnung Zuschlag"{#- Change or add your payment methods -#}';
+        $this->headerTemplate = '"categoryPath",{#- -#}
+"brand",{#- -#}
+"title",{#- -#}
+"price",{#- -#}
+"basePrice",{#- -#}
+"hans",{#- -#}
+"eans",{#- -#}
+"deliveryCosts",{#- -#}
+"url",{#- -#}
+"delivery",{#- -#}
+"sku",{#- -#}
+"imageUrls",{#- -#}
+"description",{#- -#}
+"paymentCosts_CashInAdvance",{#- Change or add your payment methods -#}
+"paymentCosts_CashOnDelivery",{#- Change or add your payment methods -#}
+"paymentCosts_Invoice"{#- Change or add your payment methods -#}';
         $this->bodyTemplate = '"{{ product.categories.first.getBreadCrumb|slice(1)|join(\' > \')|raw }}",{#- -#}
 "{{ product.manufacturer.translated.name }}",{#- -#}
 "{{ product.translated.name }}",{#- -#}

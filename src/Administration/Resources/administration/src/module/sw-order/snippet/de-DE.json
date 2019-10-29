@@ -12,6 +12,7 @@
       "columnAmount": "Betrag",
       "columnState": "Bestellstatus",
       "columnTransactionState": "Zahlungsstatus",
+      "columnDeliveryState": "Lieferstatus",
       "columnOrderNumber": "Bestellnummer",
       "columnSalesChannel": "Verkaufskanal",
       "orderDate": "Bestelldatum",
@@ -120,6 +121,7 @@
       "cardTitle": "Statusverlauf",
       "headlineOrderState": "Bestellstatus",
       "headlineTransactionState": "Zahlungsstatus",
+      "headlineDeliveryState": "Lieferstatus",
       "labelLastEditedBy":"Zuletzt geändert von",
       "labelSystemUser":"System",
       "labelSelectStatePlaceholder":"Bitte wählen ...",
@@ -127,7 +129,8 @@
       "headlineErrorStateChange":"Fehler",
       "labelErrorStateChange":"Beim setzen des Status ist ein Fehler aufgetreten. Zusätzliche Informationen:",
       "labelErrorNoAction":"Kein neuer Zustand gewählt.",
-      "labelNoTransactionState": "Keine Transaktion vorhanden"
+      "labelNoTransactionState": "Keine Transaktion vorhanden",
+      "labelNoDeliveryState": "Keine Lieferung vorhanden"
     },
     "documentCard": {
       "searchBarPlaceholder": "Suche nach Belegen",

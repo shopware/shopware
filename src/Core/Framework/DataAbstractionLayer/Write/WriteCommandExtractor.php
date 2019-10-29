@@ -367,7 +367,7 @@ class WriteCommandExtractor
         $message = 'This field is write-protected.';
         $allowedOrigins = '';
         if ($flag->getAllowedScopes()) {
-            $message .= ' (Got: %s and %s is required)';
+            $message .= ' (Got: "%s" scope and "%s" is required)';
             $allowedOrigins = implode(' or ', $flag->getAllowedScopes());
         }
 

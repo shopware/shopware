@@ -103,6 +103,16 @@
                                         </template>
                                     {% endblock %}
 
+                                {% block sw_order_list_grid_columns_delivery_state %}
+                                    <template slot="column-deliveries[0].stateMachineState.name" slot-scope="{ item }">
+                                        <sw-label v-if="item.deliveries && item.deliveries[0]"
+                                                  :variant="getVariantFromDeliveryState(item)"
+                                                  appearance="pill">
+                                            {{ item.deliveries[0].stateMachineState.name }}
+                                        </sw-label>
+                                    </template>
+                                {% endblock %}
+
                                     {% block sw_order_list_grid_columns_order_date %}
                                         <template slot="column-orderDate" slot-scope="{ item }">
                                             {{ item.orderDateTime | date({hour: '2-digit', minute: '2-digit'}) }}

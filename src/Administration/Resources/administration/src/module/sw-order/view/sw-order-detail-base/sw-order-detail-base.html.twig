@@ -32,6 +32,18 @@
                             </sw-order-state-select>
                         {% endblock %}
 
+                        {% block sw_order_detail_base_status_change_delivery %}
+                            <sw-order-state-select
+                                class="sw-order-state-select__delivery-state"
+                                :transitionOptions="deliveryOptions"
+                                roundedStyle
+                                v-if="!isLoading && this.delivery"
+                                @state-select="onQuickDeliveryStatusChange"
+                                :placeholder="deliveryOptionPlaceholder"
+                                :backgroundStyle="deliveryOptionsBackground">
+                            </sw-order-state-select>
+                        {% endblock %}
+
                         {% block sw_order_detail_base_status_change_order %}
                             <sw-order-state-select
                                 class="sw-order-state-select__order-state"
@@ -43,6 +55,7 @@
                                 :backgroundStyle="orderOptionsBackground">
                             </sw-order-state-select>
                         {% endblock %}
+
                     </sw-container>
                 {% endblock %}
             </sw-order-user-card>

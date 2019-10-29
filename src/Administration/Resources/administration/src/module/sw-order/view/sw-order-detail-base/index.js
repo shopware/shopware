@@ -43,6 +43,7 @@ Component.register('sw-order-detail-base', {
             isDisplayingLeavePageWarning: false,
             transactionOptions: [],
             orderOptions: [],
+            deliveryOptions: [],
             versionContext: null,
             customFieldSets: []
         };
@@ -118,6 +119,24 @@ Component.register('sw-order-detail-base', {
 
             return this.stateStyleDataProviderService.getStyle('order.state',
                 this.order.stateMachineState.technicalName).selectBackgroundStyle;
+        },
+
+        deliveryOptionPlaceholder() {
+            if (this.isLoading) {
+                return null;
+            }
+
+            return `${this.$tc('sw-order.stateCard.headlineDeliveryState')}: \
+            ${this.delivery.stateMachineState.translated.name}`;
+        },
+
+        deliveryOptionsBackground() {
+            if (this.isLoading) {
+                return null;
+            }
+
+            return this.stateStyleDataProviderService.getStyle('order_delivery.state',
+                this.delivery.stateMachineState.technicalName).selectBackgroundStyle;
         },
 
         orderCriteria() {
@@ -313,6 +332,8 @@ Component.register('sw-order-detail-base', {
                 this.orderOptions = options;
             } else if (stateMachineName === 'order_transaction.states') {
                 this.transactionOptions = options;
+            } else if (stateMachineName === 'order_delivery.states') {
+                this.deliveryOptions = options;
             }
         },
 
@@ -322,6 +343,10 @@ Component.register('sw-order-detail-base', {
 
         onQuickTransactionStatusChange(actionName) {
             this.$refs['state-card'].onTransactionStateSelected(actionName);
+        },
+
+        onQuickDeliveryStatusChange(actionName) {
+            this.$refs['state-card'].onDeliveryStateSelected(actionName);
         },
 
         onLeaveModalClose() {

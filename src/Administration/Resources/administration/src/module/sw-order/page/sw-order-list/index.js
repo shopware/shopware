@@ -52,6 +52,7 @@ Component.register('sw-order-list', {
             criteria.addAssociation('orderCustomer');
             criteria.addAssociation('currency');
             criteria.addAssociation('transactions');
+            criteria.addAssociation('deliveries');
 
             return criteria;
         }
@@ -130,6 +131,10 @@ Component.register('sw-order-list', {
                 label: this.$tc('sw-order.list.columnTransactionState'),
                 allowResize: true
             }, {
+                property: 'deliveries[0].stateMachineState.name',
+                label: this.$tc('sw-order.list.columnDeliveryState'),
+                allowResize: true
+            }, {
                 property: 'orderDateTime',
                 label: this.$tc('sw-order.list.orderDate'),
                 allowResize: true
@@ -145,6 +150,12 @@ Component.register('sw-order-list', {
         getVariantFromPaymentState(order) {
             return this.stateStyleDataProviderService.getStyle(
                 'order_transaction.state', order.transactions[0].stateMachineState.technicalName
+            ).variant;
+        },
+
+        getVariantFromDeliveryState(order) {
+            return this.stateStyleDataProviderService.getStyle(
+                'order_delivery.state', order.deliveries[0].stateMachineState.technicalName
             ).variant;
         }
     }

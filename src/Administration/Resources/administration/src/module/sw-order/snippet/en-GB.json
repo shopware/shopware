@@ -12,6 +12,7 @@
       "columnAmount": "Amount",
       "columnState": "Order status",
       "columnTransactionState": "Payment status",
+      "columnDeliveryState": "Delivery status",
       "columnOrderNumber": "Order number",
       "columnSalesChannel": "Sales channel",
       "orderDate": "Order date",
@@ -120,6 +121,7 @@
       "cardTitle": "Statuses",
       "headlineOrderState": "Order status",
       "headlineTransactionState": "Payment status",
+      "headlineDeliveryState": "Delivery status",
       "labelLastEditedBy":"Last edited by",
       "labelSystemUser":"System",
       "labelSelectStatePlaceholder":"Select a status...",
@@ -127,7 +129,8 @@
       "headlineErrorStateChange":"Error",
       "labelErrorStateChange":"An error occured while updating the status. Additional information:",
       "labelErrorNoAction":"Current status invalid.",
-      "labelNoTransactionState": "No transaction yet"
+      "labelNoTransactionState": "No transaction yet",
+      "labelNoDeliveryState": "No Delivery yet"
     },
     "documentCard": {
       "searchBarPlaceholder": "Search all documents...",

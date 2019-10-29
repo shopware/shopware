@@ -32,10 +32,9 @@ class PropertyGroupOptionTranslationDefinition extends EntityTranslationDefiniti
 
     public function getDefaults(EntityExistence $existence): array
     {
-        $defaults = parent::getDefaults($existence);
-        $defaults['position'] = 1;
-
-        return $defaults;
+        return [
+            'position' => 1,
+        ];
     }
 
     protected function getParentDefinitionClass(): string

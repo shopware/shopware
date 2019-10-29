@@ -50,16 +50,10 @@ class PropertyGroupDefinition extends EntityDefinition
 
     public function getDefaults(EntityExistence $existence): array
     {
-        $defaults = parent::getDefaults($existence);
-
-        if ($existence->exists()) {
-            return $defaults;
-        }
-
-        $defaults['displayType'] = self::DISPLAY_TYPE_TEXT;
-        $defaults['sortingType'] = self::SORTING_TYPE_ALPHANUMERIC;
-
-        return $defaults;
+        return [
+            'displayType' => self::DISPLAY_TYPE_TEXT,
+            'sortingType' => self::SORTING_TYPE_ALPHANUMERIC,
+        ];
     }
 
     protected function defineFields(): FieldCollection

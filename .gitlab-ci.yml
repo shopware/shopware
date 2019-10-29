@@ -89,16 +89,30 @@ PHP analysis:
         -   name: elastic/elasticsearch:7.1.1
             alias: elasticsearch
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+    variables:
+        TEST_SUITES: "administration storefront checkout content framework migration system elasticsearch docs"
     script:
         - ./psh.phar init
-        - php
-            vendor/bin/phpunit
-            --configuration vendor/shopware/platform/phpunit.xml.dist
-            --log-junit build/artifacts/phpunit.junit.xml
-            --colors=never
+        - mkdir -p build/artifacts/
+        - echo -e
+            "<?xml version="1.0" encoding="UTF-8"?>
+            <testsuites>
+            " > build/artifacts/phpunit.junit.xml
+        - >
+            for TEST_SUITE in $TEST_SUITES; do
+                log_unit_file=build/artifacts/$TEST_SUITE.junit.xml
+                set -x
+                php vendor/bin/phpunit --configuration vendor/shopware/platform/phpunit.xml.dist --log-junit "$log_unit_file" --colors=never --testsuite "$TEST_SUITE"
+                set +x
+                tail -n +3 "$log_unit_file" | head -n -1 >> build/artifacts/phpunit.junit.xml
+            done
+        - echo -e "</testsuites>" >> "build/artifacts/phpunit.junit.xml"
+
 
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
     artifacts:
+        paths:
+            - development/build/artifacts/
         reports:
             junit: development/build/artifacts/phpunit.junit.xml
 

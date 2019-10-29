@@ -55,7 +55,7 @@ images{#- -#}';
 "{% if product.purchaseUnit %}{{ product.purchaseUnit }} {{ product.unit.shortCode }}{% endif %}",{#- -#}
 "{% if product.referenceUnit %}{{ product.referenceUnit }} {{ product.unit.shortCode }}{% endif %}",{#- -#}
 "{{ seoUrl(\'frontend.detail.page\', {\'productId\': product.id}) }}",{#- -#}
-{% if product.media|length > 1 %}"{% for mediaAssociation in product.media|slice(0, 5) %}{{ mediaAssociation.media.url }}{% if not loop.last %};{% endif %}{% endfor %}"{% endif %}{#- -#}';
+{% if product.media|length > 1 %}"{% for mediaAssociation in product.media|slice(0, 5) %}{{ mediaAssociation.media.url }}{% if not loop.last %},{% endif %}{% endfor %}"{% endif %}{#- -#}';
         $this->footerTemplate = '';
         $this->fileName = 'billiger.csv';
         $this->encoding = ProductExportEntity::ENCODING_UTF8;

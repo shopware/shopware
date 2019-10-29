@@ -1,5 +1,5 @@
 {% block sw_order_detail_base %}
-    <div class="sw-order-detail-base" v-if="!isLoading">
+    <div v-if="order && !isLoading" class="sw-order-detail-base">
         {% block sw_order_detail_base_leave_page_modal %}
             <sw-order-leave-page-modal v-if="isDisplayingLeavePageWarning"
                                        @page-leave-cancel="onLeaveModalClose"
@@ -11,8 +11,8 @@
             <sw-order-user-card :key="isEditing"
                                 :currentOrder="order"
                                 :versionContext="versionContext"
-                                :isLoading = "isLoading"
-                                :isEditing = "isEditing"
+                                :isLoading="isLoading"
+                                :isEditing="isEditing"
                                 @order-change="saveAndReload"
                                 @order-reset="recalculateAndReload"
                                 @error="$emit('error',$event)">
@@ -34,13 +34,13 @@
 
                         {% block sw_order_detail_base_status_change_order %}
                             <sw-order-state-select
-                                    class="sw-order-state-select__order-state"
-                                    :transitionOptions="orderOptions"
-                                    roundedStyle
-                                    v-if="!isLoading"
-                                    @state-select="onQuickOrderStatusChange"
-                                    :placeholder="orderOptionPlaceholder"
-                                    :backgroundStyle="orderOptionsBackground">
+                                class="sw-order-state-select__order-state"
+                                :transitionOptions="orderOptions"
+                                roundedStyle
+                                v-if="!isLoading"
+                                @state-select="onQuickOrderStatusChange"
+                                :placeholder="orderOptionPlaceholder"
+                                :backgroundStyle="orderOptionsBackground">
                             </sw-order-state-select>
                         {% endblock %}
                     </sw-container>
@@ -91,7 +91,7 @@
                                                                                  :editable="isEditing"
                                                                                  :value="delivery.shippingCosts.totalPrice"
                                                                                  @value-change="onShippingChargeEdited">
-                                                             {{ delivery.shippingCosts.totalPrice | currency(order.currency.translated.shortName) }}
+                                                            {{ delivery.shippingCosts.totalPrice | currency(order.currency.translated.shortName) }}
                                                         </sw-order-saveable-field>
                                                     </dd>
                                                 </template>
@@ -114,7 +114,7 @@
 
                                             {% block sw_order_detail_base_line_items_summary_amount_total %}
                                                 <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</strong></dt>
-                                            <dd><strong>{{ order.amountTotal | currency(order.currency.shortName) }}</strong></dd>
+                                                <dd><strong>{{ order.amountTotal | currency(order.currency.shortName) }}</strong></dd>
                                             {% endblock %}
                                         {% endblock %}
                                     </sw-description-list>

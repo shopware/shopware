@@ -13,9 +13,10 @@
     position: relative;
     background-repeat: no-repeat;
     background-position: center center;
-    padding: 12px;
     border-top: 1px solid $color-gray-300;
     display: grid;
+    grid-gap: 8px;
+    grid-template-columns: 60px 1fr;
     align-items: center;
 
     &.has--shadow-top {
@@ -57,18 +58,28 @@
 
     &.is--boxed {
         justify-items: center;
-        padding: 20px;
 
         .sw-cms-section__wrapper {
             display: grid;
             max-width: 1080px;
             width: 100%;
             margin: 0 auto;
+            padding: 20px;
         }
+    }
+
+    .sw-cms-section__wrapper {
+        padding: 4px;
     }
 
     .sw-cms-section__sidebar.is--offcanvas {
         display: none;
+    }
+
+    .sw-cms-section__actions {
+        width: 60px;
+        background: $color-gray-50;
+        height: 100%;
     }
 
     .sw-cms-section__sidebar,

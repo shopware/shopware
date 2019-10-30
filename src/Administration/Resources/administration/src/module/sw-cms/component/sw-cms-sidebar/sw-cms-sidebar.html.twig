@@ -226,14 +226,14 @@
         {% endblock %}
 
         {% block sw_cms_sidebar_block_settings %}
-            <sw-sidebar-item icon="default-basic-stack-block"
+            <sw-sidebar-item icon="default-documentation-paper-pencil"
                          :title="$tc('sw-cms.detail.sidebarTitleBlockSettings')"
-                         ref="blockConfigSidebar"
-                         :disabled="currentBlock === null"
+                         ref="itemConfigSidebar"
+                         :disabled="selectedBlock === null"
                          @close-content="onCloseBlockConfig">
 
                 <div class="sw-cms-sidebar__block-config">
-                    <template v-if="currentBlock !== null">
+                    <template v-if="selectedBlock !== null">
 
                         {% block sw_cms_sidebar_block_settings_content %}
                             <sw-sidebar-collapse :expandOnLoading="true">
@@ -241,12 +241,12 @@
                                 {% block sw_cms_sidebar_block_settings_header %}
                                     <span slot="header">
                                         {{ $tc('sw-cms.detail.sidebarHeaderBlockSettings') }}
-                                        {{ currentBlock.name ? currentBlock.name : cmsBlocks[currentBlock.type].label }}
+                                        {{ selectedBlock.name ? selectedBlock.name : cmsBlocks[selectedBlock.type].label }}
                                     </span>
                                 {% endblock %}
 
                                 {% block sw_cms_sidebar_block_settings_form %}
-                                    <sw-cms-block-config slot="content" v-model="currentBlock"></sw-cms-block-config>
+                                    <sw-cms-block-config slot="content" :block="selectedBlock"></sw-cms-block-config>
                                 {% endblock %}
                             </sw-sidebar-collapse>
                         {% endblock %}
@@ -259,7 +259,7 @@
                                 {% endblock %}
 
                                 {% block sw_cms_sidebar_block_layout_settings_form %}
-                                    <sw-cms-block-layout-config slot="content" v-model="currentBlock"></sw-cms-block-layout-config>
+                                    <sw-cms-block-layout-config slot="content" :block="selectedBlock"></sw-cms-block-layout-config>
                                 {% endblock %}
                             </sw-sidebar-collapse>
                         {% endblock %}

@@ -21,6 +21,7 @@ Component.register('sw-cms-detail', {
     ],
 
     mixins: [
+        Mixin.getByName('cms-state'),
         Mixin.getByName('notification'),
         Mixin.getByName('placeholder')
     ],
@@ -36,14 +37,11 @@ Component.register('sw-cms-detail', {
             page: {
                 sections: []
             },
-            cmsPageState: this.$store.state.cmsPageState,
             salesChannels: [],
             isLoading: false,
             isSaveSuccessful: false,
             currentSalesChannelKey: null,
-            currentBlock: null,
-            currentBlockSectionId: null,
-            currentBlockCategory: 'text',
+            selectedBlockSectionId: null,
             currentMappingEntity: null,
             currentMappingEntityRepo: null,
             demoEntityId: null,
@@ -262,20 +260,16 @@ Component.register('sw-cms-detail', {
                     this.updateSectionAndBlockPositions();
                     this.$store.commit('cmsPageState/setCurrentPage', this.page);
 
-                    if (this.currentBlock !== null) {
-                        const blockSection = this.page.sections.get(this.currentBlockSectionId);
-                        this.currentBlock = blockSection.blocks.get(this.currentBlock.id);
-                    }
-
                     this.updateDataMapping();
                     this.pageOrigin = cloneDeep(this.page);
 
                     this.isLoading = false;
                 }).catch((exception) => {
+                    console.log('exception', exception);
                     this.isLoading = false;
                     this.createNotificationError({
                         title: exception.message,
-                        message: exception.response.statusText
+                        message: exception.response
                     });
 
                     warn(this._name, exception.message, exception.response);
@@ -336,13 +330,13 @@ Component.register('sw-cms-detail', {
             this.$store.commit('cmsPageState/setCurrentCmsDeviceView', view);
 
             if (view === 'form') {
-                this.setCurrentBlock(null, null);
+                this.setSelectedBlock(null, null);
             }
         },
 
-        setCurrentBlock(sectionId, block = null) {
-            this.currentBlock = block;
-            this.currentBlockSectionId = sectionId;
+        setSelectedBlock(sectionId, block = null) {
+            this.selectedBlockSectionId = sectionId;
+            this.$store.dispatch('cmsPageState/setBlock', block);
         },
 
         onChangeLanguage() {
@@ -406,7 +400,7 @@ Component.register('sw-cms-detail', {
         },
 
         onCloseBlockConfig() {
-            this.currentBlock = null;
+            this.$store.commit('cmsPageState/removeSelectedItem');
         },
 
         pageConfigOpen(mode = null) {
@@ -414,6 +408,11 @@ Component.register('sw-cms-detail', {
 
             if (mode === 'blocks') {
                 sideBarRefs.blockSelectionSidebar.openContent();
+                return;
+            }
+
+            if (mode === 'itemConfig') {
+                sideBarRefs.itemConfigSidebar.openContent();
                 return;
             }
 
@@ -546,7 +545,7 @@ Component.register('sw-cms-detail', {
                         duration: 10000
                     });
 
-                    this.currentBlock = null;
+                    this.$store.commit('cmsPageState/removeSelectedItem');
                     this.pageConfigOpen();
                 }
 

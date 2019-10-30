@@ -31,7 +31,7 @@
                                               :key="block.id"
                                               :block="block"
                                               :buttonsEnabled="isSystemDefaultLanguage"
-                                              :active="currentBlock !== null && currentBlock.id === block.id"
+                                              :active="selectedBlock !== null && selectedBlock.id === block.id"
                                               @block-overlay-click="onBlockSelection(block)"
                                               @block-delete="onBlockDelete(block.id)"
                                               @block-duplicate="onBlockDuplicate(block, section)">
@@ -43,7 +43,7 @@
                                                              :slot="el.slot"
                                                              :key="el.id"
                                                              :element="el"
-                                                             :active="currentBlock !== null && currentBlock.id === block.id">
+                                                             :active="selectedBlock !== null && selectedBlock.id === block.id">
                                                 </sw-cms-slot>
                                             {% endblock %}
                                         </component>
@@ -91,7 +91,7 @@
                                               :key="block.id"
                                               :block="block"
                                               :buttonsEnabled="isSystemDefaultLanguage"
-                                              :active="currentBlock !== null && currentBlock.id === block.id"
+                                              :active="selectedBlock !== null && selectedBlock.id === block.id"
                                               @block-overlay-click="onBlockSelection(block)"
                                               @block-delete="onBlockDelete(block.id)"
                                               @block-duplicate="onBlockDuplicate(block, section)">
@@ -103,7 +103,7 @@
                                                              :slot="el.slot"
                                                              :key="el.id"
                                                              :element="el"
-                                                             :active="currentBlock !== null && currentBlock.id === block.id">
+                                                             :active="selectedBlock !== null && selectedBlock.id === block.id">
                                                 </sw-cms-slot>
                                             {% endblock %}
                                         </component>

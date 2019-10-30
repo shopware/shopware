@@ -16,6 +16,7 @@ Component.register('sw-cms-sidebar', {
     ],
 
     mixins: [
+        Mixin.getByName('cms-state'),
         Mixin.getByName('placeholder')
     ],
 
@@ -23,12 +24,6 @@ Component.register('sw-cms-sidebar', {
         page: {
             type: Object,
             required: true
-        },
-
-        currentBlock: {
-            type: [Object, null],
-            required: false,
-            default: null
         },
 
         demoEntity: {
@@ -75,10 +70,6 @@ Component.register('sw-cms-sidebar', {
             return this.repositoryFactory.create('media');
         },
 
-        cmsPageState() {
-            return this.$store.state.cmsPageState;
-        },
-
         addBlockTitle() {
             if (!this.isSystemDefaultLanguage) {
                 return this.$tc('sw-cms.general.disabledAddingBlocksToolTip');
@@ -89,20 +80,6 @@ Component.register('sw-cms-sidebar', {
 
         pageSections() {
             return this.page.sections;
-        },
-
-        currentDeviceView() {
-            return this.$store.state.cmsPageState.currentCmsDeviceView;
-        }
-    },
-
-    watch: {
-        currentBlock: {
-            handler() {
-                if (this.currentBlock !== null) {
-                    this.$refs.blockConfigSidebar.openContent();
-                }
-            }
         }
     },
 
@@ -116,15 +93,7 @@ Component.register('sw-cms-sidebar', {
         },
 
         onCloseBlockConfig() {
-            this.$emit('current-block-change', null, null);
-        },
-
-        closeContent() {
-            Object.values(this.$refs).forEach((item) => {
-                if (typeof item.closeContent === 'function') {
-                    item.closeContent();
-                }
-            });
+            this.$store.commit('cmsPageState/removeSelectedBlock');
         },
 
         openSectionSettings(sectionIndex) {
@@ -340,8 +309,8 @@ Component.register('sw-cms-sidebar', {
         onBlockDelete(blockId, section) {
             section.blocks.remove(blockId);
 
-            if (this.currentBlock && this.currentBlock.id === blockId) {
-                this.$emit('current-block-change', null, null);
+            if (this.selectedBlock && this.selectedBlock.id === blockId) {
+                this.$store.commit('cmsPageState/removeSelectedBlock');
             }
 
             this.pageUpdate();

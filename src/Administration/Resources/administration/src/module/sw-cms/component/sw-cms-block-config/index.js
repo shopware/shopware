@@ -12,18 +12,10 @@ Component.register('sw-cms-block-config', {
         'apiContext'
     ],
 
-    model: {
-        prop: 'block',
-        event: 'block-update'
-    },
-
     props: {
         block: {
             type: Object,
-            required: true,
-            default() {
-                return {};
-            }
+            required: true
         }
     },
 
@@ -41,20 +33,10 @@ Component.register('sw-cms-block-config', {
         }
     },
 
-    watch: {
-        block: {
-            deep: true,
-            handler() {
-                this.$emit('block-update', this.block);
-            }
-        }
-    },
-
     methods: {
         onSetBackgroundMedia([mediaItem]) {
             this.block.backgroundMediaId = mediaItem.id;
             this.block.backgroundMedia = mediaItem;
-            this.$emit('block-update', this.block);
         },
 
         successfulUpload(media) {
@@ -62,15 +44,12 @@ Component.register('sw-cms-block-config', {
 
             this.mediaRepository.get(media.targetId, this.apiContext).then((mediaItem) => {
                 this.block.backgroundMedia = mediaItem;
-                this.$emit('block-update', this.block);
             });
         },
 
         removeMedia() {
             this.block.backgroundMediaId = null;
             this.block.backgroundMedia = null;
-
-            this.$emit('block-update', this.block);
         }
     }
 });

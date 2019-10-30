@@ -1,7 +1,7 @@
 import template from './sw-cms-section.html.twig';
 import './sw-cms-section.scss';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-cms-section', {
     template,
@@ -10,27 +10,19 @@ Component.register('sw-cms-section', {
         'repositoryFactory'
     ],
 
+    mixins: [
+        Mixin.getByName('cms-state')
+    ],
+
     props: {
         page: {
             type: Object,
-            required: true,
-            default() {
-                return {};
-            }
+            required: true
         },
 
         section: {
             type: Object,
-            required: true,
-            default() {
-                return {};
-            }
-        },
-
-        currentBlock: {
-            type: [Object, null],
-            required: false,
-            default: null
+            required: true
         },
 
         active: {
@@ -140,7 +132,7 @@ Component.register('sw-cms-section', {
         },
 
         openBlockBar() {
-            this.$emit('page-config-open');
+            this.$emit('page-config-open', 'blocks');
         },
 
         onSectionOverlayClick() {
@@ -152,8 +144,8 @@ Component.register('sw-cms-section', {
         },
 
         onBlockSelection(block) {
-            this.openBlockBar();
-            this.$emit('current-block-change', this.section.id, block);
+            this.$store.dispatch('cmsPageState/setBlock', block);
+            this.$emit('page-config-open', 'itemConfig');
         },
 
         onBlockDuplicate(block, section) {
@@ -163,8 +155,8 @@ Component.register('sw-cms-section', {
         onBlockDelete(blockId) {
             this.section.blocks.remove(blockId);
 
-            if (this.currentBlock && this.currentBlock.id === blockId) {
-                this.$emit('current-block-change', this.section.id, null);
+            if (this.selectedBlock && this.selectedBlock.id === blockId) {
+                this.$store.commit('cmsPageState/removeSelectedBlock');
             }
 
             this.updateBlockPositions();

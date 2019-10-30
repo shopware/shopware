@@ -143,9 +143,7 @@
                                                         <sw-cms-section class="sw-cms-stage-section"
                                                                         :page="page"
                                                                         :section="section"
-                                                                        :currentBlock="currentBlock"
-                                                                        @current-block-change="setCurrentBlock"
-                                                                        @page-config-open="pageConfigOpen('blocks')"
+                                                                        @page-config-open="pageConfigOpen"
                                                                         @block-duplicate="onBlockDuplicate"
                                                                         :isSystemDefaultLanguage="isSystemDefaultLanguage"
                                                                         :key="section.id">
@@ -168,12 +166,10 @@
                         {% block sw_cms_detail_sidebar %}
                             <sw-cms-sidebar ref="cmsSidebar"
                                             :page="page"
-                                            :currentBlock="currentBlock"
                                             :demoEntity="currentMappingEntity"
                                             :demoEntityIdProp="demoEntityId"
                                             :isSystemDefaultLanguage="isSystemDefaultLanguage"
                                             @demo-entity-change="onDemoEntityChange"
-                                            @current-block-change="setCurrentBlock"
                                             @block-duplicate="onBlockDuplicate"
                                             @section-duplicate="onSectionDuplicate"
                                             @block-stage-drop="onPageUpdate"

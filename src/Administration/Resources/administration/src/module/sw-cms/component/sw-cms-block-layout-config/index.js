@@ -8,27 +8,10 @@ Component.register('sw-cms-block-layout-config', {
 
     inject: ['cmsService'],
 
-    model: {
-        prop: 'block',
-        event: 'block-update'
-    },
-
     props: {
         block: {
             type: Object,
-            required: true,
-            default() {
-                return {};
-            }
-        }
-    },
-
-    watch: {
-        block: {
-            deep: true,
-            handler() {
-                this.$emit('block-update', this.block);
-            }
+            required: true
         }
     }
 });

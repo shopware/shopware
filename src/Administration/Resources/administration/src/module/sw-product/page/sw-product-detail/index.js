@@ -413,7 +413,7 @@ Component.register('sw-product-detail', {
                 switch (response) {
                     case 'empty': {
                         this.isSaveSuccessful = true;
-                        this.$store.commit('resetApiErrors');
+                        this.$store.commit('error/resetApiErrors');
                         break;
                     }
 

@@ -100,9 +100,8 @@ Component.register('sw-language-switch', {
             this.lastLanguageId = this.languageId;
 
             if (this.changeGlobalLanguage) {
-                this.languageStore.setCurrentId(this.languageId).then(() => {
-                    this.$root.$emit('on-change-application-language', { languageId: this.languageId });
-                });
+                this.languageStore.setCurrentId(this.languageId);
+                this.$root.$emit('on-change-application-language', { languageId: this.languageId });
             }
 
             this.$emit('on-change', this.languageId);

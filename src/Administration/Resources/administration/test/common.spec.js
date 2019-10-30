@@ -14,7 +14,6 @@ const {
     WorkerNotification,
     DataDeprecated,
     Data,
-    Defaults,
     Classes,
     Helper
 } = Shopware;
@@ -131,12 +130,6 @@ describe('core/common.js', () => {
         expect(WorkerNotification).toHaveProperty('override');
         expect(WorkerNotification).toHaveProperty('remove');
         expect(WorkerNotification).toHaveProperty('initialize');
-    });
-
-    it('should contain the necessary methods for the Defaults', () => {
-        expect(Defaults).toHaveProperty('systemLanguageId');
-        expect(Defaults).toHaveProperty('defaultLanguageIds');
-        expect(Defaults).toHaveProperty('versionId');
     });
 
     /**

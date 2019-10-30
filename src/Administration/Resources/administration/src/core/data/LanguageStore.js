@@ -22,7 +22,6 @@ export default class LanguageStore extends EntityStore {
      * Set the current languageId and calls the init method to fetch the data from server if necessary.
      *
      * @param {String} languageId
-     * @return {Promise<{}>}
      */
     setCurrentId(languageId) {
         Shopware.Context.Api.languageId = languageId;
@@ -51,10 +50,6 @@ export default class LanguageStore extends EntityStore {
         return this;
     }
 
-    getDefaultLanguageIds() {
-        return this.defaultLanguageIds;
-    }
-
     get systemLanguageId() {
         return Shopware.Context.Api.systemLanguageId;
     }
@@ -69,14 +64,6 @@ export default class LanguageStore extends EntityStore {
 
     set currentLanguageId(newValue) {
         Shopware.Context.Api.languageId = newValue;
-    }
-
-    get defaultLanguageIds() {
-        return Shopware.Context.Api.defaultLanguageIds;
-    }
-
-    set defaultLanguageIds(newValue) {
-        Shopware.Context.Api.defaultLanguageIds = newValue;
     }
 
     init() {

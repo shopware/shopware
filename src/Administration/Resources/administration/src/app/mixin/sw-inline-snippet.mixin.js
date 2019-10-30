@@ -7,7 +7,7 @@ Mixin.register('sw-inline-snippet', {
             return this.$store.state.adminLocale.currentLocale;
         },
         swInlineSnippetFallbackLocale() {
-            return this.$store.state.adminLocale.fallbackLocale;
+            return Shopware.State.App.fallbackLocale;
         }
     },
 

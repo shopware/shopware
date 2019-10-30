@@ -4,12 +4,11 @@
  * @type factory
  */
 export default function createContext(context = {}) {
-    const Defaults = Shopware.Defaults;
     const isDevMode = (process.env.NODE_ENV !== 'production');
     const installationPath = getInstallationPath(context, isDevMode);
     const apiPath = `${installationPath}/api`;
 
-    const languageId = localStorage.getItem('sw-admin-current-language') || Defaults.systemLanguageId;
+    const languageId = localStorage.getItem('sw-admin-current-language') || '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
 
     Object.assign(context, {
         installationPath,
@@ -22,9 +21,8 @@ export default function createContext(context = {}) {
 
     if (isDevMode) {
         Object.assign(context, {
-            systemLanguageId: Defaults.systemLanguageId,
-            defaultLanguageIds: Defaults.defaultLanguageIds,
-            liveVersionId: Defaults.versionId
+            systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+            liveVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425'
         });
     }
 

@@ -82,7 +82,7 @@ Component.register('sw-admin-menu', {
         },
 
         avatarUrl() {
-            if (this.currentUser.avatarMedia) {
+            if (this.currentUser && this.currentUser.avatarMedia) {
                 return this.currentUser.avatarMedia.url;
             }
 

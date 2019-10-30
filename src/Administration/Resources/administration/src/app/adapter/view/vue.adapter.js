@@ -289,7 +289,7 @@ export default class VueAdapter extends ViewAdapter {
     initLocales(store) {
         const registry = this.localeFactory.getLocaleRegistry();
         const messages = {};
-        const systemFallbackLocale = 'en-GB';
+        const fallbackLocale = Shopware.Context.App.fallbackLocale;
 
         registry.forEach((localeMessages, key) => {
             store.commit('registerAdminLocale', key);
@@ -298,11 +298,10 @@ export default class VueAdapter extends ViewAdapter {
 
         const lastKnownLocale = this.localeFactory.getLastKnownLocale();
         store.dispatch('setAdminLocale', lastKnownLocale);
-        store.commit('setAdminFallbackLocale', systemFallbackLocale);
 
         const i18n = new VueI18n({
             locale: lastKnownLocale,
-            fallbackLocale: systemFallbackLocale,
+            fallbackLocale,
             silentFallbackWarn: true,
             sync: true,
             messages
@@ -311,11 +310,6 @@ export default class VueAdapter extends ViewAdapter {
         store.subscribe(({ type }, state) => {
             if (type === 'setAdminLocale') {
                 i18n.locale = state.adminLocale.currentLocale;
-                return;
-            }
-
-            if (type === 'setAdminFallbackLocale') {
-                i18n.fallbackLocale = state.adminLocale.fallbackLocale;
             }
         });
 

@@ -5,8 +5,7 @@ export default {
     state: {
         languageId: '',
         locales: [],
-        currentLocale: null,
-        fallbackLocale: null
+        currentLocale: null
     },
 
     getters: {
@@ -60,15 +59,6 @@ export default {
             state.languageId = languageId;
             state.currentLocale = locale;
             Application.getContainer('factory').locale.storeCurrentLocale(state.currentLocale);
-        },
-
-        setAdminFallbackLocale(state, locale) {
-            if (!state.locales.find((l) => l === locale)) {
-                debug.warn('AdminLocaleStore', `Locale ${locale} not registered at store`);
-                return;
-            }
-
-            state.fallbackLocale = locale;
         }
     }
 };

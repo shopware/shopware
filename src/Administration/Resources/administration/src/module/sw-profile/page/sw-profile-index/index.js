@@ -143,7 +143,7 @@ Component.register('sw-profile-index', {
                     this.languages.push(lang);
 
                     localeIds.push(lang.localeId);
-                    if (lang.locale.code === this.$store.state.adminLocale.fallbackLocale) {
+                    if (lang.locale.code === Shopware.Context.App.fallbackLocale) {
                         fallbackId = lang.localeId;
                     }
                 });

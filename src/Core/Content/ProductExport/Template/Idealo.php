@@ -37,7 +37,7 @@ class Idealo extends AbstractTemplate
 "{{ product.manufacturerNumber }}", {#- -#}
 "{{ product.ean }}",{#- -#}
 "{{ 4.95|currency }}",{#- Change to your delivery costs -#}
-"{{ productUrl(product) }}",{#- -#}
+"{{ seoUrl(\'frontend.detail.page\', {\'productId\': product.id}) }}",{#- -#}
 "{% if product.availableStock >= product.minPurchase and product.deliveryTime %}
 {{ "detail.deliveryTimeAvailable"|trans({\'%name%\': product.deliveryTime.translation(\'name\')}) }}{#- -#}
 {% elseif product.availableStock < product.minPurchase and product.deliveryTime and product.restockTime %}

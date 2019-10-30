@@ -41,7 +41,7 @@ images{#- -#}';
 "{% if price.referencePrice is not null %}
 {{ price.referencePrice.price|currency }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}{#- -#}
 {% endif %}",{#- -#}
-"{{ productUrl(product) }}",{#- -#}
+"{{ seoUrl(\'frontend.detail.page\', {\'productId\': product.id}) }}",{#- -#}
 "{{ product.cover.media.url }}",{#- -#}
 "{% if product.availableStock >= product.minPurchase and product.deliveryTime %}
 {{ "detail.deliveryTimeAvailable"|trans({\'%name%\': product.deliveryTime.translation(\'name\')}) }}{#- -#}
@@ -54,7 +54,7 @@ images{#- -#}';
 ,{#- -#}
 "{% if product.purchaseUnit %}{{ product.purchaseUnit }} {{ product.unit.shortCode }}{% endif %}",{#- -#}
 "{% if product.referenceUnit %}{{ product.referenceUnit }} {{ product.unit.shortCode }}{% endif %}",{#- -#}
-"{{ productUrl(product) }}",{#- -#}
+"{{ seoUrl(\'frontend.detail.page\', {\'productId\': product.id}) }}",{#- -#}
 {% if product.media|length > 1 %}"{% for mediaAssociation in product.media|slice(0, 5) %}{{ mediaAssociation.media.url }}{% if not loop.last %};{% endif %}{% endfor %}"{% endif %}{#- -#}';
         $this->footerTemplate = '';
         $this->fileName = 'billiger.csv';

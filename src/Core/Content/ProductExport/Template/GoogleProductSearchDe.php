@@ -30,7 +30,7 @@ class GoogleProductSearchDe extends AbstractTemplate
 	<description>{{ product.translated.description|escape }}</description>
 	<g:google_product_category>950{# change your Google Shopping category #}</g:google_product_category>
 	<g:product_type>{{ product.categories.first.getBreadCrumb|slice(1)|join(\' > \')|raw|escape }}</g:product_type>
-	<link>{{ productUrl(product) }}</link>
+	<link>{{ seoUrl(\'frontend.detail.page\', {\'productId\': product.id}) }}</link>
 	<g:image_link>{{ product.cover.media.url }}</g:image_link>
 	<g:condition>neu</g:condition>
 	<g:availability>{% if product.availableStock >= product.minPurchase and product.deliveryTime %}bestellbar{% elseif product.availableStock < product.minPurchase and product.deliveryTime and product.restockTime %}vorbestellt{% else %}nicht auf lager{% endif %}</g:availability>

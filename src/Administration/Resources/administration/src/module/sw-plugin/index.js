@@ -11,7 +11,7 @@ import './component/sw-plugin-updates-grid';
 import './component/sw-plugin-last-updates-grid';
 import './component/sw-plugin-table-entry';
 import './extension/sw-settings-index';
-import pluginSettings from './component/sw-plugin-config';
+import './component/sw-plugin-config';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
@@ -76,7 +76,7 @@ Module.register('sw-plugin', {
             }
         },
         settings: {
-            component: pluginSettings,
+            component: 'sw-plugin-config',
             path: 'settings/:namespace',
             meta: {
                 parentPath: 'sw.plugin.index'

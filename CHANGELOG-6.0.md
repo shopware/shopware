@@ -173,8 +173,8 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added `csrf` section to `storefront.yaml` configuration
     * Added `\Shopware\Storefront\Controller\CsrfController` for creating CSRF tokens(only if `csrf` `mode` is set to `ajax` in `storefront.yaml` configuration)
     * Added JS plugin for handling csrf token generation in native forms(only if `csrf` `mode` is set to `ajax`)
-    
     * Added `MetaInformation` struct to handle meta information in `pageLoader`
+    * Renamed the `breadcrumb` variable used in category seo url templates. It can now be access using `category.seoBreadcrumb` to align it with all other variables.
 
 **Removals**
 

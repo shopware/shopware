@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\Seo\SeoUrl\SeoUrlEntity;
+use Shopware\Core\Framework\Seo\SeoUrlGenerator;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
@@ -35,10 +36,17 @@ class SeoUrlTest extends TestCase
      */
     private $seoUrlTemplateRepository;
 
+    /**
+     * @var SeoUrlGenerator
+     */
+    private $seoUrlGenerator;
+
     public function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->seoUrlTemplateRepository = $this->getContainer()->get('seo_url_template.repository');
+
+        $this->seoUrlGenerator = $this->getContainer()->get(SeoUrlGenerator::class);
     }
 
     public function testSearchProduct(): void
@@ -129,6 +137,59 @@ class SeoUrlTest extends TestCase
             ->first();
         static::assertInstanceOf(SeoUrlEntity::class, $canonicalUrl);
         static::assertEquals('foo-bar/wuseldusel', $canonicalUrl->getSeoPathInfo());
+    }
+
+    public function testUrlUpdateWithTwoAssociations(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        $manufacturerId = Uuid::randomHex();
+        $mediaId = Uuid::randomHex();
+        $this->createTestProduct([
+            'manufacturer' => [
+                'id' => $manufacturerId,
+                'name' => 'amazing brand',
+                'media' => [
+                    'id' => $mediaId,
+                    'title' => 'test media',
+                    'mimeType' => 'image/png',
+                    'fileExtension' => 'png',
+                    'fileName' => $mediaId . '-' . (new \DateTime())->getTimestamp(),
+                    'private' => true,
+                ],
+            ],
+        ]);
+
+        /** @var EntityRepositoryInterface $mediaRepository */
+        $mediaRepository = $this->getContainer()->get('media.repository');
+        $updateEvent = $mediaRepository->update(
+            [
+                [
+                    'id' => $mediaId,
+                    'title' => 'super media',
+                ],
+            ],
+            $salesChannelContext->getContext()
+        );
+
+        static::assertTrue(
+            $this->seoUrlGenerator->checkUpdateAffectsTemplate(
+                $updateEvent,
+                $this->productRepository->getDefinition(),
+                [],
+                '{{ product.manufacturer.media.title }}'
+            )
+        );
+
+        static::assertTrue(
+            $this->seoUrlGenerator->checkUpdateAffectsTemplate(
+                $updateEvent,
+                $this->productRepository->getDefinition(),
+                [],
+                '{{ product.manufacturer.media.translated.title }}'
+            )
+        );
     }
 
     public function testSearchCategory(): void
@@ -531,10 +592,10 @@ class SeoUrlTest extends TestCase
         return $this->productRepository->upsert([$data], Context::createDefaultContext());
     }
 
-    private function createTestProduct(): string
+    private function createTestProduct(array $overrides = []): string
     {
         $id = Uuid::randomHex();
-        $this->productRepository->create([[
+        $insert = [
             'id' => $id,
             'name' => 'foo bar',
             'manufacturer' => [
@@ -552,7 +613,11 @@ class SeoUrlTest extends TestCase
                 ],
             ],
             'stock' => 0,
-        ]], Context::createDefaultContext());
+        ];
+
+        $insert = array_merge($insert, $overrides);
+
+        $this->productRepository->create([$insert], Context::createDefaultContext());
 
         return $id;
     }

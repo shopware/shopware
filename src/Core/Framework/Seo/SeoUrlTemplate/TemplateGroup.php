@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Framework\Seo\SeoUrlTemplate;
 
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-
 class TemplateGroup
 {
     /**
@@ -26,18 +24,12 @@ class TemplateGroup
      */
     private $salesChannels;
 
-    public function __construct(string $languageId, string $template, array $salesChannels)
+    public function __construct(string $languageId, string $template, array $salesChannelIds, array $salesChannels = [])
     {
         $this->languageId = $languageId;
         $this->template = $template;
         $this->salesChannels = $salesChannels;
-        $this->salesChannelIds = array_map(function (?SalesChannelEntity $value) {
-            if ($value === null) {
-                return null;
-            }
-
-            return $value->getId();
-        }, $salesChannels);
+        $this->salesChannelIds = $salesChannelIds;
     }
 
     public function getLanguageId(): string
@@ -58,5 +50,10 @@ class TemplateGroup
     public function getSalesChannels(): array
     {
         return $this->salesChannels;
+    }
+
+    public function setSalesChannels(array $salesChannels): void
+    {
+        $this->salesChannels = $salesChannels;
     }
 }

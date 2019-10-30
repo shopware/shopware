@@ -16,4 +16,6 @@ interface SeoUrlRouteInterface
     public function extractIdsToUpdate(EntityWrittenContainerEvent $event): SeoUrlExtractIdResult;
 
     public function getMapping(Entity $entity, ?SalesChannelEntity $salesChannel): SeoUrlMapping;
+
+    public function getSeoVariables(): array;
 }

@@ -6,9 +6,9 @@
   "price": [
     {
       "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
-      "net": 42,
+      "net": 8.40,
       "linked": false,
-      "gross": 64
+      "gross": 10
     }
   ],
   "url": "/product-name.html"

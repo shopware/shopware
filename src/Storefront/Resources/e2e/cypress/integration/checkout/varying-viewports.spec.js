@@ -48,7 +48,7 @@ describe('Checkout: Login as customer and run checkout in various viewports', ()
                 }
 
                 // Product detail
-                cy.get('input[name=search]')
+                cy.get('.header-search-input')
                     .should('be.visible')
                     .type(product.name);
                 cy.get('.search-suggest-product-name').contains(product.name);

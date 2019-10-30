@@ -86,7 +86,7 @@
       "titleElementChangeModal": "Change element",
       "labelButtonElementChangeAbort": "Cancel",
       "labelBlockNameField": "Block name",
-      "tooltipBlockNameField": "Name each block individually to keep track of your work.",
+      "tooltipNameField": "Name each block individually to keep track of your work.",
       "labelBlockSizingField": "Sizing mode",
       "labelBlockSizingOptionBoxed": "Boxed content",
       "labelBlockSizingOptionFull": "Full width",

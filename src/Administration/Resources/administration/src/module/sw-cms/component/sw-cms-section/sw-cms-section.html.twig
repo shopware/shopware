@@ -1,5 +1,11 @@
 {% block sw_cms_section %}
     <div class="sw-cms-section" :class="[sectionClasses, customSectionClass, sectionTypeClass]" :style="sectionStyles">
+
+        {% block sw_cms_section_actions %}
+            <sw-cms-section-actions :section="section">
+            </sw-cms-section-actions>
+        {% endblock %}
+
         <div class="sw-cms-section__wrapper">
             {% block sw_cms_section_sidebar %}
                 <div v-if="isSideBarType" class="sw-cms-section__sidebar" :class="sectionSidebarClasses">

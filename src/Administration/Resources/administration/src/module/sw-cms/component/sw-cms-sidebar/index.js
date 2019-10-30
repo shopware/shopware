@@ -94,6 +94,7 @@ Component.register('sw-cms-sidebar', {
 
         onCloseBlockConfig() {
             this.$store.commit('cmsPageState/removeSelectedBlock');
+            this.$store.commit('cmsPageState/removeSelectedSection');
         },
 
         openSectionSettings(sectionIndex) {

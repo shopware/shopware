@@ -85,7 +85,7 @@
       "titleElementChangeModal": "Element austauschen",
       "labelButtonElementChangeAbort": "Abbrechen",
       "labelBlockNameField": "Block-Name",
-      "tooltipBlockNameField": "Vergib einen aussagekräftigen Namen für diesen Block.",
+      "tooltipNameField": "Vergib einen aussagekräftigen Namen für diesen Block.",
       "labelBlockSizingField": "Größenmodus",
       "labelBlockSizingOptionBoxed": "Zentrierter Inhalt",
       "labelBlockSizingOptionFull": "Volle Breite",

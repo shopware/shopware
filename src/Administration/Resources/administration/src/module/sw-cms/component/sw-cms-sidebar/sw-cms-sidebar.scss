@@ -27,8 +27,7 @@
         font-size: 18px;
     }
 
-    .sw-cms-sidebar__settings,
-    .sw-cms-sidebar__section-settings {
+    .sw-cms-sidebar__settings {
         padding: 8px 24px;
     }
 
@@ -70,40 +69,6 @@
         padding: 8px 4px 8px 14px;
         text-align: center;
         border-radius: 4px;
-    }
-}
-
-.sw-cms-sidebar-section-settings__quickactions-list {
-    display: grid;
-    grid-template-columns: 50% 50%;
-    list-style: none;
-    border-bottom: 1px solid $color-gray-300;
-    padding-bottom: 24px;
-    margin-bottom: 16px;
-
-    .sw-cms-sidebar-section-settings__quickaction {
-        cursor: pointer;
-        
-        &.is--danger {
-            .sw-icon {
-                color: $color-crimson-500;
-            }
-
-            &:hover {
-                color: $color-crimson-500;
-            }
-        }
-
-        &:hover {
-            color: $color-shopware-brand-500;
-        }
-    }
-
-    .sw-icon {
-        color: $color-shopware-brand-500;
-        margin-right: 20px;
-        position: relative;
-        top: -2px;
     }
 }
 

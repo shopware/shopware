@@ -2,9 +2,7 @@ import template from './sw-plugin-config.html.twig';
 
 const { Mixin } = Shopware;
 
-export default {
-    name: 'sw-plugin-config',
-
+Shopware.Component.register('sw-plugin-config', {
     mixins: [
         Mixin.getByName('notification')
     ],
@@ -37,4 +35,4 @@ export default {
             });
         }
     }
-};
+});

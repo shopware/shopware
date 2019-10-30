@@ -305,7 +305,7 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         onToggleActive() {
-            if (this.salesChannel.active !== true) {
+            if (this.salesChannel.active !== true || this.isProductComparison) {
                 return;
             }
             const criteria = new Criteria();

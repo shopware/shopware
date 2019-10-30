@@ -75,8 +75,6 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
             return this.pageRepository.save(this.page, this.context).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
-
-                return this.loadPage(this.page.id);
             }).catch((exception) => {
                 this.isLoading = false;
 

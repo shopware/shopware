@@ -24,12 +24,12 @@ Component.register('sw-settings-shopware-updates-plugins', {
             return [
                 {
                     property: 'name',
-                    label: this.$t('sw-settings-shopware-updates.plugins.columns.name'),
+                    label: this.$tc('sw-settings-shopware-updates.plugins.columns.name'),
                     rawData: true
                 },
                 {
                     property: 'icon',
-                    label: this.$t('sw-settings-shopware-updates.plugins.columns.available'),
+                    label: this.$tc('sw-settings-shopware-updates.plugins.columns.available'),
                     rawData: true
                 }
             ];

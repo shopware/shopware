@@ -5,16 +5,17 @@
       "INVALID_MEDIA_URL": "Please enter a valid URL to upload a file."
     },
     "default": {
+      "add": "Add",
       "apply": "Apply",
       "cancel": "Cancel",
       "delete": "Delete",
       "edit": "Edit",
-      "save": "Save"
+      "error": "Error",
+      "save": "Save",
+      "success": "Success"
     },
     "notification": {
-      "notificationSaveErrorTitle": "Error",
       "notificationSaveErrorMessage": "An error occurred while saving the entity \"{entityName}\".",
-      "notificationSaveSuccessTitle": "Success",
       "notificationSaveSuccessMessage": "The entity \"{entityName}\" has been saved."
     },
     "notification-center": {
@@ -22,15 +23,12 @@
       "emptyText": "Nothing to show.",
       "deleteModal": {
         "title": "Delete notifications",
-        "textConfirm": "Are you sure you really want to delete all notifications?",
-        "cancel": "Cancel",
-        "delete": "Delete"
+        "textConfirm": "Are you sure you really want to delete all notifications?"
       },
       "worker-listener": {
         "thumbnailGeneration": {
           "title": "Generating thumbnails",
           "message": "No thumbnails remaining. | One thumbnail remaining. | {n} thumbnails remaining.",
-          "titleSuccess": "Success",
           "messageSuccess": "Thumbnails have been generated."
         }
       },
@@ -41,7 +39,6 @@
       "shopware-updates-listener": {
         "updatesAvailableTitle": "A new Shopware version {version} is available",
         "updatesAvailableMessage": "Start the auto-updater to begin the update",
-        "cancel": "Cancel",
         "updateNow": "Open update"
       }
     },
@@ -56,24 +53,15 @@
         "mainMenuItemMarketing": "Marketing"
       }
     },
-    "sw-address": {
-      "edit": "Edit"
-    },
     "entity-components": {
-      "editAction": "Edit",
-      "deleteAction": "Delete",
       "deleteMessage": "Are you sure you want to delete this item? | Are you sure you want to delete these {count} items?",
-      "deleteCancel": "Cancel",
-      "deleteConfirm": "Delete",
       "deleteTitle": "Delete entry",
       "placeholderToManyAssociationCard": "Search associations",
       "labelRemoveAssociation": "Remove association"
     },
     "sw-field": {
       "notification": {
-        "notificationCopySuccessTitle": "Success",
         "notificationCopySuccessMessage": "Text has been copied to clipboard.",
-        "notificationCopyFailureTitle": "Error",
         "notificationCopyFailureMessage": "Text could not be copied to clipboard."
       },
       "titleShowPassword": "Show password",
@@ -113,18 +101,12 @@
       "listItemAdd": "Add \"{term}\"",
       "placeholder": "Search tags..."
     },
-    "sw-grid-row": {
-      "buttonInlineEditCancel": "Cancel",
-      "buttonInlineEditSave": "Save"
-    },
     "sw-data-grid": {
       "tooltipListSettings": "List settings",
       "labelSettingsCompactMode": "Use compact view",
       "labelSettingsPreviewImages": "Show preview images",
       "labelColumnHide": "Hide column",
-      "labelSelectionCount": "Selected:",
-      "titleButtonInlineEditSave": "Save",
-      "titleButtonInlineEditCancel": "Cancel"
+      "labelSelectionCount": "Selected:"
     },
     "sw-pagination": {
       "labelItemsPerPage": "Items per page:"
@@ -138,7 +120,6 @@
       "labelUnlink": "Unlink media"
     },
     "sw-media-folder-item": {
-      "labelContextMenuDelete": "Delete",
       "labelContextMenuRename": "Rename",
       "labelContextMenuMove": "Move",
       "labelContextMenuShowMedia": "Show media",
@@ -146,17 +127,14 @@
       "labelContextMenuDissolve": "Dissolve",
       "notification": {
         "errorBlankItemName": {
-          "title": "Error",
           "message": "Folder could not be saved: Please enter a name."
         },
         "renamingError": {
-          "title": "Error",
           "message": "Error saving folder."
         }
       }
     },
     "sw-media-media-item": {
-      "labelContextMenuDelete": "Delete",
       "labelContextMenuCopyLink": "Copy Link",
       "labelContextMenuReplace": "Replace",
       "labelContextMenuRename": "Rename",
@@ -164,15 +142,12 @@
       "labelContextMenuMove": "Move",
       "notification": {
         "errorBlankItemName": {
-          "title": "Error",
           "message": "Media item could not be saved: Please enter a name."
         },
         "renamingSuccess": {
-          "title": "Success",
           "message": "Media item has been renamed."
         },
         "renamingError": {
-          "title": "Error",
           "message": "Error saving file."
         }
       },
@@ -189,25 +164,14 @@
         "folder": "Are you sure you want to delete the folder \"{name}\"?<br>All subfolders and contained media items will be deleted too. | Are you sure you want to delete {count} folders?<br>All subfolders and contained media items will be deleted too.",
         "mediaAndFolder": "Are you sure you want to delete {mediaCount} media items and {folderCount} folders?<br>All subfolders and all media items within will be deleted too."
       },
-      "buttonDelete": "Delete",
-      "buttonCancel": "Cancel",
       "notification": {
-        "successSingle": {
-          "title": "Success",
-          "message": {
-            "media": "File \"{name}\" has been deleted.",
-            "folder": "Folder \"{name}\" has been deleted."
-          }
-        },
         "errorSingle": {
-          "title": "Error",
           "message": {
             "media": "Error deleting file \"{name}\".",
             "folder": "Error deleting folder \"{name}\"."
           }
         },
         "successOverall": {
-          "title": "Success",
           "message": {
             "media": "No file has been deleted. | A file has been deleted. | {count} / {total} files have been deleted.",
             "folder": "No folder has been deleted. | A folder has been deleted. | {count} / {total} folders have been deleted.",
@@ -215,7 +179,6 @@
           }
         },
         "errorOverall": {
-          "title": "Error",
           "message": {
             "media": "Error deleting files.",
             "folder": "Error deleting folders.",
@@ -228,22 +191,17 @@
       "titleModal": "Dissolve folder",
       "dissolveMessage":"Are you sure you want to dissolve \"{folderName}\" ? | Are you sure you want to dissolve {count} folders?",
       "buttonDissolve": "Dissolve",
-      "buttonCancel": "Cancel",
       "notification": {
         "successSingle": {
-          "title": "Success",
           "message": "Folder \"{folderName}\" has been dissolved."
         },
         "errorSingle": {
-          "title": "Error",
           "message": "Error dissolving \"{folderName}\"."
         },
         "successOverall": {
-          "title": "Success",
           "message": "Folders have been dissolved."
         },
         "errorOverall": {
-          "title": "Error",
           "message": "Error dissolving folders."
         }
       }
@@ -254,7 +212,6 @@
       "buttonReplace": "Replace file",
       "buttonRename": "Rename file",
       "buttonSkip": "Skip file",
-      "buttonCancel": "Cancel",
       "labelSaveSelection": "Save selection and apply to {count} more.",
       "labelOptionReplace": "Upload and replace",
       "labelOptionRename": "Upload and rename",
@@ -265,22 +222,17 @@
     "sw-media-modal-move": {
       "titleModal": "Move \"{mediaName}\" | Move {count} items",
       "buttonMove": "Move",
-      "buttonAbort": "Cancel",
       "notification": {
         "successSingle": {
-          "title": "Success",
           "message": "Folder \"{mediaName}\" has been moved."
         },
         "errorSingle": {
-          "title": "Error",
           "message": "Error moving \"{mediaName}\"."
         },
         "successOverall": {
-          "title": "Success",
           "message": "Media items have been moved."
         },
         "errorOverall": {
-          "title": "Error",
           "message": "Error moving items."
         }
       }
@@ -288,7 +240,6 @@
     "sw-media-modal-replace": {
       "titleModal": "Replace media files",
       "buttonUpload": "Upload",
-      "buttonCancel": "Cancel",
       "buttonReplace": "Replace",
       "warningFileExtension": "The new file has a different file extension ({extension}). The file may need to be re-indexed by search engines."
     },
@@ -306,11 +257,9 @@
       "notification": {
         "success": {
           "title": "Media upload",
-          "message": "No file has been saved. | File has been saved. | {count} / {total} files have been saved.",
-          "titleSuccess": "Success"
+          "message": "No file has been saved. | File has been saved. | {count} / {total} files have been saved."
         },
         "failure": {
-          "title": "Error",
           "message": "Error while uploading file."
         },
         "illegalFilename": {
@@ -323,7 +272,6 @@
     "sw-media-url-form": {
       "title": "Upload file from URL",
       "upload": "Upload",
-      "cancel": "Cancel",
       "example": "https://www.example.com",
       "labelFileExtension": "File extension",
       "missingFileExtension": "The URL does not contain a file extension. Please enter a file extension above."
@@ -339,25 +287,19 @@
       "labelThumbnailSize": "Thumbnail size",
       "labelEditList": "Edit list",
       "labelStopEdit": "Stop editing",
-      "labelSave": "Save",
-      "labelCancel": "Cancel",
       "labelKeepProportions": "Keep aspect ratio",
-      "titleDeleteThumbnails": "Delete",
       "notification": {
         "success": {
-          "title": "Success",
           "message": "Settings have been saved."
         },
         "error": {
-          "title": "Error",
           "message": "Error while saving settings."
         }
       },
       "labelDefaultFolder": "Default location for:"
     },
     "sw-media-add-thumbnail-form": {
-      "labelMaximumSize": "Maximum size",
-      "labelAdd": "Add"
+      "labelMaximumSize": "Maximum size"
     },
     "sw-sidebar-media-item": {
       "title": "Media",
@@ -478,7 +420,6 @@
         "deleteAllConditions": "Delete all",
         "createBefore": "Create before",
         "createAfter": "Create after",
-        "delete": "Delete",
         "hasDeliveryFreeItemRule": "Shipping free product",
         "timeRangeRule": "Time range",
         "weightOfCartRule": "Weight of cart",
@@ -489,7 +430,7 @@
     "sw-product-image": {
       "context": {
         "buttonAsCover": "Use as cover",
-        "buttonDelete": "Remove"
+        "buttonRemove": "Remove"
       }
     },
     "sw-simple-search-field": {
@@ -592,18 +533,14 @@
         "createSub": "New subelement",
         "createBefore": "New element before",
         "createAfter": "New element after",
-        "edit": "Edit",
-        "actionsDisabledInLanguage": "Elements can only be created in the default system language",
-        "delete": "Delete"
+        "actionsDisabledInLanguage": "Elements can only be created in the default system language"
       }
     },
     "modal": {
       "modalTitleDelete": "Delete element",
       "textDeleteConfirm": "Are you sure you really want to delete the element \"{name}\"?",
       "textDeleteMultipleConfirm": "Are you sure you want to delete the \"{count}\" selected elements?",
-      "textDeleteChildrenConfirm": "All subcategories will be deleted too.",
-      "buttonDelete": "Delete",
-      "buttonCancel": "Cancel"
+      "textDeleteChildrenConfirm": "All subcategories will be deleted too."
     }
   },
   "sw-category-tree-field": {
@@ -611,7 +548,6 @@
   },
   "sw-error": {
     "general": {
-      "statusCodePlaceholder": "Error",
       "messagePlaceholder": "Oops, something went terribly wrong.",
       "textLink": "Back"
     }
@@ -634,9 +570,7 @@
   "sw-language-switch": {
     "messageModalUnsavedChanges": "There are unsaved changes in the current language. Do you want to save them now?",
     "titleModalUnsavedChanges": "Unsaved changes",
-    "titleModalButtonCancelUnsavedChanges": "Cancel",
-    "titleModalButtonRevertUnsavedChanges": "Discard changes",
-    "titleModalButtonSaveChanges": "Save"
+    "titleModalButtonRevertUnsavedChanges": "Discard changes"
   },
   "sw-inheritance-warning": {
     "infoTextInheritedField": "{moduleName} has inherited fields. Meaning that as long as the inherited state is active the content will be inherited. Inherited fields can be unlinked by clicking the link symbol. Clicking the symbol again will set the inherited state back."
@@ -659,21 +593,14 @@
     "messageModalUnsavedChanges": "There are unsaved changes regarding the current sales channel. Do you want to save them now?",
     "placeholderSelect": "Search for...",
     "titleModalUnsavedChanges": "Unsaved changes",
-    "titleModalButtonCancelUnsavedChanges": "Cancel",
     "titleModalButtonRevertUnsavedChanges": "Discard changes",
-    "titleModalButtonSaveChanges": "Save",
     "labelDefaultOption": "All sales channel"
   },
   "sw-config-form-renderer": {
     "placeholder": "Please fill in {name}...",
     "option": "No label set for locale \"{locale}\"...",
     "configLoadErrorMessage": "Encountered an error while loading the configuration: | There were errors loading the configuration:",
-    "configLoadErrorTitle": "Error"
-  },
-  "sw-custom-field-set-renderer": {
-    "general":{
-      "labelButtonSave": "Save"
-    }
+    "configLoadErrorTitle": "Error loading configurations."
   },
   "locale": {
     "de-DE": "German",
@@ -688,11 +615,7 @@
     "placeholderName": "Enter a rule name...",
     "labelPriority": "Priority",
     "placeholderPriority": "Prioritise this rule...",
-    "buttonAbort": "Cancel",
-    "buttonSave": "Save",
-    "titleSaveSuccess": "Success",
     "messageSaveSuccess": "The rule \"{name}\" has been saved.",
-    "titleSaveError": "Error",
     "messageSaveError": "An error occurred while saving rule \"{name}\"."
   },
   "sw-select-rule-create": {

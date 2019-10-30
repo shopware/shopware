@@ -19,7 +19,7 @@
                     <sw-button @click="onDeleteElements(null)"
                                variant="danger"
                                size="small">
-                        {{ $tc('sw-tree.modal.buttonDelete') }}
+                        {{ $tc('global.default.delete') }}
                     </sw-button>
                 </div>
 
@@ -94,7 +94,7 @@
                         {% block sw_tree_delete_modal_cancel %}
                             <sw-button @click="onCloseDeleteModal"
                                        size="small">
-                                {{ $tc('sw-tree.modal.buttonCancel') }}
+                                {{ $tc('global.default.cancel') }}
                             </sw-button>
                         {% endblock %}
 
@@ -102,7 +102,7 @@
                             <sw-button @click="onConfirmDelete()"
                                        variant="danger"
                                        size="small">
-                                {{ $tc('sw-tree.modal.buttonDelete') }}
+                                {{ $tc('global.default.delete') }}
                             </sw-button>
                         {% endblock %}
                     </template>

@@ -110,7 +110,7 @@ Component.register('sw-mail-header-footer-detail', {
             const mailHeaderFooterName = this.mailHeaderFooter.name || this.placeholder(this.mailHeaderFooter, 'name');
 
             const notificationError = {
-                title: this.$tc('global.notification.notificationSaveErrorTitle'),
+                title: this.$tc('global.default.error'),
                 message: this.$tc(
                     'global.notification.notificationSaveErrorMessage', 0, { entityName: mailHeaderFooterName }
                 )

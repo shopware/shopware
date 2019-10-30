@@ -13,7 +13,7 @@
 
                 {% block sw_media_modal_delete_cancel_button %}
                     <sw-button @click="closeDeleteModal($event)" size="small">
-                        {{ $tc('global.sw-media-modal-delete.buttonCancel') }}
+                        {{ $tc('global.default.cancel') }}
                     </sw-button>
                 {% endblock %}
 
@@ -22,7 +22,7 @@
                                @click="deleteSelection($event)"
                                size="small"
                                variant="primary">
-                        {{ $tc('global.sw-media-modal-delete.buttonDelete') }}
+                        {{ $tc('global.default.delete') }}
                     </sw-button>
                 {% endblock %}
 

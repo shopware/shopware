@@ -79,7 +79,7 @@ Component.register('sw-review-detail', {
             const reviewName = this.review.title;
             const titleSaveSuccess = this.$tc('sw-review.detail.titleSaveSuccess');
             const messageSaveSuccess = this.$tc('sw-review.detail.messageSaveSuccess', 0, { name: reviewName });
-            const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
+            const titleSaveError = this.$tc('global.default.error');
             const messageSaveError = this.$tc(
                 'global.notification.notificationSaveErrorMessage', 0, { entityName: reviewName }
             );

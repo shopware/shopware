@@ -45,7 +45,7 @@ Component.register('sw-media-modal-folder-dissolve', {
                         item.isLoading = false;
                         item.remove();
                         this.createNotificationSuccess({
-                            title: this.$root.$tc('global.sw-media-modal-folder-dissolve.notification.successSingle.title'),
+                            title: this.$root.$tc('global.default.success'),
                             message: this.$root.$tc(
                                 'global.sw-media-modal-folder-dissolve.notification.successSingle.message',
                                 1,
@@ -56,7 +56,7 @@ Component.register('sw-media-modal-folder-dissolve', {
                     }).catch(() => {
                         item.isLoading = false;
                         this.createNotificationError({
-                            title: this.$root.$tc('global.sw-media-modal-folder-dissolve.notification.errorSingle.title'),
+                            title: this.$root.$tc('global.default.error'),
                             message: this.$root.$tc(
                                 'global.sw-media-modal-folder-dissolve.notification.errorSingle.message',
                                 1,
@@ -72,9 +72,7 @@ Component.register('sw-media-modal-folder-dissolve', {
                 Promise.all(dissolvePromises).then((ids) => {
                     if (dissolvePromises.length > 1) {
                         this.createNotificationSuccess({
-                            title: this.$root.$tc(
-                                'global.sw-media-modal-folder-dissolve.notification.successOverall.title'
-                            ),
+                            title: this.$root.$tc('global.default.success'),
                             message: this.$root.$tc(
                                 'global.sw-media-modal-folder-dissolve.notification.successOverall.message'
                             )
@@ -84,9 +82,7 @@ Component.register('sw-media-modal-folder-dissolve', {
                 }).catch(() => {
                     if (dissolvePromises.length > 1) {
                         this.createNotificationError({
-                            title: this.$root.$tc(
-                                'global.sw-media-modal-folder-dissolve.notification.errorOverall.title'
-                            ),
+                            title: this.$root.$tc('global.default.error'),
                             message: this.$root.$tc(
                                 'global.sw-media-modal-folder-dissolve.notification.errorOverall.message'
                             )

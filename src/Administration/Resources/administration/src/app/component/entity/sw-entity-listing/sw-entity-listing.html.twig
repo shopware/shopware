@@ -4,7 +4,7 @@
 
 {% block sw_data_grid_bulk_selected_actions_content %}
     <a class="link link-danger" @click="showBulkDeleteModal = true">
-        {{ $tc('global.entity-components.deleteAction') }}
+        {{ $tc('global.default.delete') }}
     </a>
 {% endblock %}
 
@@ -19,11 +19,11 @@
 
         <template #modal-footer>
             <sw-button @click="showBulkDeleteModal = false" size="small">
-                {{ $tc('global.entity-components.deleteCancel') }}
+                {{ $tc('global.default.cancel') }}
             </sw-button>
 
             <sw-button @click="deleteItems" variant="primary" size="small" :isLoading="isBulkLoading">
-                {{ $tc('global.entity-components.deleteAction') }}
+                {{ $tc('global.default.delete') }}
             </sw-button>
         </template>
     </sw-modal>
@@ -32,7 +32,7 @@
 {% block sw_data_grid_slot_actions %}
     <slot name="detail-action" v-bind="{ item }">
         <sw-context-menu-item class="sw-entity-listing__context-menu-edit-action" v-if="detailRoute" :routerLink="{ name: detailRoute, params: { id: item.id } }">
-            {{ $tc('global.entity-components.editAction') }}
+            {{ $tc('global.default.edit') }}
         </sw-context-menu-item>
     </slot>
 
@@ -40,7 +40,7 @@
 
     <slot name="delete-action" v-bind="{ item, showDelete }">
         <sw-context-menu-item @click="showDelete(item.id)" variant="danger">
-            {{ $tc('global.entity-components.deleteAction') }}
+            {{ $tc('global.default.delete') }}
         </sw-context-menu-item>
     </slot>
 {% endblock %}
@@ -56,11 +56,11 @@
         <template #modal-footer>
             <slot name="delete-modal-footer" v-bind="{ item }">
                 <sw-button @click="closeModal" size="small">
-                    {{ $tc('global.entity-components.deleteCancel') }}
+                    {{ $tc('global.default.cancel') }}
                 </sw-button>
 
                 <sw-button @click="deleteItem(item.id)" variant="primary" size="small">
-                    {{ $tc('global.entity-components.deleteConfirm') }}
+                    {{ $tc('global.default.delete') }}
                 </sw-button>
             </slot>
         </template>

@@ -104,7 +104,7 @@ function registerThumbnailMiddleware(factory) {
         fn: function middleware(next, { entry, $root, notification }) {
             // Create notification config object
             const config = {
-                title: $root.$t('global.notification-center.worker-listener.thumbnailGeneration.title'),
+                title: $root.$tc('global.notification-center.worker-listener.thumbnailGeneration.title'),
                 message: $root.$tc(
                     'global.notification-center.worker-listener.thumbnailGeneration.message',
                     entry.size
@@ -130,9 +130,7 @@ function registerThumbnailMiddleware(factory) {
                 config.uuid = notificationId;
 
                 if (entry.size === 0) {
-                    config.title = $root.$t(
-                        'global.notification-center.worker-listener.thumbnailGeneration.titleSuccess'
-                    );
+                    config.title = $root.$tc('global.default.success');
                     config.message = $root.$t(
                         'global.notification-center.worker-listener.thumbnailGeneration.messageSuccess'
                     );

@@ -186,7 +186,7 @@ Component.register('sw-manufacturer-detail', {
                 this.isLoading = false;
                 const manufacturerName = this.manufacturer.name || this.manufacturer.translated.name;
                 this.createNotificationError({
-                    title: this.$tc('global.notification.notificationSaveErrorTitle'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc(
                         'global.notification.notificationSaveErrorMessage', 0, { entityName: manufacturerName }
                     )

@@ -7,7 +7,7 @@
                 <router-link v-if="showEditButton"
                              class="sw-address-headline-link"
                              :to="{ name: 'sw.customer.detail.addresses', params: { id: $route.params.id }, query: { detailId: address.id } }">
-                    {{ $tc('global.sw-address.edit') }}
+                    {{ $tc('global.default.edit') }}
                 </router-link>
             </div>
         {% endblock %}

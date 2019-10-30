@@ -40,7 +40,7 @@ Shopware.WorkerNotification.register('generateThumbnailsMessage', {
     fn: function middleware(next, { entry, $root, notification }) {
         // Create notification config object
         const config = {
-            title: $root.$t('global.notification-center.worker-listener.thumbnailGeneration.title'),
+            title: $root.$tc('global.notification-center.worker-listener.thumbnailGeneration.title'),
             message: $root.$tc(
                 'global.notification-center.worker-listener.thumbnailGeneration.message',
                 entry.size
@@ -66,10 +66,8 @@ Shopware.WorkerNotification.register('generateThumbnailsMessage', {
             config.uuid = notificationId;
 
             if (entry.size === 0) {
-                config.title = $root.$t(
-                    'global.notification-center.worker-listener.thumbnailGeneration.titleSuccess'
-                );
-                config.message = $root.$t(
+                config.title = $root.$tc('global.default.success');
+                config.message = $root.$tc(
                     'global.notification-center.worker-listener.thumbnailGeneration.messageSuccess'
                 );
                 config.isLoading = false;

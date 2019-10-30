@@ -231,9 +231,7 @@ Component.register('sw-media-modal-folder-settings', {
                         });
 
                         this.createNotificationSuccess({
-                            title: this.$root.$tc(
-                                'global.sw-media-modal-folder-settings.notification.success.title'
-                            ),
+                            title: this.$root.$tc('global.default.success'),
                             message: this.$root.$tc(
                                 'global.sw-media-modal-folder-settings.notification.success.message'
                             )
@@ -241,9 +239,7 @@ Component.register('sw-media-modal-folder-settings', {
                     })
                     .catch(() => {
                         this.createNotificationError({
-                            title: this.$root.$tc(
-                                'global.sw-media-modal-folder-settings.notification.error.title'
-                            ),
+                            title: this.$root.$tc('global.default.error'),
                             message: this.$root.$tc(
                                 'global.sw-media-modal-folder-settings.notification.error.message'
                             )

@@ -13,7 +13,7 @@
                         {% block sw_language_switch_footer_button_close %}
                             <sw-button @click="onCloseChangesModal"
                                        size="small">
-                                {{ $tc('sw-language-switch.titleModalButtonCancelUnsavedChanges') }}
+                                {{ $tc('global.default.cancel') }}
                             </sw-button>
                         {% endblock %}
 
@@ -28,7 +28,7 @@
                             <sw-button @click="onClickSaveChanges"
                                        variant="primary"
                                        size="small">
-                                {{ $tc('sw-language-switch.titleModalButtonSaveChanges') }}
+                                {{ $tc('global.default.save') }}
                             </sw-button>
                         {% endblock %}
                     </template>

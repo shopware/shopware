@@ -132,7 +132,7 @@ Component.register('sw-media-modal-delete', {
                         }
 
                         this.createNotificationError({
-                            title: this.$root.$tc('global.sw-media-modal-delete.notification.errorSingle.title'),
+                            title: this.$root.$tc('global.default.error'),
                             message: item.getEntityName() === 'media' ?
                                 this.$root.$tc(
                                     'global.sw-media-modal-delete.notification.errorSingle.message.media',
@@ -158,7 +158,7 @@ Component.register('sw-media-modal-delete', {
                     };
                 }).catch(() => {
                     this.createNotificationError({
-                        title: this.$root.$tc('global.sw-media-modal-delete.notification.errorOverall.title'),
+                        title: this.$root.$tc('global.default.error'),
                         message: this.snippets.errorOverall
                     });
                 })
@@ -167,7 +167,7 @@ Component.register('sw-media-modal-delete', {
 
         updateSuccessNotification(successAmount, failureAmount, totalAmount) {
             const notification = {
-                title: this.$root.$tc('global.sw-media-modal-delete.notification.successOverall.title'),
+                title: this.$root.$tc('global.default.success'),
                 message: this.$root.$tc(
                     this.snippets.successOverall,
                     successAmount,

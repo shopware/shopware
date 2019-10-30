@@ -45,7 +45,7 @@
             {% block sw_rule_modal_footer %}
                 {% block sw_rule_modal_footer_button_abort %}
                     <sw-button @click="$emit('modal-close')" size="small">
-                        {{ $tc('sw-rule-modal.buttonAbort') }}
+                        {{ $tc('global.default.cancel') }}
                     </sw-button>
                 {% endblock %}
 
@@ -55,7 +55,7 @@
                                @click="saveAndClose"
                                size="small"
                                variant="primary">
-                        {{ $tc('sw-rule-modal.buttonSave') }}
+                        {{ $tc('global.default.save') }}
                     </sw-button>
                 {% endblock %}
             {% endblock %}

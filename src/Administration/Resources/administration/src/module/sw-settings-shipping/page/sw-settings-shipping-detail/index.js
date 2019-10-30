@@ -136,7 +136,7 @@ Component.register('sw-settings-shipping-detail', {
 
         onSave() {
             const shippingMethodName = this.shippingMethod.name || this.placeholder(this.shippingMethod, 'name');
-            const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
+            const titleSaveError = this.$tc('global.default.error');
             const messageSaveError = this.$tc(
                 'global.notification.notificationSaveErrorMessage', 0, { entityName: shippingMethodName }
             );

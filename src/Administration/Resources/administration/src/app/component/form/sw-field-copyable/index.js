@@ -58,7 +58,7 @@ Component.register('sw-field-copyable', {
                 }
             } catch (err) {
                 this.createNotificationError({
-                    title: this.$tc('global.sw-field.notification.notificationCopyFailureTitle'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('global.sw-field.notification.notificationCopyFailureMessage')
                 });
             }
@@ -70,7 +70,7 @@ Component.register('sw-field-copyable', {
 
         notificationSuccess() {
             this.createNotificationInfo({
-                title: this.$tc('global.sw-field.notification.notificationCopySuccessTitle'),
+                title: this.$tc('global.default.success'),
                 message: this.$tc('global.sw-field.notification.notificationCopySuccessMessage')
             });
         },

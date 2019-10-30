@@ -142,7 +142,7 @@ Component.register('sw-upload-store-listener', {
 
         updateSuccessNotification(uploadTag, payload) {
             const notification = {
-                title: this.$root.$tc('global.sw-media-upload.notification.success.title'),
+                title: this.$root.$tc('global.default.success'),
                 message: this.$root.$tc(
                     'global.sw-media-upload.notification.success.message',
                     payload.successAmount,
@@ -155,7 +155,7 @@ Component.register('sw-upload-store-listener', {
             };
 
             if (payload.successAmount + payload.failureAmount === payload.totalAmount) {
-                notification.title = this.$root.$t('global.sw-media-upload.notification.success.titleSuccess');
+                notification.title = this.$root.$tc('global.default.success');
             }
 
             if (this.notificationId !== null) {
@@ -192,7 +192,7 @@ Component.register('sw-upload-store-listener', {
                 });
             } else {
                 this.createNotificationError({
-                    title: this.$root.$tc('global.sw-media-upload.notification.failure.title'),
+                    title: this.$root.$tc('global.default.error'),
                     message: this.$root.$tc('global.sw-media-upload.notification.failure.message')
                 });
             }

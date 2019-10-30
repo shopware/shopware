@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Api\Converter\Exceptions\QueryRemovedFieldException;
 use Shopware\Core\Framework\Api\Converter\Exceptions\WriteFutureFieldException;
 use Shopware\Core\Framework\Api\Converter\Exceptions\WriteRemovedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
@@ -56,16 +55,6 @@ class ConverterService
         return true;
     }
 
-    public function convertCollection(EntityDefinition $definition, EntityCollection $collection, int $apiVersion): array
-    {
-        $entities = [];
-        foreach ($collection->getElements() as $key => $entity) {
-            $entities[$key] = $this->convertEntity($definition, $entity, $apiVersion);
-        }
-
-        return $entities;
-    }
-
     public function convertEntity(EntityDefinition $definition, Entity $entity, int $apiVersion): array
     {
         $payload = $entity->jsonSerialize();
@@ -75,45 +64,49 @@ class ConverterService
         return $payload;
     }
 
-    public function convertPayload(EntityDefinition $entity, array $payload, int $apiVersion, ApiConversionException $conversionException, string $pointer = ''): array
+    public function convertPayload(EntityDefinition $definition, array $payload, int $apiVersion, ApiConversionException $conversionException, string $pointer = ''): array
     {
-        $payload = $this->validateFields($entity, $payload, $apiVersion, $conversionException, $pointer);
-
-        $toOneFields = $entity->getFields()->filter(function (Field $field) {
+        $toOneFields = $definition->getFields()->filter(function (Field $field) {
             return $field instanceof OneToOneAssociationField || $field instanceof ManyToOneAssociationField;
         });
 
         /** @var OneToOneAssociationField|OneToManyAssociationField $field */
         foreach ($toOneFields as $field) {
-            if (array_key_exists($field->getPropertyName(), $payload) && is_array($payload[$field->getPropertyName()])) {
-                $payload[$field->getPropertyName()] = $this->convertPayload(
-                    $field->getReferenceDefinition(),
-                    $payload[$field->getPropertyName()],
-                    $apiVersion,
-                    $conversionException,
-                    $pointer . '/' . $field->getPropertyName()
-                );
+            if (!array_key_exists($field->getPropertyName(), $payload) || !is_array($payload[$field->getPropertyName()])) {
+                continue;
             }
+
+            $payload[$field->getPropertyName()] = $this->convertPayload(
+                $field->getReferenceDefinition(),
+                $payload[$field->getPropertyName()],
+                $apiVersion,
+                $conversionException,
+                $pointer . '/' . $field->getPropertyName()
+            );
         }
 
-        $toManyFields = $entity->getFields()->filter(function (Field $field) {
+        $toManyFields = $definition->getFields()->filter(function (Field $field) {
             return $field instanceof OneToManyAssociationField || $field instanceof ManyToManyAssociationField;
         });
 
         /** @var OneToManyAssociationField|ManyToManyAssociationField $field */
         foreach ($toManyFields as $field) {
-            if (array_key_exists($field->getPropertyName(), $payload) && is_array($payload[$field->getPropertyName()])) {
-                foreach ($payload[$field->getPropertyName()] as $key => $entityPayload) {
-                    $payload[$field->getPropertyName()][$key] = $this->convertPayload(
-                        $field instanceof ManyToManyAssociationField ? $field->getToManyReferenceDefinition() : $field->getReferenceDefinition(),
-                        $entityPayload,
-                        $apiVersion,
-                        $conversionException,
-                        $pointer . '/' . $key . '/' . $field->getPropertyName()
-                    );
-                }
+            if (!array_key_exists($field->getPropertyName(), $payload) || !is_array($payload[$field->getPropertyName()])) {
+                continue;
+            }
+
+            foreach ($payload[$field->getPropertyName()] as $key => $entityPayload) {
+                $payload[$field->getPropertyName()][$key] = $this->convertPayload(
+                    $field instanceof ManyToManyAssociationField ? $field->getToManyReferenceDefinition() : $field->getReferenceDefinition(),
+                    $entityPayload,
+                    $apiVersion,
+                    $conversionException,
+                    $pointer . '/' . $key . '/' . $field->getPropertyName()
+                );
             }
         }
+
+        $payload = $this->validateFields($definition, $payload, $apiVersion, $conversionException, $pointer);
 
         return $payload;
     }
@@ -146,28 +139,28 @@ class ConverterService
         }
     }
 
-    public function convertCriteria(EntityDefinition $entity, Criteria $criteria, int $apiVersion, SearchRequestException $searchException): void
+    public function convertCriteria(EntityDefinition $definition, Criteria $criteria, int $apiVersion, SearchRequestException $searchException): void
     {
-        foreach ($criteria->getSearchQueryFields() as $field) {
-            $this->validateQueryField($entity, $field, $apiVersion, $searchException);
+        foreach ($criteria->getAllFields() as $field) {
+            $this->validateQueryField($definition, $field, $apiVersion, $searchException);
         }
     }
 
-    private function validateFields(EntityDefinition $entity, array $payload, int $apiVersion, ApiConversionException $conversionException, string $pointer): array
+    private function validateFields(EntityDefinition $definition, array $payload, int $apiVersion, ApiConversionException $conversionException, string $pointer): array
     {
         foreach ($payload as $field => $value) {
-            if ($this->isFromFuture($entity->getEntityName(), $field, $apiVersion)) {
+            if ($this->isFromFuture($definition->getEntityName(), $field, $apiVersion)) {
                 $conversionException->add(
-                    new WriteFutureFieldException($field, $entity->getEntityName(), $apiVersion),
+                    new WriteFutureFieldException($field, $definition->getEntityName(), $apiVersion),
                     $pointer . '/' . $field
                 );
 
                 continue;
             }
 
-            if ($this->isDeprecated($entity->getEntityName(), $field, $apiVersion)) {
+            if ($this->isDeprecated($definition->getEntityName(), $field, $apiVersion)) {
                 $conversionException->add(
-                    new WriteRemovedFieldException($field, $entity->getEntityName(), $apiVersion),
+                    new WriteRemovedFieldException($field, $definition->getEntityName(), $apiVersion),
                     $pointer . '/' . $field
                 );
 
@@ -175,29 +168,27 @@ class ConverterService
             }
         }
 
-        $futureConverter = $this->converterRegistry->getFutureConverter($apiVersion);
-
-        return $futureConverter->convert($entity->getEntityName(), $payload);
+        return $this->converterRegistry->convert($apiVersion, $definition->getEntityName(), $payload);
     }
 
-    private function validateQueryField(EntityDefinition $entity, string $concatenatedFields, int $apiVersion, SearchRequestException $searchException, string $pointer = ''): void
+    private function validateQueryField(EntityDefinition $definition, string $concatenatedFields, int $apiVersion, SearchRequestException $searchException, string $pointer = ''): void
     {
         $parts = explode('.', $concatenatedFields);
         $fieldName = array_shift($parts);
-        if ($fieldName === $entity->getEntityName()) {
+        if ($fieldName === $definition->getEntityName()) {
             $fieldName = array_shift($parts);
         }
 
-        if ($this->isFromFuture($entity->getEntityName(), $fieldName, $apiVersion)) {
+        if ($this->isFromFuture($definition->getEntityName(), $fieldName, $apiVersion)) {
             $searchException->add(
-                new QueryFutureFieldException($fieldName, $entity->getEntityName(), $apiVersion),
+                new QueryFutureFieldException($fieldName, $definition->getEntityName(), $apiVersion),
                 $pointer . '/' . $fieldName
             );
         }
 
-        if ($this->isDeprecated($entity->getEntityName(), $fieldName, $apiVersion)) {
+        if ($this->isDeprecated($definition->getEntityName(), $fieldName, $apiVersion)) {
             $searchException->add(
-                new QueryRemovedFieldException($fieldName, $entity->getEntityName(), $apiVersion),
+                new QueryRemovedFieldException($fieldName, $definition->getEntityName(), $apiVersion),
                 $pointer . '/' . $fieldName
             );
         }
@@ -206,15 +197,15 @@ class ConverterService
             return;
         }
 
-        $field = $entity->getField($fieldName);
+        $field = $definition->getField($fieldName);
 
         if (!$field || !$field instanceof AssociationField) {
             return;
         }
 
-        $entity = $field instanceof ManyToManyAssociationField ? $field->getToManyReferenceDefinition() : $field->getReferenceDefinition();
+        $definition = $field instanceof ManyToManyAssociationField ? $field->getToManyReferenceDefinition() : $field->getReferenceDefinition();
 
-        $this->validateQueryField($entity, implode('.', $parts), $apiVersion, $searchException, $pointer . '/' . $fieldName);
+        $this->validateQueryField($definition, implode('.', $parts), $apiVersion, $searchException, $pointer . '/' . $fieldName);
     }
 
     private function stripNotAllowedFields(EntityDefinition $definition, $payload, int $apiVersion): array
@@ -276,8 +267,7 @@ class ConverterService
     private function isDeprecated(string $entityName, ?string $fieldName, int $apiVersion): bool
     {
         if (!isset($this->deprecations[$apiVersion][$entityName][$fieldName])) {
-            $deprecatedConverter = $this->converterRegistry->getDeprecationConverter($apiVersion);
-            $this->deprecations[$apiVersion][$entityName][$fieldName] = $deprecatedConverter->isDeprecated($entityName, $fieldName);
+            $this->deprecations[$apiVersion][$entityName][$fieldName] = $this->converterRegistry->isDeprecated($apiVersion, $entityName, $fieldName);
         }
 
         return $this->deprecations[$apiVersion][$entityName][$fieldName];
@@ -286,8 +276,7 @@ class ConverterService
     private function isFromFuture(string $entityName, ?string $fieldName, int $apiVersion): bool
     {
         if (!isset($this->fromFuture[$apiVersion][$entityName][$fieldName])) {
-            $futureConverter = $this->converterRegistry->getFutureConverter($apiVersion);
-            $this->fromFuture[$apiVersion][$entityName][$fieldName] = $futureConverter->isFromFuture($entityName, $fieldName);
+            $this->fromFuture[$apiVersion][$entityName][$fieldName] = $this->converterRegistry->isFromFuture($apiVersion, $entityName, $fieldName);
         }
 
         return $this->fromFuture[$apiVersion][$entityName][$fieldName];

@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
@@ -446,60 +445,6 @@ class ConverterServiceTest extends TestCase
         static::assertArrayNotHasKey('prices', $converted);
         static::assertArrayNotHasKey('product', $converted);
         static::assertArrayNotHasKey('productId', $converted);
-    }
-
-    public function testConvertCollectionStripsDeprecatedFields(): void
-    {
-        $deprecatedDefinition = new DeprecatedDefinition();
-        $deprecatedDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
-
-        $collection = new EntityCollection([
-            $this->getDeprecatedEntity(),
-            $this->getDeprecatedEntity(),
-        ]);
-
-        $converted = $this->converterService->convertCollection($deprecatedDefinition, $collection, 2);
-
-        static::assertIsArray($converted);
-
-        foreach ($collection->getKeys() as $id) {
-            static::assertArrayHasKey($id, $converted);
-            static::assertArrayHasKey('id', $converted[$id]);
-            static::assertArrayHasKey('prices', $converted[$id]);
-            static::assertArrayHasKey('product', $converted[$id]);
-            static::assertArrayHasKey('productId', $converted[$id]);
-
-            static::assertArrayNotHasKey('price', $converted[$id]);
-            static::assertArrayNotHasKey('tax', $converted[$id]);
-            static::assertArrayNotHasKey('taxId', $converted[$id]);
-        }
-    }
-
-    public function testConvertCollectionStripsFutureFields(): void
-    {
-        $deprecatedDefinition = new DeprecatedDefinition();
-        $deprecatedDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
-
-        $collection = new EntityCollection([
-            $this->getDeprecatedEntity(),
-            $this->getDeprecatedEntity(),
-        ]);
-
-        $converted = $this->converterService->convertCollection($deprecatedDefinition, $collection, 1);
-
-        static::assertIsArray($converted);
-
-        foreach ($collection->getKeys() as $id) {
-            static::assertArrayHasKey($id, $converted);
-            static::assertArrayHasKey('id', $converted[$id]);
-            static::assertArrayHasKey('price', $converted[$id]);
-            static::assertArrayHasKey('tax', $converted[$id]);
-            static::assertArrayHasKey('taxId', $converted[$id]);
-
-            static::assertArrayNotHasKey('prices', $converted[$id]);
-            static::assertArrayNotHasKey('product', $converted[$id]);
-            static::assertArrayNotHasKey('productId', $converted[$id]);
-        }
     }
 
     private function getDeprecatedEntity(?string $id = null): DeprecatedEntity

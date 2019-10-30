@@ -39,16 +39,41 @@ abstract class ApiConverter
 
     /**
      * Returns the deprecations introduced in this Api version
+     * The array key is the entity and the values the fields that are deprecated
+     * A "true" value will indicate that the whole entity was deprecated, e.g.
+     * [
+     *      'deprecated' => [
+     *          'field1',
+     *          'field2'
+     *      ],
+     *      'wholeEntityDeprecated' => true
+     * ]
      */
     abstract protected function getDeprecations(): array;
 
     /**
      * Returns the new fields introduced in this Api version
+     * The array key is the entity and the values the fields that are introduced
+     * A "true" value will indicate that the whole entity was introduced, e.g.
+     * [
+     *      'new' => [
+     *          'field1',
+     *          'field2'
+     *      ],
+     *      'wholeEntityNew' => true
+     * ]
      */
     abstract protected function getNewFields(): array;
 
     /**
      * Returns the function to convert the entities
+     * The function are indexed by entityName that they handle and get the write payload as parameter and should return the converted payload, e.g.
+     * [
+     *      'product' => function (array $payload): array {
+     *          // convert payload
+     *          return $payload;
+     *      }
+     * ]
      *
      * @return callable[]
      */

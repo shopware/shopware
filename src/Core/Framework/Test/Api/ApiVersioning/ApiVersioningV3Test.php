@@ -40,8 +40,8 @@ class ApiVersioningV3Test extends TestCase
         static::clearCache();
 
         static::setApiVersions([
-            2 => new ConverterV2(),
-            3 => new ConverterV3(),
+            2 => [new ConverterV2()],
+            3 => [new ConverterV3()],
         ]);
 
         static::registerDefinition(BundleDefinition::class, BundleTranslationDefinition::class);

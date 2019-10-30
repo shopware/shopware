@@ -391,6 +391,18 @@ class Criteria extends Struct
         ]);
     }
 
+    public function getAllFields(): array
+    {
+        return $this->collectFields([
+            $this->filters,
+            $this->postFilters,
+            $this->sorting,
+            $this->queries,
+            $this->groupFields,
+            $this->aggregations,
+        ]);
+    }
+
     public function setIds(array $ids): self
     {
         $this->ids = $ids;

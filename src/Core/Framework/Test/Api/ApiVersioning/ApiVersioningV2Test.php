@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\Api\ApiVersioning;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Api\Converter\NullApiConverter;
 use Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\ApiConverter\ConverterV2;
 use Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\Entities\v2\BundleDefinition;
 use Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\Migrations\Migration1571753490v1;
@@ -36,8 +35,8 @@ class ApiVersioningV2Test extends TestCase
         static::clearCache();
 
         static::setApiVersions([
-            1 => new NullApiConverter(),
-            2 => new ConverterV2(),
+            1 => [],
+            2 => [new ConverterV2()],
         ]);
 
         static::registerDefinition(BundleDefinition::class);

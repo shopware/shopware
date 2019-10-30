@@ -22,7 +22,7 @@ class JsonApiEncoder
     private $caseCache = [];
 
     /**
-     * @var array[string]array[string]array[int]Record
+     * @var array[string]Record
      */
     private $serializeCache = [];
 
@@ -43,6 +43,7 @@ class JsonApiEncoder
      */
     public function encode(EntityDefinition $definition, $data, string $baseUrl, int $apiVersion, array $metaData = []): string
     {
+        $this->serializeCache = [];
         $result = new JsonApiEncodingResult($baseUrl, $apiVersion);
 
         if (!$data instanceof EntityCollection && !$data instanceof Entity) {
@@ -144,8 +145,8 @@ class JsonApiEncoder
 
     private function createSerializedEntity(EntityDefinition $definition, JsonApiEncodingResult $result): Record
     {
-        if (isset($this->serializeCache[$definition->getClass()][$result->getBaseUrl()][$result->getApiVersion()])) {
-            return clone $this->serializeCache[$definition->getClass()][$result->getBaseUrl()][$result->getApiVersion()];
+        if (isset($this->serializeCache[$definition->getClass()])) {
+            return clone $this->serializeCache[$definition->getClass()];
         }
 
         $serialized = new Record();
@@ -207,7 +208,7 @@ class JsonApiEncoder
             }
         }
 
-        return $this->serializeCache[$definition->getClass()][$result->getBaseUrl()][$result->getApiVersion()] = $serialized;
+        return $this->serializeCache[$definition->getClass()] = $serialized;
     }
 
     private function formatToJson(JsonApiEncodingResult $result): string

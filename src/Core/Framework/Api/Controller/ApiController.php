@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -108,7 +109,13 @@ class ApiController extends AbstractController
 
         foreach ($results as $result) {
             $definition = $this->definitionRegistry->getByEntityName($result['entity']);
-            $result['entities'] = $this->converterService->convertCollection($definition, $result['entities'], $version);
+            /** @var EntityCollection $entityCollection */
+            $entityCollection = $result['entities'];
+            $entities = [];
+            foreach ($entityCollection->getElements() as $key => $entity) {
+                $entities[$key] = $this->converterService->convertEntity($definition, $entity, $version);
+            }
+            $result['entities'] = $entities;
         }
 
         return new JsonResponse(['data' => $results]);

@@ -22,7 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 
 class MediaFolderDefinition extends EntityDefinition
 {
@@ -43,12 +42,8 @@ class MediaFolderDefinition extends EntityDefinition
         return MediaFolderEntity::class;
     }
 
-    public function getDefaults(EntityExistence $existence): array
+    public function getDefaults(): array
     {
-        if ($existence->isChild()) {
-            return [];
-        }
-
         return [
             'useParentConfiguration' => true,
         ];

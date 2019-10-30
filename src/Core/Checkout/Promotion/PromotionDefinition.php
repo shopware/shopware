@@ -31,7 +31,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 
 class PromotionDefinition extends EntityDefinition
 {
@@ -55,7 +54,7 @@ class PromotionDefinition extends EntityDefinition
     /**
      * Gets the default values for new entity instances.
      */
-    public function getDefaults(EntityExistence $existence): array
+    public function getDefaults(): array
     {
         return [
             'active' => false,

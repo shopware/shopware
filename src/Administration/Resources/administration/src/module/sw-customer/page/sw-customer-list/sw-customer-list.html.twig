@@ -107,14 +107,8 @@
                                     {% endblock %}
 
                                     {% block sw_customer_list_grid_columns_actions_edit %}
-                                        <sw-context-menu-item :routerLink="{ name: 'sw.customer.detail.base', params: { id: item.id, edit: 'edit' }}">
+                                        <sw-context-menu-item :routerLink="{ name: 'sw.customer.detail.base', params: { id: item.id }, query: { edit: true}}">
                                             {{ $tc('sw-customer.list.contextMenuEdit') }}
-                                        </sw-context-menu-item>
-                                    {% endblock %}
-
-                                    {% block sw_customer_list_grid_columns_actions_duplicate %}
-                                        <sw-context-menu-item :disabled="true">
-                                            {{ $tc('sw-customer.list.contextMenuDuplicate') }}
                                         </sw-context-menu-item>
                                     {% endblock %}
 

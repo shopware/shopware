@@ -4,7 +4,6 @@ import './page/sw-customer-create';
 import './view/sw-customer-detail-base';
 import './view/sw-customer-detail-addresses';
 import './view/sw-customer-detail-order';
-import './view/sw-customer-create-base';
 import './component/sw-customer-base-form';
 import './component/sw-customer-base-info';
 import './component/sw-customer-address-form';
@@ -44,17 +43,8 @@ Module.register('sw-customer', {
         create: {
             component: 'sw-customer-create',
             path: 'create',
-            redirect: {
-                name: 'sw.customer.create.base'
-            },
-            children: {
-                base: {
-                    component: 'sw-customer-create-base',
-                    path: 'base',
-                    meta: {
-                        parentPath: 'sw.customer.index'
-                    }
-                }
+            meta: {
+                parentPath: 'sw.customer.index'
             }
         },
 
@@ -67,7 +57,7 @@ Module.register('sw-customer', {
             children: {
                 base: {
                     component: 'sw-customer-detail-base',
-                    path: 'base/:edit?',
+                    path: 'base',
                     meta: {
                         parentPath: 'sw.customer.index'
                     }
@@ -85,6 +75,14 @@ Module.register('sw-customer', {
                     meta: {
                         parentPath: 'sw.customer.index'
                     }
+                }
+            },
+
+            props: {
+                default(route) {
+                    return {
+                        customerId: route.params.id
+                    };
                 }
             }
         }

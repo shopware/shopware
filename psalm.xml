@@ -159,6 +159,6 @@
         <InvalidArrayOffset errorLevel="info"/>
         <InvalidArrayAssignment errorLevel="info"/>
         <InvalidArrayAccess errorLevel="info"/>
-        <InvalidClone errorLevel="info"/>
+<!--        <InvalidClone errorLevel="info"/>-->
     </issueHandlers>
 </psalm>

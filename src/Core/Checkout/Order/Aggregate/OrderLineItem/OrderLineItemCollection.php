@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
 /**
  * @method void                     add(OrderLineItemEntity $entity)
@@ -26,6 +27,17 @@ class OrderLineItemCollection extends EntityCollection
     {
         return $this->filter(function (OrderLineItemEntity $orderLineItem) use ($id) {
             return $orderLineItem->getOrderId() === $id;
+        });
+    }
+
+    public function sortByCreationDate(string $sortDirection = FieldSorting::ASCENDING): void
+    {
+        $this->sort(function (OrderLineItemEntity $a, OrderLineItemEntity $b) use ($sortDirection) {
+            if ($sortDirection === FieldSorting::ASCENDING) {
+                return $a->getCreatedAt() > $b->getCreatedAt();
+            }
+
+            return $a->getCreatedAt() < $b->getCreatedAt();
         });
     }
 

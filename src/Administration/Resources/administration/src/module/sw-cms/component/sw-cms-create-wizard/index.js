@@ -103,6 +103,10 @@ Component.register('sw-cms-create-wizard', {
         },
 
         onCompletePageCreation() {
+            if (!this.page.name) {
+                return;
+            }
+
             this.$emit('wizard-complete');
         }
     }

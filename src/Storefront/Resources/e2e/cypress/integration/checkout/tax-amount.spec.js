@@ -102,7 +102,7 @@ describe('Checkout: Use different taxes in products while checkout', () => {
                     .contains(additionalProduct.name);
 
                 // We need to look at the calculation separately, for each test case
-                if(additionalProduct.name === '7% Product') {
+                if (additionalProduct.name === '7% Product') {
                     // 2x same products of 7% tax
                     cy.get(':nth-child(2) > :nth-child(1) > .cart-item-tax-price')
                         .contains(`${taxSum * 2}`);
@@ -126,7 +126,7 @@ describe('Checkout: Use different taxes in products while checkout', () => {
                 } else {
                     // 2 separate products of same tax (e.g. 19%)
                     cy.get(`${page.elements.cartItem}-details-container ${page.elements.cartItem}-label`)
-                    .contains(productName);
+                        .contains(productName);
                     cy.get(':nth-child(2) > :nth-child(1) > .cart-item-tax-price')
                         .contains(taxSum);
                     cy.get(':nth-child(2) > :nth-child(1) > .cart-item-total-price')
@@ -147,7 +147,7 @@ describe('Checkout: Use different taxes in products while checkout', () => {
                 // Let's check the calculation on /finish as well
                 cy.contains(additionalProduct.name);
 
-                if(additionalProduct.name === '7% Product') {
+                if (additionalProduct.name === '7% Product') {
                     // 2x same products of 7% tax
                     cy.get(':nth-child(2) > :nth-child(1) > .cart-item-tax-price')
                         .contains(`${taxSum * 2}`);
@@ -158,11 +158,11 @@ describe('Checkout: Use different taxes in products while checkout', () => {
                     // 2 separate product of differing taxes (e.g. 19% and 7%)
                     cy.contains(productName);
                     cy.get(':nth-child(3) > :nth-child(1) > .cart-item-tax-price')
-                        .contains(taxSum);
+                        .contains(additionalTaxSum);
                     cy.get(':nth-child(3) > :nth-child(1) > .cart-item-total-price')
                         .contains(product.price[0].gross);
                     cy.get(':nth-child(2) > :nth-child(1) > .cart-item-tax-price')
-                        .contains(additionalTaxSum);
+                        .contains(taxSum);
                     cy.get(':nth-child(2) > :nth-child(1) > .cart-item-total-price')
                         .contains(product.price[0].gross);
                     cy.get('.checkout-aside-summary-value:nth-of-type(5)').contains(taxSum);

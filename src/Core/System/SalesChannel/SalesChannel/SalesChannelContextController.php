@@ -41,4 +41,12 @@ class SalesChannelContextController extends AbstractController
             PlatformRequest::HEADER_CONTEXT_TOKEN => $context->getToken(),
         ]);
     }
+
+    /**
+     * @Route("/sales-channel-api/v{version}/context", name="sales-channel-api.context.get", methods={"GET"})
+     */
+    public function getContext(SalesChannelContext $context): JsonResponse
+    {
+        return new JsonResponse($context);
+    }
 }

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\Entities\v3;
+namespace Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\Entities\v4;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -14,9 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\Entities\v3\Aggregate\BundlePrice\BundlePriceDefinition;
-use Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\Entities\v3\Aggregate\BundleTanslation\BundleTranslationDefinition;
+use Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\Entities\v4\Aggregate\BundlePrice\BundlePriceDefinition;
+use Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\Entities\v4\Aggregate\BundleTanslation\BundleTranslationDefinition;
 
 class BundleDefinition extends EntityDefinition
 {
@@ -35,13 +34,6 @@ class BundleDefinition extends EntityDefinition
         return BundleCollection::class;
     }
 
-    public function getDefaults(EntityExistence $existence): array
-    {
-        return [
-            'pseudoPrice' => 0.0,
-        ];
-    }
-
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -51,7 +43,7 @@ class BundleDefinition extends EntityDefinition
             (new LongTextField('description', 'description'))->addFlags(new Deprecated('v2', 'v3', 'translatedDescription')),
             (new BoolField('is_absolute', 'isAbsolute'))->addFlags(new Required()),
             (new FloatField('discount', 'discount'))->addFlags(new Required()),
-            new FloatField('pseudo_price', 'pseudoPrice'),
+            (new FloatField('pseudo_price', 'pseudoPrice'))->addFlags(new Deprecated('v3', 'v4', 'prices.pseudoPrice')),
 
             new TranslationsAssociationField(BundleTranslationDefinition::class, '_test_bundle_id'),
 

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\Entities\v3;
+namespace Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\Entities\v4;
 
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -17,13 +17,6 @@ class BundleEntity extends Entity
     protected $name;
 
     /**
-     * @var string
-     *
-     * @deprecated
-     */
-    protected $description;
-
-    /**
      * @var bool
      */
     protected $isAbsolute;
@@ -32,11 +25,6 @@ class BundleEntity extends Entity
      * @var float
      */
     protected $discount;
-
-    /**
-     * @var float
-     */
-    protected $pseudoPrice;
 
     /**
      * @var ProductCollection|null
@@ -48,6 +36,13 @@ class BundleEntity extends Entity
      */
     protected $prices;
 
+    /**
+     * @var float
+     *
+     * @deprecated use prices.pseudoPrice instead
+     */
+    private $pseudoPrice;
+
     public function getName(): ?string
     {
         return $this->name;
@@ -56,22 +51,6 @@ class BundleEntity extends Entity
     public function setName(string $name): void
     {
         $this->name = $name;
-    }
-
-    /**
-     * @deprecated
-     */
-    public function getDescription(): string
-    {
-        return $this->description;
-    }
-
-    /**
-     * @deprecated
-     */
-    public function setDescription(string $description): void
-    {
-        $this->description = $description;
     }
 
     public function isAbsolute(): bool
@@ -94,11 +73,17 @@ class BundleEntity extends Entity
         $this->discount = $discount;
     }
 
+    /**
+     * @deprecated use prices->getPseudoPrice() instead
+     */
     public function getPseudoPrice(): float
     {
         return $this->pseudoPrice;
     }
 
+    /**
+     * @deprecated use prices->setPseudoPrice() instead
+     */
     public function setPseudoPrice(float $pseudoPrice): void
     {
         $this->pseudoPrice = $pseudoPrice;

@@ -25,7 +25,12 @@ class ConverterV3 extends ApiConverter
         return [
             '_test_bundle' => [
                 'translatedDescription',
+                'pseudoPrice',
+                'translations',
+                'prices',
             ],
+            '_test_bundle_translation' => true,
+            '_test_bundle_price' => true,
         ];
     }
 

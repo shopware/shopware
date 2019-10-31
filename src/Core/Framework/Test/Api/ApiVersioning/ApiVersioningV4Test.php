@@ -5,21 +5,22 @@ namespace Shopware\Core\Framework\Test\Api\ApiVersioning;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\ApiConverter\ConverterV2;
 use Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\ApiConverter\ConverterV3;
-use Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\Entities\v3\Aggregate\BundlePrice\BundlePriceDefinition;
-use Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\Entities\v3\Aggregate\BundleTanslation\BundleTranslationDefinition;
-use Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\Entities\v3\BundleDefinition;
+use Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\ApiConverter\ConverterV4;
+use Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\Entities\v4\Aggregate\BundlePrice\BundlePriceDefinition;
+use Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\Entities\v4\Aggregate\BundleTanslation\BundleTranslationDefinition;
+use Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\Entities\v4\BundleDefinition;
 use Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\Migrations\Migration1571753490v1;
 use Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\Migrations\Migration1571754409v2;
 use Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\Migrations\Migration1571832058v3;
+use Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\Migrations\Migration1572528079v4;
 use Shopware\Core\Framework\Test\Api\ApiVersioning\Tests\ApiVersioningTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
-class ApiVersioningV3Test extends TestCase
+class ApiVersioningV4Test extends TestCase
 {
     use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
@@ -41,8 +42,8 @@ class ApiVersioningV3Test extends TestCase
         static::clearCache();
 
         static::setApiVersions([
-            2 => [new ConverterV2()],
             3 => [new ConverterV3()],
+            4 => [new ConverterV4(static::container()->get(Connection::class))],
         ]);
 
         static::registerDefinition(
@@ -55,9 +56,10 @@ class ApiVersioningV3Test extends TestCase
             [
                 new Migration1571753490v1(),
                 new Migration1571754409v2(),
+                new Migration1571832058v3(),
             ],
             [
-                new Migration1571832058v3(),
+                new Migration1572528079v4(),
             ]
         );
     }
@@ -79,26 +81,7 @@ class ApiVersioningV3Test extends TestCase
         $this->browser = $this->getBrowser();
     }
 
-    public function testCreateV1ReturnsNotFound(): void
-    {
-        $this->browser->request(
-            'POST',
-            '/api/v1/-test-bundle',
-            [],
-            [],
-            [],
-            json_encode([
-                'name' => 'test_bundle',
-                'discountType' => 'absolute',
-                'discount' => 5.5,
-                'description' => 'test description',
-            ])
-        );
-
-        static::assertEquals(404, $this->browser->getResponse()->getStatusCode(), print_r($this->browser->getResponse()->getContent(), true));
-    }
-
-    public function testCreateV2Works(): void
+    public function testCreateV2ReturnsNotFound(): void
     {
         $this->browser->request(
             'POST',
@@ -114,22 +97,10 @@ class ApiVersioningV3Test extends TestCase
             ])
         );
 
-        static::assertEquals(204, $this->browser->getResponse()->getStatusCode(), print_r($this->browser->getResponse()->getContent(), true));
-
-        $bundles = $this->connection->fetchAll('SELECT * FROM _test_bundle');
-        static::assertCount(1, $bundles);
-        static::assertEquals('test_bundle', $bundles[0]['name']);
-        static::assertEquals('test description', $bundles[0]['description']);
-
-        $translations = $this->connection->fetchAll('SELECT * FROM _test_bundle_translation');
-        static::assertCount(1, $translations);
-        static::assertEquals($bundles[0]['id'], $translations[0]['_test_bundle_id']);
-        static::assertEquals(Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM), $translations[0]['language_id']);
-        static::assertEquals('test_bundle', $translations[0]['name']);
-        static::assertEquals('test description', $translations[0]['translated_description']);
+        static::assertEquals(404, $this->browser->getResponse()->getStatusCode(), print_r($this->browser->getResponse()->getContent(), true));
     }
 
-    public function testCreateV3Works(): void
+    public function testCreateAndUpdateV3Works(): void
     {
         $this->browser->request(
             'POST',
@@ -161,8 +132,6 @@ class ApiVersioningV3Test extends TestCase
 
         $bundles = $this->connection->fetchAll('SELECT * FROM _test_bundle');
         static::assertCount(1, $bundles);
-        static::assertEquals('test_bundle', $bundles[0]['name']);
-        static::assertEquals('test description', $bundles[0]['description']);
         static::assertEquals(10, $bundles[0]['pseudo_price']);
 
         $translations = $this->connection->fetchAll('SELECT * FROM _test_bundle_translation');
@@ -176,5 +145,100 @@ class ApiVersioningV3Test extends TestCase
         static::assertCount(1, $prices);
         static::assertEquals($bundles[0]['id'], $prices[0]['bundle_id']);
         static::assertEquals(0, $prices[0]['quantity_start']);
+        static::assertEquals(10, $prices[0]['pseudo_price']);
+
+        $this->browser->request(
+            'PATCH',
+            '/api/v3/-test-bundle/' . Uuid::fromBytesToHex($bundles[0]['id']),
+            [],
+            [],
+            [],
+            json_encode([
+                'pseudoPrice' => 20,
+            ])
+        );
+
+        static::assertEquals(204, $this->browser->getResponse()->getStatusCode(), print_r($this->browser->getResponse()->getContent(), true));
+
+        $bundles = $this->connection->fetchAll('SELECT * FROM _test_bundle');
+        static::assertCount(1, $bundles);
+        static::assertEquals(20, $bundles[0]['pseudo_price']);
+
+        $prices = $this->connection->fetchAll('SELECT * FROM _test_bundle_price');
+        static::assertCount(1, $prices);
+        static::assertEquals($bundles[0]['id'], $prices[0]['bundle_id']);
+        static::assertEquals(0, $prices[0]['quantity_start']);
+        static::assertEquals(20, $prices[0]['pseudo_price']);
+    }
+
+    public function testCreateAndUpdateV4Works(): void
+    {
+        $this->browser->request(
+            'POST',
+            '/api/v4/-test-bundle',
+            [],
+            [],
+            [],
+            json_encode([
+                'name' => 'test_bundle',
+                'isAbsolute' => true,
+                'discount' => 5.5,
+                'translatedDescription' => 'test description',
+                'prices' => [
+                    [
+                        'quantityStart' => 0,
+                        'pseudoPrice' => 10,
+                        'price' => [[
+                            'currencyId' => Defaults::CURRENCY,
+                            'gross' => 10.19,
+                            'net' => 10,
+                            'linked' => true,
+                        ]],
+                    ],
+                ],
+            ])
+        );
+
+        static::assertEquals(204, $this->browser->getResponse()->getStatusCode(), print_r($this->browser->getResponse()->getContent(), true));
+
+        $bundles = $this->connection->fetchAll('SELECT * FROM _test_bundle');
+        static::assertCount(1, $bundles);
+        static::assertEquals(10, $bundles[0]['pseudo_price']);
+
+        $translations = $this->connection->fetchAll('SELECT * FROM _test_bundle_translation');
+        static::assertCount(1, $translations);
+        static::assertEquals($bundles[0]['id'], $translations[0]['_test_bundle_id']);
+        static::assertEquals(Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM), $translations[0]['language_id']);
+        static::assertEquals('test_bundle', $translations[0]['name']);
+        static::assertEquals('test description', $translations[0]['translated_description']);
+
+        $prices = $this->connection->fetchAll('SELECT * FROM _test_bundle_price');
+        static::assertCount(1, $prices);
+        static::assertEquals($bundles[0]['id'], $prices[0]['bundle_id']);
+        static::assertEquals(0, $prices[0]['quantity_start']);
+        static::assertEquals(10, $prices[0]['pseudo_price']);
+
+        $this->browser->request(
+            'PATCH',
+            '/api/v4/-test-bundle-price/' . Uuid::fromBytesToHex($prices[0]['id']),
+            [],
+            [],
+            [],
+            json_encode([
+                'pseudoPrice' => 20,
+            ])
+        );
+
+        static::assertEquals(204, $this->browser->getResponse()->getStatusCode(), print_r($this->browser->getResponse()->getContent(), true));
+
+        $bundles = $this->connection->fetchAll('SELECT * FROM _test_bundle');
+        static::assertCount(1, $bundles);
+        static::assertEquals(20, $bundles[0]['pseudo_price']);
+
+        $prices = $this->connection->fetchAll('SELECT * FROM _test_bundle_price');
+        static::assertCount(1, $prices);
+        static::assertEquals($bundles[0]['id'], $prices[0]['bundle_id']);
+        static::assertEquals(0, $prices[0]['quantity_start']);
+        static::assertEquals(20, $prices[0]['pseudo_price']);
     }
 }

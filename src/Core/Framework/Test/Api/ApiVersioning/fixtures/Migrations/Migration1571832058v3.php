@@ -23,7 +23,8 @@ class Migration1571832058v3 extends MigrationStep
     {
         $connection->executeQuery('
             ALTER TABLE _test_bundle
-            MODIFY `name` VARCHAR(255) NULL;
+            MODIFY `name` VARCHAR(255) NULL,
+            ADD COLUMN `pseudo_price` DOUBLE NOT NULL DEFAULT 0.0 AFTER `discount`;
         ');
 
         $connection->executeQuery('
@@ -39,6 +40,22 @@ class Migration1571832058v3 extends MigrationStep
                 REFERENCES `_test_bundle` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.bundle_translation.language_id` FOREIGN KEY (`language_id`)
                 REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ');
+
+        $connection->executeQuery('
+            CREATE TABLE IF NOT EXISTS `_test_bundle_price` (
+              `id` BINARY(16) NOT NULL,
+              `bundle_id` BINARY(16) NOT NULL,
+              `price` JSON NOT NULL,
+              `quantity_start` INT NOT NULL,
+              `quantity_end` INT NULL,
+              `created_at` DATETIME(3) NOT NULL,
+              `updated_at` DATETIME(3) NULL,
+              PRIMARY KEY (`id`),
+              CONSTRAINT `fk.bundle_price.bundle_id` FOREIGN KEY (`bundle_id`)
+                REFERENCES `_test_bundle` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+              CONSTRAINT `json.bundle_price.price` CHECK (JSON_VALID(`price`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 

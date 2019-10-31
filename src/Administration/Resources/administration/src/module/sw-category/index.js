@@ -4,6 +4,7 @@ import './component/sw-category-sales-channel-card';
 import './component/sw-category-link-settings';
 import './component/sw-category-layout-card';
 import './component/sw-category-detail-menu';
+import './component/sw-category-seo-form';
 import './page/sw-category-detail';
 import './view/sw-category-detail-base';
 import './view/sw-category-detail-cms';

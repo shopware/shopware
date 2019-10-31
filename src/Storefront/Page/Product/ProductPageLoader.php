@@ -157,12 +157,16 @@ class ProductPageLoader
 
     private function loadMetaData(ProductPage $page): void
     {
-        $metaDescription = $page->getProduct()->getTranslation('additionalText')
-            ?? $page->getProduct()->getTranslation('description');
-        $page->setMetaDescription((string) $metaDescription);
+        $metaInformation = $page->getMetaInformation();
 
-        if ((string) $page->getProduct()->getTranslation('metaTitle') !== '') {
-            $page->setMetaTitle((string) $page->getProduct()->getTranslation('metaTitle'));
+        $metaDescription = $page->getProduct()->getMetaDescription()
+            ?? $page->getProduct()->getDescription();
+        $metaInformation->setMetaDescription((string) $metaDescription);
+
+        $metaInformation->setMetaKeywords((string) $page->getProduct()->getKeywords());
+
+        if ((string) $page->getProduct()->getMetaTitle() !== '') {
+            $metaInformation->setMetaTitle((string) $page->getProduct()->getMetaTitle());
 
             return;
         }
@@ -175,7 +179,7 @@ class ProductPageLoader
 
         $metaTitleParts[] = $page->getProduct()->getProductNumber();
 
-        $page->setMetaTitle(implode(' | ', $metaTitleParts));
+        $metaInformation->setMetaTitle(implode(' | ', $metaTitleParts));
     }
 
     private function loadSlotData(

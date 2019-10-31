@@ -163,6 +163,8 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added a `seoUrls` `OneToManyAssociationField` to `product` and `category`.
     * Added a `SalesChannelSeoUrlDefinition` to filter by context language, sales channel and canonical.
     * Fixed a bug that `SalesChannelDefinition`s are not used for associations.
+    * Added `metaTitle`, `metaDescription` and `keywords` columns to category entity
+    * Added `metaDescription` to product entity
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain
@@ -172,6 +174,8 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added `\Shopware\Storefront\Controller\CsrfController` for creating CSRF tokens(only if `csrf` `mode` is set to `ajax` in `storefront.yaml` configuration)
     * Added JS plugin for handling csrf token generation in native forms(only if `csrf` `mode` is set to `ajax`)
     
+    * Added `MetaInformation` struct to handle meta information in `pageLoader`
+
 **Removals**
 
 * Administration
@@ -182,6 +186,11 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
         - Example for nested sub entities: Writing a `order_delivery_position` entity now also dispatches a `order_delivery.written` and a `order.written` event
     * Removed seoUrls extensions in `product` and `category`. Use `product/category.seoUrls` instead 
     * Removed `shopware.api.api_browser.public` config value
+    * When a sub entity is written or deleted, a written event is dispatched for the configured root entity. 
+        - Example for mapping entities: Writing a `product_category` entity now also dispatches a `product.written` and `category.written` event
+        - Example for simple sub entities: Writing a `product_price` entity now also dispatches a `product_category` event
+        - Example for nested sub entities: Writing a `order_delivery_position` entity now also dispatches a `order_delivery.written` and a `order.written` event
+    * Dropped `additionalText` column of product entity, use `metaDescription` instead
 * Storefront
     * Removed `\Shopware\Storefront\Framework\Cache\CacheWarmer\Navigation\NavigationRouteMessage`
     * Removed `\Shopware\Storefront\Framework\Cache\CacheWarmer\Product\ProductRouteMessage`

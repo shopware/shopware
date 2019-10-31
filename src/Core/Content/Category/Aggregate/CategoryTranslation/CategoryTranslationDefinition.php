@@ -45,6 +45,9 @@ class CategoryTranslationDefinition extends EntityTranslationDefinition
             new JsonField('slot_config', 'slotConfig'),
             new StringField('external_link', 'externalLink'),
             new LongTextWithHtmlField('description', 'description'),
+            new LongTextWithHtmlField('meta_title', 'metaTitle'),
+            new LongTextWithHtmlField('meta_description', 'metaDescription'),
+            new LongTextWithHtmlField('keywords', 'keywords'),
 
             new CustomFields(),
         ]);

@@ -37,15 +37,6 @@
         "indexLinkService": "Service/Hilfe",
         "searchNoResult": "Keine Suchergebnisse gefunden"
     },
-    "meta": {
-        "xmlLang": "de-DE",
-        "author": "",
-        "copyrightYear": "",
-        "keywordsDefault": "",
-        "descriptionDefault": "",
-        "revisit": "15 days",
-        "robots": "index,follow"
-    },
     "error": {
         "VIOLATION::IS_BLANK_ERROR": "%field% darf nicht leer sein.",
         "VIOLATION::TOO_LOW_ERROR": "%field% darf nicht leer sein.",

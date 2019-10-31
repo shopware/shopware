@@ -30,6 +30,11 @@ class Page extends Struct
      */
     protected $salesChannelPaymentMethods;
 
+    /**
+     * @var MetaInformation
+     */
+    protected $metaInformation;
+
     public function getHeader(): ?HeaderPagelet
     {
         return $this->header;
@@ -68,5 +73,15 @@ class Page extends Struct
     public function setSalesChannelPaymentMethods(PaymentMethodCollection $salesChannelPaymentMethods): void
     {
         $this->salesChannelPaymentMethods = $salesChannelPaymentMethods;
+    }
+
+    public function getMetaInformation(): ?MetaInformation
+    {
+        return $this->metaInformation;
+    }
+
+    public function setMetaInformation(MetaInformation $metaInformation): void
+    {
+        $this->metaInformation = $metaInformation;
     }
 }

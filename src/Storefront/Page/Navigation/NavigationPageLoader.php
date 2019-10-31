@@ -82,6 +82,7 @@ class NavigationPageLoader
             }
 
             $page->setCmsPage($pages->get($pageId));
+            $this->loadMetaData($category, $page);
         }
 
         $this->eventDispatcher->dispatch(
@@ -89,5 +90,20 @@ class NavigationPageLoader
         );
 
         return $page;
+    }
+
+    private function loadMetaData(CategoryEntity $category, NavigationPage $page): void
+    {
+        $metaInformation = $page->getMetaInformation();
+
+        $metaDescription = $category->getMetaDescription()
+            ?? $category->getDescription();
+        $metaInformation->setMetaDescription((string) $metaDescription);
+
+        $metaTitle = $category->getMetaTitle()
+            ?? $category->getTranslation('name');
+        $metaInformation->setMetaTitle((string) $metaTitle);
+
+        $metaInformation->setMetaKeywords((string) $category->getKeywords());
     }
 }

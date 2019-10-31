@@ -15,7 +15,7 @@ class ProductTranslationEntity extends TranslationEntity
     /**
      * @var string|null
      */
-    protected $additionalText;
+    protected $metaDescription;
 
     /**
      * @var string|null
@@ -60,16 +60,6 @@ class ProductTranslationEntity extends TranslationEntity
     public function setProductId(string $productId): void
     {
         $this->productId = $productId;
-    }
-
-    public function getAdditionalText(): ?string
-    {
-        return $this->additionalText;
-    }
-
-    public function setAdditionalText(?string $additionalText): void
-    {
-        $this->additionalText = $additionalText;
     }
 
     public function getName(): ?string
@@ -140,5 +130,15 @@ class ProductTranslationEntity extends TranslationEntity
     public function setCustomFields(?array $customFields): void
     {
         $this->customFields = $customFields;
+    }
+
+    public function getMetaDescription(): ?string
+    {
+        return $this->metaDescription;
+    }
+
+    public function setMetaDescription(?string $metaDescription): void
+    {
+        $this->metaDescription = $metaDescription;
     }
 }

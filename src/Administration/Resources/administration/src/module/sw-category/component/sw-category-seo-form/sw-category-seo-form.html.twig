@@ -1,0 +1,27 @@
+{% block sw_category_seo_form %}
+    <div class="sw-category-seo-form">
+        {% block sw_category_seo_form_meta_title %}
+            <sw-field type="text"
+                      :label="$tc('sw-category.base.seo.labelMetaTitle')"
+                      :placeholder="$tc('sw-category.base.seo.placeholderMetaTitle')"
+                      v-model="category.metaTitle">
+            </sw-field>
+        {% endblock %}
+
+        {% block sw_category_seo_form_meta_description %}
+            <sw-field type="textarea"
+                      :label="$tc('sw-category.base.seo.labelMetaDescription')"
+                      :placeholder="$tc('sw-category.base.seo.placeholderMetaDescription')"
+                      v-model="category.metaDescription">
+            </sw-field>
+        {% endblock %}
+
+        {% block sw_category_seo_form_keywords %}
+            <sw-field type="text"
+                      :label="$tc('sw-category.base.seo.labelKeywords')"
+                      :placeholder="$tc('sw-category.base.seo.placeholderKeywords')"
+                      v-model="category.keywords">
+            </sw-field>
+        {% endblock %}
+    </div>
+{% endblock %}

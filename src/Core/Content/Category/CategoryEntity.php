@@ -163,6 +163,21 @@ class CategoryEntity extends Entity
     protected $description;
 
     /**
+     * @var string|null
+     */
+    protected $metaTitle;
+
+    /**
+     * @var string|null
+     */
+    protected $metaDescription;
+
+    /**
+     * @var string|null
+     */
+    protected $keywords;
+
+    /**
      * @var MainCategoryCollection|null
      */
     protected $mainCategories;
@@ -505,6 +520,36 @@ class CategoryEntity extends Entity
     public function setMainCategories(?MainCategoryCollection $mainCategories): void
     {
         $this->mainCategories = $mainCategories;
+    }
+
+    public function getMetaTitle(): ?string
+    {
+        return $this->metaTitle;
+    }
+
+    public function setMetaTitle(?string $metaTitle): void
+    {
+        $this->metaTitle = $metaTitle;
+    }
+
+    public function getMetaDescription(): ?string
+    {
+        return $this->metaDescription;
+    }
+
+    public function setMetaDescription(?string $metaDescription): void
+    {
+        $this->metaDescription = $metaDescription;
+    }
+
+    public function getKeywords(): ?string
+    {
+        return $this->keywords;
+    }
+
+    public function setKeywords(?string $keywords): void
+    {
+        $this->keywords = $keywords;
     }
 
     public function getSeoUrls(): ?SeoUrlCollection

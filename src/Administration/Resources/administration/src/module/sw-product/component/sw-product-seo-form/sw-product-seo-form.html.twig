@@ -1,0 +1,54 @@
+{% block sw_product_seo_form %}
+    <div class="sw-product-seo-form">
+        {% block sw_product_seo_form_meta_title %}
+            <sw-inherit-wrapper v-model="product.metaTitle"
+                                :hasParent="!!parentProduct.id"
+                                :label="$tc('sw-product.seoForm.labelMetaTitle')"
+                                :inheritedValue="parentProduct.metaTitle">
+                <template #content="props">
+                    <sw-field type="text"
+                              :placeholder="$tc('sw-product.seoForm.placeholderMetaTitle')"
+                              :error="productMetaTitleError"
+                              :disabled="props.isInherited"
+                              :value="props.currentValue"
+                              @change="props.updateCurrentValue">
+                    </sw-field>
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
+        {% block sw_product_seo_form_meta_description %}
+            <sw-inherit-wrapper v-model="product.metaDescription"
+                                :hasParent="!!parentProduct.id"
+                                :label="$tc('sw-product.seoForm.labelMetaDescription')"
+                                :inheritedValue="parentProduct.metaDescription">
+                <template #content="props">
+                    <sw-field type="textarea"
+                              :placeholder="$tc('sw-product.seoForm.placeholderMetaDescription')"
+                              :error="productMetaDescriptionError"
+                              :disabled="props.isInherited"
+                              :value="props.currentValue"
+                              @change="props.updateCurrentValue">
+                    </sw-field>
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
+        {% block sw_product_seo_form_keywords %}
+            <sw-inherit-wrapper v-model="product.keywords"
+                                :hasParent="!!parentProduct.id"
+                                :label="$tc('sw-product.seoForm.labelKeywords')"
+                                :inheritedValue="parentProduct.keywords">
+                <template #content="props">
+                    <sw-field type="text"
+                              :placeholder="$tc('sw-product.seoForm.placeholderKeywords')"
+                              :error="productKeywordsError"
+                              :disabled="props.isInherited"
+                              :value="props.currentValue"
+                              @change="props.updateCurrentValue">
+                    </sw-field>
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+    </div>
+{% endblock %}

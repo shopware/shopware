@@ -111,6 +111,9 @@ class CategoryDefinition extends EntityDefinition
             new TranslatedField('slotConfig'),
             new TranslatedField('externalLink'),
             new TranslatedField('description'),
+            new TranslatedField('metaTitle'),
+            new TranslatedField('metaDescription'),
+            new TranslatedField('keywords'),
 
             new ParentAssociationField(self::class, 'id'),
             new ChildrenAssociationField(self::class),

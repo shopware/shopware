@@ -73,7 +73,6 @@
             </sw-category-layout-card>
         {% endblock %}
 
-
         <template v-if="category.type !== 'link'">
             {% block sw_category_detail_menu %}
                 <sw-category-detail-menu v-bind="{ category, isLoading }"></sw-category-detail-menu>
@@ -106,6 +105,13 @@
                         <p>{{ $tc('sw-category.base.products.productAssignmentEmptyStateDescription') }}</p>
                     </template>
                 </sw-many-to-many-assignment-card>
+            {% endblock %}
+
+            {% block sw_category_detail_seo %}
+                <sw-card  :title="$tc('sw-category.base.seo.title')"
+                          :isLoading="isLoading">
+                    <sw-category-seo-form :category="category"></sw-category-seo-form>
+                </sw-card>
             {% endblock %}
 
             {% block sw_category_detail_seo_card %}

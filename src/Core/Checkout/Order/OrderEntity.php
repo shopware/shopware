@@ -480,7 +480,9 @@ class OrderEntity extends Entity
             return null;
         }
 
+        /** @var OrderLineItemCollection $roots */
         $roots = $lineItems->filterByProperty('parentId', null);
+        $roots->sortByCreationDate();
         $this->addChildren($lineItems, $roots);
 
         return $roots;
@@ -489,7 +491,9 @@ class OrderEntity extends Entity
     private function addChildren(OrderLineItemCollection $lineItems, OrderLineItemCollection $parents): void
     {
         foreach ($parents as $parent) {
+            /** @var OrderLineItemCollection $children */
             $children = $lineItems->filterByProperty('parentId', $parent->getId());
+            $children->sortByCreationDate();
 
             $parent->setChildren($children);
 

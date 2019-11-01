@@ -71,7 +71,7 @@ Component.register('sw-customer-base-info', {
             handler() {
                 this.languageRepository.get(this.languageId, this.context).then((language) => {
                     this.customerLanguage = language;
-                })
+                });
             }
         }
     },

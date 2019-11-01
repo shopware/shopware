@@ -56,10 +56,6 @@ Component.register('sw-customer-detail', {
             return this.repositoryFactory.create('customer');
         },
 
-        customFieldSetRepository() {
-            return this.repositoryFactory.create('custom_field_set');
-        },
-
         editMode: {
             get() {
                 if (typeof this.$route.query.edit === 'boolean') {
@@ -69,7 +65,7 @@ Component.register('sw-customer-detail', {
                 return this.$route.query.edit === 'true';
             },
             set(editMode) {
-                this.$router.push({name: this.$route.name, query: { edit: editMode } });
+                this.$router.push({ name: this.$route.name, query: { edit: editMode } });
             }
         },
 
@@ -180,19 +176,6 @@ Component.register('sw-customer-detail', {
 
         onActivateCustomerEditMode() {
             this.editMode = true;
-        },
-
-        /**
-         * @param {string} entity
-         * @returns {Criteria}
-         */
-        buildCustomFieldCriteria(entity) {
-            const criteria = new Criteria(1, 100);
-            criteria.addFilter(Criteria.equals('relations.entityName', entity));
-            criteria.getAssociation('customFields')
-                .addSorting(Criteria.sort('config.customFieldPosition'));
-
-            return criteria;
         }
     }
 });

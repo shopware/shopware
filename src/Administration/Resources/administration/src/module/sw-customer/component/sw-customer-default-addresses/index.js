@@ -30,7 +30,7 @@ Component.register('sw-customer-default-addresses', {
                     detailId: this.customer.defaultShippingAddress.id,
                     edit: this.customerEditMode
                 }
-            }
+            };
         },
 
         defaultBillingAddressLink() {
@@ -43,7 +43,7 @@ Component.register('sw-customer-default-addresses', {
                     detailId: this.customer.defaultBillingAddress.id,
                     edit: this.customerEditMode
                 }
-            }
+            };
         }
     }
 });

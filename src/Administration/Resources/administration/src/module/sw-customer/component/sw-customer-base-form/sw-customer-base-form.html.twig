@@ -67,7 +67,7 @@
                     :label="$tc('sw-customer.baseForm.labelSalesChannel')"
                     :placeholder="$tc('sw-customer.baseForm.placeholderSalesChannel')"
                     :value="customer.salesChannelId"
-                    @change="swCustomerCreateOnChangeSalesChannel"
+                    @change="onSalesChannelChange"
                     :error="customerSalesChannelIdError">
                 </sw-entity-single-select>
             {% endblock %}

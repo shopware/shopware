@@ -16,12 +16,19 @@ Component.register('sw-customer-address-form', {
             type: Object,
             required: true,
             default() {
-                return {};
+                return this.addressRepository.create(this.context);
             }
         }
     },
 
     computed: {
+        addressRepository() {
+            return this.repositoryFactory.create(
+                this.customer.addresses.entity,
+                this.customer.addresses.source
+            );
+        },
+
         ...mapApiErrors('address', [
             'company',
             'department',

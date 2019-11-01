@@ -3,6 +3,7 @@ import template from './sw-customer-detail-addresses.html.twig';
 import './sw-customer-detail-addresses.scss';
 
 const { Component, Mixin, Entity } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-customer-detail-addresses', {
     template,
@@ -22,19 +23,8 @@ Component.register('sw-customer-detail-addresses', {
             type: Object,
             required: true
         },
-        countries: {
-            type: Array,
-            required: true,
-            default() {
-                return [];
-            }
-        },
         customerEditMode: {
             type: Boolean,
-            required: true
-        },
-        customerAddressCustomFieldSets: {
-            type: Array,
             required: true
         }
     },
@@ -48,13 +38,18 @@ Component.register('sw-customer-detail-addresses', {
             showDeleteAddressModal: false,
             addressSortProperty: null,
             addressSortDirection: '',
-            currentAddress: null
+            currentAddress: null,
+            customerAddressCustomFieldSets: null
         };
     },
 
     computed: {
         customerRepository() {
             return this.repositoryFactory.create('customer');
+        },
+
+        customFieldSetRepository() {
+            return this.repositoryFactory.create('custom_field_set');
         },
 
         addressColumns() {
@@ -119,6 +114,14 @@ Component.register('sw-customer-detail-addresses', {
                 this.$router.push({ name: 'sw.customer.detail.base', params: { id: this.$route.params.id } });
                 return;
             }
+
+            const customFieldSetCriteria = new Criteria();
+            customFieldSetCriteria.addFilter(Criteria.equals('relations.entityName', 'customer_address'))
+                .addAssociation('customFields');
+
+            this.customFieldSetRepository.search(customFieldSetCriteria, this.context).then((customFieldSets) => {
+                this.customerAddressCustomFieldSets = customFieldSets;
+            });
 
             this.isLoading = false;
         },

@@ -52,6 +52,12 @@ Component.register('sw-address', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        editLink: {
+            type: Object,
+            required: false,
+            default: null
         }
     },
 

@@ -2,40 +2,19 @@
     <div class="sw-customer-detail-base">
         {% block sw_customer_detail_base_transition %}
             <transition-group name="sw-customer-fade" mode="out-in">
-                {% block sw_customer_detail_base_form_card %}
-                    <sw-card :title="$tc('sw-customer.detailBase.labelAccountCard')"
-                             v-if="createMode"
-                             :isLoading="customer.isLoading"
-                             key="create">
-                        {% block sw_customer_detail_base_form %}
-                            <sw-customer-base-form :customer="customer"
-                                                   :salesChannels="salesChannels"
-                                                   :customerGroups="customerGroups"
-                                                   :paymentMethods="paymentMethods">
-                            </sw-customer-base-form>
-                        {% endblock %}
-                    </sw-card>
-                {% endblock %}
-
                 {% block sw_customer_detail_base_info_holder %}
-                    <div v-if="!createMode"
-                         key="info"
-                         class="sw-customer-detail-base__info-holder">
+                    <div key="info" class="sw-customer-detail-base__info-holder">
 
                         {% block sw_customer_detail_base_info_card %}
                             <sw-customer-card :title="$tc('sw-customer.detailBase.labelAccountCard')"
                                               :customer="customer"
-                                              :editMode="editMode"
-                                              :isLoading="customer.isLoading">
+                                              :editMode="customerEditMode"
+                                              :isLoading="isLoading">
                                 {% block sw_customer_detail_base_info_metadata %}
-                                    <sw-customer-base-info @customer-active-edit-mode="onActivateCustomerEditMode"
-                                                           :customerEditMode="editMode"
-                                                           :customerGroups="customerGroups"
-                                                           :paymentMethods="paymentMethods"
-                                                           :isLoading="isLoading"
-                                                           :languages="languages"
-                                                           :language="language"
-                                                           :customer="customer">
+                                    <sw-customer-base-info
+                                        :customer="customer"
+                                        :isLoading="isLoading"
+                                        :customerEditMode="customerEditMode">
                                     </sw-customer-base-info>
                                 {% endblock %}
                             </sw-customer-card>
@@ -56,11 +35,11 @@
 
                         {% block sw_customer_detail_custom_field_sets %}
                             <sw-card :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-                                     v-if="customerCustomFieldSets.length > 0"
+                                     v-if="!!customerCustomFieldSets && customerCustomFieldSets.length > 0"
                                      :isLoading="customer.isLoading">
                                 <sw-custom-field-set-renderer
                                         :entity="customer"
-                                        :disabled="!editMode"
+                                        :disabled="!customerEditMode"
                                         :sets="customerCustomFieldSets">
                                 </sw-custom-field-set-renderer>
                             </sw-card>

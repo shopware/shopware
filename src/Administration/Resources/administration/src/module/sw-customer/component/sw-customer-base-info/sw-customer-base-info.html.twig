@@ -19,11 +19,8 @@
 
                             {% block sw_customer_base_metadata_customer_group_editor %}
                                 <dd v-else>
-                                    <sw-select-field v-model="customer.groupId" size="small">
-                                        <option v-for="group in customerGroups" :key="group.id" :value="group.id">
-                                            {{ group.translated.name }}
-                                        </option>
-                                    </sw-select-field>
+                                    <sw-entity-single-select entity="customer_group" v-model="customer.groupId" size="small">
+                                    </sw-entity-single-select>
                                 </dd>
                             {% endblock %}
                         </sw-description-list>
@@ -43,11 +40,8 @@
 
                             {% block sw_customer_base_metadata_default_payment_editor %}
                                 <dd v-else>
-                                    <sw-select-field v-model="customer.defaultPaymentMethodId" size="small">
-                                        <option v-for="method in paymentMethods" :value="method.id">
-                                            {{ method.translated.name }}
-                                        </option>
-                                    </sw-select-field>
+                                    <sw-entity-single-select entity="payment_method" v-model="customer.defaultPaymentMethodId" size="small">
+                                    </sw-entity-single-select>
                                 </dd>
                             {% endblock %}
                         </sw-description-list>
@@ -85,17 +79,18 @@
 
                             {% block sw_customer_base_metadata_language_content %}
                                 <dd v-if="!customerEditMode">
-                                    {{ language.name }}
+                                    {{ customerLanguageName }}
                                 </dd>
                             {% endblock %}
 
                             {% block sw_customer_base_metadata_language_editor %}
                                 <dd v-else>
-                                    <sw-select-field v-model="customer.languageId" size="small">
-                                        <option v-for="lang in languages" :value="lang.id">
-                                            {{ lang.name }}
-                                        </option>
-                                    </sw-select-field>
+                                    <sw-entity-single-select
+                                        entity="language"
+                                        :criteria="languageCriteria"
+                                        v-model="customer.languageId"
+                                        size="small">
+                                    </sw-entity-single-select>
                                 </dd>
                             {% endblock %}
                         </sw-description-list>
@@ -124,8 +119,8 @@
                                             v-model="customer.birthday"
                                             slot="inline-edit"
                                             size="small"
-                                            dateType="date"
-                                    ></sw-datepicker>
+                                            dateType="date">
+                                    </sw-datepicker>
                                 </dd>
                             {% endblock %}
                         </sw-description-list>

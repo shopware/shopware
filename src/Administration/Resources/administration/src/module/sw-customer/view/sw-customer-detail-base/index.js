@@ -1,77 +1,25 @@
 import template from './sw-customer-detail-base.html.twig';
 
 const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-customer-detail-base', {
     template,
 
-    data() {
-        return {
-            createMode: false
-        };
-    },
+    inject: ['repositoryFactory', 'context'],
 
     props: {
         customer: {
             type: Object,
             required: true
         },
+
         customerEditMode: {
             type: Boolean,
             required: true,
             default: false
         },
-        customerName: {
-            type: String,
-            required: true,
-            default: ''
-        },
-        salesChannels: {
-            type: Array,
-            required: true,
-            default() {
-                return [];
-            }
-        },
-        customerGroups: {
-            type: Array,
-            required: true,
-            default() {
-                return [];
-            }
-        },
-        paymentMethods: {
-            type: Array,
-            required: true,
-            default() {
-                return [];
-            }
-        },
-        languages: {
-            type: Array,
-            required: true,
-            default() {
-                return [];
-            }
-        },
-        language: {
-            type: Object,
-            required: true,
-            default() {
-                return {};
-            }
-        },
-        countries: {
-            type: Array,
-            required: true,
-            default() {
-                return [];
-            }
-        },
-        customerCustomFieldSets: {
-            type: Array,
-            required: true
-        },
+
         isLoading: {
             type: Boolean,
             required: false,
@@ -79,15 +27,31 @@ Component.register('sw-customer-detail-base', {
         }
     },
 
+    data() {
+        return {
+            customerCustomFieldSets: null
+        };
+    },
+
     computed: {
-        editMode() {
-            return this.customerEditMode;
+        customFieldSetRepository() {
+            return this.repositoryFactory.create('custom_field_set');
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
-        onActivateCustomerEditMode() {
-            this.$emit('customer-active-edit-mode');
+        createdComponent() {
+            const customFieldSetCriteria = new Criteria();
+            customFieldSetCriteria.addFilter(Criteria.equals('relations.entityName', 'customer'))
+                .addAssociation('customFields');
+
+            this.customFieldSetRepository.search(customFieldSetCriteria, this.context).then((customFieldSets) => {
+                this.customerCustomFieldSets = customFieldSets;
+            });
         }
     }
 });

@@ -50,7 +50,7 @@
                                            :columns="customerColumns"
                                            :repository="customerRepository"
                                            detailRoute="sw.customer.detail"
-                                           :showSelection="false"
+                                           :showSelection="true"
                                            :isLoading="isLoading"
                                            @inline-edit-save="onInlineEditSave">
 
@@ -101,13 +101,13 @@
                                     {% block sw_customer_list_grid_columns_actions_view %}
                                         <sw-context-menu-item
                                             class="sw-customer-list__view-action"
-                                            :routerLink="{ name: 'sw.customer.detail', params: { id: item.id } }">
+                                            :routerLink="{ name: 'sw.customer.detail', params: { id: item.id }, query: { edit: false } }">
                                             {{ $tc('sw-customer.list.contextMenuView') }}
                                         </sw-context-menu-item>
                                     {% endblock %}
 
                                     {% block sw_customer_list_grid_columns_actions_edit %}
-                                        <sw-context-menu-item :routerLink="{ name: 'sw.customer.detail.base', params: { id: item.id }, query: { edit: true}}">
+                                        <sw-context-menu-item :routerLink="{ name: 'sw.customer.detail.base', params: { id: item.id }, query: { edit: true } }">
                                             {{ $tc('sw-customer.list.contextMenuEdit') }}
                                         </sw-context-menu-item>
                                     {% endblock %}

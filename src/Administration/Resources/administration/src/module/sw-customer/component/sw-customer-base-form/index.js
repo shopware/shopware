@@ -27,10 +27,6 @@ Component.register('sw-customer-base-form', {
         ])
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
         swCustomerCreateOnChangeSalesChannel(salesChannelId) {
             this.$emit('sales-channel-changed', salesChannelId);

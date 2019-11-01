@@ -5,6 +5,7 @@
             <sw-container columns="1fr 1fr" gap="32px">
                 {% block sw_customer_base_form_first_salutation_field %}
                     <sw-entity-single-select
+                        class="sw-customer-base-form__salutation-select"
                         entity="salutation"
                         :label="$tc('sw-customer.baseForm.labelSalutation')"
                         :placeholder="$tc('sw-customer.baseForm.placeholderSalutation')"
@@ -52,6 +53,7 @@
 
             {% block sw_customer_base_form_customer_group_field %}
                 <sw-entity-single-select
+                    class="sw-customer-base-form__customer-group-select"
                     required
                     entity="customer_group"
                     :label="$tc('sw-customer.baseForm.labelCustomerGroup')"
@@ -63,6 +65,7 @@
 
             {% block sw_customer_base_form_sales_channel_field %}
                 <sw-entity-single-select
+                    class="sw-customer-base-form__sales-channel-select"
                     entity="sales_channel"
                     :label="$tc('sw-customer.baseForm.labelSalesChannel')"
                     :placeholder="$tc('sw-customer.baseForm.placeholderSalesChannel')"
@@ -74,6 +77,7 @@
 
             {% block sw_customer_base_form_payment_method_field %}
                 <sw-entity-single-select
+                    class="sw-customer-base-form__payment-method-select"
                     entity="payment_method"
                     required
                     :label="$tc('sw-customer.baseForm.labelPaymentMethod')"

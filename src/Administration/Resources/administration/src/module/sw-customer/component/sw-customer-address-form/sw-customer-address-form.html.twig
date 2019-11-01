@@ -22,6 +22,7 @@
                     <sw-container columns="1fr 1fr" gap="10px">
                         {% block sw_customer_address_form_salutation_field %}
                             <sw-entity-single-select
+                                class="sw-customer-address-form__salutation-select"
                                 entity="salutation"
                                 :label="$tc('sw-customer.addressForm.labelSalutation')"
                                 v-model="address.salutationId"
@@ -113,6 +114,7 @@
 
                 {% block sw_customer_address_form_country_field %}
                     <sw-entity-single-select
+                        class="sw-customer-address-form__country-select"
                         entity="country"
                         :label="$tc('sw-customer.addressForm.labelCountry')"
                         validation="required"

@@ -49,7 +49,8 @@ describe('Sales Channel: Test crud operations', () => {
             mainMenuId: 'sw-customer'
         });
         cy.get('.smart-bar__actions a[href="#/sw/customer/create"]').click();
-        cy.get('select[name=sw-field--customer-salesChannelId]').select('1st Epic Sales Channel');
+        cy.get('.sw-customer-base-form__sales-channel-select')
+            .typeSingleSelectAndCheck('1st Epic Sales Channel', '.sw-customer-base-form__sales-channel-select');
     });
 
     it('@package @general: update and read sales channel', () => {

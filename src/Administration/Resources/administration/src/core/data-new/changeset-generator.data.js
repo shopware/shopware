@@ -78,6 +78,8 @@ export default class ChangesetGenerator {
             }
 
             if (field.type !== 'association') {
+                // if we don't know what kind of field we write send complete draft
+                changes[fieldName] = draftValue;
                 return;
             }
 

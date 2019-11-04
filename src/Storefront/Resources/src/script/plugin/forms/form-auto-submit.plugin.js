@@ -22,11 +22,12 @@ export default class FormAutoSubmitPlugin extends Plugin {
             throw new Error(`No form found for the plugin: ${this.constructor.name}`);
         }
 
+        this._client = new HttpClient(window.accessKey, window.contextToken);
+
         if (this.options.useAjax) {
             if (!this.options.ajaxContainerSelector) {
                 throw new Error('The option "ajaxContainerSelector" must ge given when using ajax.');
             }
-            this._client = new HttpClient(window.accessKey, window.contextToken);
         }
 
         this._registerEvents();
@@ -69,6 +70,28 @@ export default class FormAutoSubmitPlugin extends Plugin {
      * @private
      */
     _onChange() {
+        if (window.csrf.enabled && window.csrf.mode === 'ajax') {
+            // A new csrf token needs to be appended to the form if ajax csrf mode is used
+            this._client.fetchCsrfToken((token) => {
+                const csrfInput = document.createElement('input');
+                csrfInput.name = '_csrf_token';
+                csrfInput.value = token;
+                csrfInput.type = 'hidden';
+                this._form.appendChild(csrfInput);
+                this._submitNativeForm();
+            });
+        } else {
+            this._submitNativeForm();
+        }
+
+    }
+
+    /**
+     * submits the form
+     *
+     * @private
+     */
+    _submitNativeForm() {
         this.$emitter.publish('beforeChange');
 
         this._form.submit();

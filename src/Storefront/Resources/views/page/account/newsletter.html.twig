@@ -8,7 +8,7 @@
             </div>
         {% endif %}
     {% endblock %}
-    
+
     {% block page_account_overview_newsletter_content_form %}
         <form name="newsletterRegister"
               method="post"
@@ -18,6 +18,11 @@
                   "useAjax": true,
                   "ajaxContainerSelector": ".js-newsletter-wrapper"
               }'>
+
+            {% block page_account_overview_newsletter_content_form_csrf %}
+                {{ sw_csrf('frontend.account.newsletter') }}
+            {% endblock %}
+
             {% block page_account_overview_newsletter_content_form_check_control %}
                 <div class="custom-control custom-checkbox">
                     {% block page_account_overview_newsletter_content_form_input %}

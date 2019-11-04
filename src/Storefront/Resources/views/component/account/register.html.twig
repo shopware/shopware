@@ -13,7 +13,13 @@
                 <form action="{{ path('frontend.account.register.save') }}"
                       class="register-form"
                       method="post"
+                      data-form-csrf-handler="true"
                       data-form-validation="true">
+
+                    {% block component_account_register_form_csrf %}
+                        {{ sw_csrf('frontend.account.register.save') }}
+                    {% endblock %}
+
                     {% block component_account_register_redirect %}
                         <input type="hidden"
                                name="redirectTo"

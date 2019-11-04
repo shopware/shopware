@@ -47,7 +47,7 @@ parameters:
         - %currentWorkingDirectory%/src/Core/TestBootstrap.php
     ignoreErrors:
         # https://github.com/phpstan/phpstan/issues/1060
-        - '#Call to an undefined method Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface::(variableNode|scalarNode|end|integerNode|booleanNode)\(\)\.#'
+        - '#Call to an undefined method Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface::(variableNode|scalarNode|end|integerNode|booleanNode|enumNode)\(\)\.#'
         # Must not call parent, because of own handling on adding new elements
         - '#Shopware\\Core\\Framework\\DataAbstractionLayer\\CompiledFieldCollection::__construct\(\) does not call parent constructor from Shopware\\Core\\Framework\\Struct\\Collection.#'
         # PhpStan does not recognize the Faker plugins correctly. They are called via magic methods

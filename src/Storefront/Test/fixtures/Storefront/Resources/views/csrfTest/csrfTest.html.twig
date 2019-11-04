@@ -1,0 +1,9 @@
+<form>
+    {{ sw_csrf('token1') }}
+</form>
+
+<form>
+    {{ sw_csrf('token2', {'mode': 'input'}) }}
+</form>
+
+<div data-csrf-only="{{ sw_csrf('token3', {'mode': 'token'}) }}"></div>

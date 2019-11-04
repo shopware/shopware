@@ -17,6 +17,10 @@
                               class="buy-widget order-item-reorder-value"
                               data-add-to-cart="true">
 
+                            {% block page_account_order_item_detail_reorder_csrf %}
+                                {{ sw_csrf('frontend.checkout.line-item.add') }}
+                            {% endblock %}
+
                             {% block page_account_order_item_detail_reorder_redirect_input %}
                                 <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas"/>
                             {% endblock %}

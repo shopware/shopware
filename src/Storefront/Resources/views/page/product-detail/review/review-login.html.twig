@@ -16,17 +16,6 @@
 	</p>
 {% endblock %}
 
-{% block component_account_login_form_tag %}
-	<form class="login-form"
-		  action="{{ path('frontend.account.login') }}"
-		  method="post"
-		  data-form-validation="true"
-		  data-form-ajax-submit="true"
-		  data-form-ajax-submit-options='{
-			  "replaceSelectors": ".js-review-container"
-		  }'>
-{% endblock %}
-
 {% block component_account_login_form_redirect %}
 	<input type="hidden"
            name="redirectTo"

@@ -1,0 +1,4 @@
+storefront:
+    csrf:
+        enabled: true
+        mode: twig

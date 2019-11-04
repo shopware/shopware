@@ -90,7 +90,12 @@
                                     <form id="confirmShippingForm"
                                           name="confirmShippingForm"
                                           action="{{ path('frontend.checkout.configure') }}"
+                                          data-form-csrf-handler="true"
                                           method="post">
+
+                                        {% block page_checkout_confirm_shipping_form_csrf %}
+                                            {{ sw_csrf('frontend.checkout.configure') }}
+                                        {% endblock %}
 
                                         {% block page_checkout_confirm_shipping_form_redirect %}
                                             <input type="hidden" name="redirectTo" value="frontend.checkout.confirm.page">

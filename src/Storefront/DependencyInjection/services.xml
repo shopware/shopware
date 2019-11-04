@@ -35,6 +35,8 @@
             <argument type="service" id="request_stack"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
+            <argument>%storefront.csrf.enabled%</argument>
+            <argument>%storefront.csrf.mode%</argument>
             <tag name="twig.extension"/>
         </service>
 
@@ -60,11 +62,31 @@
             <tag name="twig.extension"/>
         </service>
 
+        <service id="Shopware\Storefront\Framework\Twig\Extension\CsrfFunctionExtension">
+            <tag name="twig.extension"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler" public="true">
+            <argument type="service" id="security.csrf.token_manager"/>
+            <argument>%storefront.csrf.enabled%</argument>
+            <argument>%storefront.csrf.mode%</argument>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Routing\StorefrontSubscriber">
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="router"/>
             <argument type="service" id="Shopware\Storefront\Controller\ErrorController"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Csrf\CsrfRouteListener">
+            <argument type="service" id="security.csrf.token_manager"/>
+            <argument>%storefront.csrf.enabled%</argument>
+            <argument>%storefront.csrf.mode%</argument>
+            <argument type="service" id="session"/>
+            <argument type="service" id="translator"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Command\SalesChannelCreateStorefrontCommand">

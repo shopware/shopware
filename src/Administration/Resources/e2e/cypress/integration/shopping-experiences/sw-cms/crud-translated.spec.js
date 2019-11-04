@@ -40,8 +40,8 @@ describe('CMS: Test crud operations of layouts', () => {
         }).as('reloadPage');
 
         cy.route({
-            url: '/api/v1/language/*',
-            method: 'get'
+            url: '/api/v1/search/language',
+            method: 'post'
         }).as('changeLang');
 
         cy.contains('Create new layout').click();

@@ -1,3 +1,4 @@
+
 UPGRADE FROM 6.0 to 6.1
 =======================
 
@@ -431,6 +432,29 @@ The Shopping Experiences now have sections to separate the blocks of a page.
 Also the change allows it to have different types of sections eg. one with a sidebar. <br><br>
 Structure is now Page->**Section**->blocks->slots <br>
 To migrate your existing data run `bin/console database:migrate --all Shopware\\` <br><br> See `2019-09-27-breaking-change-cms-sections` for more information
+
+* Context is seperated in App and Api Context
+
+    Before:
+    ```js
+      Shopware.Context
+    ```
+  
+    After:
+    ```js
+      Shopware.Context.App // or
+      Shopware.Context.Api
+    ```
+  
+    Before:
+    ```js
+      inject: ['context'],
+    ```
+        
+    After:
+    ```js
+      inject: ['apiContext'],
+    ```
 
 * Refactored the multiple inheritance of vuejs components and `$super` method with a **breaking change**!
 

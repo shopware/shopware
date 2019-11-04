@@ -255,6 +255,10 @@ Component.register('sw-cms-detail', {
             this.isLoading = true;
 
             this.pageRepository.get(pageId, this.apiContext, this.loadPageCriteria).then((page) => {
+                if (page === null) {
+                    this.loadPage(pageId);
+                }
+
                 this.page = { sections: [] };
                 this.page = page;
 

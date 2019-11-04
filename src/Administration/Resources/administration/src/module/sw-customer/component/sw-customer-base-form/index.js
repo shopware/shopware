@@ -28,8 +28,8 @@ Component.register('sw-customer-base-form', {
     },
 
     methods: {
-        swCustomerCreateOnChangeSalesChannel(salesChannelId) {
-            this.$emit('sales-channel-changed', salesChannelId);
+        onSalesChannelChange(salesChannelId) {
+            this.$emit('sales-channel-change', salesChannelId);
         }
     }
 });

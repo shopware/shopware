@@ -174,6 +174,8 @@ class SyncServiceTest extends TestCase
 
         $result = $this->service->sync([$operation], Context::createDefaultContext(), new SyncBehavior(true));
 
+        $this->connection->beginTransaction();
+
         static::assertFalse($result->isSuccess());
 
         $written = $this->connection->fetchAll(
@@ -193,8 +195,6 @@ class SyncServiceTest extends TestCase
         $written = $operation->get(1);
         static::assertEmpty($written['entities']);
         static::assertNotEmpty($written['errors']);
-
-        $this->connection->beginTransaction();
     }
 
     public function testFailOnErrorWithMultipleOperations(): void
@@ -252,8 +252,6 @@ class SyncServiceTest extends TestCase
 
     public function testWriteDeprecatedFieldLeadsToError(): void
     {
-        $this->connection->rollBack();
-
         $operations = [
             new SyncOperation('write', 'deprecated', SyncOperation::ACTION_UPSERT, [
                 ['id' => Uuid::randomHex(), 'price' => 10],
@@ -301,14 +299,10 @@ class SyncServiceTest extends TestCase
         $error = $errors[0];
         static::assertEquals('FRAMEWORK__WRITE_REMOVED_FIELD', $error['code']);
         static::assertEquals('/0/price', $error['source']['pointer']);
-
-        $this->connection->beginTransaction();
     }
 
     public function testWriteDeprecatedEntityLeadsToError(): void
     {
-        $this->connection->rollBack();
-
         $operations = [
             new SyncOperation('write', 'deprecated_entity', SyncOperation::ACTION_UPSERT, [
                 ['id' => Uuid::randomHex(), 'price' => 10],
@@ -352,13 +346,10 @@ class SyncServiceTest extends TestCase
         $error = $errors[0];
         static::assertEquals('/0', $error['source']['pointer']);
         static::assertEquals('You entity deprecated_entity is not available or deprecated in api version 2.', $error['detail']);
-
-        $this->connection->beginTransaction();
     }
 
     public function testDeprecatedPayloadIsConverted(): void
     {
-        $this->connection->rollBack();
         $id = Uuid::randomHex();
 
         $operations = [
@@ -405,8 +396,6 @@ class SyncServiceTest extends TestCase
         $result = $syncService->sync($operations, Context::createDefaultContext(), new SyncBehavior(true));
 
         static::assertTrue($result->isSuccess(), print_r($result, true));
-
-        $this->connection->beginTransaction();
     }
 
     private function dummyEntityWrittenEvent(string $id): EntityWrittenContainerEvent

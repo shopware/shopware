@@ -119,7 +119,13 @@ class ElasticsearchProductTest extends TestCase
 
     public function testIndexing()
     {
-        $this->getContainer()->get(Connection::class)->executeUpdate('DELETE FROM product');
+        /** @var Connection $connection */
+        $connection = $this->getContainer()->get(Connection::class);
+        if ($connection->isRollbackOnly()) {
+            $connection->rollBack();
+            $connection->beginTransaction();
+        }
+        $connection->executeUpdate('DELETE FROM product');
 
         $context = Context::createDefaultContext();
 

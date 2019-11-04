@@ -44,10 +44,19 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
      */
     private $eventDispatcher;
 
-    public function __construct(Connection $connection, EventDispatcherInterface $eventDispatcher)
-    {
+    /**
+     * @var ExceptionHandlerRegistry
+     */
+    private $exceptionHandlerRegistry;
+
+    public function __construct(
+        Connection $connection,
+        EventDispatcherInterface $eventDispatcher,
+        ExceptionHandlerRegistry $exceptionHandlerRegistry
+    ) {
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
+        $this->exceptionHandlerRegistry = $exceptionHandlerRegistry;
     }
 
     /**
@@ -71,7 +80,8 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
      */
     public function execute(array $commands, WriteContext $context): void
     {
-        $this->connection->transactional(function () use ($commands, $context): void {
+        $this->connection->beginTransaction();
+        try {
             // throws exception on violation and then aborts/rollbacks this transaction
             $event = new PreWriteValidationEvent($context, $commands);
             $this->eventDispatcher->dispatch($event);
@@ -82,52 +92,73 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 $definition = $command->getDefinition();
                 $table = $definition->getEntityName();
 
-                if ($command instanceof DeleteCommand) {
-                    $this->connection->delete(EntityDefinitionQueryHelper::escape($table), $command->getPrimaryKey());
-                    continue;
-                }
-
-                if ($command instanceof JsonUpdateCommand) {
-                    $this->executeJsonUpdate($command);
-                    continue;
-                }
-
-                if ($definition instanceof MappingEntityDefinition && $command instanceof InsertCommand) {
-                    $queue = new MultiInsertQueryQueue($this->connection, 1, false, true);
-                    $queue->addInsert($definition->getEntityName(), $command->getPayload());
-                    $queue->execute();
-                    continue;
-                }
-
-                if ($command instanceof UpdateCommand) {
-                    if (!$command->isValid()) {
+                try {
+                    if ($command instanceof DeleteCommand) {
+                        $this->connection->delete(
+                            EntityDefinitionQueryHelper::escape($table),
+                            $command->getPrimaryKey()
+                        );
                         continue;
                     }
-                    $this->connection->update(
-                        EntityDefinitionQueryHelper::escape($table),
-                        $this->escapeColumnKeys($command->getPayload()),
-                        $command->getPrimaryKey()
-                    );
-                    continue;
-                }
 
-                if ($command instanceof InsertCommand) {
-                    $this->connection->insert(
-                        EntityDefinitionQueryHelper::escape($table),
-                        $this->escapeColumnKeys($command->getPayload())
-                    );
-                    continue;
-                }
+                    if ($command instanceof JsonUpdateCommand) {
+                        $this->executeJsonUpdate($command);
+                        continue;
+                    }
 
-                throw new UnsupportedCommandTypeException($command);
+                    if ($definition instanceof MappingEntityDefinition && $command instanceof InsertCommand) {
+                        $queue = new MultiInsertQueryQueue($this->connection, 1, false, true);
+                        $queue->addInsert($definition->getEntityName(), $command->getPayload());
+                        $queue->execute();
+                        continue;
+                    }
+
+                    if ($command instanceof UpdateCommand) {
+                        if (!$command->isValid()) {
+                            continue;
+                        }
+                        $this->connection->update(
+                            EntityDefinitionQueryHelper::escape($table),
+                            $this->escapeColumnKeys($command->getPayload()),
+                            $command->getPrimaryKey()
+                        );
+                        continue;
+                    }
+
+                    if ($command instanceof InsertCommand) {
+                        $this->connection->insert(
+                            EntityDefinitionQueryHelper::escape($table),
+                            $this->escapeColumnKeys($command->getPayload())
+                        );
+                        continue;
+                    }
+
+                    throw new UnsupportedCommandTypeException($command);
+                } catch (\Exception $e) {
+                    $innerException = $this->exceptionHandlerRegistry->matchException($e, $command);
+                    if ($innerException instanceof \Exception) {
+                        $e = $innerException;
+                    }
+                    $context->getExceptions()->add($e);
+                    throw $e;
+                }
             }
 
             // throws exception on violation and then aborts/rollbacks this transaction
             $event = new PostWriteValidationEvent($context, $commands);
             $this->eventDispatcher->dispatch($event);
-
             $context->getExceptions()->tryToThrow();
-        });
+
+            //only commit if transaction is not already marked for rollback
+            if (!$this->connection->isRollbackOnly()) {
+                $this->connection->commit();
+            } else {
+                $this->connection->rollBack();
+            }
+        } catch (\Throwable $e) {
+            $this->connection->rollBack();
+            throw $e;
+        }
     }
 
     private static function isAssociative(array $array): bool

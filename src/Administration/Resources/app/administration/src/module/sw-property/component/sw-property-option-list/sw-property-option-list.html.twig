@@ -1,8 +1,8 @@
 {% block sw_property_option_list %}
-    <sw-card :isLoading="group.isLoading" class="sw-property-option-list">
+    <sw-card :isLoading="isLoading" class="sw-property-option-list">
 
         {% block sw_property_option_list_toolbar %}
-            <div class="sw-property-option-list__toolbar" v-if="options.length || term || !isLoading">
+            <div class="sw-property-option-list__toolbar">
 
                 {% block sw_property_option_list_toolbar_container %}
                     <sw-container columns="1fr 32px minmax(100px, 200px)" gap="0 10px">
@@ -17,115 +17,74 @@
                         {% endblock %}
 
                         {% block sw_property_option_list_toolbar_delete %}
-                            <sw-button :disabled="deleteButtonDisabled" @click="onDeleteOptions" square size="small" class="sw-property-option-list__delete-button">
-                                <sw-icon name="default-action-trash" small />
+                            <sw-button :disabled="deleteButtonDisabled" @click="onDeleteOptions" square size="small"
+                                       class="sw-property-option-list__delete-button">
+                                <sw-icon name="default-action-trash" small/>
                             </sw-button>
                         {% endblock %}
 
                         {% block sw_property_option_list_toolbar_add %}
                             <sw-container v-tooltip="{
-                                    message: $tc('sw-property.detail.addOptionNotPossible'),
-                                    disabled: isSystemLanguage
-                                }">
-                                <sw-button :disabled="group.isLoading || !isSystemLanguage"
-                                           @click="onAddOption(group)"
+                                                            message: $tc('sw-property.detail.addOptionNotPossible'),
+                                                            disabled: isSystemLanguage
+                                                        }">
+                                <sw-button :disabled="propertyGroup.isLoading || !isSystemLanguage"
+                                           @click="onAddOption(propertyGroup)"
                                            size="small"
                                            class="sw-property-option-list__add-button">
                                     {{ $tc('sw-property.detail.addOption') }}
                                 </sw-button>
                             </sw-container>
                         {% endblock %}
-
                     </sw-container>
                 {% endblock %}
             </div>
         {% endblock %}
 
-        {% block sw_property_option_list_grid %}
-            <sw-grid v-if="options.length || term"
-                     class="sw-property-option-list__grid"
-                     ref="grid"
-                     :items="options"
-                     :isFullpage="false"
-                     table
-                     selectable
-                     @inline-edit-cancel="onInlineEditCancel"
-                     @inline-edit-start="onInlineEditStart"
-                     @sw-grid-select-item="selectionChanged">
+    {% block sw_property_option_list_grid %}
+        <template #grid>
+            <sw-one-to-many-grid
+                :isLoading="isLoading"
+                :collection="propertyGroup.options"
+                ref="grid"
+                :columns="getGroupColumns()"
+                :fullPage="false"
+                :localMode="propertyGroup.isNew()"
+                :allowInlineEdit="true"
+                :sortBy="sortBy"
+                :sortDirection="sortDirection"
+                @selection-change="onGridSelectionChanged">
+                <template #column-name="{ item, isInlineEdit }">
+                    <template v-if="isInlineEdit">
+                       <sw-field v-model="item.name" size="small"></sw-field>
+                    </template>
 
-                {% block sw_property_option_list_grid_columns %}
-                    <template slot="columns" slot-scope="{ item }">
-
-                        {% block sw_property_option_list_grid_column_name %}
-                            <sw-grid-column dataIndex="name" editable truncate flex="minmax(150px, 1fr)" :label="$tc('sw-property.detail.labelOptionName')">
-                                {{ item.name || item.translated.name }}
-                            <sw-field type="text" slot="inline-edit" v-model="item.name" />
-                        </sw-grid-column>
+                    <a v-else class="sw-settings-option-detail__link"
+                       @click="onOptionEdit(item)">
+                        {{ item.name }}
+                    </a>
+                </template>
+                {% block sw_settings_property_list_grid_columns_actions %}
+                    <template #more-actions="{ item }">
+                        {% block sw_settings_property_list_grid_columns_actions_edit %}
+                            <sw-context-menu-item
+                                @click="onOptionEdit(item)"
+                                class="sw-property-option-list__edit-action">
+                                {{ $tc('sw-property.list.contextMenuView') }}
+                            </sw-context-menu-item>
                         {% endblock %}
-
-                        {% block sw_property_option_list_grid_column_color %}
-                            <sw-grid-column dataIndex="colorHexCode" editable flex="300px" :label="$tc('sw-property.detail.labelOptionColor')">
-                                {{ item.colorHexCode }}
-                                <sw-colorpicker slot="inline-edit" colorOutput="hex" v-model="item.colorHexCode" :zIndex="100"></sw-colorpicker>
-                            </sw-grid-column>
-                        {% endblock %}
-
-                        {% block sw_property_option_list_grid_column_position %}
-                            <sw-grid-column dataIndex="position" editable flex="100px" :label="$tc('sw-property.detail.labelOptionPosition')">
-                                {{ item.translated.position || item.position }}
-                                <sw-field type="number" slot="inline-edit" v-model="item.position" :step="1" pattern="[0-9]" />
-                            </sw-grid-column>
-                        {% endblock %}
-
-                        {% block sw_property_option_list_grid_column_actions %}
-                            <sw-grid-column flex="minmax(100px, 100px)" align="center">
-
-                                {% block sw_property_option_list_grid_column_actions_context %}
-                                <sw-context-button>
-
-                                    {% block sw_property_option_list_grid_column_actions_edit %}
-                                        <sw-context-menu-item v-if="item.isDeleted" @click="onOptionEdit(item)" disabled>
-                                            {{ $tc('sw-property.detail.contextMenuOptionView') }}
-                                        </sw-context-menu-item>
-
-                                        <sw-context-menu-item v-else @click="onOptionEdit(item)">
-                                            {{ $tc('sw-property.detail.contextMenuOptionView') }}
-                                        </sw-context-menu-item>
-                                    {% endblock %}
-
-                                    {% block sw_property_option_list_grid_column_actions_delete %}
-                                        <sw-context-menu-item v-if="item.isDeleted" variant="success" @click="onOptionResetDelete(item)">
-                                            {{ $tc('sw-property.detail.contextMenuOptionResetDelete') }}
-                                        </sw-context-menu-item>
-
-                                        <sw-context-menu-item v-else variant="danger" @click="onOptionDelete(item)">
-                                            {{ $tc('sw-property.detail.contextMenuOptionDelete') }}
-                                        </sw-context-menu-item>
-                                    {% endblock %}
-
-                                </sw-context-button>
-                                {% endblock %}
-
-                            </sw-grid-column>
-                        {% endblock %}
-
                     </template>
                 {% endblock %}
-
-                <template slot="pagination">
-                    {% block sw_property_option_list_grid_pagination %}
-                        <sw-pagination :page="page" :limit="limit" :total="total" :total-visible="7" @page-change="onPageChange" :steps="[10]" />
-                    {% endblock %}
-                </template>
-            </sw-grid>
+            </sw-one-to-many-grid>
         {% endblock %}
-
-        {% block sw_property_option_list_empty_state %}
-            <sw-empty-state v-else-if="!group.isLoading && !total" :title="$tc('sw-property.detail.messageOptionsEmpty')" :subline="$tc('sw-property.detail.messageOptionsEmptySubline')"></sw-empty-state>
-        {% endblock %}
-
+    </template>
         {% block sw_property_option_list_detail %}
-            <sw-property-option-detail v-if="currentOption" :currentOption="currentOption" @save-option-edit="onSaveOption" @cancel-option-edit="onCancelOption" />
+            <sw-property-option-detail
+                v-if="currentOption"
+                :currentOption="currentOption"
+                @save-option-edit="onSaveOption"
+                @cancel-option-edit="onCancelOption">
+            </sw-property-option-detail>
         {% endblock %}
 
         {% block sw_property_option_list_loader %}

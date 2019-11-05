@@ -1,32 +1,33 @@
 {% block sw_property_detail_base %}
-    <sw-card :title="$tc('sw-property.detail.cardTitleGroupInfo')" :isLoading="group.isLoading">
+    <sw-card v-if="propertyGroup" :title="$tc('sw-property.detail.cardTitleGroupInfo')" :isLoading="isLoading">
 
         {% block sw_property_detail_base_name %}
-            <sw-field v-model="group.name"
-                      type="text"
-                      required
-                      validation="required"
-                      :label="$tc('sw-property.detail.labelName')"
-                      :placeholder="placeholder(group, 'name', $tc('sw-property.detail.placeholderName'))" />
+            <sw-field
+                v-model="propertyGroup.name"
+                type="text"
+                required
+                :error="propertyGroupNameError"
+                :label="$tc('sw-property.detail.labelName')"
+                :placeholder="placeholder(propertyGroup, 'name', $tc('sw-property.detail.placeholderName'))" />
         {% endblock %}
 
         {% block sw_property_detail_base_description %}
-            <sw-field v-model="group.description"
+            <sw-field v-model="propertyGroup.description"
                       type="textarea"
                       :label="$tc('sw-property.detail.labelDescription')"
-                      :placeholder="placeholder(group, 'description')" />
+                      :placeholder="placeholder(propertyGroup, 'description')" />
         {% endblock %}
 
         {% block sw_property_detail_sorting_display_container %}
             <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0 30px">
                 {% block sw_property_detail_display_type %}
-                    <sw-field v-model="group.displayType" validation="required" required type="select" :label="$tc('sw-property.detail.labelDisplayType')" >
+                    <sw-field v-model="propertyGroup.displayType" validation="required" required type="select" :label="$tc('sw-property.detail.labelDisplayType')" >
                         <option slot="options" v-for="option in displayTypes" :key="option.value" :value="option.value">{{ option.label }}</option>
                     </sw-field>
                 {% endblock %}
 
                 {% block sw_property_detail_sorting_type %}
-                    <sw-field v-model="group.sortingType" validation="required" required type="select" :label="$tc('sw-property.detail.labelSortingType')" >
+                    <sw-field v-model="propertyGroup.sortingType" validation="required" required type="select" :label="$tc('sw-property.detail.labelSortingType')" >
                         <option slot="options" v-for="option in sortingTypes" :key="option.value" :value="option.value">{{ option.label }}</option>
                     </sw-field>
                 {% endblock %}

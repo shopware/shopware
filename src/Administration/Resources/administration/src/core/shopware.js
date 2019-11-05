@@ -228,15 +228,6 @@ const Shopware = function Shopware() {
 
     /**
      * @memberOf module:Shopware
-     * @type {Object}
-     */
-    this.Context = {
-        get App() { return application.getContainer('service').appContext; },
-        get Api() { return application.getContainer('service').apiContext; }
-    };
-
-    /**
-     * @memberOf module:Shopware
      * @type {module:core/service/utils}
      */
     this.Utils = utils;
@@ -348,6 +339,14 @@ const Shopware = function Shopware() {
 
 // hidden in prototype
 Shopware.prototype = {
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    get Context() {
+        return this.State.get('context');
+    },
+
     /**
      * @memberOf module:Shopware
      * @type {Object}

@@ -14,7 +14,6 @@ Component.register('sw-customer-detail-addresses', {
 
     inject: [
         'repositoryFactory',
-        'apiContext',
         'customerAddressService'
     ],
 
@@ -104,7 +103,7 @@ Component.register('sw-customer-detail-addresses', {
             this.isLoading = true;
 
             if (!this.activeCustomer.id && this.$route.params.id) {
-                this.customerRepository.get(this.$route.params.id, this.apiContext).then((customer) => {
+                this.customerRepository.get(this.$route.params.id, Shopware.Context.api).then((customer) => {
                     this.activeCustomer = customer;
                     this.isLoading = false;
                 });
@@ -119,7 +118,7 @@ Component.register('sw-customer-detail-addresses', {
             customFieldSetCriteria.addFilter(Criteria.equals('relations.entityName', 'customer_address'))
                 .addAssociation('customFields');
 
-            this.customFieldSetRepository.search(customFieldSetCriteria, this.apiContext).then((customFieldSets) => {
+            this.customFieldSetRepository.search(customFieldSetCriteria, Shopware.Context.api).then((customFieldSets) => {
                 this.customerAddressCustomFieldSets = customFieldSets;
             });
 
@@ -178,7 +177,7 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         createNewCustomerAddress() {
-            const newAddress = this.addressRepository.create(this.apiContext);
+            const newAddress = this.addressRepository.create(Shopware.Context.api);
             newAddress.customerId = this.activeCustomer.id;
 
             this.currentAddress = newAddress;
@@ -200,7 +199,7 @@ Component.register('sw-customer-detail-addresses', {
             let address = this.activeCustomer.addresses.get(this.currentAddress.id);
 
             if (typeof address === 'undefined' || address === null) {
-                address = this.addressRepository.create(this.apiContext, this.currentAddress.id);
+                address = this.addressRepository.create(Shopware.Context.api, this.currentAddress.id);
             }
 
             Object.assign(address, this.currentAddress);
@@ -240,7 +239,7 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         onEditAddress(id) {
-            const currentAddress = this.addressRepository.create(this.apiContext, id);
+            const currentAddress = this.addressRepository.create(Shopware.Context.api, id);
 
             // assign values and id to new address
             Object.assign(currentAddress, this.activeCustomer.addresses.get(id));

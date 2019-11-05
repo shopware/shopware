@@ -9,7 +9,6 @@ Component.register('sw-order-detail-base', {
 
     inject: [
         'repositoryFactory',
-        'apiContext',
         'orderService',
         'stateStyleDataProviderService'
     ],
@@ -194,7 +193,7 @@ Component.register('sw-order-detail-base', {
 
     methods: {
         createdComponent() {
-            this.versionContext = this.apiContext;
+            this.versionContext = Shopware.Context.api;
             this.reloadEntityData();
 
             this.$root.$on('language-change', this.reloadEntityData);
@@ -202,7 +201,7 @@ Component.register('sw-order-detail-base', {
             this.$root.$on('order-edit-save', this.onSaveEdits);
             this.$root.$on('order-edit-cancel', this.onCancelEditing);
 
-            this.customFieldSetRepository.search(this.customFieldSetCriteria, this.apiContext).then((result) => {
+            this.customFieldSetRepository.search(this.customFieldSetCriteria, Shopware.Context.api).then((result) => {
                 this.customFieldSets = result;
             });
         },
@@ -292,7 +291,7 @@ Component.register('sw-order-detail-base', {
             this.orderRepository.mergeVersion(this.versionContext.versionId, this.versionContext).catch((error) => {
                 this.$emit('error', error);
             }).finally(() => {
-                this.versionContext.versionId = Shopware.Context.Api.liveVersionId;
+                this.versionContext.versionId = Shopware.Context.api.liveVersionId;
                 this.reloadEntityData();
             });
         },
@@ -309,7 +308,7 @@ Component.register('sw-order-detail-base', {
                 this.$emit('error', error);
             });
 
-            this.versionContext.versionId = Shopware.Context.Api.liveVersionId;
+            this.versionContext.versionId = Shopware.Context.api.liveVersionId;
             this.reloadEntityData().then(() => {
                 this.$emit('editing-change', false);
             });

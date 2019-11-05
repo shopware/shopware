@@ -57,7 +57,7 @@
         basePath:           /next/web
         pathInfo:           /admin
     */
-    const shopwareConfig = {
+    Shopware.Application.start({
         apiContext: {
             host: '{{ app.request.host }}',
             port: {{ app.request.port }},
@@ -74,9 +74,7 @@
             firstRunWizard: {{ firstRunWizard ? 'true' : 'false' }},
             systemCurrencyId: '{{ systemCurrencyId }}'
         }
-    };
-
-    Shopware.Application.start(shopwareConfig);
+    });
 </script>
 
 </body>

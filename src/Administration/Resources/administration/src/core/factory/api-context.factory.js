@@ -11,23 +11,25 @@ export default function createContext(context = {}) {
 
     const languageId = localStorage.getItem('sw-admin-current-language') || Defaults.systemLanguageId;
 
-    Object.assign(context, {
-        installationPath,
-        apiPath: apiPath,
-        apiResourcePath: `${apiPath}/v1`,
-        assetsPath: getAssetsPath(installationPath, isDevMode),
-        languageId: languageId,
-        inheritance: false
-    });
+    // set initial context
+    Shopware.State.commit('context/setApiInstallationPath', installationPath);
+    Shopware.State.commit('context/setApiApiPath', apiPath);
+    Shopware.State.commit('context/setApiApiResourcePath', `${apiPath}/v1`);
+    Shopware.State.commit('context/setApiAssetsPath', getAssetsPath(installationPath, isDevMode));
+    Shopware.State.commit('context/setApiLanguageId', languageId);
+    Shopware.State.commit('context/setApiInheritance', false);
 
     if (isDevMode) {
-        Object.assign(context, {
-            systemLanguageId: Defaults.systemLanguageId,
-            liveVersionId: Defaults.versionId
-        });
+        Shopware.State.commit('context/setApiSystemLanguageId', Defaults.systemLanguageId);
+        Shopware.State.commit('context/setApiLiveVersionId', Defaults.versionId);
     }
 
-    return context;
+    // assign unknown context information
+    Object.entries(context).forEach(([key, value]) => {
+        Shopware.State.commit('context/addApiValue', { key, value });
+    });
+
+    return Shopware.Context.api;
 }
 
 /**

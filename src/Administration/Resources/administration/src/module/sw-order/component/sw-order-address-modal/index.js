@@ -7,10 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-order-address-modal', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'apiContext'
-    ],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -79,7 +76,7 @@ Component.register('sw-order-address-modal', {
         createdComponent() {
             this.isLoading = true;
 
-            this.customerRepository.search(this.customerCriteria, this.apiContext).then((customer) => {
+            this.customerRepository.search(this.customerCriteria, Shopware.Context.api).then((customer) => {
                 this.availableAddresses = customer[0].addresses;
 
                 return Shopware.State.dispatch('error/resetApiErrors');

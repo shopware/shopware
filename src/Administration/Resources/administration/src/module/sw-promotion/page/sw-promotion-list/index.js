@@ -8,7 +8,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-promotion-list', {
     template,
 
-    inject: ['repositoryFactory', 'apiContext'],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('listing')
@@ -46,7 +46,7 @@ Component.register('sw-promotion-list', {
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
-            return this.promotionRepository.search(criteria, this.apiContext).then((searchResult) => {
+            return this.promotionRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
                 this.total = searchResult.total;
                 this.promotions = searchResult;
 

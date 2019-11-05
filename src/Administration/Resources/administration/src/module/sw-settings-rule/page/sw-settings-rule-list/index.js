@@ -7,10 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-rule-list', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'apiContext'
-    ],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -45,7 +42,7 @@ Component.register('sw-settings-rule-list', {
             const naturalSort = this.sortBy === 'createdAt';
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, naturalSort));
 
-            this.ruleRepository.search(criteria, this.apiContext).then((items) => {
+            this.ruleRepository.search(criteria, Shopware.Context.api).then((items) => {
                 this.total = items.total;
                 this.rules = items;
                 this.isLoading = false;
@@ -57,7 +54,7 @@ Component.register('sw-settings-rule-list', {
         },
 
         onDuplicate(referenceRule) {
-            this.ruleRepository.clone(referenceRule.id, this.apiContext).then(() => {
+            this.ruleRepository.clone(referenceRule.id, Shopware.Context.api).then(() => {
                 this.$router.push(
                     {
                         name: 'sw.settings.rule.detail',

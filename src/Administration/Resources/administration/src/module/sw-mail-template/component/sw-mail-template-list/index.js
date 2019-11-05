@@ -6,10 +6,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-mail-template-list', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'apiContext'
-    ],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -43,7 +40,7 @@ Component.register('sw-mail-template-list', {
 
             criteria.addAssociation('mailTemplateType');
 
-            this.mailTemplateRepository.search(criteria, this.apiContext).then((items) => {
+            this.mailTemplateRepository.search(criteria, Shopware.Context.api).then((items) => {
                 this.total = items.total;
                 this.mailTemplates = items;
                 this.isLoading = false;

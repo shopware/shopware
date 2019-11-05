@@ -48,7 +48,7 @@ Component.register('sw-login-login', {
             this.$emit('login-success');
 
             const animationPromise = new Promise((resolve) => {
-                setTimeout(resolve, 300);
+                setTimeout(resolve, 150);
             });
 
             this.licenseViolationService.removeTimeFromLocalStorage(this.licenseViolationService.key.showViolationsKey);
@@ -71,7 +71,7 @@ Component.register('sw-login-login', {
             const previousRoute = JSON.parse(sessionStorage.getItem('sw-admin-previous-route'));
             sessionStorage.removeItem('sw-admin-previous-route');
 
-            const firstRunWizard = Shopware.Context.App.firstRunWizard;
+            const firstRunWizard = Shopware.Context.app.firstRunWizard;
 
             if (firstRunWizard && !this.$router.history.current.name.startsWith('sw.first.run.wizard.')) {
                 this.$router.push({ name: 'sw.first.run.wizard.index' });

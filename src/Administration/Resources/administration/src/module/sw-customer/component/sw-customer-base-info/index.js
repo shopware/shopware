@@ -7,10 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-customer-base-info', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'apiContext'
-    ],
+    inject: ['repositoryFactory'],
 
     props: {
         customer: {
@@ -69,7 +66,7 @@ Component.register('sw-customer-base-info', {
         languageId: {
             immediate: true,
             handler() {
-                this.languageRepository.get(this.languageId, this.apiContext).then((language) => {
+                this.languageRepository.get(this.languageId, Shopware.Context.api).then((language) => {
                     this.customerLanguage = language;
                 });
             }
@@ -85,7 +82,7 @@ Component.register('sw-customer-base-info', {
             const criteria = new Criteria(1, 1);
             criteria.addAggregation(Criteria.sum('orderAmount', 'amountTotal'));
             criteria.addFilter(Criteria.equals('order.orderCustomer.customerId', this.$route.params.id));
-            this.orderRepository.search(criteria, this.apiContext).then((response) => {
+            this.orderRepository.search(criteria, Shopware.Context.api).then((response) => {
                 this.orderCount = response.total;
                 this.orderAmount = response.aggregations.orderAmount.sum;
             });

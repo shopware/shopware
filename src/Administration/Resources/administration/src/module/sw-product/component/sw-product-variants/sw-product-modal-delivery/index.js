@@ -6,7 +6,7 @@ const { Component } = Shopware;
 Component.register('sw-product-modal-delivery', {
     template,
 
-    inject: ['repositoryFactory', 'apiContext'],
+    inject: ['repositoryFactory'],
 
     props: {
         product: {
@@ -38,7 +38,7 @@ Component.register('sw-product-modal-delivery', {
             this.isLoading = true;
 
             // Save the product after generating
-            this.productRepository.save(this.product, this.apiContext).then(() => {
+            this.productRepository.save(this.product, Shopware.Context.api).then(() => {
                 this.$emit('configuration-close');
             });
         },

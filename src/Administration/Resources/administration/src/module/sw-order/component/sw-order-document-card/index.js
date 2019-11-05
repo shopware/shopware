@@ -15,8 +15,7 @@ Component.register('sw-order-document-card', {
     inject: [
         'documentService',
         'numberRangeService',
-        'repositoryFactory',
-        'apiContext'
+        'repositoryFactory'
     ],
 
     mixins: [
@@ -139,7 +138,7 @@ Component.register('sw-order-document-card', {
         createdComponent() {
             this.cardLoading = true;
 
-            this.documentTypeRepository.search(this.documentTypeCriteria, this.apiContext).then((response) => {
+            this.documentTypeRepository.search(this.documentTypeCriteria, Shopware.Context.api).then((response) => {
                 this.documentTypes = response;
                 this.cardLoading = false;
             });
@@ -148,7 +147,7 @@ Component.register('sw-order-document-card', {
         getList() {
             this.documentsLoading = true;
 
-            return this.documentRepository.search(this.documentCriteria, this.apiContext).then((response) => {
+            return this.documentRepository.search(this.documentCriteria, Shopware.Context.api).then((response) => {
                 this.total = response.total;
                 this.documents = response;
                 this.documentsLoading = false;
@@ -226,7 +225,7 @@ Component.register('sw-order-document-card', {
                         this.documentService.generateDocumentLink(
                             response.data.documentId,
                             response.data.documentDeepLink,
-                            this.apiContext,
+                            Shopware.Context.api,
                             true
                         ),
                         '_blank'
@@ -243,14 +242,14 @@ Component.register('sw-order-document-card', {
                     this.order.deepLinkCode,
                     this.currentDocumentType.technicalName,
                     config,
-                    this.apiContext
+                    Shopware.Context.api
                 ),
                 '_blank'
             );
         },
 
         onDownload(id, deepLink) {
-            window.open(this.documentService.generateDocumentLink(id, deepLink, this.apiContext, false), '_blank');
+            window.open(this.documentService.generateDocumentLink(id, deepLink, Shopware.Context.api, false), '_blank');
         }
     }
 });

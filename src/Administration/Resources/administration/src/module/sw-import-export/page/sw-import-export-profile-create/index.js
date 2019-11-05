@@ -14,7 +14,7 @@ Component.extend('sw-import-export-profile-create', 'sw-import-export-profile-de
         loadEntityData() {
             this.repository = this.repositoryFactory.create('import_export_profile');
 
-            this.importExportProfile = this.repository.create(this.apiContext, this.$route.params.id);
+            this.importExportProfile = this.repository.create(Shopware.Context.api, this.$route.params.id);
         },
 
         onSave() {

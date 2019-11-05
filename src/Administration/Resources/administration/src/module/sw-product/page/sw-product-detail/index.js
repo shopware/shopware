@@ -10,7 +10,7 @@ const { mapPageErrors, mapState, mapGetters } = Shopware.Component.getComponentH
 Component.register('sw-product-detail', {
     template,
 
-    inject: ['mediaService', 'repositoryFactory', 'apiContext', 'numberRangeService', 'seoUrlService'],
+    inject: ['mediaService', 'repositoryFactory', 'numberRangeService', 'seoUrlService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -216,7 +216,7 @@ Component.register('sw-product-detail', {
         },
 
         initState() {
-            Shopware.State.commit('swProductDetail/setApiContext', this.apiContext);
+            Shopware.State.commit('swProductDetail/setApiContext', Shopware.Context.api);
 
             // when product exists
             if (this.productId) {
@@ -256,7 +256,7 @@ Component.register('sw-product-detail', {
             Shopware.State.commit('swProductDetail/setLoading', ['product', true]);
 
             // create empty product
-            Shopware.State.commit('swProductDetail/setProduct', this.productRepository.create(this.apiContext));
+            Shopware.State.commit('swProductDetail/setProduct', this.productRepository.create(Shopware.Context.api));
             Shopware.State.commit('swProductDetail/setProductId', this.product.id);
 
             // fill empty data
@@ -288,7 +288,7 @@ Component.register('sw-product-detail', {
 
             this.productRepository.get(
                 this.productId || this.product.id,
-                this.apiContext, this.productCriteria
+                Shopware.Context.api, this.productCriteria
             ).then((res) => {
                 Shopware.State.commit('swProductDetail/setProduct', res);
 
@@ -303,17 +303,18 @@ Component.register('sw-product-detail', {
         loadParentProduct() {
             Shopware.State.commit('swProductDetail/setLoading', ['parentProduct', true]);
 
-            return this.productRepository.get(this.product.parentId, this.apiContext, this.productCriteria).then((res) => {
-                Shopware.State.commit('swProductDetail/setParentProduct', res);
-            }).then(() => {
-                Shopware.State.commit('swProductDetail/setLoading', ['parentProduct', false]);
-            });
+            return this.productRepository.get(this.product.parentId, Shopware.Context.api, this.productCriteria)
+                .then((res) => {
+                    Shopware.State.commit('swProductDetail/setParentProduct', res);
+                }).then(() => {
+                    Shopware.State.commit('swProductDetail/setLoading', ['parentProduct', false]);
+                });
         },
 
         loadCurrencies() {
             Shopware.State.commit('swProductDetail/setLoading', ['currencies', true]);
 
-            return this.currencyRepository.search(new Criteria(1, 500), this.apiContext).then((res) => {
+            return this.currencyRepository.search(new Criteria(1, 500), Shopware.Context.api).then((res) => {
                 Shopware.State.commit('swProductDetail/setCurrencies', res);
             }).then(() => {
                 Shopware.State.commit('swProductDetail/setLoading', ['currencies', false]);
@@ -323,7 +324,7 @@ Component.register('sw-product-detail', {
         loadTaxes() {
             Shopware.State.commit('swProductDetail/setLoading', ['taxes', true]);
 
-            return this.taxRepository.search(new Criteria(1, 500), this.apiContext).then((res) => {
+            return this.taxRepository.search(new Criteria(1, 500), Shopware.Context.api).then((res) => {
                 Shopware.State.commit('swProductDetail/setTaxes', res);
             }).then(() => {
                 Shopware.State.commit('swProductDetail/setLoading', ['taxes', false]);
@@ -333,7 +334,7 @@ Component.register('sw-product-detail', {
         loadAttributeSet() {
             Shopware.State.commit('swProductDetail/setLoading', ['customFieldSets', true]);
 
-            return this.customFieldSetRepository.search(this.customFieldSetCriteria, this.apiContext).then((res) => {
+            return this.customFieldSetRepository.search(this.customFieldSetCriteria, Shopware.Context.api).then((res) => {
                 Shopware.State.commit('swProductDetail/setAttributeSet', res);
             }).then(() => {
                 Shopware.State.commit('swProductDetail/setLoading', ['customFieldSets', false]);
@@ -457,7 +458,7 @@ Component.register('sw-product-detail', {
                 }
 
                 // save product
-                this.productRepository.save(this.product, this.apiContext).then(() => {
+                this.productRepository.save(this.product, Shopware.Context.api).then(() => {
                     this.loadAll().then(() => {
                         Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
                         resolve('success');
@@ -501,7 +502,7 @@ Component.register('sw-product-detail', {
                 return Promise.reject('A media item with this id exists');
             }
 
-            const newMedia = this.mediaRepository.create(this.apiContext);
+            const newMedia = this.mediaRepository.create(Shopware.Context.api);
             newMedia.mediaId = mediaItem.id;
 
             return new Promise((resolve) => {

@@ -75,7 +75,7 @@ Component.register('sw-settings-shopware-updates-index', {
 
     computed: {
         shopwareVersion() {
-            return Shopware.Context.App.config.version;
+            return Shopware.Context.app.config.version;
         }
     }
 });

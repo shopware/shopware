@@ -11,10 +11,7 @@ Component.register('sw-settings-delivery-time-detail', {
         Mixin.getByName('notification')
     ],
 
-    inject: [
-        'repositoryFactory',
-        'apiContext'
-    ],
+    inject: ['repositoryFactory'],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -44,7 +41,7 @@ Component.register('sw-settings-delivery-time-detail', {
             this.isLoading = true;
 
             this.deliveryTimeRepository
-                .get(this.$route.params.id, this.apiContext)
+                .get(this.$route.params.id, Shopware.Context.api)
                 .then((deliveryTime) => {
                     this.deliveryTime = deliveryTime;
                     this.isLoading = false;
@@ -65,7 +62,7 @@ Component.register('sw-settings-delivery-time-detail', {
             this.isSaveSuccessful = false;
 
             return this.deliveryTimeRepository
-                .save(this.deliveryTime, this.apiContext)
+                .save(this.deliveryTime, Shopware.Context.api)
                 .then(() => {
                     this.isLoading = false;
                     this.isSaveSuccessful = true;

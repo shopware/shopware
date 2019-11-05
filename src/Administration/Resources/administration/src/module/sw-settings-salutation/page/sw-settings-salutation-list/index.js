@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-salutation-list', {
     template,
 
-    inject: ['repositoryFactory', 'apiContext'],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -53,7 +53,7 @@ Component.register('sw-settings-salutation-list', {
             const criteria = new Criteria(this.page, this.limit);
             criteria.setTerm(this.term);
 
-            this.salutationRepository.search(criteria, this.apiContext).then((searchResult) => {
+            this.salutationRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
                 this.total = searchResult.total;
                 this.salutations = searchResult;
                 this.isLoading = false;

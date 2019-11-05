@@ -11,7 +11,7 @@ const { mapPageErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-promotion-detail', {
     template,
 
-    inject: ['repositoryFactory', 'apiContext'],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -142,7 +142,7 @@ Component.register('sw-promotion-detail', {
             this.isLoading = true;
             if (!this.promotionId) {
                 this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
-                this.promotion = this.promotionRepository.create(this.apiContext);
+                this.promotion = this.promotionRepository.create(Shopware.Context.api);
                 // hydrate and extend promotion with additional data
                 entityHydrator.hydrate(this.promotion);
                 this.isLoading = false;
@@ -161,7 +161,7 @@ Component.register('sw-promotion-detail', {
             const criteria = new Criteria(1, 1);
             criteria.addAssociation('salesChannels');
 
-            this.promotionRepository.get(this.promotionId, this.apiContext, criteria).then((promotion) => {
+            this.promotionRepository.get(this.promotionId, Shopware.Context.api, criteria).then((promotion) => {
                 this.promotion = promotion;
                 // hydrate and extend promotion with additional data
                 entityHydrator.hydrate(this.promotion);
@@ -236,7 +236,7 @@ Component.register('sw-promotion-detail', {
                     const generator = new IndividualCodeGenerator(
                         this.promotion.id,
                         this.repositoryIndividualCodes,
-                        this.apiContext
+                        Shopware.Context.api
                     );
 
                     await generator.removeExistingCodes();
@@ -268,7 +268,7 @@ Component.register('sw-promotion-detail', {
                 // first save our discounts
                 return discountRepository.sync(discounts, discounts.context).then(() => {
                     // finally save our promotion
-                    return this.promotionRepository.save(this.promotion, this.apiContext)
+                    return this.promotionRepository.save(this.promotion, Shopware.Context.api)
                         .then(() => {
                             this.isSaveSuccessful = true;
                             const criteria = new Criteria(1, 1);
@@ -276,7 +276,7 @@ Component.register('sw-promotion-detail', {
 
                             return this.promotionRepository.get(
                                 this.promotion.id,
-                                this.apiContext, criteria
+                                Shopware.Context.api, criteria
                             ).then((promotion) => {
                                 this.promotion = promotion;
                                 // hydrate and extend promotion with additional data
@@ -310,20 +310,20 @@ Component.register('sw-promotion-detail', {
 
             if (this.personaCustomerIdsDelete !== null) {
                 await this.personaCustomerIdsDelete.forEach((customerId) => {
-                    customerPersonaRepository.delete(customerId, this.apiContext);
+                    customerPersonaRepository.delete(customerId, Shopware.Context.api);
                 });
             }
 
             if (this.personaCustomerIdsAdd !== null) {
                 await this.personaCustomerIdsAdd.forEach((customerId) => {
-                    customerPersonaRepository.assign(customerId, this.apiContext);
+                    customerPersonaRepository.assign(customerId, Shopware.Context.api);
                 });
             }
 
             // remove deleted groups. UPSERT will be done automatically
             if (this.setGroupIdsDelete !== null) {
                 await this.setGroupIdsDelete.forEach((groupId) => {
-                    this.promotionGroupRepository.delete(groupId, this.apiContext);
+                    this.promotionGroupRepository.delete(groupId, Shopware.Context.api);
                 });
             }
 

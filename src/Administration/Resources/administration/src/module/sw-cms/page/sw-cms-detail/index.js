@@ -16,8 +16,8 @@ Component.register('sw-cms-detail', {
         'loginService',
         'cmsPageService',
         'cmsService',
-        'cmsDataResolverService',
-        'apiContext'
+        'cmsDataResolverService'
+
     ],
 
     mixins: [
@@ -191,7 +191,7 @@ Component.register('sw-cms-detail', {
         createdComponent() {
             Shopware.State.commit('adminMenu/collapseSidebar');
 
-            const isSystemDefaultLanguage = this.apiContext.languageId === this.apiContext.systemLanguageId;
+            const isSystemDefaultLanguage = Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId;
             this.$store.commit('cmsPageState/setIsSystemDefaultLanguage', isSystemDefaultLanguage);
 
             this.resetCmsPageState();
@@ -206,7 +206,7 @@ Component.register('sw-cms-detail', {
                     Criteria.equals('typeId', defaultStorefrontId)
                 );
 
-                this.salesChannelRepository.search(criteria, this.apiContext).then((response) => {
+                this.salesChannelRepository.search(criteria, Shopware.Context.api).then((response) => {
                     this.salesChannels = response;
 
                     if (this.salesChannels.length > 0) {
@@ -234,7 +234,7 @@ Component.register('sw-cms-detail', {
             criteria.addAssociation('folder');
             criteria.addFilter(Criteria.equals('entity', this.cmsPageState.pageEntityName));
 
-            return this.defaultFolderRepository.search(criteria, this.apiContext).then((searchResult) => {
+            return this.defaultFolderRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
                 const defaultFolder = searchResult.first();
                 if (defaultFolder.folder.id) {
                     return defaultFolder.folder.id;
@@ -253,7 +253,7 @@ Component.register('sw-cms-detail', {
         loadPage(pageId) {
             this.isLoading = true;
 
-            this.pageRepository.get(pageId, this.apiContext, this.loadPageCriteria).then((page) => {
+            this.pageRepository.get(pageId, Shopware.Context.api, this.loadPageCriteria).then((page) => {
                 this.page = { sections: [] };
                 this.page = page;
 
@@ -320,7 +320,7 @@ Component.register('sw-cms-detail', {
                 criteria.addAssociation('media');
             }
 
-            this.currentMappingEntityRepo.search(criteria, this.apiContext).then((response) => {
+            this.currentMappingEntityRepo.search(criteria, Shopware.Context.api).then((response) => {
                 this.demoEntityId = response[0].id;
                 Shopware.State.commit('cmsPageState/setCurrentDemoEntity', response[0]);
             });
@@ -342,9 +342,9 @@ Component.register('sw-cms-detail', {
         onChangeLanguage() {
             this.isLoading = true;
 
-            return this.salesChannelRepository.search(new Criteria(), this.apiContext).then((response) => {
+            return this.salesChannelRepository.search(new Criteria(), Shopware.Context.api).then((response) => {
                 this.salesChannels = response;
-                const isSystemDefaultLanguage = this.apiContext.languageId === this.apiContext.systemLanguageId;
+                const isSystemDefaultLanguage = Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId;
                 this.$store.commit('cmsPageState/setIsSystemDefaultLanguage', isSystemDefaultLanguage);
                 return this.loadPage(this.pageId);
             });
@@ -369,13 +369,13 @@ Component.register('sw-cms-detail', {
                 return;
             }
 
-            this.currentMappingEntityRepo.get(demoEntityId, this.apiContext).then((entity) => {
+            this.currentMappingEntityRepo.get(demoEntityId, Shopware.Context.api).then((entity) => {
                 if (!entity) {
                     return;
                 }
 
                 if (this.cmsPageState.currentMappingEntity === 'category' && entity.mediaId !== null) {
-                    this.repositoryFactory.create('media').get(entity.mediaId, this.apiContext).then((media) => {
+                    this.repositoryFactory.create('media').get(entity.mediaId, Shopware.Context.api).then((media) => {
                         entity.media = media;
                         Shopware.State.commit('cmsPageState/setCurrentDemoEntity', entity);
                     });
@@ -390,7 +390,7 @@ Component.register('sw-cms-detail', {
                 return;
             }
 
-            const section = this.sectionRepository.create(this.apiContext);
+            const section = this.sectionRepository.create(Shopware.Context.api);
             section.type = type;
             section.sizingMode = 'boxed';
             section.position = index;
@@ -518,7 +518,7 @@ Component.register('sw-cms-detail', {
 
             this.isLoading = true;
 
-            return this.pageRepository.save(this.page, this.apiContext).then(() => {
+            return this.pageRepository.save(this.page, Shopware.Context.api).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
 

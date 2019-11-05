@@ -7,10 +7,7 @@ Component.register('sw-sales-channel-detail', {
 
     template,
 
-    inject: [
-        'repositoryFactory',
-        'apiContext'
-    ],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -107,7 +104,7 @@ Component.register('sw-sales-channel-detail', {
 
             this.isLoading = true;
             this.salesChannelRepository
-                .get(this.$route.params.id, this.apiContext, criteria)
+                .get(this.$route.params.id, Shopware.Context.api, criteria)
                 .then((entity) => {
                     this.salesChannel = entity;
                     this.isLoading = false;
@@ -122,7 +119,7 @@ Component.register('sw-sales-channel-detail', {
                 .addSorting(Criteria.sort('config.customFieldPosition'));
 
             this.customFieldRepository
-                .search(criteria, this.apiContext)
+                .search(criteria, Shopware.Context.api)
                 .then((searchResult) => {
                     this.customFieldSets = searchResult;
                 });
@@ -138,7 +135,7 @@ Component.register('sw-sales-channel-detail', {
             this.isSaveSuccessful = false;
 
             this.salesChannelRepository
-                .save(this.salesChannel, this.apiContext)
+                .save(this.salesChannel, Shopware.Context.api)
                 .then(() => {
                     this.isLoading = false;
                     this.isSaveSuccessful = true;

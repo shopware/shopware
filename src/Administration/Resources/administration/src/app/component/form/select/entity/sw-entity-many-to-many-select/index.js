@@ -14,7 +14,7 @@ Component.register('sw-entity-many-to-many-select', {
         event: 'change'
     },
 
-    inject: { repositoryFactory: 'repositoryFactory', apiContext: 'apiContext' },
+    inject: { repositoryFactory: 'repositoryFactory' },
 
     props: {
         labelProperty: {
@@ -63,7 +63,7 @@ Component.register('sw-entity-many-to-many-select', {
             type: Object,
             required: false,
             default() {
-                return this.adminContext;
+                return Shopware.Context.api;
             }
         }
     },
@@ -200,7 +200,7 @@ Component.register('sw-entity-many-to-many-select', {
                 this.searchCriteria.filters = this.criteria.filters;
             }
 
-            return this.searchRepository.search(this.searchCriteria, this.apiContext)
+            return this.searchRepository.search(this.searchCriteria, Shopware.Context.api)
                 .then((searchResult) => {
                     if (searchResult.length <= 0) {
                         this.isLoading = false;

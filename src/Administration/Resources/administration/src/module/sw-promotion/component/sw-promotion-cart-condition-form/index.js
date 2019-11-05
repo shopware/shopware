@@ -8,7 +8,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-promotion-cart-condition-form', {
     template,
 
-    inject: ['repositoryFactory', 'apiContext'],
+    inject: ['repositoryFactory'],
 
     props: {
         promotion: {
@@ -110,13 +110,13 @@ Component.register('sw-promotion-cart-condition-form', {
                 Criteria.equals('promotionId', this.promotion.id)
             );
 
-            this.repositoryGroups.search(criteria, this.apiContext).then((groups) => {
+            this.repositoryGroups.search(criteria, Shopware.Context.api).then((groups) => {
                 this.promotion.setgroups = groups;
             });
         },
 
         addSetGroup() {
-            const newGroup = this.repositoryGroups.create(this.apiContext);
+            const newGroup = this.repositoryGroups.create(Shopware.Context.api);
             newGroup.promotionId = this.promotion.id;
             newGroup.value = 2;
             newGroup.packagerKey = 'COUNT';
@@ -126,7 +126,7 @@ Component.register('sw-promotion-cart-condition-form', {
         },
 
         duplicateSetGroup(group) {
-            const newGroup = this.repositoryGroups.create(this.apiContext);
+            const newGroup = this.repositoryGroups.create(Shopware.Context.api);
             newGroup.promotionId = group.promotionId;
             newGroup.value = group.value;
             newGroup.packagerKey = group.packagerKey;

@@ -11,8 +11,7 @@ Component.register('sw-first-run-wizard-welcome', {
         'languagePluginService',
         'userService',
         'loginService',
-        'repositoryFactory',
-        'apiContext'
+        'repositoryFactory'
     ],
 
     data() {
@@ -92,7 +91,7 @@ Component.register('sw-first-run-wizard-welcome', {
         setUserData(userProfile) {
             this.userProfile = userProfile;
             return new Promise((resolve) => {
-                resolve(this.userRepository.get(this.userProfile.id, this.apiContext));
+                resolve(this.userRepository.get(this.userProfile.id, Shopware.Context.api));
             });
         },
 
@@ -124,11 +123,11 @@ Component.register('sw-first-run-wizard-welcome', {
         },
 
         onConfirmLanguageSwitch() {
-            this.userRepository.save(this.user, this.apiContext)
+            this.userRepository.save(this.user, Shopware.Context.api)
                 .then(() => {
                     this.showConfirmLanguageSwitchModal = false;
 
-                    this.localeRepository.get(this.user.localeId, this.apiContext).then(({ code }) => {
+                    this.localeRepository.get(this.user.localeId, Shopware.Context.api).then(({ code }) => {
                         Shopware.State.dispatch('setAdminLocale', code);
                         window.localStorage.setItem('sw-admin-locale', code);
                         document.location.reload();
@@ -161,7 +160,7 @@ Component.register('sw-first-run-wizard-welcome', {
             languageCriteria.addSorting(Criteria.sort('locale.territory', 'ASC'));
             languageCriteria.limit = 10;
 
-            return this.languageRepository.search(languageCriteria, this.apiContext).then((result) => {
+            return this.languageRepository.search(languageCriteria, Shopware.Context.api).then((result) => {
                 this.languages = [];
                 result.forEach((lang) => {
                     lang.customLabel = `${lang.locale.translated.name} (${lang.locale.translated.territory})`;

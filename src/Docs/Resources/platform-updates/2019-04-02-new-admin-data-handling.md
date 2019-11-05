@@ -57,18 +57,18 @@ Component.register(&#39;sw-show-case-list&#39;, {
 
 <p><br />
 <strong>How to fetch listings</strong><br />
-To fetch data from the server, the repository has a <strong>search</strong> function. Each repository function requires the admin context. This can be injected like the repository factory:</p>
+To fetch data from the server, the repository has a <strong>search</strong> function. Each repository function requires the api context. This can be accessed with the Shopware object: `Shopware.Context.api`.</p>
 
 <pre>
 Component.register(&#39;sw-show-case-list&#39;, {
-    inject: [&#39;repositoryFactory&#39;, &#39;context&#39;],
+    inject: [&#39;repositoryFactory&#39;],
     
     created() {
         // create a repository for the `product` entity
         this.repository = this.repositoryFactory.create(&#39;product&#39;);
     
         this.repository
-            .search(new Criteria(), this.context)
+            .search(new Criteria(), Shopware.Context.api)
             .then((result) =&gt; {
                 this.result = result;
             });
@@ -120,7 +120,7 @@ Component.register(&#39;sw-show-case-list&#39;, {
 <pre>
 <strong>
 </strong>Component.register(&#39;sw-show-case-list&#39;, {
-    inject: [&#39;repositoryFactory&#39;, &#39;context&#39;],
+    inject: [&#39;repositoryFactory&#39;],
     
     created() {
         this.repository = this.repositoryFactory.create(&#39;product&#39;);
@@ -128,7 +128,7 @@ Component.register(&#39;sw-show-case-list&#39;, {
         const id = &#39;a-random-uuid&#39;;
     
         this.repository
-            .get(entityId, this.context)
+            .get(entityId, Shopware.Context.api)
             .then((entity) =&gt; {
                 this.entity = entity;
             });
@@ -136,7 +136,7 @@ Component.register(&#39;sw-show-case-list&#39;, {
 });
 Update an entity
 Component.register(&#39;sw-show-case-list&#39;, {
-    inject: [&#39;repositoryFactory&#39;, &#39;context&#39;],
+    inject: [&#39;repositoryFactory&#39;],
     
     created() {
         this.repository = this.repositoryFactory.create(&#39;product&#39;);
@@ -144,7 +144,7 @@ Component.register(&#39;sw-show-case-list&#39;, {
         const id = &#39;a-random-uuid&#39;;
     
         this.repository
-            .get(entityId, this.context)
+            .get(entityId, Shopware.Context.api)
             .then((entity) =&gt; {
                 this.entity = entity;
             });
@@ -156,12 +156,12 @@ Component.register(&#39;sw-show-case-list&#39;, {
     
         // sends the request immediately
         this.repository
-            .save(this.entity, this.context)
+            .save(this.entity, Shopware.Context.api)
             .then(() =&gt; {
     
                 // the entity is stateless, the new data has be fetched from the server, if required
                 this.repository
-                    .get(entityId, this.context)
+                    .get(entityId, Shopware.Context.api)
                     .then((entity) =&gt; {
                     this.entity = entity;
                 });
@@ -175,26 +175,26 @@ Component.register(&#39;sw-show-case-list&#39;, {
 <pre>
 <strong>
 </strong>Component.register(&#39;sw-show-case-list&#39;, {
-    inject: [&#39;repositoryFactory&#39;, &#39;context&#39;],
+    inject: [&#39;repositoryFactory&#39;],
     
     created() {
         this.repository = this.repositoryFactory.create(&#39;product&#39;);
     
-        this.repository.delete(&#39;a-random-uuid&#39;, this.context);
+        this.repository.delete(&#39;a-random-uuid&#39;, Shopware.Context.api);
     }
 });
 Create an entity
 Component.register(&#39;sw-show-case-list&#39;, {
-    inject: [&#39;repositoryFactory&#39;, &#39;context&#39;],
+    inject: [&#39;repositoryFactory&#39;],
     
     created() {
         this.repository = this.repositoryFactory.create(&#39;product&#39;);
     
-        this.entity = this.productRepository.create(this.context);
+        this.entity = this.productRepository.create(Shopware.Context.api);
     
         this.entity.name = &#39;test&#39;;
     
-        this.repository.save(this.entity, this.context);
+        this.repository.save(this.entity, Shopware.Context.api);
     }
 });</pre>
 
@@ -204,7 +204,7 @@ Each association can be accessed via normal property access:</p>
 
 <pre>
 Component.register(&#39;sw-show-case-list&#39;, {
-    inject: [&#39;repositoryFactory&#39;, &#39;context&#39;],
+    inject: [&#39;repositoryFactory&#39;],
     
     created() {
         this.repository = this.repositoryFactory.create(&#39;product&#39;);
@@ -212,7 +212,7 @@ Component.register(&#39;sw-show-case-list&#39;, {
         const id = &#39;a-random-uuid&#39;;
     
         this.repository
-            .get(entityId, this.context)
+            .get(entityId, Shopware.Context.api)
             .then((product) =&gt; {
                 this.product = product;
     
@@ -241,13 +241,13 @@ Component.register(&#39;sw-show-case-list&#39;, {
 <pre>
 <strong>
 </strong>Component.register(&#39;sw-show-case-list&#39;, {
-    inject: [&#39;repositoryFactory&#39;, &#39;context&#39;],
+    inject: [&#39;repositoryFactory&#39;],
     
     created() {
         this.manufacturerRepository = this.repositoryFactory.create(&#39;manufacturer&#39;);
     
         this.manufacturerRepository
-            .get(&#39;some-id&#39;, this.context)
+            .get(&#39;some-id&#39;, Shopware.Context.api)
             .then((manufacturer) =&gt; {
     
                 // product is already loaded in this case
@@ -256,7 +256,7 @@ Component.register(&#39;sw-show-case-list&#39;, {
                 // only updates the foreign key for the manufacturer relation
                 
                 this.productRepository
-                    .save(this.product, this.context);
+                    .save(this.product, Shopware.Context.api);
             });
     }
 });</pre>
@@ -269,13 +269,13 @@ In most cases, ToMany assocations are loaded over an additionally request. Like 
 
 <pre>
 Component.register(&#39;sw-show-case-list&#39;, {
-    inject: [&#39;repositoryFactory&#39;, &#39;context&#39;],
+    inject: [&#39;repositoryFactory&#39;],
     
     created() {
         this.productRepository = this.repositoryFactory.create(&#39;product&#39;);
     
         this.productRepository
-            .get(&#39;some-id&#39;, this.context)
+            .get(&#39;some-id&#39;, Shopware.Context.api)
             .then((product) =&gt; {
                 this.product = product;
     
@@ -291,32 +291,32 @@ Component.register(&#39;sw-show-case-list&#39;, {
     
     loadPrices() {
         this.priceRepository
-            .search(new Criteria(), this.context)
+            .search(new Criteria(), Shopware.Context.api)
             .then((prices) =&gt; {
                 this.prices = prices;
             });
     },
     
     addPrice() {
-        const newPrice = this.priceRepository.create(this.context);
+        const newPrice = this.priceRepository.create(Shopware.Context.api);
     
         newPrice.quantityStart = 1;
         // update some other fields
     
         this.priceRepository
-            .save(newPrice, this.context)
+            .save(newPrice, Shopware.Context.api)
             .then(this.loadPrices);
     },
     
     deletePrice(priceId) {
         this.priceRepository
-            .delete(priceId, this.context)
+            .delete(priceId, Shopware.Context.api)
             .then(this.loadPrices);
     },
     
     updatePrice(price) {
         this.priceRepository
-            .save(price, this.context)
+            .save(price, Shopware.Context.api)
             .then(this.loadPrices);
     }
 });</pre>
@@ -327,13 +327,13 @@ Component.register(&#39;sw-show-case-list&#39;, {
 <pre>
 <strong>
 </strong>Component.register(&#39;sw-show-case-list&#39;, {
-    inject: [&#39;repositoryFactory&#39;, &#39;context&#39;],
+    inject: [&#39;repositoryFactory&#39;],
     
     created() {
         this.productRepository = this.repositoryFactory.create(&#39;product&#39;);
     
         this.productRepository
-            .get(&#39;some-id&#39;, this.context)
+            .get(&#39;some-id&#39;, Shopware.Context.api)
             .then((product) =&gt; {
                 this.product = product;
     
@@ -351,7 +351,7 @@ Component.register(&#39;sw-show-case-list&#39;, {
     
     loadCategories() {
         this.catRepository
-            .search(new Criteria(), this.context)
+            .search(new Criteria(), Shopware.Context.api)
             .then((categories) =&gt; {
                 this.categories = categories;
             });
@@ -359,13 +359,13 @@ Component.register(&#39;sw-show-case-list&#39;, {
     
     addCategoryToProduct(category) {
         this.catRepository
-            .assign(category.id, this.context)
+            .assign(category.id, Shopware.Context.api)
             .then(this.loadCategories);
     },
     
     removeCategoryFromProduct(categoryId) {
         this.catRepository
-            .delete(categoryId, this.context)
+            .delete(categoryId, Shopware.Context.api)
             .then(this.loadCategories);
     }
 });</pre>
@@ -376,7 +376,7 @@ In case of a new entity, the associations can not be send directly to the server
 
 <p>For this case the association can be used as storage as well and will be updated with the parent entity.</p>
 
-<p>In the following examples, this.productRepository.save(this.product, this.context) will send the prices and category changes.</p>
+<p>In the following examples, this.productRepository.save(this.product, Shopware.Context.api) will send the prices and category changes.</p>
 
 <p><strong>Working with local OneToMany associations</strong></p>
 

@@ -7,10 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-newsletter-recipient-detail', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'apiContext'
-    ],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -54,14 +51,14 @@ Component.register('sw-newsletter-recipient-detail', {
 
             recipientCriteria.addFilter(Criteria.equals('id', this.$route.params.id));
             recipientCriteria.addAssociation('tags');
-            this.newsletterRecipientStore.search(recipientCriteria, this.apiContext).then((newsletterRecipient) => {
+            this.newsletterRecipientStore.search(recipientCriteria, Shopware.Context.api).then((newsletterRecipient) => {
                 this.newsletterRecipient = newsletterRecipient.first();
                 this.isLoading = false;
             });
         },
 
         onClickSave() {
-            this.newsletterRecipientStore.save(this.newsletterRecipient, this.apiContext).then(() => {
+            this.newsletterRecipientStore.save(this.newsletterRecipient, Shopware.Context.api).then(() => {
                 this.createNotificationSuccess({
                     title: this.$tc('sw-newsletter-recipient.detail.titleSaveSuccess'),
                     message: this.$tc(

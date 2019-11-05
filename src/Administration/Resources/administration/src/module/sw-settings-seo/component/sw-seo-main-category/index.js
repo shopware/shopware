@@ -5,7 +5,7 @@ const { Component } = Shopware;
 Component.register('sw-seo-main-category', {
     template,
 
-    inject: ['apiContext', 'repositoryFactory'],
+    inject: ['repositoryFactory'],
 
     props: {
         currentSalesChannelId: {
@@ -89,7 +89,7 @@ Component.register('sw-seo-main-category', {
                 return;
             }
 
-            const mainCategory = this.mainCategoryRepository.create(this.apiContext);
+            const mainCategory = this.mainCategoryRepository.create(Shopware.Context.api);
             mainCategory.salesChannelId = this.currentSalesChannelId;
             mainCategory.category = selectedCategory;
             mainCategory.categoryId = selectedCategory.id;

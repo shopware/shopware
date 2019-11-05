@@ -13,7 +13,7 @@ Component.register('sw-entity-multi-select', {
         event: 'change'
     },
 
-    inject: { repositoryFactory: 'repositoryFactory', adminContext: 'apiContext' },
+    inject: { repositoryFactory: 'repositoryFactory' },
 
     props: {
         labelProperty: {
@@ -56,7 +56,7 @@ Component.register('sw-entity-multi-select', {
             type: Object,
             required: false,
             default() {
-                return this.adminContext;
+                return Shopware.Context.api;
             }
         }
     },

@@ -6,10 +6,7 @@ const { Component } = Shopware;
 Component.register('sw-order-product-select', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'apiContext'
-    ],
+    inject: ['repositoryFactory'],
 
     props: {
         item: {
@@ -41,7 +38,7 @@ Component.register('sw-order-product-select', {
     },
     methods: {
         onItemChanged(newProductId) {
-            this.productRepository.get(newProductId, this.apiContext).then((newProduct) => {
+            this.productRepository.get(newProductId, Shopware.Context.api).then((newProduct) => {
                 this.item.identifier = newProduct.id;
                 this.item.label = newProduct.name;
                 this.item.priceDefinition.price = newProduct.price[0].gross;

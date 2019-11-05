@@ -7,6 +7,8 @@ const { mapApiErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-customer-card', {
     template,
 
+    inject: ['repositoryFactory'],
+
     mixins: [
         Mixin.getByName('salutation')
     ],

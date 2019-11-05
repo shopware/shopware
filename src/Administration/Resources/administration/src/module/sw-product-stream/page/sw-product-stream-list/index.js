@@ -7,10 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-product-stream-list', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'apiContext'
-    ],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -70,7 +67,7 @@ Component.register('sw-product-stream-list', {
             const naturalSort = this.sortBy === 'createdAt';
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, naturalSort));
 
-            this.productStreamRepository.search(criteria, this.apiContext).then((items) => {
+            this.productStreamRepository.search(criteria, Shopware.Context.api).then((items) => {
                 this.total = items.total;
                 this.productStreams = items;
                 this.isLoading = false;
@@ -92,7 +89,7 @@ Component.register('sw-product-stream-list', {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.productStreamRepository.delete(id, this.apiContext).then(() => {
+            return this.productStreamRepository.delete(id, Shopware.Context.api).then(() => {
                 this.getList();
             });
         },

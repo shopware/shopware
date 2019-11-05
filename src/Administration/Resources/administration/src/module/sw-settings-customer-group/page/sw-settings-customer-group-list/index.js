@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-customer-group-list', {
     template,
 
-    inject: ['repositoryFactory', 'apiContext'],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -54,7 +54,7 @@ Component.register('sw-settings-customer-group-list', {
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
-            this.customerGroupRepository.search(criteria, this.apiContext).then((searchResult) => {
+            this.customerGroupRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
                 this.total = searchResult.total;
                 this.customerGroups = searchResult;
                 this.isLoading = false;

@@ -6,7 +6,7 @@ const { mapApiErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-settings-customer-group-detail', {
     template,
 
-    inject: ['repositoryFactory', 'apiContext'],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -97,7 +97,7 @@ Component.register('sw-settings-customer-group-detail', {
         createdComponent() {
             this.isLoading = true;
             if (this.customerGroupId) {
-                this.customerGroupRepository.get(this.customerGroupId, this.apiContext).then((customerGroup) => {
+                this.customerGroupRepository.get(this.customerGroupId, Shopware.Context.api).then((customerGroup) => {
                     this.customerGroup = customerGroup;
                     this.isLoading = false;
                 });
@@ -105,7 +105,7 @@ Component.register('sw-settings-customer-group-detail', {
             }
 
             this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
-            this.customerGroup = this.customerGroupRepository.create(this.apiContext);
+            this.customerGroup = this.customerGroupRepository.create(Shopware.Context.api);
             this.isLoading = false;
         },
 
@@ -121,16 +121,17 @@ Component.register('sw-settings-customer-group-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return this.customerGroupRepository.save(this.customerGroup, this.apiContext).then(() => {
+            return this.customerGroupRepository.save(this.customerGroup, Shopware.Context.api).then(() => {
                 this.isSaveSuccessful = true;
                 if (!this.customerGroupId) {
                     this.$router.push({ name: 'sw.settings.customer.group.detail', params: { id: this.customerGroup.id } });
                 }
 
-                this.customerGroupRepository.get(this.customerGroup.id, this.apiContext).then((updatedCustomerGroup) => {
-                    this.customerGroup = updatedCustomerGroup;
-                    this.isLoading = false;
-                });
+                this.customerGroupRepository.get(this.customerGroup.id, Shopware.Context.api)
+                    .then((updatedCustomerGroup) => {
+                        this.customerGroup = updatedCustomerGroup;
+                        this.isLoading = false;
+                    });
             }).catch(() => {
                 this.createNotificationError({
                     title: this.$tc('sw-settings-customer-group.detail.notificationErrorTitle'),

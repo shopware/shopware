@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-customer-detail-base', {
     template,
 
-    inject: ['repositoryFactory', 'apiContext'],
+    inject: ['repositoryFactory'],
 
     props: {
         customer: {
@@ -49,7 +49,7 @@ Component.register('sw-customer-detail-base', {
             customFieldSetCriteria.addFilter(Criteria.equals('relations.entityName', 'customer'))
                 .addAssociation('customFields');
 
-            this.customFieldSetRepository.search(customFieldSetCriteria, this.apiContext).then((customFieldSets) => {
+            this.customFieldSetRepository.search(customFieldSetCriteria, Shopware.Context.api).then((customFieldSets) => {
                 this.customerCustomFieldSets = customFieldSets;
             });
         }

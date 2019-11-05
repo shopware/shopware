@@ -5,5 +5,5 @@ Filter.register('asset', (value) => {
         return '';
     }
 
-    return `${Shopware.Context.Api.assetsPath}${value}`;
+    return `${Shopware.Context.api.assetsPath}${value}`;
 });

@@ -8,7 +8,7 @@ const { warn } = Shopware.Utils.debug;
 Component.register('sw-settings-user-detail', {
     template,
 
-    inject: ['userService', 'userValidationService', 'integrationService', 'repositoryFactory', 'apiContext'],
+    inject: ['userService', 'userValidationService', 'integrationService', 'repositoryFactory'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -173,7 +173,7 @@ Component.register('sw-settings-user-detail', {
             languageCriteria.addSorting(Criteria.sort('locale.territory', 'ASC'));
             languageCriteria.limit = 500;
 
-            return this.languageRepository.search(languageCriteria, this.apiContext).then((result) => {
+            return this.languageRepository.search(languageCriteria, Shopware.Context.api).then((result) => {
                 this.languages = [];
                 result.forEach((lang) => {
                     lang.customLabel = `${lang.locale.translated.name} (${lang.locale.translated.territory})`;
@@ -191,7 +191,7 @@ Component.register('sw-settings-user-detail', {
             criteria.addAssociation('accessKeys');
             criteria.addAssociation('locale');
 
-            return this.userRepository.get(this.userId, this.apiContext, criteria).then((user) => {
+            return this.userRepository.get(this.userId, Shopware.Context.api, criteria).then((user) => {
                 this.user = user;
 
                 if (this.user.avatarId) {
@@ -210,13 +210,13 @@ Component.register('sw-settings-user-detail', {
         },
 
         loadKeys() {
-            return this.keyRepository.search(new Criteria(), this.apiContext).then((accessKeys) => {
+            return this.keyRepository.search(new Criteria(), Shopware.Context.api).then((accessKeys) => {
                 this.integrations = accessKeys;
             });
         },
 
         addAccessKey() {
-            const newKey = this.keyRepository.create(this.apiContext);
+            const newKey = this.keyRepository.create(Shopware.Context.api);
 
             this.isModalLoading = true;
             newKey.quantityStart = 1;
@@ -249,7 +249,7 @@ Component.register('sw-settings-user-detail', {
         },
 
         setMediaItem({ targetId }) {
-            this.mediaRepository.get(targetId, this.apiContext).then((media) => {
+            this.mediaRepository.get(targetId, Shopware.Context.api).then((media) => {
                 this.mediaItem = media;
                 this.user.avatarMedia = media;
                 this.user.avatarId = targetId;
@@ -287,7 +287,7 @@ Component.register('sw-settings-user-detail', {
             let promises = [];
 
             if (this.currentUser.id === this.user.id) {
-                promises = [this.localeRepository.get(this.user.localeId, this.apiContext).then(({ code }) => {
+                promises = [this.localeRepository.get(this.user.localeId, Shopware.Context.api).then(({ code }) => {
                     Shopware.State.dispatch('setAdminLocale', code);
                 })];
             }
@@ -300,7 +300,7 @@ Component.register('sw-settings-user-detail', {
                         'sw-settings-user.user-detail.notification.saveError.message', 0, { name: this.fullName }
                     );
 
-                    return this.userRepository.save(this.user, this.apiContext).then(() => {
+                    return this.userRepository.save(this.user, Shopware.Context.api).then(() => {
                         this.isLoading = false;
                         this.isSaveSuccessful = true;
                     }).catch((exception) => {
@@ -343,7 +343,7 @@ Component.register('sw-settings-user-detail', {
                 return;
             }
 
-            this.keyRepository.get(id, this.apiContext).then((entity) => {
+            this.keyRepository.get(id, Shopware.Context.api).then((entity) => {
                 this.currentIntegration = entity;
             });
         },
@@ -358,7 +358,7 @@ Component.register('sw-settings-user-detail', {
             if (!this.currentIntegration) {
                 return;
             }
-            this.keyRepository.save(this.currentIntegration, this.apiContext).then(this.loadKeys);
+            this.keyRepository.save(this.currentIntegration, Shopware.Context.api).then(this.loadKeys);
             this.onCloseDetailModal();
         },
 
@@ -372,7 +372,7 @@ Component.register('sw-settings-user-detail', {
             }
 
             this.onCloseDeleteModal();
-            return this.keyRepository.delete(id, this.apiContext).then(this.loadKeys);
+            return this.keyRepository.delete(id, Shopware.Context.api).then(this.loadKeys);
         }
     }
 });

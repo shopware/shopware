@@ -8,7 +8,7 @@ let enabled = false;
  */
 export default function initializeWorker() {
     const loginService = Shopware.Service('loginService');
-    const context = Shopware.Context.App;
+    const context = Shopware.Context.app;
     const workerNotificationFactory = this.getContainer('factory').workerNotification;
     const configService = Shopware.Service('configService');
 
@@ -16,16 +16,18 @@ export default function initializeWorker() {
 
     function getConfig() {
         return configService.getConfig().then((response) => {
-            context.config = response;
+            Object.entries(response).forEach(([key, value]) => {
+                Shopware.State.commit('context/addAppConfigValue', { key, value });
+            });
 
             // Enable worker notification listener regardless of the config
             enableWorkerNotificationListener(
                 loginService,
-                Shopware.Context.Api
+                Shopware.Context.api
             );
 
             if (context.config.adminWorker.enableAdminWorker && !enabled) {
-                enableAdminWorker(loginService, Shopware.Context.Api, context.config.adminWorker);
+                enableAdminWorker(loginService, Shopware.Context.api, context.config.adminWorker);
             }
         });
     }

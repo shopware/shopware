@@ -7,10 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-cms-list', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'apiContext'
-    ],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -123,7 +120,7 @@ Component.register('sw-cms-list', {
                 criteria.addFilter(Criteria.equals('cms_page.type', this.currentPageType));
             }
 
-            return this.pageRepository.search(criteria, this.apiContext).then((searchResult) => {
+            return this.pageRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
                 this.total = searchResult.total;
                 this.pages = searchResult;
                 this.isLoading = false;
@@ -152,7 +149,7 @@ Component.register('sw-cms-list', {
             criteria.addAssociation('folder');
             criteria.addFilter(Criteria.equals('entity', 'cms_page'));
 
-            return this.defaultFolderRepository.search(criteria, this.apiContext).then((searchResult) => {
+            return this.defaultFolderRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
                 const defaultFolder = searchResult.first();
                 if (defaultFolder.folder.id) {
                     return defaultFolder.folder.id;
@@ -259,7 +256,7 @@ Component.register('sw-cms-list', {
 
         saveCmsPage(page) {
             this.isLoading = true;
-            return this.pageRepository.save(page, this.apiContext).then(() => {
+            return this.pageRepository.save(page, Shopware.Context.api).then(() => {
                 this.isLoading = false;
             }).catch(() => {
                 this.isLoading = false;
@@ -271,7 +268,7 @@ Component.register('sw-cms-list', {
             const messageDeleteError = this.$tc('sw-cms.components.cmsListItem.notificationDeleteErrorMessage');
 
             this.isLoading = true;
-            return this.pageRepository.delete(page.id, this.apiContext).then(() => {
+            return this.pageRepository.delete(page.id, Shopware.Context.api).then(() => {
                 this.resetList();
             }).catch(() => {
                 this.isLoading = false;

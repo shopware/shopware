@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-logging-list', {
     template,
 
-    inject: ['repositoryFactory', 'apiContext'],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('sw-settings-list'),
@@ -78,7 +78,7 @@ Component.register('sw-settings-logging-list', {
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
-            return this.logEntryRepository.search(criteria, this.apiContext).then((response) => {
+            return this.logEntryRepository.search(criteria, Shopware.Context.api).then((response) => {
                 this.total = response.total;
                 this.logs = response;
                 this.isLoading = false;

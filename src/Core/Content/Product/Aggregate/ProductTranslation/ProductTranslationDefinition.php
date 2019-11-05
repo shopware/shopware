@@ -43,7 +43,7 @@ class ProductTranslationDefinition extends EntityTranslationDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            new StringField('additional_text', 'additionalText'),
+            new StringField('meta_description', 'metaDescription'),
             (new StringField('name', 'name'))->addFlags(new Required()),
             new LongTextField('keywords', 'keywords'),
             new LongTextWithHtmlField('description', 'description'),

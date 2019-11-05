@@ -91,24 +91,32 @@
             </sw-card>
         {% endblock %}
 
-        {% block sw_product_detail_base_settings_seo_card %}
-        <sw-seo-url v-if="product.seoUrls"
-                    :isLoading="loading.product"
-                    :urls="product.seoUrls">
+        {% block sw_product_detail_base_settings_seo_settings %}
+            {% block sw_product_detail_base_settings_seo_settings_general %}
+                <sw-card :title="$tc('sw-product.detailBase.cardTitleSeo')" :isLoading="loading.product">
+                    <sw-product-seo-form></sw-product-seo-form>
+                </sw-card>
+            {% endblock %}
 
-            <template #seo-additional="props">
-                {% block sw_product_detail_base_settings_seo_card_additions %}
-                <sw-seo-main-category v-if="product.mainCategories"
-                                      :currentSalesChannelId="props.currentSalesChannelId"
-                                      :categories="product.categories"
-                                      :mainCategories="product.mainCategories"
-                                      :isLoading="loading.product"
-                                      @main-category-add="onMainCategoryAdded">
-                </sw-seo-main-category>
-                {% endblock %}
+            {% block sw_product_detail_base_settings_seo_settings_url %}
+                <sw-seo-url v-if="product.seoUrls"
+                            :isLoading="loading.product"
+                            :urls="product.seoUrls">
 
-            </template>
-        </sw-seo-url>
+                    <template #seo-additional="props">
+                        {% block sw_product_detail_base_settings_seo_card_additions %}
+                        <sw-seo-main-category v-if="product.mainCategories"
+                                              :currentSalesChannelId="props.currentSalesChannelId"
+                                              :categories="product.categories"
+                                              :mainCategories="product.mainCategories"
+                                              :isLoading="loading.product"
+                                              @main-category-add="onMainCategoryAdded">
+                        </sw-seo-main-category>
+                        {% endblock %}
+
+                    </template>
+                </sw-seo-url>
+            {% endblock %}
         {% endblock %}
 
 
@@ -158,11 +166,11 @@
                             {% block sw_product_detail_base_ratings_column_stars %}
                                 <template slot="column-points" slot-scope="{ item }">
                                     <div class="sw-review-detail-base__stars">
-                                        <sw-icon v-for="star in item.points"
+                                        <sw-icon v-for="star, index in item.points" :key="`star-${index}`"
                                                  name="default-review-star-full"
                                                  size="14">
                                         </sw-icon>
-                                        <sw-icon v-for="missingStar in (5-item.points)"
+                                        <sw-icon v-for="missingStar, index in (5-item.points)" :key="`missingStar-${index}`"
                                                 name="default-basic-shape-star"
                                                 size="14">
                                         </sw-icon>

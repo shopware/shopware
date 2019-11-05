@@ -175,7 +175,7 @@ class ProductDefinition extends EntityDefinition
             (new IntField('restock_time', 'restockTime'))->addFlags(new Inherited()),
 
             //translatable fields
-            (new TranslatedField('additionalText'))->addFlags(new Inherited()),
+            (new TranslatedField('metaDescription'))->addFlags(new Inherited()),
             (new TranslatedField('name'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new TranslatedField('keywords'))->addFlags(new Inherited()),
             (new TranslatedField('description'))->addFlags(new Inherited()),

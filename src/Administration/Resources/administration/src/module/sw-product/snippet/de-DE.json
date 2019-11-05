@@ -49,6 +49,14 @@
       "optionKilogram": "Kilogramm",
       "optionMetre": "Meter"
     },
+    "seoForm": {
+      "labelMetaTitle": "Meta-Title",
+      "labelMetaDescription": "Meta-Description",
+      "labelKeywords": "Keywords",
+      "placeholderMetaTitle": "Gib einen Meta-Title ein ...",
+      "placeholderMetaDescription": "Gib eine Meta-Description ein ...",
+      "placeholderKeywords": "Gib Keywords ein ..."
+    },
     "settingsForm": {
       "labelCreatedAt": "Erstelldatum",
       "labelReleaseDate": "Erscheinungsdatum",

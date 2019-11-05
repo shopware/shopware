@@ -10,8 +10,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Pagelet\Footer\FooterPageletLoader;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoader;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,16 +40,23 @@ class GenericPageLoader
      */
     private $paymentMethodsRepository;
 
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
+
     public function __construct(
         HeaderPageletLoader $headerLoader,
         FooterPageletLoader $footerLoader,
         SalesChannelRepositoryInterface $shippingMethodsRepository,
-        SalesChannelRepositoryInterface $paymentMethodsRepository
+        SalesChannelRepositoryInterface $paymentMethodsRepository,
+        SystemConfigService $systemConfigService
     ) {
         $this->headerLoader = $headerLoader;
         $this->footerLoader = $footerLoader;
         $this->shippingMethodsRepository = $shippingMethodsRepository;
         $this->paymentMethodsRepository = $paymentMethodsRepository;
+        $this->systemConfigService = $systemConfigService;
     }
 
     /**
@@ -86,6 +95,12 @@ class GenericPageLoader
             });
 
             $page->setSalesChannelPaymentMethods($paymentMethods);
+            $page->setMetaInformation((new MetaInformation())->assign([
+                'revisit' => '15 days',
+                'robots' => 'index,follow',
+                'xmlLang' => $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE),
+                'metaTitle' => $this->systemConfigService->get('core.basicInformation.shopName'),
+            ]));
         }
 
         return $page;

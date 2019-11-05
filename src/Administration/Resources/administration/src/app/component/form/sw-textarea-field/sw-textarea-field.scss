@@ -7,11 +7,4 @@
         max-height: 300px;
         resize: vertical;
     }
-
-    textarea:disabled {
-        background: $color-light-gray;
-        border-color: $color-steam-cloud;
-        color: lighten($color-gutenberg, 40%);
-        cursor: default !important;
-    }
 }

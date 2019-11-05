@@ -35,16 +35,6 @@ class ProductPage extends Page
     protected $reviewLoaderResult;
 
     /**
-     * @var string
-     */
-    protected $metaTitle;
-
-    /**
-     * @var string
-     */
-    protected $metaDescription;
-
-    /**
      * @var PropertyGroupOptionCollection
      */
     protected $selectedOptions;
@@ -107,26 +97,6 @@ class ProductPage extends Page
     public function getTotalReviews(): int
     {
         return $this->reviewLoaderResult->getTotalReviews();
-    }
-
-    public function getMetaTitle(): string
-    {
-        return $this->metaTitle;
-    }
-
-    public function setMetaTitle(string $metaTitle): void
-    {
-        $this->metaTitle = $metaTitle;
-    }
-
-    public function getMetaDescription(): string
-    {
-        return $this->metaDescription;
-    }
-
-    public function setMetaDescription(string $metaDescription): void
-    {
-        $this->metaDescription = $metaDescription;
     }
 
     public function getSelectedOptions(): PropertyGroupOptionCollection

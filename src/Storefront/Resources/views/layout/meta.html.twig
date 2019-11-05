@@ -1,4 +1,8 @@
 {% block layout_head_inner %}
+    {% set metaDescription = page.metaInformation.metaDescription|striptags|trim|truncate(shopware.config.seo.descriptionMaxLength) %}
+    {% set metaTitle = page.metaInformation.metaTitle|striptags|trim %}
+    {% set metaKeywords = page.metaInformation.metaKeywords|striptags|trim %}
+
     <head>
         {% block layout_head_meta_tags %}
             {% block layout_head_meta_tags_charset %}
@@ -12,15 +16,15 @@
 
             {% block layout_head_meta_tags_general %}
                 <meta name="author"
-                      content="{{ "meta.author"|trans }}"/>
+                      content="{{ page.metaInformation.author }}"/>
                 <meta name="robots"
-                      content="{% block layout_head_meta_tags_robots %}{{ "meta.robots"|trans }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_robots %}{{ page.metaInformation.robots }}{% endblock %}"/>
                 <meta name="revisit-after"
-                      content="{{ "meta.revisit"|trans }}"/>
+                      content="{{ page.metaInformation.revisit }}"/>
                 <meta name="keywords"
-                      content="{% block layout_head_meta_tags_keywords %}{{ "meta.keywordsDefault"|trans }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_keywords %}{{ metaKeywords }}{% endblock %}"/>
                 <meta name="description"
-                      content="{% block layout_head_meta_tags_description %}{{ "meta.descriptionDefault"|trans|truncate(shopware.config.seo.descriptionMaxLength) }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_description %}{{ metaDescription }}{% endblock %}"/>
             {% endblock %}
 
             {% block layout_head_meta_tags_opengraph %}
@@ -29,9 +33,9 @@
                 <meta property="og:site_name"
                       content="{{ shopware.config.core.basicInformation.shopName }}"/>
                 <meta property="og:title"
-                      content="{{ shopware.config.core.basicInformation.shopName }}"/>
+                      content="{{ metaTitle }}"/>
                 <meta property="og:description"
-                      content="{% block layout_head_meta_tags_description_og %}{{ "meta.descriptionDefault"|trans|truncate(shopware.config.seo.descriptionMaxLength) }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_description_og %}{{ metaDescription }}{% endblock %}"/>
                 <meta property="og:image"
                       content="{{ shopware.theme['sw-logo-desktop'] }}"/>
 
@@ -40,9 +44,9 @@
                 <meta name="twitter:site"
                       content="{{ shopware.config.core.basicInformation.shopName }}"/>
                 <meta name="twitter:title"
-                      content="{{ shopware.config.core.basicInformation.shopName }}"/>
+                      content="{{ metaTitle }}"/>
                 <meta name="twitter:description"
-                      content="{% block layout_head_meta_tags_description_twitter %}{{ "meta.descriptionDefault"|trans|truncate(shopware.config.seo.descriptionMaxLength) }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_description_twitter %}{{ metaDescription }}{% endblock %}"/>
                 <meta name="twitter:image"
                       content="{{ shopware.theme['sw-logo-desktop'] }}"/>
             {% endblock %}
@@ -51,7 +55,7 @@
                 <meta itemprop="copyrightHolder"
                       content="{{ shopware.config.core.basicInformation.shopName }}"/>
                 <meta itemprop="copyrightYear"
-                      content="{{ "meta.copyrightYear"|trans }}"/>
+                      content="{{ page.metaInformation.copyrightYear }}"/>
                 <meta itemprop="isFamilyFriendly"
                       content="{% if shopware.config.core.basicInformation.familyFriendly %}true{% else %}false{% endif %}"/>
                 <meta itemprop="image"
@@ -87,7 +91,7 @@
         {% block layout_head_title %}
             <title itemprop="name">
                 {% block layout_head_title_inner %}{% apply spaceless %}
-                    {{ shopware.config.core.basicInformation.shopName }}
+                    {{ metaTitle }}
                 {% endapply %}{% endblock %}
             </title>
         {% endblock %}

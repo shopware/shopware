@@ -210,11 +210,6 @@ class ProductEntity extends Entity
     /**
      * @var string|null
      */
-    protected $additionalText;
-
-    /**
-     * @var string|null
-     */
     protected $name;
 
     /**
@@ -226,6 +221,11 @@ class ProductEntity extends Entity
      * @var string|null
      */
     protected $description;
+
+    /**
+     * @var string|null
+     */
+    protected $metaDescription;
 
     /**
      * @var string|null
@@ -649,16 +649,6 @@ class ProductEntity extends Entity
     public function setCategoryTree(?array $categoryTree): void
     {
         $this->categoryTree = $categoryTree;
-    }
-
-    public function getAdditionalText(): ?string
-    {
-        return $this->additionalText;
-    }
-
-    public function setAdditionalText(?string $additionalText): void
-    {
-        $this->additionalText = $additionalText;
     }
 
     public function getName(): ?string
@@ -1123,6 +1113,16 @@ class ProductEntity extends Entity
     public function setMainCategories(?MainCategoryCollection $mainCategories): void
     {
         $this->mainCategories = $mainCategories;
+    }
+
+    public function getMetaDescription(): ?string
+    {
+        return $this->metaDescription;
+    }
+
+    public function setMetaDescription(?string $metaDescription): void
+    {
+        $this->metaDescription = $metaDescription;
     }
 
     public function getSeoUrls(): ?SeoUrlCollection

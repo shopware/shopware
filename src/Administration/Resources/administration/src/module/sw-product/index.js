@@ -6,6 +6,7 @@ import './component/sw-product-variants/sw-product-modal-delivery';
 import './component/sw-product-price-form';
 import './component/sw-product-settings-form';
 import './component/sw-product-packaging-form';
+import './component/sw-product-seo-form';
 import './component/sw-product-media-form';
 import './component/sw-product-visibility-select';
 import './component/sw-product-visibility-detail';

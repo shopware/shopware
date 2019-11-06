@@ -1,126 +1,13 @@
 @import "~scss/variables";
 
-$sw-sales-channel-modal-color-text:                 $color-gutenberg;
-$sw-sales-channel-modal-color-back:                 $color-kashmir;
-$sw-sales-channel-modal-color-description-title:    $color-kashmir;
-$sw-sales-channel-modal-color-detail-name:          $color-kashmir;
-$sw-sales-channel-modal-font-size-small:            $font-size-small;
-$sw-sales-channel-modal-color-icon-background:      $color-white;
-
 .sw-sales-channel-modal {
-    .sw-sales-channel-modal__back {
-        position: absolute;
-        top: 12px;
-        left: 20px;
-        border-radius: 50%;
-        text-align: center;
-        width: 40px;
-        height: 40px;
-        line-height: 40px;
-        background: 0 none;
-        border: 0 none;
-        color: $sw-sales-channel-modal-color-back;
-        cursor: pointer;
-        outline: none;
+    .sw-modal__body {
+        min-height: 150px;
     }
 
     .sw-sales-channel-modal__title {
-        margin: 0 0 0 30px;
+        margin: 0;
         font-weight: normal;
         font-size: 18px;
-    }
-
-    .sw-sales-channel-modal__detail-header {
-        margin-bottom: 30px;
-    }
-
-    .sw-sales-channel-modal__screenshots {
-        margin-bottom: 30px;
-    }
-
-    .sw-sales-channel-modal__detail-cover {
-        width: 165px;
-        height: 165px;
-        background-color: $color-light-gray;
-        border-radius: 3px;
-
-        img {
-            max-width: 100%;
-        }
-    }
-
-    .sw-sales-channel-modal__detail-name {
-        font-size: 18px;
-        color: $sw-sales-channel-modal-color-detail-name;
-        font-weight: 600;
-        margin-bottom: 8px;
-    }
-
-    .sw-sales-channel-modal__detail-manufacturer {
-        font-size: $sw-sales-channel-modal-font-size-small;
-        color: lighten($sw-sales-channel-modal-color-text, 25%);
-        margin-bottom: 20px;
-    }
-
-    .sw-sales-channel-modal__detail-description {
-        margin-bottom: 20px;
-    }
-
-    .sw-sales-channel-modal__description-title {
-        margin-bottom: 20px;
-        font-weight: 600;
-        color: $sw-sales-channel-modal-color-description-title;
-    }
-
-    .sw-sales-channel-modal__description-text {
-        color: $sw-sales-channel-modal-color-text;
-    }
-
-    .sw-sales-channel-modal__screenshot {
-        display: inline-block;
-
-        img {
-            width: 200px;
-        }
-
-        &:not(:first-child) {
-            margin-left: 20px;
-        }
-    }
-
-    .sw-sales-channel-modal__grid-item-name {
-        font-size: 18px;
-        margin-bottom: 0;
-        color: $sw-sales-channel-modal-color-text;
-        font-weight: normal;
-    }
-
-    .sw-sales-channel-modal__grid-item-description {
-        color: lighten($sw-sales-channel-modal-color-text, 25%);
-        font-size: $sw-sales-channel-modal-font-size-small;
-    }
-
-    .sw-sales-channel-modal__grid-icon-column .sw-grid__cell-content {
-        padding-right: 0;
-    }
-
-    .sw-sales-channel-modal__grid-icon {
-        width: 64px;
-        height: 64px;
-        background: lighten($sw-sales-channel-modal-color-text, 25%);
-        border-radius: 3px;
-
-        .sw-icon{
-            background: $sw-sales-channel-modal-color-icon-background;
-            padding: 10px;
-            width: 100%;
-            height: 100%;
-        }
-    }
-
-    .sw-sales-channel-modal__grid-actions {
-        .sw-grid__cell-content {
-            grid-gap: 5px;
-        }
     }
 }

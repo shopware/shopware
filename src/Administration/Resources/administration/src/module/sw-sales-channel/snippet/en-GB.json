@@ -5,8 +5,8 @@
     },
     "modal": {
       "title": "Add sales channel",
-      "buttonAddChannel": "Add",
-      "titleDetailPrefix": "Details of",
+      "buttonAddChannel": "Add sales channel",
+      "titleDetailPrefix": "{name} - details",
       "buttonShowDetails": "Show details",
       "buttonBack": "Back",
       "buttonCancel": "Cancel",

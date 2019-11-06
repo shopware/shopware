@@ -5,8 +5,8 @@
     },
     "modal": {
       "title": "Verkaufskanal anlegen",
-      "buttonAddChannel": "Hinzufügen",
-      "titleDetailPrefix": "Details zu",
+      "buttonAddChannel": "Verkaufskanal anlegen",
+      "titleDetailPrefix": "{name} - Details",
       "buttonShowDetails": "Details",
       "buttonBack": "Zurück",
       "buttonCancel": "Abbrechen",

@@ -58,7 +58,10 @@ describe('CMS: Check usage and editing of commerce elements', () => {
         cy.get('.sw-cms-sidebar__block-preview')
             .first()
             .dragTo('.sw-cms-section__empty-stage');
-        cy.get('.sw-cms-block').should('be.visible');
+        cy.get('.sw-cms-block__config-overlay').invoke('show');
+        cy.get('.sw-cms-block__config-overlay').should('be.visible');
+        cy.get('.sw-cms-block__config-overlay').click();
+        cy.get('.sw-cms-block__config-overlay.is--active').should('be.visible');
         cy.get('.sw-cms-slot .sw-cms-slot__overlay').invoke('show');
 
         // Configure first product

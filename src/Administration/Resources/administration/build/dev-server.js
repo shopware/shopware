@@ -6,8 +6,10 @@ const express = require('express');
 const webpack = require('webpack');
 const openInEditor = require('launch-editor-middleware');
 const proxy = require('http-proxy-middleware');
-const utils = require('./utils');
+const WebpackPluginInjector = require('@shopware/webpack-plugin-injector');
 const config = require('../config');
+
+const injector = new WebpackPluginInjector('var/plugins.json', {}, 'administration');
 
 if (!process.env.NODE_ENV) {
     process.env.NODE_ENV = JSON.parse(config.dev.env.NODE_ENV);
@@ -59,13 +61,14 @@ app.use(devMiddleware);
 // compilation error display
 app.use(hotMiddleware);
 
-const pluginList = utils.getPluginDefinitions('var/config_administration_plugins.json', true);
+const pluginList = injector.plugins;
+
 const staticPaths = pluginList.reduce((accumulator, plugin) => {
-    const assetPath = `/${plugin.viewPath}static/`;
+    const assetPath = plugin.assetPaths.find((path) => path.includes('/administration/static'));
 
     if (fs.existsSync(assetPath)) {
         accumulator.push({
-            staticPath: `/${plugin.name.toLowerCase()}/static`,
+            staticPath: `/${plugin.pluginName.toLowerCase()}/static`,
             systemPath: assetPath
         });
     }

@@ -55,8 +55,6 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
             this.isSaveSuccessful = false;
 
             if ((this.isSystemDefaultLanguage && !this.page.name) || !this.page.type) {
-                this.pageConfigOpen();
-
                 const warningTitle = this.$tc('sw-cms.detail.notificationTitleMissingFields');
                 const warningMessage = this.$tc('sw-cms.detail.notificationMessageMissingFields');
                 this.createNotificationWarning({

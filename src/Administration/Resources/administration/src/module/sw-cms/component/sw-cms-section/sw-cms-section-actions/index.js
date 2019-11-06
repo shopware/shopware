@@ -22,6 +22,7 @@ Component.register('sw-cms-section-actions', {
     methods: {
         selectSection() {
             this.$store.dispatch('cmsPageState/setSection', this.section);
+            this.$parent.$emit('page-config-open', 'itemConfig');
         }
     }
 });

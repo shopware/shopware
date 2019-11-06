@@ -44,34 +44,4 @@
             z-index: 10;
         }
     }
-
-    .sw-cms-block__config-toolbar {
-        display: none;
-        position: absolute;
-        top: 0;
-        left: 0;
-        background: $color-white;
-        border: 1px dashed rgba($color-shopware-blue, 0.4);
-        border-bottom-right-radius: 4px;
-        z-index: 240;
-
-        .sw-cms-block__config-toolbar-action {
-            padding: 10px;
-            color: rgba($color-gutenberg, 0.3);
-            cursor: pointer;
-        }
-
-        &.is--active {
-            display: block;
-            border: 1px solid $color-shopware-blue;
-
-            .sw-cms-block__config-toolbar-action {
-                color: $color-gutenberg;
-
-                &:hover {
-                    color: $color-shopware-blue;
-                }
-            }
-        }
-    }
 }

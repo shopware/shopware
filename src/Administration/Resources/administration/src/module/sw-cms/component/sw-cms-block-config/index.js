@@ -16,6 +16,12 @@ Component.register('sw-cms-block-config', {
         block: {
             type: Object,
             required: true
+        },
+
+        buttonsEnabled: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 
@@ -30,6 +36,14 @@ Component.register('sw-cms-block-config', {
 
         cmsPageState() {
             return this.$store.state.cmsPageState;
+        },
+
+        cmsBlocks() {
+            return this.cmsService.getCmsBlockRegistry();
+        },
+
+        blockConfig() {
+            return this.cmsBlocks[this.block.type];
         }
     },
 
@@ -50,6 +64,14 @@ Component.register('sw-cms-block-config', {
         removeMedia() {
             this.block.backgroundMediaId = null;
             this.block.backgroundMedia = null;
+        },
+
+        onBlockDelete() {
+            this.$emit('block-delete', this.block);
+        },
+
+        onBlockDuplicate() {
+            this.$emit('block-duplicate', this.block);
         }
     }
 });

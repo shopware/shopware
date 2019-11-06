@@ -14,17 +14,20 @@
     background-repeat: no-repeat;
     background-position: center center;
     border-top: 1px solid $color-gray-300;
+    border-bottom: 1px solid $color-gray-300;
     display: grid;
     grid-gap: 8px;
     grid-template-columns: 60px 1fr;
     align-items: center;
 
-    &.has--shadow-top {
-        box-shadow: 0 -5px 5px -5px $color-gray-300;
-    }
+    &.is--active {
+        border-color: $color-shopware-brand-500;
 
-    &.has--shadow-bottom {
-        box-shadow: 0 5px 5px -5px $color-gray-300;
+        .sw-cms-section__actions {
+            .sw-icon {
+                color: $color-shopware-brand-500;
+            }
+        }
     }
 
     &.is--sidebar {
@@ -43,15 +46,7 @@
     }
 
     &:hover {
-        .sw-cms-section__config-overlay {
-            display: block;
-        }
-
         .sw-cms-slot__preview-overlay {
-            display: block;
-        }
-
-        .sw-cms-section__config-toolbar {
             display: block;
         }
     }
@@ -89,8 +84,7 @@
         &.is--empty {
             border: 2px dashed $color-gray-300;
             border-radius: 10px;
-            max-height: 980px;
-            min-height: 300px;
+            min-height: 600px;
             height: 100%;
             width: 100%;
             display: flex;
@@ -116,56 +110,6 @@
 
             .sw-icon {
                 margin-bottom: 8px;
-            }
-        }
-    }
-
-    .sw-cms-section__config-overlay {
-        display: none;
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        margin: auto;
-        border: 1px dashed rgba($color-shopware-blue, 0.4);
-        cursor: pointer;
-        z-index: 50;
-
-        &.is--active {
-            display: block;
-            pointer-events: none;
-            border: 1px solid $color-shopware-blue;
-            z-index: 10;
-        }
-    }
-
-    .sw-cms-section__config-toolbar {
-        display: none;
-        position: absolute;
-        top: 0;
-        left: 0;
-        background: $color-white;
-        border: 1px dashed rgba($color-shopware-blue, 0.4);
-        border-bottom-right-radius: 4px;
-        z-index: 240;
-
-        .sw-cms-section__config-toolbar-action {
-            padding: 10px;
-            color: rgba($color-gutenberg, 0.3);
-            cursor: pointer;
-        }
-
-        &.is--active {
-            display: block;
-            border: 1px solid $color-shopware-blue;
-
-            .sw-cms-section__config-toolbar-action {
-                color: $color-gutenberg;
-
-                &:hover {
-                    color: $color-shopware-blue;
-                }
             }
         }
     }

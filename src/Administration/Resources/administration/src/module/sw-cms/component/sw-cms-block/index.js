@@ -21,12 +21,6 @@ Component.register('sw-cms-block', {
             type: Boolean,
             required: false,
             default: false
-        },
-
-        buttonsEnabled: {
-            type: Boolean,
-            required: false,
-            default: true
         }
     },
 
@@ -37,14 +31,6 @@ Component.register('sw-cms-block', {
     },
 
     computed: {
-        cmsBlocks() {
-            return this.cmsService.getCmsBlockRegistry();
-        },
-
-        blockConfig() {
-            return this.cmsBlocks[this.block.type];
-        },
-
         customBlockClass() {
             return this.block.cssClass;
         },
@@ -103,14 +89,6 @@ Component.register('sw-cms-block', {
 
         onBlockOverlayClick() {
             this.$emit('block-overlay-click');
-        },
-
-        onBlockDelete() {
-            this.$emit('block-delete');
-        },
-
-        onBlockDuplicate() {
-            this.$emit('block-duplicate');
         }
     }
 });

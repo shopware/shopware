@@ -143,6 +143,7 @@
                                                         <sw-cms-section class="sw-cms-stage-section"
                                                                         :page="page"
                                                                         :section="section"
+                                                                        :active="selectedSection !== null && selectedSection.id === section.id"
                                                                         @page-config-open="pageConfigOpen"
                                                                         @block-duplicate="onBlockDuplicate"
                                                                         :isSystemDefaultLanguage="isSystemDefaultLanguage"

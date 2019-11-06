@@ -38,9 +38,7 @@
                                               :block="block"
                                               :buttonsEnabled="isSystemDefaultLanguage"
                                               :active="selectedBlock !== null && selectedBlock.id === block.id"
-                                              @block-overlay-click="onBlockSelection(block)"
-                                              @block-delete="onBlockDelete(block.id)"
-                                              @block-duplicate="onBlockDuplicate(block, section)">
+                                              @block-overlay-click="onBlockSelection(block)">
 
                                     {% block sw_cms_section_sidebar_block_component %}
                                         <component :is="`sw-cms-block-${block.type}`">
@@ -98,9 +96,7 @@
                                               :block="block"
                                               :buttonsEnabled="isSystemDefaultLanguage"
                                               :active="selectedBlock !== null && selectedBlock.id === block.id"
-                                              @block-overlay-click="onBlockSelection(block)"
-                                              @block-delete="onBlockDelete(block.id)"
-                                              @block-duplicate="onBlockDuplicate(block, section)">
+                                              @block-overlay-click="onBlockSelection(block)">
 
                                     {% block sw_cms_section_content_block_component %}
                                         <component :is="`sw-cms-block-${block.type}`">

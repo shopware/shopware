@@ -107,7 +107,7 @@
 
         {% block sw_cms_sidebar_block_and_section_settings %}
             <sw-sidebar-item icon="default-documentation-paper-pencil"
-                         :title="$tc('sw-cms.detail.sidebarTitleBlockSettings')"
+                         :title="sidebarItemSettings"
                          ref="itemConfigSidebar"
                          :disabled="selectedBlock === null && selectedSection === null"
                          @close-content="onCloseBlockConfig">
@@ -121,13 +121,17 @@
 
                                     {% block sw_cms_sidebar_block_settings_header %}
                                         <span slot="header">
-                                            {{ $tc('sw-cms.detail.sidebarHeaderBlockSettings') }}
-                                            {{ selectedBlock.name ? selectedBlock.name : cmsBlocks[selectedBlock.type].label }}
+                                            {{ $tc('sw-cms.sidebar.contentMenu.settings') }}
                                         </span>
                                     {% endblock %}
 
                                     {% block sw_cms_sidebar_block_settings_form %}
-                                        <sw-cms-block-config slot="content" :block="selectedBlock"></sw-cms-block-config>
+                                        <sw-cms-block-config
+                                            slot="content"
+                                            :block="selectedBlock"
+                                            @block-delete="onBlockDelete"
+                                            @block-duplicate="onBlockDuplicate">
+                                        </sw-cms-block-config>
                                     {% endblock %}
                                 </sw-sidebar-collapse>
                             {% endblock %}
@@ -157,8 +161,7 @@
 
                                     {% block sw_cms_sidebar_section_settings_header %}
                                         <span slot="header">
-                                            {{ $tc('sw-cms.detail.sidebarHeaderBlockSettings') }}
-                                            {{ selectedSection.name ? selectedSection.name : 'section' }}
+                                            {{ $tc('sw-cms.sidebar.contentMenu.settings') }}
                                         </span>
                                     {% endblock %}
 

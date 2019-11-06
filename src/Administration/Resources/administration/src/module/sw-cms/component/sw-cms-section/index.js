@@ -48,9 +48,8 @@ Component.register('sw-cms-section', {
 
         sectionClasses() {
             return {
-                'is--boxed': this.section.sizingMode === 'boxed',
-                'has--shadow-top': this.section.position === 0,
-                'has--shadow-bottom': this.section.position === (this.page.sections.length - 1)
+                'is--active': this.active,
+                'is--boxed': this.section.sizingMode === 'boxed'
             };
         },
 
@@ -133,10 +132,6 @@ Component.register('sw-cms-section', {
 
         openBlockBar() {
             this.$emit('page-config-open', 'blocks');
-        },
-
-        onSectionOverlayClick() {
-            this.$emit('section-overlay-click');
         },
 
         onAddSectionBlock() {

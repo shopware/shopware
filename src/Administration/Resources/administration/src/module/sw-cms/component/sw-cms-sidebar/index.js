@@ -80,6 +80,13 @@ Component.register('sw-cms-sidebar', {
 
         pageSections() {
             return this.page.sections;
+        },
+
+        sidebarItemSettings() {
+            if (this.selectedBlock !== null) {
+                return this.$tc('sw-cms.detail.sidebarTitleBlockSettings');
+            }
+            return this.$tc('sw-cms.detail.sidebarTitleSectionSettings');
         }
     },
 
@@ -303,14 +310,20 @@ Component.register('sw-cms-sidebar', {
         },
 
         onSectionDelete(sectionId) {
+            this.$store.commit('cmsPageState/removeSelectedSection');
             this.page.sections.remove(sectionId);
             this.pageUpdate();
         },
 
-        onBlockDelete(blockId, section) {
-            section.blocks.remove(blockId);
+        onBlockDelete(block, section) {
+            console.log('block', block);
+            if (!section) {
+                section = this.page.sections.get(block.sectionId);
+            }
 
-            if (this.selectedBlock && this.selectedBlock.id === blockId) {
+            section.blocks.remove(block.id);
+
+            if (this.selectedBlock && this.selectedBlock.id === block.id) {
                 this.$store.commit('cmsPageState/removeSelectedBlock');
             }
 
@@ -318,6 +331,10 @@ Component.register('sw-cms-sidebar', {
         },
 
         onBlockDuplicate(block, section) {
+            if (!section) {
+                section = this.page.sections.get(block.sectionId);
+            }
+
             this.$emit('block-duplicate', block, section);
         },
 

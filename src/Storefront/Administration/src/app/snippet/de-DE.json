@@ -1,11 +1,11 @@
 {
   "sales-channel-theme": {
     "title": "Theme Zuweisung",
-    "changeLayout": "Theme ändern",
-    "changeLayoutEmpty": "Theme zuweisen",
+    "changeTheme": "Theme ändern",
+    "changeThemeEmpty": "Theme zuweisen",
     "createTheme": "Neues Theme erstellen",
     "editContent": "Theme bearbeiten",
-    "defaultTitle": "Standard Theme",
+    "defaultTitle": "Kein Theme zugewiesen",
     "defaultAuthor": "Autor",
     "modal": {
       "modalTitleChange": "Theme wechseln",

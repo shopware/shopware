@@ -33,8 +33,8 @@
                             {% endblock %}
 
                             {% block sw_sales_channel_detail_theme_info_author %}
-                                <div class="sw-sales-channel-detail-theme__info-author" :class="{ 'is--empty': !theme }">
-                                    {{ theme ? theme.author : $tc('sales-channel-theme.defaultAuthor') }}
+                                <div v-if="theme" class="sw-sales-channel-detail-theme__info-author">
+                                    {{ theme.author }}
                                 </div>
                             {% endblock %}
 
@@ -79,7 +79,7 @@
                             {{ $tc('sales-channel-theme.modal.textChangeTheme') }}
                         </p>
                     {% endblock %}
-    
+
                     {% block sw_sales_channel_detail_theme_change_modal_footer %}
                         <template slot="modal-footer">
                             {% block sw_sales_channel_detail_theme_change_modal_cancel %}
@@ -88,7 +88,7 @@
                                     {{ $tc('sales-channel-theme.modal.buttonCancel') }}
                                 </sw-button>
                             {% endblock %}
-        
+
                             {% block sw_sales_channel_detail_theme_change_modal_confirm %}
                                 <sw-button @click="onConfirmChange"
                                            variant="primary"

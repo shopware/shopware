@@ -82,6 +82,7 @@
         "blockCategoryImage": "Images",
         "blockCategoryCommerce": "Commerce",
         "blockCategoryVideo": "Video",
+        "blockCategoryForm": "Form",
         "buttonElementSettingsConfirm": "Done",
         "buttonElementChangeAbort": "Cancel",
         "blockNameField": "Block name",

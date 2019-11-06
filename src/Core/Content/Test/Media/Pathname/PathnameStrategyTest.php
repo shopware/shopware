@@ -3,42 +3,50 @@
 namespace src\Core\Content\Test\Media\Pathname;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
-use Shopware\Core\Content\Media\Exception\EmptyMediaIdException;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\PathnameStrategy\Md5PathnameStrategy;
 use Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface;
 use Shopware\Core\Content\Media\Pathname\PathnameStrategy\UuidPathnameStrategy;
+use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 
 class PathnameStrategyTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use MediaFixtures;
 
-    public function provideEncodeCases(): array
+    public function testUuidCacheBuster(): void
     {
-        return [
-            ['test.png'],
-            ['1572343254/test.foo.png'],
-            ['1572443254/test.bar.png'],
-            ['1572543254/test.aha.png'],
-        ];
+        $this->assertCacheBusterGenerator($this->getUuidPathnameStrategy());
     }
 
-    /**
-     * @dataProvider provideEncodeCases
-     */
-    public function testUuidEncoding(string $case): void
+    public function testUuidFilename(): void
     {
-        $this->assertEncoding($this->getUuidPathnameStrategy(), $case, 34);
+        $this->assertFilenameGenerator($this->getUuidPathnameStrategy());
     }
 
-    /**
-     * @dataProvider provideEncodeCases
-     */
-    public function testMd5Encoding(string $case): void
+    public function testUuidEncoding(): void
     {
-        $this->assertEncoding($this->getMd5PathnameStrategy(), $case, 9);
+        $this->assertHashGenerator($this->getUuidPathnameStrategy(), $this->getJpgWithFolder(), 33);
+        $this->assertHashGenerator($this->getUuidPathnameStrategy(), $this->getJpg(), 33);
+        $this->assertHashGenerator($this->getUuidPathnameStrategy(), $this->getTxt(), 33);
+    }
+
+    public function testMd5CacheBuster(): void
+    {
+        $this->assertCacheBusterGenerator($this->getMd5PathnameStrategy());
+    }
+
+    public function testMd5Filename(): void
+    {
+        $this->assertFilenameGenerator($this->getMd5PathnameStrategy());
+    }
+
+    public function testMd5Encoding(): void
+    {
+        $this->assertHashGenerator($this->getMd5PathnameStrategy(), $this->getJpg(), 8);
+        $this->assertHashGenerator($this->getMd5PathnameStrategy(), $this->getJpgWithFolder(), 8);
+        $this->assertHashGenerator($this->getMd5PathnameStrategy(), $this->getTxt(), 8);
     }
 
     private function getUuidPathnameStrategy(): UuidPathnameStrategy
@@ -55,28 +63,28 @@ class PathnameStrategyTest extends TestCase
             ->get(Md5PathnameStrategy::class);
     }
 
-    private function assertEncoding(PathnameStrategyInterface $strategy, string $case, int $length): void
+    private function assertHashGenerator(PathnameStrategyInterface $strategy, MediaEntity $media, int $length): void
     {
-        $id = Uuid::randomHex();
-        $encoded = $strategy->encode($case, $id);
+        $encoded = $strategy->generatePathHash($media);
 
-        static::assertSame($encoded, $strategy->encode($case, $id));
-        static::assertStringEndsWith($case, $encoded);
+        static::assertSame($encoded, $strategy->generatePathHash($media));
+        static::assertStringEndsNotWith('/', $encoded);
         static::assertStringStartsNotWith('/', $encoded);
-        static::assertSame($length + mb_strlen($case), mb_strlen($encoded), $encoded);
-
-        $this->assertEncodeException($strategy, EmptyMediaIdException::class, 'foo', '');
-        $this->assertEncodeException($strategy, EmptyMediaFilenameException::class, '', '');
+        static::assertSame($length, mb_strlen($encoded));
     }
 
-    private function assertEncodeException(PathnameStrategyInterface $strategy, string $exceptionClass, $fileName, $id): void
+    private function assertCacheBusterGenerator(PathnameStrategyInterface $strategy): void
     {
-        try {
-            $strategy->encode($fileName, $id);
-        } catch (\Exception $e) {
-            //nth
-        } finally {
-            static::assertInstanceOf($exceptionClass, $e);
-        }
+        static::assertNull($strategy->generatePathCacheBuster($this->getMediaWithManufacturer()));
+        static::assertSame('1293894181', $strategy->generatePathCacheBuster($this->getPngWithoutExtension()));
+    }
+
+    private function assertFilenameGenerator(PathnameStrategyInterface $strategy): void
+    {
+        $jpg = $this->getJpg();
+        $mediaWithThumbnail = $this->getMediaWithThumbnail();
+
+        static::assertSame('jpgFileWithExtension.jpg', $strategy->generatePhysicalFilename($jpg));
+        static::assertSame('jpgFileWithExtension_200x200.jpg', $strategy->generatePhysicalFilename($jpg, $mediaWithThumbnail->getThumbnails()->first()));
     }
 }

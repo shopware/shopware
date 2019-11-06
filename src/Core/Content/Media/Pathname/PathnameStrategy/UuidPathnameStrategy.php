@@ -2,21 +2,11 @@
 
 namespace Shopware\Core\Content\Media\Pathname\PathnameStrategy;
 
-use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
-use Shopware\Core\Content\Media\Exception\EmptyMediaIdException;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
+use Shopware\Core\Content\Media\MediaEntity;
 
-class UuidPathnameStrategy implements PathnameStrategyInterface
+class UuidPathnameStrategy extends AbstractPathNameStrategy
 {
-    /**
-     * @var PlainPathnameStrategy
-     */
-    private $plainPathnameStrategy;
-
-    public function __construct(PlainPathnameStrategy $plainPathnameStrategy)
-    {
-        $this->plainPathnameStrategy = $plainPathnameStrategy;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -28,20 +18,10 @@ class UuidPathnameStrategy implements PathnameStrategyInterface
     /**
      * {@inheritdoc}
      */
-    public function encode(string $filename, string $id): string
+    public function generatePathHash(MediaEntity $media, ?MediaThumbnailEntity $thumbnail = null): ?string
     {
-        if (empty($filename)) {
-            throw new EmptyMediaFilenameException();
-        }
-
-        if (empty($id)) {
-            throw new EmptyMediaIdException();
-        }
-
-        return mb_substr($id, 0, 16)
+        return mb_substr($media->getId(), 0, 16)
             . '/'
-            . mb_substr($id, 16)
-            . '/'
-            . $this->plainPathnameStrategy->encode($filename, $id);
+            . mb_substr($media->getId(), 16);
     }
 }

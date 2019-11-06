@@ -98,7 +98,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
                 || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150)
             );
 
-            $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail->getWidth(), $thumbnail->getHeight());
+            $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
             static::assertTrue(
                 $this->getPublicFilesystem()->has($path),
                 'Thumbnail: ' . $path . ' does not exist'
@@ -146,7 +146,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
                 || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150)
             );
 
-            $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail->getWidth(), $thumbnail->getHeight());
+            $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
             static::assertTrue(
                 $this->getPublicFilesystem()->has($path),
                 'Thumbnail: ' . $path . ' does not exist'

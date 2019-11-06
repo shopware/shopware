@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Content\Media\Pathname\PathnameStrategy;
 
-use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
-use Shopware\Core\Content\Media\Exception\EmptyMediaIdException;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
+use Shopware\Core\Content\Media\MediaEntity;
 
-class Md5PathnameStrategy implements PathnameStrategyInterface
+class Md5PathnameStrategy extends AbstractPathNameStrategy
 {
     /**
      * @var array
@@ -14,27 +14,9 @@ class Md5PathnameStrategy implements PathnameStrategyInterface
         'ad' => 'g0',
     ];
 
-    /**
-     * @var PlainPathnameStrategy
-     */
-    private $plainPathnameStrategy;
-
-    public function __construct(PlainPathnameStrategy $plainPathnameStrategy)
+    public function generatePathHash(MediaEntity $media, ?MediaThumbnailEntity $thumbnail = null): ?string
     {
-        $this->plainPathnameStrategy = $plainPathnameStrategy;
-    }
-
-    public function encode(string $filename, string $id): string
-    {
-        if (empty($filename)) {
-            throw new EmptyMediaFilenameException();
-        }
-
-        if (empty($id)) {
-            throw new EmptyMediaIdException();
-        }
-
-        $md5hash = md5($filename);
+        $md5hash = md5($media->getFileName());
 
         $md5hashSlices = \array_slice(str_split($md5hash, 2), 0, 3);
         $md5hashSlices = array_map(
@@ -44,9 +26,7 @@ class Md5PathnameStrategy implements PathnameStrategyInterface
             $md5hashSlices
         );
 
-        return implode('/', $md5hashSlices)
-            . '/'
-            . $this->plainPathnameStrategy->encode($filename, $id);
+        return implode('/', $md5hashSlices);
     }
 
     public function getName(): string

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Media\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
@@ -93,9 +94,7 @@ class MediaThumbnailRepositoryTest extends TestCase
     {
         $thumbnailPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeThumbnailUrl(
             $media,
-            100,
-            200,
-            false
+            (new MediaThumbnailEntity())->assign(['width' => 100, 'height' => 200])
         );
 
         $this->getPublicFilesystem()->putStream($thumbnailPath, fopen(self::FIXTURE_FILE, 'rb'));

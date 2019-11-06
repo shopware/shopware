@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\Media\Pathname;
 
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
+use Shopware\Core\Content\Media\Exception\EmptyMediaIdException;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -37,25 +39,23 @@ class UrlGenerator implements UrlGeneratorInterface
 
     /**
      * @throws EmptyMediaFilenameException
+     * @throws EmptyMediaIdException
      */
     public function getRelativeMediaUrl(MediaEntity $media): string
     {
-        $physicalFileName = $media->getFileName();
+        $this->validateMedia($media);
 
-        if ($media->getUploadedAt() !== null) {
-            $physicalFileName = sprintf('%d/%s', $media->getUploadedAt()->getTimestamp(), $physicalFileName);
-        }
-        $encodedFileName = $this->encodeFilename($physicalFileName, $media->getId());
-
-        $extension = $media->getFileExtension() ? '.' . $media->getFileExtension() : '';
-
-        $mainDir = 'media/';
-
-        return $mainDir . $encodedFileName . $extension;
+        return $this->toPathString([
+            'media',
+            $this->pathnameStrategy->generatePathHash($media),
+            $this->pathnameStrategy->generatePathCacheBuster($media),
+            $this->pathnameStrategy->generatePhysicalFilename($media),
+        ]);
     }
 
     /**
      * @throws EmptyMediaFilenameException
+     * @throws EmptyMediaIdException
      */
     public function getAbsoluteMediaUrl(MediaEntity $media): string
     {
@@ -64,25 +64,27 @@ class UrlGenerator implements UrlGeneratorInterface
 
     /**
      * @throws EmptyMediaFilenameException
+     * @throws EmptyMediaIdException
      */
-    public function getRelativeThumbnailUrl(MediaEntity $media, int $width, int $height): string
+    public function getRelativeThumbnailUrl(MediaEntity $media, MediaThumbnailEntity $thumbnail): string
     {
-        $mediaPathInfo = pathinfo($this->getRelativeMediaUrl($media));
-        $mediaPathInfo['dirname'] = preg_replace('/^media/', 'thumbnail', $mediaPathInfo['dirname']);
+        $this->validateMedia($media);
 
-        $thumbnailExtension = "_${width}x${height}";
-
-        $extension = isset($mediaPathInfo['extension']) ? '.' . $mediaPathInfo['extension'] : '';
-
-        return $mediaPathInfo['dirname'] . '/' . $mediaPathInfo['filename'] . $thumbnailExtension . $extension;
+        return $this->toPathString([
+            'thumbnail',
+            $this->pathnameStrategy->generatePathHash($media),
+            $this->pathnameStrategy->generatePathCacheBuster($media),
+            $this->pathnameStrategy->generatePhysicalFilename($media, $thumbnail),
+        ]);
     }
 
     /**
      * @throws EmptyMediaFilenameException
+     * @throws EmptyMediaIdException
      */
-    public function getAbsoluteThumbnailUrl(MediaEntity $media, int $width, int $height): string
+    public function getAbsoluteThumbnailUrl(MediaEntity $media, MediaThumbnailEntity $thumbnail): string
     {
-        return $this->getBaseUrl() . '/' . $this->getRelativeThumbnailUrl($media, $width, $height);
+        return $this->getBaseUrl() . '/' . $this->getRelativeThumbnailUrl($media, $thumbnail);
     }
 
     private function normalizeBaseUrl($baseUrl): ?string
@@ -116,15 +118,23 @@ class UrlGenerator implements UrlGeneratorInterface
         return '';
     }
 
+    private function toPathString(array $parts): string
+    {
+        return implode('/', array_filter($parts));
+    }
+
     /**
      * @throws EmptyMediaFilenameException
+     * @throws EmptyMediaIdException
      */
-    private function encodeFilename(?string $filename, ?string $id): string
+    private function validateMedia(MediaEntity $media): void
     {
-        if (empty($filename)) {
-            throw new EmptyMediaFilenameException();
+        if (empty($media->getId())) {
+            throw new EmptyMediaIdException();
         }
 
-        return $this->pathnameStrategy->encode($filename, $id);
+        if (empty($media->getFileName())) {
+            throw new EmptyMediaFilenameException();
+        }
     }
 }

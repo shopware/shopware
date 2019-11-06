@@ -80,6 +80,9 @@ Component.register('sw-settings-country-detail', {
             this.isLoading = true;
 
             return this.countryRepository.save(this.country, this.apiContext).then(() => {
+                this.countryRepository.get(this.countryId, this.apiContext).then(country => {
+                    this.country = country;
+                });
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
             }).catch(() => {

@@ -97,7 +97,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
 
         $addressId = Uuid::randomHex();
 
-        $mail = Uuid::randomHex();
+        $mail = Uuid::randomHex() . '@shopware.com';
         $password = 'shopware';
 
         $this->createCustomer($addressId, $mail, $password, $context);
@@ -157,7 +157,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
 
         $addressId = Uuid::randomHex();
 
-        $mail = Uuid::randomHex();
+        $mail = Uuid::randomHex() . '@shopware.com';
         $password = 'shopware';
 
         $this->createCustomer($addressId, $mail, $password, $context);

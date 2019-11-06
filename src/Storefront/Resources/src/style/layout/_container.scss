@@ -15,15 +15,8 @@ https://getbootstrap.com/docs/4.3/layout/overview/
     min-height: 200px;
 }
 
-@include media-breakpoint-up(md) {
-    .container-main {
-        padding: 30px 0;
-    }
-}
-
 @include media-breakpoint-up(xl) {
     .container-main {
-        padding: 50px 0;
         min-height: 700px;
     }
 }

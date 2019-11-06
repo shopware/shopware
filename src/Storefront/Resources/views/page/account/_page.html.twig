@@ -2,23 +2,6 @@
 
 {% block base_content %}
     {% block page_account %}
-
-        {% if controllerAction is not same as('index') %}
-            {% set breadcrumb = [{
-                controllerName: 'AccountProfile',
-                controllerAction: 'index'
-            }, {
-                controllerName: controllerName,
-                controllerAction: controllerAction
-            }] %}
-        {% else %}
-            {% set breadcrumb = [{
-                controllerName: 'AccountProfile',
-                controllerAction: 'index',
-                root: true
-            }] %}
-        {% endif %}
-
         <div class="account account-content">
             {% block page_account_sidebar %}
                 <div class="account-content-aside">

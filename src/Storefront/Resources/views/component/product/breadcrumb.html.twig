@@ -6,7 +6,7 @@
                 {% block component_product_breadcrumb_category %}
                     <a class="{% if key is same as(product.categoryTree|last) %} is-active{% endif %}"
                        href="{{ seoUrl('frontend.navigation.page', { navigationId: key }) }}">
-                        {% block layout_navigation_categories_link_children_name %}
+                        {% block component_product_breadcrumb_link_name %}
                             {{ item }}
                         {% endblock %}
                     </a>

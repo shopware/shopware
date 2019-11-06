@@ -78,16 +78,18 @@ class WebpackPluginInjector {
         } else {
             content = this.filePath;
         }
-        const plugins = this.getPluginsBySection(content);
+        this._plugins = this.getPluginsBySection(content);
 
-        if (!plugins.length) {
+        if (!this._plugins.length) {
             return;
         }
 
-        this.registerPluginsToWebpackConfig(plugins);
+        if (this.env) {
+            this.registerPluginsToWebpackConfig(this._plugins);
+        }
 
         if (this.env === 'production' || this.env === 'development') {
-            this.injectCopyPluginConfig(plugins);
+            this.injectCopyPluginConfig(this._plugins);
         }
     }
 
@@ -397,6 +399,10 @@ class WebpackPluginInjector {
 
     set includePaths(value) {
         this._includePaths = value;
+    }
+
+    get plugins(){
+        return this._plugins;
     }
 }
 

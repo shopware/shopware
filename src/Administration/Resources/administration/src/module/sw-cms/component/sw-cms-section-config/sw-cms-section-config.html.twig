@@ -2,7 +2,7 @@
     <div class="sw-cms-section-config">
 
         {% block sw_cms_section_config__quickactions %}
-            <ul class="sw-cms-section-config__quickactions-list">
+            <ul class="sw-cms-section-config__quickactions-list" :class="quickactionClasses">
                 {% block sw_cms_section_config__quickaction_duplicate %}
                     <li class="sw-cms-section-config__quickaction" @click="onSectionDuplicate(section)">
                         <sw-icon name="default-action-duplicate" size="16"></sw-icon>

@@ -44,8 +44,7 @@ Component.register('sw-cms-detail', {
             selectedBlockSectionId: null,
             currentMappingEntity: null,
             currentMappingEntityRepo: null,
-            demoEntityId: null,
-            currentLanguageId: Shopware.StateDeprecated.getStore('language').languageId
+            demoEntityId: null
         };
     },
 
@@ -147,10 +146,6 @@ Component.register('sw-cms-detail', {
             };
         },
 
-        isSystemDefaultLanguage() {
-            return this.currentLanguageId === Shopware.StateDeprecated.getStore('language').systemLanguageId;
-        },
-
         addBlockTitle() {
             if (!this.isSystemDefaultLanguage) {
                 return this.$tc('sw-cms.general.disabledAddingBlocksToolTip');
@@ -194,6 +189,9 @@ Component.register('sw-cms-detail', {
     methods: {
         createdComponent() {
             this.$store.commit('adminMenu/collapseSidebar');
+
+            const isSystemDefaultLanguage = this.context.languageId === this.context.systemLanguageId;
+            this.$store.commit('cmsPageState/setIsSystemDefaultLanguage', isSystemDefaultLanguage);
 
             this.resetCmsPageState();
 
@@ -265,7 +263,6 @@ Component.register('sw-cms-detail', {
 
                     this.isLoading = false;
                 }).catch((exception) => {
-                    console.log('exception', exception);
                     this.isLoading = false;
                     this.createNotificationError({
                         title: exception.message,
@@ -344,7 +341,8 @@ Component.register('sw-cms-detail', {
 
             return this.salesChannelRepository.search(new Criteria(), this.apiContext).then((response) => {
                 this.salesChannels = response;
-                this.currentLanguageId = Shopware.StateDeprecated.getStore('language').languageId;
+                const isSystemDefaultLanguage = Shopware.StateDeprecated.getStore('language').languageId === this.context.systemLanguageId;
+                this.$store.commit('cmsPageState/setIsSystemDefaultLanguage', isSystemDefaultLanguage);
                 return this.loadPage(this.pageId);
             });
         },

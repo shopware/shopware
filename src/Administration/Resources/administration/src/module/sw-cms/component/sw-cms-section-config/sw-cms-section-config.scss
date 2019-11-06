@@ -20,6 +20,30 @@
     padding-bottom: 24px;
     margin-bottom: 16px;
 
+    &.is--disabled {
+        .sw-cms-section-config__quickaction {
+            cursor: not-allowed;
+
+            &.is--danger {
+                .sw-icon {
+                    color: $color-crimson-200;
+                }
+
+                &:hover {
+                    color: $color-menu-start;
+                }
+            }
+
+            .sw-icon {
+                color: $color-shopware-brand-200;
+            }
+
+            &:hover {
+                color: $color-menu-start;
+            }
+        }
+    }
+
     .sw-cms-section-config__quickaction {
         cursor: pointer;
 

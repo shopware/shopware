@@ -29,6 +29,10 @@ Mixin.register('cms-state', {
 
         currentDeviceView() {
             return this.cmsPageState.currentCmsDeviceView;
+        },
+
+        isSystemDefaultLanguage() {
+            return this.cmsPageState.isSystemDefaultLanguage;
         }
     }
 });

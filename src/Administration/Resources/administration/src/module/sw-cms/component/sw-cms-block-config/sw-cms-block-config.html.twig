@@ -2,8 +2,7 @@
     <div class="sw-cms-block-config">
 
         {% block sw_cms_block_config__quickactions %}
-            <ul class="sw-cms-block-config__quickactions-list"
-                v-if="(blockConfig.removable !== false) && buttonsEnabled">
+            <ul class="sw-cms-block-config__quickactions-list" :class="quickactionClasses">
                 {% block sw_cms_block_config__quickaction_duplicate %}
                         <li class="sw-cms-block-config__quickaction" @click="onBlockDuplicate">
                             <sw-icon name="default-action-duplicate" size="16"></sw-icon>

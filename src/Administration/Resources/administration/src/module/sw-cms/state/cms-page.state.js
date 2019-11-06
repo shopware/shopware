@@ -10,7 +10,8 @@ Shopware.State.registerModule('cmsPageState', {
         defaultMediaFolderId: null,
         currentCmsDeviceView: 'desktop',
         selectedSection: null,
-        selectedBlock: null
+        selectedBlock: null,
+        isSystemDefaultLanguage: true
     },
 
     mutations: {
@@ -84,6 +85,10 @@ Shopware.State.registerModule('cmsPageState', {
 
         removeSelectedBlock(state) {
             state.selectedBlock = null;
+        },
+
+        setIsSystemDefaultLanguage(state, isSystemDefaultLanguage) {
+            state.isSystemDefaultLanguage = isSystemDefaultLanguage;
         }
     },
 

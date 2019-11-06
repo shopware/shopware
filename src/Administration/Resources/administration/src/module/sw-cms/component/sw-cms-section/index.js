@@ -29,11 +29,6 @@ Component.register('sw-cms-section', {
             type: Boolean,
             required: false,
             default: false
-        },
-
-        isSystemDefaultLanguage: {
-            type: Boolean,
-            required: true
         }
     },
 

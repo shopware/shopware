@@ -1,7 +1,7 @@
 import template from './sw-cms-block-config.html.twig';
 import './sw-cms-block-config.scss';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-cms-block-config', {
     template,
@@ -12,16 +12,14 @@ Component.register('sw-cms-block-config', {
         'apiContext'
     ],
 
+    mixins: [
+        Mixin.getByName('cms-state')
+    ],
+
     props: {
         block: {
             type: Object,
             required: true
-        },
-
-        buttonsEnabled: {
-            type: Boolean,
-            required: false,
-            default: true
         }
     },
 
@@ -44,6 +42,16 @@ Component.register('sw-cms-block-config', {
 
         blockConfig() {
             return this.cmsBlocks[this.block.type];
+        },
+
+        quickactionsDisabled() {
+            return !this.isSystemDefaultLanguage || this.blockConfig.removable === false;
+        },
+
+        quickactionClasses() {
+            return {
+                'is--disabled': this.quickactionsDisabled
+            };
         }
     },
 
@@ -67,10 +75,18 @@ Component.register('sw-cms-block-config', {
         },
 
         onBlockDelete() {
+            if (this.quickactionsDisabled) {
+                return;
+            }
+
             this.$emit('block-delete', this.block);
         },
 
         onBlockDuplicate() {
+            if (this.quickactionsDisabled) {
+                return;
+            }
+
             this.$emit('block-duplicate', this.block);
         }
     }

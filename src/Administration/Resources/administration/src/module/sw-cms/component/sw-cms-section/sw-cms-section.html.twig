@@ -36,7 +36,6 @@
                                 <sw-cms-block class="sw-cms-stage-block"
                                               :key="block.id"
                                               :block="block"
-                                              :buttonsEnabled="isSystemDefaultLanguage"
                                               :active="selectedBlock !== null && selectedBlock.id === block.id"
                                               @block-overlay-click="onBlockSelection(block)">
 
@@ -94,7 +93,6 @@
                                 <sw-cms-block class="sw-cms-stage-block"
                                               :key="block.id"
                                               :block="block"
-                                              :buttonsEnabled="isSystemDefaultLanguage"
                                               :active="selectedBlock !== null && selectedBlock.id === block.id"
                                               @block-overlay-click="onBlockSelection(block)">
 

@@ -36,12 +36,6 @@ Component.register('sw-cms-sidebar', {
             type: String,
             required: false,
             default: null
-        },
-
-        isSystemDefaultLanguage: {
-            type: Boolean,
-            required: false,
-            default: true
         }
     },
 
@@ -316,7 +310,6 @@ Component.register('sw-cms-sidebar', {
         },
 
         onBlockDelete(block, section) {
-            console.log('block', block);
             if (!section) {
                 section = this.page.sections.get(block.sectionId);
             }

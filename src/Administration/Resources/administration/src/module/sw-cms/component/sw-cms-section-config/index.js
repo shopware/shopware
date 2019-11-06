@@ -1,7 +1,7 @@
 import template from './sw-cms-section-config.html.twig';
 import './sw-cms-section-config.scss';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-cms-section-config', {
     template,
@@ -10,6 +10,10 @@ Component.register('sw-cms-section-config', {
         'repositoryFactory',
         'cmsService',
         'context'
+    ],
+
+    mixins: [
+        Mixin.getByName('cms-state')
     ],
 
     props: {
@@ -30,6 +34,16 @@ Component.register('sw-cms-section-config', {
 
         cmsPageState() {
             return this.$store.state.cmsPageState;
+        },
+
+        quickactionsDisabled() {
+            return !this.isSystemDefaultLanguage;
+        },
+
+        quickactionClasses() {
+            return {
+                'is--disabled': this.quickactionsDisabled
+            };
         }
     },
 
@@ -53,10 +67,18 @@ Component.register('sw-cms-section-config', {
         },
 
         onSectionDelete(sectionId) {
+            if (this.quickactionsDisabled) {
+                return;
+            }
+
             this.$emit('section-delete', sectionId);
         },
 
         onSectionDuplicate(section) {
+            if (this.quickactionsDisabled) {
+                return;
+            }
+
             this.$emit('section-duplicate', section);
         }
     }

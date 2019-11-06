@@ -146,7 +146,6 @@
                                                                         :active="selectedSection !== null && selectedSection.id === section.id"
                                                                         @page-config-open="pageConfigOpen"
                                                                         @block-duplicate="onBlockDuplicate"
-                                                                        :isSystemDefaultLanguage="isSystemDefaultLanguage"
                                                                         :key="section.id">
                                                         </sw-cms-section>
                                                     {% endblock %}
@@ -169,7 +168,6 @@
                                             :page="page"
                                             :demoEntity="currentMappingEntity"
                                             :demoEntityIdProp="demoEntityId"
-                                            :isSystemDefaultLanguage="isSystemDefaultLanguage"
                                             @demo-entity-change="onDemoEntityChange"
                                             @block-duplicate="onBlockDuplicate"
                                             @section-duplicate="onSectionDuplicate"

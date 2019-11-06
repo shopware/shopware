@@ -25,14 +25,14 @@
 
     .sw-sales-channel-modal-detail__header-name {
         font-size: 18px;
-        color: $color-kashmir;
+        color: $color-darkgray-200;
         font-weight: 600;
         margin: 6px 0;
     }
 
     .sw-sales-channel-modal-detail__header-manufacturer {
         font-size: $font-size-small;
-        color: lighten($color-gutenberg, 25%);
+        color: lighten($color-darkgray-200, 25%);
     }
 
     .sw-sales-channel-modal-detail__description {
@@ -42,11 +42,11 @@
     .sw-sales-channel-modal-detail__description-title {
         margin-bottom: 20px;
         font-weight: 600;
-        color: $color-kashmir;
+        color: $color-darkgray-200;
     }
 
     .sw-sales-channel-modal-detail__description-text {
-        color: $color-kashmir;
+        color: $color-darkgray-200;
     }
 
     .sw-sales-channel-modal-detail__screenshot {

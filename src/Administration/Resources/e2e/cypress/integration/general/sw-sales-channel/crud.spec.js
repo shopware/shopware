@@ -28,8 +28,8 @@ describe('Sales Channel: Test crud operations', () => {
 
         cy.get('.sw-admin-menu__headline-action').click();
         cy.get('.sw-sales-channel-modal__title').contains('Add sales channel');
-        cy.get(`${page.elements.gridRow}--0 .sw-sales-channel-modal__show-detail-action`).click();
-        cy.get('.sw-sales-channel-modal__title').contains('Details of Storefront');
+        cy.get(`${page.elements.gridRow}--0 .sw-sales-channel-modal-grid__item-name`).click();
+        cy.get('.sw-sales-channel-modal__title').contains('Storefront - details');
         cy.get('.sw-sales-channel-modal__add-sales-channel-action').click();
 
         // Fill in form and save new sales channel

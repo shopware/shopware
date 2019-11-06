@@ -7,7 +7,7 @@ This document was created for Shopware 6.0.0 EA2
 EA2 introduces a new module to the administration which allows you to change the template after which the urls are generated.
 The module is located at `Settings=>SEO`. 
 
-The templates uses the [Twig Template syntax](https://twig.symfony.com/).
+The templates use the [Twig Template syntax](https://twig.symfony.com/).
 
 Templates can be changed per sales channel using the dropdown at the top of the module. Using the "All Sales Channels" entry you can define
 a default template which will be used if there is no specific template for a sales channel.
@@ -51,7 +51,7 @@ No. Instead of using redirects Shopware 6.0.0 EA2 uses the canonical HTTP header
 For more information, see [this post by Google](https://support.google.com/webmasters/answer/139066?hl=en#rel-canonical-header-method).
 The method in use may change in the future.
 
-### If searched over the complete HTML and I cannot find the canonical tag!
+### I've searched over the complete HTML and I cannot find the canonical tag!
 
 Some browser do not include the `<head>` part in search queries when using the default browser tools (like the developer console).
 You'll either have to use a diffrent editor or search manually. 

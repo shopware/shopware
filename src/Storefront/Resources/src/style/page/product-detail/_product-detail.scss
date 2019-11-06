@@ -4,6 +4,11 @@
 
 .product-detail-content {
     margin-bottom: $spacer-lg;
+
+    .product-breadcrumb {
+        padding: 0;
+        margin: $spacer 0;
+    }
 }
 
 .product-detail-buy {

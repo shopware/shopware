@@ -6,12 +6,22 @@
 
 {% block base_content %}
     {% block page_product_detail %}
+
         <div class="product-detail"
              itemscope
              itemtype="https://schema.org/Product">
             {% block page_product_detail_inner %}
                 {% block page_product_detail_content %}
                     <div class="product-detail-content">
+                        {% block page_product_detail_breadcrumb %}
+                            <div class="breadcrumb product-breadcrumb container">
+                                {% sw_include '@Storefront/component/product/breadcrumb.html.twig' with {
+                                    navigationTree: page.header.navigation.tree,
+                                    categoryTree: page.product.categoryTree|last,
+                                    product: page.product
+                                } only %}
+                            </div>
+                        {% endblock %}
                         {% block page_product_detail_headline %}
                             <div class="row align-items-center product-detail-headline">
                                 {% sw_include '@Storefront/page/product-detail/headline.html.twig' %}

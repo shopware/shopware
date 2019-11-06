@@ -7,7 +7,7 @@
       "title": "Add sales channel",
       "buttonAddChannel": "Add sales channel",
       "titleDetailPrefix": "Details of",
-      "buttonShowDetails": "Show details",
+      "buttonShowDetails": "{name} - details",
       "buttonBack": "Back",
       "buttonCancel": "Cancel",
       "titleDescription": "Information"

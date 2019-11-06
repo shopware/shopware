@@ -1,6 +1,5 @@
 {% block sw_sales_channel_modal %}
     <sw-modal class="sw-sales-channel-modal"
-              :isLoading="isLoading"
               @modal-close="onCloseModal">
 
         {% block sw_sales_channel_modal_header %}
@@ -23,51 +22,14 @@
         {% endblock %}
 
         {% block sw_sales_channel_modal_grid %}
-            <sw-sales-channel-modal-grid v-if="!detailType"></sw-sales-channel-modal-grid>
+            <sw-sales-channel-modal-grid v-if="!detailType"
+                                         @grid-detail-open="onGridOpenDetails"
+                                         @grid-channel-add="onAddChannel">
+            </sw-sales-channel-modal-grid>
         {% endblock %}
 
         {% block sw_sales_channel_modal_detail %}
-            <div v-else>
-                {% block sw_sales_channel_modal_detail_header %}
-                    <sw-container columns="64px 1fr" gap="24px" class="sw-sales-channel-modal__detail-header">
-
-                        {% block sw_sales_channel_modal_detail_header_icon %}
-                            <span class="sw-sales-channel-modal__detail-header-icon">
-                                <sw-icon v-if="detailType.iconName" :name="detailType.iconName"></sw-icon>
-                            </span>
-                        {% endblock %}
-
-                        {% block sw_sales_channel_modal_detail_header_meta %}
-                            <div class="sw-sales-channel-modal__detail-meta">
-                                <h4 class="sw-sales-channel-modal__detail-name">{{ detailType.translated.name }}</h4>
-                                <div class="sw-sales-channel-modal__detail-manufacturer">{{ detailType.translated.manufacturer }}</div>
-                            </div>
-                        {% endblock %}
-                    </sw-container>
-                {% endblock %}
-
-                {% block sw_sales_channel_modal_detail_description %}
-                    <h4 class="sw-sales-channel-modal__detail-description-long-title">
-                        {{ $tc('sw-sales-channel.modal.titleDescription') }}
-                    </h4>
-                    <div class="sw-sales-channel-modal__detail-description-long-text"
-                         v-if="detailType.translated.descriptionLong">
-                        {{ detailType.translated.descriptionLong }}
-                    </div>
-                    <div class="sw-sales-channel-modal__detail-description-long-text"
-                         v-else>
-                        {{ detailType.translated.description }}
-                    </div>
-                {% endblock %}
-
-                {% block sw_sales_channel_modal_detail_screenshots %}
-                    <div class="sw-sales-channel-modal__screenshots">
-                        <div v-for="url in detailType.screenshotUrls" class="sw-sales-channel-modal__screenshot">
-                            <img :src="url">
-                        </div>
-                    </div>
-                {% endblock %}
-            </div>
+            <sw-sales-channel-modal-detail v-else :detailType="detailType"></sw-sales-channel-modal-detail>
         {% endblock %}
 
         {% block sw_sales_channel_modal_footer %}
@@ -75,7 +37,7 @@
                 <template v-if="detailType">
                     {% block sw_sales_channel_modal_footer_detail_actions %}
                         {% block sw_sales_channel_modal_footer_back %}
-                            <sw-button size="small" @click.prevent="detailType = false" :disabled="isLoading">
+                            <sw-button size="small" @click.prevent="detailType = false">
                                 {{ $tc('sw-sales-channel.modal.buttonBack') }}
                             </sw-button>
                         {% endblock %}

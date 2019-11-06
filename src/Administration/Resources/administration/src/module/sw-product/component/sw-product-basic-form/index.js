@@ -44,7 +44,7 @@ Component.register('sw-product-basic-form', {
     methods: {
         updateIsTitleRequired() {
             // TODO: Refactor when there is a possibility to check if the title field is inherited
-            this.isTitleRequired = this.languageStore.getCurrentLanguage().id === '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
+            this.isTitleRequired = this.languageStore.getCurrentLanguage().id === Shopware.Defaults.systemLanguageId;
         },
 
         getInheritValue(firstKey, secondKey) {

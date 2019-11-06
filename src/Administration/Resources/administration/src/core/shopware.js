@@ -224,7 +224,7 @@ const Shopware = function Shopware() {
      * @memberOf module:Shopware
      * @type {Object}
      */
-    this.Service = ServiceFactory(application);
+    this.Service = ServiceFactory;
 
     /**
      * @memberOf module:Shopware
@@ -297,6 +297,16 @@ const Shopware = function Shopware() {
      * @memberOf module:Shopware
      * @type {Object}
      */
+    this.Defaults = {
+        systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+        defaultLanguageIds: ['2fbb5fe2e29a4d70aa5854ce7ce3e20b'],
+        versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425'
+    };
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
     this.Data = data;
 
     /**
@@ -357,7 +367,7 @@ Shopware.prototype = {
     /**
      * @memberOf module:Shopware
      * @type {Object}
-     * @deprecated
+     * @deprecated 6.1
      */
     StateDeprecated: {
         registerStore: StateFactoryDeprecated.registerStore,

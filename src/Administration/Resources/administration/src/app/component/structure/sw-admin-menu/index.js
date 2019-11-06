@@ -90,11 +90,11 @@ Component.register('sw-admin-menu', {
         },
 
         firstName() {
-            return this.currentUser.firstName;
+            return this.currentUser ? this.currentUser.firstName : '';
         },
 
         lastName() {
-            return this.currentUser.lastName;
+            return this.currentUser ? this.currentUser.lastName : '';
         }
     },
 
@@ -267,6 +267,7 @@ Component.register('sw-admin-menu', {
 
         onLogoutUser() {
             this.loginService.logout();
+            this.$store.commit('adminUser/removeCurrentUser');
             this.$store.commit('notification/setNotifications', {});
             this.$store.commit('notification/clearGrowlNotificationsForCurrentUser');
             this.$store.commit('notification/clearNotificationsForCurrentUser');

@@ -230,7 +230,7 @@ class ApplicationBootstrapper {
      * @returns {module:core/application.ApplicationBootstrapper}
      */
     initializeFeatureFlags() {
-        const appContext = this.getContainer('service').appContext;
+        const appContext = Shopware.Context.App;
 
         Shopware.FeatureConfig.init(appContext.features);
 
@@ -513,7 +513,7 @@ class ApplicationBootstrapper {
         }
 
         // in production
-        const appContext = this.getContainer('service').appContext;
+        const appContext = Shopware.Context.App;
         const plugins = appContext.config.bundles;
 
         const injectAllPlugins = Object.values(plugins).map((plugin) => this.injectPlugin(plugin));

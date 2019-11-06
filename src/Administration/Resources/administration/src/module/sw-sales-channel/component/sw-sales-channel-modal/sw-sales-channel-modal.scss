@@ -11,22 +11,6 @@ $sw-sales-channel-modal-font-size-small:            $font-size-small;
         min-height: 150px;
     }
 
-    .sw-sales-channel-modal__back {
-        position: absolute;
-        top: 12px;
-        left: 20px;
-        border-radius: 50%;
-        text-align: center;
-        width: 40px;
-        height: 40px;
-        line-height: 40px;
-        background: 0 none;
-        border: 0 none;
-        color: $sw-sales-channel-modal-color-back;
-        cursor: pointer;
-        outline: none;
-    }
-
     .sw-sales-channel-modal__title {
         margin: 0;
         font-weight: normal;
@@ -56,13 +40,12 @@ $sw-sales-channel-modal-font-size-small:            $font-size-small;
         font-size: 18px;
         color: $sw-sales-channel-modal-color-detail-name;
         font-weight: 600;
-        margin-bottom: 8px;
+        margin: 6px 0;
     }
 
     .sw-sales-channel-modal__detail-manufacturer {
         font-size: $sw-sales-channel-modal-font-size-small;
         color: lighten($sw-sales-channel-modal-color-text, 25%);
-        margin-bottom: 20px;
     }
 
     .sw-sales-channel-modal__detail-description {
@@ -128,7 +111,8 @@ $sw-sales-channel-modal-font-size-small:            $font-size-small;
         padding: 10px 0;
     }
 
-    .sw-sales-channel-modal__grid-icon {
+    .sw-sales-channel-modal__grid-icon,
+    .sw-sales-channel-modal__detail-header-icon {
         background: $color-gray-100;
         width: 64px;
         height: 64px;

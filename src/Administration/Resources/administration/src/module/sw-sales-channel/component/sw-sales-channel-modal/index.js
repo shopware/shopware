@@ -12,7 +12,8 @@ Component.register('sw-sales-channel-modal', {
         return {
             salesChannelTypes: [],
             isLoading: false,
-            detailType: false
+            detailType: false,
+            total: 0
         };
     },
 
@@ -56,10 +57,6 @@ Component.register('sw-sales-channel-modal', {
 
         onCloseModal() {
             this.$emit('modal-close');
-        },
-
-        onOpenDetail(id) {
-            this.detailType = this.salesChannelTypes.find(a => a.id === id);
         },
 
         onAddChannel(id) {

@@ -90,6 +90,7 @@
                                     <sw-field type="text"
                                               :label="$tc('sw-cms.detail.labelPageName')"
                                               :placeholder="$tc('sw-cms.detail.labelPageName')"
+                                              @keypress.enter="onCompletePageCreation"
                                               v-model="page.name">
                                     </sw-field>
                                 {% endblock %}

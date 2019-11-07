@@ -454,6 +454,18 @@ To migrate your existing data run `bin/console database:migrate --all Shopware\\
     After:
     ```js
       inject: ['apiContext'],
+    ```  
+  
+* State was replaced by Vuex state. The old state was renamed to `StateDeprecated`
+
+    Before:
+    ```js
+      Shopware.State
+    ```
+  
+    After:
+    ```js
+      Shopware.StateDeprecated
     ```
 
 * Refactored the multiple inheritance of vuejs components and `$super` method with a **breaking change**!

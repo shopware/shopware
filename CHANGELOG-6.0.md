@@ -152,6 +152,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
 * Administration
     * Moved the sw-product-maintain-currencies-modal to sw-maintain-currencies-modal.
     * Seperate the Shopware context to App-Context and Api-Context
+    * Rename old `State` to `StateDeprecated`
     * Make vuex store initially available
 * Core
     * Moved the seo module from the storefront into the core.

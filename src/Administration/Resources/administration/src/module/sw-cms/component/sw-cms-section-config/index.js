@@ -9,7 +9,7 @@ Component.register('sw-cms-section-config', {
     inject: [
         'repositoryFactory',
         'cmsService',
-        'context'
+        'apiContext'
     ],
 
     mixins: [
@@ -56,7 +56,7 @@ Component.register('sw-cms-section-config', {
         successfulUpload(media) {
             this.section.backgroundMediaId = media.targetId;
 
-            this.mediaRepository.get(media.targetId, this.context).then((mediaItem) => {
+            this.mediaRepository.get(media.targetId, this.apiContext).then((mediaItem) => {
                 this.section.backgroundMedia = mediaItem;
             });
         },

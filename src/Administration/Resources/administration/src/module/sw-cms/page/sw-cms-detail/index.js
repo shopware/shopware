@@ -190,7 +190,7 @@ Component.register('sw-cms-detail', {
         createdComponent() {
             this.$store.commit('adminMenu/collapseSidebar');
 
-            const isSystemDefaultLanguage = this.context.languageId === this.context.systemLanguageId;
+            const isSystemDefaultLanguage = this.apiContext.languageId === this.apiContext.systemLanguageId;
             this.$store.commit('cmsPageState/setIsSystemDefaultLanguage', isSystemDefaultLanguage);
 
             this.resetCmsPageState();
@@ -341,7 +341,7 @@ Component.register('sw-cms-detail', {
 
             return this.salesChannelRepository.search(new Criteria(), this.apiContext).then((response) => {
                 this.salesChannels = response;
-                const isSystemDefaultLanguage = Shopware.StateDeprecated.getStore('language').languageId === this.context.systemLanguageId;
+                const isSystemDefaultLanguage = this.apiContext.languageId === this.apiContext.systemLanguageId;
                 this.$store.commit('cmsPageState/setIsSystemDefaultLanguage', isSystemDefaultLanguage);
                 return this.loadPage(this.pageId);
             });

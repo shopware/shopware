@@ -38,9 +38,9 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
         createdComponent() {
             this.$store.commit('adminMenu/collapseSidebar');
 
-            const isSystemDefaultLanguage = this.languageStore.languageId === this.languageStore.systemLanguageId;
+            const isSystemDefaultLanguage = this.apiContext.languageId === this.apiContext.systemLanguageId;
             if (!isSystemDefaultLanguage) {
-                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+                this.languageStore.setCurrentId(this.apiContext.systemLanguageId);
                 this.$store.commit('cmsPageState/setIsSystemDefaultLanguage', isSystemDefaultLanguage);
             }
 

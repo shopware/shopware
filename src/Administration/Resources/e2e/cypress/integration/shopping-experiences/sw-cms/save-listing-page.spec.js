@@ -42,11 +42,13 @@ describe('CMS: check validation of product list page', () => {
         // Add simple text block
         cy.get('.sw_sidebar__navigation-list li').first().click();
 
-        cy.get('.sw-cms-sidebar__section-setting')
+        cy.get('.sw-cms-section')
             .first()
+            .get('.sw-cms-section__actions .sw-cms-section-select')
             .click();
+        cy.get('.sw-cms-sidebar__section-settings').should('be.visible');
         cy.get('.sw-collapse__content').should('be.visible');
-        cy.get('.sw-cms-sidebar-section-settings__quickaction.is--danger').click();
+        cy.get('.sw-cms-section-config__quickaction.is--danger').click();
 
         cy.get('.sw-cms-detail__save-action').click();
         cy.wait('@saveData').then((xhr) => {

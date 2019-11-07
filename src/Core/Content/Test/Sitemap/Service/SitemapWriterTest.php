@@ -2,8 +2,13 @@
 
 namespace Shopware\Core\Content\Test\Sitemap\Service;
 
+use function file_exists;
+use function gzclose;
+use function gzopen;
+use function gzread;
 use League\Flysystem\Directory;
 use PHPUnit\Framework\TestCase;
+use function rewind;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Sitemap\Service\SitemapWriter;
 use Shopware\Core\Content\Sitemap\Struct\Url;
@@ -13,6 +18,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use function stream_get_contents;
+use function tmpfile;
 
 class SitemapWriterTest extends TestCase
 {
@@ -25,12 +32,28 @@ class SitemapWriterTest extends TestCase
      */
     private $salesChannelContext;
 
+    /** @var string */
+    private $testOutputGZFilename;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $this->salesChannelContext = $contextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+        // we need to temp. save the gz file
+        // because the gzopen does only support i/o written files on disk
+        $this->testOutputGZFilename = tmpfile() . '.gz';
+    }
+
+    public function tearDown(): void
+    {
+        parent::tearDown();
+
+        if (file_exists($this->testOutputGZFilename)) {
+            unlink($this->testOutputGZFilename);
+        }
     }
 
     public function testSitemapIsCreated(): void
@@ -70,5 +93,44 @@ class SitemapWriterTest extends TestCase
 
         $sitemap = $expectedPath . '/test.gz';
         static::assertTrue($filesystem->has($sitemap));
+
+        /** @var string $gzMemoryContent */
+        $gzMemoryContent = $filesystem->read($sitemap);
+
+        // to extract the content of the gz sitemap it needs to be written to the disk temporarily
+        file_put_contents($this->testOutputGZFilename, $gzMemoryContent);
+
+        /** @var string $content */
+        $content = $this->extractGZStream($this->testOutputGZFilename);
+
+        $expected = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://shopware.com</loc><lastmod>2019-11-07</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url></urlset>';
+        static::assertSame($expected, $content);
+    }
+
+    private function extractGZStream(string $gzPath): string
+    {
+        // Raising this value may increase performance
+        $buffer_size = 4096; // read 4kb at a time
+
+        /** @var resource $file */
+        $file = gzopen($gzPath, 'rb');
+
+        /** @var resource $destStream */
+        $destStream = fopen('php://memory', 'wb');
+
+        while (!gzeof($file)) {
+            fwrite($destStream, gzread($file, $buffer_size));
+        }
+
+        // set back to pos 0
+        rewind($destStream);
+
+        /** @var string $plainContent */
+        $plainContent = stream_get_contents($destStream);
+
+        fclose($destStream);
+        gzclose($file);
+
+        return $plainContent;
     }
 }

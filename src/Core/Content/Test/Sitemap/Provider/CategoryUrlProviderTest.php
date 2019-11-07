@@ -81,11 +81,11 @@ class CategoryUrlProviderTest extends TestCase
         static::assertSame(3, $urlResult->getNextOffset());
 
         // 1+n run
-        $urlResult = $categoryUrlProvider->getUrls($this->salesChannelContext, 3, 3);
-        static::assertSame(6, $urlResult->getNextOffset());
+        $urlResult = $categoryUrlProvider->getUrls($this->salesChannelContext, 2, 3);
+        static::assertSame(5, $urlResult->getNextOffset());
 
         // last run
-        $urlResult = $categoryUrlProvider->getUrls($this->salesChannelContext, 6, 3);
+        $urlResult = $categoryUrlProvider->getUrls($this->salesChannelContext, 100, 5); // test with high number to get last chunk
         static::assertNull($urlResult->getNextOffset());
     }
 

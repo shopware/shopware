@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Sitemap\Provider;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Sitemap\Provider\ProductUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
@@ -40,17 +41,51 @@ class ProductUrlProviderTest extends TestCase
 
     public function testProductUrlObjectContainsValidContent(): void
     {
+        $this->createProducts();
+
         $urlResult = $this->getProductUrlProvider()->getUrls($this->salesChannelContext, 5);
 
         [$firstUrl] = $urlResult->getUrls();
 
-        static::assertSame('daily', $firstUrl->getChangefreq());
+        static::assertSame('hourly', $firstUrl->getChangefreq());
         static::assertSame(0.5, $firstUrl->getPriority());
         static::assertSame(ProductEntity::class, $firstUrl->getResource());
         static::assertTrue(Uuid::isValid($firstUrl->getIdentifier()));
     }
 
     public function testReturnedOffsetIsValid(): void
+    {
+        $this->createProducts();
+
+        $productUrlProvider = $this->getProductUrlProvider();
+
+        // first run
+        $urlResult = $productUrlProvider->getUrls($this->salesChannelContext, 3);
+        static::assertSame(3, $urlResult->getNextOffset());
+
+        // 1+n run
+        $urlResult = $productUrlProvider->getUrls($this->salesChannelContext, 2, 3);
+        static::assertSame(5, $urlResult->getNextOffset());
+
+        // last run
+        $urlResult = $productUrlProvider->getUrls($this->salesChannelContext, 100, 5); // test with high number to get last chunk
+        static::assertNull($urlResult->getNextOffset());
+    }
+
+    private function getProductUrlProvider(): ProductUrlProvider
+    {
+        return new ProductUrlProvider($this->productSalesChannelRepository, $this->getContainer()->get('router.default'), $this->getContainer()->get(ConfigHandler::class));
+    }
+
+    private function createProducts(): void
+    {
+        /** @var array $products */
+        $products = $this->getProductTestData($this->salesChannelContext);
+
+        $this->getContainer()->get('product.repository')->create($products, $this->salesChannelContext->getContext());
+    }
+
+    private function getProductTestData(SalesChannelContext $salesChannelContext): array
     {
         $products = [
             [
@@ -61,6 +96,9 @@ class ProductUrlProviderTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 19],
                 'manufacturer' => ['name' => 'test'],
+                'visibilities' => [
+                    ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
             ],
             [
                 'id' => Uuid::randomHex(),
@@ -70,6 +108,9 @@ class ProductUrlProviderTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 19],
                 'manufacturer' => ['name' => 'test'],
+                'visibilities' => [
+                    ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
             ],
             [
                 'id' => Uuid::randomHex(),
@@ -79,6 +120,9 @@ class ProductUrlProviderTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 19],
                 'manufacturer' => ['name' => 'test'],
+                'visibilities' => [
+                    ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
             ],
             [
                 'id' => Uuid::randomHex(),
@@ -88,6 +132,9 @@ class ProductUrlProviderTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 19],
                 'manufacturer' => ['name' => 'test'],
+                'visibilities' => [
+                    ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
             ],
             [
                 'id' => Uuid::randomHex(),
@@ -97,28 +144,12 @@ class ProductUrlProviderTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 19],
                 'manufacturer' => ['name' => 'test'],
+                'visibilities' => [
+                    ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
             ],
         ];
 
-        $this->getContainer()->get('product.repository')->create($products, $this->salesChannelContext->getContext());
-
-        $productUrlProvider = $this->getProductUrlProvider();
-
-        // first run
-        $urlResult = $productUrlProvider->getUrls($this->salesChannelContext, 3);
-        static::assertSame(3, $urlResult->getNextOffset());
-
-        // 1+n run
-        $urlResult = $productUrlProvider->getUrls($this->salesChannelContext, 3, 3);
-        static::assertSame(6, $urlResult->getNextOffset());
-
-        // last run
-        $urlResult = $productUrlProvider->getUrls($this->salesChannelContext, 6, 3);
-        static::assertNull($urlResult->getNextOffset());
-    }
-
-    private function getProductUrlProvider(): ProductUrlProvider
-    {
-        return new ProductUrlProvider($this->productSalesChannelRepository, $this->getContainer()->get('router.default'), $this->getContainer()->get(ConfigHandler::class));
+        return $products;
     }
 }

@@ -73,25 +73,25 @@
                             {% block sw_newsletter_recipientlist_list_grid_status %}
                                 <template slot="column-status" slot-scope="{ item, compact, isInlineEdit }">
                                     {% block sw_newsletter_recipientlist_list_grid_status_notSet %}
-                                        <template v-if="item.status === 'notSet'">
-                                            <sw-label size="medium">{{ $tc('sw-newsletter-recipient.list.notSet') }}</sw-label>
-                                        </template>
-                                    {% endblock %}
-                                    {% block sw_newsletter_recipientlist_list_grid_status_optIn %}
-                                        <template v-else-if="item.status === 'optIn'">
-                                            <sw-label size="medium">{{ $tc('sw-newsletter-recipient.list.optIn') }}</sw-label>
-                                        </template>
-                                    {% endblock %}
-                                    {% block sw_newsletter_recipientlist_list_grid_status_optOut %}
-                                        <template v-else-if="item.status === 'optOut'">
-                                            <sw-label size="medium">{{ $tc('sw-newsletter-recipient.list.optOut') }}</sw-label>
-                                        </template>
-                                    {% endblock %}
-                                    {% block sw_newsletter_recipientlist_list_grid_status_direct %}
-                                        <template v-else-if="item.status === 'direct'">
-                                            <sw-label size="medium">{{ $tc('sw-newsletter-recipient.list.direct') }}</sw-label>
-                                        </template>
-                                    {% endblock %}
+                                    <template v-if="item.status === 'notSet'">
+                                        <sw-label size="medium" appearance="pill">{{ $tc('sw-newsletter-recipient.list.notSet') }}</sw-label>
+                                    </template>
+                                {% endblock %}
+                                {% block sw_newsletter_recipientlist_list_grid_status_optIn %}
+                                    <template v-else-if="item.status === 'optIn'">
+                                        <sw-label size="medium" appearance="pill">{{ $tc('sw-newsletter-recipient.list.optIn') }}</sw-label>
+                                    </template>
+                                {% endblock %}
+                                {% block sw_newsletter_recipientlist_list_grid_status_optOut %}
+                                    <template v-else-if="item.status === 'optOut'">
+                                        <sw-label size="medium" appearance="pill">{{ $tc('sw-newsletter-recipient.list.optOut') }}</sw-label>
+                                    </template>
+                                {% endblock %}
+                                {% block sw_newsletter_recipientlist_list_grid_status_direct %}
+                                    <template v-else-if="item.status === 'direct'">
+                                        <sw-label size="medium" appearance="pill">{{ $tc('sw-newsletter-recipient.list.direct') }}</sw-label>
+                                    </template>
+                                {% endblock %}
                                 </template>
                             {% endblock %}
 

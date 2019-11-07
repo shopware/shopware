@@ -10,7 +10,7 @@
             "buttonCancel": "Abbrechen",
             "buttonCreate": "Anrede anlegen",
             "buttonSave": "Speichern",
-            "placeholderSearchBar": "Durchsuche alle Anreden"
+            "placeholderSearchBar": "Durchsuche alle Anreden ..."
         },
         "list": {
             "columnSalutationKey": "Technischer Name",

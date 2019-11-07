@@ -11,8 +11,8 @@
       "copyName": "Kopie",
       "errorBackRoutingTitle": "Fehler",
       "errorBackRoutingMessage": "Die aufgerufene Seite konnte nicht verarbeitet werden. Du wurdest zurückgeleitet.",
-      "placeholderSearchBarSets": "Durchsuche alle Textbaustein-Sets",
-      "placeholderSearchBarSnippets": "Durchsuche alle Textbausteine",
+      "placeholderSearchBarSets": "Durchsuche alle Textbaustein-Sets ...",
+      "placeholderSearchBarSnippets": "Durchsuche alle Textbausteine ...",
       "placeholderValue": "Inhalt definieren",
       "searchBarTitleSets": "Textbaustein-Sets",
       "searchBarTitleSnippets": "Textbausteine"

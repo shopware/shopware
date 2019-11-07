@@ -31,7 +31,7 @@ describe('Rule builder: Test crud operations', () => {
         );
 
         page.createBasicSelectCondition({
-            type: 'Shipping free product',
+            type: 'Free shipping',
             ruleSelector: `${page.elements.conditionOrContainer}--0 ${page.elements.baseCondition}`,
             value: 'No',
             isMulti: false

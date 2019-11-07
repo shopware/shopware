@@ -29,7 +29,7 @@
                 "tax": "VAT",
                 "quantity": "QTY",
                 "unitPrice": "Unit price",
-                "articleNumber": "Art no.",
+                "productNumber": "Prod. no.",
                 "total": "Total"
             },
             "tax": "plus %taxRate%% VAT:",
@@ -44,9 +44,9 @@
         }
     },
     "filter": {
-        "sortByNameAscending": "Name ascending",
-        "sortByNameDescending": "Name descending",
-        "sortByPriceAscending": "Price ascending",
-        "sortByPriceDescending": "Price descending"
+        "sortByNameAscending": "Name, ascending",
+        "sortByNameDescending": "Name, descending",
+        "sortByPriceAscending": "Price, ascending",
+        "sortByPriceDescending": "Price, descending"
     }
 }

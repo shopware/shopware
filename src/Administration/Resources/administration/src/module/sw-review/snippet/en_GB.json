@@ -3,8 +3,8 @@
     "general": {
       "mainMenuItemList": "Reviews",
       "mainMenuItemGeneral": "Reviews",
-      "placeholderSearchBar": "Search reviews",
-      "descriptionTextModule": "Manage received reviews here."
+      "placeholderSearchBar": "Search reviews...",
+      "descriptionTextModule": "Manage reviews here."
     },
     "list": {
       "textReviewOverview": "Reviews",
@@ -13,8 +13,8 @@
       "columnUser": "Customer",
       "columnStatus": "Visible",
       "columnCreatedAt": "Created at",
-      "columnComment": "Commented",
-      "columnTitle": "Review Title",
+      "columnComment": "Commented on",
+      "columnTitle": "Review title",
       "placeholderSearchBar": "Search reviews...",
       "messageEmpty": "No reviews yet"
     },
@@ -40,8 +40,8 @@
       "labelCustomer": "Customer",
       "titleCardComment": "Comment",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "The review \"{name}\" has been saved successfully.",
-      "placeholderComment": "Comment",
+      "messageSaveSuccess": "The review \"{name}\" has been saved.",
+      "placeholderComment": "Enter comment...",
       "review1PointRatingText": "Unsatisfactory",
       "review2PointRatingText": "Acceptable",
       "review3PointRatingText": "Good",

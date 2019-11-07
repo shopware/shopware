@@ -27,6 +27,7 @@
       "title": "Titel",
       "firstName": "Vorname",
       "lastName": "Nachname",
+      "salesChannel": "Verkaufskanal",
       "zipCode": "Postleitzahl",
       "city": "Stadt",
       "street": "Straße",

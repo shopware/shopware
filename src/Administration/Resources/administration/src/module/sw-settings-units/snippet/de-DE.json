@@ -2,7 +2,7 @@
   "sw-settings-units": {
     "general": {
       "mainMenuItemGeneral": "Einheiten",
-      "placeholderSearchBar": "Durchsuche alle Einheiten",
+      "placeholderSearchBar": "Durchsuche alle Maßeinheiten ...",
       "createNewUnit": "Einheit erstellen"
     },
     "grid": {

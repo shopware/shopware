@@ -2,7 +2,7 @@
   "sw-settings-country": {
     "general": {
       "mainMenuItemGeneral": "Länder",
-      "placeholderSearchBar": "Durchsuche alle Länder"
+      "placeholderSearchBar": "Durchsuche alle Länder ..."
     },
     "list": {
       "textHeadline": "Länder",

@@ -2,7 +2,7 @@
   "sw-settings-units": {
     "general": {
       "mainMenuItemGeneral": "Scale units",
-      "placeholderSearchBar": "Search units",
+      "placeholderSearchBar": "Search scale units...",
       "createNewUnit": "Create new unit"
     },
     "grid": {

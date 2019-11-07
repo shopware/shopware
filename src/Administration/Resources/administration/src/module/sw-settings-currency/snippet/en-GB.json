@@ -2,7 +2,7 @@
   "sw-settings-currency": {
     "general": {
       "mainMenuItemGeneral": "Currencies",
-      "placeholderSearchBar": "Search currencies"
+      "placeholderSearchBar": "Search all currencies..."
     },
     "list": {
       "textHeadline": "Currencies",

@@ -34,6 +34,7 @@ export default class ChangesetGenerator {
         const origin = entity.getOrigin();
         const draft = entity.getDraft();
 
+        console.log(definition);
         definition.forEachField((field, fieldName) => {
             // skip read only
             if (field.readOnly) {
@@ -55,8 +56,8 @@ export default class ChangesetGenerator {
             if (definition.isScalarField(field)) {
                 if (draftValue !== originValue) {
                     changes[fieldName] = draftValue;
-                    return;
                 }
+                return;
             }
 
             if (definition.isJsonField(field)) {
@@ -78,6 +79,8 @@ export default class ChangesetGenerator {
             }
 
             if (field.type !== 'association') {
+                // if we don't know what kind of field we write send complete draft
+                changes[fieldName] = draftValue;
                 return;
             }
 

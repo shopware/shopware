@@ -39,7 +39,8 @@
       "contentMenu": {
         "moveUp": "Move Up",
         "moveDown": "Move down",
-        "settings": "Settings",
+        "generalSettings": "General",
+        "layoutSettings": "Layout",
         "duplicate": "Duplicate"
       },
       "labelSidebarMobile": "Mobile sidebar behavior",

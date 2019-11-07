@@ -78,13 +78,13 @@ Component.register('sw-cms-section', {
         sectionSidebarClasses() {
             return {
                 'is--empty': this.sideBarEmpty,
-                'is--offcanvas': this.sectionMobileAndOffcanvas
+                'is--hidden': this.sectionMobileAndHidden
             };
         },
 
-        sectionMobileAndOffcanvas() {
+        sectionMobileAndHidden() {
             const view = this.$store.state.cmsPageState.currentCmsDeviceView;
-            return view === 'mobile' && this.section.mobileBehavior === 'offcanvas';
+            return view === 'mobile' && this.section.mobileBehavior === 'hidden';
         },
 
         isSideBarType() {

@@ -1,10 +1,46 @@
 @import "~scss/variables";
 
-.sw-cms-stage.is--mobile {
-    .sw-cms-section.is--sidebar {
+.sw-cms-stage {
+    &.is--mobile,
+    &.is--tablet-portrait,
+    &.is--tablet-landscape {
+        background: $color-gray-50 !important;
+
         .sw-cms-section__wrapper {
-            display: flex;
-            flex-direction: column;
+            border: 30px solid #f0f2f5;
+            border-radius: 15px;
+            box-shadow: 0 0 0 1px #d1d9e0;
+        }
+    }
+
+    &.is--mobile {
+        .sw-cms-section.is--sidebar {
+            .sw-cms-section__wrapper {
+                display: flex;
+                flex-direction: column;
+            }
+        }
+
+        .sw-cms-section__wrapper {
+            max-width: 460px !important;
+        }
+    }
+
+    &.is--tablet-portrait {
+        .sw-cms-section__wrapper {
+            max-width: 768px !important;
+        }
+    }
+
+    &.is--tablet-landscape {
+        .sw-cms-section__wrapper {
+            max-width: 1024px !important;
+        }
+    }
+
+    &.is--desktop {
+        .sw-cms-section__wrapper {
+            max-width: 100%;
         }
     }
 }
@@ -19,6 +55,7 @@
     grid-gap: 8px;
     grid-template-columns: 60px 1fr;
     align-items: center;
+    justify-items: center;
 
     &.is--active {
         border-color: $color-shopware-brand-500;
@@ -52,22 +89,21 @@
     }
 
     &.is--boxed {
-        justify-items: center;
-
         .sw-cms-section__wrapper {
             display: grid;
             max-width: 1080px;
-            width: 100%;
             margin: 0 auto;
             padding: 20px;
         }
     }
 
     .sw-cms-section__wrapper {
+        transition: max-width 0.4s ease-in-out, border-width 0.4s ease-in-out;
+        background: #fff;
         padding: 4px;
     }
 
-    .sw-cms-section__sidebar.is--offcanvas {
+    .sw-cms-section__sidebar.is--hidden {
         display: none;
     }
 

@@ -38,7 +38,8 @@
       "contentMenu": {
         "moveUp": "Nach oben verschieben",
         "moveDown": "Nach unten verschieben",
-        "settings": "Einstellungen",
+        "generalSettings": "Allgemein",
+        "layoutSettings": "Layout",
         "duplicate": "Duplizieren"
       },
       "labelSidebarMobile": "Mobiles Sidebar-Verhalten",

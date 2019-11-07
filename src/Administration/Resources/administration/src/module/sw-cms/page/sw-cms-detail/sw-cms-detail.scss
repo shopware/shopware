@@ -142,30 +142,6 @@
             margin: auto;
             transition: max-width 0.4s ease-in-out, border-width 0.4s ease-in-out;
             box-sizing: content-box;
-
-            &.is--mobile,
-            &.is--tablet-portrait,
-            &.is--tablet-landscape {
-                border: 30px solid #f0f2f5;
-                border-radius: 15px;
-                box-shadow: 0 0 0 1px #d1d9e0;
-            }
-
-            &.is--mobile {
-                max-width: 460px;
-            }
-
-            &.is--tablet-portrait {
-                max-width: 768px;
-            }
-
-            &.is--tablet-landscape {
-                max-width: 1024px;
-            }
-
-            &.is--desktop {
-                max-width: 100%;
-            }
         }
     }
 }

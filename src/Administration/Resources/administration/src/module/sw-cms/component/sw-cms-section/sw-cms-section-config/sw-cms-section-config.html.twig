@@ -29,6 +29,30 @@
                     </sw-text-field>
                 {% endblock %}
 
+                {% block sw_cms_sidebar_section_config_css_classes_field %}
+                    <sw-text-field
+                        v-model="section.cssClass"
+                        :label="$tc('sw-cms.detail.labelCssClassField')"
+                        :helpText="$tc('sw-cms.detail.helpTextCssClassField')">
+                    </sw-text-field>
+                {% endblock %}
+
+                {% block sw_cms_sidebar_section_config_sizing_field %}
+                    <sw-select-field :label="$tc('sw-cms.detail.labelSizingField')" v-model="section.sizingMode">
+                        <option value="boxed">{{ $tc('sw-cms.detail.labelSizingOptionBoxed') }}</option>
+                        <option value="full_width">{{ $tc('sw-cms.detail.labelSizingOptionFull') }}</option>
+                    </sw-select-field>
+                {% endblock %}
+
+                {% block sw_cms_sidebar_section_config_sidebar_mobile %}
+                    <sw-select-field v-if="section.type === 'sidebar'"
+                                     :label="$tc('sw-cms.sidebar.labelSidebarMobile')"
+                                     v-model="section.mobileBehavior">
+                        <option value="hidden">{{ $tc('sw-cms.sidebar.labelSidebarMobileOptionHidden') }}</option>
+                        <option value="wrap">{{ $tc('sw-cms.sidebar.labelSidebarMobileOptionWrap') }}</option>
+                    </sw-select-field>
+                {% endblock %}
+
                 {% block sw_cms_section_config_background_color_field %}
                     <sw-colorpicker v-model="section.backgroundColor"
                                     :label="$tc('sw-cms.detail.labelBackgroundColorLabel')"

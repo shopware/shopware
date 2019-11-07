@@ -80,6 +80,7 @@ Component.register('sw-cms-sidebar', {
             if (this.selectedBlock !== null) {
                 return this.$tc('sw-cms.detail.sidebarTitleBlockSettings');
             }
+
             return this.$tc('sw-cms.detail.sidebarTitleSectionSettings');
         }
     },

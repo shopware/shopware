@@ -4,17 +4,17 @@
         {% block sw_cms_block_config__quickactions %}
             <ul class="sw-cms-block-config__quickactions-list" :class="quickactionClasses">
                 {% block sw_cms_block_config__quickaction_duplicate %}
-                        <li class="sw-cms-block-config__quickaction" @click="onBlockDuplicate">
-                            <sw-icon name="default-action-duplicate" size="16"></sw-icon>
-                            {{ $tc('sw-cms.sidebar.contentMenu.duplicate') }}
-                        </li>
-                    {% endblock %}
+                    <li class="sw-cms-block-config__quickaction" @click="onBlockDuplicate">
+                        <sw-icon name="default-action-duplicate" size="16"></sw-icon>
+                        {{ $tc('sw-cms.sidebar.contentMenu.duplicate') }}
+                    </li>
+                {% endblock %}
 
-                    {% block sw_cms_block_config__quickaction_delete %}
-                        <li class="sw-cms-block-config__quickaction is--danger" @click="onBlockDelete">
-                            <sw-icon name="default-action-trash" size="16"></sw-icon>
-                            {{ $tc('sw-cms.general.buttonDelete') }}
-                        </li>
+                {% block sw_cms_block_config__quickaction_delete %}
+                    <li class="sw-cms-block-config__quickaction is--danger" @click="onBlockDelete">
+                        <sw-icon name="default-action-trash" size="16"></sw-icon>
+                        {{ $tc('sw-cms.general.buttonDelete') }}
+                    </li>
                 {% endblock %}
             </ul>
         {% endblock %}

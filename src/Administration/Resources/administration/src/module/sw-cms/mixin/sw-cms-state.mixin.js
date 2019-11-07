@@ -1,6 +1,5 @@
 const { Mixin } = Shopware;
 
-
 Mixin.register('cms-state', {
     computed: {
         cmsPageState() {

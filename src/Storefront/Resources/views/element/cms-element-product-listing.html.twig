@@ -21,7 +21,7 @@
     {% endif %}
 
     {% set sidebar = sectionType == 'sidebar' ? true : false %}
-    {% set params = { slots: slot.id } %}
+    {% set params = { slots: slot.id, 'no-aggregations': 1 } %}
 
     {% block element_product_listing_wrapper %}
         <div class="cms-element-product-listing-wrapper"

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use function Flag\next3722;
 use function Flag\skipTestNext3722;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
@@ -858,6 +859,80 @@ EOF;
         $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/product', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $response->getContent());
+    }
+
+    /**
+     * Tests the API search endpoint. Asserts that an entity can be both part of the result data as well as the
+     * associations when the entity is fetched as a top level entity result and through circular associations.
+     */
+    public function testEntityIsPresentInTopLevelEntityResultWhenAlsoPartOfAssociations(): void
+    {
+        // In this test case both products are created with the same base data (i.e. they are part of the same sales
+        // channel).
+        $productBase = [
+            'name' => 'Some product',
+            'stock' => 1,
+            'tax' => [
+                'name' => 'test',
+                'taxRate' => 10,
+            ],
+            'manufacturer' => [
+                'name' => 'Shopware AG',
+            ],
+            'price' => [
+                [
+                    'currencyId' => Defaults::CURRENCY,
+                    'gross' => 50,
+                    'net' => 25,
+                    'linked' => false,
+                ],
+            ],
+            'visibilities' => [
+                [
+                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+                ],
+            ],
+        ];
+
+        $product1 = array_merge($productBase, [
+            'id' => Uuid::randomHex(),
+            'productNumber' => 'product-1',
+        ]);
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $product1);
+
+        $product2 = array_merge($productBase, [
+            'id' => Uuid::randomHex(),
+            'productNumber' => 'product-2',
+        ]);
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $product2);
+
+        // Add associations so that the products are both part of the top level entity result as well as the
+        // associations through the circular association chain.
+        $data = [
+            'page' => 1,
+            'limit' => 25,
+            'associations' => [
+                'visibilities' => [
+                    'associations' => [
+                        'salesChannel' => [
+                            'associations' => [
+                                'productVisibilities' => [
+                                    'associations' => [
+                                        'product' => [],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/product', $data);
+        $response = $this->getBrowser()->getResponse();
+        $searchResult = json_decode($response->getContent(), true);
+        static::assertCount(2, $searchResult['data']);
     }
 
     public function testNestedSearchOnOneToMany(): void

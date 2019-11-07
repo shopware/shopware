@@ -9,11 +9,11 @@
                         {{ "search.headline"|trans({
                             '%searchTerm%': page.searchTerm,
                             '%totalCount%': page.searchResult.total,
-                        }) }}
+                        })|sw_sanitize }}
                     {% endblock %}
                 </h1>
             {% endblock %}
-            
+
             {% block page_search_listing %}
                 <div class="cms-element-product-listing">
                     {% block page_search_listing_row %}

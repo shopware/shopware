@@ -102,16 +102,16 @@
                                                 {% block page_checkout_item_info_ordernumber %}
                                                     {% if lineItem.payload.productNumber %}
                                                         <div class="cart-item-ordernumber">
-                                                            {{ "checkout.cartItemInfoId"|trans }} {{ lineItem.payload.productNumber }}
+                                                            {{ "checkout.cartItemInfoId"|trans|sw_sanitize }} {{ lineItem.payload.productNumber }}
                                                         </div>
                                                     {% endif %}
                                                 {% endblock %}
 
                                                 {% if lineItem.type == 'product' and lineItem.price.referencePrice is not null %}
                                                     {% set price = lineItem.price %}
-                                                    {{ "checkout.priceUnitName"|trans }}
+                                                    {{ "checkout.priceUnitName"|trans|sw_sanitize }}
                                                     <span class="price-unit-reference">
-                                                        {{ price.referencePrice.price|currency }}{{ "general.star"|trans }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}
+                                                        {{ price.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}
                                                     </span>
                                                 {% endif %}
 
@@ -134,7 +134,7 @@
                                                             {{ "checkout.lineItemDeliveryDate"|trans({
                                                                 '%earliest%': deliveryPosition.deliveryDate.earliest|localizeddate('short', 'none', app.request.locale),
                                                                 '%latest%': deliveryPosition.deliveryDate.latest|localizeddate('short', 'none', app.request.locale)
-                                                            }) }}
+                                                            })|sw_sanitize }}
                                                         </div>
                                                     {% endif %}
                                                 {% endblock %}
@@ -152,7 +152,7 @@
                         <div class="row cart-item-quantity-row">
                             {% block page_checkout_item_quantity_label %}
                                 <div class="col-8 col-sm-12 cart-item-quantity-label">
-                                    {{ "checkout.cartHeaderQuantity"|trans }}
+                                    {{ "checkout.cartHeaderQuantity"|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}
 
@@ -213,12 +213,12 @@
                             {% if not isDiscount and not isNested %}
                                 {% block page_checkout_item_unit_price_label %}
                                     <div class="cart-item-unit-price-label">
-                                        {{ "checkout.cartHeaderUnitPrice"|trans }}
+                                        {{ "checkout.cartHeaderUnitPrice"|trans|sw_sanitize }}
                                     </div>
                                 {% endblock %}
 
                                 {% block page_checkout_item_unit_price_inner %}
-                                    {{ lineItem.price.unitPrice|currency }}{% block page_checkout_item_unit_price_tax_symbol %}{{ "general.star"|trans }}{% endblock %}
+                                    {{ lineItem.price.unitPrice|currency }}{% block page_checkout_item_unit_price_tax_symbol %}{{ "general.star"|trans|sw_sanitize }}{% endblock %}
                                 {% endblock %}
                             {% endif %}
                         {% endblock %}
@@ -230,12 +230,12 @@
                         {% block page_checkout_item_total_price_wrapper %}
                             {% block page_checkout_item_total_price_label %}
                                 <div class="cart-item-total-price-label">
-                                    {{ "checkout.cartHeaderTotalPrice"|trans }}
+                                    {{ "checkout.cartHeaderTotalPrice"|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}
 
                             {% block page_checkout_item_total_price_inner %}
-                                {{ lineItem.price.totalPrice|currency }}{% block page_checkout_item_total_price_tax_symbol %}{{ "general.star"|trans }}{% endblock %}
+                                {{ lineItem.price.totalPrice|currency }}{% block page_checkout_item_total_price_tax_symbol %}{{ "general.star"|trans|sw_sanitize }}{% endblock %}
                             {% endblock %}
                         {% endblock %}
                     </div>
@@ -261,7 +261,7 @@
 
                                     {% block page_checkout_item_remove_submit %}
                                         <button type="submit"
-                                                title="{{ "checkout.removeLineItem"|trans }}"
+                                                title="{{ "checkout.removeLineItem"|trans|striptags }}"
                                                 class="btn btn-light btn-sm cart-item-remove-button">
                                             {% sw_icon 'x' style { 'size': 'sm' } %}
                                         </button>

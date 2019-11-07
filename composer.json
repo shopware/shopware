@@ -41,6 +41,7 @@
         "elasticsearch/elasticsearch": "7.2.2",
         "enqueue/dbal": "0.9.13",
         "erusev/parsedown-extra": "0.7.1",
+        "ezyang/htmlpurifier": "^4.12",
         "google/cloud-storage": "1.15.0",
         "guzzlehttp/guzzle": "6.4.1",
         "jdorn/sql-formatter": "1.2.17",

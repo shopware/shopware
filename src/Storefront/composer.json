@@ -14,6 +14,7 @@
     "require": {
         "cocur/slugify": "3.2",
         "doctrine/dbal": "2.10.0",
+        "ezyang/htmlpurifier": "^4.12",
         "padaliyajay/php-autoprefixer": "1.2",
         "scssphp/scssphp": "1.0.5",
         "shopware/core": "*",

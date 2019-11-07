@@ -9,13 +9,13 @@
                         <div class="card-body">
                             {% block page_newsletter_headline_title %}
                                 <h1 class="newsletter-title">
-                                    {{ "newsletter.headline"|trans }}
+                                    {{ "newsletter.headline"|trans|sw_sanitize }}
                                 </h1>
                             {% endblock %}
 
                             {% block page_newsletter_headline_info %}
                                 <div class="newsletter-info">
-                                    {{ "newsletter.info"|trans }}
+                                    {{ "newsletter.info"|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}
                         </div>
@@ -27,7 +27,7 @@
                         <div class="card-body">
                             {% block page_newsletter_form_title %}
                                 <div class="card-title">
-                                    {{ "newsletter.headline"|trans }}
+                                    {{ "newsletter.headline"|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}
 
@@ -59,10 +59,10 @@
                                                                 data-form-field-toggle-target=".js-field-toggle-newsletter-additional"
                                                                 data-form-field-toggle-value="subscribe">
                                                             <option value="subscribe">
-                                                                {{ "newsletter.subscribeOption"|trans }}
+                                                                {{ "newsletter.subscribeOption"|trans|sw_sanitize }}
                                                             </option>
                                                             <option value="unsubscribe">
-                                                                {{ "newsletter.unsubscribeOption"|trans }}
+                                                                {{ "newsletter.unsubscribeOption"|trans|sw_sanitize }}
                                                             </option>
                                                         </select>
                                                     </div>
@@ -83,7 +83,7 @@
                                         <div class="form-group newsletter-email">
                                             {% block page_newsletter_form_field_email_label %}
                                                 <label class="form-label" for="newsletterMail">
-                                                    {{ "account.personalMailLabel"|trans }}{{ "general.required"|trans }}
+                                                    {{ "account.personalMailLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                                                 </label>
                                             {% endblock %}
 
@@ -91,7 +91,7 @@
                                                 <input name="email"
                                                        type="email"
                                                        id="newsletterMail"
-                                                       placeholder="{{ "account.personalMailPlaceholder"|trans }}{{ "general.required"|trans }}"
+                                                       placeholder="{{ "account.personalMailPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
                                                        required="required"
                                                        value="{{ data.get('email') }}"
                                                        class="form-control{% if formViolations.getViolations('/email') %} is-invalid{% endif %}"/>
@@ -114,7 +114,7 @@
                                                     <div class="form-group col-md-4 newsletter-salutation">
                                                         {% block page_newsletter_form_field_salutation_select_label %}
                                                             <label class="form-label" for="newsletterSalutation">
-                                                                {{ "account.personalSalutationLabel"|trans }}
+                                                                {{ "account.personalSalutationLabel"|trans|sw_sanitize }}
                                                             </label>
                                                         {% endblock %}
                                                         {% block page_newsletter_form_field_salutation_select %}
@@ -125,7 +125,7 @@
                                                                     <option disabled="disabled"
                                                                             selected="selected"
                                                                             value="">
-                                                                        {{ "account.personalSalutationPlaceholder"|trans }}
+                                                                        {{ "account.personalSalutationPlaceholder"|trans|sw_sanitize }}
                                                                     </option>
                                                                 {% endif %}
                                                                 {% for salutation in page.salutations %}
@@ -143,7 +143,7 @@
                                                 <div class="form-group newsletter-firstname">
                                                     {% block page_newsletter_form_field_firstname_label %}
                                                         <label class="form-label" for="newsletterFirstName">
-                                                            {{ "account.personalFirstNameLabel"|trans }}
+                                                            {{ "account.personalFirstNameLabel"|trans|sw_sanitize }}
                                                         </label>
                                                     {% endblock %}
 
@@ -151,7 +151,7 @@
                                                         <input name="firstName"
                                                                id="newsletterFirstName"
                                                                type="text"
-                                                               placeholder="{{ "account.personalFirstNamePlaceholder"|trans }}"
+                                                               placeholder="{{ "account.personalFirstNamePlaceholder"|trans|striptags }}"
                                                                value="{{ data.get('firstName') }}"
                                                                class="form-control"/>
                                                     {% endblock %}
@@ -161,7 +161,7 @@
                                             {% block page_newsletter_form_field_lastname %}
                                                 {% block page_newsletter_form_field_lastname_label %}
                                                     <label class="form-label" for="newsletterLastName">
-                                                        {{ "account.personalLastNameLabel"|trans }}
+                                                        {{ "account.personalLastNameLabel"|trans|sw_sanitize }}
                                                     </label>
                                                 {% endblock %}
                                                 {% block page_newsletter_form_field_lastname_input %}
@@ -169,7 +169,7 @@
                                                         <input name="lastName"
                                                                id="newsletterLastName"
                                                                type="text"
-                                                               placeholder="{{ "account.personalLastNamePlaceholder"|trans }}"
+                                                               placeholder="{{ "account.personalLastNamePlaceholder"|trans|striptags }}"
                                                                value="{{ data.get('lastName') }}"
                                                                class="form-control"/>
                                                     </div>
@@ -180,14 +180,14 @@
                                                 <div class="form-group newsletter-street">
                                                     {% block page_newsletter_form_field_street_label %}
                                                         <label class="form-label" for="newsletterStreet">
-                                                            {{ "address.streetLabel"|trans }}
+                                                            {{ "address.streetLabel"|trans|sw_sanitize }}
                                                         </label>
                                                     {% endblock %}
                                                     {% block page_newsletter_form_field_street_input %}
                                                         <input name="street"
                                                                id="newsletterStreet"
                                                                type="text"
-                                                               placeholder="{{ "address.streetPlaceholder"|trans }}"
+                                                               placeholder="{{ "address.streetPlaceholder"|trans|striptags }}"
                                                                value="{{ data.get('street') }}"
                                                                class="form-control"/>
                                                     {% endblock %}
@@ -198,24 +198,24 @@
                                                 <div class="form-row newsletter-zip-city">
                                                     {% set zipcodeField %}
                                                         <label class="form-label" for="newsletterZipcode">
-                                                            {{ "address.zipcodeLabel"|trans }}
+                                                            {{ "address.zipcodeLabel"|trans|sw_sanitize }}
                                                         </label>
                                                         <input name="zipCode"
                                                                type="text"
                                                                class="form-control"
                                                                id="newsletterZipcode"
-                                                               placeholder="{{ "address.zipcodePlaceholder"|trans }}"
+                                                               placeholder="{{ "address.zipcodePlaceholder"|trans|striptags }}"
                                                                value="{{ data.get('zipcode') }}">
                                                     {% endset %}
                                                     {% set cityField %}
                                                         <label class="form-label" for="newsletterCity">
-                                                            {{ "address.cityLabel"|trans }}
+                                                            {{ "address.cityLabel"|trans|sw_sanitize }}
                                                         </label>
                                                         <input name="city"
                                                                type="text"
                                                                class="form-control "
                                                                id="newsletterCity"
-                                                               placeholder="{{ "address.cityPlaceholder"|trans }}"
+                                                               placeholder="{{ "address.cityPlaceholder"|trans|striptags }}"
                                                                value="{{ data.get('city') }}">
                                                     {% endset %}
                                                     {% if shopware.config.core.address.showZipcodeInFrontOfCity %}
@@ -247,7 +247,7 @@
 
                                     {% block page_newsletter_form_required %}
                                         <p class="form-text newsletter-required-info">
-                                            {{ "general.requiredFields"|trans }}
+                                            {{ "general.requiredFields"|trans|sw_sanitize }}
                                         </p>
                                     {% endblock %}
 
@@ -255,7 +255,7 @@
                                         <div class="newsletter-action">
                                             <button type="submit"
                                                     class="btn btn-primary newsletter-btn">
-                                                {{ "newsletter.formSubmit"|trans }}
+                                                {{ "newsletter.formSubmit"|trans|sw_sanitize }}
                                             </button>
                                         </div>
                                     {% endblock %}

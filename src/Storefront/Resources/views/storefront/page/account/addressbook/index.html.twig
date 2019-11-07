@@ -6,12 +6,12 @@
             <div class="account-welcome">
                 {% block page_account_address_welcome_headline %}
                     <h1>
-                        {{ "account.addressWelcome"|trans }}
+                        {{ "account.addressWelcome"|trans|sw_sanitize }}
                     </h1>
                 {% endblock %}
                 {% block page_account_address_welcome_intro %}
                     <p>
-                        {{ "account.addressText"|trans }}
+                        {{ "account.addressText"|trans|sw_sanitize }}
                     </p>
                 {% endblock %}
             </div>
@@ -21,19 +21,19 @@
             {% if app.request.get('changedDefaultAddress') == '1' %}
                 {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                     type:"success",
-                    content: "account.addressDefaultChanged"|trans
+                    content: "account.addressDefaultChanged"|trans|sw_sanitize
                 } %}
             {% endif %}
             {% if app.request.get('addressDeleted') == '1' %}
                 {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                     type:"success",
-                    content: "account.addressDeleted"|trans
+                    content: "account.addressDeleted"|trans|sw_sanitize
                 } %}
             {% endif %}
             {% if app.request.get('addressSaved') %}
                 {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                     type:"success",
-                    content: "account.addressSaved"|trans
+                    content: "account.addressSaved"|trans|sw_sanitize
                 } %}
             {% endif %}
         {% endblock %}
@@ -42,13 +42,13 @@
             {% if app.request.get('changedDefaultAddress') == '0' %}
                 {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                     type:"danger",
-                    content: "account.addressDefaultNotChanged"|trans
+                    content: "account.addressDefaultNotChanged"|trans|sw_sanitize
                 } %}
             {% endif %}
             {% if app.request.get('addressDeleted') == '0' %}
                 {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                     type:"danger",
-                    content: "account.addressNotDeleted"|trans
+                    content: "account.addressNotDeleted"|trans|sw_sanitize
                 } %}
             {% endif %}
         {% endblock %}
@@ -67,7 +67,7 @@
                                         <div class="address-item-body">
                                             {% block page_account_address_billing_title %}
                                                 <div class="card-title">
-                                                    <div>{{ "account.addressesTitleDefaultBillingAddress"|trans }}</div>
+                                                    <div>{{ "account.addressesTitleDefaultBillingAddress"|trans|sw_sanitize }}</div>
                                                 </div>
                                             {% endblock %}
                                             {% block page_account_address_billing_address %}
@@ -90,7 +90,7 @@
                                         <div class="address-item-body">
                                             {% block page_account_address_shipping_title %}
                                                 <div class="card-title">
-                                                    <div>{{ "account.addressesTitleDefaultShippingAddress"|trans }}</div>
+                                                    <div>{{ "account.addressesTitleDefaultShippingAddress"|trans|sw_sanitize }}</div>
                                                 </div>
                                             {% endblock %}
                                             {% block page_account_address_shipping_address %}
@@ -110,9 +110,9 @@
             {% block page_account_address_item_content_create %}
                 <div class="address-action-create">
                     <a href="{{ path('frontend.account.address.create.page') }}"
-                       title="{{ "account.addressCreateBtn"|trans }}"
+                       title="{{ "account.addressCreateBtn"|trans|striptags }}"
                        class="btn btn-primary">
-                        {{ "account.addressCreateBtn"|trans }}
+                        {{ "account.addressCreateBtn"|trans|sw_sanitize }}
                     </a>
                 </div>
             {% endblock %}
@@ -120,7 +120,7 @@
             {% block page_account_address_list %}
                 <div class="address-list">
                     <div class="h3">
-                        {{ "account.addressListHeader"|trans }}
+                        {{ "account.addressListHeader"|trans|sw_sanitize }}
                     </div>
 
                     <div class="row">

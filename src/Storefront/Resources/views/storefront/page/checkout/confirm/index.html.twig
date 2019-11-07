@@ -10,7 +10,7 @@
     {% block page_checkout_confirm %}
         {% block page_checkout_confirm_header %}
             <h1 class="confirm-main-header">
-                {{ "checkout.confirmHeader"|trans }}
+                {{ "checkout.confirmHeader"|trans|sw_sanitize }}
             </h1>
         {% endblock %}
 
@@ -22,7 +22,7 @@
 
                     {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                         type: "danger",
-                        content: snippetName|trans({'%field%': fieldName})
+                        content: snippetName|trans({'%field%': fieldName})|sw_sanitize
                     } %}
                 {% endfor %}
             {% endblock %}
@@ -33,7 +33,7 @@
 
                     {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                         type: "danger",
-                        content: snippetName|trans({'%name%': error.name})
+                        content: snippetName|trans({'%name%': error.name})|sw_sanitize
                     } %}
                 {% endfor %}
             {% endblock %}
@@ -45,7 +45,7 @@
                     <div class="card-body">
                         {% block page_checkout_confirm_tos_header %}
                             <div class="card-title">
-                                {{ "checkout.confirmTermsHeader"|trans }}
+                                {{ "checkout.confirmTermsHeader"|trans|sw_sanitize }}
                             </div>
                         {% endblock %}
 
@@ -55,9 +55,9 @@
                                     {% block page_checkout_confirm_revocation_notice_link %}
                                         <a href="{{ path('frontend.cms.page',{ id: shopware.config.core.basicInformation.revocationPage }) }}"
                                            data-toggle="modal"
-                                           title="{{ "checkout.confirmRevocationNotice"|trans }}"
+                                           title="{{ "checkout.confirmRevocationNotice"|trans|striptags }}"
                                            data-url="{{ path('frontend.cms.page',{ id: shopware.config.core.basicInformation.revocationPage }) }}">
-                                            {{ "checkout.confirmRevocationNotice"|trans }}
+                                            {{ "checkout.confirmRevocationNotice"|trans|sw_sanitize }}
                                         </a>
                                     {% endblock %}
                                 </p>
@@ -80,7 +80,7 @@
                                            class="custom-control-label">
                                         {{ "checkout.confirmTerms"|trans({
                                             '%url%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.tosPage })
-                                        })|raw }}
+                                        })|raw|sw_sanitize }}
                                     </label>
                                 {% endblock %}
                             </div>
@@ -157,7 +157,7 @@
                         disabled="disabled"
                     {% endif %}
                         type="submit">
-                    {{ "checkout.confirmSubmit"|trans }}
+                    {{ "checkout.confirmSubmit"|trans|sw_sanitize }}
                 </button>
             {% endblock %}
         </form>

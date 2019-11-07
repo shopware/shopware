@@ -8,7 +8,7 @@
                     <div class="card-body">
                         {% block page_checkout_finish_address_billing_title %}
                             <div class="card-title">
-                                {{ "checkout.billingAddressHeader"|trans }}
+                                {{ "checkout.billingAddressHeader"|trans|sw_sanitize }}
                             </div>
                         {% endblock %}
 
@@ -28,7 +28,7 @@
                     <div class="card-body">
                         {% block page_checkout_finish_address_shipping_title %}
                             <div class="card-title">
-                                {{ "checkout.shippingAddressHeader"|trans }}
+                                {{ "checkout.shippingAddressHeader"|trans|sw_sanitize }}
                             </div>
                         {% endblock %}
 

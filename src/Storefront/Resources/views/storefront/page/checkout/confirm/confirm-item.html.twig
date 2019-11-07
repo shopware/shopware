@@ -7,9 +7,9 @@
             {% block page_checkout_item_tax_price_label %}
                 <div class="cart-item-tax-price-label">
                     {% if context.taxState == "gross" %}
-                        {{ "checkout.cartHeaderTaxIncludeVat"|trans }}
+                        {{ "checkout.cartHeaderTaxIncludeVat"|trans|sw_sanitize }}
                     {% else %}
-                        {{ "checkout.cartHeaderTaxExcludeVat"|trans }}
+                        {{ "checkout.cartHeaderTaxExcludeVat"|trans|sw_sanitize }}
                     {% endif %}
                 </div>
             {% endblock %}

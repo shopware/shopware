@@ -102,9 +102,9 @@
                     {% block page_product_detail_tax %}
                         <div class="product-detail-tax-container">
                             {% if context.taxState == "gross" %}
-                                {% set taxText = "general.grossTaxInformation"|trans %}
+                                {% set taxText = "general.grossTaxInformation"|trans|sw_sanitize %}
                             {% else %}
-                                {% set taxText = "general.netTaxInformation"|trans %}
+                                {% set taxText = "general.netTaxInformation"|trans|sw_sanitize %}
                             {% endif %}
 
                             <p class="product-detail-tax">
@@ -139,7 +139,7 @@
                                    href="#review-tab-pane"
                                    aria-controls="review-tab-pane">
                                     {{ page.totalReviews}}
-                                    {{ "detail.reviewLinkText"|trans({'%count%': page.totalReviews}) }}
+                                    {{ "detail.reviewLinkText"|trans({'%count%': page.totalReviews})|sw_sanitize }}
                                 </a>
                             </p>
                         {% endif %}
@@ -175,7 +175,7 @@
                 <div class="product-detail-ordernumber-container">
                     {% block page_product_detail_ordernumber_label %}
                         <span class="product-detail-ordernumber-label">
-                            {{ "detail.ordernumberLabel"|trans }}
+                            {{ "detail.ordernumberLabel"|trans|sw_sanitize }}
                         </span>
                     {% endblock %}
 

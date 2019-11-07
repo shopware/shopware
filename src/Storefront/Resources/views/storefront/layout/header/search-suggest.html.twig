@@ -64,7 +64,7 @@
                     {% if page.searchResult.total == 0 %}
                         {% block layout_search_suggest_no_result %}
                             <li class="search-suggest-no-result">
-                                {{ "header.searchNoResult"|trans }}
+                                {{ "header.searchNoResult"|trans|sw_sanitize }}
                             </li>
                         {% endblock %}
                     {% else %}
@@ -75,17 +75,17 @@
                                     {% block layout_search_suggest_result_total_link %}
                                         <div class="col">
                                             <a href="{{ path('frontend.search.page') }}?search={{ page.searchTerm }}"
-                                               title="{{ "header.searchAllResults"|trans }}"
+                                               title="{{ "header.searchAllResults"|trans|striptags }}"
                                                class="search-suggest-total-link">
                                                 {% sw_icon 'arrow-head-right' style { 'size': 'sm' } %}
-                                                {{ "header.searchAllResults"|trans }}
+                                                {{ "header.searchAllResults"|trans|sw_sanitize }}
                                             </a>
                                         </div>
                                     {% endblock %}
 
                                     {% block layout_search_suggest_result_total_count %}
                                         <div class="col-auto search-suggest-total-count">
-                                            {{ page.searchResult.total }} {{ "header.searchResults"|trans }}
+                                            {{ page.searchResult.total }} {{ "header.searchResults"|trans|sw_sanitize }}
                                         </div>
                                     {% endblock %}
                                 </div>

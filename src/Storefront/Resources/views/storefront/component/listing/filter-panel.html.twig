@@ -18,7 +18,7 @@
                                 elements: manufacturers.entities,
                                 sidebar: sidebar,
                                 name: 'manufacturer',
-                                displayName: 'listing.filterManufacturerDisplayName'|trans
+                                displayName: 'listing.filterManufacturerDisplayName'|trans|sw_sanitize
                             } %}
                         {% endif %}
                     {% endblock %}
@@ -54,7 +54,7 @@
                                 name: 'price',
                                 minKey: 'min-price',
                                 maxKey: 'max-price',
-                                displayName: 'listing.filterPriceDisplayName'|trans,
+                                displayName: 'listing.filterPriceDisplayName'|trans|sw_sanitize,
                             } %}
                         {% endif %}
                     {% endblock %}
@@ -65,7 +65,7 @@
                         {% if listing.aggregations.get('rating') %}
                             {% sw_include '@Storefront/storefront/component/listing/filter/filter-rating.html.twig' with {
                                 name: 'rating',
-                                displayName: 'listing.filterRatingDisplayName'|trans
+                                displayName: 'listing.filterRatingDisplayName'|trans|sw_sanitize
                             } %}
                         {% endif %}
                     {% endblock %}
@@ -76,7 +76,7 @@
                         {% if listing.aggregations.get('shipping-free') %}
                             {% sw_include '@Storefront/storefront/component/listing/filter/filter-boolean.html.twig' with {
                                 name: 'shipping-free',
-                                displayName: 'listing.filterFreeShippingDisplayName'|trans
+                                displayName: 'listing.filterFreeShippingDisplayName'|trans|sw_sanitize
                             } %}
                         {% endif %}
                     {% endblock %}

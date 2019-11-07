@@ -66,8 +66,8 @@
                     {% block page_product_detail_buy_button_container %}
                         <div class="col-8">
                             {% block page_product_detail_buy_button %}
-                                <button class="btn btn-primary btn-block btn-buy">
-                                    {{ "detail.addProduct"|trans }}
+                                <button class="btn btn-primary btn-block btn-buy" title="{{ "detail.addProduct"|trans|striptags }}">
+                                    {{ "detail.addProduct"|trans|sw_sanitize }}
                                 </button>
                             {% endblock %}
                         </div>

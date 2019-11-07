@@ -24,7 +24,7 @@
                                             {% block component_address_address_editor_modal_accordion_overview_billing_card_title %}
                                                 <div class="card-title">
                                                     {% block component_address_address_editor_modal_accordion_overview_billing_card_title_text %}
-                                                        {{ "account.addressesTitleCurrentBillingAddress"|trans }}
+                                                        {{ "account.addressesTitleCurrentBillingAddress"|trans|sw_sanitize }}
                                                     {% endblock %}
                                                 </div>
                                             {% endblock %}
@@ -50,7 +50,7 @@
                                             {% block component_address_address_editor_modal_accordion_overview_shipping_card_title %}
                                                 <div class="card-title">
                                                     {% block component_address_address_editor_modal_accordion_overview_shipping_card_title_text %}
-                                                        {{ "account.addressesTitleCurrentShippingAddress"|trans }}
+                                                        {{ "account.addressesTitleCurrentShippingAddress"|trans|sw_sanitize }}
                                                     {% endblock %}
                                                 </div>
                                             {% endblock %}
@@ -79,7 +79,7 @@
                                     <div class="btn btn-outline-primary btn-block address-editor-select"
                                          data-toggle="collapse"
                                          data-target="#address-list">
-                                        {{ "account.selectAddress"|trans }}
+                                        {{ "account.selectAddress"|trans|sw_sanitize }}
                                     </div>
                                 </div>
                             {% endif %}
@@ -90,7 +90,7 @@
                                 <div class="btn btn-outline-primary btn-block address-editor-create collapsed"
                                      data-toggle="collapse"
                                      data-target="#address-create-new">
-                                    {{ "account.addressCreateBtn"|trans }}
+                                    {{ "account.addressCreateBtn"|trans|sw_sanitize }}
                                 </div>
                             </div>
                         {% endblock %}

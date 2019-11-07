@@ -2,16 +2,16 @@
 
 {% block component_account_login_header %}
 	<h2 class="card-title">
-		{{ "detail.reviewLoginHeader"|trans }}
+		{{ "detail.reviewLoginHeader"|trans|sw_sanitize }}
 	</h2>
 {% endblock %}
 
 {% block component_account_login_form_description %}
 	<p class="login-form-description">
-		{{ "detail.reviewLoginDescription"|trans }}
+		{{ "detail.reviewLoginDescription"|trans|sw_sanitize }}
 		<a href="{{ path('frontend.account.login.page') }}"
-		   title="{{ "detail.reviewRegisterLink"|trans }}">
-            {{ "detail.reviewRegisterLink"|trans }}
+		   title="{{ "detail.reviewRegisterLink"|trans|striptags }}">
+            {{ "detail.reviewRegisterLink"|trans|sw_sanitize }}
 		</a>
 	</p>
 {% endblock %}
@@ -38,7 +38,7 @@
 			   data-target=".multi-collapse"
 			   aria-expanded="false"
 			   aria-controls="review-form review-list">
-				{{ "detail.reviewLoginCancelButton"|trans }}
+				{{ "detail.reviewLoginCancelButton"|trans|sw_sanitize }}
 			</a>
 		{% endblock %}
 	</div>

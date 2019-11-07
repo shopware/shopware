@@ -5,11 +5,11 @@
 {% endif %}
 
 {% if filterRatingActiveLabelStart is not defined %}
-    {% set filterRatingActiveLabelStart = 'listing.filterRatingActiveLabelStart'|trans %}
+    {% set filterRatingActiveLabelStart = 'listing.filterRatingActiveLabelStart'|trans|sw_sanitize %}
 {% endif %}
 
 {% if filterRatingActiveLabelEnd is not defined %}
-    {% set filterRatingActiveLabelEnd = 'listing.filterRatingActiveLabelEnd'|trans %}
+    {% set filterRatingActiveLabelEnd = 'listing.filterRatingActiveLabelEnd'|trans|sw_sanitize %}
 {% endif %}
 
 {% block component_filter_rating %}

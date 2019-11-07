@@ -6,20 +6,20 @@
                     <h1 class="finish-header">
                         {{ "checkout.finishHeader"|trans({
                             '%shop%': shopware.config.core.basicInformation.shopName
-                        }) }}
+                        })|sw_sanitize }}
                     </h1>
                 {% endblock %}
 
                 {% block page_checkout_finish_ordernumber %}
                     <p class="finish-ordernumber">
-                        {{ "checkout.finishInfoOrdernumber"|trans }}{{ page.order.orderNumber }}
+                        {{ "checkout.finishInfoOrdernumber"|trans|sw_sanitize }}{{ page.order.orderNumber }}
                     </p>
                 {% endblock %}
 
                 {% block page_checkout_finish_content %}
                     <div class="finish-content">
                         {% block page_checkout_finish_teaser %}
-                            <p class="finish-teaser">{{ "checkout.finishInfoConfirmationMail"|trans }}</p>
+                            <p class="finish-teaser">{{ "checkout.finishInfoConfirmationMail"|trans|sw_sanitize }}</p>
                         {% endblock %}
 
                         {% block page_checkout_finish_action %}
@@ -27,8 +27,8 @@
                                 {% block page_checkout_finish_action_back %}
                                     <a href="{{ path('frontend.home.page') }}"
                                        class="btn btn-primary finish-back-button"
-                                       title="{{ "checkout.finishButtonBackToShop"|trans }}">
-                                        {{ "checkout.finishButtonBackToShop"|trans }}
+                                       title="{{ "checkout.finishButtonBackToShop"|trans|striptags }}">
+                                        {{ "checkout.finishButtonBackToShop"|trans|sw_sanitize }}
                                     </a>
                                 {% endblock %}
                             </div>
@@ -53,20 +53,20 @@
                         <div class="card-body">
                             {% block page_checkout_finish_order_title %}
                                 <div class="card-title">
-                                    {{ "checkout.finishInfoHeader"|trans }}
+                                    {{ "checkout.finishInfoHeader"|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}
 
                             {% block page_checkout_finish_order_payment_method %}
                                 <p>
-                                    <strong>{{ "checkout.finishInfoPayment"|trans }}</strong>
+                                    <strong>{{ "checkout.finishInfoPayment"|trans|sw_sanitize }}</strong>
                                     {{ context.paymentMethod.translated.name }}
                                 </p>
                             {% endblock %}
 
                             {% block page_checkout_finish_order_dispatch_method %}
                                 <p>
-                                    <strong>{{ "checkout.finishInfoShipping"|trans }}</strong>
+                                    <strong>{{ "checkout.finishInfoShipping"|trans|sw_sanitize }}</strong>
                                     {{ context.shippingMethod.translated.name }}
                                 </p>
                             {% endblock %}

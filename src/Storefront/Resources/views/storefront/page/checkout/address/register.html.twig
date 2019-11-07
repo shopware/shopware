@@ -18,7 +18,7 @@
             {% block page_checkout_register_personal_guest_label %}
                 <label class="custom-control-label"
                        for="personalGuest">
-                    {{ "checkout.registerGuestmodeLabel"|trans }}
+                    {{ "checkout.registerGuestmodeLabel"|trans|sw_sanitize }}
                 </label>
             {% endblock %}
         </div>

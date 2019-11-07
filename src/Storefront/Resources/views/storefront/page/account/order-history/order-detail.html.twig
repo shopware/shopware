@@ -8,25 +8,25 @@
                         <div class="row">
                             {% block page_account_order_item_detail_table_header_name %}
                                 <div class="col-6 order-header-name">
-                                    {{ "account.orderItemColumnName"|trans }}
+                                    {{ "account.orderItemColumnName"|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}
 
                             {% block page_account_order_item_detail_table_header_quantity %}
                                 <div class="col-2 order-header-quantity">
-                                    {{ "account.orderItemColumnQuantity"|trans }}
+                                    {{ "account.orderItemColumnQuantity"|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}
 
                             {% block page_account_order_item_detail_table_header_price %}
                                 <div class="col-2 order-header-price">
-                                    {{ "account.orderItemColumnPrice"|trans }}
+                                    {{ "account.orderItemColumnPrice"|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}
 
                             {% block page_account_order_item_detail_table_header_total %}
                                 <div class="col-2 order-header-total">
-                                    {{ "account.orderItemColumnTotal"|trans }}
+                                    {{ "account.orderItemColumnTotal"|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}
                         </div>
@@ -46,7 +46,7 @@
                                         <dl class="row no-gutters order-item-detail-labels">
                                             {% block page_account_order_item_detail_date %}
                                                 {% block page_account_order_item_detail_date_label %}
-                                                    <dt class="col-6 col-md-5">{{ "account.orderItemDate"|trans }}</dt>
+                                                    <dt class="col-6 col-md-5">{{ "account.orderItemDate"|trans|sw_sanitize }}</dt>
                                                 {% endblock %}
 
                                                 {% block page_account_order_item_detail_date_value %}
@@ -56,7 +56,7 @@
 
                                             {% block page_account_order_item_detail_number %}
                                                 {% block page_account_order_item_detail_number_label %}
-                                                    <dt class="col-6 col-md-5">{{ "account.orderItemNumber"|trans }}</dt>
+                                                    <dt class="col-6 col-md-5">{{ "account.orderItemNumber"|trans|sw_sanitize }}</dt>
                                                 {% endblock %}
 
                                                 {% block page_account_order_item_detail_number_value %}
@@ -67,7 +67,7 @@
                                             {% block page_account_order_item_detail_payment_method %}
                                                 {% if order.transactions|length > 0 %}
                                                     {% block page_account_order_item_detail_payment_method_label %}
-                                                        <dt class="col-6 col-md-5">{{ "account.orderItemPaymentMethod"|trans }}</dt>
+                                                        <dt class="col-6 col-md-5">{{ "account.orderItemPaymentMethod"|trans|sw_sanitize }}</dt>
                                                     {% endblock %}
 
                                                     {% block page_account_order_item_detail_payment_method_value %}
@@ -83,7 +83,7 @@
                                             {% block page_account_order_item_detail_shipping_method %}
                                                 {% if order.deliveries|length > 0 %}
                                                     {% block page_account_order_item_detail_shipping_method_label %}
-                                                        <dt class="col-6 col-md-5">{{ "account.orderItemShippingMethod"|trans }}</dt>
+                                                        <dt class="col-6 col-md-5">{{ "account.orderItemShippingMethod"|trans|sw_sanitize }}</dt>
                                                     {% endblock %}
 
                                                     {% block page_account_order_item_detail_shipping_method_value %}
@@ -103,7 +103,7 @@
                                             <dl class="row no-gutters order-item-detail-summary">
                                                 {% block page_account_order_item_detail_shipping_costs %}
                                                     {% block page_account_order_item_detail_shipping_costs_label %}
-                                                        <dt class="col-6 col-md-8">{{ "account.orderItemShippingcosts"|trans }}</dt>
+                                                        <dt class="col-6 col-md-8">{{ "account.orderItemShippingcosts"|trans|sw_sanitize }}</dt>
                                                     {% endblock %}
 
                                                     {% block page_account_order_item_detail_shipping_costs_value %}
@@ -115,9 +115,9 @@
                                                     {% block page_account_order_item_detail_amount_label %}
                                                         <dt class="col-6 col-md-8">
                                                             {% if order.isTaxFree %}
-                                                                {{ "account.orderItemNetTotal"|trans }}
+                                                                {{ "account.orderItemNetTotal"|trans|sw_sanitize }}
                                                             {% else %}
-                                                                {{ "account.orderItemTotal"|trans }}
+                                                                {{ "account.orderItemTotal"|trans|sw_sanitize }}
                                                             {% endif %}
                                                         </dt>
                                                     {% endblock %}

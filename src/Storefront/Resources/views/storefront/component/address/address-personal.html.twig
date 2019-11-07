@@ -7,7 +7,7 @@
                     {% block component_address_personal_account_type_label %}
                         <label class="form-label"
                                for="{{ prefix }}accountType">
-                            {{ "account.personalTypeLabel"|trans }}{{ "general.required"|trans }}
+                            {{ "account.personalTypeLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                         </label>
                     {% endblock %}
 
@@ -21,31 +21,31 @@
                                 data-form-field-toggle-value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}">
                             {% if page.address.company %}
                                 <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_PRIVATE') }}">
-                                    {{ "account.personalTypePrivate"|trans }}
+                                    {{ "account.personalTypePrivate"|trans|sw_sanitize }}
                                 </option>
                                 <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}"
                                         selected="selected">
-                                    {{ "account.personalTypeBusiness"|trans }}
+                                    {{ "account.personalTypeBusiness"|trans|sw_sanitize }}
                                 </option>
                             {% elseif prefix == "address" and not page.address.company %}
                                 <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_PRIVATE') }}"
                                         selected="selected">
-                                    {{ "account.personalTypePrivate"|trans }}
+                                    {{ "account.personalTypePrivate"|trans|sw_sanitize }}
                                 </option>
                                 <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}">
-                                    {{ "account.personalTypeBusiness"|trans }}
+                                    {{ "account.personalTypeBusiness"|trans|sw_sanitize }}
                                 </option>
                             {% else %}
                                 <option disabled="disabled"
                                         selected="selected"
                                         value="">
-                                    {{ "account.personalTypeLabel"|trans }}{{ "general.required"|trans }}
+                                    {{ "account.personalTypeLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                                 </option>
                                 <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_PRIVATE') }}">
-                                    {{ "account.personalTypePrivate"|trans }}
+                                    {{ "account.personalTypePrivate"|trans|sw_sanitize }}
                                 </option>
                                 <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}">
-                                    {{ "account.personalTypeBusiness"|trans }}
+                                    {{ "account.personalTypeBusiness"|trans|sw_sanitize }}
                                 </option>
                             {% endif %}
                         </select>
@@ -72,7 +72,7 @@
                     {% block component_address_personal_fields_salutation_label %}
                         <label class="form-label"
                                for="{{ prefix }}personalSalutation">
-                            {{ "account.personalSalutationLabel"|trans }}{{ "general.required"|trans }}
+                            {{ "account.personalSalutationLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                         </label>
                     {% endblock %}
 
@@ -85,7 +85,7 @@
                                 <option disabled="disabled"
                                         selected="selected"
                                         value="">
-                                    {{ "account.personalSalutationPlaceholder"|trans }}{{ "general.required"|trans }}
+                                    {{ "account.personalSalutationPlaceholder"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                                 </option>
                             {% endif %}
                             {% for salutation in page.salutations %}
@@ -115,7 +115,7 @@
                         {% block component_address_personal_fields_title_label %}
                             <label class="form-label"
                                    for="{{ prefix }}personalTitle">
-                                {{ "account.personalTitleLabel"|trans }}
+                                {{ "account.personalTitleLabel"|trans|sw_sanitize }}
                             </label>
                         {% endblock %}
 
@@ -124,7 +124,7 @@
                                    class="form-control"
                                    autocomplete="section-personal title"
                                    id="{{ prefix }}personalTitle"
-                                   placeholder="{{ "account.personalTitlePlaceholder"|trans }}"
+                                   placeholder="{{ "account.personalTitlePlaceholder"|trans|striptags }}"
                                    name="{% if prefix %}{{ prefix }}[title]{% else %}title{% endif %}"
                                    value="{{ data.get('title') }}">
                         {% endblock %}
@@ -141,7 +141,7 @@
                     {% block component_address_personal_fields_first_name_label %}
                         <label class="form-label"
                                for="{{ prefix }}personalFirstName">
-                            {{ "account.personalFirstNameLabel"|trans }}{{ "general.required"|trans }}
+                            {{ "account.personalFirstNameLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                         </label>
                     {% endblock %}
 
@@ -150,7 +150,7 @@
                                class="form-control{% if formViolations.getViolations('/firstName') is not empty %} is-invalid{% endif %}"
                                autocomplete="section-personal given-name"
                                id="{{ prefix }}personalFirstName"
-                               placeholder="{{ "account.personalFirstNamePlaceholder"|trans }}{{ "general.required"|trans }}"
+                               placeholder="{{ "account.personalFirstNamePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
                                name="{% if prefix %}{{ prefix }}[firstName]{% else %}firstName{% endif %}"
                                value="{{ data.get('firstName') }}"
                                required="required">
@@ -171,7 +171,7 @@
                     {% block component_address_personal_fields_last_name_label %}
                         <label class="form-label"
                                for="{{ prefix }}personalLastName">
-                            {{ "account.personalLastNameLabel"|trans }}{{ "general.required"|trans }}
+                            {{ "account.personalLastNameLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                         </label>
                     {% endblock %}
 
@@ -180,7 +180,7 @@
                                class="form-control{% if formViolations.getViolations('/lastName') is not empty %} is-invalid{% endif %}"
                                autocomplete="section-personal family-name"
                                id="{{ prefix }}personalLastName"
-                               placeholder="{{ "account.personalLastNamePlaceholder"|trans }}{{ "general.required"|trans }}"
+                               placeholder="{{ "account.personalLastNamePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
                                name="{% if prefix %}{{ prefix }}[lastName]{% else %}lastName{% endif %}"
                                value="{{ data.get('lastName') }}"
                                required="required">
@@ -202,7 +202,7 @@
         {% if showBirthdayField %}
             {% block component_address_personal_fields_birthday_label %}
                 <label for="{{ prefix }}personalBirthday">
-                    {{ "account.personalBirthdayLabel"|trans }}{{ shopware.config.core.loginRegistration.birthdayFieldRequired ? "general.required"|trans }}
+                    {{ "account.personalBirthdayLabel"|trans|sw_sanitize }}{{ shopware.config.core.loginRegistration.birthdayFieldRequired ? "general.required"|trans|sw_sanitize }}
                 </label>
             {% endblock %}
 
@@ -217,7 +217,7 @@
                                 {% if not data.get('birthdayDay') %}
                                     <option selected="selected"
                                             value="">
-                                        {{ "account.personalBirthdaySelectDay"|trans }}
+                                        {{ "account.personalBirthdaySelectDay"|trans|sw_sanitize }}
                                     </option>
                                 {% endif %}
                                 {% for day in range(1, 31) %}
@@ -246,7 +246,7 @@
                                 {% if not data.get('birthdayMonth') %}
                                     <option selected="selected"
                                             value="">
-                                        {{ "account.personalBirthdaySelectMonth"|trans }}
+                                        {{ "account.personalBirthdaySelectMonth"|trans|sw_sanitize }}
                                     </option>
                                 {% endif %}
                                 {% for month in range(1, 12) %}
@@ -278,7 +278,7 @@
                                 {% if not data.get('birthdayYear') %}
                                     <option selected="selected"
                                             value="">
-                                        {{ "account.personalBirthdaySelectYear"|trans }}
+                                        {{ "account.personalBirthdaySelectYear"|trans|sw_sanitize }}
                                     </option>
                                 {% endif %}
                                 {% for year in range(currentYear, startYear) %}

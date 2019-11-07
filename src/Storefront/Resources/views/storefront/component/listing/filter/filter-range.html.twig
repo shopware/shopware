@@ -5,15 +5,15 @@
 {% endif %}
 
 {% if filterRangeActiveMinLabel is not defined %}
-    {% set filterRangeActiveMinLabel = 'listing.filterRangeActiveMinLabel'|trans %}
+    {% set filterRangeActiveMinLabel = 'listing.filterRangeActiveMinLabel'|trans|sw_sanitize %}
 {% endif %}
 
 {% if filterRangeActiveMaxLabel is not defined %}
-    {% set filterRangeActiveMaxLabel = 'listing.filterRangeActiveMaxLabel'|trans %}
+    {% set filterRangeActiveMaxLabel = 'listing.filterRangeActiveMaxLabel'|trans|sw_sanitize %}
 {% endif %}
 
 {% if filterRangeErrorMessage is not defined %}
-    {% set filterRangeErrorMessage = 'listing.filterRangeErrorMessage'|trans %}
+    {% set filterRangeErrorMessage = 'listing.filterRangeErrorMessage'|trans|sw_sanitize %}
 {% endif %}
 
 {% block component_filter_range %}
@@ -64,7 +64,7 @@
                             <label class="filter-range-min">
 
                                 {% block component_filter_range_min_label %}
-                                    {{ 'listing.filterRangeMinLabel'|trans }}
+                                    {{ 'listing.filterRangeMinLabel'|trans|sw_sanitize }}
                                 {% endblock %}
 
                                 {% block component_filter_range_min_input %}
@@ -93,7 +93,7 @@
                             <label class="filter-range-max">
 
                                 {% block component_filter_range_max_label %}
-                                    {{ 'listing.filterRangeMaxLabel'|trans }}
+                                    {{ 'listing.filterRangeMaxLabel'|trans|sw_sanitize }}
                                 {% endblock %}
 
                                 {% block component_filter_range_max_input %}

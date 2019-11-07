@@ -3,25 +3,25 @@
         <div class="row cart-header-row">
             {% block page_checkout_cart_header_product_info %}
                 <div class="col-5 cart-header-info">
-                    {{ "checkout.cartHeaderInfo"|trans }}
+                    {{ "checkout.cartHeaderInfo"|trans|sw_sanitize }}
                 </div>
             {% endblock %}
 
             {% block page_checkout_cart_header_quantity %}
                 <div class="col-2 cart-header-quantity">
-                    {{ "checkout.cartHeaderQuantity"|trans }}
+                    {{ "checkout.cartHeaderQuantity"|trans|sw_sanitize }}
                 </div>
             {% endblock %}
 
             {% block page_checkout_cart_header_unit_price %}
                 <div class="col-2 cart-header-unit-price">
-                    {{ "checkout.cartHeaderUnitPrice"|trans }}
+                    {{ "checkout.cartHeaderUnitPrice"|trans|sw_sanitize }}
                 </div>
             {% endblock %}
 
             {% block page_checkout_cart_header_total_price %}
                 <div class="col-2 cart-header-total-price">
-                    {{ "checkout.cartHeaderTotalPrice"|trans }}
+                    {{ "checkout.cartHeaderTotalPrice"|trans|sw_sanitize }}
                 </div>
             {% endblock %}
         </div>

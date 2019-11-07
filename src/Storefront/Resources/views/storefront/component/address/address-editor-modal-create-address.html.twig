@@ -8,7 +8,7 @@
                 {% block component_address_address_editor_modal_create_address_title %}
                     <div class="card-title create-address-title">
                         {% block component_address_address_editor_modal_create_address_title_text %}
-                            {{ "account.addressCreateWelcome"|trans }}
+                            {{ "account.addressCreateWelcome"|trans|sw_sanitize }}
                         {% endblock %}
                     </div>
                 {% endblock %}
@@ -54,7 +54,7 @@
                                 {% block component_address_address_editor_modal_create_address_required_hint %}
                                     <p class="address-required-info required-fields">
                                         {% block component_address_address_editor_modal_create_address_required_hint_text %}
-                                            {{ "general.requiredFields"|trans }}
+                                            {{ "general.requiredFields"|trans|sw_sanitize }}
                                         {% endblock %}
                                     </p>
                                 {% endblock %}
@@ -64,9 +64,9 @@
                                         {% block component_address_address_editor_modal_create_address_form_actions_submit %}
                                             <button type="submit"
                                                     class="address-form-submit btn btn-primary"
-                                                    title="{{ "account.addressSaveChange"|trans }}">
+                                                    title="{{ "account.addressSaveChange"|trans|striptags }}">
                                                 {% block component_address_address_editor_modal_create_address_form_actions_submit_text %}
-                                                    {{ "account.addressSaveChange"|trans }}
+                                                    {{ "account.addressSaveChange"|trans|sw_sanitize }}
                                                 {% endblock %}
                                             </button>
                                         {% endblock %}
@@ -80,4 +80,3 @@
         {% endblock %}
     </div>
 {% endblock %}
-

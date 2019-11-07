@@ -3,6 +3,6 @@
 {% block base_content %}
     {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
         type: "success",
-        content: "newsletter.subscriptionCompleted"|trans
+        content: "newsletter.subscriptionCompleted"|trans|sw_sanitize
     } %}
 {% endblock %}

@@ -23,24 +23,24 @@
                                 {% elseif formViolations.getViolations("/#{prefix}/company") is not empty %}
                                     {% set violationPath = "/#{prefix}/company" %}
                                 {% endif %}
-                                
+
                                 {% block component_address_form_company_name_label %}
                                     <label class="form-label"
                                            for="{{ prefix }}company">
-                                        {{ "address.companyNameLabel"|trans }}{% if prefix != "shippingAddress" and accounTypeRequired %}{{ "general.required"|trans }}{% endif %}
+                                        {{ "address.companyNameLabel"|trans|sw_sanitize }}{% if prefix != "shippingAddress" and accounTypeRequired %}{{ "general.required"|trans|sw_sanitize }}{% endif %}
                                     </label>
                                 {% endblock %}
-                
+
                                 {% block component_address_form_company_name_input %}
                                     <input type="text"
                                            class="form-control{% if violationPath %} is-invalid{% endif %}"
                                            id="{{ prefix }}company"
-                                           placeholder="{{ "address.companyNamePlaceholder"|trans }}{% if prefix != "shippingAddress" and accounTypeRequired %}{{ "general.required"|trans }}{% endif %}"
+                                           placeholder="{{ "address.companyNamePlaceholder"|trans|striptags }}{% if prefix != "shippingAddress" and accounTypeRequired %}{{ "general.required"|trans|striptags }}{% endif %}"
                                            name="{{ prefix }}[company]"
                                            value="{{ data.get('company') }}"
                                            {% if prefix != "shippingAddress" and accounTypeRequired %}required="required"{% endif %}>
                                 {% endblock %}
-                                
+
                                 {% block component_address_form_company_name_input_error %}
                                     {% if violationPath %}
                                         {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
@@ -57,23 +57,23 @@
                                 {% elseif formViolations.getViolations("/#{prefix}/department") is not empty %}
                                     {% set violationPath = "/#{prefix}/department" %}
                                 {% endif %}
-            
+
                                 {% block component_address_form_company_department_label %}
                                     <label class="form-label"
                                            for="{{ prefix }}department">
-                                        {{ "address.companyDepartmentLabel"|trans }}
+                                        {{ "address.companyDepartmentLabel"|trans|sw_sanitize }}
                                     </label>
                                 {% endblock %}
-            
+
                                 {% block component_address_form_company_department_input %}
                                     <input type="text"
                                            class="form-control{% if violationPath %} is-invalid{% endif %}"
                                            id="{{ prefix }}department"
-                                           placeholder="{{ "address.companyDepartmentPlaceholder"|trans }}"
+                                           placeholder="{{ "address.companyDepartmentPlaceholder"|trans|striptags }}"
                                            name="{{ prefix }}[department]"
                                            value="{{ data.get('department') }}">
                                 {% endblock %}
-            
+
                                 {% block component_address_form_company_department_input_error %}
                                     {% if violationPath %}
                                         {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
@@ -81,7 +81,7 @@
                                 {% endblock %}
                             </div>
                         {% endblock %}
-                        
+
                         {% block component_address_form_company_vatId %}
                             <div class="form-group col-md-6">
                                 {% if formViolations.getViolations("/vatId") is not empty %}
@@ -89,23 +89,23 @@
                                 {% elseif formViolations.getViolations("/#{prefix}/vatId") is not empty %}
                                     {% set violationPath = "/#{prefix}/vatId" %}
                                 {% endif %}
-            
+
                                 {% block component_address_form_company_vatId_label %}
                                     <label class="form-label"
                                            for="{{ prefix }}vatId">
-                                        {{ "address.companyVatLabel"|trans }}
+                                        {{ "address.companyVatLabel"|trans|sw_sanitize }}
                                     </label>
                                 {% endblock %}
-            
+
                                 {% block component_address_form_company_vatId_input %}
                                     <input type="text"
                                            class="form-control{% if violationPath %} is-invalid{% endif %}"
                                            id="{{ prefix }}vatId"
-                                           placeholder="{{ "address.companyVatPlaceholder"|trans }}"
+                                           placeholder="{{ "address.companyVatPlaceholder"|trans|striptags }}"
                                            name="{{ prefix }}[vatId]"
                                            value="{{ data.get('vatId') }}">
                                 {% endblock %}
-            
+
                                 {% block component_address_form_company_vatId_input_error %}
                                     {% if violationPath %}
                                         {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
@@ -132,7 +132,7 @@
                     {% block component_address_form_street_label %}
                         <label class="form-label"
                                for="{{ prefix }}AddressStreet">
-                            {{ "address.streetLabel"|trans }}{{ "general.required"|trans }}
+                            {{ "address.streetLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                         </label>
                     {% endblock %}
 
@@ -140,7 +140,7 @@
                         <input type="text"
                                class="form-control{% if violationPath %} is-invalid{% endif %}"
                                id="{{ prefix }}AddressStreet"
-                               placeholder="{{ "address.streetPlaceholder"|trans }}{{ "general.required"|trans }}"
+                               placeholder="{{ "address.streetPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
                                name="{{ prefix }}[street]"
                                value="{{ data.get('street') }}"
                                required="required">
@@ -165,7 +165,7 @@
                     {% block component_address_form_zipcode_label %}
                         <label class="form-label"
                                for="{{ prefix }}AddressZipcode">
-                            {{ "address.zipcodeLabel"|trans }}{{ "general.required"|trans }}
+                            {{ "address.zipcodeLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                         </label>
                     {% endblock %}
 
@@ -173,7 +173,7 @@
                         <input type="text"
                                class="form-control{% if violationPath %} is-invalid{% endif %}"
                                id="{{ prefix }}AddressZipcode"
-                               placeholder="{{ "address.zipcodePlaceholder"|trans }}{{ "general.required"|trans }}"
+                               placeholder="{{ "address.zipcodePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
                                name="{{ prefix }}[zipcode]"
                                value="{{ data.get('zipcode') }}"
                                required="required">
@@ -198,7 +198,7 @@
                     {% block component_address_form_city_label %}
                         <label class="form-label"
                                for="{{ prefix }}AddressCity">
-                            {{ "address.cityLabel"|trans }}{{ "general.required"|trans }}
+                            {{ "address.cityLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                         </label>
                     {% endblock %}
 
@@ -206,7 +206,7 @@
                         <input type="text"
                                class="form-control{% if violationPath %} is-invalid{% endif %}"
                                id="{{ prefix }}AddressCity"
-                               placeholder="{{ "address.cityPlaceholder"|trans }}{{ "general.required"|trans }}"
+                               placeholder="{{ "address.cityPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
                                name="{{ prefix }}[city]"
                                value="{{ data.get('city') }}"
                                required="required">
@@ -244,7 +244,7 @@
                         {% block component_address_form_additional_field1_label %}
                             <label class="form-label"
                                    for="{{ prefix }}AdditionalField1">
-                                {{ "address.additionalField1Label"|trans }}{{ shopware.config.core.loginRegistration.additionalAddressField1Required ? "general.required"|trans }}
+                                {{ "address.additionalField1Label"|trans|sw_sanitize }}{{ shopware.config.core.loginRegistration.additionalAddressField1Required ? "general.required"|trans|sw_sanitize }}
                             </label>
                         {% endblock %}
 
@@ -252,7 +252,7 @@
                             <input type="text"
                                    class="form-control"
                                    id="{{ prefix }}AdditionalField1"
-                                   placeholder="{{ "address.additionalField1Placeholder"|trans }}{{ shopware.config.core.loginRegistration.additionalAddressField1Required ? "general.required"|trans }}"
+                                   placeholder="{{ "address.additionalField1Placeholder"|trans|striptags }}{{ shopware.config.core.loginRegistration.additionalAddressField1Required ? "general.required"|trans|striptags }}"
                                    name="{{ prefix }}[additionalAddressLine1]"
                                    value="{{ data.get('additionalAddressLine1') }}"
                                     {{ shopware.config.core.loginRegistration.additionalAddressField1Required ? 'required="true"' }}>
@@ -267,7 +267,7 @@
                         {% block component_address_form_additional_field2_label %}
                             <label class="form-label"
                                    for="{{ prefix }}AdditionalField2">
-                                {{ "address.additionalField2Label"|trans }}{{ shopware.config.core.loginRegistration.additionalAddressField2Required ? "general.required"|trans }}
+                                {{ "address.additionalField2Label"|trans|sw_sanitize }}{{ shopware.config.core.loginRegistration.additionalAddressField2Required ? "general.required"|trans|sw_sanitize }}
                             </label>
                         {% endblock %}
 
@@ -275,7 +275,7 @@
                             <input type="text"
                                    class="form-control"
                                    id="{{ prefix }}AdditionalField2"
-                                   placeholder="{{ "address.additionalField2Placeholder"|trans }}{{ shopware.config.core.loginRegistration.additionalAddressField2Required ? "general.required"|trans }}"
+                                   placeholder="{{ "address.additionalField2Placeholder"|trans|striptags }}{{ shopware.config.core.loginRegistration.additionalAddressField2Required ? "general.required"|trans|striptags }}"
                                    name="{{ prefix }}[additionalAddressLine2]"
                                    value="{{ data.get('additionalAddressLine2') }}"
                                     {{ shopware.config.core.loginRegistration.additionalAddressField2Required ? 'required="true"' }}>
@@ -295,7 +295,7 @@
                     {% block component_address_form_country_label %}
                         <label class="form-label"
                                for="{{ prefix }}AddressCountry">
-                            {{ "address.countryLabel"|trans }}{{ "general.required"|trans }}
+                            {{ "address.countryLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                         </label>
                     {% endblock %}
 
@@ -308,7 +308,7 @@
                                 <option disabled="disabled"
                                         value=""
                                         selected="selected">
-                                    {{ "address.countryPlaceholder"|trans }}{{ "general.required"|trans }}
+                                    {{ "address.countryPlaceholder"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                                 </option>
                             {% endif %}
                             {% for country in page.countries %}
@@ -342,7 +342,7 @@
                         {% block component_address_form_phone_number_label %}
                             <label class="form-label"
                                    for="{{ prefix }}AddressPhoneNumber">
-                                {{ "address.phoneNumberLabel"|trans }}{{ shopware.config.core.loginRegistration.phoneNumberFieldRequired ? "general.required"|trans }}
+                                {{ "address.phoneNumberLabel"|trans|sw_sanitize }}{{ shopware.config.core.loginRegistration.phoneNumberFieldRequired ? "general.required"|trans|sw_sanitize }}
                             </label>
                         {% endblock %}
 
@@ -350,7 +350,7 @@
                             <input type="text"
                                    class="form-control"
                                    id="{{ prefix }}AddressPhoneNumber"
-                                   placeholder="{{ "address.phoneNumberPlaceholder"|trans }}{{ shopware.config.core.loginRegistration.phoneNumberFieldRequired ? "general.required"|trans }}"
+                                   placeholder="{{ "address.phoneNumberPlaceholder"|trans|striptags }}{{ shopware.config.core.loginRegistration.phoneNumberFieldRequired ? "general.required"|trans|striptags }}"
                                    name="{{ prefix }}[phoneNumber]"
                                    value="{{ data.get('phoneNumber') }}"
                                 {{ shopware.config.core.loginRegistration.phoneNumberFieldRequired ? 'required="true"' }}>

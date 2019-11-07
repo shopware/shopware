@@ -4,7 +4,7 @@
             {% block page_account_sidebar_header %}
                 {% if not headerWidget %}
                     <div class="card-header account-aside-header">
-                        {{ "account.greetings"|trans }}
+                        {{ "account.greetings"|trans|sw_sanitize }}
                         {{ context.customer.title }}
                         {{ context.customer.firstName }}
                         {{ context.customer.lastName }}
@@ -18,41 +18,41 @@
                         {% block page_account_sidebar_menu_inner %}
                             {% block page_account_sidebar_link_home %}
                                 <a href="{{ path('frontend.account.home.page') }}"
-                                   title="{{ "account.overviewLink"|trans }}"
+                                   title="{{ "account.overviewLink"|trans|striptags }}"
                                    class="list-group-item list-group-item-action account-aside-item{% if controllerName is same as('AccountProfile') and controllerAction is same as('index') %} is-active{% endif %}">
-                                    {{ "account.overviewLink"|trans }}
+                                    {{ "account.overviewLink"|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}
 
                             {% block page_account_sidebar_link_profile %}
                                 <a href="{{ path('frontend.account.profile.page') }}"
-                                   title="{{ "account.profileLink"|trans }}"
+                                   title="{{ "account.profileLink"|trans|striptags }}"
                                    class="list-group-item list-group-item-action account-aside-item{% if controllerName is same as('AccountProfile') and controllerAction is same as('profileOverview') %} is-active{% endif %}">
-                                    {{ "account.profileLink"|trans }}
+                                    {{ "account.profileLink"|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}
 
                             {% block page_account_sidebar_link_address %}
                                 <a href="{{ path('frontend.account.address.page') }}"
-                                   title="{{ "account.addressLink"|trans }}"
+                                   title="{{ "account.addressLink"|trans|striptags }}"
                                    class="list-group-item list-group-item-action account-aside-item{% if controllerName is same as('Address') and controllerAction is same as('accountAddressOverview') %} is-active{% endif %}">
-                                    {{ "account.addressLink"|trans }}
+                                    {{ "account.addressLink"|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}
 
                             {% block page_account_sidebar_link_payment %}
                                 <a href="{{ path('frontend.account.payment.page') }}"
-                                   title="{{ "account.paymentLink"|trans }}"
+                                   title="{{ "account.paymentLink"|trans|striptags }}"
                                    class="list-group-item list-group-item-action account-aside-item{% if controllerName is same as('AccountPayment') and controllerAction is same as('paymentOverview') %} is-active{% endif %}">
-                                    {{ "account.paymentLink"|trans }}
+                                    {{ "account.paymentLink"|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}
 
                             {% block page_account_sidebar_link_orders %}
                                 <a href="{{ path('frontend.account.order.page') }}"
-                                   title="{{ "account.ordersLink"|trans }}"
+                                   title="{{ "account.ordersLink"|trans|striptags }}"
                                    class="list-group-item list-group-item-action account-aside-item{% if controllerName is same as('AccountOrder') and controllerAction is same as('orderOverview') %} is-active{% endif %}">
-                                    {{ "account.ordersLink"|trans }}
+                                    {{ "account.ordersLink"|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}
                         {% endblock %}
@@ -68,7 +68,7 @@
                                 <a href="{{ path('frontend.account.logout.page') }}"
                                    class="btn btn-link account-aside-btn">
                                     {% sw_icon 'log-out' %}
-                                    {{ "account.logout"|trans }}
+                                    {{ "account.logout"|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}
                         </div>
@@ -78,7 +78,7 @@
                                 <a href="{{ path('frontend.account.logout.page') }}"
                                    class="btn btn-link account-aside-btn">
                                     {% sw_icon 'log-out' %}
-                                    {{ "account.guestAbort"|trans }}
+                                    {{ "account.guestAbort"|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}
                         </div>

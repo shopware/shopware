@@ -16,7 +16,7 @@
                                     {% endfor %}
                                 </div>
                             {% endblock %}
-                            
+
                             {% block page_checkout_main_content %}{% endblock %}
                         </div>
                     {% endblock %}
@@ -29,7 +29,7 @@
                                         <div class="checkout-aside-summary">
                                             {% block page_checkout_summary_header %}
                                                 <h2 class="checkout-aside-summary-header">
-                                                    {{ "checkout.summaryHeader"|trans }}
+                                                    {{ "checkout.summaryHeader"|trans|sw_sanitize }}
                                                 </h2>
                                             {% endblock %}
 

@@ -1,7 +1,7 @@
 import template from './sw-media-modal-replace.html.twig';
 import './sw-media-modal-replace.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 
 /**
  * @status ready
@@ -38,11 +38,11 @@ Component.register('sw-media-modal-replace', {
 
     computed: {
         uploadStore() {
-            return State.getStore('upload');
+            return StateDeprecated.getStore('upload');
         },
 
         mediaItemStore() {
-            return State.getStore('media');
+            return StateDeprecated.getStore('media');
         }
     },
 

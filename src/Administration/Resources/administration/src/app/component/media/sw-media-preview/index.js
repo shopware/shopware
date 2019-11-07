@@ -1,7 +1,7 @@
 import template from './sw-media-preview.html.twig';
 import './sw-media-preview.scss';
 
-const { Component, State, Filter } = Shopware;
+const { Component, StateDeprecated, Filter } = Shopware;
 const { fileReader } = Shopware.Utils;
 
 /**
@@ -94,7 +94,7 @@ Component.register('sw-media-preview', {
 
     computed: {
         mediaStore() {
-            return State.getStore('media');
+            return StateDeprecated.getStore('media');
         },
 
         mediaPreviewClasses() {

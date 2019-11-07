@@ -2,7 +2,7 @@ import { mapState } from 'vuex';
 import template from './sw-plugin-list.html.twig';
 import './sw-plugin-list.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 
 Component.register('sw-plugin-list', {
     template,
@@ -23,7 +23,6 @@ Component.register('sw-plugin-list', {
     inject: [
         'pluginService',
         'systemConfigApiService',
-        'context',
         'cacheApiService',
         'licenseViolationService'
     ],
@@ -57,7 +56,7 @@ Component.register('sw-plugin-list', {
         ]),
 
         pluginsStore() {
-            return State.getStore('plugin');
+            return StateDeprecated.getStore('plugin');
         },
 
         showPagination() {

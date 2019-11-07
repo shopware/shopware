@@ -1,9 +1,9 @@
-const { Mixin, State, Filter } = Shopware;
+const { Mixin, StateDeprecated, Filter } = Shopware;
 
 Mixin.register('salutation', {
     computed: {
         salutationStore() {
-            return State.getStore('salutation');
+            return StateDeprecated.getStore('salutation');
         },
         salutationFilter() {
             return Filter.getByName('salutation');

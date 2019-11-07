@@ -1,7 +1,7 @@
 import template from './sw-condition-line-item-with-quantity.html.twig';
 import './sw-condition-line-item-with-quantity.scss';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 
 /**
  * @public
@@ -31,7 +31,7 @@ Component.extend('sw-condition-line-item-with-quantity', 'sw-condition-base', {
 
     methods: {
         getProductStore() {
-            return State.getStore('product');
+            return StateDeprecated.getStore('product');
         }
     }
 });

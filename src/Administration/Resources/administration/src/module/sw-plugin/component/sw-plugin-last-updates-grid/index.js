@@ -2,7 +2,7 @@ import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-plugin-last-updates-grid.html.twig';
 import './sw-plugin-last-updates-grid.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 
 Component.register('sw-plugin-last-updates-grid', {
     template,
@@ -32,7 +32,7 @@ Component.register('sw-plugin-last-updates-grid', {
 
     computed: {
         pluginsStore() {
-            return State.getStore('plugin');
+            return StateDeprecated.getStore('plugin');
         }
     },
 

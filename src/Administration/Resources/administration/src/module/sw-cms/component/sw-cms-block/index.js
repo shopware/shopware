@@ -50,7 +50,7 @@ Component.register('sw-cms-block', {
         },
 
         blockStyles() {
-            const context = Shopware.Context;
+            const context = Shopware.Context.Api;
             let backgroundMedia = null;
 
             if (this.block.backgroundMedia) {

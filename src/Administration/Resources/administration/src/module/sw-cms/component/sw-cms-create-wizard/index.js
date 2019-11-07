@@ -42,7 +42,7 @@ Component.register('sw-cms-create-wizard', {
                 return '';
             }
 
-            const context = Shopware.Context;
+            const context = Shopware.Context.Api;
             const imgPath = 'administration/static/img/cms';
 
             return `url(${context.assetsPath}/${imgPath}/preview_${this.page.type}_${this.page.sections[0].type}.png)`;

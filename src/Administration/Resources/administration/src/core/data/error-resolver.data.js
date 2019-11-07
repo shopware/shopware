@@ -2,11 +2,10 @@ export default class ErrorResolver {
     constructor() {
         this.EntityDefinition = Shopware.EntityDefinition;
         this.ShopwareError = Shopware.Classes.ShopwareError;
-        this.errorStore = Shopware.State.getStore('error');
     }
 
     resetApiErrors() {
-        return this.errorStore.resetApiErrors();
+        return Shopware.State.dispatch('error/resetApiErrors');
     }
 
     /**
@@ -43,7 +42,7 @@ export default class ErrorResolver {
      */
     addSystemErrors(systemErrors) {
         systemErrors.forEach((error) => {
-            this.errorStore.addSystemError(error);
+            Shopware.State.dispatch('error/addSystemError', error);
         });
     }
 
@@ -91,7 +90,10 @@ export default class ErrorResolver {
             return;
         }
 
-        this.errorStore.addApiError(this.getErrorPath(entity, fieldName), new this.ShopwareError(error));
+        Shopware.State.dispatch('error/addApiError', {
+            expression: this.getErrorPath(entity, fieldName),
+            error: new this.ShopwareError(error)
+        });
     }
 
     /**
@@ -126,7 +128,10 @@ export default class ErrorResolver {
      */
     resolveJsonField(jsonField, subFields, error, entity) {
         const fieldPath = `${jsonField}${subFields.replace(/\//g, '.')}`;
-        this.errorStore.addApiError(this.getErrorPath(entity, fieldPath), new this.ShopwareError(error));
+        Shopware.State.dispatch('error/addApiError', {
+            expression: this.getErrorPath(entity, fieldPath),
+            error: new this.ShopwareError(error)
+        });
     }
 
     /**
@@ -163,7 +168,10 @@ export default class ErrorResolver {
             throw new Error(`[ErrorResolver] translatable field ${fieldName}`);
         }
 
-        this.errorStore.addApiError(this.getErrorPath(entity, fieldName), new this.ShopwareError(error));
+        Shopware.State.dispatch('error/addApiError', {
+            expression: this.getErrorPath(entity, fieldName),
+            error: new this.ShopwareError(error)
+        });
     }
 
     /**

@@ -1,7 +1,7 @@
 import Sanitizer from 'src/core/helper/sanitizer.helper';
 import template from './sw-settings-snippet-detail.html.twig';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const utils = Shopware.Utils;
 
@@ -46,7 +46,7 @@ Component.register('sw-settings-snippet-detail', {
         },
 
         snippetSetStore() {
-            return State.getStore('snippet_set');
+            return StateDeprecated.getStore('snippet_set');
         },
 
         backPath() {

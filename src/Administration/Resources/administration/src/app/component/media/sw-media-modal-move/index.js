@@ -1,7 +1,7 @@
 import template from './sw-media-modal-move.html.twig';
 import './sw-media-modal-move.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 
 /**
  * @status ready
@@ -55,11 +55,11 @@ Component.register('sw-media-modal-move', {
         },
 
         mediaFolderStore() {
-            return State.getStore('media_folder');
+            return StateDeprecated.getStore('media_folder');
         },
 
         mediaStore() {
-            return State.getStore('media');
+            return StateDeprecated.getStore('media');
         },
 
         targetFolderId() {

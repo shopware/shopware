@@ -6,7 +6,7 @@ export default {
             product: {},
             parentProduct: {},
             currencies: [],
-            context: {},
+            apiContext: {},
             taxes: [],
             variants: [],
             customFieldSets: [],
@@ -79,8 +79,8 @@ export default {
     },
 
     mutations: {
-        setContext(state, context) {
-            state.context = context;
+        setApiContext(state, apiContext) {
+            state.apiContext = apiContext;
         },
 
         setLocalMode(state, value) {

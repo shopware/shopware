@@ -1,7 +1,7 @@
 import template from './sw-language-switch.html.twig';
 import './sw-language-switch.scss';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 const { warn } = Shopware.Utils.debug;
 
 /**
@@ -16,7 +16,7 @@ const { warn } = Shopware.Utils.debug;
 Component.register('sw-language-switch', {
     template,
 
-    inject: ['context'],
+    inject: ['apiContext'],
 
     props: {
         disabled: {
@@ -50,7 +50,7 @@ Component.register('sw-language-switch', {
 
     computed: {
         languageStore() {
-            return State.getStore('language');
+            return StateDeprecated.getStore('language');
         }
     },
 
@@ -100,11 +100,8 @@ Component.register('sw-language-switch', {
             this.lastLanguageId = this.languageId;
 
             if (this.changeGlobalLanguage) {
-                this.languageStore.setCurrentId(this.languageId).then(() => {
-                    localStorage.setItem('sw-admin-current-language', this.languageId);
-                    this.context.languageId = this.languageId;
-                    this.$root.$emit('on-change-application-language', { languageId: this.languageId });
-                });
+                this.languageStore.setCurrentId(this.languageId);
+                this.$root.$emit('on-change-application-language', { languageId: this.languageId });
             }
 
             this.$emit('on-change', this.languageId);

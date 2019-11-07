@@ -1,7 +1,7 @@
 import template from './sw-rule-modal.html.twig';
 import './sw-rule-modal.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 const { warn } = Shopware.Utils.debug;
 const { LocalStore } = Shopware.DataDeprecated;
 
@@ -38,7 +38,7 @@ Component.register('sw-rule-modal', {
 
     computed: {
         ruleStore() {
-            return State.getStore('rule');
+            return StateDeprecated.getStore('rule');
         },
         modalTitle() {
             if (!this.ruleId) {

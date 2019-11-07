@@ -2,7 +2,7 @@ import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-media-upload.html.twig';
 import './sw-media-upload.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 const { fileReader } = Shopware.Utils;
 
 /**
@@ -94,27 +94,27 @@ Component.register('sw-media-upload', {
 
     computed: {
         mediaItemStore() {
-            return State.getStore('media');
+            return StateDeprecated.getStore('media');
         },
 
         uploadStore() {
-            return State.getStore('upload');
+            return StateDeprecated.getStore('upload');
         },
 
         defaultFolderStore() {
-            return State.getStore('media_default_folder');
+            return StateDeprecated.getStore('media_default_folder');
         },
 
         folderStore() {
-            return State.getStore('media_folder');
+            return StateDeprecated.getStore('media_folder');
         },
 
         folderConfigurationStore() {
-            return State.getStore('media_folder_configuration');
+            return StateDeprecated.getStore('media_folder_configuration');
         },
 
         thumbnailSizesStore() {
-            return State.getStore('media_thumbnail_size');
+            return StateDeprecated.getStore('media_thumbnail_size');
         },
 
         showPreview() {

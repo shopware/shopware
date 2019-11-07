@@ -98,7 +98,7 @@ export default class EntityProxy {
          */
         this.draft = this.deepCopyObject(this.original);
 
-        this.currentLanguageId = Shopware.State.getStore('language').getCurrentId();
+        this.currentLanguageId = Shopware.StateDeprecated.getStore('language').getCurrentId();
 
         this.createAssociatedStores();
 

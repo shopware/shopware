@@ -10,7 +10,7 @@ export function initializeUserNotifications() {
         Application.getApplicationRoot().$store.commit('notification/setNotificationsForCurrentUser');
         return;
     }
-    State.getStore('notification').state.notifications = getNotificationsForUser();
+    State.get('notification').notifications = getNotificationsForUser();
 }
 
 function _getOriginalNotification(notificationId, state) {
@@ -45,7 +45,13 @@ function _mergeNotificationUpdate(originalNotification, notificationUpdate) {
 }
 
 function _getStorageKey() {
-    const userId = State.getStore('adminUser').state.currentUser;
+    const user = State.get('adminUser').currentUser;
+
+    if (!user) {
+        return null;
+    }
+
+    const userId = user.id;
     if (!userId) {
         return null;
     }

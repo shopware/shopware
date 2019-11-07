@@ -5,7 +5,7 @@ const { Component } = Shopware;
 Component.register('sw-category-detail-menu', {
     template,
 
-    inject: ['openMediaSidebar', 'repositoryFactory', 'context'],
+    inject: ['openMediaSidebar', 'repositoryFactory', 'apiContext'],
 
     props: {
         category: {
@@ -41,7 +41,7 @@ Component.register('sw-category-detail-menu', {
 
     methods: {
         onSetMediaItem({ targetId }) {
-            this.mediaRepository.get(targetId, this.context).then((updatedMedia) => {
+            this.mediaRepository.get(targetId, this.apiContext).then((updatedMedia) => {
                 this.category.mediaId = targetId;
                 this.category.media = updatedMedia;
             });

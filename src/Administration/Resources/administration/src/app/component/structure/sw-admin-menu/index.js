@@ -1,8 +1,9 @@
 import template from './sw-admin-menu.html.twig';
 import './sw-admin-menu.scss';
 
-const { Component, State, Mixin } = Shopware;
+const { Component, StateDeprecated, Mixin } = Shopware;
 const { dom } = Shopware.Utils;
+const { mapState } = Shopware.Component.getComponentHelper();
 
 /**
  * @private
@@ -28,19 +29,21 @@ Component.register('sw-admin-menu', {
             flyoutLabel: '',
             subMenuOpen: false,
             scrollbarOffset: '',
-            isUserLoading: true,
-            userProfile: {},
-            user: {}
+            isUserLoading: true
         };
     },
 
     computed: {
+        ...mapState('adminUser', [
+            'currentUser'
+        ]),
+
         isExpanded() {
             return this.$store.state.adminMenu.isExpanded;
         },
 
         userStore() {
-            return State.getStore('user');
+            return StateDeprecated.getStore('user');
         },
 
         currentLocale() {
@@ -75,23 +78,23 @@ Component.register('sw-admin-menu', {
         },
 
         userName() {
-            return this.salutation(this.user);
+            return this.salutation(this.currentUser);
         },
 
         avatarUrl() {
-            if (this.user.avatarMedia) {
-                return this.user.avatarMedia.url;
+            if (this.currentUser && this.currentUser.avatarMedia) {
+                return this.currentUser.avatarMedia.url;
             }
 
             return null;
         },
 
         firstName() {
-            return this.user.firstName;
+            return this.currentUser ? this.currentUser.firstName : '';
         },
 
         lastName() {
-            return this.user.lastName;
+            return this.currentUser ? this.currentUser.lastName : '';
         }
     },
 
@@ -134,28 +137,16 @@ Component.register('sw-admin-menu', {
         },
 
         getUser() {
-            const currentUser = this.$store.state.adminUser.currentUser;
-
             this.isUserLoading = true;
-            if (!currentUser) {
-                this.userService.getUser().then((response) => {
-                    this.userProfile = response.data;
-                    return this.userStore.getByIdAsync(this.userProfile.id);
-                }).then((user) => {
-                    this.user = user;
-                    this.$store.commit('adminUser/setCurrentProfile', user);
-                    this.isUserLoading = false;
-                });
-                return true;
-            }
-            this.userProfile = currentUser;
-            this.userStore.getByIdAsync(this.userProfile.id).then((user) => {
-                this.user = user;
-                this.$store.commit('adminUser/setCurrentProfile', user);
+
+            this.userService.getUser().then((response) => {
+                const userData = response.data;
+                delete userData.password;
+
+                this.$store.commit('adminUser/setCurrentUser', userData);
+
                 this.isUserLoading = false;
             });
-
-            return true;
         },
 
         openSubMenu(entry, currentTarget) {
@@ -277,7 +268,6 @@ Component.register('sw-admin-menu', {
         onLogoutUser() {
             this.loginService.logout();
             this.$store.commit('adminUser/removeCurrentUser');
-            this.$store.commit('adminUser/removeCurrentProfile');
             this.$store.commit('notification/setNotifications', {});
             this.$store.commit('notification/clearGrowlNotificationsForCurrentUser');
             this.$store.commit('notification/clearNotificationsForCurrentUser');

@@ -9,7 +9,7 @@ Component.register('sw-settings-country-list', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     mixins: [
@@ -49,7 +49,7 @@ Component.register('sw-settings-country-list', {
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
 
-            this.countryRepository.search(criteria, this.context).then((items) => {
+            this.countryRepository.search(criteria, this.apiContext).then((items) => {
                 this.total = items.total;
                 this.country = items;
                 this.isLoading = false;
@@ -76,7 +76,7 @@ Component.register('sw-settings-country-list', {
         },
 
         onChangeLanguage(languageId) {
-            this.context.languageId = languageId;
+            Shopware.StateDeprecated.getStore('language').setCurrentId(languageId);
             this.getList();
         },
 
@@ -91,7 +91,7 @@ Component.register('sw-settings-country-list', {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.countryRepository.delete(id, this.context).then(() => {
+            return this.countryRepository.delete(id, this.apiContext).then(() => {
                 this.getList();
             });
         },

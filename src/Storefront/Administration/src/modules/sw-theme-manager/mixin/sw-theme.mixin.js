@@ -3,7 +3,7 @@ const { Mixin } = Shopware;
 Mixin.register('theme', {
     inject: [
         'repositoryFactory',
-        'context',
+        'apiContext',
         'themeService'
     ],
 
@@ -47,7 +47,7 @@ Mixin.register('theme', {
             const messageDeleteError = this.$tc('sw-theme-manager.components.themeListItem.notificationDeleteErrorMessage');
 
             this.isLoading = true;
-            this.themeRepository.delete(theme.id, this.context).then(() => {
+            this.themeRepository.delete(theme.id, this.apiContext).then(() => {
                 if (this.getList) {
                     this.getList();
                     return;
@@ -83,7 +83,7 @@ Mixin.register('theme', {
         },
 
         duplicateTheme(parentTheme, name) {
-            const themeDuplicate = this.themeRepository.create(this.context);
+            const themeDuplicate = this.themeRepository.create(this.apiContext);
 
             themeDuplicate.name = name;
             themeDuplicate.parentThemeId = parentTheme.id;
@@ -97,7 +97,7 @@ Mixin.register('theme', {
             themeDuplicate.previewMediaId = parentTheme.previewMediaId;
             themeDuplicate.active = true;
 
-            this.themeRepository.save(themeDuplicate, this.context).then(() => {
+            this.themeRepository.save(themeDuplicate, this.apiContext).then(() => {
                 this.$router.push({ name: 'sw.theme.manager.detail', params: { id: themeDuplicate.id } });
             });
         },
@@ -127,7 +127,7 @@ Mixin.register('theme', {
                 theme.name = name;
             }
 
-            this.themeRepository.save(theme, this.context);
+            this.themeRepository.save(theme, this.apiContext);
         }
     }
 });

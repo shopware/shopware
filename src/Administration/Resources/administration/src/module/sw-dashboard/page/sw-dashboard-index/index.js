@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-dashboard-index', {
     template,
 
-    inject: ['repositoryFactory', 'context', 'stateStyleDataProviderService'],
+    inject: ['repositoryFactory', 'apiContext', 'stateStyleDataProviderService'],
 
     metaInfo() {
         return {
@@ -182,7 +182,7 @@ Component.register('sw-dashboard-index', {
             // add filter for last 30 days
             criteria.addFilter(Criteria.range('orderDate', { gte: this.formatDate(this.dateAgo) }));
 
-            return this.orderRepository.search(criteria, this.context);
+            return this.orderRepository.search(criteria, this.apiContext);
         },
 
         fetchTodayData() {
@@ -193,7 +193,7 @@ Component.register('sw-dashboard-index', {
             criteria.addFilter(Criteria.range('orderDate', { gte: this.formatDate(this.today) }));
             criteria.addSorting(Criteria.sort('orderDateTime', 'ASC'));
 
-            return this.orderRepository.search(criteria, this.context);
+            return this.orderRepository.search(criteria, this.apiContext);
         },
 
         formatDate(date) {

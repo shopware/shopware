@@ -1,7 +1,7 @@
 import template from './sw-cms-list.html.twig';
 import './sw-cms-list.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-cms-list', {
@@ -9,7 +9,7 @@ Component.register('sw-cms-list', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     mixins: [
@@ -50,7 +50,7 @@ Component.register('sw-cms-list', {
         },
 
         languageStore() {
-            return State.getStore('language');
+            return StateDeprecated.getStore('language');
         },
 
         columnConfig() {
@@ -123,7 +123,7 @@ Component.register('sw-cms-list', {
                 criteria.addFilter(Criteria.equals('cms_page.type', this.currentPageType));
             }
 
-            return this.pageRepository.search(criteria, this.context).then((searchResult) => {
+            return this.pageRepository.search(criteria, this.apiContext).then((searchResult) => {
                 this.total = searchResult.total;
                 this.pages = searchResult;
                 this.isLoading = false;
@@ -152,7 +152,7 @@ Component.register('sw-cms-list', {
             criteria.addAssociation('folder');
             criteria.addFilter(Criteria.equals('entity', 'cms_page'));
 
-            return this.defaultFolderRepository.search(criteria, this.context).then((searchResult) => {
+            return this.defaultFolderRepository.search(criteria, this.apiContext).then((searchResult) => {
                 const defaultFolder = searchResult.first();
                 if (defaultFolder.folder.id) {
                     return defaultFolder.folder.id;
@@ -163,7 +163,7 @@ Component.register('sw-cms-list', {
         },
 
         onChangeLanguage(languageId) {
-            this.context.languageId = languageId;
+            Shopware.StateDeprecated.getStore('language').setCurrentId(languageId);
             this.resetList();
         },
 
@@ -259,7 +259,7 @@ Component.register('sw-cms-list', {
 
         saveCmsPage(page) {
             this.isLoading = true;
-            return this.pageRepository.save(page, this.context).then(() => {
+            return this.pageRepository.save(page, this.apiContext).then(() => {
                 this.isLoading = false;
             }).catch(() => {
                 this.isLoading = false;
@@ -271,7 +271,7 @@ Component.register('sw-cms-list', {
             const messageDeleteError = this.$tc('sw-cms.components.cmsListItem.notificationDeleteErrorMessage');
 
             this.isLoading = true;
-            return this.pageRepository.delete(page.id, this.context).then(() => {
+            return this.pageRepository.delete(page.id, this.apiContext).then(() => {
                 this.resetList();
             }).catch(() => {
                 this.isLoading = false;

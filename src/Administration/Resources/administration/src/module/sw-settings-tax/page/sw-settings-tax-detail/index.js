@@ -7,7 +7,7 @@ const { mapApiErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-settings-tax-detail', {
     template,
 
-    inject: ['repositoryFactory', 'context'],
+    inject: ['repositoryFactory', 'apiContext'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -64,14 +64,14 @@ Component.register('sw-settings-tax-detail', {
             this.isLoading = true;
             if (this.taxId) {
                 this.taxId = this.$route.params.id;
-                this.taxRepository.get(this.taxId, this.context).then((tax) => {
+                this.taxRepository.get(this.taxId, this.apiContext).then((tax) => {
                     this.tax = tax;
                     this.isLoading = false;
                 });
                 return;
             }
 
-            this.tax = this.taxRepository.create(this.context);
+            this.tax = this.taxRepository.create(this.apiContext);
             this.isLoading = false;
         },
 
@@ -79,13 +79,13 @@ Component.register('sw-settings-tax-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return this.taxRepository.save(this.tax, this.context).then(() => {
+            return this.taxRepository.save(this.tax, this.apiContext).then(() => {
                 this.isSaveSuccessful = true;
                 if (!this.taxId) {
                     this.$router.push({ name: 'sw.settings.tax.detail', params: { id: this.tax.id } });
                 }
 
-                this.taxRepository.get(this.tax.id, this.context).then((updatedTax) => {
+                this.taxRepository.get(this.tax.id, this.apiContext).then((updatedTax) => {
                     this.tax = updatedTax;
                     this.isLoading = false;
                 });

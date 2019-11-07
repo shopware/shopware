@@ -10,7 +10,7 @@ Component.register('sw-settings-payment-list', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     mixins: [
@@ -56,7 +56,7 @@ Component.register('sw-settings-payment-list', {
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
 
-            this.paymentRepository.search(criteria, this.context).then((items) => {
+            this.paymentRepository.search(criteria, this.apiContext).then((items) => {
                 this.total = items.total;
                 this.payment = items;
                 this.isLoading = false;
@@ -93,7 +93,7 @@ Component.register('sw-settings-payment-list', {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.paymentRepository.delete(id, this.context).then(() => {
+            return this.paymentRepository.delete(id, this.apiContext).then(() => {
                 this.getList();
             });
         },

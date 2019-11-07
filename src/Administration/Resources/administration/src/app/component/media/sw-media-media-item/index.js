@@ -1,7 +1,7 @@
 import template from './sw-media-media-item.html.twig';
 import './sw-media-media-item.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 const domUtils = Shopware.Utils.dom;
 
 /**
@@ -53,7 +53,7 @@ Component.register('sw-media-media-item', {
         },
 
         mediaStore() {
-            return State.getStore('media');
+            return StateDeprecated.getStore('media');
         }
     },
 

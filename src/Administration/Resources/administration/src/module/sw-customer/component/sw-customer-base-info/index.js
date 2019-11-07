@@ -9,7 +9,7 @@ Component.register('sw-customer-base-info', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     props: {
@@ -79,7 +79,7 @@ Component.register('sw-customer-base-info', {
             const criteria = new Criteria(1, 1);
             criteria.addAggregation(Criteria.sum('orderAmount', 'amountTotal'));
             criteria.addFilter(Criteria.equals('order.orderCustomer.customerId', this.$route.params.id));
-            this.orderRepository.search(criteria, this.context).then((response) => {
+            this.orderRepository.search(criteria, this.apiContext).then((response) => {
                 this.orderCount = response.total;
                 this.orderAmount = response.aggregations.orderAmount.sum;
             });

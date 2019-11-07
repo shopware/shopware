@@ -9,7 +9,7 @@ Component.register('sw-order-list', {
 
     inject: [
         'repositoryFactory',
-        'context',
+        'apiContext',
         'stateStyleDataProviderService'
     ],
 
@@ -80,7 +80,7 @@ Component.register('sw-order-list', {
         getList() {
             this.isLoading = true;
 
-            return this.orderRepsitory.search(this.orderCriteria, this.context).then((response) => {
+            return this.orderRepsitory.search(this.orderCriteria, this.apiContext).then((response) => {
                 this.total = response.total;
                 this.orders = response;
                 this.isLoading = false;

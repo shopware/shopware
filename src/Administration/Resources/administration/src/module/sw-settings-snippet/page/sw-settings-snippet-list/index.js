@@ -2,7 +2,7 @@ import CriteriaFactory from 'src/core/factory/criteria.factory';
 import Sanitizer from 'src/core/helper/sanitizer.helper';
 import template from './sw-settings-snippet-list.html.twig';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 
 Component.register('sw-settings-snippet-list', {
     template,
@@ -58,7 +58,7 @@ Component.register('sw-settings-snippet-list', {
         },
 
         snippetSetStore() {
-            return State.getStore('snippet_set');
+            return StateDeprecated.getStore('snippet_set');
         },
 
         queryIdCount() {

@@ -1,7 +1,7 @@
 import template from './sw-product-variants-delivery-media.html.twig';
 import './sw-product-variants-delivery-media.scss';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 
 Component.register('sw-product-variants-delivery-media', {
     template,
@@ -28,11 +28,11 @@ Component.register('sw-product-variants-delivery-media', {
 
     computed: {
         mediaStore() {
-            return State.getStore('media');
+            return StateDeprecated.getStore('media');
         },
 
         uploadStore() {
-            return State.getStore('upload');
+            return StateDeprecated.getStore('upload');
         },
 
         selectedGroupsSorted() {

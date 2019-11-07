@@ -1,6 +1,4 @@
-const { State } = Shopware;
-
-State.registerStore('cmsPageState', {
+Shopware.State.registerModule('cmsPageState', {
     namespaced: true,
 
     state: {

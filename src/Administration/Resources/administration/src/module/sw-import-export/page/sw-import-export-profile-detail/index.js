@@ -6,7 +6,7 @@ const { warn } = Shopware.Utils.debug;
 Component.register('sw-import-export-profile-detail', {
     template,
 
-    inject: ['repositoryFactory', 'importExportService', 'context'],
+    inject: ['repositoryFactory', 'importExportService', 'apiContext'],
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -44,7 +44,7 @@ Component.register('sw-import-export-profile-detail', {
             this.repository = this.repositoryFactory.create('import_export_profile');
 
             this.repository
-                .get(this.$route.params.id, this.context)
+                .get(this.$route.params.id, this.apiContext)
                 .then((importExportProfile) => {
                     this.isLoading = false;
                     this.importExportProfile = importExportProfile;
@@ -73,7 +73,7 @@ Component.register('sw-import-export-profile-detail', {
                 )
             };
 
-            return this.repository.save(this.importExportProfile, this.context).then(() => {
+            return this.repository.save(this.importExportProfile, this.apiContext).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
             }).catch((exception) => {

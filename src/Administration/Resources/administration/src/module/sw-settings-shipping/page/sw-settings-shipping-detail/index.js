@@ -2,7 +2,7 @@ import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-settings-shipping-detail.html.twig';
 import './sw-settings-shipping-detail.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 const { warn } = Shopware.Utils.debug;
 
 Component.register('sw-settings-shipping-detail', {
@@ -56,23 +56,23 @@ Component.register('sw-settings-shipping-detail', {
         },
 
         shippingMethodStore() {
-            return State.getStore('shipping_method');
+            return StateDeprecated.getStore('shipping_method');
         },
 
         ruleStore() {
-            return State.getStore('rule');
+            return StateDeprecated.getStore('rule');
         },
 
         priceRuleStore() {
-            return State.getStore('shipping_method_price');
+            return StateDeprecated.getStore('shipping_method_price');
         },
 
         mediaStore() {
-            return State.getStore('media');
+            return StateDeprecated.getStore('media');
         },
 
         deliveryTimeStore() {
-            return State.getStore('delivery_time');
+            return StateDeprecated.getStore('delivery_time');
         },
 
         isLoading() {

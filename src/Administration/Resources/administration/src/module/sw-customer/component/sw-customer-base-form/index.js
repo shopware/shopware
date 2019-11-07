@@ -9,7 +9,7 @@ Component.register('sw-customer-base-form', {
 
     inject: [
         'repositoryFactory',
-        'context',
+        'apiContext',
         'swCustomerCreateOnChangeSalesChannel'
     ],
 
@@ -72,7 +72,7 @@ Component.register('sw-customer-base-form', {
     methods: {
         createdComponent() {
             const criteria = new Criteria(1, 500);
-            this.salutationRepository.search(criteria, this.context).then((searchResult) => {
+            this.salutationRepository.search(criteria, this.apiContext).then((searchResult) => {
                 this.salutations = searchResult;
             });
         }

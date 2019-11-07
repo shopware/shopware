@@ -7,8 +7,7 @@ Component.register('sw-cms-section', {
     template,
 
     inject: [
-        'repositoryFactory',
-        'context'
+        'repositoryFactory'
     ],
 
     props: {
@@ -72,14 +71,14 @@ Component.register('sw-cms-section', {
         },
 
         sectionStyles() {
-            const context = Shopware.Context;
+            const apiContext = Shopware.Context.Api;
             let backgroundMedia = null;
 
             if (this.section.backgroundMedia) {
                 if (this.section.backgroundMedia.id) {
                     backgroundMedia = `url("${this.section.backgroundMedia.url}")`;
                 } else {
-                    backgroundMedia = `url('${context.assetsPath}${this.section.backgroundMedia.url}')`;
+                    backgroundMedia = `url('${apiContext.assetsPath}${this.section.backgroundMedia.url}')`;
                 }
             }
 

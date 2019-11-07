@@ -1,9 +1,11 @@
-const { State, Application } = Shopware;
+const { Application } = Shopware;
 const { ErrorStore } = Shopware.DataDeprecated;
 const utils = Shopware.Utils;
 
 class VuexErrorStore {
     constructor() {
+        this.namespaced = true;
+
         this.state = {
             system: {},
             api: {}
@@ -97,27 +99,6 @@ class VuexErrorStore {
                 commit('removeSystemError', { id });
             }
         };
-    }
-
-    get $store() {
-        if (typeof this._store === 'object') {
-            return this._store;
-        }
-
-        this._store = State.getStore('vuex');
-        return this._store;
-    }
-
-    addApiError(expression, error) {
-        return this.$store.dispatch('addApiError', { expression, error });
-    }
-
-    addSystemError(error, id = utils.createId()) {
-        return this.$store.dispatch('addSystemError', { error, id });
-    }
-
-    resetApiErrors() {
-        return this.$store.dispatch('resetApiErrors');
     }
 }
 

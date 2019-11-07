@@ -2,7 +2,7 @@ import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-media-quickinfo.html.twig';
 import './sw-media-quickinfo.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 const { domUtils, format } = Shopware.Utils;
 
 Component.register('sw-media-quickinfo', {
@@ -43,7 +43,7 @@ Component.register('sw-media-quickinfo', {
 
     computed: {
         mediaStore() {
-            return State.getStore('media');
+            return StateDeprecated.getStore('media');
         },
 
         isMediaObject() {
@@ -59,7 +59,7 @@ Component.register('sw-media-quickinfo', {
             return format.date(date);
         },
         customFieldSetStore() {
-            return State.getStore('custom_field_set');
+            return StateDeprecated.getStore('custom_field_set');
         }
     },
 

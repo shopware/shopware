@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-product-list', {
     template,
 
-    inject: ['repositoryFactory', 'context'],
+    inject: ['repositoryFactory', 'apiContext'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -93,8 +93,8 @@ Component.register('sw-product-list', {
             const currencyCriteria = new Criteria(1, 500);
 
             return Promise.all([
-                this.productRepository.search(productCriteria, this.context),
-                this.currencyRepository.search(currencyCriteria, this.context)
+                this.productRepository.search(productCriteria, this.apiContext),
+                this.currencyRepository.search(currencyCriteria, this.apiContext)
             ]).then((result) => {
                 const products = result[0];
                 const currencies = result[1];
@@ -136,7 +136,7 @@ Component.register('sw-product-list', {
         },
 
         onChangeLanguage(languageId) {
-            this.context.languageId = languageId;
+            Shopware.StateDeprecated.getStore('language').setCurrentId(languageId);
             this.getList();
         },
 

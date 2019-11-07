@@ -54,7 +54,7 @@ Component.register('sw-theme-manager-detail', {
         },
 
         defaultThemeAsset() {
-            return `url('${Shopware.Context.assetsPath}/administration/static/img/theme/default_theme_preview.jpg')`;
+            return `url('${Shopware.Context.Api.assetsPath}/administration/static/img/theme/default_theme_preview.jpg')`;
         },
 
         deleteDisabledToolTip() {
@@ -109,7 +109,7 @@ Component.register('sw-theme-manager-detail', {
             criteria.addAssociation('previewMedia');
             criteria.addAssociation('salesChannels');
 
-            this.themeRepository.get(this.themeId, this.context, criteria).then((response) => {
+            this.themeRepository.get(this.themeId, this.apiContext, criteria).then((response) => {
                 this.theme = response;
 
                 if (this.languageId) {
@@ -149,7 +149,7 @@ Component.register('sw-theme-manager-detail', {
         },
 
         getParentTheme() {
-            this.themeRepository.get(this.theme.parentThemeId, this.context).then((parentTheme) => {
+            this.themeRepository.get(this.theme.parentThemeId, this.apiContext).then((parentTheme) => {
                 this.parentTheme = parentTheme;
             });
         },
@@ -249,7 +249,7 @@ Component.register('sw-theme-manager-detail', {
             criteria.addAssociation('folder');
             criteria.addFilter(Criteria.equals('entity', this.themeRepository.schema.entity));
 
-            return this.defaultFolderRepository.search(criteria, this.context).then((searchResult) => {
+            return this.defaultFolderRepository.search(criteria, this.apiContext).then((searchResult) => {
                 const defaultFolder = searchResult.first();
                 if (defaultFolder.folder.id) {
                     return defaultFolder.folder.id;

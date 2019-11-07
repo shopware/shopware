@@ -1,7 +1,7 @@
 import template from './sw-page.html.twig';
 import './sw-page.scss';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 const { dom } = Shopware.Utils;
 
 /**
@@ -66,7 +66,7 @@ Component.register('sw-page', {
 
     computed: {
         languageStore() {
-            return State.getStore('language');
+            return StateDeprecated.getStore('language');
         },
 
         pageColor() {
@@ -143,7 +143,7 @@ Component.register('sw-page', {
     },
 
     beforeDestroy() {
-        this.$store.dispatch('resetApiErrors');
+        this.$store.dispatch('error/resetApiErrors');
         this.beforeDestroyComponent();
     },
 

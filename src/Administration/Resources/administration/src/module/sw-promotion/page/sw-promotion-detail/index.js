@@ -4,14 +4,14 @@ import swPromotionDetailState from './state';
 import IndividualCodeGenerator from '../../service/individual-code-generator.service';
 import entityHydrator from '../../helper/promotion-entity-hydrator.helper';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-promotion-detail', {
     template,
 
-    inject: ['repositoryFactory', 'context'],
+    inject: ['repositoryFactory', 'apiContext'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -63,7 +63,7 @@ Component.register('sw-promotion-detail', {
         },
 
         languageStore() {
-            return State.getStore('language');
+            return StateDeprecated.getStore('language');
         },
 
         tooltipSave() {
@@ -142,7 +142,7 @@ Component.register('sw-promotion-detail', {
             this.isLoading = true;
             if (!this.promotionId) {
                 this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
-                this.promotion = this.promotionRepository.create(this.context);
+                this.promotion = this.promotionRepository.create(this.apiContext);
                 // hydrate and extend promotion with additional data
                 entityHydrator.hydrate(this.promotion);
                 this.isLoading = false;
@@ -161,7 +161,7 @@ Component.register('sw-promotion-detail', {
             const criteria = new Criteria(1, 1);
             criteria.addAssociation('salesChannels');
 
-            this.promotionRepository.get(this.promotionId, this.context, criteria).then((promotion) => {
+            this.promotionRepository.get(this.promotionId, this.apiContext, criteria).then((promotion) => {
                 this.promotion = promotion;
                 // hydrate and extend promotion with additional data
                 entityHydrator.hydrate(this.promotion);
@@ -236,7 +236,7 @@ Component.register('sw-promotion-detail', {
                     const generator = new IndividualCodeGenerator(
                         this.promotion.id,
                         this.repositoryIndividualCodes,
-                        this.context
+                        this.apiContext
                     );
 
                     await generator.removeExistingCodes();
@@ -268,7 +268,7 @@ Component.register('sw-promotion-detail', {
                 // first save our discounts
                 return discountRepository.sync(discounts, discounts.context).then(() => {
                     // finally save our promotion
-                    return this.promotionRepository.save(this.promotion, this.context)
+                    return this.promotionRepository.save(this.promotion, this.apiContext)
                         .then(() => {
                             this.isSaveSuccessful = true;
                             const criteria = new Criteria(1, 1);
@@ -276,7 +276,7 @@ Component.register('sw-promotion-detail', {
 
                             return this.promotionRepository.get(
                                 this.promotion.id,
-                                this.context, criteria
+                                this.apiContext, criteria
                             ).then((promotion) => {
                                 this.promotion = promotion;
                                 // hydrate and extend promotion with additional data
@@ -308,20 +308,20 @@ Component.register('sw-promotion-detail', {
 
             if (this.personaCustomerIdsDelete !== null) {
                 await this.personaCustomerIdsDelete.forEach((customerId) => {
-                    customerPersonaRepository.delete(customerId, this.context);
+                    customerPersonaRepository.delete(customerId, this.apiContext);
                 });
             }
 
             if (this.personaCustomerIdsAdd !== null) {
                 await this.personaCustomerIdsAdd.forEach((customerId) => {
-                    customerPersonaRepository.assign(customerId, this.context);
+                    customerPersonaRepository.assign(customerId, this.apiContext);
                 });
             }
 
             // remove deleted groups. UPSERT will be done automatically
             if (this.setGroupIdsDelete !== null) {
                 await this.setGroupIdsDelete.forEach((groupId) => {
-                    this.promotionGroupRepository.delete(groupId, this.context);
+                    this.promotionGroupRepository.delete(groupId, this.apiContext);
                 });
             }
 

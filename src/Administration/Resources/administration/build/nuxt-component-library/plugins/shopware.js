@@ -1,27 +1,24 @@
+import Vue from 'vue'; // eslint-disable-line import/no-extraneous-dependencies
+import Vuex from 'vuex';
+import VueI18n from 'vue-i18n';
+import enGBMessages from 'src/app/snippet/en-GB.json';
+
 const Shopware = require('src/core/shopware');
 
 // Expose shopware object globally
 global.Shopware = Shopware;
 window.Shopware = Shopware;
 
-import Vue from 'vue'; // eslint-disable-line import/no-extraneous-dependencies
-import Vuex from 'vuex';
-import VueI18n from 'vue-i18n';
-import enGBMessages from 'src/app/snippet/en-GB.json';
-
-const DeviceHelper =  require('src/app/plugin/device-helper.plugin').default;
+const DeviceHelper = require('src/app/plugin/device-helper.plugin').default;
 const ValidationService = require('src/core/service/validation.service').default;
 const iconComponents = require('src/app/assets/icons/icons').default;
-const VuexModules  = require('src/app/state/index').default;
-const EntityStore = require('src/core/data/EntityStore').default;
+const VuexModules = require('src/app/state/index').default;
 const ShortcutService = require('src/app/service/shortcut.service').default;
-const ContextFactory = require('src/core/factory/context.factory').default;
-
-const { State } = Shopware;
 
 require('src/app/mixin/index').default();
 require('src/app/directive/index').default();
 require('src/app/filter/index').default();
+require('src/app/init/component-helper.init').default();
 
 // Vue plugins
 Vue.use(VueI18n);
@@ -34,10 +31,6 @@ window.Shopware = Shopware;
 
 Shopware.Application.$container.factory('init.context', () => {
     return {};
-});
-
-Shopware.Application.$container.factory('init.contextService', (container) => {
-    return ContextFactory(container.context);
 });
 
 Shopware.Application.$container.factory('service.validationService', () => {
@@ -128,39 +121,19 @@ components.forEach((config) => {
     return vueComponent;
 });
 
-const stateFactory = Shopware.State;
+const stateFactory = Shopware.StateDeprecated;
 Object.keys(VuexModules).forEach((storeModule) => {
     stateFactory.registerStore(storeModule, VuexModules[storeModule]);
 });
-
-function filterStateRegistry(registry) {
-    const storeModules = {};
-    registry.forEach((value, key) => {
-        if (value instanceof EntityStore) {
-            return;
-        }
-
-        storeModules[key] = value;
-    });
-
-    return storeModules;
-}
 
 export default ({ app }) => {
     // Apply translations to application
     const messages = { 'en-GB': enGBMessages };
 
-    const store = new Vuex.Store({
-        modules: filterStateRegistry(State.getStoreRegistry()),
-        strict: false
-    });
-    State.registerStore('vuex', store);
-
     app.provide = () => {
         return Shopware.Application.getContainer('service');
     };
 
-    app.store = store;
     app.i18n = new VueI18n({
         locale: 'en-GB',
         fallbackLocale: 'en-GB',

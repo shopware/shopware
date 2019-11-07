@@ -2,13 +2,13 @@ import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-manufacturer-detail.html.twig';
 import './sw-manufacturer-detail.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 const { mapApiErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-manufacturer-detail', {
     template,
 
-    inject: ['repositoryFactory', 'context'],
+    inject: ['repositoryFactory', 'apiContext'],
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -59,15 +59,15 @@ Component.register('sw-manufacturer-detail', {
         },
 
         languageStore() {
-            return State.getStore('language');
+            return StateDeprecated.getStore('language');
         },
 
         mediaStore() {
-            return State.getStore('media');
+            return StateDeprecated.getStore('media');
         },
 
         customFieldSetStore() {
-            return State.getStore('custom_field_set');
+            return StateDeprecated.getStore('custom_field_set');
         },
 
         mediaUploadTag() {
@@ -111,13 +111,13 @@ Component.register('sw-manufacturer-detail', {
             }
 
             this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
-            this.manufacturer = this.manufacturerRepository.create(this.context);
+            this.manufacturer = this.manufacturerRepository.create(this.apiContext);
         },
 
         loadEntityData() {
             this.isLoading = true;
 
-            this.manufacturerRepository.get(this.manufacturerId, this.context).then((manufacturer) => {
+            this.manufacturerRepository.get(this.manufacturerId, this.apiContext).then((manufacturer) => {
                 this.isLoading = false;
                 this.manufacturer = manufacturer;
             });
@@ -173,7 +173,7 @@ Component.register('sw-manufacturer-detail', {
         onSave() {
             this.isLoading = true;
 
-            this.manufacturerRepository.save(this.manufacturer, this.context).then(() => {
+            this.manufacturerRepository.save(this.manufacturer, this.apiContext).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
                 if (this.manufacturerId === null) {

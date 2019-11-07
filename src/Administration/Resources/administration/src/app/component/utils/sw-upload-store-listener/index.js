@@ -1,6 +1,6 @@
 import { UploadEvents } from 'src/core/data/UploadStore';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -62,11 +62,11 @@ Component.register('sw-upload-store-listener', {
 
     computed: {
         uploadStore() {
-            return State.getStore('upload');
+            return StateDeprecated.getStore('upload');
         },
 
         mediaStore() {
-            return State.getStore('media');
+            return StateDeprecated.getStore('media');
         }
     },
 

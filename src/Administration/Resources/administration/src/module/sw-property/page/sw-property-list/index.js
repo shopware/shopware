@@ -1,6 +1,6 @@
 import template from './sw-property-list.html.twig';
 
-const { Component, State, Mixin } = Shopware;
+const { Component, StateDeprecated, Mixin } = Shopware;
 
 Component.register('sw-property-list', {
     template,
@@ -25,7 +25,7 @@ Component.register('sw-property-list', {
 
     computed: {
         propertiesStore() {
-            return State.getStore('property_group');
+            return StateDeprecated.getStore('property_group');
         },
 
         propertiesColumns() {

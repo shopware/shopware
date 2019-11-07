@@ -2,7 +2,7 @@ import pageState from './state';
 import template from './sw-category-detail.html.twig';
 import './sw-category-detail.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 const { Criteria, ChangesetGenerator } = Shopware.Data;
 const { cloneDeep, merge } = Shopware.Utils.object;
 const type = Shopware.Utils.types;
@@ -14,7 +14,7 @@ Component.register('sw-category-detail', {
         'cmsPageService',
         'cmsService',
         'repositoryFactory',
-        'context',
+        'apiContext',
         'seoUrlService'
     ],
 
@@ -51,7 +51,7 @@ Component.register('sw-category-detail', {
             splitBreakpoint: 1024,
             isDisplayingLeavePageWarning: false,
             nextRoute: null,
-            currentLanguageId: this.context.languageId
+            currentLanguageId: this.apiContext.languageId
         };
     },
 
@@ -91,7 +91,7 @@ Component.register('sw-category-detail', {
         },
 
         languageStore() {
-            return State.getStore('language');
+            return StateDeprecated.getStore('language');
         },
 
         pageClasses() {
@@ -197,7 +197,7 @@ Component.register('sw-category-detail', {
                 .addSorting(Criteria.sort('position', 'ASC'))
                 .addAssociation('slots');
 
-            return this.cmsPageRepository.search(criteria, this.context).then((response) => {
+            return this.cmsPageRepository.search(criteria, this.apiContext).then((response) => {
                 const cmsPage = response.get(this.cmsPageId);
                 if (this.category.slotConfig !== null) {
                     cmsPage.sections.forEach((section) => {
@@ -239,7 +239,7 @@ Component.register('sw-category-detail', {
 
             return this.$store.dispatch('swCategoryDetail/loadActiveCategory', {
                 repository: this.categoryRepository,
-                context: this.context,
+                apiContext: this.apiContext,
                 id: this.categoryId
             }).then(() => this.$store.dispatch('cmsPageState/resetCmsPageState'))
                 .then(this.getAssignedCmsPage)
@@ -249,7 +249,7 @@ Component.register('sw-category-detail', {
         },
 
         onSaveCategories() {
-            return this.categoryRepository.save(this.category, this.context);
+            return this.categoryRepository.save(this.category, this.apiContext);
         },
 
         openChangeModal(destination) {
@@ -283,7 +283,7 @@ Component.register('sw-category-detail', {
 
         setMediaItemFromSidebar(sideBarMedia) {
             // be consistent and fetch from repository
-            this.mediaRepository.get(sideBarMedia.id, this.context).then((media) => {
+            this.mediaRepository.get(sideBarMedia.id, this.apiContext).then((media) => {
                 this.category.mediaId = media.id;
                 this.category.media = media;
             });
@@ -325,7 +325,7 @@ Component.register('sw-category-detail', {
             });
 
             this.isLoading = true;
-            return this.categoryRepository.save(this.category, this.context).then(() => {
+            return this.categoryRepository.save(this.category, this.apiContext).then(() => {
                 this.isSaveSuccessful = true;
                 return this.setCategory();
             }).catch(() => {

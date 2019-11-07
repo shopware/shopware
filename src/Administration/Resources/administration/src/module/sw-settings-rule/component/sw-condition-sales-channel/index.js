@@ -1,6 +1,6 @@
 import template from './sw-condition-sales-channel.html.twig';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 
 /**
  * @public
@@ -27,7 +27,7 @@ Component.extend('sw-condition-sales-channel', 'sw-condition-base', {
 
     methods: {
         getSalesChannelStore() {
-            return State.getStore('sales_channel');
+            return StateDeprecated.getStore('sales_channel');
         }
     }
 });

@@ -9,7 +9,7 @@ Component.register('sw-order-address-modal', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     mixins: [
@@ -79,10 +79,10 @@ Component.register('sw-order-address-modal', {
         createdComponent() {
             this.isLoading = true;
 
-            this.customerRepository.search(this.customerCriteria, this.context).then((customer) => {
+            this.customerRepository.search(this.customerCriteria, this.apiContext).then((customer) => {
                 this.availableAddresses = customer[0].addresses;
 
-                return this.$store.dispatch('resetApiErrors');
+                return this.$store.dispatch('error/resetApiErrors');
             }).finally(() => {
                 this.isLoading = false;
             });

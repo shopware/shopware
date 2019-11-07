@@ -9,7 +9,7 @@ const types = Shopware.Utils.types;
 Component.register('sw-profile-index', {
     template,
 
-    inject: ['userService', 'loginService', 'repositoryFactory', 'context'],
+    inject: ['userService', 'loginService', 'repositoryFactory', 'apiContext'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -133,7 +133,7 @@ Component.register('sw-profile-index', {
             languageCriteria.addSorting(Criteria.sort('locale.territory', 'ASC'));
             languageCriteria.limit = 500;
 
-            return this.languageRepository.search(languageCriteria, this.context).then((result) => {
+            return this.languageRepository.search(languageCriteria, this.apiContext).then((result) => {
                 this.languages = [];
                 const localeIds = [];
                 let fallbackId = '';
@@ -143,7 +143,7 @@ Component.register('sw-profile-index', {
                     this.languages.push(lang);
 
                     localeIds.push(lang.localeId);
-                    if (lang.locale.code === this.$store.state.adminLocale.fallbackLocale) {
+                    if (lang.locale.code === Shopware.Context.App.fallbackLocale) {
                         fallbackId = lang.localeId;
                     }
                 });
@@ -161,7 +161,7 @@ Component.register('sw-profile-index', {
         setUserData(userProfile) {
             this.userProfile = userProfile;
             return new Promise((resolve) => {
-                resolve(this.userRepository.get(this.userProfile.id, this.context));
+                resolve(this.userRepository.get(this.userProfile.id, this.apiContext));
             });
         },
 
@@ -241,10 +241,10 @@ Component.register('sw-profile-index', {
         },
 
         saveUser() {
-            this.userRepository.save(this.user, this.context).then(() => {
+            this.userRepository.save(this.user, this.apiContext).then(() => {
                 this.$refs.mediaSidebarItem.getList();
 
-                this.localeRepository.get(this.user.localeId, this.context).then(({ code }) => {
+                this.localeRepository.get(this.user.localeId, this.apiContext).then(({ code }) => {
                     this.$store.dispatch('setAdminLocale', code);
                 });
 
@@ -260,7 +260,7 @@ Component.register('sw-profile-index', {
         },
 
         setMediaItem({ targetId }) {
-            this.mediaRepository.get(targetId, this.context).then((response) => {
+            this.mediaRepository.get(targetId, this.apiContext).then((response) => {
                 this.avatarMediaItem = response;
             });
             this.user.avatarId = targetId;

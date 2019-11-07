@@ -4,7 +4,7 @@ import template from './sw-product-stream-filter.html.twig';
 import TYPES from './type-provider';
 import './sw-product-stream-filter.scss';
 
-const { Component, Entity, Mixin, State } = Shopware;
+const { Component, Entity, Mixin, StateDeprecated } = Shopware;
 
 const productDefinitionName = 'product';
 
@@ -297,7 +297,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             return new LocalStore(this.types, 'type');
         },
         getStore(entity) {
-            return State.getStore(entity);
+            return StateDeprecated.getStore(entity);
         },
 
         getPathFields() {

@@ -58,7 +58,7 @@ Shopware.Service('cmsService').registerCmsElement({
     collect: function collect(elem) {
         const context = Object.assign(
             {},
-            Shopware.Context,
+            Shopware.Context.Api,
             { inheritance: true }
         );
 

@@ -3,7 +3,7 @@ import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-settings-shipping-price-matrix.html.twig';
 import './sw-settings-shipping-price-matrix.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 
 Component.register('sw-settings-shipping-price-matrix', {
     template,
@@ -29,7 +29,7 @@ Component.register('sw-settings-shipping-price-matrix', {
 
     computed: {
         ruleStore() {
-            return State.getStore('rule');
+            return StateDeprecated.getStore('rule');
         },
         priceRuleStore() {
             return this.shippingMethod.getAssociation('prices');

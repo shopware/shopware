@@ -12,7 +12,7 @@ Component.register('sw-cms-el-config-image', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     data() {
@@ -50,7 +50,7 @@ Component.register('sw-cms-el-config-image', {
         },
 
         onImageUpload({ targetId }) {
-            this.mediaRepository.get(targetId, this.context).then((mediaEntity) => {
+            this.mediaRepository.get(targetId, this.apiContext).then((mediaEntity) => {
                 this.element.config.media.value = mediaEntity.id;
 
                 this.updateElementData(mediaEntity);

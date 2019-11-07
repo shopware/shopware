@@ -4,14 +4,12 @@
 import ViewAdapter from 'src/core/adapter/view.adapter';
 
 import Vue from 'vue';
-import Vuex from 'vuex';
 import VueRouter from 'vue-router';
 import VueI18n from 'vue-i18n';
 import VueMeta from 'vue-meta';
 import VuePlugins from 'src/app/plugin';
 
 const { Component, State, Mixin } = Shopware;
-const { EntityStore } = Shopware.DataDeprecated;
 
 export default class VueAdapter extends ViewAdapter {
     /**
@@ -39,7 +37,7 @@ export default class VueAdapter extends ViewAdapter {
         this.initFilters();
         this.initTitle();
 
-        const store = this.initStore();
+        const store = State._store;
         const i18n = this.initLocales(store);
         const components = this.getComponents();
 
@@ -239,7 +237,7 @@ export default class VueAdapter extends ViewAdapter {
      */
     initPlugins() {
         // Add the community plugins to the plugin list
-        VuePlugins.push(Vuex, VueRouter, VueI18n, VueMeta);
+        VuePlugins.push(VueRouter, VueI18n, VueMeta);
         VuePlugins.forEach((plugin) => {
             Vue.use(plugin);
         });
@@ -282,23 +280,6 @@ export default class VueAdapter extends ViewAdapter {
     }
 
     /**
-     * Initializes the Vuex store for local state management
-     *
-     * @private
-     * @memberOf module:app/adapter/view/vue
-     * @returns {Vuex.Store}
-     */
-    initStore() {
-        const store = new Vuex.Store({
-            modules: this.filterStateRegistry(State.getStoreRegistry()),
-            strict: false
-        });
-        State.registerStore('vuex', store);
-
-        return store;
-    }
-
-    /**
      * Initialises the standard locales.
      *
      * @private
@@ -308,7 +289,7 @@ export default class VueAdapter extends ViewAdapter {
     initLocales(store) {
         const registry = this.localeFactory.getLocaleRegistry();
         const messages = {};
-        const systemFallbackLocale = 'en-GB';
+        const fallbackLocale = Shopware.Context.App.fallbackLocale;
 
         registry.forEach((localeMessages, key) => {
             store.commit('registerAdminLocale', key);
@@ -317,11 +298,10 @@ export default class VueAdapter extends ViewAdapter {
 
         const lastKnownLocale = this.localeFactory.getLastKnownLocale();
         store.dispatch('setAdminLocale', lastKnownLocale);
-        store.commit('setAdminFallbackLocale', systemFallbackLocale);
 
         const i18n = new VueI18n({
             locale: lastKnownLocale,
-            fallbackLocale: systemFallbackLocale,
+            fallbackLocale,
             silentFallbackWarn: true,
             sync: true,
             messages
@@ -330,11 +310,6 @@ export default class VueAdapter extends ViewAdapter {
         store.subscribe(({ type }, state) => {
             if (type === 'setAdminLocale') {
                 i18n.locale = state.adminLocale.currentLocale;
-                return;
-            }
-
-            if (type === 'setAdminFallbackLocale') {
-                i18n.fallbackLocale = state.adminLocale.fallbackLocale;
             }
         });
 
@@ -374,23 +349,5 @@ export default class VueAdapter extends ViewAdapter {
 
             return params.reverse().join(' | ');
         };
-    }
-
-    /**
-     * Returns only parts from state namespace that should be registered at Vuex
-     * This will become unnecessary when old data handling is removed
-     * @param registry
-     */
-    filterStateRegistry(registry) {
-        const storeModules = {};
-        registry.forEach((value, key) => {
-            if (value instanceof EntityStore) {
-                return;
-            }
-
-            storeModules[key] = value;
-        });
-
-        return storeModules;
     }
 }

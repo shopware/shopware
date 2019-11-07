@@ -1,6 +1,6 @@
 import template from './sw-settings-salutation-detail.html.twig';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 const { Criteria } = Shopware.Data;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const { mapApiErrors } = Shopware.Component.getComponentHelper();
@@ -9,7 +9,7 @@ const utils = Shopware.Utils;
 Component.register('sw-settings-salutation-detail', {
     template,
 
-    inject: ['repositoryFactory', 'context'],
+    inject: ['repositoryFactory', 'apiContext'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -57,7 +57,7 @@ Component.register('sw-settings-salutation-detail', {
         },
 
         languageStore() {
-            return State.getStore('language');
+            return StateDeprecated.getStore('language');
         },
 
         entityDescription() {
@@ -110,7 +110,7 @@ Component.register('sw-settings-salutation-detail', {
         createdComponent() {
             this.isLoading = true;
             if (this.salutationId) {
-                this.salutationRepository.get(this.salutationId, this.context).then((salutation) => {
+                this.salutationRepository.get(this.salutationId, this.apiContext).then((salutation) => {
                     this.salutation = salutation;
                     this.isLoading = false;
                 });
@@ -118,7 +118,7 @@ Component.register('sw-settings-salutation-detail', {
             }
 
             this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
-            this.salutation = this.salutationRepository.create(this.context);
+            this.salutation = this.salutationRepository.create(this.apiContext);
             this.isLoading = false;
         },
 
@@ -134,13 +134,13 @@ Component.register('sw-settings-salutation-detail', {
             this.isLoading = true;
             this.isSaveSuccessful = false;
 
-            return this.salutationRepository.save(this.salutation, this.context).then(() => {
+            return this.salutationRepository.save(this.salutation, this.apiContext).then(() => {
                 this.isSaveSuccessful = true;
                 if (!this.salutationId) {
                     this.$router.push({ name: 'sw.settings.salutation.detail', params: { id: this.salutation.id } });
                 }
 
-                this.salutationRepository.get(this.salutation.id, this.context).then((updatedSalutation) => {
+                this.salutationRepository.get(this.salutation.id, this.apiContext).then((updatedSalutation) => {
                     this.salutation = updatedSalutation;
                     this.isLoading = false;
                 });
@@ -185,7 +185,7 @@ Component.register('sw-settings-salutation-detail', {
                 )
             );
 
-            this.salutationRepository.search(criteria, this.context).then(({ total }) => {
+            this.salutationRepository.search(criteria, this.apiContext).then(({ total }) => {
                 this.invalidKey = total > 0;
                 this.isKeyChecking = false;
             }).catch(() => {

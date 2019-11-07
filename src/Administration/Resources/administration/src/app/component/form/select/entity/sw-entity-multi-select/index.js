@@ -13,7 +13,7 @@ Component.register('sw-entity-multi-select', {
         event: 'change'
     },
 
-    inject: { repositoryFactory: 'repositoryFactory', adminContext: 'context' },
+    inject: { repositoryFactory: 'repositoryFactory', adminContext: 'apiContext' },
 
     props: {
         labelProperty: {

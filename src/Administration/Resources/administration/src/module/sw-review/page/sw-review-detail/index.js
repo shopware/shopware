@@ -8,7 +8,7 @@ const { warn } = Shopware.Utils.debug;
 Component.register('sw-review-detail', {
     template,
 
-    inject: ['repositoryFactory', 'context'],
+    inject: ['repositoryFactory', 'apiContext'],
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -69,7 +69,7 @@ Component.register('sw-review-detail', {
             criteria.addAssociation('salesChannel');
             criteria.addAssociation('product');
 
-            this.repository.get(this.reviewId, this.context, criteria).then((review) => {
+            this.repository.get(this.reviewId, this.apiContext, criteria).then((review) => {
                 this.review = review;
                 this.isLoading = false;
             });
@@ -83,7 +83,7 @@ Component.register('sw-review-detail', {
             const messageSaveError = this.$tc(
                 'global.notification.notificationSaveErrorMessage', 0, { entityName: reviewName }
             );
-            this.repository.save(this.review, this.context).then(() => {
+            this.repository.save(this.review, this.apiContext).then(() => {
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess

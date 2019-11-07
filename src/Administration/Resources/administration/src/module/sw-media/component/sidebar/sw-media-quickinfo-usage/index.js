@@ -1,7 +1,7 @@
 import template from './sw-media-quickinfo-usage.html.twig';
 import './sw-media-quickinfo-usage.scss';
 
-const { Application, Component, State } = Shopware;
+const { Application, Component, StateDeprecated } = Shopware;
 
 Component.register('sw-media-quickinfo-usage', {
     template,
@@ -27,7 +27,7 @@ Component.register('sw-media-quickinfo-usage', {
 
     computed: {
         productStore() {
-            return State.getStore('product');
+            return StateDeprecated.getStore('product');
         },
 
         moduleFactory() {

@@ -1,7 +1,7 @@
 import template from './sw-sales-channel-modal-grid.html.twig';
 import './sw-sales-channel-modal-grid.scss';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 
 Component.register('sw-sales-channel-modal-grid', {
     template,
@@ -16,7 +16,7 @@ Component.register('sw-sales-channel-modal-grid', {
 
     computed: {
         salesChannelTypeStore() {
-            return State.getStore('sales_channel_type');
+            return StateDeprecated.getStore('sales_channel_type');
         }
     },
 

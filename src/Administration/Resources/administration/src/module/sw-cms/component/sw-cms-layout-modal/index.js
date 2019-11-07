@@ -9,7 +9,7 @@ Component.register('sw-cms-layout-modal', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     mixins: [
@@ -47,7 +47,7 @@ Component.register('sw-cms-layout-modal', {
                 criteria.setTerm(this.term);
             }
 
-            return this.pageRepository.search(criteria, this.context).then((searchResult) => {
+            return this.pageRepository.search(criteria, this.apiContext).then((searchResult) => {
                 this.total = searchResult.total;
                 this.pages = searchResult;
                 this.isLoading = false;

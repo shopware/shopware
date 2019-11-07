@@ -1,6 +1,6 @@
 import template from './sw-property-option-detail.html.twig';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 
 Component.register('sw-property-option-detail', {
     template,
@@ -16,11 +16,11 @@ Component.register('sw-property-option-detail', {
 
     computed: {
         mediaStore() {
-            return State.getStore('media');
+            return StateDeprecated.getStore('media');
         },
 
         uploadStore() {
-            return State.getStore('upload');
+            return StateDeprecated.getStore('upload');
         }
     },
 

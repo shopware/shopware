@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-manufacturer-list', {
     template,
 
-    inject: ['repositoryFactory', 'context'],
+    inject: ['repositoryFactory', 'apiContext'],
 
     mixins: [
         Mixin.getByName('listing')
@@ -69,7 +69,7 @@ Component.register('sw-manufacturer-list', {
         getList() {
             this.isLoading = true;
 
-            return this.manufacturerRepository.search(this.manufacturerCriteria, this.context).then((searchResult) => {
+            return this.manufacturerRepository.search(this.manufacturerCriteria, this.apiContext).then((searchResult) => {
                 this.manufacturers = searchResult;
                 this.total = searchResult.total;
                 this.isLoading = false;

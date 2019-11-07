@@ -1,12 +1,12 @@
 import template from './sw-settings-customer-group-detail.html.twig';
 
-const { Component, State, Mixin } = Shopware;
+const { Component, StateDeprecated, Mixin } = Shopware;
 const { mapApiErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-settings-customer-group-detail', {
     template,
 
-    inject: ['repositoryFactory', 'context'],
+    inject: ['repositoryFactory', 'apiContext'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -47,7 +47,7 @@ Component.register('sw-settings-customer-group-detail', {
         },
 
         languageStore() {
-            return State.getStore('language');
+            return StateDeprecated.getStore('language');
         },
 
         customerGroupRepository() {
@@ -97,7 +97,7 @@ Component.register('sw-settings-customer-group-detail', {
         createdComponent() {
             this.isLoading = true;
             if (this.customerGroupId) {
-                this.customerGroupRepository.get(this.customerGroupId, this.context).then((customerGroup) => {
+                this.customerGroupRepository.get(this.customerGroupId, this.apiContext).then((customerGroup) => {
                     this.customerGroup = customerGroup;
                     this.isLoading = false;
                 });
@@ -105,7 +105,7 @@ Component.register('sw-settings-customer-group-detail', {
             }
 
             this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
-            this.customerGroup = this.customerGroupRepository.create(this.context);
+            this.customerGroup = this.customerGroupRepository.create(this.apiContext);
             this.isLoading = false;
         },
 
@@ -121,13 +121,13 @@ Component.register('sw-settings-customer-group-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return this.customerGroupRepository.save(this.customerGroup, this.context).then(() => {
+            return this.customerGroupRepository.save(this.customerGroup, this.apiContext).then(() => {
                 this.isSaveSuccessful = true;
                 if (!this.customerGroupId) {
                     this.$router.push({ name: 'sw.settings.customer.group.detail', params: { id: this.customerGroup.id } });
                 }
 
-                this.customerGroupRepository.get(this.customerGroup.id, this.context).then((updatedCustomerGroup) => {
+                this.customerGroupRepository.get(this.customerGroup.id, this.apiContext).then((updatedCustomerGroup) => {
                     this.customerGroup = updatedCustomerGroup;
                     this.isLoading = false;
                 });

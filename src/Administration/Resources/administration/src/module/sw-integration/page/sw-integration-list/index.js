@@ -1,7 +1,7 @@
 import template from './sw-integration-list.html.twig';
 import './sw-integration-list.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 
 Component.register('sw-integration-list', {
     template,
@@ -35,7 +35,7 @@ Component.register('sw-integration-list', {
             return this.$vnode.tag;
         },
         integrationStore() {
-            return State.getStore('integration');
+            return StateDeprecated.getStore('integration');
         },
         secretAccessKeyFieldType() {
             return this.showSecretAccessKey ? 'text' : 'password';

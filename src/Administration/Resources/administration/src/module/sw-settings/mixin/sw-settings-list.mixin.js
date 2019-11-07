@@ -1,4 +1,4 @@
-const { Mixin, State } = Shopware;
+const { Mixin, StateDeprecated } = Shopware;
 const { debug } = Shopware.Utils;
 
 Mixin.register('sw-settings-list', {
@@ -21,7 +21,7 @@ Mixin.register('sw-settings-list', {
 
     computed: {
         store() {
-            return State.getStore(this.entityName);
+            return StateDeprecated.getStore(this.entityName);
         },
         titleSaveSuccess() {
             return this.$tc(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.titleDeleteSuccess`);

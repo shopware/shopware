@@ -1,6 +1,6 @@
 import template from './sw-settings-custom-field-set-detail.html.twig';
 
-const { Component, State, Mixin } = Shopware;
+const { Component, StateDeprecated, Mixin } = Shopware;
 
 Component.register('sw-settings-custom-field-set-detail', {
     template,
@@ -39,7 +39,7 @@ Component.register('sw-settings-custom-field-set-detail', {
         },
 
         customFieldSetStore() {
-            return State.getStore('custom_field_set');
+            return StateDeprecated.getStore('custom_field_set');
         },
 
         tooltipSave() {

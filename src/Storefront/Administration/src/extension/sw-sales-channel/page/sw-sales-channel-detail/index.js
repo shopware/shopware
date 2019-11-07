@@ -20,7 +20,7 @@ Component.override('sw-sales-channel-detail', {
 
             this.isLoading = true;
             this.salesChannelRepository
-                .get(this.$route.params.id, this.context, criteria)
+                .get(this.$route.params.id, this.apiContext, criteria)
                 .then((entity) => {
                     this.salesChannel = entity;
                     this.isLoading = false;

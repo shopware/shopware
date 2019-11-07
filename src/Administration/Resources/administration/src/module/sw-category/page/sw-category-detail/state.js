@@ -20,7 +20,7 @@ export default {
             commit('setActiveCategory', payload);
         },
 
-        loadActiveCategory({ commit }, { repository, id, context }) {
+        loadActiveCategory({ commit }, { repository, id, apiContext }) {
             const criteria = new Criteria();
 
             criteria.getAssociation('seoUrls')
@@ -33,7 +33,7 @@ export default {
                 .addAssociation('footerSalesChannels');
 
 
-            return repository.get(id, context, criteria).then((category) => {
+            return repository.get(id, apiContext, criteria).then((category) => {
                 commit('setActiveCategory', { category });
             });
         }

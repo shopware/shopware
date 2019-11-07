@@ -2,7 +2,7 @@ import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-settings-shipping-price-matrices.html.twig';
 import './sw-settings-shipping-price-matrices.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 
 Component.register('sw-settings-shipping-price-matrices', {
     template,
@@ -21,7 +21,7 @@ Component.register('sw-settings-shipping-price-matrices', {
 
     computed: {
         ruleStore() {
-            return State.getStore('rule');
+            return StateDeprecated.getStore('rule');
         },
         ruleFilter() {
             return CriteriaFactory.multi('OR',
@@ -33,7 +33,7 @@ Component.register('sw-settings-shipping-price-matrices', {
         },
 
         currencyStore() {
-            return State.getStore('currency');
+            return StateDeprecated.getStore('currency');
         },
 
         priceRuleGroups() {

@@ -1,7 +1,7 @@
 import template from './sw-tag-field.html.twig';
 import './sw-tag-field.scss';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 const { CriteriaFactory } = Shopware.DataDeprecated;
 
 /**
@@ -46,7 +46,7 @@ Component.register('sw-tag-field', {
 
     computed: {
         tagStore() {
-            return State.getStore('tag');
+            return StateDeprecated.getStore('tag');
         },
 
         associationStore() {

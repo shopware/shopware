@@ -2,7 +2,7 @@ import template from './sw-product-detail.html.twig';
 import swProductDetailState from './state';
 import errorConfiguration from './error.cfg.json';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 const { Criteria } = Shopware.Data;
 const { hasOwnProperty } = Shopware.Utils.object;
 const { mapPageErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
@@ -10,7 +10,7 @@ const { mapPageErrors, mapState, mapGetters } = Shopware.Component.getComponentH
 Component.register('sw-product-detail', {
     template,
 
-    inject: ['mediaService', 'repositoryFactory', 'context', 'numberRangeService', 'seoUrlService'],
+    inject: ['mediaService', 'repositoryFactory', 'apiContext', 'numberRangeService', 'seoUrlService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -76,7 +76,7 @@ Component.register('sw-product-detail', {
         },
 
         languageStore() {
-            return State.getStore('language');
+            return StateDeprecated.getStore('language');
         },
 
         productRepository() {
@@ -216,7 +216,7 @@ Component.register('sw-product-detail', {
         },
 
         initState() {
-            this.$store.commit('swProductDetail/setContext', this.context);
+            this.$store.commit('swProductDetail/setApiContext', this.apiContext);
 
             // when product exists
             if (this.productId) {
@@ -256,7 +256,7 @@ Component.register('sw-product-detail', {
             this.$store.commit('swProductDetail/setLoading', ['product', true]);
 
             // create empty product
-            this.$store.commit('swProductDetail/setProduct', this.productRepository.create(this.context));
+            this.$store.commit('swProductDetail/setProduct', this.productRepository.create(this.apiContext));
             this.$store.commit('swProductDetail/setProductId', this.product.id);
 
             // fill empty data
@@ -286,7 +286,10 @@ Component.register('sw-product-detail', {
         loadProduct() {
             this.$store.commit('swProductDetail/setLoading', ['product', true]);
 
-            this.productRepository.get(this.productId || this.product.id, this.context, this.productCriteria).then((res) => {
+            this.productRepository.get(
+                this.productId || this.product.id,
+                this.apiContext, this.productCriteria
+            ).then((res) => {
                 this.$store.commit('swProductDetail/setProduct', res);
 
                 if (this.product.parentId) {
@@ -300,7 +303,7 @@ Component.register('sw-product-detail', {
         loadParentProduct() {
             this.$store.commit('swProductDetail/setLoading', ['parentProduct', true]);
 
-            return this.productRepository.get(this.product.parentId, this.context, this.productCriteria).then((res) => {
+            return this.productRepository.get(this.product.parentId, this.apiContext, this.productCriteria).then((res) => {
                 this.$store.commit('swProductDetail/setParentProduct', res);
             }).then(() => {
                 this.$store.commit('swProductDetail/setLoading', ['parentProduct', false]);
@@ -310,7 +313,7 @@ Component.register('sw-product-detail', {
         loadCurrencies() {
             this.$store.commit('swProductDetail/setLoading', ['currencies', true]);
 
-            return this.currencyRepository.search(new Criteria(1, 500), this.context).then((res) => {
+            return this.currencyRepository.search(new Criteria(1, 500), this.apiContext).then((res) => {
                 this.$store.commit('swProductDetail/setCurrencies', res);
             }).then(() => {
                 this.$store.commit('swProductDetail/setLoading', ['currencies', false]);
@@ -320,7 +323,7 @@ Component.register('sw-product-detail', {
         loadTaxes() {
             this.$store.commit('swProductDetail/setLoading', ['taxes', true]);
 
-            return this.taxRepository.search(new Criteria(1, 500), this.context).then((res) => {
+            return this.taxRepository.search(new Criteria(1, 500), this.apiContext).then((res) => {
                 this.$store.commit('swProductDetail/setTaxes', res);
             }).then(() => {
                 this.$store.commit('swProductDetail/setLoading', ['taxes', false]);
@@ -330,7 +333,7 @@ Component.register('sw-product-detail', {
         loadAttributeSet() {
             this.$store.commit('swProductDetail/setLoading', ['customFieldSets', true]);
 
-            return this.customFieldSetRepository.search(this.customFieldSetCriteria, this.context).then((res) => {
+            return this.customFieldSetRepository.search(this.customFieldSetCriteria, this.apiContext).then((res) => {
                 this.$store.commit('swProductDetail/setAttributeSet', res);
             }).then(() => {
                 this.$store.commit('swProductDetail/setLoading', ['customFieldSets', false]);
@@ -346,7 +349,7 @@ Component.register('sw-product-detail', {
         },
 
         onChangeLanguage(languageId) {
-            this.context.languageId = languageId;
+            Shopware.StateDeprecated.getStore('language').setCurrentId(languageId);
             this.initState();
         },
 
@@ -410,7 +413,7 @@ Component.register('sw-product-detail', {
                 switch (response) {
                     case 'empty': {
                         this.isSaveSuccessful = true;
-                        this.$store.commit('resetApiErrors');
+                        this.$store.commit('error/resetApiErrors');
                         break;
                     }
 
@@ -454,7 +457,7 @@ Component.register('sw-product-detail', {
                 }
 
                 // save product
-                this.productRepository.save(this.product, this.context).then(() => {
+                this.productRepository.save(this.product, this.apiContext).then(() => {
                     this.loadAll().then(() => {
                         this.$store.commit('swProductDetail/setLoading', ['product', false]);
                         resolve('success');
@@ -498,7 +501,7 @@ Component.register('sw-product-detail', {
                 return Promise.reject('A media item with this id exists');
             }
 
-            const newMedia = this.mediaRepository.create(this.context);
+            const newMedia = this.mediaRepository.create(this.apiContext);
             newMedia.mediaId = mediaItem.id;
 
             return new Promise((resolve) => {

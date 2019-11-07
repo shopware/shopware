@@ -7,7 +7,7 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-import-export-log-list', {
     template,
 
-    inject: ['importExportService', 'repositoryFactory', 'context'],
+    inject: ['importExportService', 'repositoryFactory', 'apiContext'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -39,7 +39,7 @@ Component.register('sw-import-export-log-list', {
             this.repository = this.repositoryFactory.create('import_export_log');
 
             this.repository
-                .search(new Criteria(), this.context)
+                .search(new Criteria(), this.apiContext)
                 .then((response) => {
                     this.logItems = response;
                     this.isLoading = false;

@@ -3,13 +3,13 @@ import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-settings-number-range-detail.html.twig';
 import './sw-settings-number-range-detail.scss';
 
-const { Component, State, Mixin } = Shopware;
+const { Component, StateDeprecated, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-settings-number-range-detail', {
     template,
 
-    inject: ['numberRangeService', 'repositoryFactory', 'context'],
+    inject: ['numberRangeService', 'repositoryFactory', 'apiContext'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -54,15 +54,15 @@ Component.register('sw-settings-number-range-detail', {
         },
 
         numberRangeStore() {
-            return State.getStore('number_range');
+            return StateDeprecated.getStore('number_range');
         },
 
         numberRangeTypeStore() {
-            return State.getStore('number_range_type');
+            return StateDeprecated.getStore('number_range_type');
         },
 
         salesChannelStore() {
-            return State.getStore('sales_channel');
+            return StateDeprecated.getStore('sales_channel');
         },
 
         salesChannelAssociationStore() {
@@ -70,7 +70,7 @@ Component.register('sw-settings-number-range-detail', {
         },
 
         numberRangeStateStore() {
-            return State.getStore('number_range_state');
+            return StateDeprecated.getStore('number_range_state');
         },
 
         firstSalesChannel() {
@@ -212,13 +212,14 @@ Component.register('sw-settings-number-range-detail', {
             numberRangeSalesChannelCriteria.addFilter(
                 Criteria.equals('numberRangeTypeId', id)
             );
-            numberRangeSalesChannels.search(numberRangeSalesChannelCriteria, this.context).then((responseSalesChannels) => {
-                const assignedSalesChannelIds = [];
-                responseSalesChannels.forEach((salesChannel) => {
-                    assignedSalesChannelIds.push(salesChannel.salesChannelId);
+            numberRangeSalesChannels.search(numberRangeSalesChannelCriteria, this.apiContext)
+                .then((responseSalesChannels) => {
+                    const assignedSalesChannelIds = [];
+                    responseSalesChannels.forEach((salesChannel) => {
+                        assignedSalesChannelIds.push(salesChannel.salesChannelId);
+                    });
+                    this.getPossibleSalesChannels(assignedSalesChannelIds);
                 });
-                this.getPossibleSalesChannels(assignedSalesChannelIds);
-            });
         },
         getPossibleSalesChannels(assignedSalesChannelIds) {
             this.setSalesChannelCriteria(assignedSalesChannelIds);

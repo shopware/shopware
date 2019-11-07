@@ -1,7 +1,7 @@
 import template from './sw-media-sidebar.html.twig';
 import './sw-media-sidebar.scss';
 
-const { Component, Filter, State } = Shopware;
+const { Component, Filter, StateDeprecated } = Shopware;
 
 Component.register('sw-media-sidebar', {
     template,
@@ -39,7 +39,7 @@ Component.register('sw-media-sidebar', {
 
     computed: {
         mediaFolderStore() {
-            return State.getStore('media_folder');
+            return StateDeprecated.getStore('media_folder');
         },
 
         mediaNameFilter() {

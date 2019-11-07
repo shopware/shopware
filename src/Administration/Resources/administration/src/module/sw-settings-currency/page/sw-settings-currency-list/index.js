@@ -8,7 +8,7 @@ Component.register('sw-settings-currency-list', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     mixins: [
@@ -55,7 +55,7 @@ Component.register('sw-settings-currency-list', {
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
 
-            this.currencyRepository.search(criteria, this.context).then((items) => {
+            this.currencyRepository.search(criteria, this.apiContext).then((items) => {
                 this.total = items.total;
                 this.currency = items;
                 this.isLoading = false;
@@ -67,7 +67,7 @@ Component.register('sw-settings-currency-list', {
         },
 
         onChangeLanguage(languageId) {
-            this.context.languageId = languageId;
+            Shopware.StateDeprecated.getStore('language').setCurrentId(languageId);
             this.getList();
         },
 
@@ -97,7 +97,7 @@ Component.register('sw-settings-currency-list', {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.currencyRepository.delete(id, this.context).then(() => {
+            return this.currencyRepository.delete(id, this.apiContext).then(() => {
                 this.getList();
             });
         },

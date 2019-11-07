@@ -13,7 +13,7 @@ Component.register('sw-settings-delivery-time-detail', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     shortcuts: {
@@ -44,7 +44,7 @@ Component.register('sw-settings-delivery-time-detail', {
             this.isLoading = true;
 
             this.deliveryTimeRepository
-                .get(this.$route.params.id, this.context)
+                .get(this.$route.params.id, this.apiContext)
                 .then((deliveryTime) => {
                     this.deliveryTime = deliveryTime;
                     this.isLoading = false;
@@ -65,7 +65,7 @@ Component.register('sw-settings-delivery-time-detail', {
             this.isSaveSuccessful = false;
 
             return this.deliveryTimeRepository
-                .save(this.deliveryTime, this.context)
+                .save(this.deliveryTime, this.apiContext)
                 .then(() => {
                     this.isLoading = false;
                     this.isSaveSuccessful = true;

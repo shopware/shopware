@@ -1,6 +1,6 @@
 import template from './sw-sales-channel-create.html.twig';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 const utils = Shopware.Utils;
 
 Component.extend('sw-sales-channel-create', 'sw-sales-channel-detail', {
@@ -16,7 +16,7 @@ Component.extend('sw-sales-channel-create', 'sw-sales-channel-detail', {
 
     computed: {
         languageStore() {
-            return State.getStore('language');
+            return StateDeprecated.getStore('language');
         }
     },
 
@@ -30,7 +30,7 @@ Component.extend('sw-sales-channel-create', 'sw-sales-channel-detail', {
                 this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
             }
 
-            this.salesChannel = this.salesChannelRepository.create(this.context);
+            this.salesChannel = this.salesChannelRepository.create(this.apiContext);
             this.salesChannel.typeId = this.$route.params.typeId;
             this.salesChannel.active = false;
 

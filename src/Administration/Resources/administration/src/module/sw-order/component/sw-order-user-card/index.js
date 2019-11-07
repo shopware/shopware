@@ -12,7 +12,7 @@ Component.register('sw-order-user-card', {
     inject: [
         'orderService',
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     mixins: [
@@ -130,7 +130,7 @@ Component.register('sw-order-user-card', {
         },
 
         reload() {
-            this.countryRepository.search(this.countryCriteria(), this.context).then((response) => {
+            this.countryRepository.search(this.countryCriteria(), this.apiContext).then((response) => {
                 this.countries = response;
             });
         },
@@ -206,13 +206,13 @@ Component.register('sw-order-user-card', {
         },
 
         onAddTag(item) {
-            this.OrderTagRepository.assign(item.id, this.context).then(() => {
+            this.OrderTagRepository.assign(item.id, this.apiContext).then(() => {
                 this.emitChange();
             });
         },
 
         onRemoveTag(item) {
-            this.OrderTagRepository.delete(item.id, this.context).then(() => {
+            this.OrderTagRepository.delete(item.id, this.apiContext).then(() => {
                 this.emitChange();
             });
         }

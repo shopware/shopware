@@ -2,7 +2,7 @@ import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-media-library.html.twig';
 import './sw-media-library.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 const ItemLoader = Shopware.Helper.InfiniteScrollingHelper;
 
 Component.register('sw-media-library', {
@@ -89,11 +89,11 @@ Component.register('sw-media-library', {
 
     computed: {
         mediaFolderStore() {
-            return State.getStore('media_folder');
+            return StateDeprecated.getStore('media_folder');
         },
 
         mediaFolderConfigurationStore() {
-            return State.getStore('media_folder_configuration');
+            return StateDeprecated.getStore('media_folder_configuration');
         },
 
         folderLoader() {

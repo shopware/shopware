@@ -9,7 +9,7 @@ Component.register('sw-settings-rule-list', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     mixins: [
@@ -45,7 +45,7 @@ Component.register('sw-settings-rule-list', {
             const naturalSort = this.sortBy === 'createdAt';
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, naturalSort));
 
-            this.ruleRepository.search(criteria, this.context).then((items) => {
+            this.ruleRepository.search(criteria, this.apiContext).then((items) => {
                 this.total = items.total;
                 this.rules = items;
                 this.isLoading = false;
@@ -57,7 +57,7 @@ Component.register('sw-settings-rule-list', {
         },
 
         onDuplicate(referenceRule) {
-            this.ruleRepository.clone(referenceRule.id, this.context).then(() => {
+            this.ruleRepository.clone(referenceRule.id, this.apiContext).then(() => {
                 this.$router.push(
                     {
                         name: 'sw.settings.rule.detail',

@@ -1,6 +1,6 @@
 import template from './sw-condition-customer-group.html.twig';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 
 /**
  * @public
@@ -27,7 +27,7 @@ Component.extend('sw-condition-customer-group', 'sw-condition-base', {
 
     methods: {
         getCustomerGroupStore() {
-            return State.getStore('customer_group');
+            return StateDeprecated.getStore('customer_group');
         }
     }
 });

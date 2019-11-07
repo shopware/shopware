@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-category-tree', {
     template,
 
-    inject: ['repositoryFactory', 'context', 'syncService'],
+    inject: ['repositoryFactory', 'apiContext', 'syncService'],
 
     props: {
         categoryId: {
@@ -50,7 +50,7 @@ Component.register('sw-category-tree', {
         },
 
         disableContextMenu() {
-            return this.currentLanguageId !== this.context.systemLanguageId;
+            return this.currentLanguageId !== this.apiContext.systemLanguageId;
         }
     },
 
@@ -69,7 +69,7 @@ Component.register('sw-category-tree', {
 
             // reload after save
             if (oldVal && newVal.id === oldVal.id) {
-                this.categoryRepository.get(newVal.id, this.context).then((newCategory) => {
+                this.categoryRepository.get(newVal.id, this.apiContext).then((newCategory) => {
                     this.loadedCategories[newCategory.id] = newCategory;
                     this.loadedCategories = { ...this.loadedCategories };
                 });
@@ -112,7 +112,7 @@ Component.register('sw-category-tree', {
                         searchCriteria.getAssociation('children')
                             .setLimit(500);
 
-                        const promise = this.categoryRepository.get(id, this.context, searchCriteria)
+                        const promise = this.categoryRepository.get(id, this.apiContext, searchCriteria)
                             .then((result) => {
                                 this.addCategories([result, ...result.children]);
                             });
@@ -164,11 +164,11 @@ Component.register('sw-category-tree', {
                 return Promise.resolve();
             }
 
-            return this.categoryRepository.delete(category.id, this.context).then(() => {
+            return this.categoryRepository.delete(category.id, this.apiContext).then(() => {
                 this.removeFromStore(category.id);
 
                 if (category.parentId !== null) {
-                    this.categoryRepository.get(category.parentId, this.context).then((updatedParent) => {
+                    this.categoryRepository.get(category.parentId, this.apiContext).then((updatedParent) => {
                         this.addCategory(updatedParent);
                     });
                 }
@@ -197,7 +197,7 @@ Component.register('sw-category-tree', {
             const categoryCriteria = new Criteria(1, 500);
             categoryCriteria.addFilter(Criteria.equals('parentId', parentId));
 
-            return this.categoryRepository.search(categoryCriteria, this.context).then((children) => {
+            return this.categoryRepository.search(categoryCriteria, this.apiContext).then((children) => {
                 this.addCategories(children);
             }).catch(() => {
                 this.loadedParentIds = this.loadedParentIds.filter((id) => {
@@ -214,7 +214,7 @@ Component.register('sw-category-tree', {
             const criteria = new Criteria();
             criteria.limit = 500;
             criteria.addFilter(Criteria.equals('parentId', null));
-            return this.categoryRepository.search(criteria, this.context).then((result) => {
+            return this.categoryRepository.search(criteria, this.apiContext).then((result) => {
                 this.addCategories(result);
             });
         },
@@ -229,7 +229,7 @@ Component.register('sw-category-tree', {
         },
 
         createNewCategory(name, parentId) {
-            const newCategory = this.categoryRepository.create(this.context);
+            const newCategory = this.categoryRepository.create(this.apiContext);
 
             newCategory.name = name;
             newCategory.parentId = parentId;
@@ -238,10 +238,10 @@ Component.register('sw-category-tree', {
             newCategory.visible = true;
 
             newCategory.save = () => {
-                return this.categoryRepository.save(newCategory, this.context).then(() => {
+                return this.categoryRepository.save(newCategory, this.apiContext).then(() => {
                     const criteria = new Criteria();
                     criteria.setIds([newCategory.id, parentId].filter((id) => id !== null));
-                    this.categoryRepository.search(criteria, this.context).then((categories) => {
+                    this.categoryRepository.search(criteria, this.apiContext).then((categories) => {
                         this.addCategories(categories);
                     });
                 });
@@ -255,11 +255,11 @@ Component.register('sw-category-tree', {
                 return category.parentId === parentId;
             });
 
-            return this.categoryRepository.sync(siblings, this.context).then(() => {
+            return this.categoryRepository.sync(siblings, this.apiContext).then(() => {
                 this.loadedParentIds = this.loadedParentIds.filter(id => id !== parentId);
                 return this.getChildrenFromParent(parentId);
             }).then(() => {
-                this.categoryRepository.get(parentId, this.context).then((parent) => {
+                this.categoryRepository.get(parentId, this.apiContext).then((parent) => {
                     this.addCategory(parent);
                 });
             });

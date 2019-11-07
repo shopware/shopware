@@ -8,7 +8,7 @@ Component.register('sw-settings-tax-list', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     mixins: [
@@ -47,7 +47,7 @@ Component.register('sw-settings-tax-list', {
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
 
-            this.taxRepository.search(criteria, this.context).then((items) => {
+            this.taxRepository.search(criteria, this.apiContext).then((items) => {
                 this.total = items.total;
                 this.tax = items;
                 this.isLoading = false;
@@ -84,7 +84,7 @@ Component.register('sw-settings-tax-list', {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.taxRepository.delete(id, this.context).then(() => {
+            return this.taxRepository.delete(id, this.apiContext).then(() => {
                 this.getList();
             });
         },

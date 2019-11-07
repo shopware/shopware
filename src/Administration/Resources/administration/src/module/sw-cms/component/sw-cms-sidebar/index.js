@@ -12,7 +12,7 @@ Component.register('sw-cms-sidebar', {
     inject: [
         'cmsService',
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     mixins: [
@@ -278,7 +278,7 @@ Component.register('sw-cms-sidebar', {
 
             const section = dropData.section;
             const blockConfig = this.cmsBlocks[dragData.block.name];
-            const newBlock = this.blockRepository.create(this.context);
+            const newBlock = this.blockRepository.create(this.apiContext);
 
             newBlock.type = dragData.block.name;
             newBlock.position = dropData.dropIndex;
@@ -293,7 +293,7 @@ Component.register('sw-cms-sidebar', {
 
             Object.keys(blockConfig.slots).forEach((slotName) => {
                 const slotConfig = blockConfig.slots[slotName];
-                const element = this.slotRepository.create(this.context);
+                const element = this.slotRepository.create(this.apiContext);
                 element.blockId = newBlock.id;
                 element.slot = slotName;
 
@@ -368,7 +368,7 @@ Component.register('sw-cms-sidebar', {
         successfulUpload(media, section) {
             section.backgroundMediaId = media.targetId;
 
-            this.mediaRepository.get(media.targetId, this.context).then((mediaItem) => {
+            this.mediaRepository.get(media.targetId, this.apiContext).then((mediaItem) => {
                 section.backgroundMedia = mediaItem;
                 this.pageUpdate();
             });

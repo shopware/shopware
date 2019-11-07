@@ -2,7 +2,7 @@ import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-duplicated-media.html.twig';
 import './sw-duplicated-media.scss';
 
-const { Component, State, Filter } = Shopware;
+const { Component, StateDeprecated, Filter } = Shopware;
 
 /**
  * @private
@@ -33,11 +33,11 @@ Component.register('sw-duplicated-media', {
 
     computed: {
         mediaStore() {
-            return State.getStore('media');
+            return StateDeprecated.getStore('media');
         },
 
         uploadStore() {
-            return State.getStore('upload');
+            return StateDeprecated.getStore('upload');
         },
 
         additionalErrorCount() {

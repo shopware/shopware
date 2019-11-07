@@ -1,5 +1,6 @@
 /**
  * @module core/factory/context
+ * @param {Object} context
  * @type factory
  */
 export default function createContext(context = {}) {
@@ -12,10 +13,8 @@ export default function createContext(context = {}) {
 
     Object.assign(context, {
         installationPath,
-        environment: process.env.NODE_ENV,
         apiPath: apiPath,
         apiResourcePath: `${apiPath}/v1`,
-        currentUser: {},
         assetsPath: getAssetsPath(installationPath, isDevMode),
         languageId: languageId,
         inheritance: false
@@ -24,7 +23,6 @@ export default function createContext(context = {}) {
     if (isDevMode) {
         Object.assign(context, {
             systemLanguageId: Defaults.systemLanguageId,
-            defaultLanguageIds: Defaults.defaultLanguageIds,
             liveVersionId: Defaults.versionId
         });
     }

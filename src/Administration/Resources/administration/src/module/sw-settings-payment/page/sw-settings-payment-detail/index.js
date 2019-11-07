@@ -2,7 +2,7 @@ import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-settings-payment-detail.html.twig';
 import './sw-settings-payment-detail.scss';
 
-const { Component, State, Mixin } = Shopware;
+const { Component, StateDeprecated, Mixin } = Shopware;
 const { warn } = Shopware.Utils.debug;
 
 Component.register('sw-settings-payment-detail', {
@@ -54,15 +54,15 @@ Component.register('sw-settings-payment-detail', {
         },
 
         paymentMethodStore() {
-            return State.getStore('payment_method');
+            return StateDeprecated.getStore('payment_method');
         },
 
         ruleStore() {
-            return State.getStore('rule');
+            return StateDeprecated.getStore('rule');
         },
 
         mediaStore() {
-            return State.getStore('media');
+            return StateDeprecated.getStore('media');
         },
 
         tooltipSave() {

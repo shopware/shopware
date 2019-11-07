@@ -10,6 +10,9 @@ const ComponentFactory = require('src/core/factory/component.factory').default;
 const TemplateFactory = require('src/core/factory/template.factory').default;
 const EntityFactory = require('src/core/factory/entity.factory').default;
 const StateFactory = require('src/core/factory/state.factory').default;
+const StateFactoryDeprecated = require('src/core/factory/state-deprecated.factory').default;
+const ServiceFactory = require('src/core/factory/service.factory').default;
+const ClassesFactory = require('src/core/factory/classes-factory').default;
 const MixinFactory = require('src/core/factory/mixin.factory').default;
 const FilterFactory = require('src/core/factory/filter.factory').default;
 const DirectiveFactory = require('src/core/factory/directive.factory').default;
@@ -36,7 +39,8 @@ const ApplicationBootstrapper = require('src/core/application').default;
 const RefreshTokenHelper = require('src/core/helper/refresh-token.helper').default;
 const HttpFactory = require('src/core/factory/http.factory').default;
 const RepositoryFactory = require('src/core/data-new/repository-factory.data').default;
-const ContextFactory = require('src/core/factory/context.factory').default;
+const ApiContextFactory = require('src/core/factory/api-context.factory').default;
+const AppContextFactory = require('src/core/factory/app-context.factory').default;
 const RouterFactory = require('src/core/factory/router.factory').default;
 const ApiServices = require('src/core/service/api').default;
 
@@ -61,6 +65,15 @@ application
     })
     .addFactory('state', () => {
         return StateFactory;
+    })
+    .addFactory('stateDeprecated', () => {
+        return StateFactoryDeprecated;
+    })
+    .addFactory('serviceFactory', () => {
+        return ServiceFactory;
+    })
+    .addFactory('classesFactory', () => {
+        return ClassesFactory;
     })
     .addFactory('mixin', () => {
         return MixinFactory;
@@ -90,23 +103,23 @@ application
         return WorkerNotificationFactory;
     });
 
-const Shopware = {
+const Shopware = function Shopware() {
     /**
      * @memberOf module:Shopware
      * @type {Object}
      */
-    Module: {
+    this.Module = {
         register: ModuleFactory.registerModule,
         getModuleRegistry: ModuleFactory.getModuleRegistry,
         getModuleRoutes: ModuleFactory.getModuleRoutes,
         getModuleByEntityName: ModuleFactory.getModuleByEntityName
-    },
+    };
 
     /**
      * @memberOf module:Shopware
      * @type {Object}
      */
-    Component: {
+    this.Component = {
         register: ComponentFactory.register,
         extend: ComponentFactory.extend,
         override: ComponentFactory.override,
@@ -115,26 +128,26 @@ const Shopware = {
         getComponentRegistry: ComponentFactory.getComponentRegistry,
         getComponentHelper: ComponentFactory.getComponentHelper,
         registerComponentHelper: ComponentFactory.registerComponentHelper
-    },
+    };
 
     /**
      * @memberOf module:Shopware
      * @type {Object}
      */
-    Template: {
+    this.Template = {
         register: TemplateFactory.registerComponentTemplate,
         extend: TemplateFactory.extendComponentTemplate,
         override: TemplateFactory.registerTemplateOverride,
         getRenderedTemplate: TemplateFactory.getRenderedTemplate,
         find: TemplateFactory.findCustomTemplate,
         findOverride: TemplateFactory.findCustomTemplate
-    },
+    };
 
     /**
      * @memberOf module:Shopware
      * @type {Object}
      */
-    Entity: {
+    this.Entity = {
         addDefinition: EntityFactory.addEntityDefinition,
         getDefinition: EntityFactory.getEntityDefinition,
         getDefinitionRegistry: EntityFactory.getDefinitionRegistry,
@@ -143,131 +156,120 @@ const Shopware = {
         getRequiredProperties: EntityFactory.getRequiredProperties,
         getAssociatedProperties: EntityFactory.getAssociatedProperties,
         getTranslatableProperties: EntityFactory.getTranslatableProperties
-    },
+    };
 
     /**
      * @memberOf module:Shopware
      * @type {Object}
      */
-    State: {
-        registerStore: StateFactory.registerStore,
-        getStore: StateFactory.getStore,
-        getStoreRegistry: StateFactory.getStoreRegistry
-    },
+    this.State = StateFactory();
 
     /**
      * @memberOf module:Shopware
      * @type {Object}
      */
-    Mixin: {
+    this.Mixin = {
         register: MixinFactory.register,
         getByName: MixinFactory.getByName
-    },
+    };
 
     /**
      * @memberOf module:Shopware
      * @type {Object}
      */
-    Filter: {
+    this.Filter = {
         register: FilterFactory.register,
         getByName: FilterFactory.getByName
-    },
+    };
 
     /**
      * @memberOf module:Shopware
      * @type {Object}
      */
-    Directive: {
+    this.Directive = {
         register: DirectiveFactory.registerDirective,
         getByName: DirectiveFactory.getDirectiveByName
-    },
+    };
 
     /**
      * @memberOf module:Shopware
      * @type {Object}
      */
-    Locale: {
+    this.Locale = {
         register: LocaleFactory.register,
         extend: LocaleFactory.extend,
         getByName: LocaleFactory.getLocaleByName
-    },
+    };
 
     /**
      * @memberOf module:Shopware
      * @type {Object}
      */
-    Shortcut: {
+    this.Shortcut = {
         getShortcutRegistry: ShortcutFactory.getShortcutRegistry,
         getPathByCombination: ShortcutFactory.getPathByCombination,
         register: ShortcutFactory.register
-    },
+    };
 
     /**
      * @memberOf module:Shopware
      * @type {Object}
      */
-    Plugin: {
+    this.Plugin = {
         addBootPromise: PluginBootFactory.addBootPromise,
         getBootPromises: PluginBootFactory.getBootPromises
-    },
+    };
 
     /**
      * @memberOf module:Shopware
      * @type {Object}
      */
-    Service: (serviceName) => {
-        this.get = (name) => application.getContainer('service')[name];
-        this.list = () => application.getContainer('service').$list();
-        this.register = (name, service) => application.addServiceProvider(name, service);
-        this.registerMiddleware = (...args) => application.addServiceProviderMiddleware(...args);
-        this.registerDecorator = (...args) => application.addServiceProviderDecorator(...args);
-
-        return serviceName ? this.get(serviceName) : this;
-    },
+    this.Service = ServiceFactory;
 
     /**
      * @memberOf module:Shopware
      * @type {Object}
      */
-    get Context() {
-        return application.getContainer('service').context;
-    },
+    this.Context = {
+        get App() { return application.getContainer('service').appContext; },
+        get Api() { return application.getContainer('service').apiContext; }
+    };
 
     /**
      * @memberOf module:Shopware
      * @type {module:core/service/utils}
      */
-    Utils: utils,
+    this.Utils = utils;
 
     /**
      * @memberOf module:Shopware
      * @type {module:core/application}
      */
-    Application: application,
+    this.Application = application;
 
     /**
      * @memberOf module:Shopware
      * @type {module:core/feature-config}
      */
-    FeatureConfig: FeatureConfig,
+    this.FeatureConfig = FeatureConfig;
 
     /**
      * @memberOf module:Shopware
      * @type {Object}
      */
-    ApiService: {
+    this.ApiService = {
         register: ApiServiceFactory.register,
         getByName: ApiServiceFactory.getByName,
         getRegistry: ApiServiceFactory.getRegistry,
         getServices: ApiServiceFactory.getServices,
         has: ApiServiceFactory.has
-    },
+    };
 
     /**
      * @memberOf module:Shopware
      * @type {Object}
      */
-    EntityDefinition: {
+    this.EntityDefinition = {
         getScalarTypes: EntityDefinitionFactory.getScalarTypes,
         getJsonTypes: EntityDefinitionFactory.getJsonTypes,
         getDefinitionRegistry: EntityDefinitionFactory.getDefinitionRegistry,
@@ -277,35 +279,83 @@ const Shopware = {
         getTranslatedFields: EntityDefinitionFactory.getTranslatedFields,
         getAssociationFields: EntityDefinitionFactory.getAssociationFields,
         getRequiredFields: EntityDefinitionFactory.getRequiredFields
-    },
+    };
 
     /**
      * @memberOf module:Shopware
      * @type {Object}
      */
-    WorkerNotification: {
+    this.WorkerNotification = {
         register: WorkerNotificationFactory.register,
         getRegistry: WorkerNotificationFactory.getRegistry,
         override: WorkerNotificationFactory.override,
         remove: WorkerNotificationFactory.remove,
         initialize: WorkerNotificationFactory.initialize
-    },
+    };
 
     /**
      * @memberOf module:Shopware
      * @type {Object}
      */
-    Defaults: {
+    this.Defaults = {
         systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
         defaultLanguageIds: ['2fbb5fe2e29a4d70aa5854ce7ce3e20b'],
         versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425'
-    },
+    };
 
     /**
      * @memberOf module:Shopware
      * @type {Object}
      */
-    Data: data,
+    this.Data = data;
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    this.Classes = ClassesFactory({
+        ShopwareError: ShopwareError,
+        ApiService: ApiService
+    },
+    {
+        /**
+         * @memberOf module:Shopware.Classes
+         * @type {Object}
+         * @private
+         */
+        _private: {
+            HttpFactory: HttpFactory,
+            RepositoryFactory: RepositoryFactory,
+            ApiContextFactory: ApiContextFactory,
+            AppContextFactory: AppContextFactory,
+            RouterFactory: RouterFactory
+        }
+    });
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    this.Helper = {
+        FlatTreeHelper: FlatTreeHelper,
+        InfiniteScrollingHelper: InfiniteScrollingHelper,
+        MiddlewareHelper: MiddlewareHelper,
+        RefreshTokenHelper: RefreshTokenHelper,
+        SanitizerHelper: SanitizerHelper,
+        DeviceHelper: DeviceHelper
+    };
+};
+
+// hidden in prototype
+Shopware.prototype = {
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     * @private
+     */
+    _private: {
+        ApiServices: ApiServices
+    },
 
     /**
      * @memberOf module:Shopware
@@ -317,41 +367,17 @@ const Shopware = {
     /**
      * @memberOf module:Shopware
      * @type {Object}
+     * @deprecated 6.1
      */
-    Classes: {
-        _private: {
-            HttpFactory: HttpFactory,
-            RepositoryFactory: RepositoryFactory,
-            ContextFactory: ContextFactory,
-            RouterFactory: RouterFactory
-        },
-        ShopwareError: ShopwareError,
-        ApiService: ApiService
-    },
-
-    /**
-     * @memberOf module:Shopware
-     * @type {Object}
-     */
-    Helper: {
-        FlatTreeHelper: FlatTreeHelper,
-        InfiniteScrollingHelper: InfiniteScrollingHelper,
-        MiddlewareHelper: MiddlewareHelper,
-        RefreshTokenHelper: RefreshTokenHelper,
-        SanitizerHelper: SanitizerHelper,
-        DeviceHelper: DeviceHelper
-    },
-
-    /**
-     * @memberOf module:Shopware
-     * @private
-     * @type {Object}
-     */
-    _private: {
-        ApiServices: ApiServices
+    StateDeprecated: {
+        registerStore: StateFactoryDeprecated.registerStore,
+        getStore: StateFactoryDeprecated.getStore,
+        getStoreRegistry: StateFactoryDeprecated.getStoreRegistry
     }
 };
 
-window.Shopware = Shopware;
-exports.default = Shopware;
+const ShopwareInstance = new Shopware();
+
+window.Shopware = ShopwareInstance;
+exports.default = ShopwareInstance;
 module.exports = exports.default;

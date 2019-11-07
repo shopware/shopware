@@ -8,7 +8,7 @@ Component.register('sw-order-product-select', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     props: {
@@ -41,7 +41,7 @@ Component.register('sw-order-product-select', {
     },
     methods: {
         onItemChanged(newProductId) {
-            this.productRepository.get(newProductId, this.context).then((newProduct) => {
+            this.productRepository.get(newProductId, this.apiContext).then((newProduct) => {
                 this.item.identifier = newProduct.id;
                 this.item.label = newProduct.name;
                 this.item.priceDefinition.price = newProduct.price[0].gross;

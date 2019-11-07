@@ -8,7 +8,7 @@ Component.register('sw-mail-template-list', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     mixins: [
@@ -43,7 +43,7 @@ Component.register('sw-mail-template-list', {
 
             criteria.addAssociation('mailTemplateType');
 
-            this.mailTemplateRepository.search(criteria, this.context).then((items) => {
+            this.mailTemplateRepository.search(criteria, this.apiContext).then((items) => {
                 this.total = items.total;
                 this.mailTemplates = items;
                 this.isLoading = false;

@@ -1,51 +1,33 @@
-/**
- * @module core/factory/state
- */
-export default {
-    registerStore,
-    getStore,
-    getStoreRegistry
+export default () => {
+    const State = function State() {};
+
+    const PrivateState = function PrivateState() {
+        this._registerProperty = function registerProperty(name, property) {
+            Object.defineProperty(this, name, {
+                value: property,
+                writable: false,
+                enumerable: true,
+                configurable: true
+            });
+
+            return this;
+        };
+
+        this._registerPrivateProperty = this._registerProperty.bind(this);
+
+        this._registerGetterMethod = function registerGetterMethod(name, getMethod, setMethod) {
+            Object.defineProperty(this, name, {
+                get: getMethod,
+                set: setMethod,
+                enumerable: true,
+                configurable: true
+            });
+
+            return this;
+        };
+    };
+
+    State.prototype = new PrivateState();
+
+    return new State();
 };
-
-/**
- * Registry for the state stores.
- *
- * @type {Map<any, any>}
- */
-const storeRegistry = new Map();
-
-/**
- * Register a new state storage.
- *
- * @param name
- * @param store
- * @return {any}
- */
-function registerStore(name, store) {
-    if (!name || !name.length) {
-        return null;
-    }
-
-    storeRegistry.set(name, store);
-
-    return getStore(name);
-}
-
-/**
- * Get a store by name.
- *
- * @param name
- * @return {any}
- */
-function getStore(name) {
-    return storeRegistry.get(name);
-}
-
-/**
- * Get the complete store registry.
- *
- * @return {Map<any, any>}
- */
-function getStoreRegistry() {
-    return storeRegistry;
-}

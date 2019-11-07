@@ -13,25 +13,19 @@ export default class LanguageStore extends EntityStore {
     ) {
         super('language', apiService, EntityClass);
 
-        this.systemLanguageId = Shopware.Context.systemLanguageId;
-
         if (!currentLanguageId || !currentLanguageId.length) {
-            currentLanguageId = this.systemLanguageId;
+            this.setCurrentId(this.systemLanguageId);
         }
-
-        this.currentLanguageId = currentLanguageId;
     }
 
     /**
      * Set the current languageId and calls the init method to fetch the data from server if necessary.
      *
      * @param {String} languageId
-     * @return {Promise<{}>}
      */
     setCurrentId(languageId) {
-        this.currentLanguageId = languageId;
-        Shopware.Context.languageId = languageId;
-        return this.getByIdAsync(languageId);
+        Shopware.Context.Api.languageId = languageId;
+        localStorage.setItem('sw-admin-current-language', languageId);
     }
 
     /**
@@ -56,7 +50,23 @@ export default class LanguageStore extends EntityStore {
         return this;
     }
 
+    get systemLanguageId() {
+        return Shopware.Context.Api.systemLanguageId;
+    }
+
+    set systemLanguageId(newValue) {
+        Shopware.Context.Api.systemLanguageId = newValue;
+    }
+
+    get currentLanguageId() {
+        return Shopware.Context.Api.languageId;
+    }
+
+    set currentLanguageId(newValue) {
+        Shopware.Context.Api.languageId = newValue;
+    }
+
     init() {
-        return this.getByIdAsync(this.currentLanguageId);
+        return this.getByIdAsync(this.getCurrentId());
     }
 }

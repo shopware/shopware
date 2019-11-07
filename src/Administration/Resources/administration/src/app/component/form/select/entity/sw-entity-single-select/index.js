@@ -13,7 +13,10 @@ Component.register('sw-entity-single-select', {
         event: 'change'
     },
 
-    inject: { repositoryFactory: 'repositoryFactory', adminContext: 'context' },
+    inject: {
+        repositoryFactory: 'repositoryFactory',
+        adminContext: 'apiContext'
+    },
 
     props: {
         value: {

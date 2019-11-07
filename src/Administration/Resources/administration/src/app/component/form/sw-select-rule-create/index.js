@@ -1,6 +1,6 @@
 import template from './sw-select-rule-create.html.twig';
 
-const { Component, State } = Shopware;
+const { Component, StateDeprecated } = Shopware;
 
 /**
  * @status ready
@@ -28,7 +28,7 @@ Component.register('sw-select-rule-create', {
 
     computed: {
         ruleStore() {
-            return State.getStore('rule');
+            return StateDeprecated.getStore('rule');
         }
     },
 

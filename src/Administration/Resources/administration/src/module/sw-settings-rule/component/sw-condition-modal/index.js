@@ -2,7 +2,7 @@ import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-condition-modal.html.twig';
 import './sw-condition-modal.scss';
 
-const { Component, State, Mixin } = Shopware;
+const { Component, StateDeprecated, Mixin } = Shopware;
 const { warn } = Shopware.Utils.debug;
 
 Component.register('sw-condition-modal', {
@@ -23,7 +23,7 @@ Component.register('sw-condition-modal', {
 
     computed: {
         ruleStore() {
-            return State.getStore('rule');
+            return StateDeprecated.getStore('rule');
         }
     },
 

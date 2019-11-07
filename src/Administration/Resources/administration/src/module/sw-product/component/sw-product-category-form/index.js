@@ -7,7 +7,7 @@ const { mapApiErrors, mapState, mapGetters } = Shopware.Component.getComponentHe
 Component.register('sw-product-category-form', {
     template,
 
-    inject: ['repositoryFactory', 'context'],
+    inject: ['repositoryFactory', 'apiContext'],
 
     data() {
         return {
@@ -45,7 +45,7 @@ Component.register('sw-product-category-form', {
 
     methods: {
         createdComponent() {
-            this.salesChannel = new EntityCollection('/sales-channel', 'sales_channel', this.context, new Criteria());
+            this.salesChannel = new EntityCollection('/sales-channel', 'sales_channel', this.apiContext, new Criteria());
         },
 
         displayAdvancedVisibility() {

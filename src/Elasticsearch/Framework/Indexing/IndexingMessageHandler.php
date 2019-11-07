@@ -58,6 +58,33 @@ class IndexingMessageHandler extends AbstractMessageHandler
         );
     }
 
+    private function mapExtensionsToRoot(array $documents): array
+    {
+        $extensions = [];
+
+        foreach ($documents as $key => $document) {
+            if ($key === 'extensions') {
+                $extensions = $document;
+                unset($documents['extensions']);
+                continue;
+            }
+
+            if (is_array($document)) {
+                $documents[$key] = $this->mapExtensionsToRoot($document);
+            }
+        }
+
+        foreach ($extensions as $extensionKey => $extension) {
+            if (is_array($extension)) {
+                $documents[$extensionKey] = $this->mapExtensionsToRoot($extension);
+            } else {
+                $documents[$extensionKey] = $extension;
+            }
+        }
+
+        return $documents;
+    }
+
     private function indexEntities(string $index, array $ids, string $entityName, Context $context): void
     {
         if (!$this->client->indices()->exists(['index' => $index])) {
@@ -88,6 +115,8 @@ class IndexingMessageHandler extends AbstractMessageHandler
         });
 
         $documents = $this->createDocuments($definition, $entities);
+
+        $documents = $this->mapExtensionsToRoot($documents);
 
         foreach ($toRemove as $id) {
             $documents[] = ['delete' => ['_id' => $id]];

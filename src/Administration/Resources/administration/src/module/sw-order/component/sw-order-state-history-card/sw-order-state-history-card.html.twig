@@ -23,6 +23,24 @@
                     </template>
                 {% endblock %}
 
+                {% block sw_order_state_history_card_delivery %}
+                <sw-order-state-card-entry v-if="delivery"
+                                           class="sw-order-state-history-card__delivery-state"
+                                           @state-select="onDeliveryStateSelected"
+                                           :history="deliveryHistory"
+                                           :transitionOptions="deliveryOptions"
+                                           stateMachineName="order_delivery.state"
+                                           :title="$tc('sw-order.stateCard.headlineDeliveryState')">
+                </sw-order-state-card-entry>
+
+                <template v-else>
+                    <div>
+                        <h2>{{ $tc('sw-order.stateCard.headlineDeliveryState') }}</h2>
+                        {{ $tc('sw-order.stateCard.labelNoDeliveryState') }}
+                    </div>
+                </template>
+                {% endblock %}
+
                 {% block sw_order_state_history_card_order%}
                     <sw-order-state-card-entry  class="sw-order-state-history-card__order-state"
                                                 @state-select="onOrderStateSelected"

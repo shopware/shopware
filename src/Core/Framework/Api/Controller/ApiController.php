@@ -180,7 +180,11 @@ class ApiController extends AbstractController
 
         $entityDefinition = $this->getEntityDefinition($entity);
         $repository = $this->definitionRegistry->getRepository($entityDefinition->getEntityName());
-        $repository->merge($versionId, $context);
+
+        // change scope to be able to update write protected fields
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($repository, $versionId): void {
+            $repository->merge($versionId, $context);
+        });
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }

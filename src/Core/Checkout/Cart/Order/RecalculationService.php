@@ -123,7 +123,11 @@ class RecalculationService
 
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
         $orderData['id'] = $order->getId();
-        $this->orderRepository->upsert([$orderData], $context);
+
+        // change scope to be able to write protected state fields of transactions and deliveries
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($orderData): void {
+            $this->orderRepository->upsert([$orderData], $context);
+        });
     }
 
     /**

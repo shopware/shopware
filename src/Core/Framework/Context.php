@@ -158,6 +158,7 @@ class Context extends Struct
             $this->considerInheritance,
             $this->taxState
         );
+        $context->scope = $this->scope;
 
         foreach ($this->getExtensions() as $key => $extension) {
             $context->addExtension($key, $extension);

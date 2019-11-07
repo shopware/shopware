@@ -69,5 +69,42 @@ Application.addServiceProviderDecorator('stateStyleDataProviderService', (stateS
         variant: 'danger'
     });
 
+    // Order Delivery State Styles
+    stateStyleService.addStyle('order_delivery.state', 'open', {
+        icon: 'neutral',
+        color: 'neutral',
+        variant: 'neutral'
+    });
+
+    stateStyleService.addStyle('order_delivery.state', 'shipped', {
+        icon: 'done',
+        color: 'done',
+        variant: 'done'
+    });
+
+    stateStyleService.addStyle('order_delivery.state', 'shipped-partially', {
+        icon: 'progress',
+        color: 'progress',
+        variant: 'progress'
+    });
+
+    stateStyleService.addStyle('order_delivery.state', 'returned', {
+        icon: 'progress',
+        color: 'progress',
+        variant: 'progress'
+    });
+
+    stateStyleService.addStyle('order_delivery.state', 'returned_partially', {
+        icon: 'progress',
+        color: 'progress',
+        variant: 'progress'
+    });
+
+    stateStyleService.addStyle('order_delivery.state', 'cancelled', {
+        icon: 'danger',
+        color: 'danger',
+        variant: 'danger'
+    });
+
     return stateStyleService;
 });

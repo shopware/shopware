@@ -14,8 +14,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleCollection;
-use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleEntity;
 use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleType\TaxAreaRuleTypeCollection;
 use Shopware\Core\System\Tax\Builder\TaxRuleCollectionBuilder;
 use Shopware\Core\System\Tax\Builder\TaxRuleCollectionBuilderInterface;
@@ -47,33 +45,18 @@ class TaxRuleCollectionBuilderTest extends TestCase
 
     public function testWithoutAreaRulesReturnsDefault(): void
     {
-        $taxEntity = (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'taxRate' => 15]);
-        $taxRuleCollection = $this->taxRuleCollectionBuilder->buildTaxRuleCollection($taxEntity, $this->createSalesChannelContext());
+        $taxId = Uuid::randomHex();
+        $taxData = [
+            'id' => $taxId,
+            'taxRate' => 15,
+            'name' => Uuid::randomHex(),
+        ];
+        $salesChannelContext = $this->createSalesChannelContext([$taxData], []);
+        $taxEntity = (new TaxEntity())->assign(['id' => $taxId, 'taxRate' => 15]);
+        $taxRuleCollection = $this->taxRuleCollectionBuilder->buildTaxRuleCollection($taxEntity, $salesChannelContext);
 
         static::assertCount(1, $taxRuleCollection);
         static::assertSame(15.0, $taxRuleCollection->first()->getTaxRate());
-        static::assertSame(100.0, $taxRuleCollection->first()->getPercentage());
-    }
-
-    public function testFallbackAreaRulesFromEntity(): void
-    {
-        $salesChannelContext = $this->createSalesChannelContext();
-        $taxEntity = (new TaxEntity())->assign([
-            'id' => Uuid::randomHex(),
-            'taxRate' => 15,
-            'taxAreaRules' => (new TaxAreaRuleCollection([
-                (new TaxAreaRuleEntity())->assign([
-                    'id' => Uuid::randomHex(),
-                    'countryId' => $salesChannelContext->getShippingLocation()->getCountry()->getId(),
-                    'taxRate' => 10,
-                    'taxAreaRuleType' => $this->taxAreaRuleTypes->getByTechnicalName(EntireCountryRuleTypeFilter::TECHNICAL_NAME),
-                ]),
-            ])),
-        ]);
-        $taxRuleCollection = $this->taxRuleCollectionBuilder->buildTaxRuleCollection($taxEntity, $this->createSalesChannelContext());
-
-        static::assertCount(1, $taxRuleCollection);
-        static::assertSame(10.0, $taxRuleCollection->first()->getTaxRate());
         static::assertSame(100.0, $taxRuleCollection->first()->getPercentage());
     }
 

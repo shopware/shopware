@@ -18,6 +18,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -28,6 +29,7 @@ class CartServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use MailTemplateTestBehaviour;
+    use TaxAddToSalesChannelTestBehaviour;
 
     /**
      * @var RepositoryInterface|null
@@ -168,7 +170,7 @@ class CartServiceTest extends TestCase
             'price' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 0, 'net' => 0, 'linked' => false],
             ],
-            'tax' => ['name' => 'test', 'taxRate' => 18],
+            'tax' => ['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 18],
             'manufacturer' => ['name' => 'test'],
             'active' => true,
             'visibilities' => [
@@ -178,6 +180,7 @@ class CartServiceTest extends TestCase
 
         $this->getContainer()->get('product.repository')
             ->create([$product], $context->getContext());
+        $this->addTaxDataToSalesChannel($context, $product['tax']);
 
         $lineItem = (new ProductLineItemFactory())->create($productId);
 

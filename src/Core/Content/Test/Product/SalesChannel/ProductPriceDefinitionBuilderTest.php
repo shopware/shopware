@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Pricing\ListingPriceCollection;
 use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Pricing\PriceCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -25,6 +26,7 @@ use Shopware\Core\System\Tax\TaxEntity;
 class ProductPriceDefinitionBuilderTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use TaxAddToSalesChannelTestBehaviour;
 
     /**
      * @var SalesChannelContext
@@ -65,12 +67,15 @@ class ProductPriceDefinitionBuilderTest extends TestCase
 
     public function testBuildPriceDefinitionsWithoutContextRules(): void
     {
+        $tax = (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]);
+        $this->addTaxEntityToSalesChannel($this->salesChannelContext, $tax);
+
         $product = (new ProductEntity())->assign([
             'id' => Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]),
+            'tax' => $tax,
             'name' => 'test',
         ]);
 
@@ -83,12 +88,15 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $ruleId = Uuid::randomHex();
         $ruleId2 = Uuid::randomHex();
 
+        $tax = (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]);
+        $this->addTaxEntityToSalesChannel($this->salesChannelContext, $tax);
+
         $product = (new ProductEntity())->assign([
             'id' => Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]),
+            'tax' => $tax,
             'name' => 'test',
             'prices' => new ProductPriceCollection(
                 [
@@ -141,12 +149,13 @@ class ProductPriceDefinitionBuilderTest extends TestCase
     {
         $ruleId = Uuid::randomHex();
 
+        $tax = (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]);
         $product = (new ProductEntity())->assign([
             'id' => Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]),
+            'tax' => $tax,
             'name' => 'test',
             'prices' => new ProductPriceCollection(
                 [
@@ -174,6 +183,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         ]);
 
         $salesChannelContext = $this->createSalesChannelContext([SalesChannelContextService::CURRENCY_ID => $this->currencyId]);
+        $this->addTaxEntityToSalesChannel($salesChannelContext, $tax);
         $salesChannelContext->setRuleIds([$ruleId]);
         $definitions = $this->priceDefinitionBuilder->build($product, $salesChannelContext)->getPrices();
         static::assertSame(2, $definitions->count());
@@ -192,12 +202,14 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $ruleId = Uuid::randomHex();
         $ruleId2 = Uuid::randomHex();
 
+        $tax = (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]);
+
         $product = (new ProductEntity())->assign([
             'id' => Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]),
+            'tax' => $tax,
             'name' => 'test',
             'prices' => new ProductPriceCollection(
                 [
@@ -234,6 +246,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         ]);
 
         $salesChannelContext = $this->createSalesChannelContext([SalesChannelContextService::CURRENCY_ID => $this->currencyId]);
+        $this->addTaxEntityToSalesChannel($salesChannelContext, $tax);
         $salesChannelContext->setRuleIds([$ruleId, $ruleId2]);
         $definitions = $this->priceDefinitionBuilder->build($product, $salesChannelContext)->getPrices();
         static::assertSame(2, $definitions->count());
@@ -249,12 +262,15 @@ class ProductPriceDefinitionBuilderTest extends TestCase
 
     public function testBuildPriceDefinitionInDefaultCurrency(): void
     {
+        $tax = (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]);
+        $this->addTaxEntityToSalesChannel($this->salesChannelContext, $tax);
+
         $product = (new ProductEntity())->assign([
             'id' => Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]),
+            'tax' => $tax,
             'name' => 'test',
         ]);
 
@@ -264,29 +280,33 @@ class ProductPriceDefinitionBuilderTest extends TestCase
 
     public function testBuildPriceDefinitionInDifferentCurrency(): void
     {
+        $tax = (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]);
         $product = (new ProductEntity())->assign([
             'id' => Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]),
+            'tax' => $tax,
             'name' => 'test',
         ]);
 
         $salesChannelContext = $this->createSalesChannelContext([SalesChannelContextService::CURRENCY_ID => $this->currencyId]);
-
+        $this->addTaxEntityToSalesChannel($salesChannelContext, $tax);
         $definition = $this->priceDefinitionBuilder->build($product, $salesChannelContext)->getPrice();
         $this->assertPriceDefinition($definition, 8, 1);
     }
 
     public function testBuildPriceDefinitionInDefaultCurrencyWithNetTaxState(): void
     {
+        $tax = (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]);
+        $this->addTaxEntityToSalesChannel($this->salesChannelContext, $tax);
+
         $product = (new ProductEntity())->assign([
             'id' => Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]),
+            'tax' => $tax,
             'name' => 'test',
         ]);
 
@@ -299,13 +319,15 @@ class ProductPriceDefinitionBuilderTest extends TestCase
     {
         $ruleId = Uuid::randomHex();
         $ruleId2 = Uuid::randomHex();
+        $tax = (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]);
+        $this->addTaxEntityToSalesChannel($this->salesChannelContext, $tax);
 
         $product = (new ProductEntity())->assign([
             'id' => Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]),
+            'tax' => $tax,
             'name' => 'test',
             'listingPrices' => new ListingPriceCollection([
                 (new ListingPrice())->assign([
@@ -350,12 +372,15 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $ruleId = Uuid::randomHex();
         $ruleId2 = Uuid::randomHex();
 
+        $tax = (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]);
+        $this->addTaxEntityToSalesChannel($this->salesChannelContext, $tax);
+
         $product = (new ProductEntity())->assign([
             'id' => Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]),
+            'tax' => $tax,
             'name' => 'test',
             'prices' => new ProductPriceCollection(
                 [
@@ -399,12 +424,15 @@ class ProductPriceDefinitionBuilderTest extends TestCase
 
     public function testBuildListingPriceDefinitionWithSimplePrice(): void
     {
+        $tax = (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]);
+        $this->addTaxEntityToSalesChannel($this->salesChannelContext, $tax);
+
         $product = (new ProductEntity())->assign([
             'id' => Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]),
+            'tax' => $tax,
             'name' => 'test',
         ]);
 
@@ -418,12 +446,15 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $ruleId = Uuid::randomHex();
         $salesChannelContext = $this->createSalesChannelContext([SalesChannelContextService::CURRENCY_ID => $this->currencyId]);
 
+        $tax = (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]);
+        $this->addTaxEntityToSalesChannel($salesChannelContext, $tax);
+
         $product = (new ProductEntity())->assign([
             'id' => Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]),
+            'tax' => $tax,
             'name' => 'test',
             'prices' => new ProductPriceCollection(
                 [
@@ -482,12 +513,15 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $ruleId2 = Uuid::randomHex();
         $salesChannelContext = $this->createSalesChannelContext([SalesChannelContextService::CURRENCY_ID => $this->currencyId]);
 
+        $tax = (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]);
+        $this->addTaxEntityToSalesChannel($salesChannelContext, $tax);
+
         $product = (new ProductEntity())->assign([
             'id' => Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 7, false)]),
-            'tax' => (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]),
+            'tax' => $tax,
             'name' => 'test',
             'prices' => new ProductPriceCollection(
                 [
@@ -533,6 +567,8 @@ class ProductPriceDefinitionBuilderTest extends TestCase
 
     public function testBuildListingPriceDefinitionConvertsSimplePriceToContextCurrency(): void
     {
+        $tax = (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]);
+
         $product = (new ProductEntity())->assign([
             'id' => Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
@@ -540,11 +576,12 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             'price' => new PriceCollection([
                 new Price(Defaults::CURRENCY, 7, 10, false),
             ]),
-            'tax' => (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]),
+            'tax' => $tax,
             'name' => 'test',
         ]);
 
         $salesChannelContext = $this->createSalesChannelContext([SalesChannelContextService::CURRENCY_ID => $this->currencyId]);
+        $this->addTaxEntityToSalesChannel($salesChannelContext, $tax);
 
         $definition = $this->priceDefinitionBuilder->build($product, $salesChannelContext);
         $this->assertPriceDefinition($definition->getFrom(), 8, 1);
@@ -555,12 +592,15 @@ class ProductPriceDefinitionBuilderTest extends TestCase
     {
         $ruleId = Uuid::randomHex();
 
+        $tax = (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]);
+        $this->addTaxEntityToSalesChannel($this->salesChannelContext, $tax);
+
         $product = (new ProductEntity())->assign([
             'id' => Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 10, 10, false)]),
-            'tax' => (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]),
+            'tax' => $tax,
             'name' => 'test',
         ]);
 
@@ -575,13 +615,15 @@ class ProductPriceDefinitionBuilderTest extends TestCase
     public function testBuildingListingPriceFromPrices(): void
     {
         $ruleId = Uuid::randomHex();
+        $tax = (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]);
+        $this->addTaxEntityToSalesChannel($this->salesChannelContext, $tax);
 
         $product = (new ProductEntity())->assign([
             'id' => Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]),
+            'tax' => $tax,
             'name' => 'test',
             'prices' => new ProductPriceCollection(
                 [
@@ -611,12 +653,15 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $ruleId = Uuid::randomHex();
         $ruleId2 = Uuid::randomHex();
 
+        $tax = (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]);
+        $this->addTaxEntityToSalesChannel($this->salesChannelContext, $tax);
+
         $product = (new ProductEntity())->assign([
             'id' => Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]),
+            'tax' => $tax,
             'name' => 'test',
             'prices' => new ProductPriceCollection(
                 [
@@ -666,12 +711,15 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $ruleId = Uuid::randomHex();
         $salesChannelContext = $this->createSalesChannelContext([SalesChannelContextService::CURRENCY_ID => $this->currencyId]);
 
+        $tax = (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]);
+        $this->addTaxEntityToSalesChannel($salesChannelContext, $tax);
+
         $product = (new ProductEntity())->assign([
             'id' => Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]),
+            'tax' => $tax,
             'name' => 'test',
             'prices' => new ProductPriceCollection(
                 [
@@ -719,12 +767,15 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $ruleId2 = Uuid::randomHex();
         $salesChannelContext = $this->createSalesChannelContext([SalesChannelContextService::CURRENCY_ID => $this->currencyId]);
 
+        $tax = (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]);
+        $this->addTaxEntityToSalesChannel($salesChannelContext, $tax);
+
         $product = (new ProductEntity())->assign([
             'id' => Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]),
+            'tax' => $tax,
             'name' => 'test',
             'prices' => new ProductPriceCollection(
                 [
@@ -770,12 +821,15 @@ class ProductPriceDefinitionBuilderTest extends TestCase
     {
         $ruleId = Uuid::randomHex();
 
+        $tax = (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]);
+        $this->addTaxEntityToSalesChannel($this->salesChannelContext, $tax);
+
         $product = (new ProductEntity())->assign([
             'id' => Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]),
+            'tax' => $tax,
             'name' => 'test',
             'prices' => new ProductPriceCollection(
                 [
@@ -803,12 +857,15 @@ class ProductPriceDefinitionBuilderTest extends TestCase
 
         $salesChannelContext = $this->createSalesChannelContext([SalesChannelContextService::CURRENCY_ID => $this->currencyId]);
 
+        $tax = (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]);
+        $this->addTaxEntityToSalesChannel($salesChannelContext, $tax);
+
         $product = (new ProductEntity())->assign([
             'id' => Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]),
+            'tax' => $tax,
             'name' => 'test',
             'prices' => new ProductPriceCollection(
                 [

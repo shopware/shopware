@@ -35,6 +35,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\RuleTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -45,6 +46,7 @@ class DocumentServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use RuleTestBehaviour;
+    use TaxAddToSalesChannelTestBehaviour;
 
     /**
      * @var SalesChannelContext
@@ -338,6 +340,7 @@ class DocumentServiceTest extends TestCase
             ];
 
             $cart->add($factory->create($id));
+            $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
         }
 
         $this->getContainer()->get('product.repository')

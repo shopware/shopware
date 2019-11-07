@@ -63,9 +63,9 @@ class Migration1572193798TaxAreaRule extends MigrationStep
             (
                 `id` BINARY(16) NOT NULL,
                 `tax_id` BINARY(16) NOT NULL,
-                `tax_area_rule_type_id` BINARY(16) NULL,
-                `country_id` BINARY(16) NULL,
-                `tax_rate` DOUBLE(10,2) NULL,
+                `tax_area_rule_type_id` BINARY(16) NOT NULL,
+                `country_id` BINARY(16) NOT NULL,
+                `tax_rate` DOUBLE(10,2) NOT NULL,
                 `data` JSON NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,

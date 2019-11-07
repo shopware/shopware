@@ -35,10 +35,6 @@ class TaxRuleCollectionBuilder implements TaxRuleCollectionBuilderInterface
 
     private function getTaxRate(TaxEntity $taxEntity, SalesChannelContext $salesChannelContext): float
     {
-        if ($taxEntity->getTaxAreaRules() === null) {
-            return $taxEntity->getTaxRate();
-        }
-
         foreach ($this->taxAreaRuleTypeFilter as $ruleTypeFilter) {
             foreach ($taxEntity->getTaxAreaRules() as $taxAreaRule) {
                 try {

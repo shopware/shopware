@@ -34,7 +34,6 @@ export default class ChangesetGenerator {
         const origin = entity.getOrigin();
         const draft = entity.getDraft();
 
-        console.log(definition);
         definition.forEachField((field, fieldName) => {
             // skip read only
             if (field.readOnly) {

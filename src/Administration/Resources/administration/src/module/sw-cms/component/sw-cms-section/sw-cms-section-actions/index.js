@@ -15,7 +15,7 @@ Component.register('sw-cms-section-actions', {
 
     data() {
         return {
-            cmsPageState: this.$store.state.cmsPageState
+            cmsPageState: Shopware.State.get('cmsPageState')
         };
     },
 

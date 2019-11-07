@@ -83,7 +83,7 @@ Component.register('sw-cms-section', {
         },
 
         sectionMobileAndHidden() {
-            const view = this.$store.state.cmsPageState.currentCmsDeviceView;
+            const view = Shopware.State.get('cmsPageState').currentCmsDeviceView;
             return view === 'mobile' && this.section.mobileBehavior === 'hidden';
         },
 

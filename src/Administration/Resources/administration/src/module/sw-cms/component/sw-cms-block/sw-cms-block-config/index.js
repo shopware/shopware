@@ -33,7 +33,7 @@ Component.register('sw-cms-block-config', {
         },
 
         cmsPageState() {
-            return this.$store.state.cmsPageState;
+            return Shopware.State.get('cmsPageState');
         },
 
         cmsBlocks() {

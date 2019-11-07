@@ -22,25 +22,25 @@
         }
 
         .sw-cms-section__wrapper {
-            max-width: 460px !important;
+            max-width: 460px;
         }
     }
 
     &.is--tablet-portrait {
         .sw-cms-section__wrapper {
-            max-width: 768px !important;
+            max-width: 768px;
         }
     }
 
     &.is--tablet-landscape {
         .sw-cms-section__wrapper {
-            max-width: 1024px !important;
+            max-width: 1024px;
         }
     }
 
     &.is--desktop {
         .sw-cms-section__wrapper {
-            max-width: 100%;
+            max-width: 1080px;
         }
     }
 }
@@ -91,7 +91,7 @@
     &.is--boxed {
         .sw-cms-section__wrapper {
             display: grid;
-            max-width: 1080px;
+            width: 100%;
             margin: 0 auto;
             padding: 20px;
         }

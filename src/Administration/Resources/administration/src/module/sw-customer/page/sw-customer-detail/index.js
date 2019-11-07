@@ -130,7 +130,7 @@ Component.register('sw-customer-detail', {
 
             this.customerRepository.get(
                 this.customerId,
-                this.apicontext,
+                this.apiContext,
                 this.defaultCriteria
             ).then((customer) => {
                 this.customer = customer;

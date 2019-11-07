@@ -69,7 +69,7 @@ Component.register('sw-customer-base-info', {
         languageId: {
             immediate: true,
             handler() {
-                this.languageRepository.get(this.languageId, this.context).then((language) => {
+                this.languageRepository.get(this.languageId, this.apiContext).then((language) => {
                     this.customerLanguage = language;
                 });
             }

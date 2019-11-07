@@ -6,7 +6,8 @@
                 {% block sw_customer_default_addresses_shipping_postal %}
                     <sw-address :address="customer.defaultShippingAddress"
                                 :headline="$tc('sw-customer.detailBase.titleDefaultShippingAddress')"
-                                :showEditButton="customerEditMode">
+                                :showEditButton="customerEditMode"
+                                :editLink="defaultShippingAddressLink">
                     </sw-address>
                 {% endblock %}
             </sw-card-section>
@@ -17,7 +18,8 @@
                 {% block sw_customer_default_addresses_billing_postal %}
                     <sw-address :address="customer.defaultBillingAddress"
                                 :headline="$tc('sw-customer.detailBase.titleDefaultBillingAddress')"
-                                :showEditButton="customerEditMode">
+                                :showEditButton="customerEditMode"
+                                :editLink="defaultBillingAddressLink">
                     </sw-address>
                 {% endblock %}
             </sw-card-section>

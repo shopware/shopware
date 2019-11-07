@@ -9,7 +9,8 @@
       "mainMenuItemAdd": "Kunden anlegen",
       "descriptionTextModule": "Verwaltung von Kunden.",
       "placeholderSearchBar": "Durchsuchen aller Kunden",
-      "newCustomer": "Neuer Kunde"
+      "newCustomer": "Neuer Kunde",
+      "tooltipLanguageSwitch": "Die Sprachauswahl ist deaktiviert, da keine übersetzbaren Felder existieren."
     },
     "card": {
       "placeholderTitle": "Titel",

@@ -1,53 +1,58 @@
 import template from './sw-customer-create.html.twig';
 
-const { Component } = Shopware;
-const utils = Shopware.Utils;
+const { Component, Mixin, StateDeprecated } = Shopware;
 
-Component.extend('sw-customer-create', 'sw-customer-detail', {
+Component.register('sw-customer-create', {
     template,
 
-    inject: ['numberRangeService'],
+    inject: ['repositoryFactory', 'apiContext', 'numberRangeService'],
 
-    beforeRouteEnter(to, from, next) {
-        if (to.name.includes('sw.customer.create') && !to.params.id) {
-            to.params.id = utils.createId();
-        }
-
-        next();
-    },
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     data() {
         return {
-            customerNumberPreview: ''
+            customer: null,
+            address: null,
+            customerNumberPreview: '',
+            isSaveSuccessful: false,
+            salesChannels: null,
+            isLoading: false
         };
     },
 
-    provide() {
-        return {
-            swCustomerCreateOnChangeSalesChannel: this.onChangeSalesChannel
-        };
+    computed: {
+        customerRepository() {
+            return this.repositoryFactory.create('customer');
+        },
+
+        languageStore() {
+            return StateDeprecated.getStore('language');
+        }
     },
 
+    created() {
+        this.createdComponent();
+    },
 
     methods: {
         createdComponent() {
-            this.customer = this.customerRepository.create(this.apiContext, this.$route.params.id);
+            this.languageStore.setCurrentId(Shopware.Context.Api.systemLanguageId);
+
+            this.customer = this.customerRepository.create(this.apiContext);
+
             const addressRepository = this.repositoryFactory.create(
                 this.customer.addresses.entity,
                 this.customer.addresses.source
             );
 
-            const defaultAddress = addressRepository.create(this.apiContext);
+            this.address = addressRepository.create(this.apiContext);
 
-            this.customer.addresses.add(defaultAddress);
-            this.customer.defaultBillingAddressId = defaultAddress.id;
-            this.customer.defaultShippingAddressId = defaultAddress.id;
+            this.customer.addresses.add(this.address);
+            this.customer.defaultBillingAddressId = this.address.id;
+            this.customer.defaultShippingAddressId = this.address.id;
             this.customer.password = '';
-
-            this.$super('createdComponent');
-
-            this.isLoading = false;
-            this.customerEditMode = true;
         },
 
         saveFinish() {
@@ -56,20 +61,34 @@ Component.extend('sw-customer-create', 'sw-customer-detail', {
         },
 
         onSave() {
+            this.isLoading = true;
+            this.isSaveSuccessful = false;
+
+            let numberRangePromise = Promise.resolve();
             if (this.customerNumberPreview === this.customer.customerNumber) {
-                this.numberRangeService.reserve('customer', this.customer.salesChannelId).then((response) => {
-                    this.customerNumberPreview = 'reserved';
-                    this.customer.customerNumber = response.number;
-                    this.$super('onSave');
-                });
-            } else {
-                this.$super('onSave').then(() => {
-                    this.customerNumberPreview = 'reserved';
-                });
+                numberRangePromise = this.numberRangeService
+                    .reserve('customer', this.customer.salesChannelId).then((response) => {
+                        this.customerNumberPreview = 'reserved';
+                        this.customer.customerNumber = response.number;
+                    });
             }
+
+            numberRangePromise.then(() => {
+                this.customerRepository.save(this.customer, this.apiContext).then(() => {
+                    this.isLoading = false;
+                    this.isSaveSuccessful = true;
+                }).catch(() => {
+                    this.createNotificationError({
+                        title: this.$tc('sw-customer.detail.titleSaveError'),
+                        message: this.$tc('sw-customer.detail.messageSaveError')
+                    });
+                    this.isLoading = false;
+                });
+            });
         },
 
         onChangeSalesChannel(salesChannelId) {
+            this.customer.salesChannelId = salesChannelId;
             this.numberRangeService.reserve('customer', salesChannelId, true).then((response) => {
                 this.customerNumberPreview = response.number;
                 this.customer.customerNumber = response.number;

@@ -18,12 +18,14 @@ export default class CustomerPageObject extends GeneralPageObject {
     }
 
     createBasicAddress(customer) {
-        cy.get('select[name=sw-field--address-salutationId]').select(customer.salutation);
+        cy.get('.sw-customer-address-form__salutation-select')
+            .typeSingleSelectAndCheck(customer.salutation, '.sw-customer-address-form__salutation-select');
         cy.get('input[name=sw-field--address-firstName]').type(customer.firstName);
         cy.get('input[name=sw-field--address-lastName]').type(customer.lastName);
         cy.get('input[name=sw-field--address-street]').type(customer.addresses[0].street);
         cy.get('input[name=sw-field--address-zipcode]').type(customer.addresses[0].zipcode);
         cy.get('input[name=sw-field--address-city]').type(customer.addresses[0].city);
-        cy.get('select[name=sw-field--address-countryId]').select(customer.country);
+        cy.get('.sw-customer-address-form__country-select')
+            .typeSingleSelectAndCheck(customer.country, '.sw-customer-address-form__country-select');
     }
 }

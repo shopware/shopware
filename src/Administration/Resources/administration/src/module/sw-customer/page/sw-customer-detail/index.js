@@ -24,27 +24,20 @@ Component.register('sw-customer-detail', {
         ESCAPE: 'onAbortButtonClick'
     },
 
-    beforeRouteLeave(to, from, next) {
-        this.customerEditMode = false;
-        next();
+    props: {
+        customerId: {
+            type: String,
+            required: true
+        }
     },
 
     data() {
         return {
             isLoading: false,
+            isSaveSuccessful: false,
             customer: null,
-            customerId: null,
-            customerEditMode: false,
-            customerGroups: [],
-            salesChannels: [],
-            countries: [],
-            addresses: [],
-            paymentMethods: [],
             customerAddressCustomFieldSets: [],
-            customerCustomFieldSets: [],
-            languages: [],
-            language: {},
-            isSaveSuccessful: false
+            customerCustomFieldSets: []
         };
     },
 
@@ -63,40 +56,17 @@ Component.register('sw-customer-detail', {
             return this.repositoryFactory.create('customer');
         },
 
-        customerGroupRepository() {
-            return this.repositoryFactory.create('customer_group');
-        },
+        editMode: {
+            get() {
+                if (typeof this.$route.query.edit === 'boolean') {
+                    return this.$route.query.edit;
+                }
 
-        countryRepository() {
-            return this.repositoryFactory.create('country');
-        },
-
-        salesChannelRepository() {
-            return this.repositoryFactory.create('sales_channel');
-        },
-
-        languageRepository() {
-            return this.repositoryFactory.create('language');
-        },
-
-        paymentMethodRepository() {
-            return this.repositoryFactory.create('payment_method');
-        },
-
-        isCreateCustomer() {
-            return this.$route.name.includes('sw.customer.create');
-        },
-
-        createMode() {
-            return this.$route.name.includes('create');
-        },
-
-        isOrderPage() {
-            return this.$route.name.includes('order');
-        },
-
-        customFieldSetRepository() {
-            return this.repositoryFactory.create('custom_field_set');
+                return this.$route.query.edit === 'true';
+            },
+            set(editMode) {
+                this.$router.push({ name: this.$route.name, query: { edit: editMode } });
+            }
         },
 
         defaultCriteria() {
@@ -117,6 +87,30 @@ Component.register('sw-customer-detail', {
             return criteria;
         },
 
+        generalRoute() {
+            return {
+                name: 'sw.customer.detail.base',
+                params: { id: this.customerId },
+                query: { edit: this.editMode }
+            };
+        },
+
+        addressesRoute() {
+            return {
+                name: 'sw.customer.detail.addresses',
+                params: { id: this.customerId },
+                query: { edit: this.editMode }
+            };
+        },
+
+        ordersRoute() {
+            return {
+                name: 'sw.customer.detail.order',
+                params: { id: this.customerId },
+                query: { edit: this.editMode }
+            };
+        },
+
         ...mapPageErrors(errorConfig)
     },
 
@@ -125,7 +119,7 @@ Component.register('sw-customer-detail', {
     },
 
     watch: {
-        '$route.params.id'() {
+        customerId() {
             this.createdComponent();
         }
     },
@@ -133,99 +127,33 @@ Component.register('sw-customer-detail', {
     methods: {
         createdComponent() {
             this.isLoading = true;
-            if (this.$route.params.id) {
-                this.customerId = this.$route.params.id;
 
-                if (!this.createMode) {
-                    this.customerRepository.get(
-                        this.customerId,
-                        this.apiContext,
-                        this.defaultCriteria
-                    ).then((customer) => {
-                        this.customer = customer;
-                        this.languageRepository.get(this.customer.languageId, this.apiContext).then((language) => {
-                            this.language = language;
-                            this.isLoading = false;
-                        });
-                        this.initializeFurtherComponents();
-                    });
-                } else {
-                    this.initializeFurtherComponents();
-                }
-            }
-
-            if (this.$route.params.edit === 'edit') {
-                this.customerEditMode = true;
-            }
-        },
-
-        onChangeLanguage() {
-            this.createdComponent();
-        },
-
-        initializeFurtherComponents() {
-            if (!this.customer) {
-                return;
-            }
-
-            this.isLoading = false;
-
-            const criteria = new Criteria(1, 100);
-            criteria.addAssociation('languages');
-            this.salesChannelRepository.search(criteria, this.apiContext).then((searchResult) => {
-                searchResult.forEach((salesChannel) => {
-                    if (salesChannel.id === this.customer.salesChannelId) {
-                        this.languages = salesChannel.languages;
-                    }
-                });
-                this.salesChannels = searchResult;
-            });
-
-            this.customerGroupRepository.search(new Criteria(1, 100), this.apiContext).then((searchResult) => {
-                this.customerGroups = searchResult;
-            });
-
-            const countryCriteria = new Criteria(1, 100);
-            countryCriteria.addSorting(Criteria.sort('name'));
-            this.countryRepository.search(countryCriteria, this.apiContext).then((searchResult) => {
-                this.countries = searchResult;
-            });
-
-            this.paymentMethodRepository.search(new Criteria(1, 100), this.apiContext).then((searchResult) => {
-                this.paymentMethods = searchResult;
-            });
-
-            this.customFieldSetRepository.search(
-                this.buildCustomFieldCriteria('customer'),
-                this.apiContext
-            ).then((searchResult) => {
-                this.customerCustomFieldSets = searchResult.filter(set => set.customFields.length > 0);
-            });
-
-            this.customFieldSetRepository.search(
-                this.buildCustomFieldCriteria('customer_address'),
-                this.apiContext
-            ).then((searchResult) => {
-                this.customerAddressCustomFieldSets = searchResult.filter(set => set.customFields.length > 0);
+            this.customerRepository.get(
+                this.customerId,
+                this.apiContext,
+                this.defaultCriteria
+            ).then((customer) => {
+                this.customer = customer;
+                this.isLoading = false;
             });
         },
 
         saveFinish() {
             this.isSaveSuccessful = false;
-            this.customerEditMode = false;
+            this.editMode = false;
         },
 
         onSave() {
-            if (!this.customerEditMode) {
+            if (!this.editMode) {
                 return false;
             }
 
+            this.isLoading = true;
             this.isSaveSuccessful = false;
 
             if (!this.customer.birthday) {
                 this.customer.birthday = null;
             }
-            this.isLoading = true;
 
             return this.customerRepository.save(this.customer, this.apiContext).then(() => {
                 this.isLoading = false;
@@ -243,28 +171,11 @@ Component.register('sw-customer-detail', {
 
         onAbortButtonClick() {
             this.discardChanges();
-            if (this.createMode === true) {
-                this.$router.push({ name: 'sw.customer.index' });
-                this.isLoading = false;
-            }
-            this.customerEditMode = false;
+            this.editMode = false;
         },
 
         onActivateCustomerEditMode() {
-            this.customerEditMode = true;
-        },
-
-        /**
-         * @param {string} entity
-         * @returns {Criteria}
-         */
-        buildCustomFieldCriteria(entity) {
-            const criteria = new Criteria(1, 100);
-            criteria.addFilter(Criteria.equals('relations.entityName', entity));
-            criteria.getAssociation('customFields')
-                .addSorting(Criteria.sort('config.customFieldPosition'));
-
-            return criteria;
+            this.editMode = true;
         }
     }
 });

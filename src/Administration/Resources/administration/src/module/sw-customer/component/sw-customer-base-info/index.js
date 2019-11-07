@@ -17,34 +17,6 @@ Component.register('sw-customer-base-info', {
             type: Object,
             required: true
         },
-        customerGroups: {
-            type: Array,
-            required: true,
-            default() {
-                return [];
-            }
-        },
-        paymentMethods: {
-            type: Array,
-            required: true,
-            default() {
-                return [];
-            }
-        },
-        languages: {
-            type: Array,
-            required: true,
-            default() {
-                return [];
-            }
-        },
-        language: {
-            type: Object,
-            required: true,
-            default() {
-                return {};
-            }
-        },
         customerEditMode: {
             type: Boolean,
             required: true,
@@ -60,13 +32,47 @@ Component.register('sw-customer-base-info', {
     data() {
         return {
             orderAmount: 0,
-            orderCount: 0
+            orderCount: 0,
+            customerLanguage: null
         };
     },
 
     computed: {
         orderRepository() {
             return this.repositoryFactory.create('order');
+        },
+
+        languageRepository() {
+            return this.repositoryFactory.create('language');
+        },
+
+        languageId() {
+            return this.customer.languageId;
+        },
+
+        customerLanguageName() {
+            if (this.customerLanguage) {
+                return this.customerLanguage.name;
+            }
+            return '…';
+        },
+
+        languageCriteria() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('salesChannels.id', this.customer.salesChannelId));
+
+            return criteria;
+        }
+    },
+
+    watch: {
+        languageId: {
+            immediate: true,
+            handler() {
+                this.languageRepository.get(this.languageId, this.apiContext).then((language) => {
+                    this.customerLanguage = language;
+                });
+            }
         }
     },
 
@@ -83,10 +89,6 @@ Component.register('sw-customer-base-info', {
                 this.orderCount = response.total;
                 this.orderAmount = response.aggregations.orderAmount.sum;
             });
-        },
-
-        onEditCustomer() {
-            this.$emit('customer-active-edit-mode');
         }
     }
 });

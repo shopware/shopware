@@ -51,7 +51,8 @@ describe('Customer group: Test crud operations', () => {
         });
         cy.get('.sw-customer-list__content').should('be.visible');
         cy.get('a[href="#/sw/customer/create"]').click();
-        cy.get('select[name=sw-field--customer-groupId]').select('E2E Merchant');
+        cy.get('.sw-customer-base-form__customer-group-select')
+            .typeSingleSelectAndCheck('E2E Merchant', '.sw-customer-base-form__customer-group-select')
 
         // Check usage of customer group in sales channel
         salesChannelPage.openSalesChannel('Headless');

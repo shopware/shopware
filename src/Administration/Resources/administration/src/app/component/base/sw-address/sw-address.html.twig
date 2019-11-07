@@ -4,9 +4,9 @@
         {% block sw_address_headline %}
             <div class="sw-address__headline" v-if="headline">
                 {{ headline }}
-                <router-link v-if="showEditButton"
+                <router-link v-if="showEditButton && editLink"
                              class="sw-address-headline-link"
-                             :to="{ name: 'sw.customer.detail.addresses', params: { id: $route.params.id }, query: { detailId: address.id } }">
+                             :to="editLink">
                     {{ $tc('global.default.edit') }}
                 </router-link>
             </div>

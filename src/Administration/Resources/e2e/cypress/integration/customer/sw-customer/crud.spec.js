@@ -34,7 +34,6 @@ describe('Customer: Test crud operations', () => {
 
     it('@package @customer: create customer', () => {
         const page = new CustomerPageObject();
-
         // Request we want to wait for later
         cy.server();
         cy.route({
@@ -44,27 +43,27 @@ describe('Customer: Test crud operations', () => {
 
         // Fill in basic data
         cy.get('a[href="#/sw/customer/create"]').click();
-        cy.get('select[name=sw-field--customer-salutationId]').should('be.visible');
-        cy.get('select[name=sw-field--customer-salutationId]').select('Mr.');
+
+        cy.get('.sw-customer-base-form__salutation-select')
+            .typeSingleSelectAndCheck('Mr.', '.sw-customer-base-form__salutation-select');
+
         cy.get('input[name=sw-field--customer-firstName]').type(customer.firstName);
         cy.get('input[name=sw-field--customer-lastName]').type(customer.lastName);
         cy.get(page.elements.customerMailInput).type('tester@example.com');
+
+        cy.get('.sw-customer-base-form__customer-group-select')
+            .typeSingleSelectAndCheck('Standard customer group', '.sw-customer-base-form__customer-group-select');
+
+        cy.get('.sw-customer-base-form__sales-channel-select')
+            .typeSingleSelectAndCheck('Storefront', '.sw-customer-base-form__sales-channel-select');
+
+        cy.get('.sw-customer-base-form__payment-method-select')
+            .typeSingleSelectAndCheck('Invoice', '.sw-customer-base-form__payment-method-select');
+
         cy.get('#sw-field--customer-password').type('shopware');
-        cy.get('.sw-field--customer-groupId .sw-field__select-load-placeholder')
-            .should('not.exist');
-        cy.get('select[name=sw-field--customer-groupId]').select('Standard customer group');
-        cy.get('.sw-field--customer-salesChannelId .sw-field__select-load-placeholder')
-            .should('not.exist');
-        cy.get('select[name=sw-field--customer-salesChannelId]').select('Storefront');
-        cy.get('.sw-field--customer-defaultPaymentMethodId .sw-field__select-load-placeholder')
-            .should('not.exist');
-        cy.get('select[name=sw-field--customer-defaultPaymentMethodId]').select('Invoice');
 
         // Fill in address and save
         page.createBasicAddress(customer);
-        cy.get('.sw-field--address-countryId .sw-field__select-load-placeholder')
-            .should('not.exist');
-        cy.get('select[name=sw-field--address-countryId]').select('Germany');
         cy.get(page.elements.customerSaveAction).click();
 
         // Verify new customer in detail

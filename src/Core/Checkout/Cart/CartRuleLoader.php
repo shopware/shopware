@@ -124,6 +124,10 @@ class CartRuleLoader
 
         $context->setRuleIds($rules->getIds());
 
+        if ($cart->getErrors()->count() > 0) {
+            $this->cartPersister->save($cart, $context);
+        }
+
         return new RuleLoaderResult($cart, $rules);
     }
 

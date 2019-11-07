@@ -155,7 +155,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         $product = $data->get($key);
 
         if (!$product instanceof ProductEntity) {
-            $cart->addErrors(new ProductNotFoundError($id));
+            $cart->addErrors(new ProductNotFoundError($lineItem->getLabel() ?: $lineItem->getId()));
             $cart->getLineItems()->remove($lineItem->getId());
 
             return;

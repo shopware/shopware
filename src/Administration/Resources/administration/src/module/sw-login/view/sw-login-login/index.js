@@ -21,7 +21,7 @@ Component.register('sw-login-login', {
 
     created() {
         if (!localStorage.getItem('sw-admin-locale')) {
-            this.$store.dispatch('setAdminLocale', navigator.language);
+            Shopware.State.dispatch('setAdminLocale', navigator.language);
         }
     },
 

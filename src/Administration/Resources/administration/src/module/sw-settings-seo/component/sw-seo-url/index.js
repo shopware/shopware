@@ -41,15 +41,15 @@ Component.register('sw-seo-url', {
 
     computed: {
         seoUrlCollection() {
-            return this.$store.state.swSeoUrl.seoUrlCollection;
+            return Shopware.State.get('swSeoUrl').seoUrlCollection;
         },
 
         currentSeoUrl() {
-            return this.$store.state.swSeoUrl.currentSeoUrl;
+            return Shopware.State.get('swSeoUrl').currentSeoUrl;
         },
 
         defaultSeoUrl() {
-            return this.$store.state.swSeoUrl.defaultSeoUrl;
+            return Shopware.State.get('swSeoUrl').defaultSeoUrl;
         },
 
         seoUrlRepository() {
@@ -61,11 +61,11 @@ Component.register('sw-seo-url', {
         },
 
         isHeadlessSalesChannel() {
-            if (this.$store.state.swSeoUrl.salesChannelCollection === null) {
+            if (Shopware.State.get('swSeoUrl').salesChannelCollection === null) {
                 return true;
             }
 
-            const salesChannel = this.$store.state.swSeoUrl.salesChannelCollection.find((entry) => {
+            const salesChannel = Shopware.State.get('swSeoUrl').salesChannelCollection.find((entry) => {
                 return entry.id === this.currentSalesChannelId;
             });
 
@@ -91,8 +91,8 @@ Component.register('sw-seo-url', {
 
     beforeCreate() {
         // register a new module only if doesn't exist
-        if (!(this.$store && this.$store.state && this.$store.state.swSeoUrl)) {
-            this.$store.registerModule('swSeoUrl', swSeoUrlState);
+        if (!Shopware.State.list().includes('swSeoUrl')) {
+            Shopware.State.registerModule('swSeoUrl', swSeoUrlState);
         }
     },
 
@@ -103,7 +103,7 @@ Component.register('sw-seo-url', {
 
     beforeDestroy() {
         this.$root.$off('seo-url-save-finish', this.clearDefaultSeoUrls);
-        this.$store.unregisterModule('swSeoUrl');
+        Shopware.State.unregisterModule('swSeoUrl');
     },
 
     methods: {
@@ -121,7 +121,7 @@ Component.register('sw-seo-url', {
             salesChannelCriteria.addAssociation('type');
 
             this.salesChannelRepository.search(salesChannelCriteria, this.apiContext).then((salesChannelCollection) => {
-                this.$store.commit('swSeoUrl/setSalesChannelCollection', salesChannelCollection);
+                Shopware.State.commit('swSeoUrl/setSalesChannelCollection', salesChannelCollection);
             });
         },
 
@@ -144,7 +144,7 @@ Component.register('sw-seo-url', {
             const defaultSeoUrlEntity = this.seoUrlRepository.create(this.apiContext);
             Object.assign(defaultSeoUrlEntity, defaultSeoUrlData);
             seoUrlCollection.add(defaultSeoUrlEntity);
-            this.$store.commit('swSeoUrl/setDefaultSeoUrl', defaultSeoUrlEntity);
+            Shopware.State.commit('swSeoUrl/setDefaultSeoUrl', defaultSeoUrlEntity);
 
             this.urls.forEach((entityData) => {
                 const entity = this.seoUrlRepository.create(this.apiContext);
@@ -153,12 +153,12 @@ Component.register('sw-seo-url', {
                 seoUrlCollection.add(entity);
             });
 
-            if (!this.$store.state.swSeoUrl.defaultSeoUrl) {
+            if (!Shopware.State.get('swSeoUrl').defaultSeoUrl) {
                 this.showEmptySeoUrlError = true;
             }
 
-            this.$store.commit('swSeoUrl/setSeoUrlCollection', seoUrlCollection);
-            this.$store.commit('swSeoUrl/setOriginalSeoUrls', this.urls);
+            Shopware.State.commit('swSeoUrl/setSeoUrlCollection', seoUrlCollection);
+            Shopware.State.commit('swSeoUrl/setOriginalSeoUrls', this.urls);
             this.clearDefaultSeoUrls();
         },
 
@@ -193,12 +193,12 @@ Component.register('sw-seo-url', {
 
                 this.seoUrlCollection.add(entity);
 
-                this.$store.commit('swSeoUrl/setCurrentSeoUrl', entity);
+                Shopware.State.commit('swSeoUrl/setCurrentSeoUrl', entity);
 
                 return;
             }
 
-            this.$store.commit('swSeoUrl/setCurrentSeoUrl', currentSeoUrl);
+            Shopware.State.commit('swSeoUrl/setCurrentSeoUrl', currentSeoUrl);
         },
         onSalesChannelChanged(salesChannelId) {
             this.currentSalesChannelId = salesChannelId;

@@ -94,9 +94,9 @@ Shopware.Component.register('sw-license-violation', {
 
             return this.licenseViolationService.checkForLicenseViolations()
                 .then(({ violations, warnings, other }) => {
-                    this.$store.commit('licenseViolation/setViolations', violations);
-                    this.$store.commit('licenseViolation/setWarnings', warnings);
-                    this.$store.commit('licenseViolation/setOther', other);
+                    Shopware.State.commit('licenseViolation/setViolations', violations);
+                    Shopware.State.commit('licenseViolation/setWarnings', warnings);
+                    Shopware.State.commit('licenseViolation/setOther', other);
                 })
                 .finally(() => {
                     this.finishLoading('getPluginViolation');

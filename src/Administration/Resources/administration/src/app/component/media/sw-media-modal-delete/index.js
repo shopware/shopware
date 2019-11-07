@@ -180,7 +180,7 @@ Component.register('sw-media-modal-delete', {
             };
 
             if (this.notificationId !== null) {
-                this.$store.dispatch('notification/updateNotification', {
+                Shopware.State.dispatch('notification/updateNotification', {
                     uuid: this.notificationId,
                     ...notification
                 }).then(() => {
@@ -191,7 +191,7 @@ Component.register('sw-media-modal-delete', {
                 return;
             }
 
-            this.$store.dispatch('notification/createNotification', {
+            Shopware.State.dispatch('notification/createNotification', {
                 variant: 'success',
                 ...notification
             }).then((newNotificationId) => {

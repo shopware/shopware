@@ -64,11 +64,11 @@ Component.register('sw-plugin-list', {
         },
 
         currentLocale() {
-            return this.$store.state.adminLocale.currentLocale;
+            return Shopware.State.get('adminLocale').currentLocale;
         },
 
         languageId() {
-            return this.$store.state.adminLocale.languageId;
+            return Shopware.State.get('adminLocale').languageId;
         }
     },
 
@@ -203,7 +203,7 @@ Component.register('sw-plugin-list', {
                 return this.pluginsStore.getList(
                     params,
                     false,
-                    this.$store.state.adminLocale.languageId
+                    Shopware.State.get('adminLocale').languageId
                 );
             }).then((response) => {
                 this.plugins = response.items;

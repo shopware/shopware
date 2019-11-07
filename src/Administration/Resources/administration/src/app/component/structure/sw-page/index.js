@@ -143,7 +143,7 @@ Component.register('sw-page', {
     },
 
     beforeDestroy() {
-        this.$store.dispatch('error/resetApiErrors');
+        Shopware.State.dispatch('error/resetApiErrors');
         this.beforeDestroyComponent();
     },
 

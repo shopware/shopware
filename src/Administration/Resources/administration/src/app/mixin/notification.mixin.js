@@ -3,7 +3,7 @@ const { Mixin } = Shopware;
 Mixin.register('notification', {
     methods: {
         createNotification(notification) {
-            return this.$store.dispatch('notification/createNotification', notification);
+            return Shopware.State.dispatch('notification/createNotification', notification);
         },
 
         createNotificationSuccess(config) {

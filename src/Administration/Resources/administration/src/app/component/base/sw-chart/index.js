@@ -203,7 +203,7 @@ Component.register('sw-chart', {
                         show: false
                     },
 
-                    defaultLocale: this.$store.getters.adminLocaleLanguage || 'en',
+                    defaultLocale: Shopware.State.getters.adminLocaleLanguage || 'en',
                     locales: [en, de],
                     zoom: false
                 },

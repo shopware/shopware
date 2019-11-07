@@ -39,7 +39,7 @@ Component.register('sw-first-run-wizard-welcome', {
         },
 
         languageId() {
-            return this.$store.state.adminLocale.languageId;
+            return Shopware.State.get('adminLocale').languageId;
         },
 
         localeRepository() {
@@ -97,7 +97,7 @@ Component.register('sw-first-run-wizard-welcome', {
         },
 
         getLanguagePlugins() {
-            const language = this.$store.state.adminLocale.currentLocale;
+            const language = Shopware.State.get('adminLocale').currentLocale;
 
             this.languagePluginService.getPlugins({
                 language
@@ -129,7 +129,7 @@ Component.register('sw-first-run-wizard-welcome', {
                     this.showConfirmLanguageSwitchModal = false;
 
                     this.localeRepository.get(this.user.localeId, this.apiContext).then(({ code }) => {
-                        this.$store.dispatch('setAdminLocale', code);
+                        Shopware.State.dispatch('setAdminLocale', code);
                         window.localStorage.setItem('sw-admin-locale', code);
                         document.location.reload();
                     });

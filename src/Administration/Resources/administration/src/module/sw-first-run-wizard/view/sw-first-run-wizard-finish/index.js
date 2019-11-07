@@ -44,7 +44,7 @@ Component.register('sw-first-run-wizard-finish', {
 
     methods: {
         createdComponent() {
-            const language = this.$store.state.adminLocale.currentLocale;
+            const language = Shopware.State.get('adminLocale').currentLocale;
 
             this.firstRunWizardService.getLicenseDomains({
                 language

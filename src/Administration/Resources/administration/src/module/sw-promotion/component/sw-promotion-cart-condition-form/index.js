@@ -137,9 +137,9 @@ Component.register('sw-promotion-cart-condition-form', {
 
         deleteSetGroup(group) {
             // add to delete list for the save process
-            const deleteIds = this.$store.state.swPromotionDetail.setGroupIdsDelete;
+            const deleteIds = Shopware.State.get('swPromotionDetail').setGroupIdsDelete;
             deleteIds.push(group.id);
-            this.$store.commit('swPromotionDetail/setSetGroupIdsDelete', deleteIds);
+            Shopware.State.commit('swPromotionDetail/setSetGroupIdsDelete', deleteIds);
 
             // remove also from entity for the view rendering
             this.promotion.setgroups = this.promotion.setgroups.filter((g) => {

@@ -69,7 +69,7 @@ Mixin.register('sw-form-field', {
 
         this.$on(event, () => {
             if (this.$attrs.error && this.$attrs.error.selfLink) {
-                this.$store.dispatch(
+                Shopware.State.dispatch(
                     'removeApiError',
                     { expression: this.$attrs.error.selfLink }
                 );

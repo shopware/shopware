@@ -96,7 +96,7 @@ Component.register('sw-cms-list', {
 
     methods: {
         createdComponent() {
-            this.$store.commit('adminMenu/collapseSidebar');
+            Shopware.State.commit('adminMenu/collapseSidebar');
 
             this.setPageContext();
         },

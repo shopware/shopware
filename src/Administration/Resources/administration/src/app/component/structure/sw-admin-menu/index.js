@@ -39,7 +39,7 @@ Component.register('sw-admin-menu', {
         ]),
 
         isExpanded() {
-            return this.$store.state.adminMenu.isExpanded;
+            return Shopware.State.get('adminMenu').isExpanded;
         },
 
         userStore() {
@@ -47,7 +47,7 @@ Component.register('sw-admin-menu', {
         },
 
         currentLocale() {
-            return this.$store.state.adminLocale.currentLocale;
+            return Shopware.State.get('adminLocale').currentLocale;
         },
 
         mainMenuEntries() {
@@ -116,11 +116,11 @@ Component.register('sw-admin-menu', {
         },
 
         collapseAdminMenu() {
-            this.$store.commit('adminMenu/collapseSidebar');
+            Shopware.State.commit('adminMenu/collapseSidebar');
         },
 
         expandAdminMenu() {
-            this.$store.commit('adminMenu/expandSidebar');
+            Shopware.State.commit('adminMenu/expandSidebar');
         },
 
         mountedComponent() {
@@ -143,7 +143,7 @@ Component.register('sw-admin-menu', {
                 const userData = response.data;
                 delete userData.password;
 
-                this.$store.commit('adminUser/setCurrentUser', userData);
+                Shopware.State.commit('adminUser/setCurrentUser', userData);
 
                 this.isUserLoading = false;
             });
@@ -267,10 +267,10 @@ Component.register('sw-admin-menu', {
 
         onLogoutUser() {
             this.loginService.logout();
-            this.$store.commit('adminUser/removeCurrentUser');
-            this.$store.commit('notification/setNotifications', {});
-            this.$store.commit('notification/clearGrowlNotificationsForCurrentUser');
-            this.$store.commit('notification/clearNotificationsForCurrentUser');
+            Shopware.State.commit('adminUser/removeCurrentUser');
+            Shopware.State.commit('notification/setNotifications', {});
+            Shopware.State.commit('notification/clearGrowlNotificationsForCurrentUser');
+            Shopware.State.commit('notification/clearNotificationsForCurrentUser');
             this.$router.push({
                 name: 'sw.login.index'
             });

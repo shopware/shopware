@@ -208,8 +208,8 @@ Component.register('sw-promotion-persona-form', {
         updateStateVariables() {
             // assign our data to our promotion state.
             // this one will be saved later on
-            this.$store.commit('swPromotionDetail/setPersonaCustomerIdsAdd', this.customerService.getCustomerIdsToAdd());
-            this.$store.commit(
+            Shopware.State.commit('swPromotionDetail/setPersonaCustomerIdsAdd', this.customerService.getCustomerIdsToAdd());
+            Shopware.State.commit(
                 'swPromotionDetail/setPersonaCustomerIdsDelete',
                 this.customerService.getCustomerIdsToDelete()
             );

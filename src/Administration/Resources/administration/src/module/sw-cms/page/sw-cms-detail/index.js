@@ -37,6 +37,7 @@ Component.register('sw-cms-detail', {
             page: {
                 sections: []
             },
+            cmsPageState: Shopware.State.get('cmsPageState'),
             salesChannels: [],
             isLoading: false,
             isSaveSuccessful: false,
@@ -188,7 +189,7 @@ Component.register('sw-cms-detail', {
 
     methods: {
         createdComponent() {
-            this.$store.commit('adminMenu/collapseSidebar');
+            Shopware.State.commit('adminMenu/collapseSidebar');
 
             const isSystemDefaultLanguage = this.apiContext.languageId === this.apiContext.systemLanguageId;
             this.$store.commit('cmsPageState/setIsSystemDefaultLanguage', isSystemDefaultLanguage);
@@ -220,12 +221,12 @@ Component.register('sw-cms-detail', {
 
         setPageContext() {
             this.getDefaultFolderId().then((folderId) => {
-                this.$store.commit('cmsPageState/setDefaultMediaFolderId', folderId);
+                Shopware.State.commit('cmsPageState/setDefaultMediaFolderId', folderId);
             });
         },
 
         resetCmsPageState() {
-            this.$store.dispatch('cmsPageState/resetCmsPageState');
+            Shopware.State.dispatch('cmsPageState/resetCmsPageState');
         },
 
         getDefaultFolderId() {
@@ -244,9 +245,9 @@ Component.register('sw-cms-detail', {
         },
 
         beforeDestroyedComponent() {
-            this.$store.commit('cmsPageState/removeCurrentPage');
-            this.$store.commit('cmsPageState/removeSelectedBlock');
-            this.$store.commit('cmsPageState/removeSelectedSection');
+            Shopware.State.commit('cmsPageState/removeCurrentPage');
+            Shopware.State.commit('cmsPageState/removeSelectedBlock');
+            Shopware.State.commit('cmsPageState/removeSelectedSection');
         },
 
         loadPage(pageId) {
@@ -258,7 +259,7 @@ Component.register('sw-cms-detail', {
 
                 this.cmsDataResolverService.resolve(this.page).then(() => {
                     this.updateSectionAndBlockPositions();
-                    this.$store.commit('cmsPageState/setCurrentPage', this.page);
+                    Shopware.State.commit('cmsPageState/setCurrentPage', this.page);
 
                     this.updateDataMapping();
                     this.pageOrigin = cloneDeep(this.page);
@@ -288,9 +289,9 @@ Component.register('sw-cms-detail', {
             const mappingEntity = this.cmsPageTypeSettings.entity;
 
             if (!mappingEntity) {
-                this.$store.commit('cmsPageState/removeCurrentMappingEntity');
-                this.$store.commit('cmsPageState/removeCurrentMappingTypes');
-                this.$store.commit('cmsPageState/removeCurrentDemoEntity');
+                Shopware.State.commit('cmsPageState/removeCurrentMappingEntity');
+                Shopware.State.commit('cmsPageState/removeCurrentMappingTypes');
+                Shopware.State.commit('cmsPageState/removeCurrentDemoEntity');
 
                 this.currentMappingEntity = null;
                 this.currentMappingEntityRepo = null;
@@ -299,8 +300,8 @@ Component.register('sw-cms-detail', {
             }
 
             if (this.cmsPageState.currentMappingEntity !== mappingEntity) {
-                this.$store.commit('cmsPageState/setCurrentMappingEntity', mappingEntity);
-                this.$store.commit(
+                Shopware.State.commit('cmsPageState/setCurrentMappingEntity', mappingEntity);
+                Shopware.State.commit(
                     'cmsPageState/setCurrentMappingTypes',
                     this.cmsService.getEntityMappingTypes(mappingEntity)
                 );
@@ -321,12 +322,12 @@ Component.register('sw-cms-detail', {
 
             this.currentMappingEntityRepo.search(criteria, this.apiContext).then((response) => {
                 this.demoEntityId = response[0].id;
-                this.$store.commit('cmsPageState/setCurrentDemoEntity', response[0]);
+                Shopware.State.commit('cmsPageState/setCurrentDemoEntity', response[0]);
             });
         },
 
         onDeviceViewChange(view) {
-            this.$store.commit('cmsPageState/setCurrentCmsDeviceView', view);
+            Shopware.State.commit('cmsPageState/setCurrentCmsDeviceView', view);
 
             if (view === 'form') {
                 this.setSelectedBlock(null, null);
@@ -362,7 +363,7 @@ Component.register('sw-cms-detail', {
         },
 
         onDemoEntityChange(demoEntityId) {
-            this.$store.commit('cmsPageState/removeCurrentDemoEntity');
+            Shopware.State.commit('cmsPageState/removeCurrentDemoEntity');
 
             if (!demoEntityId) {
                 return;
@@ -376,10 +377,10 @@ Component.register('sw-cms-detail', {
                 if (this.cmsPageState.currentMappingEntity === 'category' && entity.mediaId !== null) {
                     this.repositoryFactory.create('media').get(entity.mediaId, this.apiContext).then((media) => {
                         entity.media = media;
-                        this.$store.commit('cmsPageState/setCurrentDemoEntity', entity);
+                        Shopware.State.commit('cmsPageState/setCurrentDemoEntity', entity);
                     });
                 } else {
-                    this.$store.commit('cmsPageState/setCurrentDemoEntity', entity);
+                    Shopware.State.commit('cmsPageState/setCurrentDemoEntity', entity);
                 }
             });
         },

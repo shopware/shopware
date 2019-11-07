@@ -63,8 +63,7 @@ const setup = ({ type, series, options, fillEmptyDates, sort } = {}) => {
     return shallowMount(Shopware.Component.build('sw-chart'), {
         stubs: ['apexchart'],
         mocks: {
-            $tc: key => key,
-            $store: { getters: { adminLocaleLanguage: 'en' } }
+            $tc: key => key
         },
         propsData
     });

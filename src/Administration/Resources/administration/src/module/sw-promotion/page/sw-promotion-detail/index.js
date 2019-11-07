@@ -83,36 +83,36 @@ Component.register('sw-promotion-detail', {
 
         promotion: {
             get() {
-                return this.$store.state.swPromotionDetail.promotion;
+                return Shopware.State.get('swPromotionDetail').promotion;
             },
             set(promotion) {
-                this.$store.commit('swPromotionDetail/setPromotion', promotion);
+                Shopware.State.commit('swPromotionDetail/setPromotion', promotion);
             }
         },
 
         isLoading: {
             get() {
-                return this.$store.state.swPromotionDetail.isLoading;
+                return Shopware.State.get('swPromotionDetail').isLoading;
             },
             set(isLoading) {
-                this.$store.commit('swPromotionDetail/setIsLoading', isLoading);
+                Shopware.State.commit('swPromotionDetail/setIsLoading', isLoading);
             }
         },
 
         discounts() {
-            return this.$store.state.swPromotionDetail.discounts;
+            return Shopware.State.get('swPromotionDetail').discounts;
         },
 
         personaCustomerIdsAdd() {
-            return this.$store.state.swPromotionDetail.personaCustomerIdsAdd;
+            return Shopware.State.get('swPromotionDetail').personaCustomerIdsAdd;
         },
 
         personaCustomerIdsDelete() {
-            return this.$store.state.swPromotionDetail.personaCustomerIdsDelete;
+            return Shopware.State.get('swPromotionDetail').personaCustomerIdsDelete;
         },
 
         setGroupIdsDelete() {
-            return this.$store.state.swPromotionDetail.setGroupIdsDelete;
+            return Shopware.State.get('swPromotionDetail').setGroupIdsDelete;
         },
 
         ...mapPageErrors(errorConfig)
@@ -120,7 +120,7 @@ Component.register('sw-promotion-detail', {
     },
 
     beforeCreate() {
-        this.$store.registerModule('swPromotionDetail', swPromotionDetailState);
+        Shopware.State.registerModule('swPromotionDetail', swPromotionDetailState);
     },
 
     created() {
@@ -128,7 +128,7 @@ Component.register('sw-promotion-detail', {
     },
 
     beforeDestroy() {
-        this.$store.unregisterModule('swPromotionDetail');
+        Shopware.State.unregisterModule('swPromotionDetail');
     },
 
     watch: {
@@ -328,9 +328,9 @@ Component.register('sw-promotion-detail', {
             }
 
             // reset our helper "delta" arrays
-            this.$store.commit('swPromotionDetail/setPersonaCustomerIdsAdd', []);
-            this.$store.commit('swPromotionDetail/setPersonaCustomerIdsDelete', []);
-            this.$store.commit('swPromotionDetail/setSetGroupIdsDelete', []);
+            Shopware.State.commit('swPromotionDetail/setPersonaCustomerIdsAdd', []);
+            Shopware.State.commit('swPromotionDetail/setPersonaCustomerIdsDelete', []);
+            Shopware.State.commit('swPromotionDetail/setSetGroupIdsDelete', []);
         },
 
         onCancel() {

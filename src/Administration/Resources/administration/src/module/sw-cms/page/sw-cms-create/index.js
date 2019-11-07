@@ -36,7 +36,7 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
 
     methods: {
         createdComponent() {
-            this.$store.commit('adminMenu/collapseSidebar');
+            Shopware.State.commit('adminMenu/collapseSidebar');
 
             const isSystemDefaultLanguage = this.apiContext.languageId === this.apiContext.systemLanguageId;
             if (!isSystemDefaultLanguage) {

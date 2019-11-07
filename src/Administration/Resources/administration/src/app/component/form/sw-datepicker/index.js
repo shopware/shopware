@@ -91,7 +91,7 @@ Component.register('sw-datepicker', {
         },
 
         locale() {
-            return this.$store.getters.adminLocaleLanguage;
+            return Shopware.State.getters.adminLocaleLanguage;
         },
 
         currentFlatpickrConfig() {

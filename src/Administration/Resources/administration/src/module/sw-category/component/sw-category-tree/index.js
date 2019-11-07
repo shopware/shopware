@@ -42,7 +42,7 @@ Component.register('sw-category-tree', {
         },
 
         category() {
-            return this.$store.state.swCategoryDetail.category;
+            return Shopware.State.get('swCategoryDetail').category;
         },
 
         categories() {

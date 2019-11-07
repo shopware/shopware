@@ -159,7 +159,7 @@ Component.register('sw-upload-store-listener', {
             }
 
             if (this.notificationId !== null) {
-                this.$store.dispatch('notification/updateNotification', {
+                Shopware.State.dispatch('notification/updateNotification', {
                     uuid: this.notificationId,
                     ...notification
                 }).then(() => {
@@ -170,7 +170,7 @@ Component.register('sw-upload-store-listener', {
                 return;
             }
 
-            this.$store.dispatch('notification/createNotification', {
+            Shopware.State.dispatch('notification/createNotification', {
                 variant: 'success',
                 ...notification
             }).then((newNotificationId) => {

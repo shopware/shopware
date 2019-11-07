@@ -165,7 +165,7 @@ Component.register('sw-product-detail', {
     },
 
     beforeCreate() {
-        this.$store.registerModule('swProductDetail', swProductDetailState);
+        Shopware.State.registerModule('swProductDetail', swProductDetailState);
     },
 
     created() {
@@ -173,7 +173,7 @@ Component.register('sw-product-detail', {
     },
 
     beforeDestroy() {
-        this.$store.unregisterModule('swProductDetail');
+        Shopware.State.unregisterModule('swProductDetail');
     },
 
     destroyed() {
@@ -216,7 +216,7 @@ Component.register('sw-product-detail', {
         },
 
         initState() {
-            this.$store.commit('swProductDetail/setApiContext', this.apiContext);
+            Shopware.State.commit('swProductDetail/setApiContext', this.apiContext);
 
             // when product exists
             if (this.productId) {
@@ -234,8 +234,8 @@ Component.register('sw-product-detail', {
         },
 
         loadState() {
-            this.$store.commit('swProductDetail/setLocalMode', false);
-            this.$store.commit('swProductDetail/setProductId', this.productId);
+            Shopware.State.commit('swProductDetail/setLocalMode', false);
+            Shopware.State.commit('swProductDetail/setProductId', this.productId);
 
             return this.loadAll();
         },
@@ -251,13 +251,13 @@ Component.register('sw-product-detail', {
 
         createState() {
             // set local mode
-            this.$store.commit('swProductDetail/setLocalMode', true);
+            Shopware.State.commit('swProductDetail/setLocalMode', true);
 
-            this.$store.commit('swProductDetail/setLoading', ['product', true]);
+            Shopware.State.commit('swProductDetail/setLoading', ['product', true]);
 
             // create empty product
-            this.$store.commit('swProductDetail/setProduct', this.productRepository.create(this.apiContext));
-            this.$store.commit('swProductDetail/setProductId', this.product.id);
+            Shopware.State.commit('swProductDetail/setProduct', this.productRepository.create(this.apiContext));
+            Shopware.State.commit('swProductDetail/setProductId', this.product.id);
 
             // fill empty data
             this.product.active = true;
@@ -279,69 +279,69 @@ Component.register('sw-product-detail', {
                     gross: null
                 }];
 
-                this.$store.commit('swProductDetail/setLoading', ['product', false]);
+                Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
             });
         },
 
         loadProduct() {
-            this.$store.commit('swProductDetail/setLoading', ['product', true]);
+            Shopware.State.commit('swProductDetail/setLoading', ['product', true]);
 
             this.productRepository.get(
                 this.productId || this.product.id,
                 this.apiContext, this.productCriteria
             ).then((res) => {
-                this.$store.commit('swProductDetail/setProduct', res);
+                Shopware.State.commit('swProductDetail/setProduct', res);
 
                 if (this.product.parentId) {
                     this.loadParentProduct();
                 }
 
-                this.$store.commit('swProductDetail/setLoading', ['product', false]);
+                Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
             });
         },
 
         loadParentProduct() {
-            this.$store.commit('swProductDetail/setLoading', ['parentProduct', true]);
+            Shopware.State.commit('swProductDetail/setLoading', ['parentProduct', true]);
 
             return this.productRepository.get(this.product.parentId, this.apiContext, this.productCriteria).then((res) => {
-                this.$store.commit('swProductDetail/setParentProduct', res);
+                Shopware.State.commit('swProductDetail/setParentProduct', res);
             }).then(() => {
-                this.$store.commit('swProductDetail/setLoading', ['parentProduct', false]);
+                Shopware.State.commit('swProductDetail/setLoading', ['parentProduct', false]);
             });
         },
 
         loadCurrencies() {
-            this.$store.commit('swProductDetail/setLoading', ['currencies', true]);
+            Shopware.State.commit('swProductDetail/setLoading', ['currencies', true]);
 
             return this.currencyRepository.search(new Criteria(1, 500), this.apiContext).then((res) => {
-                this.$store.commit('swProductDetail/setCurrencies', res);
+                Shopware.State.commit('swProductDetail/setCurrencies', res);
             }).then(() => {
-                this.$store.commit('swProductDetail/setLoading', ['currencies', false]);
+                Shopware.State.commit('swProductDetail/setLoading', ['currencies', false]);
             });
         },
 
         loadTaxes() {
-            this.$store.commit('swProductDetail/setLoading', ['taxes', true]);
+            Shopware.State.commit('swProductDetail/setLoading', ['taxes', true]);
 
             return this.taxRepository.search(new Criteria(1, 500), this.apiContext).then((res) => {
-                this.$store.commit('swProductDetail/setTaxes', res);
+                Shopware.State.commit('swProductDetail/setTaxes', res);
             }).then(() => {
-                this.$store.commit('swProductDetail/setLoading', ['taxes', false]);
+                Shopware.State.commit('swProductDetail/setLoading', ['taxes', false]);
             });
         },
 
         loadAttributeSet() {
-            this.$store.commit('swProductDetail/setLoading', ['customFieldSets', true]);
+            Shopware.State.commit('swProductDetail/setLoading', ['customFieldSets', true]);
 
             return this.customFieldSetRepository.search(this.customFieldSetCriteria, this.apiContext).then((res) => {
-                this.$store.commit('swProductDetail/setAttributeSet', res);
+                Shopware.State.commit('swProductDetail/setAttributeSet', res);
             }).then(() => {
-                this.$store.commit('swProductDetail/setLoading', ['customFieldSets', false]);
+                Shopware.State.commit('swProductDetail/setLoading', ['customFieldSets', false]);
             });
         },
 
         abortOnLanguageChange() {
-            return this.$store.getters['swProductDetail/hasChanges'];
+            return Shopware.State.getters['swProductDetail/hasChanges'];
         },
 
         saveOnLanguageChange() {
@@ -386,8 +386,8 @@ Component.register('sw-product-detail', {
         },
 
         onSaveFinished(response) {
-            const seoUrls = this.$store.getters['swSeoUrl/getNewOrModifiedUrls']();
-            const defaultSeoUrl = this.$store.state.swSeoUrl.defaultSeoUrl;
+            const seoUrls = Shopware.State.getters['swSeoUrl/getNewOrModifiedUrls']();
+            const defaultSeoUrl = Shopware.State.get('swSeoUrl').defaultSeoUrl;
 
             const updatePromises = [];
             if (seoUrls) {
@@ -413,7 +413,7 @@ Component.register('sw-product-detail', {
                 switch (response) {
                     case 'empty': {
                         this.isSaveSuccessful = true;
-                        this.$store.commit('error/resetApiErrors');
+                        Shopware.State.commit('error/resetApiErrors');
                         break;
                     }
 
@@ -445,25 +445,25 @@ Component.register('sw-product-detail', {
         },
 
         saveProduct() {
-            this.$store.commit('swProductDetail/setLoading', ['product', true]);
+            Shopware.State.commit('swProductDetail/setLoading', ['product', true]);
 
             return new Promise((resolve) => {
                 // check if product exists
                 if (!this.productRepository.hasChanges(this.product)) {
-                    this.$store.commit('swProductDetail/setLoading', ['product', false]);
+                    Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
                     resolve('empty');
-                    this.$store.commit('swProductDetail/setLoading', ['product', false]);
+                    Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
                     return;
                 }
 
                 // save product
                 this.productRepository.save(this.product, this.apiContext).then(() => {
                     this.loadAll().then(() => {
-                        this.$store.commit('swProductDetail/setLoading', ['product', false]);
+                        Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
                         resolve('success');
                     });
                 }).catch((response) => {
-                    this.$store.commit('swProductDetail/setLoading', ['product', false]);
+                    Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
                     resolve(response);
                 });
             });
@@ -492,11 +492,11 @@ Component.register('sw-product-detail', {
         },
 
         addMedia(mediaItem) {
-            this.$store.commit('swProductDetail/setLoading', ['media', true]);
+            Shopware.State.commit('swProductDetail/setLoading', ['media', true]);
 
             // return error if media exists
             if (this.product.media.has(mediaItem.id)) {
-                this.$store.commit('swProductDetail/setLoading', ['media', false]);
+                Shopware.State.commit('swProductDetail/setLoading', ['media', false]);
                 // eslint-disable-next-line prefer-promise-reject-errors
                 return Promise.reject('A media item with this id exists');
             }
@@ -513,7 +513,7 @@ Component.register('sw-product-detail', {
                 }
                 this.product.media.add(newMedia);
 
-                this.$store.commit('swProductDetail/setLoading', ['media', false]);
+                Shopware.State.commit('swProductDetail/setLoading', ['media', false]);
 
                 resolve(newMedia.mediaId);
                 return true;

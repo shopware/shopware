@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
+use Shopware\Core\Framework\Api\Converter\ConverterService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException;
@@ -40,19 +41,25 @@ class RequestCriteriaBuilder
      */
     private $aggregationParser;
 
-    public function __construct(AggregationParser $aggregationParser, int $maxLimit, array $availableLimits = [])
+    /**
+     * @var ConverterService
+     */
+    private $converterService;
+
+    public function __construct(AggregationParser $aggregationParser, ConverterService $converterService, int $maxLimit, array $availableLimits = [])
     {
         $this->maxLimit = $maxLimit;
         $this->allowedLimits = $availableLimits;
         $this->aggregationParser = $aggregationParser;
+        $this->converterService = $converterService;
     }
 
     public function handleRequest(Request $request, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
     {
         if ($request->getMethod() === Request::METHOD_GET) {
-            $criteria = $this->fromArray($request->query->all(), $criteria, $definition, $context);
+            $criteria = $this->fromArray($request->query->all(), $criteria, $definition, $context, $request->attributes->getInt('version'));
         } else {
-            $criteria = $this->fromArray($request->request->all(), $criteria, $definition, $context);
+            $criteria = $this->fromArray($request->request->all(), $criteria, $definition, $context, $request->attributes->getInt('version'));
         }
 
         if (empty($criteria->getIds()) && $criteria->getLimit() === null) {
@@ -72,7 +79,7 @@ class RequestCriteriaBuilder
         return $this->allowedLimits;
     }
 
-    private function fromArray(array $payload, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
+    private function fromArray(array $payload, Criteria $criteria, EntityDefinition $definition, Context $context, int $apiVerison): Criteria
     {
         $searchException = new SearchRequestException();
 
@@ -148,9 +155,11 @@ class RequestCriteriaBuilder
 
                 $nested = $criteria->getAssociation($propertyName);
 
-                $this->fromArray($association, $nested, $ref, $context);
+                $this->fromArray($association, $nested, $ref, $context, $apiVerison);
             }
         }
+
+        $this->converterService->convertCriteria($definition, $criteria, $apiVerison, $searchException);
 
         $searchException->tryToThrow();
 

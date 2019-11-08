@@ -42,6 +42,7 @@
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ConverterService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -49,6 +50,7 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ConverterService"/>
             <argument type="tagged" tag="shopware.composite_search.definition"/>
         </service>
 
@@ -94,10 +96,13 @@
             <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder" />
+        <service id="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder">
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ConverterService"/>
+        </service>
 
         <service id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder">
             <argument type="service" id="serializer"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ConverterService"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Response\Type\Api\JsonType">
@@ -106,6 +111,22 @@
 
         <service id="Shopware\Core\Framework\Api\Response\Type\SalesChannel\JsonType">
             <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>
+        </service>
+
+        <!-- Converter -->
+        <service id="Shopware\Core\Framework\Api\Converter\ConverterRegistry">
+            <argument type="tagged" tag="shopware.api.converter"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\Converter\ConverterService">
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ConverterRegistry"/>
+        </service>
+
+        <!-- Api version -->
+        <service id="Shopware\Core\Framework\Api\ApiVersion\ApiVersionSubscriber">
+            <argument>%kernel.supported_api_versions%</argument>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <!-- API Docs -->

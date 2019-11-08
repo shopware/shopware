@@ -46,14 +46,14 @@ class SyncController extends AbstractController
      *
      * @throws \Throwable
      */
-    public function sync(Request $request, Context $context): JsonResponse
+    public function sync(Request $request, Context $context, int $version): JsonResponse
     {
         // depending on the request header setting, we either
         // fail immediately or add any unexpected errors to our exception list
         /** @var bool $failOnError */
         $failOnError = filter_var($request->headers->get('fail-on-error', 'true'), FILTER_VALIDATE_BOOLEAN);
 
-        $behavior = new SyncBehavior($failOnError);
+        $behavior = new SyncBehavior($failOnError, $version);
 
         $payload = $this->serializer->decode($request->getContent(), 'json');
 

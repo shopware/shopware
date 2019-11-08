@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Api\Sync;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Api\Converter\ConverterService;
+use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -21,10 +23,19 @@ class SyncService implements SyncServiceInterface
      */
     private $connection;
 
-    public function __construct(DefinitionInstanceRegistry $definitionRegistry, Connection $connection)
-    {
+    /**
+     * @var ConverterService
+     */
+    private $converterService;
+
+    public function __construct(
+        DefinitionInstanceRegistry $definitionRegistry,
+        Connection $connection,
+        ConverterService $converterService
+    ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->connection = $connection;
+        $this->converterService = $converterService;
     }
 
     /**
@@ -70,7 +81,7 @@ class SyncService implements SyncServiceInterface
         $success = true;
 
         foreach ($payload as $key => $record) {
-            $result = $this->writeRecord($operation, $context, $repository, $record);
+            $result = $this->writeRecord($operation, $context, $repository, $record, $behavior->getApiVersion());
 
             $results[$key] = $result;
 
@@ -84,10 +95,26 @@ class SyncService implements SyncServiceInterface
         return new SyncOperationResult($operation->getKey(), $results, $success);
     }
 
-    private function writeRecord(SyncOperation $operation, Context $context, EntityRepositoryInterface $repository, $record): array
+    private function writeRecord(SyncOperation $operation, Context $context, EntityRepositoryInterface $repository, $record, int $apiVersion): array
     {
         $error = null;
         $result = null;
+
+        if (!$this->converterService->isAllowed($operation->getEntity(), null, $apiVersion)) {
+            return [
+                'error' => sprintf('Writing of entity: "%s" is not allowed in v%d of the api.', $operation->getEntity(), $apiVersion),
+                'entities' => [],
+            ];
+        }
+
+        $exception = new ApiConversionException();
+        $record = $this->converterService->convertPayload($repository->getDefinition(), $record, $apiVersion, $exception);
+
+        try {
+            $exception->tryToThrow();
+        } catch (ApiConversionException $e) {
+            return ['error' => iterator_to_array($e->getErrors()), 'entities' => []];
+        }
 
         try {
             switch (mb_strtolower($operation->getAction())) {

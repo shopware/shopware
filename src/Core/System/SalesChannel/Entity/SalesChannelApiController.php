@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Entity;
 
+use Shopware\Core\Framework\Api\Converter\ConverterService;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context\SalesChannelApiSource;
@@ -21,6 +22,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * @RouteScope(scopes={"sales-channel-api"})
@@ -37,17 +39,25 @@ class SalesChannelApiController
      */
     private $criteriaBuilder;
 
+    /**
+     * @var ConverterService
+     */
+    private $converterService;
+
     public function __construct(
         SalesChannelDefinitionInstanceRegistry $registry,
-        RequestCriteriaBuilder $criteriaBuilder
+        RequestCriteriaBuilder $criteriaBuilder,
+        ConverterService $converterService
     ) {
         $this->registry = $registry;
         $this->criteriaBuilder = $criteriaBuilder;
+        $this->converterService = $converterService;
     }
 
     public function searchIds(Request $request, SalesChannelContext $context, string $entity): Response
     {
         $entity = $this->urlToSnakeCase($entity);
+        $this->checkIfRouteAvailableInApiVersion($entity, $request->attributes->getInt('version'));
 
         $repository = $this->registry->getSalesChannelRepository($entity);
 
@@ -75,6 +85,7 @@ class SalesChannelApiController
     public function detail(Request $request, string $id, SalesChannelContext $context, string $entity, ResponseFactoryInterface $responseFactory): Response
     {
         $entity = $this->urlToSnakeCase($entity);
+        $this->checkIfRouteAvailableInApiVersion($entity, $request->attributes->getInt('version'));
 
         $repository = $this->registry->getSalesChannelRepository($entity);
         /** @var SalesChannelDefinitionInterface|EntityDefinition $definition */
@@ -102,6 +113,7 @@ class SalesChannelApiController
     public function search(Request $request, SalesChannelContext $context, string $entity, ResponseFactoryInterface $responseFactory): Response
     {
         $entity = $this->urlToSnakeCase($entity);
+        $this->checkIfRouteAvailableInApiVersion($entity, $request->attributes->getInt('version'));
 
         $repository = $this->registry->getSalesChannelRepository($entity);
         /** @var SalesChannelDefinitionInterface|EntityDefinition $definition */
@@ -167,5 +179,12 @@ class SalesChannelApiController
         }
 
         return $criteria;
+    }
+
+    private function checkIfRouteAvailableInApiVersion(string $entity, int $version): void
+    {
+        if (!$this->converterService->isAllowed($entity, null, $version)) {
+            throw new NotFoundHttpException();
+        }
     }
 }

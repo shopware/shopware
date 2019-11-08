@@ -242,6 +242,7 @@ class Kernel extends HttpKernel
                 'kernel.shopware_version_revision' => $this->shopwareVersionRevision,
                 'kernel.plugin_dir' => $pluginDir,
                 'kernel.active_plugins' => $activePluginMeta,
+                'kernel.supported_api_versions' => [1],
             ]
         );
     }

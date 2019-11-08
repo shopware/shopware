@@ -256,7 +256,7 @@ class SeoActionController extends AbstractController
         }
 
         $templateString = $seoUrlTemplate['template'];
-        $groups = [new TemplateGroup($context->getLanguageId(), $templateString, [$salesChannel])];
+        $groups = [new TemplateGroup($context->getLanguageId(), $templateString, [$salesChannelId], [$salesChannel])];
         $result = $this->seoUrlGenerator->generateSeoUrls($context, $seoUrlRoute, $ids, $groups, $config);
 
         return iterator_to_array($result);

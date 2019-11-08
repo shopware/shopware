@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Seo\SeoUrlRoute;
 
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Framework\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Framework\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Storefront\Framework\Seo\SeoTemplateReplacementVariable;
 
 class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
 {
@@ -137,6 +139,11 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
         }
 
         return new SeoUrlExtractIdResult($ids);
+    }
+
+    public function getSeoVariables(): array
+    {
+        return ['mainCategory' => new SeoTemplateReplacementVariable(CategoryDefinition::ENTITY_NAME)];
     }
 
     private function extractMainCategory(ProductEntity $product, ?SalesChannelEntity $salesChannel): ?CategoryEntity

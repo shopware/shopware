@@ -425,7 +425,14 @@ class Criteria extends Struct
     public function cloneForRead(array $ids = []): Criteria
     {
         $self = new self($ids);
-        $self->associations = $this->associations;
+
+        $associations = [];
+
+        foreach ($this->associations as $name => $association) {
+            $associations[$name] = clone $association;
+        }
+
+        $self->associations = $associations;
 
         return $self;
     }

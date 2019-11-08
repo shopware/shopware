@@ -7,9 +7,9 @@
         background: $color-gray-50 !important;
 
         .sw-cms-section__wrapper {
-            border: 30px solid #f0f2f5;
+            border: 30px solid $color-gray-100;
             border-radius: 15px;
-            box-shadow: 0 0 0 1px #d1d9e0;
+            box-shadow: 0 0 0 1px $color-gray-300;
         }
     }
 

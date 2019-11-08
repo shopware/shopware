@@ -42,7 +42,7 @@ class VuexErrorStore {
                 }
 
                 return path.reduce((store, next) => {
-                    if (store === null) {
+                    if (store === null || typeof store === 'undefined') {
                         return null;
                     }
 

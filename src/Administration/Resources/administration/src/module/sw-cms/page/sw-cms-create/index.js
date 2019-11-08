@@ -38,8 +38,10 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
         createdComponent() {
             this.$store.commit('adminMenu/collapseSidebar');
 
-            if (!this.isSystemDefaultLanguage) {
-                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            const isSystemDefaultLanguage = this.apiContext.languageId === this.apiContext.systemLanguageId;
+            if (!isSystemDefaultLanguage) {
+                this.languageStore.setCurrentId(this.apiContext.systemLanguageId);
+                this.$store.commit('cmsPageState/setIsSystemDefaultLanguage', isSystemDefaultLanguage);
             }
 
             this.page = this.pageRepository.create();
@@ -55,8 +57,6 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
             this.isSaveSuccessful = false;
 
             if ((this.isSystemDefaultLanguage && !this.page.name) || !this.page.type) {
-                this.pageConfigOpen();
-
                 const warningTitle = this.$tc('sw-cms.detail.notificationTitleMissingFields');
                 const warningMessage = this.$tc('sw-cms.detail.notificationMessageMissingFields');
                 this.createNotificationWarning({

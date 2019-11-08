@@ -1,7 +1,7 @@
 import template from './sw-cms-section.html.twig';
 import './sw-cms-section.scss';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-cms-section', {
     template,
@@ -10,38 +10,25 @@ Component.register('sw-cms-section', {
         'repositoryFactory'
     ],
 
+    mixins: [
+        Mixin.getByName('cms-state')
+    ],
+
     props: {
         page: {
             type: Object,
-            required: true,
-            default() {
-                return {};
-            }
+            required: true
         },
 
         section: {
             type: Object,
-            required: true,
-            default() {
-                return {};
-            }
-        },
-
-        currentBlock: {
-            type: [Object, null],
-            required: false,
-            default: null
+            required: true
         },
 
         active: {
             type: Boolean,
             required: false,
             default: false
-        },
-
-        isSystemDefaultLanguage: {
-            type: Boolean,
-            required: true
         }
     },
 
@@ -56,9 +43,8 @@ Component.register('sw-cms-section', {
 
         sectionClasses() {
             return {
-                'is--boxed': this.section.sizingMode === 'boxed',
-                'has--shadow-top': this.section.position === 0,
-                'has--shadow-bottom': this.section.position === (this.page.sections.length - 1)
+                'is--active': this.active,
+                'is--boxed': this.section.sizingMode === 'boxed'
             };
         },
 
@@ -92,13 +78,13 @@ Component.register('sw-cms-section', {
         sectionSidebarClasses() {
             return {
                 'is--empty': this.sideBarEmpty,
-                'is--offcanvas': this.sectionMobileAndOffcanvas
+                'is--hidden': this.sectionMobileAndHidden
             };
         },
 
-        sectionMobileAndOffcanvas() {
-            const view = this.$store.state.cmsPageState.currentCmsDeviceView;
-            return view === 'mobile' && this.section.mobileBehavior === 'offcanvas';
+        sectionMobileAndHidden() {
+            const view = Shopware.State.get('cmsPageState').currentCmsDeviceView;
+            return view === 'mobile' && this.section.mobileBehavior === 'hidden';
         },
 
         isSideBarType() {
@@ -140,11 +126,7 @@ Component.register('sw-cms-section', {
         },
 
         openBlockBar() {
-            this.$emit('page-config-open');
-        },
-
-        onSectionOverlayClick() {
-            this.$emit('section-overlay-click');
+            this.$emit('page-config-open', 'blocks');
         },
 
         onAddSectionBlock() {
@@ -152,8 +134,8 @@ Component.register('sw-cms-section', {
         },
 
         onBlockSelection(block) {
-            this.openBlockBar();
-            this.$emit('current-block-change', this.section.id, block);
+            this.$store.dispatch('cmsPageState/setBlock', block);
+            this.$emit('page-config-open', 'itemConfig');
         },
 
         onBlockDuplicate(block, section) {
@@ -163,8 +145,8 @@ Component.register('sw-cms-section', {
         onBlockDelete(blockId) {
             this.section.blocks.remove(blockId);
 
-            if (this.currentBlock && this.currentBlock.id === blockId) {
-                this.$emit('current-block-change', this.section.id, null);
+            if (this.selectedBlock && this.selectedBlock.id === blockId) {
+                this.$store.commit('cmsPageState/removeSelectedBlock');
             }
 
             this.updateBlockPositions();

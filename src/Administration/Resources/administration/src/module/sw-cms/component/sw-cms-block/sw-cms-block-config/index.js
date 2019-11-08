@@ -1,7 +1,7 @@
 import template from './sw-cms-block-config.html.twig';
 import './sw-cms-block-config.scss';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-cms-block-config', {
     template,
@@ -12,18 +12,14 @@ Component.register('sw-cms-block-config', {
         'apiContext'
     ],
 
-    model: {
-        prop: 'block',
-        event: 'block-update'
-    },
+    mixins: [
+        Mixin.getByName('cms-state')
+    ],
 
     props: {
         block: {
             type: Object,
-            required: true,
-            default() {
-                return {};
-            }
+            required: true
         }
     },
 
@@ -37,16 +33,25 @@ Component.register('sw-cms-block-config', {
         },
 
         cmsPageState() {
-            return this.$store.state.cmsPageState;
-        }
-    },
+            return Shopware.State.get('cmsPageState');
+        },
 
-    watch: {
-        block: {
-            deep: true,
-            handler() {
-                this.$emit('block-update', this.block);
-            }
+        cmsBlocks() {
+            return this.cmsService.getCmsBlockRegistry();
+        },
+
+        blockConfig() {
+            return this.cmsBlocks[this.block.type];
+        },
+
+        quickactionsDisabled() {
+            return !this.isSystemDefaultLanguage || this.blockConfig.removable === false;
+        },
+
+        quickactionClasses() {
+            return {
+                'is--disabled': this.quickactionsDisabled
+            };
         }
     },
 
@@ -54,7 +59,6 @@ Component.register('sw-cms-block-config', {
         onSetBackgroundMedia([mediaItem]) {
             this.block.backgroundMediaId = mediaItem.id;
             this.block.backgroundMedia = mediaItem;
-            this.$emit('block-update', this.block);
         },
 
         successfulUpload(media) {
@@ -62,15 +66,28 @@ Component.register('sw-cms-block-config', {
 
             this.mediaRepository.get(media.targetId, this.apiContext).then((mediaItem) => {
                 this.block.backgroundMedia = mediaItem;
-                this.$emit('block-update', this.block);
             });
         },
 
         removeMedia() {
             this.block.backgroundMediaId = null;
             this.block.backgroundMedia = null;
+        },
 
-            this.$emit('block-update', this.block);
+        onBlockDelete() {
+            if (this.quickactionsDisabled) {
+                return;
+            }
+
+            this.$emit('block-delete', this.block);
+        },
+
+        onBlockDuplicate() {
+            if (this.quickactionsDisabled) {
+                return;
+            }
+
+            this.$emit('block-duplicate', this.block);
         }
     }
 });

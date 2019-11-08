@@ -1,6 +1,6 @@
 import './sw-cms-block';
-import './sw-cms-block-config';
-import './sw-cms-block-layout-config';
+import './sw-cms-block/sw-cms-block-config';
+import './sw-cms-block/sw-cms-block-layout-config';
 import './sw-cms-slot';
 import './sw-cms-mapping-field';
 import './sw-cms-toolbar';
@@ -10,6 +10,8 @@ import './sw-cms-page-form';
 import './sw-cms-product-box-preview';
 import './sw-cms-layout-modal';
 import './sw-cms-section';
+import './sw-cms-section/sw-cms-section-config';
+import './sw-cms-section/sw-cms-section-actions';
 import './sw-cms-stage-add-section';
 import './sw-cms-stage-section-selection';
 import './sw-cms-sidebar';

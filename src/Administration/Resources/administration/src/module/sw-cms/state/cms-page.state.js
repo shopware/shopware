@@ -8,7 +8,10 @@ Shopware.State.registerModule('cmsPageState', {
         currentDemoEntity: null,
         pageEntityName: 'cms_page',
         defaultMediaFolderId: null,
-        currentCmsDeviceView: 'desktop'
+        currentCmsDeviceView: 'desktop',
+        selectedSection: null,
+        selectedBlock: null,
+        isSystemDefaultLanguage: true
     },
 
     mutations: {
@@ -66,6 +69,26 @@ Shopware.State.registerModule('cmsPageState', {
 
         removeCurrentCmsDeviceView(state) {
             state.currentCmsDeviceView = 'desktop';
+        },
+
+        setSelectedSection(state, section) {
+            state.selectedSection = section;
+        },
+
+        removeSelectedSection(state) {
+            state.selectedSection = null;
+        },
+
+        setSelectedBlock(state, block) {
+            state.selectedBlock = block;
+        },
+
+        removeSelectedBlock(state) {
+            state.selectedBlock = null;
+        },
+
+        setIsSystemDefaultLanguage(state, isSystemDefaultLanguage) {
+            state.isSystemDefaultLanguage = isSystemDefaultLanguage;
         }
     },
 
@@ -75,6 +98,16 @@ Shopware.State.registerModule('cmsPageState', {
             commit('removeCurrentMappingEntity');
             commit('removeCurrentMappingTypes');
             commit('removeCurrentDemoEntity');
+        },
+
+        setSection({ commit }, section) {
+            commit('removeSelectedBlock');
+            commit('setSelectedSection', section);
+        },
+
+        setBlock({ commit }, block) {
+            commit('removeSelectedSection');
+            commit('setSelectedBlock', block);
         }
     }
 });

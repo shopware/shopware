@@ -46,7 +46,7 @@ Component.register('sw-cms-mapping-field', {
 
     data() {
         return {
-            cmsPageState: this.$store.state.cmsPageState,
+            cmsPageState: Shopware.State.get('cmsPageState'),
             mappingTypes: {},
             allowedMappingTypes: [],
             demoValue: null

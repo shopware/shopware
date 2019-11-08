@@ -16,6 +16,7 @@ Component.register('sw-cms-sidebar', {
     ],
 
     mixins: [
+        Mixin.getByName('cms-state'),
         Mixin.getByName('placeholder')
     ],
 
@@ -23,12 +24,6 @@ Component.register('sw-cms-sidebar', {
         page: {
             type: Object,
             required: true
-        },
-
-        currentBlock: {
-            type: [Object, null],
-            required: false,
-            default: null
         },
 
         demoEntity: {
@@ -41,12 +36,6 @@ Component.register('sw-cms-sidebar', {
             type: String,
             required: false,
             default: null
-        },
-
-        isSystemDefaultLanguage: {
-            type: Boolean,
-            required: false,
-            default: true
         }
     },
 
@@ -75,10 +64,6 @@ Component.register('sw-cms-sidebar', {
             return this.repositoryFactory.create('media');
         },
 
-        cmsPageState() {
-            return this.$store.state.cmsPageState;
-        },
-
         addBlockTitle() {
             if (!this.isSystemDefaultLanguage) {
                 return this.$tc('sw-cms.general.disabledAddingBlocksToolTip');
@@ -91,18 +76,12 @@ Component.register('sw-cms-sidebar', {
             return this.page.sections;
         },
 
-        currentDeviceView() {
-            return this.$store.state.cmsPageState.currentCmsDeviceView;
-        }
-    },
-
-    watch: {
-        currentBlock: {
-            handler() {
-                if (this.currentBlock !== null) {
-                    this.$refs.blockConfigSidebar.openContent();
-                }
+        sidebarItemSettings() {
+            if (this.selectedBlock !== null) {
+                return this.$tc('sw-cms.detail.sidebarTitleBlockSettings');
             }
+
+            return this.$tc('sw-cms.detail.sidebarTitleSectionSettings');
         }
     },
 
@@ -116,15 +95,8 @@ Component.register('sw-cms-sidebar', {
         },
 
         onCloseBlockConfig() {
-            this.$emit('current-block-change', null, null);
-        },
-
-        closeContent() {
-            Object.values(this.$refs).forEach((item) => {
-                if (typeof item.closeContent === 'function') {
-                    item.closeContent();
-                }
-            });
+            this.$store.commit('cmsPageState/removeSelectedBlock');
+            this.$store.commit('cmsPageState/removeSelectedSection');
         },
 
         openSectionSettings(sectionIndex) {
@@ -333,21 +305,30 @@ Component.register('sw-cms-sidebar', {
         },
 
         onSectionDelete(sectionId) {
+            this.$store.commit('cmsPageState/removeSelectedSection');
             this.page.sections.remove(sectionId);
             this.pageUpdate();
         },
 
-        onBlockDelete(blockId, section) {
-            section.blocks.remove(blockId);
+        onBlockDelete(block, section) {
+            if (!section) {
+                section = this.page.sections.get(block.sectionId);
+            }
 
-            if (this.currentBlock && this.currentBlock.id === blockId) {
-                this.$emit('current-block-change', null, null);
+            section.blocks.remove(block.id);
+
+            if (this.selectedBlock && this.selectedBlock.id === block.id) {
+                this.$store.commit('cmsPageState/removeSelectedBlock');
             }
 
             this.pageUpdate();
         },
 
         onBlockDuplicate(block, section) {
+            if (!section) {
+                section = this.page.sections.get(block.sectionId);
+            }
+
             this.$emit('block-duplicate', block, section);
         },
 

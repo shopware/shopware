@@ -42,6 +42,10 @@ describe('CMS: Check usage and editing of image elements', () => {
             .first()
             .dragTo('.sw-cms-section__empty-stage');
         cy.get('.sw-cms-block').should('be.visible');
+        cy.get('.sw-cms-block__config-overlay').invoke('show');
+        cy.get('.sw-cms-block__config-overlay').should('be.visible');
+        cy.get('.sw-cms-block__config-overlay').click();
+        cy.get('.sw-cms-block__config-overlay.is--active').should('be.visible');
         cy.get('.sw-cms-slot .sw-cms-slot__overlay').invoke('show');
         cy.get('.sw-cms-slot .sw-cms-slot__settings-action').click();
         cy.get('.sw-cms-slot__config-modal').should('be.visible');
@@ -115,6 +119,10 @@ describe('CMS: Check usage and editing of image elements', () => {
         cy.get('.sw-cms-sidebar__block-preview:nth-of-type(10)')
             .dragTo('.sw-cms-section__empty-stage');
         cy.get('.sw-cms-block').should('be.visible');
+        cy.get('.sw-cms-block__config-overlay').invoke('show');
+        cy.get('.sw-cms-block__config-overlay').should('be.visible');
+        cy.get('.sw-cms-block__config-overlay').click();
+        cy.get('.sw-cms-block__config-overlay.is--active').should('be.visible');
         cy.get('.sw-cms-slot .sw-cms-slot__overlay').invoke('show');
         cy.get('.sw-cms-slot .sw-cms-slot__settings-action').click();
         cy.get('.sw-cms-slot__config-modal').should('be.visible');

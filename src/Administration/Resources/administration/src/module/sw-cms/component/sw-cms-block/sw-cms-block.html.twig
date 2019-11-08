@@ -9,23 +9,5 @@
         {% block sw_cms_block_overlay %}
             <div class="sw-cms-block__config-overlay" :class="overlayClasses" @click="onBlockOverlayClick"></div>
         {% endblock %}
-
-        {% block sw_cms_block_toolbar %}
-            <div class="sw-cms-block__config-toolbar"
-                 :class="toolbarClasses"
-                 v-if="(blockConfig.removable !== false) && buttonsEnabled">
-                {% block sw_cms_block_toolbar_delete_action %}
-                    <div class="sw-cms-block__config-toolbar-action" @click="onBlockDelete">
-                        <sw-icon name="default-action-trash" size="16"></sw-icon>
-                    </div>
-                {% endblock %}
-
-                {% block sw_cms_block_toolbar_duplicate_action %}
-                    <div class="sw-cms-block__config-toolbar-action" @click="onBlockDuplicate">
-                        <sw-icon name="default-action-duplicate" size="16"></sw-icon>
-                    </div>
-                {% endblock %}
-            </div>
-        {% endblock %}
     </div>
 {% endblock %}

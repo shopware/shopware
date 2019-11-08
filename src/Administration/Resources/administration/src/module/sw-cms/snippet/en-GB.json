@@ -39,7 +39,8 @@
       "contentMenu": {
         "moveUp": "Move Up",
         "moveDown": "Move down",
-        "settings": "Settings",
+        "generalSettings": "General",
+        "layoutSettings": "Layout",
         "duplicate": "Duplicate"
       },
       "labelSidebarMobile": "Mobile sidebar behavior",
@@ -72,6 +73,7 @@
       "labelPageTypeProduct": "Product page",
       "sidebarTitleBlockOverview": "Blocks",
       "sidebarTitleBlockSettings": "Block settings",
+      "sidebarTitleSectionSettings": "Section settings",
       "sidebarHeaderBlockSettings": "Block:",
       "sidebarTitleNavigator": "Navigator",
       "labelBlockCategorySelection": "Block category",
@@ -87,6 +89,7 @@
       "labelButtonElementChangeAbort": "Cancel",
       "labelBlockNameField": "Block name",
       "tooltipBlockNameField": "Name each block individually to keep track of your work.",
+      "tooltipSectionNameField": "Name each section individually to keep track of your work.",
       "labelBlockSizingField": "Sizing mode",
       "labelBlockSizingOptionBoxed": "Boxed content",
       "labelBlockSizingOptionFull": "Full width",

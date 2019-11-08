@@ -1,5 +1,10 @@
 {% block sw_cms_section %}
     <div class="sw-cms-section" :class="[sectionClasses, customSectionClass, sectionTypeClass]" :style="sectionStyles">
+
+        {% block sw_cms_section_actions %}
+            <sw-cms-section-actions :section="section"></sw-cms-section-actions>
+        {% endblock %}
+
         <div class="sw-cms-section__wrapper">
             {% block sw_cms_section_sidebar %}
                 <div v-if="isSideBarType" class="sw-cms-section__sidebar" :class="sectionSidebarClasses">
@@ -19,9 +24,11 @@
                     <template v-else>
 
                         {% block sw_cms_section_sidebar_add_first_block %}
-                            <sw-cms-stage-add-block :key="0"
-                                                    v-droppable="{ dragGroup: 'cms-stage', data: getDropData(0, 'sidebar') }"
-                                                    @stage-add-block="onAddSectionBlock">
+                            <sw-cms-stage-add-block
+                                :key="0"
+                                v-if="isSystemDefaultLanguage"
+                                v-droppable="{ dragGroup: 'cms-stage', data: getDropData(0, 'sidebar') }"
+                                @stage-block-add="onAddSectionBlock">
                             </sw-cms-stage-add-block>
                         {% endblock %}
 
@@ -30,11 +37,8 @@
                                 <sw-cms-block class="sw-cms-stage-block"
                                               :key="block.id"
                                               :block="block"
-                                              :buttonsEnabled="isSystemDefaultLanguage"
-                                              :active="currentBlock !== null && currentBlock.id === block.id"
-                                              @block-overlay-click="onBlockSelection(block)"
-                                              @block-delete="onBlockDelete(block.id)"
-                                              @block-duplicate="onBlockDuplicate(block, section)">
+                                              :active="selectedBlock !== null && selectedBlock.id === block.id"
+                                              @block-overlay-click="onBlockSelection(block)">
 
                                     {% block sw_cms_section_sidebar_block_component %}
                                         <component :is="`sw-cms-block-${block.type}`">
@@ -43,7 +47,7 @@
                                                              :slot="el.slot"
                                                              :key="el.id"
                                                              :element="el"
-                                                             :active="currentBlock !== null && currentBlock.id === block.id">
+                                                             :active="selectedBlock !== null && selectedBlock.id === block.id">
                                                 </sw-cms-slot>
                                             {% endblock %}
                                         </component>
@@ -52,9 +56,11 @@
                             {% endblock %}
 
                             {% block sw_cms_section_add_sidebar_block %}
-                                <sw-cms-stage-add-block :key="index + 1"
-                                                        v-droppable="{ dragGroup: 'cms-stage', data: getDropData(block.position + 1, 'sidebar') }"
-                                                        @stage-add-block="onAddSectionBlock">
+                                <sw-cms-stage-add-block
+                                    :key="index + 1"
+                                    v-if="isSystemDefaultLanguage"
+                                    v-droppable="{ dragGroup: 'cms-stage', data: getDropData(block.position + 1, 'sidebar') }"
+                                    @stage-block-add="onAddSectionBlock">
                                 </sw-cms-stage-add-block>
                             {% endblock %}
                         </template>
@@ -79,9 +85,11 @@
                     <template v-else>
 
                         {% block sw_cms_section_content_add_first_block %}
-                            <sw-cms-stage-add-block :key="0"
-                                                    v-droppable="{ dragGroup: 'cms-stage', data: getDropData(0) }"
-                                                    @stage-add-block="onAddSectionBlock">
+                            <sw-cms-stage-add-block
+                                :key="0"
+                                v-if="isSystemDefaultLanguage"
+                                v-droppable="{ dragGroup: 'cms-stage', data: getDropData(0) }"
+                                @stage-block-add="onAddSectionBlock">
                             </sw-cms-stage-add-block>
                         {% endblock %}
 
@@ -90,11 +98,8 @@
                                 <sw-cms-block class="sw-cms-stage-block"
                                               :key="block.id"
                                               :block="block"
-                                              :buttonsEnabled="isSystemDefaultLanguage"
-                                              :active="currentBlock !== null && currentBlock.id === block.id"
-                                              @block-overlay-click="onBlockSelection(block)"
-                                              @block-delete="onBlockDelete(block.id)"
-                                              @block-duplicate="onBlockDuplicate(block, section)">
+                                              :active="selectedBlock !== null && selectedBlock.id === block.id"
+                                              @block-overlay-click="onBlockSelection(block)">
 
                                     {% block sw_cms_section_content_block_component %}
                                         <component :is="`sw-cms-block-${block.type}`">
@@ -103,7 +108,7 @@
                                                              :slot="el.slot"
                                                              :key="el.id"
                                                              :element="el"
-                                                             :active="currentBlock !== null && currentBlock.id === block.id">
+                                                             :active="selectedBlock !== null && selectedBlock.id === block.id">
                                                 </sw-cms-slot>
                                             {% endblock %}
                                         </component>
@@ -112,9 +117,11 @@
                             {% endblock %}
 
                             {% block sw_cms_section_add_content_block %}
-                                <sw-cms-stage-add-block :key="index + 1"
-                                                        v-droppable="{ dragGroup: 'cms-stage', data: getDropData(block.position + 1) }"
-                                                        @stage-add-block="onAddSectionBlock">
+                                <sw-cms-stage-add-block
+                                    :key="index + 1"
+                                    v-if="isSystemDefaultLanguage"
+                                    v-droppable="{ dragGroup: 'cms-stage', data: getDropData(block.position + 1) }"
+                                    @stage-block-add="onAddSectionBlock">
                                 </sw-cms-stage-add-block>
                             {% endblock %}
                         </template>

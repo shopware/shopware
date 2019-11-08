@@ -38,7 +38,8 @@
       "contentMenu": {
         "moveUp": "Nach oben verschieben",
         "moveDown": "Nach unten verschieben",
-        "settings": "Einstellungen",
+        "generalSettings": "Allgemein",
+        "layoutSettings": "Layout",
         "duplicate": "Duplizieren"
       },
       "labelSidebarMobile": "Mobiles Sidebar-Verhalten",
@@ -71,6 +72,7 @@
       "labelPageTypeProduct": "Produktseite",
       "sidebarTitleBlockOverview": "Blöcke",
       "sidebarTitleBlockSettings": "Block-Einstellungen",
+      "sidebarTitleSectionSettings": "Sektion-Einstellungen",
       "sidebarHeaderBlockSettings": "Block:",
       "sidebarTitleNavigator": "Navigator",
       "labelBlockCategorySelection": "Block-Kategorie",
@@ -86,6 +88,7 @@
       "labelButtonElementChangeAbort": "Abbrechen",
       "labelBlockNameField": "Block-Name",
       "tooltipBlockNameField": "Vergib einen aussagekräftigen Namen für diesen Block.",
+      "tooltipSectionNameField": "Vergib einen aussagekräftigen Namen für diese Sektion.",
       "labelBlockSizingField": "Größenmodus",
       "labelBlockSizingOptionBoxed": "Zentrierter Inhalt",
       "labelBlockSizingOptionFull": "Volle Breite",

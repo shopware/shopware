@@ -21,6 +21,7 @@ Component.register('sw-cms-detail', {
     ],
 
     mixins: [
+        Mixin.getByName('cms-state'),
         Mixin.getByName('notification'),
         Mixin.getByName('placeholder')
     ],
@@ -36,18 +37,14 @@ Component.register('sw-cms-detail', {
             page: {
                 sections: []
             },
-            cmsPageState: this.$store.state.cmsPageState,
             salesChannels: [],
             isLoading: false,
             isSaveSuccessful: false,
             currentSalesChannelKey: null,
-            currentBlock: null,
-            currentBlockSectionId: null,
-            currentBlockCategory: 'text',
+            selectedBlockSectionId: null,
             currentMappingEntity: null,
             currentMappingEntityRepo: null,
-            demoEntityId: null,
-            currentLanguageId: Shopware.StateDeprecated.getStore('language').languageId
+            demoEntityId: null
         };
     },
 
@@ -149,10 +146,6 @@ Component.register('sw-cms-detail', {
             };
         },
 
-        isSystemDefaultLanguage() {
-            return this.currentLanguageId === Shopware.StateDeprecated.getStore('language').systemLanguageId;
-        },
-
         addBlockTitle() {
             if (!this.isSystemDefaultLanguage) {
                 return this.$tc('sw-cms.general.disabledAddingBlocksToolTip');
@@ -196,6 +189,9 @@ Component.register('sw-cms-detail', {
     methods: {
         createdComponent() {
             this.$store.commit('adminMenu/collapseSidebar');
+
+            const isSystemDefaultLanguage = this.apiContext.languageId === this.apiContext.systemLanguageId;
+            this.$store.commit('cmsPageState/setIsSystemDefaultLanguage', isSystemDefaultLanguage);
 
             this.resetCmsPageState();
 
@@ -249,6 +245,8 @@ Component.register('sw-cms-detail', {
 
         beforeDestroyedComponent() {
             this.$store.commit('cmsPageState/removeCurrentPage');
+            this.$store.commit('cmsPageState/removeSelectedBlock');
+            this.$store.commit('cmsPageState/removeSelectedSection');
         },
 
         loadPage(pageId) {
@@ -262,11 +260,6 @@ Component.register('sw-cms-detail', {
                     this.updateSectionAndBlockPositions();
                     this.$store.commit('cmsPageState/setCurrentPage', this.page);
 
-                    if (this.currentBlock !== null) {
-                        const blockSection = this.page.sections.get(this.currentBlockSectionId);
-                        this.currentBlock = blockSection.blocks.get(this.currentBlock.id);
-                    }
-
                     this.updateDataMapping();
                     this.pageOrigin = cloneDeep(this.page);
 
@@ -275,7 +268,7 @@ Component.register('sw-cms-detail', {
                     this.isLoading = false;
                     this.createNotificationError({
                         title: exception.message,
-                        message: exception.response.statusText
+                        message: exception.response
                     });
 
                     warn(this._name, exception.message, exception.response);
@@ -336,13 +329,13 @@ Component.register('sw-cms-detail', {
             this.$store.commit('cmsPageState/setCurrentCmsDeviceView', view);
 
             if (view === 'form') {
-                this.setCurrentBlock(null, null);
+                this.setSelectedBlock(null, null);
             }
         },
 
-        setCurrentBlock(sectionId, block = null) {
-            this.currentBlock = block;
-            this.currentBlockSectionId = sectionId;
+        setSelectedBlock(sectionId, block = null) {
+            this.selectedBlockSectionId = sectionId;
+            this.$store.dispatch('cmsPageState/setBlock', block);
         },
 
         onChangeLanguage() {
@@ -350,7 +343,8 @@ Component.register('sw-cms-detail', {
 
             return this.salesChannelRepository.search(new Criteria(), this.apiContext).then((response) => {
                 this.salesChannels = response;
-                this.currentLanguageId = Shopware.StateDeprecated.getStore('language').languageId;
+                const isSystemDefaultLanguage = this.apiContext.languageId === this.apiContext.systemLanguageId;
+                this.$store.commit('cmsPageState/setIsSystemDefaultLanguage', isSystemDefaultLanguage);
                 return this.loadPage(this.pageId);
             });
         },
@@ -406,14 +400,23 @@ Component.register('sw-cms-detail', {
         },
 
         onCloseBlockConfig() {
-            this.currentBlock = null;
+            this.$store.commit('cmsPageState/removeSelectedItem');
         },
 
         pageConfigOpen(mode = null) {
             const sideBarRefs = this.$refs.cmsSidebar.$refs;
 
             if (mode === 'blocks') {
+                if (!this.isSystemDefaultLanguage) {
+                    return;
+                }
+
                 sideBarRefs.blockSelectionSidebar.openContent();
+                return;
+            }
+
+            if (mode === 'itemConfig') {
+                sideBarRefs.itemConfigSidebar.openContent();
                 return;
             }
 
@@ -546,7 +549,7 @@ Component.register('sw-cms-detail', {
                         duration: 10000
                     });
 
-                    this.currentBlock = null;
+                    this.$store.commit('cmsPageState/removeSelectedItem');
                     this.pageConfigOpen();
                 }
 

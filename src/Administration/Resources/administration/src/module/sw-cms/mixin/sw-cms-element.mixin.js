@@ -25,7 +25,7 @@ Mixin.register('cms-element', {
 
     data() {
         return {
-            cmsPageState: this.$store.state.cmsPageState
+            cmsPageState: Shopware.State.get('cmsPageState')
         };
     },
 

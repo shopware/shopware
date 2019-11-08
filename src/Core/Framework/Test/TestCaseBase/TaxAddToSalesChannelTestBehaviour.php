@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleCollection;
+use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 
 trait TaxAddToSalesChannelTestBehaviour
@@ -11,17 +11,14 @@ trait TaxAddToSalesChannelTestBehaviour
     protected function addTaxDataToSalesChannel(SalesChannelContext $salesChannelContext, array $taxData): void
     {
         $tax = (new TaxEntity())->assign($taxData);
-        $tax->setTaxAreaRules(new TaxAreaRuleCollection());
-
-        $salesChannelContext->getTaxRules()->add($tax);
+        $this->addTaxEntityToSalesChannel($salesChannelContext, $tax);
     }
 
     protected function addTaxEntityToSalesChannel(SalesChannelContext $salesChannelContext, TaxEntity $taxEntity): void
     {
-        if ($taxEntity->getTaxAreaRules() === null) {
-            $taxEntity->setTaxAreaRules(new TaxAreaRuleCollection());
+        if ($taxEntity->getRules() === null) {
+            $taxEntity->setRules(new TaxRuleCollection());
         }
-
         $salesChannelContext->getTaxRules()->add($taxEntity);
     }
 }

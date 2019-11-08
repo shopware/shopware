@@ -1,14 +1,14 @@
 import './extension/sw-settings-index';
 import './page/sw-settings-tax-list';
 import './page/sw-settings-tax-detail';
-import './component/sw-tax-area-rule-card';
-import './component/sw-settings-tax-area-rule-modal';
-import './component/sw-settings-tax-area-rule-type-individual-states';
-import './component/sw-settings-tax-area-rule-type-zip-code';
-import './component/sw-settings-tax-area-rule-type-zip-code-range';
-import './component/sw-settings-tax-area-rule-type-individual-states-cell';
-import './component/sw-settings-tax-area-rule-type-zip-code-cell';
-import './component/sw-settings-tax-area-rule-type-zip-code-range-cell';
+import './component/sw-tax-rule-card';
+import './component/sw-settings-tax-rule-modal';
+import './component/sw-settings-tax-rule-type-individual-states';
+import './component/sw-settings-tax-rule-type-zip-code';
+import './component/sw-settings-tax-rule-type-zip-code-range';
+import './component/sw-settings-tax-rule-type-individual-states-cell';
+import './component/sw-settings-tax-rule-type-zip-code-cell';
+import './component/sw-settings-tax-rule-type-zip-code-range-cell';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';

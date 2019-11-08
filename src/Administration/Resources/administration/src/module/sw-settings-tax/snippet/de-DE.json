@@ -32,7 +32,7 @@
       "notificationErrorMessage": "Fehler beim Speichern des Steuersatzes."
     }
   },
-  "taxAreaRuleCard": {
+  "taxRuleCard": {
     "labelTaxRate": "Steuersatz",
     "labelAppliesOn": "Gilt für",
     "labelCountryName": "Land",

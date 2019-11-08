@@ -194,7 +194,6 @@
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface"
                  class="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilder">
-            <argument type="service" id="Shopware\Core\System\Tax\Builder\TaxRuleCollectionBuilderInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber">

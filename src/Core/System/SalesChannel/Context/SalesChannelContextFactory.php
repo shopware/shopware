@@ -13,12 +13,15 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
+use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\System\Tax\TaxEntity;
+use Shopware\Core\System\Tax\TaxRuleType\TaxRuleTypeFilterInterface;
 
 class SalesChannelContextFactory
 {
@@ -82,6 +85,11 @@ class SalesChannelContextFactory
      */
     private $taxDetector;
 
+    /**
+     * @var iterable|TaxRuleTypeFilterInterface[]
+     */
+    private $taxRuleTypeFilter;
+
     public function __construct(
         EntityRepositoryInterface $salesChannelRepository,
         EntityRepositoryInterface $currencyRepository,
@@ -94,7 +102,8 @@ class SalesChannelContextFactory
         EntityRepositoryInterface $shippingMethodRepository,
         Connection $connection,
         EntityRepositoryInterface $countryStateRepository,
-        TaxDetector $taxDetector
+        TaxDetector $taxDetector,
+        iterable $taxRuleTypeFilter
     ) {
         $this->salesChannelRepository = $salesChannelRepository;
         $this->currencyRepository = $currencyRepository;
@@ -108,6 +117,7 @@ class SalesChannelContextFactory
         $this->connection = $connection;
         $this->countryStateRepository = $countryStateRepository;
         $this->taxDetector = $taxDetector;
+        $this->taxRuleTypeFilter = $taxRuleTypeFilter;
     }
 
     public function create(string $token, string $salesChannelId, array $options = []): SalesChannelContext
@@ -170,8 +180,8 @@ class SalesChannelContextFactory
         $fallbackGroup = $customerGroups->get(Defaults::FALLBACK_CUSTOMER_GROUP);
         $customerGroup = $customerGroups->get($groupId);
 
-        //loads tax rules based on active customer group and delivery address
-        $taxRules = $this->getTaxRules($context);
+        //loads tax rules based on active customer and delivery address
+        $taxRules = $this->getTaxRules($context, $customer, $shippingLocation);
 
         //detect active payment method, first check if checkout defined other payment method, otherwise validate if customer logged in, at least use shop default
         $payment = $this->getPaymentMethod($options, $context, $salesChannel, $customer);
@@ -197,7 +207,7 @@ class SalesChannelContextFactory
             $currency,
             $customerGroup,
             $fallbackGroup,
-            new TaxCollection($taxRules),
+            $taxRules,
             $payment,
             $shippingMethod,
             $shippingLocation,
@@ -210,13 +220,36 @@ class SalesChannelContextFactory
         return $salesChannelContext;
     }
 
-    public function getTaxRules(Context $context): EntitySearchResult
+    public function getTaxRules(Context $context, ?CustomerEntity $customer, ShippingLocation $shippingLocation): TaxCollection
     {
         $criteria = new Criteria();
 
-        $criteria->addAssociation('taxAreaRules.taxAreaRuleType');
+        $criteria->addAssociation('rules.type');
 
-        return $this->taxRepository->search($criteria, $context);
+        $taxes = $this->taxRepository->search($criteria, $context)->getEntities();
+
+        /** @var TaxEntity $tax */
+        foreach ($taxes as $tax) {
+            $taxRules = $tax->getRules()->filter(function (TaxRuleEntity $taxRule) use ($customer, $shippingLocation) {
+                foreach ($this->taxRuleTypeFilter as $ruleTypeFilter) {
+                    if ($ruleTypeFilter->match($taxRule, $customer, $shippingLocation)) {
+                        return true;
+                    }
+                }
+
+                return false;
+            });
+            $taxRules->sortByTypePosition();
+            $taxRule = $taxRules->first();
+
+            $matchingRules = new TaxRuleCollection();
+            if ($taxRule) {
+                $matchingRules->add($taxRule);
+            }
+            $tax->setRules($matchingRules);
+        }
+
+        return new TaxCollection($taxes);
     }
 
     private function getPaymentMethod(array $options, Context $context, SalesChannelEntity $salesChannel, ?CustomerEntity $customer): PaymentMethodEntity

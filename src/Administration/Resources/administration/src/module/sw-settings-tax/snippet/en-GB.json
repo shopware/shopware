@@ -31,7 +31,7 @@
       "notificationErrorTitle": "Error",
       "notificationErrorMessage": "An error occurred while saving your tax rate."
     },
-    "taxAreaRuleCard": {
+    "taxRuleCard": {
       "labelTaxRate": "Rate",
       "labelAppliesOn": "Applies On",
       "labelCountryName": "Country",

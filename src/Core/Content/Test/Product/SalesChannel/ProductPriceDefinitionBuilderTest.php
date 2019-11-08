@@ -20,7 +20,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\Tax\Builder\TaxRuleCollectionBuilderInterface;
 use Shopware\Core\System\Tax\TaxEntity;
 
 class ProductPriceDefinitionBuilderTest extends TestCase
@@ -46,9 +45,8 @@ class ProductPriceDefinitionBuilderTest extends TestCase
     public function setUp(): void
     {
         $this->salesChannelContext = $this->createSalesChannelContext();
-        $taxCollectionBuilder = $this->getContainer()->get(TaxRuleCollectionBuilderInterface::class);
 
-        $this->priceDefinitionBuilder = new ProductPriceDefinitionBuilder($taxCollectionBuilder);
+        $this->priceDefinitionBuilder = new ProductPriceDefinitionBuilder();
 
         $this->currencyId = Uuid::randomHex();
         $this->getContainer()->get('currency.repository')->create([
@@ -75,7 +73,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => $tax,
+            'taxId' => $tax->getId(),
             'name' => 'test',
         ]);
 
@@ -96,7 +94,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => $tax,
+            'taxId' => $tax->getId(),
             'name' => 'test',
             'prices' => new ProductPriceCollection(
                 [
@@ -155,7 +153,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => $tax,
+            'taxId' => $tax->getId(),
             'name' => 'test',
             'prices' => new ProductPriceCollection(
                 [
@@ -209,7 +207,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => $tax,
+            'taxId' => $tax->getId(),
             'name' => 'test',
             'prices' => new ProductPriceCollection(
                 [
@@ -270,7 +268,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => $tax,
+            'taxId' => $tax->getId(),
             'name' => 'test',
         ]);
 
@@ -286,7 +284,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => $tax,
+            'taxId' => $tax->getId(),
             'name' => 'test',
         ]);
 
@@ -306,7 +304,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => $tax,
+            'taxId' => $tax->getId(),
             'name' => 'test',
         ]);
 
@@ -327,7 +325,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => $tax,
+            'taxId' => $tax->getId(),
             'name' => 'test',
             'listingPrices' => new ListingPriceCollection([
                 (new ListingPrice())->assign([
@@ -380,7 +378,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => $tax,
+            'taxId' => $tax->getId(),
             'name' => 'test',
             'prices' => new ProductPriceCollection(
                 [
@@ -432,7 +430,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => $tax,
+            'taxId' => $tax->getId(),
             'name' => 'test',
         ]);
 
@@ -454,7 +452,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => $tax,
+            'taxId' => $tax->getId(),
             'name' => 'test',
             'prices' => new ProductPriceCollection(
                 [
@@ -521,7 +519,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 7, false)]),
-            'tax' => $tax,
+            'taxId' => $tax->getId(),
             'name' => 'test',
             'prices' => new ProductPriceCollection(
                 [
@@ -576,7 +574,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             'price' => new PriceCollection([
                 new Price(Defaults::CURRENCY, 7, 10, false),
             ]),
-            'tax' => $tax,
+            'taxId' => $tax->getId(),
             'name' => 'test',
         ]);
 
@@ -600,7 +598,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 10, 10, false)]),
-            'tax' => $tax,
+            'taxId' => $tax->getId(),
             'name' => 'test',
         ]);
 
@@ -623,7 +621,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => $tax,
+            'taxId' => $tax->getId(),
             'name' => 'test',
             'prices' => new ProductPriceCollection(
                 [
@@ -661,7 +659,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => $tax,
+            'taxId' => $tax->getId(),
             'name' => 'test',
             'prices' => new ProductPriceCollection(
                 [
@@ -719,7 +717,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => $tax,
+            'taxId' => $tax->getId(),
             'name' => 'test',
             'prices' => new ProductPriceCollection(
                 [
@@ -775,7 +773,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => $tax,
+            'taxId' => $tax->getId(),
             'name' => 'test',
             'prices' => new ProductPriceCollection(
                 [
@@ -829,7 +827,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => $tax,
+            'taxId' => $tax->getId(),
             'name' => 'test',
             'prices' => new ProductPriceCollection(
                 [
@@ -865,7 +863,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'price' => new PriceCollection([new Price(Defaults::CURRENCY, 7, 10, false)]),
-            'tax' => $tax,
+            'taxId' => $tax->getId(),
             'name' => 'test',
             'prices' => new ProductPriceCollection(
                 [

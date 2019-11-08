@@ -8,37 +8,32 @@
             <tag name="shopware.entity.definition" entity="tax"/>
         </service>
 
-        <service id="Shopware\Core\System\Tax\Aggregate\TaxAreaRule\TaxAreaRuleDefinition">
-            <tag name="shopware.entity.definition" entity="tax_area_rule"/>
+        <service id="Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleDefinition">
+            <tag name="shopware.entity.definition" entity="tax_rule"/>
         </service>
 
-        <service id="Shopware\Core\System\Tax\Aggregate\TaxAreaRuleType\TaxAreaRuleTypeDefinition">
-            <tag name="shopware.entity.definition" entity="tax_area_rule_type"/>
+        <service id="Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeDefinition">
+            <tag name="shopware.entity.definition" entity="tax_rule_type"/>
         </service>
 
-        <service id="Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTypeTranslation\TaxAreaRuleTypeTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="tax_area_rule_type_translation"/>
+        <service id="Shopware\Core\System\Tax\Aggregate\TaxRuleTypeTranslation\TaxRuleTypeTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="tax_rule_type_translation"/>
         </service>
 
-        <service id="Shopware\Core\System\Tax\Builder\TaxRuleCollectionBuilderInterface"
-                 class="Shopware\Core\System\Tax\Builder\TaxRuleCollectionBuilder">
-            <argument type="tagged" tag="tax.area_rule_type_filter"/>
+        <service id="Shopware\Core\System\Tax\TaxRuleType\EntireCountryRuleTypeFilter">
+            <tag name="tax.rule_type_filter"/>
         </service>
 
-        <service id="Shopware\Core\System\Tax\TaxAreaRuleType\EntireCountryRuleTypeFilter">
-            <tag name="tax.area_rule_type_filter" priority="200"/>
+        <service id="Shopware\Core\System\Tax\TaxRuleType\IndividualStatesRuleTypeFilter">
+            <tag name="tax.rule_type_filter"/>
         </service>
 
-        <service id="Shopware\Core\System\Tax\TaxAreaRuleType\IndividualStatesRuleTypeFilter">
-            <tag name="tax.area_rule_type_filter" priority="400"/>
+        <service id="Shopware\Core\System\Tax\TaxRuleType\ZipCodeRangeRuleTypeFilter">
+            <tag name="tax.rule_type_filter"/>
         </service>
 
-        <service id="Shopware\Core\System\Tax\TaxAreaRuleType\ZipCodeRangeRuleTypeFilter">
-            <tag name="tax.area_rule_type_filter" priority="600"/>
-        </service>
-
-        <service id="Shopware\Core\System\Tax\TaxAreaRuleType\ZipCodeRuleTypeFilter">
-            <tag name="tax.area_rule_type_filter" priority="800"/>
+        <service id="Shopware\Core\System\Tax\TaxRuleType\ZipCodeRuleTypeFilter">
+            <tag name="tax.rule_type_filter"/>
         </service>
     </services>
 </container>

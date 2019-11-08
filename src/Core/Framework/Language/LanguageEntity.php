@@ -41,7 +41,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesCha
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTranslationCollection;
-use Shopware\Core\System\Tax\Aggregate\TaxAreaRuleTypeTranslation\TaxAreaRuleTypeTranslationCollection;
+use Shopware\Core\System\Tax\Aggregate\TaxRuleTypeTranslation\TaxRuleTypeTranslationCollection;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationCollection;
 
 class LanguageEntity extends Entity
@@ -299,9 +299,9 @@ class LanguageEntity extends Entity
     protected $seoUrlTranslations;
 
     /**
-     * @var TaxAreaRuleTypeTranslationCollection|null
+     * @var TaxRuleTypeTranslationCollection|null
      */
-    protected $taxAreaRuleTypeTranslations;
+    protected $taxRuleTypeTranslations;
 
     public function getMailHeaderFooterTranslations(): ?MailHeaderFooterCollection
     {
@@ -803,13 +803,13 @@ class LanguageEntity extends Entity
         $this->seoUrlTranslations = $seoUrlTranslations;
     }
 
-    public function getTaxAreaRuleTypeTranslations(): ?TaxAreaRuleTypeTranslationCollection
+    public function getTaxRuleTypeTranslations(): ?TaxRuleTypeTranslationCollection
     {
-        return $this->taxAreaRuleTypeTranslations;
+        return $this->taxRuleTypeTranslations;
     }
 
-    public function setTaxAreaRuleTypeTranslations(TaxAreaRuleTypeTranslationCollection $taxAreaRuleTypeTranslations): void
+    public function setTaxRuleTypeTranslations(TaxRuleTypeTranslationCollection $taxRuleTypeTranslations): void
     {
-        $this->taxAreaRuleTypeTranslations = $taxAreaRuleTypeTranslations;
+        $this->taxRuleTypeTranslations = $taxRuleTypeTranslations;
     }
 }

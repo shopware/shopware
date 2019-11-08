@@ -62,6 +62,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="country_state.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
+            <argument type="tagged" tag="tax.rule_type_filter"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService">

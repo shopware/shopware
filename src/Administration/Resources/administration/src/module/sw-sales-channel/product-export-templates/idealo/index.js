@@ -1,16 +1,9 @@
-<?php declare(strict_types=1);
-
-namespace Shopware\Core\Content\ProductExport\Template;
-
-use Shopware\Core\Content\ProductExport\ProductExportEntity;
-
-class Idealo extends AbstractTemplate
-{
-    public function __construct()
-    {
-        $this->name = 'idealo';
-        $this->translationKey = 'sw-sales-channel.detail.productComparison.templates.template-label.idealo';
-        $this->headerTemplate = '"categoryPath",{#- -#}
+/* eslint-disable max-len */
+Shopware.Service('exportTemplateService').registerProductExportTemplate({
+    name: 'idealo',
+    translationKey: 'sw-sales-channel.detail.productComparison.templates.template-label.idealo',
+    headerTemplate: `
+"categoryPath",{#- -#}
 "brand",{#- -#}
 "title",{#- -#}
 "price",{#- -#}
@@ -25,8 +18,10 @@ class Idealo extends AbstractTemplate
 "description",{#- -#}
 "paymentCosts_CashInAdvance",{#- Change or add your payment methods -#}
 "paymentCosts_CashOnDelivery",{#- Change or add your payment methods -#}
-"paymentCosts_Invoice"{#- Change or add your payment methods -#}';
-        $this->bodyTemplate = '"{{ product.categories.first.getBreadCrumb|slice(1)|join(\' > \')|raw }}",{#- -#}
+"paymentCosts_Invoice"{#- Change or add your payment methods -#}
+        `.trim(),
+    bodyTemplate: `
+"{{ product.categories.first.getBreadCrumb|slice(1)|join(\' > \')|raw }}",{#- -#}
 "{{ product.manufacturer.translated.name }}",{#- -#}
 "{{ product.translated.name }}",{#- -#}
 "{{ product.calculatedListingPrice.from.unitPrice|currency }}",{#- -#}
@@ -50,12 +45,12 @@ class Idealo extends AbstractTemplate
 "{{ product.translated.description|raw|length > 300 ? product.translated.description|raw|slice(0,300) ~ \'...\' : product.translated.description|raw }}",{#- -#}
 "0.00",{#- Change or add your payment methods -#}
 "0.00",{#- Change or add your payment methods -#}
-"0.00"{#- Change or add your payment methods -#}';
-        $this->footerTemplate = '';
-        $this->fileName = 'idealo.csv';
-        $this->encoding = ProductExportEntity::ENCODING_UTF8;
-        $this->fileFormat = ProductExportEntity::FILE_FORMAT_CSV;
-        $this->generateByCronjob = false;
-        $this->interval = 86400;
-    }
-}
+"0.00"{#- Change or add your payment methods -#}
+        `.trim(),
+    footerTemplate: '',
+    fileName: 'idealo.csv',
+    encoding: 'UTF-8',
+    fileFormat: 'csv',
+    generateByCronjob: false,
+    interval: 86400
+});

@@ -13,7 +13,6 @@ use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Service\ProductExportGeneratorInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
-use Shopware\Core\Content\ProductExport\Template\TemplateInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -40,19 +39,14 @@ class ProductExportController extends AbstractController
     /** @var EventDispatcherInterface */
     private $eventDispatcher;
 
-    /** @var iterable|TemplateInterface[] */
-    private $templates;
-
     public function __construct(
         EntityRepositoryInterface $salesChannelDomainRepository,
         ProductExportGeneratorInterface $productExportGenerator,
-        EventDispatcherInterface $eventDispatcher,
-        iterable $templates
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->salesChannelDomainRepository = $salesChannelDomainRepository;
         $this->productExportGenerator = $productExportGenerator;
         $this->eventDispatcher = $eventDispatcher;
-        $this->templates = $templates;
     }
 
     /**
@@ -126,21 +120,6 @@ class ProductExportController extends AbstractController
                 'errors' => $errorMessages ?? [],
             ]
         );
-    }
-
-    /**
-     * @Route("/api/v{version}/_action/product-export/templates", name="api.action.product_export.templates", methods={"GET"})
-     */
-    public function listTemplates(RequestDataBag $dataBag, Context $context): JsonResponse
-    {
-        $templates = [];
-        foreach (iterator_to_array($this->templates) as $template) {
-            $templates[$template->getName()] = $template;
-        }
-
-        return new JsonResponse([
-            'templates' => $templates,
-        ]);
     }
 
     private function createEntity(RequestDataBag $dataBag): ProductExportEntity

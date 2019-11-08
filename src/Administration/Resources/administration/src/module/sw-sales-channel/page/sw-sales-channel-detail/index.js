@@ -10,7 +10,8 @@ Component.register('sw-sales-channel-detail', {
     inject: [
         'repositoryFactory',
         'context',
-        'productExportService'
+        'productExportService',
+        'exportTemplateService'
     ],
 
     mixins: [
@@ -246,10 +247,8 @@ Component.register('sw-sales-channel-detail', {
         },
 
         loadProductExportTemplates() {
-            this.productExportService.getTemplates().then((data) => {
-                this.templateOptions = Object.values(data.templates);
-                this.templates = data.templates;
-            });
+            this.templateOptions = Object.values(this.exportTemplateService.getProductExportTemplateRegistry());
+            this.templates = this.exportTemplateService.getProductExportTemplateRegistry();
         },
 
         saveFinish() {

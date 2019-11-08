@@ -77,7 +77,6 @@
             <argument type="service" id="sales_channel_domain.repository"/>
             <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportGenerator"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="tagged" tag="shopware.product_export.template"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -106,16 +105,6 @@
         <service id="Shopware\Core\Content\ProductExport\ProductExportValidator">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Core\Content\ProductExport\Template\BilligerDe">
-            <tag name="shopware.product_export.template"/>
-        </service>
-        <service id="Shopware\Core\Content\ProductExport\Template\Idealo">
-            <tag name="shopware.product_export.template"/>
-        </service>
-        <service id="Shopware\Core\Content\ProductExport\Template\GoogleProductSearchDe">
-            <tag name="shopware.product_export.template"/>
         </service>
     </services>
 </container>

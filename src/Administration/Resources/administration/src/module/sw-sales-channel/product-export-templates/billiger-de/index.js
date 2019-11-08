@@ -1,16 +1,9 @@
-<?php declare(strict_types=1);
-
-namespace Shopware\Core\Content\ProductExport\Template;
-
-use Shopware\Core\Content\ProductExport\ProductExportEntity;
-
-class BilligerDe extends AbstractTemplate
-{
-    public function __construct()
-    {
-        $this->name = 'billiger_de';
-        $this->translationKey = 'sw-sales-channel.detail.productComparison.templates.template-label.billiger-de';
-        $this->headerTemplate = 'aid,{#- -#}
+/* eslint-disable max-len */
+Shopware.Service('exportTemplateService').registerProductExportTemplate({
+    name: 'billiger_de',
+    translationKey: 'sw-sales-channel.detail.productComparison.templates.template-label.billiger-de',
+    headerTemplate: `
+aid,{#- -#}
 brand,{#- -#}
 mpnr,{#- -#}
 ean,{#- -#}
@@ -27,8 +20,10 @@ pzn,{#- -#}
 unit_pricing_measure,{#- -#}
 unit_pricing_base_measure,{#- -#}
 target_url,{#- -#}
-images{#- -#}';
-        $this->bodyTemplate = '"{{ product.productNumber }}",{#- -#}
+images{#- -#}
+        `.trim(),
+    bodyTemplate: `
+"{{ product.productNumber }}",{#- -#}
 "{{ product.manufacturer.translated.name }}",{#- -#}
 "{{ product.manufacturerNumber }}",{#- -#}
 "{{ product.ean }}",{#- -#}
@@ -55,12 +50,12 @@ images{#- -#}';
 "{% if product.purchaseUnit %}{{ product.purchaseUnit }} {{ product.unit.shortCode }}{% endif %}",{#- -#}
 "{% if product.referenceUnit %}{{ product.referenceUnit }} {{ product.unit.shortCode }}{% endif %}",{#- -#}
 "{{ seoUrl(\'frontend.detail.page\', {\'productId\': product.id}) }}",{#- -#}
-{% if product.media|length > 1 %}"{% for mediaAssociation in product.media|slice(0, 5) %}{{ mediaAssociation.media.url }}{% if not loop.last %},{% endif %}{% endfor %}"{% endif %}{#- -#}';
-        $this->footerTemplate = '';
-        $this->fileName = 'billiger.csv';
-        $this->encoding = ProductExportEntity::ENCODING_UTF8;
-        $this->fileFormat = ProductExportEntity::FILE_FORMAT_CSV;
-        $this->generateByCronjob = false;
-        $this->interval = 86400;
-    }
-}
+{% if product.media|length > 1 %}"{% for mediaAssociation in product.media|slice(0, 5) %}{{ mediaAssociation.media.url }}{% if not loop.last %},{% endif %}{% endfor %}"{% endif %}{#- -#}
+        `.trim(),
+    footerTemplate: '',
+    fileName: 'billiger.csv',
+    encoding: 'UTF-8',
+    fileFormat: 'csv',
+    generateByCronjob: false,
+    interval: 86400
+});

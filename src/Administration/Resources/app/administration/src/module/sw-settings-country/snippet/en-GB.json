@@ -44,7 +44,7 @@
       "buttonAddCountryState": "Add state/province",
       "editAction": "Edit",
       "columnStateNameLabel": "Name",
-      "columnStateShortCodeLabel": "Short code"
+      "columnStateShortCodeLabel": "Shorthand"
     }
   },
   "sw-country-state-detail": {

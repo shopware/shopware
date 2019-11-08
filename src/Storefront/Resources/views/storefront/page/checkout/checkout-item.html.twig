@@ -111,7 +111,8 @@
                                                     {% set price = lineItem.price %}
                                                     {{ "checkout.priceUnitName"|trans|sw_sanitize }}
                                                     <span class="price-unit-reference">
-                                                        {{ price.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}
+                                                        {{ price.referencePrice.purchaseUnit }} {{ price.referencePrice.unitName }}
+                                                        ({{ price.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }})
                                                     </span>
                                                 {% endif %}
 

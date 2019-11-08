@@ -2,7 +2,7 @@
   "sw-product": {
     "visibility": {
       "textHeadline": "Sichtbarkeit je Verkaufskanal festlegen",
-      "placeholderVisibility": "Tippe, um Verkaufskanäle zu suchen ...",
+      "placeholderVisibility": "Weise Verkaufskanäle zu ...",
       "columnAll": "Überall",
       "columnSearchOnly": "Nur in der Suche sichtbar",
       "columnLinkOnly": "Versteckt",
@@ -30,8 +30,8 @@
     },
     "categoryForm": {
       "labelCategory": "Kategorie",
-      "placeholderCategory": "Tippe, um Kategorien zu suchen ...",
-      "placeholderTags": "Gib einen Tag ein ..."
+      "placeholderCategory": "Weise Kategorien zu ...",
+      "placeholderTags": "Gib Tags ein ..."
     },
     "priceForm": {
       "labelTaxRate": "Steuersatz",
@@ -42,20 +42,20 @@
       "labelPackUnit": "Verpackungseinheit",
       "placeholderTaxRate": "Wähle einen Steuersatz aus ...",
       "placeholderPurchasePriceGross": "Gib den Einkaufspreis (Brutto) ein ...",
-      "placeholderPurchaseUnit": "Inhalt ...",
-      "placeholderReferenceUnit": "Grundeinheit ...",
-      "placeholderPackUnit": "Karton, Flasche ...",
+      "placeholderPurchaseUnit": "Gib die Verkaufseinheit an ...",
+      "placeholderReferenceUnit": "Gib die Grundeinheit an ...",
+      "placeholderPackUnit": "Gib die Verpackungseinheit an ...",
       "optionLitre": "Liter",
       "optionKilogram": "Kilogramm",
       "optionMetre": "Meter"
     },
     "seoForm": {
-      "labelMetaTitle": "Meta-Title",
-      "labelMetaDescription": "Meta-Description",
-      "labelKeywords": "Keywords",
-      "placeholderMetaTitle": "Gib einen Meta-Title ein ...",
-      "placeholderMetaDescription": "Gib eine Meta-Description ein ...",
-      "placeholderKeywords": "Gib Keywords ein ..."
+      "labelMetaTitle": "Meta-Titel",
+      "labelMetaDescription": "Meta-Beschreibung",
+      "labelKeywords": "Schlüsselwörter",
+      "placeholderMetaTitle": "Gib einen Meta-Titel ein ...",
+      "placeholderMetaDescription": "Gib eine Meta-Beschreibung ein ...",
+      "placeholderKeywords": "Gib Schlüsselwörter ein ..."
     },
     "settingsForm": {
       "labelCreatedAt": "Erstelldatum",
@@ -74,41 +74,40 @@
       "labelMarkAsTopseller": "Produkt hervorheben",
       "labelIsCloseout": "Abverkauf",
       "labelDeliveryTime": "Lieferzeit",
-      "labelRestockTime": "Auffüllzeit in Tagen",
-      "placeholderDeliveryTime": "Gib eine Lieferzeit ein ...",
+      "labelRestockTime": "Wiederauffüllzeit in Tagen",
+      "placeholderDeliveryTime": "Gib die Lieferzeit an ...",
       "placeholderCreatedAt": "Gib ein Erstelldatum ein ...",
       "placeholderReleaseDate": "Gib ein Einstelldatum ein ...",
-      "placeholderWidth": "500 ...",
-      "placeholderHeight": "200 ...",
-      "placeholderLength": "100 ...",
-      "placeholderWeight": "0,4 ...",
+      "placeholderWidth": "z.B. 500 ...",
+      "placeholderHeight": "z.B. 200 ...",
+      "placeholderLength": "z.B.100 ...",
+      "placeholderWeight": "z.B. 0,4 ...",
       "placeholderStock": "Gib einen Lagerbestand ein ...",
       "placeholderMinPurchase": "Mindestabnahme ...",
       "placeholderMaxPurchase": "Maximalabnahme ...",
-      "placeholderPurchaseSteps": "Gib ein Verkaufsintervall (Stückzahl) ein ...",
-      "placeholderRestockTime": "Gib ein Wiederauffüllintervall (in Tagen) ein ...",
+      "placeholderPurchaseSteps": "Verkaufsintervall (Stückzahl) ...",
+      "placeholderRestockTime": "Wiederauffüllintervall ...",
       "placeholderEan": "Gib die EAN-Nummer ein ...",
       "placeholderManufacturerNumber": "Gib die Herstellernummer ein ...",
       "labelAvailableStock": "Verfügbarer Bestand",
       "labelPurchaseSteps": "Staffelung"
     },
     "packagingForm": {
-      "labelUnit": "Einheit",
-      "placeholderUnit": "Wählen ...",
-      "referenceUnitHelpText": "Füge den gewünschten Betrag hinzu, der zur Berechnung des Basispreises verwendet wird. Wenn z.B. eine Flasche 0,7 Liter beinhaltet und der Grundpreis mit ganzen Litern berechnet werden soll, füge 1 ein.",
-      "packUnitHelpText": "Füge die Art der Verpackung hinzu. Wie z.B. eine Flasche, ein Beutel oder eine Box.",
-      "purchaseUnitHelpText": "Gib die Menge des Produktes an. Wenn z.B. eine Flasche 0,7 Liter beinhaltet, füge 0.7 ein. "
+      "labelUnit": "Maßeinheit",
+      "placeholderUnit": "Wähle aus ...",
+      "referenceUnitHelpText": "Der Wert, mit dem der Grundpreis eines Produkts berechnet wird. Abhängig von der verwendeten Maßeinheit trägst du hier wahrscheinlich eine '1' ein. Wenn z.B. die Verkaufseinheit in Litern gemessen wird, dann berechnest Du mit der '1' den Grundreis für 1 Liter. Soll der Grundpreis für 100 Milliliter berechnet werden, füge '0,1' ein.",
+      "packUnitHelpText": "Art der Verpackung: z.B. Flasche, Kiste, Tiegel ...",
+      "purchaseUnitHelpText": "Gib die Gesamtmenge des Produktes in einer Verkaufseinheit an. Für einen Sechserpack Dosen (6 x 0,33 l = 2 l), füge hier z.B. '2' ein. Nicht vergessen: 'Sechserpack' bei Verpackungseinheit eintragen und die passende Maßeinheit 'Liter' in 'Einstellungen > Shop' anlegen!"
     },
     "detailBase": {
       "cardTitleDeliverabilityInfo": "Lieferbarkeit",
       "cardTitleProductInfo": "Informationen",
-      "cardTitleAssignment": "Zuordnung",
+      "cardTitleAssignment": "Zuweisung",
       "cardTitlePrices": "Preise",
-      "cardTitleSettings": "Einstellungen",
+      "cardTitleSettings": "Auszeichnung",
       "cardTitlePackaging": "Maße & Verpackung",
-      "cardTitleRatings": "Bewertungen",
-      "linkAdvancedPrices": "Erweiterte Preisansicht öffnen",
-      "linkMaintainCurrencyPrices": "Währungen pflegen",
+      "linkAdvancedPrices": "Erweiterte Preisansicht",
+      "linkMaintainCurrencyPrices": "Währungsabhängige Preise",
       "cardTitleReviews": "Reviews",
       "cardTitleMedia": "Medien",
       "labelContextMenuAddToProduct": "Zu Produkt hinzufügen",
@@ -127,8 +126,8 @@
         "buttonCancel": "Abbrechen",
         "buttonDelete": "Löschen"
       },
-      "messageEmptyTitle": "Noch keine Bewertungen",
-      "messageEmptySubline": "Verwaltung von Bewertungen"
+      "messageEmptyTitle": "Produkt noch nicht bewertet",
+      "messageEmptySubline": "Durchsuche andere <a href=\"#/sw/review/index\">Bewertungen</a>"
     },
     "prices": {
       "cardTitlePriceRule": "Neue Preisregel",

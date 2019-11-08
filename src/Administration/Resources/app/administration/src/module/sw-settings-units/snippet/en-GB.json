@@ -3,16 +3,16 @@
     "general": {
       "mainMenuItemGeneral": "Scale units",
       "placeholderSearchBar": "Search scale units...",
-      "createNewUnit": "Create new unit"
+      "createNewUnit": "Create new scale unit"
     },
     "grid": {
-      "columnName": "Unit",
-      "columnShortCode": "Short code",
+      "columnName": "Scale unit",
+      "columnShortCode": "Shorthand",
       "contextMenuDelete": "Delete"
     },
     "empty-state": {
-      "title": "No units yet",
-      "subline": "Manage units here."
+      "title": "No scale units yet",
+      "subline": "Manage scale units here."
     },
     "notification": {
       "successTitle": "Success",

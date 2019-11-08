@@ -5,7 +5,7 @@ namespace Shopware\Core\Migration;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-class Migration1572957455 extends MigrationStep
+class Migration1572957455AddAffiliateTrackingColumns extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
@@ -19,15 +19,16 @@ class Migration1572957455 extends MigrationStep
         $this->addOrderColumns($connection);
     }
 
+    public function updateDestructive(Connection $connection): void
+    {
+        // implement update destructive
+    }
+
     private function addCustomerColumns(Connection $connection): void
     {
         $connection->executeQuery('
             ALTER TABLE `customer`
-            ADD COLUMN `affiliate_code` varchar(255) NULL AFTER `custom_fields`
-        ');
-
-        $connection->executeQuery('
-            ALTER TABLE `customer`
+            ADD COLUMN `affiliate_code` varchar(255) NULL AFTER `custom_fields`,
             ADD COLUMN `campaign_code` varchar(255) NULL AFTER `affiliate_code`
         ');
     }
@@ -36,17 +37,8 @@ class Migration1572957455 extends MigrationStep
     {
         $connection->executeQuery('
             ALTER TABLE `order`
-            ADD COLUMN `affiliate_code` varchar(255) NULL AFTER `custom_fields`
-        ');
-
-        $connection->executeQuery('
-            ALTER TABLE `order`
+            ADD COLUMN `affiliate_code` varchar(255) NULL AFTER `custom_fields`,
             ADD COLUMN `campaign_code` varchar(255) NULL AFTER `affiliate_code`
         ');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
     }
 }

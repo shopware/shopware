@@ -209,6 +209,11 @@
                                             <dd>{{ hasDeliveries ? delivery.shippingMethod.translated.name :$tc('sw-order.detailBase.labelNoDeliveriesYet')  }}</dd>
                                         {% endblock %}
 
+                                        {% block sw_order_detail_base_secondary_info_affiliate %}
+                                            <dt>{{ $tc('sw-order.detailBase.labelAffiliateCode') }}</dt>
+                                            <dd>{{ currentOrder.affiliateCode || '-' }}</dd>
+                                        {% endblock %}
+
                                         {% block sw_order_detail_base_secondary_info_order_overview_left_column_slot %}
                                         {% endblock %}
 
@@ -231,6 +236,13 @@
                                         {% block sw_order_detail_base_secondary_info_tracking_codes %}
                                             <dt>{{ $tc('sw-order.detailBase.labelTrackingCodes') }}</dt>
                                             <dd>{{ hasDeliveryTrackingCode ? delivery.trackingCodes.join(', ') :$tc('sw-order.detailBase.labelNoDeliveryTrackingCodeYet') }}</dd>
+                                        {% endblock %}
+
+                                        {% block sw_order_detail_base_secondary_info_campaign %}
+                                            <template v-if="currentOrder.campaignCode">
+                                                <dt>{{ $tc('sw-order.detailBase.labelCampaignCode') }}</dt>
+                                                <dd>{{ currentOrder.campaignCode || '-' }}</dd>
+                                            </template>
                                         {% endblock %}
 
                                         {% block sw_order_detail_base_secondary_info_order_overview_right_column_slot %}

@@ -96,33 +96,17 @@
                         </sw-description-list>
                     {% endblock %}
 
-                    {% block sw_customer_base_metadata_birthday %}
+                    {% block ssw_customer_base_metadata_affiliate %}
                         <sw-description-list>
-                            {% block sw_customer_base_metadata_birthday_label %}
-                                <dt class="sw-customer-base-info__label">{{ $tc('sw-customer.baseInfo.labelBirthday') }}</dt>
-                            {% endblock %}
+                            <dt>{{ $tc('sw-customer.baseInfo.labelAffiliateCode') }}</dt>
+                            <dd>{{ customer.affiliateCode || '-' }}</dd>
+                        </sw-description-list>
+                    {% endblock %}
 
-                            {% block sw_customer_base_metadata_birthday_content %}
-                                <dd v-if="!customerEditMode">
-                                    <template v-if="customer.birthday">
-                                        {{ customer.birthday | date }}
-                                    </template>
-                                    <template v-else>
-                                        {{ $tc('sw-customer.baseInfo.emptyTextBirthday') }}
-                                    </template>
-                                </dd>
-                            {% endblock %}
-
-                            {% block sw_custoemr_base_metadata_birthday_editor %}
-                                <dd v-else>
-                                    <sw-datepicker
-                                            v-model="customer.birthday"
-                                            slot="inline-edit"
-                                            size="small"
-                                            dateType="date">
-                                    </sw-datepicker>
-                                </dd>
-                            {% endblock %}
+                    {% block sw_customer_base_metadata_campaign %}
+                        <sw-description-list>
+                            <dt>{{ $tc('sw-customer.baseInfo.labelCampaignCode') }}</dt>
+                            <dd>{{ customer.campaignCode || '-' }}</dd>
                         </sw-description-list>
                     {% endblock %}
                 </div>
@@ -160,6 +144,36 @@
                         <sw-description-list>
                             <dt class="sw-customer-base-info__label">{{ $tc('sw-customer.baseInfo.labelOrders') }}</dt>
                             <dd>{{ orderCount }}</dd>
+                        </sw-description-list>
+                    {% endblock %}
+
+                    {% block sw_customer_base_metadata_birthday %}
+                        <sw-description-list>
+                            {% block sw_customer_base_metadata_birthday_label %}
+                                <dt class="sw-customer-base-info__label">{{ $tc('sw-customer.baseInfo.labelBirthday') }}</dt>
+                            {% endblock %}
+
+                            {% block sw_customer_base_metadata_birthday_content %}
+                                <dd v-if="!customerEditMode">
+                                    <template v-if="customer.birthday">
+                                        {{ customer.birthday | date }}
+                                    </template>
+                                    <template v-else>
+                                        {{ $tc('sw-customer.baseInfo.emptyTextBirthday') }}
+                                    </template>
+                                </dd>
+                            {% endblock %}
+
+                            {% block sw_custoemr_base_metadata_birthday_editor %}
+                                <dd v-else>
+                                    <sw-datepicker
+                                        v-model="customer.birthday"
+                                        slot="inline-edit"
+                                        size="small"
+                                        dateType="date">
+                                    </sw-datepicker>
+                                </dd>
+                            {% endblock %}
                         </sw-description-list>
                     {% endblock %}
                 </div>

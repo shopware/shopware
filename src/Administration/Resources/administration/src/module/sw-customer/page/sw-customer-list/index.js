@@ -187,7 +187,7 @@ Component.register('sw-customer-list', {
         loadFilterValues() {
             this.filterLoading = true;
 
-            return this.customerRepository.search(this.filterSelectCriteria, this.context).then(({ aggregations }) => {
+            return this.customerRepository.search(this.filterSelectCriteria, this.apiContext).then(({ aggregations }) => {
                 this.availableAffiliateCodes = aggregations.affiliateCodes.buckets;
                 this.availableCampaignCodes = aggregations.campaignCodes.buckets;
                 this.filterLoading = false;

@@ -206,7 +206,7 @@ Component.register('sw-order-list', {
         loadFilterValues() {
             this.filterLoading = true;
 
-            return this.orderRepository.search(this.filterSelectCriteria, this.context).then(({ aggregations }) => {
+            return this.orderRepository.search(this.filterSelectCriteria, this.apiContext).then(({ aggregations }) => {
                 this.availableAffiliateCodes = aggregations.affiliateCodes.buckets;
                 this.availableCampaignCodes = aggregations.campaignCodes.buckets;
                 this.filterLoading = false;

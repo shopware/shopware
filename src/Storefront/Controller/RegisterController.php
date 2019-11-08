@@ -134,7 +134,7 @@ class RegisterController extends StorefrontController
             if (!$data->has('differentShippingAddress')) {
                 $data->remove('shippingAddress');
             }
-
+            $data = $this->prepareAffiliateTracking($data, $request);
             $this->accountRegistrationService->register($data, $data->has('guest'), $context, $this->getAdditionalRegisterValidationDefinitions($data));
         } catch (ConstraintViolationException $formViolations) {
             if (!$request->request->has('errorRoute')) {
@@ -167,5 +167,17 @@ class RegisterController extends StorefrontController
         }
 
         return $definition;
+    }
+
+    private function prepareAffiliateTracking(RequestDataBag $data, Request $request): DataBag
+    {
+        if ($request->getSession()->get('affiliateCode') && $request->getSession()->get('campaignCode')) {
+            $data->add([
+                'affiliateCode' => $request->getSession()->get('affiliateCode'),
+                'campaignCode' => $request->getSession()->get('campaignCode'),
+            ]);
+        }
+
+        return $data;
     }
 }

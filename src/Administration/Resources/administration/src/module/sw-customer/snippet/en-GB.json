@@ -88,6 +88,8 @@
       "labelTurnover": "Turnover",
       "labelDefaultPayment": "Default payment method",
       "labelActive": "Account status",
+      "labelAffiliateCode": "Affiliate-Code",
+      "labelCampaignCode": "Campaign-Code",
       "contentActive": "Active | Inactive",
       "emptyTextLogin": "No login yet",
       "emptyTextBirthday": "No information"

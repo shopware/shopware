@@ -95,6 +95,8 @@
       "labelLastChange" : "Last changed",
       "labelNoChangesYet" : "No changes yet",
       "labelTrackingCodes" : "Track and trace code(s)",
+      "labelAffiliateCode": "Affiliate-Code",
+      "labelCampaignCode": "Campaign-Code",
       "buttonAddDeliveryAddress" : "Add new address",
       "labelSameDeliveryAndBillingAddress" : "Billing and shipping address identical",
       "buttonContinueOnVersionedOrder" : "Load",

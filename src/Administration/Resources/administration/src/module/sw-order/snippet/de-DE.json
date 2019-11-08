@@ -95,6 +95,8 @@
       "labelLastChange" : "Zuletzt geändert",
       "labelNoChangesYet" : "Bisher keine Änderungen",
       "labelTrackingCodes" : "Sendungsnummer(n)",
+      "labelAffiliateCode": "Affiliate-Code",
+      "labelCampaignCode": "Kampagnen-Code",
       "buttonContinueOnVersionedOrder" : "Laden",
       "buttonAddDeliveryAddress" : "Neue Addresse hinzufügen",
       "labelSameDeliveryAndBillingAddress" : "Rechnungs- und Lieferadresse sind identisch",

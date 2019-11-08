@@ -88,6 +88,8 @@
       "labelTurnover": "Umsatz",
       "labelDefaultPayment": "Standardzahlungsart",
       "labelActive": "Kontostatus",
+      "labelAffiliateCode": "Affiliate-Code",
+      "labelCampaignCode": "Kampagnen-Code",
       "contentActive": "Aktiv | Inaktiv",
       "emptyTextLogin": "noch kein Login",
       "emptyTextBirthday": "keine Angabe"

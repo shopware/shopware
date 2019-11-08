@@ -23,6 +23,7 @@
     &.is--disabled {
         .sw-cms-section-config__quickaction {
             cursor: not-allowed;
+            opacity: 0.3;
 
             &.is--danger {
                 .sw-icon {

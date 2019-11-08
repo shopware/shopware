@@ -245,6 +245,8 @@ Component.register('sw-cms-detail', {
 
         beforeDestroyedComponent() {
             this.$store.commit('cmsPageState/removeCurrentPage');
+            this.$store.commit('cmsPageState/removeSelectedBlock');
+            this.$store.commit('cmsPageState/removeSelectedSection');
         },
 
         loadPage(pageId) {
@@ -405,6 +407,10 @@ Component.register('sw-cms-detail', {
             const sideBarRefs = this.$refs.cmsSidebar.$refs;
 
             if (mode === 'blocks') {
+                if (!this.isSystemDefaultLanguage) {
+                    return;
+                }
+
                 sideBarRefs.blockSelectionSidebar.openContent();
                 return;
             }

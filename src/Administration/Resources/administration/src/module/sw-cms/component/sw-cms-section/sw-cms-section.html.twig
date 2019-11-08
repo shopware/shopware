@@ -26,6 +26,7 @@
                         {% block sw_cms_section_sidebar_add_first_block %}
                             <sw-cms-stage-add-block
                                 :key="0"
+                                v-if="isSystemDefaultLanguage"
                                 v-droppable="{ dragGroup: 'cms-stage', data: getDropData(0, 'sidebar') }"
                                 @stage-add-block="onAddSectionBlock">
                             </sw-cms-stage-add-block>
@@ -57,6 +58,7 @@
                             {% block sw_cms_section_add_sidebar_block %}
                                 <sw-cms-stage-add-block
                                     :key="index + 1"
+                                    v-if="isSystemDefaultLanguage"
                                     v-droppable="{ dragGroup: 'cms-stage', data: getDropData(block.position + 1, 'sidebar') }"
                                     @stage-add-block="onAddSectionBlock">
                                 </sw-cms-stage-add-block>
@@ -85,6 +87,7 @@
                         {% block sw_cms_section_content_add_first_block %}
                             <sw-cms-stage-add-block
                                 :key="0"
+                                v-if="isSystemDefaultLanguage"
                                 v-droppable="{ dragGroup: 'cms-stage', data: getDropData(0) }"
                                 @stage-add-block="onAddSectionBlock">
                             </sw-cms-stage-add-block>
@@ -116,6 +119,7 @@
                             {% block sw_cms_section_add_content_block %}
                                 <sw-cms-stage-add-block
                                     :key="index + 1"
+                                    v-if="isSystemDefaultLanguage"
                                     v-droppable="{ dragGroup: 'cms-stage', data: getDropData(block.position + 1) }"
                                     @stage-add-block="onAddSectionBlock">
                                 </sw-cms-stage-add-block>

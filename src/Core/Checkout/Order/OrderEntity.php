@@ -172,6 +172,17 @@ class OrderEntity extends Entity
      */
     protected $tags;
 
+    /**
+     * @var string|null
+     */
+    protected $affiliateCode;
+
+    /**
+     * @var string|null
+     */
+    protected $campaignCode;
+
+
     public function getCurrencyId(): string
     {
         return $this->currencyId;
@@ -499,5 +510,37 @@ class OrderEntity extends Entity
 
             $this->addChildren($lineItems, $children);
         }
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getAffiliateCode(): ?string
+    {
+        return $this->affiliateCode;
+    }
+
+    /**
+     * @param string|null $affiliateCode
+     */
+    public function setAffiliateCode(?string $affiliateCode): void
+    {
+        $this->affiliateCode = $affiliateCode;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCampaignCode(): ?string
+    {
+        return $this->campaignCode;
+    }
+
+    /**
+     * @param string|null $campaignCode
+     */
+    public function setCampaignCode(?string $campaignCode): void
+    {
+        $this->campaignCode = $campaignCode;
     }
 }

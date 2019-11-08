@@ -91,6 +91,9 @@ class OrderDefinition extends EntityDefinition
             (new FloatField('currency_factor', 'currencyFactor'))->addFlags(new Required()),
             new StringField('deep_link_code', 'deepLinkCode'),
 
+            new StringField('affiliate_code', 'affiliateCode'),
+            new StringField('campaign_code', 'campaignCode'),
+
             (new StateMachineStateField('state_id', 'stateId', OrderStates::STATE_MACHINE))->setFlags(new Required()),
             new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, 'id', true),
 

@@ -98,44 +98,44 @@
                 <template #sidebar>
                     <sw-sidebar :propagateWidth="true">
                         {% block sw_settings_language_list_grid_sidebar_filter %}
-                        <sw-sidebar-item icon="default-action-filter"
-                                         :title="$tc('sw-settings-language.list.titleSidebarFilter')">
-                            <sw-collapse expandOnLoading>
-                                <template #header="{ expanded }">
-                                    <div class="sw-settings-language-list__collapse-header">
-                                        <h4 class="sw-settings-language-list__collapse-title">
-                                            {{ $tc('sw-settings-language.list.titleSidebarQuickFilter') }}
-                                        </h4>
+                            <sw-sidebar-item icon="default-action-filter"
+                                             :title="$tc('sw-settings-language.list.titleSidebarFilter')">
+                                <sw-collapse expandOnLoading>
+                                    <template #header="{ expanded }">
+                                        <div class="sw-settings-language-list__collapse-header">
+                                            <h4 class="sw-settings-language-list__collapse-title">
+                                                {{ $tc('sw-settings-language.list.titleSidebarQuickFilter') }}
+                                            </h4>
 
-                                        <sw-icon v-if="expanded"
-                                                 key="filter-collapse-expanded-indicator"
-                                                 class="sw-media-collapse__button"
-                                                 name="small-arrow-small-down">
-                                        </sw-icon>
-                                        <sw-icon v-else
-                                                 key="filter-collapse-expanded-indicator"
-                                                 class="sw-media-collapse__button"
-                                                 name="small-arrow-small-right">
-                                        </sw-icon>
-                                    </div>
-                                </template>
+                                            <sw-icon v-if="expanded"
+                                                     key="filter-collapse-expanded-indicator"
+                                                     class="sw-media-collapse__button"
+                                                     name="small-arrow-small-down">
+                                            </sw-icon>
+                                            <sw-icon v-else
+                                                     key="filter-collapse-expanded-indicator"
+                                                     class="sw-media-collapse__button"
+                                                     name="small-arrow-small-right">
+                                            </sw-icon>
+                                        </div>
+                                    </template>
 
-                                <template #content>
-                                    <sw-field
-                                        type="switch"
-                                        class="sw-settings-language-list__filterField"
-                                        :label="$tc('sw-settings-language.list.textFilterRootLanguages')"
-                                        v-model="filterRootLanguages">
-                                    </sw-field>
-                                    <sw-field
-                                        type="switch"
-                                        class="sw-settings-language-list__filterField"
-                                        :label="$tc('sw-settings-language.list.textFilterInheritedLanguages')"
-                                        v-model="filterInheritedLanguages">
-                                    </sw-field>
-                                </template>
-                            </sw-collapse>
-                        </sw-sidebar-item>
+                                    <template #content>
+                                        <sw-field
+                                            type="switch"
+                                            class="sw-settings-language-list__filterField"
+                                            :label="$tc('sw-settings-language.list.textFilterRootLanguages')"
+                                            v-model="filterRootLanguages">
+                                        </sw-field>
+                                        <sw-field
+                                            type="switch"
+                                            class="sw-settings-language-list__filterField"
+                                            :label="$tc('sw-settings-language.list.textFilterInheritedLanguages')"
+                                            v-model="filterInheritedLanguages">
+                                        </sw-field>
+                                    </template>
+                                </sw-collapse>
+                            </sw-sidebar-item>
                         {% endblock %}
                     </sw-sidebar>
                 </template>

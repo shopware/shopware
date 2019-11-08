@@ -40,6 +40,8 @@
       "columnEmail": "E-Mail",
       "columnLastLogin": "Zuletzt eingeloggt",
       "columnActions": "Aktion(en)",
+      "columnAffiliateCode": "Affiliate-Code",
+      "columnCampaignCode": "Kampagnen-Code",
       "contextMenuView": "Anzeigen",
       "contextMenuDuplicate": "Duplizieren",
       "contextMenuDelete": "Löschen",
@@ -49,7 +51,10 @@
       "textDeleteConfirm": "Möchtest Du den Kunden \"{name}\" wirklich löschen?",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
-      "titleSidebarItemRefresh": "Aktualisieren"
+      "titleSidebarItemRefresh": "Aktualisieren",
+      "titleSidebarItemFilter": "Filter",
+      "titleSidebarItemFilterAffiliateCode": "Affiliate-Code",
+      "titleSidebarItemFilterCampaignCode": "Kampagnen-Code"
     },
     "baseForm": {
       "labelSalutation": "Anrede",

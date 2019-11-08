@@ -87,6 +87,8 @@ class CustomerDefinition extends EntityDefinition
             (new PasswordField('password', 'password'))->addFlags(new ReadProtected(SalesChannelApiSource::class, AdminApiSource::class)),
             (new StringField('email', 'email'))->addFlags(new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             new StringField('title', 'title'),
+            new StringField('affiliate_code', 'affiliateCode'),
+            new StringField('campaign_code', 'campaignCode'),
             new BoolField('active', 'active'),
             new BoolField('guest', 'guest'),
             new DateTimeField('first_login', 'firstLogin'),

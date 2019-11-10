@@ -120,6 +120,17 @@
                             :urls="category.seoUrls">
                 </sw-seo-url>
             {% endblock %}
+            
+            {% block sw_category_detail_attribute_sets %}
+                <sw-card :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                         v-if="customFieldSetsArray.length > 0"
+                         :isLoading="isLoading || loading.customFieldSets">
+                    <sw-custom-field-set-renderer
+                            :entity="category"
+                            :sets="customFieldSetsArray">
+                    </sw-custom-field-set-renderer>
+                </sw-card>
+            {% endblock %}
         </template>
     </div>
 {% endblock %}

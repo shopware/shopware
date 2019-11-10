@@ -86,6 +86,21 @@ Component.register('sw-category-detail', {
             return this.category ? this.category.cmsPageId : null;
         },
 
+        customFieldSetRepository() {
+            return this.repositoryFactory.create('custom_field_set');
+        },
+
+        customFieldSetCriteria() {
+            const criteria = new Criteria(1, 100);
+
+            criteria.addFilter(Criteria.equals('relations.entityName', 'category'));
+            criteria
+                .getAssociation('customFields')
+                .addSorting(Criteria.sort('config.customFieldPosition'));
+
+            return criteria;
+        },
+
         mediaRepository() {
             return this.repositoryFactory.create('media');
         },
@@ -243,9 +258,20 @@ Component.register('sw-category-detail', {
                 id: this.categoryId
             }).then(() => this.$store.dispatch('cmsPageState/resetCmsPageState'))
                 .then(this.getAssignedCmsPage)
+                .then(this.loadAttributeSet)
                 .then(() => {
                     this.isLoading = false;
                 });
+        },
+
+        loadAttributeSet() {
+            this.$store.commit('swCategoryDetail/setLoading', ['customFieldSets', true]);
+
+            return this.customFieldSetRepository.search(this.customFieldSetCriteria, this.apiContext).then((res) => {
+                this.$store.commit('swCategoryDetail/setAttributeSet', res);
+            }).then(() => {
+                this.$store.commit('swCategoryDetail/setLoading', ['customFieldSets', false]);
+            });
         },
 
         onSaveCategories() {

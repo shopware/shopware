@@ -171,22 +171,20 @@ Component.register('sw-sales-channel-detail', {
         },
 
         onTemplateSelected(templateName) {
-            if (this.templates !== null && this.templates[templateName] !== undefined) {
-                this.selectedTemplate = this.templates[templateName];
-                let contentChanged = false;
-
-                Object.keys(this.selectedTemplate).forEach((value) => {
-                    if (this.productExport[value] !== this.selectedTemplate[value]) {
-                        contentChanged = true;
-                    }
-                });
-
-                if (!contentChanged) {
-                    return;
-                }
-
-                this.showTemplateModal = true;
+            if (this.templates === null || this.templates[templateName] === undefined) {
+                return;
             }
+
+            this.selectedTemplate = this.templates[templateName];
+            const contentChanged = Object.keys(this.selectedTemplate).some((value) => {
+                return this.productExport[value] !== this.selectedTemplate[value];
+            });
+
+            if (!contentChanged) {
+                return;
+            }
+
+            this.showTemplateModal = true;
         },
 
         onTemplateModalClose() {

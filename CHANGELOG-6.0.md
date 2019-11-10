@@ -187,7 +187,8 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Removed `sw-settings-rule-create` page
     * Added event `selection-change` to `sw-data-grid`. The event is fired whenever the selection in the grid changes including pagination and delete requests.
       * The event emits two values: the actual selection and the selection count of the `sw-data-grid`.
-      * `change-selection` should be preferred over `select-item` if you are interested in the selection itself and not in a specific item that was selected. 
+      * `change-selection` should be preferred over `select-item` if you are interested in the selection itself and not in a specific item that was selected.
+    * Added custom fields to categories 
 * Core
     * Moved the seo module from the storefront into the core.
     * Switched the execution condition of `\Shopware\Core\Framework\Migration\MigrationStep::addBackwardTrigger()` and `\Shopware\Core\Framework\Migration\MigrationStep::addForwardTrigger()` to match the execution conditions in the methods documentation.

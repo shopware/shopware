@@ -3,7 +3,7 @@ import './sw-category-detail-base.scss';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapApiErrors } = Shopware.Component.getComponentHelper();
+const { mapState, mapApiErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-category-detail-base', {
     template,
@@ -69,6 +69,16 @@ Component.register('sw-category-detail-base', {
                 .addFilter(Criteria.equals('parentId', null));
             return productCriteria;
         },
+
+        ...mapState('swCategoryDetail', {
+            customFieldSetsArray: state => {
+                if (!state.customFieldSets) {
+                    return [];
+                }
+
+                return state.customFieldSets;
+            }
+        }),
 
         ...mapApiErrors('category', ['name'])
     }

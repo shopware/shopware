@@ -5,13 +5,42 @@ export default {
 
     state() {
         return {
-            category: null
+            category: null,
+            customFieldSets: [],
+            loading: {
+                customFieldSets: false
+            }
         };
+    },
+
+    getters: {
+        isLoading: (state) => {
+            return Object.values(state.loading).some((loadState) => loadState);
+        }
     },
 
     mutations: {
         setActiveCategory(state, { category }) {
             state.category = category;
+        },
+
+        setLoading(state, value) {
+            const name = value[0];
+            const data = value[1];
+
+            if (typeof data !== 'boolean') {
+                return false;
+            }
+
+            if (state.loading[name] !== undefined) {
+                state.loading[name] = data;
+                return true;
+            }
+            return false;
+        },
+
+        setAttributeSet(state, newAttributeSets) {
+            state.customFieldSets = newAttributeSets;
         }
     },
 

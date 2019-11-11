@@ -223,7 +223,7 @@ class CartService
         return $this->calculate($cart, $context, true);
     }
 
-    private function calculate(Cart $cart, SalesChannelContext $context, $persist = false): Cart
+    private function calculate(Cart $cart, SalesChannelContext $context, bool $persist = false): Cart
     {
         $behavior = new CartBehavior();
 

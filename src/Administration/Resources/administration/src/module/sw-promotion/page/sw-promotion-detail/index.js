@@ -296,6 +296,8 @@ Component.register('sw-promotion-detail', {
                             });
                             throw error;
                         });
+                }).catch(() => {
+                    this.isLoading = false;
                 });
             });
         },

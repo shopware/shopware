@@ -53,17 +53,21 @@ class SyncController extends AbstractController
         /** @var bool $failOnError */
         $failOnError = filter_var($request->headers->get('fail-on-error', 'true'), FILTER_VALIDATE_BOOLEAN);
 
-        $behavior = new SyncBehavior($failOnError, $version);
+        $behavior = new SyncBehavior($failOnError);
 
         $payload = $this->serializer->decode($request->getContent(), 'json');
 
         $operations = [];
         foreach ($payload as $key => $operation) {
-            $operations[] = new SyncOperation((string) $key, $operation['entity'], $operation['action'], $operation['payload']);
+            $operations[] = new SyncOperation((string) $key, $operation['entity'], $operation['action'], $operation['payload'], $version);
         }
 
         $result = $this->syncService->sync($operations, $context, $behavior);
 
-        return new JsonResponse($result);
+        if ($failOnError === true && !$result->isSuccess()) {
+            return new JsonResponse($result, 400);
+        }
+
+        return new JsonResponse($result, 200);
     }
 }

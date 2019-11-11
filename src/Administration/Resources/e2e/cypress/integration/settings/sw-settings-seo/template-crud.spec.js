@@ -8,7 +8,7 @@ describe('Seo: Test crud operations on templates', () => {
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {
-                cy.loginViaApi();
+                return cy.loginViaApi();
             })
             .then(() => {
                 return cy.createCategoryFixture({
@@ -44,8 +44,8 @@ describe('Seo: Test crud operations on templates', () => {
 
     it('@package @settings: update template', () => {
         cy.route({
-            url: '/api/v1/seo-url-template/**',
-            method: 'patch'
+            url: '/api/v1/_action/sync',
+            method: 'post'
         }).as('templateSaveCall');
 
         cy.get('.sw-seo-url-template-card__seo-url').should("have.length", 2);
@@ -71,16 +71,14 @@ describe('Seo: Test crud operations on templates', () => {
 
         // check that the templates can be saved
         cy.get('.smart-bar__actions').contains('Save').click();
-        Object.keys(routeNames).forEach((routeName) => {
-            cy.wait('@templateSaveCall').then((xhr) => {
-                expect(xhr).to.have.property('status', 204);
-            });
+        cy.wait('@templateSaveCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
     });
 
     it('@package @settings: update template for a saleschannel', () => {
         cy.route({
-            url: '/api/v1/seo-url-template',
+            url: '/api/v1/_action/sync',
             method: 'post'
         }).as('templateCreateCall');
 
@@ -113,7 +111,7 @@ describe('Seo: Test crud operations on templates', () => {
         //
         cy.get('.smart-bar__actions').contains('Save').click();
         cy.wait('@templateCreateCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
         cy.awaitAndCheckNotification('SEO url templates have been saved.');
     });

@@ -141,19 +141,9 @@ Component.register('sw-category-tree', {
         },
 
         deleteCheckedItems(checkedItems) {
-            const payload = {
-                categoryDelete: {
-                    entity: this.categoryRepository.entityName,
-                    action: 'delete',
-                    payload: Object.keys(checkedItems).map((id) => { return { id: id }; })
-                }
-            };
-
-            // TODO @s.franze use categoryRepository.sync when refactored
-            this.syncService.sync(payload, {}, { 'fail-on-error': true }).then(({ success }) => {
-                if (success) {
-                    Object.keys(checkedItems).forEach(id => this.removeFromStore(id));
-                }
+            const ids = Object.keys(checkedItems);
+            this.categoryRepository.syncDeleted(ids, this.apiContext).then(() => {
+                ids.forEach(id => this.removeFromStore(id));
             });
         },
 

@@ -305,4 +305,91 @@ class SyncControllerTest extends TestCase
         );
         static::assertEmpty($exists);
     }
+
+    public function testItThrows400OnFailOnError(): void
+    {
+        $product = Uuid::randomHex();
+        $product2 = Uuid::randomHex();
+
+        $data = [
+            [
+                'action' => SyncController::ACTION_UPSERT,
+                'entity' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+                'payload' => [
+                    [
+                        'id' => $product,
+                        'productNumber' => Uuid::randomHex(),
+                        'name' => 'PROD-1',
+                        'tax' => ['name' => 'test', 'taxRate' => 15],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
+                    ],
+                    [
+                        'id' => $product2,
+                        'productNumber' => Uuid::randomHex(),
+                        'stock' => 1,
+                        'tax' => ['name' => 'test', 'taxRate' => 15],
+                        'name' => 'PROD-2',
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'linked' => false]],
+                    ],
+                ],
+            ],
+        ];
+
+        $this->getBrowser()->request('POST', '/api/v1/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'true'], json_encode($data));
+
+        $exists = $this->connection->fetchAll(
+            'SELECT * FROM product WHERE id IN(:id)',
+            ['id' => [Uuid::fromHexToBytes($product), Uuid::fromHexToBytes($product2)]],
+            ['id' => Connection::PARAM_STR_ARRAY]
+        );
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertEquals(400, $response->getStatusCode());
+
+        $content = json_decode($response->getContent(), true);
+
+        foreach ($content['data'][0]['result'] as $result) {
+            static::assertEmpty($result['entities']);
+            static::assertCount(1, $result['errors']);
+        }
+    }
+
+    public function testItReturns200WhenFailOnErrorIsFalse(): void
+    {
+        $product = Uuid::randomHex();
+
+        $data = [
+            [
+                'action' => SyncController::ACTION_UPSERT,
+                'entity' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+                'payload' => [
+                    [
+                        'id' => $product,
+                        'productNumber' => Uuid::randomHex(),
+                        'name' => 'PROD-1',
+                        'tax' => ['name' => 'test', 'taxRate' => 15],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
+                    ],
+                ],
+            ],
+        ];
+
+        $this->getBrowser()->request('POST', '/api/v1/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false'], json_encode($data));
+
+        $exists = $this->connection->fetchAll(
+            'SELECT * FROM product WHERE id IN(:id)',
+            ['id' => [Uuid::fromHexToBytes($product)]],
+            ['id' => Connection::PARAM_STR_ARRAY]
+        );
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertEquals(200, $response->getStatusCode());
+
+        $content = json_decode($response->getContent(), true);
+
+        foreach ($content['data'][0]['result'] as $result) {
+            static::assertEmpty($result['entities']);
+            static::assertCount(1, $result['errors']);
+        }
+    }
 }

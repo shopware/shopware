@@ -10,7 +10,6 @@ Component.register('sw-sales-channel-detail', {
     inject: [
         'repositoryFactory',
         'context',
-        'productExportService',
         'exportTemplateService'
     ],
 

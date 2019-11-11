@@ -21,12 +21,12 @@ Component.register('sw-cms-sidebar-nav-element', {
     },
 
     methods: {
-        onBlockDuplicate(block) {
-            this.$emit('block-duplicate', block);
+        onBlockDuplicate() {
+            this.$emit('block-duplicate', this.block);
         },
 
-        onBlockDelete(blockId) {
-            this.$emit('block-delete', blockId);
+        onBlockDelete() {
+            this.$emit('block-delete', this.block);
         }
     }
 });

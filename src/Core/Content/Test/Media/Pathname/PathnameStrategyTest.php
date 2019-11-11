@@ -4,9 +4,9 @@ namespace src\Core\Content\Test\Media\Pathname;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\Pathname\PathnameStrategy\Md5PathnameStrategy;
+use Shopware\Core\Content\Media\Pathname\PathnameStrategy\FilenamePathnameStrategy;
+use Shopware\Core\Content\Media\Pathname\PathnameStrategy\IdPathnameStrategy;
 use Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface;
-use Shopware\Core\Content\Media\Pathname\PathnameStrategy\UuidPathnameStrategy;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -27,9 +27,9 @@ class PathnameStrategyTest extends TestCase
 
     public function testUuidEncoding(): void
     {
-        $this->assertHashGenerator($this->getUuidPathnameStrategy(), $this->getJpgWithFolder(), 33);
-        $this->assertHashGenerator($this->getUuidPathnameStrategy(), $this->getJpg(), 33);
-        $this->assertHashGenerator($this->getUuidPathnameStrategy(), $this->getTxt(), 33);
+        $this->assertHashGenerator($this->getUuidPathnameStrategy(), $this->getJpgWithFolder(), 8);
+        $this->assertHashGenerator($this->getUuidPathnameStrategy(), $this->getJpg(), 8);
+        $this->assertHashGenerator($this->getUuidPathnameStrategy(), $this->getTxt(), 8);
     }
 
     public function testMd5CacheBuster(): void
@@ -49,18 +49,18 @@ class PathnameStrategyTest extends TestCase
         $this->assertHashGenerator($this->getMd5PathnameStrategy(), $this->getTxt(), 8);
     }
 
-    private function getUuidPathnameStrategy(): UuidPathnameStrategy
+    private function getUuidPathnameStrategy(): IdPathnameStrategy
     {
         return $this
             ->getContainer()
-            ->get(UuidPathnameStrategy::class);
+            ->get(IdPathnameStrategy::class);
     }
 
-    private function getMd5PathnameStrategy(): Md5PathnameStrategy
+    private function getMd5PathnameStrategy(): FilenamePathnameStrategy
     {
         return $this
             ->getContainer()
-            ->get(Md5PathnameStrategy::class);
+            ->get(FilenamePathnameStrategy::class);
     }
 
     private function assertHashGenerator(PathnameStrategyInterface $strategy, MediaEntity $media, int $length): void

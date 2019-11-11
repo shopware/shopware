@@ -7,6 +7,16 @@ use Shopware\Core\Content\Media\MediaEntity;
 
 abstract class AbstractPathNameStrategy implements PathnameStrategyInterface
 {
+    /**
+     * @var array
+     */
+    private $blacklist = [
+        'ad' => 'g0',
+    ];
+
+    /**
+     * {@inheritdoc}
+     */
     public function generatePhysicalFilename(MediaEntity $media, ?MediaThumbnailEntity $thumbnail = null): string
     {
         $filenameSuffix = '';
@@ -19,6 +29,9 @@ abstract class AbstractPathNameStrategy implements PathnameStrategyInterface
         return $media->getFileName() . $filenameSuffix . $extension;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function generatePathCacheBuster(MediaEntity $media, ?MediaThumbnailEntity $thumbnail = null): ?string
     {
         $uploadedAt = $media->getUploadedAt();
@@ -28,5 +41,20 @@ abstract class AbstractPathNameStrategy implements PathnameStrategyInterface
         }
 
         return (string) $uploadedAt->getTimestamp();
+    }
+
+    protected function generateMd5Path(string $fromValue): string
+    {
+        $md5hash = md5($fromValue);
+
+        $md5hashSlices = \array_slice(str_split($md5hash, 2), 0, 3);
+        $md5hashSlices = array_map(
+            function ($slice) {
+                return array_key_exists($slice, $this->blacklist) ? $this->blacklist[$slice] : $slice;
+            },
+            $md5hashSlices
+        );
+
+        return implode('/', $md5hashSlices);
     }
 }

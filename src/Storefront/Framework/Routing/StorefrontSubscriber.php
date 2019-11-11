@@ -35,14 +35,21 @@ class StorefrontSubscriber implements EventSubscriberInterface
      */
     private $errorController;
 
+    /**
+     * @var boolean
+     */
+    private $kernelDebug;
+
     public function __construct(
         RequestStack $requestStack,
         RouterInterface $router,
-        ErrorController $errorController
+        ErrorController $errorController,
+        bool $kernelDebug
     ) {
         $this->requestStack = $requestStack;
         $this->router = $router;
         $this->errorController = $errorController;
+        $this->kernelDebug     = $kernelDebug;
     }
 
     public static function getSubscribedEvents(): array
@@ -126,7 +133,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     public function showHtmlExceptionResponse(ExceptionEvent $event): void
     {
-        if ($event->getRequest()->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {
+        if (!$this->kernelDebug && $event->getRequest()->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {
             $event->stopPropagation();
             $content = $this->errorController->error(
                 $event->getException(),

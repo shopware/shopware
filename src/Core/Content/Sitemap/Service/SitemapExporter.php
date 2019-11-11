@@ -7,6 +7,9 @@ use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Exception\UrlProviderNotFound;
 use Shopware\Core\Content\Sitemap\Provider\UrlProviderInterface;
 use Shopware\Core\Content\Sitemap\Struct\SitemapGenerationResult;
+use Shopware\Core\Content\Sitemap\Struct\Url;
+use Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use function sprintf;
@@ -39,6 +42,11 @@ class SitemapExporter implements SitemapExporterInterface
     private $batchSize;
 
     /**
+     * @var SeoUrlPlaceholderHandlerInterface
+     */
+    private $seoUrlPlaceholderHandler;
+
+    /**
      * @param \IteratorAggregate<int, UrlProviderInterface> $urlProvider
      */
     public function __construct(
@@ -46,13 +54,15 @@ class SitemapExporter implements SitemapExporterInterface
         SystemConfigService $systemConfigService,
         \IteratorAggregate $urlProvider,
         CacheItemPoolInterface $cache,
-        int $batchSize
+        int $batchSize,
+        SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler
     ) {
         $this->sitemapWriter = $sitemapWriter;
         $this->systemConfigService = $systemConfigService;
         $this->urlProvider = $urlProvider;
         $this->cache = $cache;
         $this->batchSize = $batchSize;
+        $this->seoUrlPlaceholderHandler = $seoUrlPlaceholderHandler;
     }
 
     /**
@@ -73,6 +83,13 @@ class SitemapExporter implements SitemapExporterInterface
             $fileHandle = $this->sitemapWriter->createFile($fileName);
         } else {
             $fileHandle = $this->sitemapWriter->openFile($fileName);
+        }
+
+        $host = $this->getHost($salesChannelContext);
+
+        /** @var Url $url */
+        foreach ($urlResult->getUrls() as $url) {
+            $url->setLoc($this->seoUrlPlaceholderHandler->replace($url->getLoc(), $host, $salesChannelContext));
         }
 
         $this->sitemapWriter->writeUrlsToFile($urlResult->getUrls(), $fileHandle);
@@ -174,5 +191,15 @@ class SitemapExporter implements SitemapExporterInterface
     private function generateCacheKeyForSalesChannel(SalesChannelContext $salesChannelContext): string
     {
         return sprintf('sitemap-exporter-running-%s-%s', $salesChannelContext->getSalesChannel()->getId(), $salesChannelContext->getSalesChannel()->getLanguageId());
+    }
+
+    private function getHost(SalesChannelContext $salesChannelContext): string
+    {
+        $domains = $salesChannelContext->getSalesChannel()->getDomains();
+        if ($domains instanceof SalesChannelDomainCollection && $domains->count() > 0) {
+            return $domains->first()->getUrl();
+        }
+
+        return '';
     }
 }

@@ -18,6 +18,7 @@
             <argument type="tagged" tag="shopware.sitemap_url_provider"/>
             <argument type="service" id="serializer.mapping.cache.symfony"/>
             <argument>%shopware.sitemap.batchsize%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\Sitemap\Service\SitemapLister">
@@ -31,8 +32,8 @@
         <!-- UrlProviders -->
         <service id="Shopware\Core\Content\Sitemap\Provider\CategoryUrlProvider">
             <argument type="service" id="sales_channel.category.repository"/>
-            <argument type="service" id="router.default"/>
             <argument type="service" id="Shopware\Core\Content\Sitemap\Service\ConfigHandler"/>
+            <argument type="service" id="Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface"/>
 
             <tag name="shopware.sitemap_url_provider"/>
         </service>
@@ -45,8 +46,8 @@
 
         <service id="Shopware\Core\Content\Sitemap\Provider\ProductUrlProvider">
             <argument type="service" id="sales_channel.product.repository"/>
-            <argument type="service" id="router.default"/>
             <argument type="service" id="Shopware\Core\Content\Sitemap\Service\ConfigHandler"/>
+            <argument type="service" id="Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface"/>
 
             <tag name="shopware.sitemap_url_provider"/>
         </service>

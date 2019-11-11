@@ -22,6 +22,9 @@ class UrlResult extends Struct
         $this->nextOffset = $nextOffset;
     }
 
+    /**
+     * @return Url[]
+     */
     public function getUrls(): array
     {
         return $this->urls;

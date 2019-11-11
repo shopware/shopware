@@ -13,10 +13,9 @@ use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Routing\RouterInterface;
 
 class ProductUrlProvider implements UrlProviderInterface
 {
@@ -28,23 +27,23 @@ class ProductUrlProvider implements UrlProviderInterface
     private $productRepository;
 
     /**
-     * @var RouterInterface
-     */
-    private $router;
-
-    /**
      * @var ConfigHandler
      */
     private $configHandler;
 
+    /**
+     * @var SeoUrlPlaceholderHandlerInterface
+     */
+    private $seoUrlPlaceholderHandler;
+
     public function __construct(
         SalesChannelRepositoryInterface $productRepository,
-        RouterInterface $router,
-        ConfigHandler $configHandler
+        ConfigHandler $configHandler,
+        SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler
     ) {
         $this->productRepository = $productRepository;
-        $this->router = $router;
         $this->configHandler = $configHandler;
+        $this->seoUrlPlaceholderHandler = $seoUrlPlaceholderHandler;
     }
 
     public function getName(): string
@@ -67,7 +66,7 @@ class ProductUrlProvider implements UrlProviderInterface
             $lastmod = $product->getUpdatedAt() ?: $product->getCreatedAt();
 
             $newUrl = clone $url;
-            $newUrl->setLoc($this->router->generate('frontend.detail.page', ['productId' => $product->getId()], UrlGeneratorInterface::ABSOLUTE_URL));
+            $newUrl->setLoc($this->seoUrlPlaceholderHandler->generate('frontend.detail.page', ['productId' => $product->getId()]));
             $newUrl->setLastmod($lastmod);
             $newUrl->setChangefreq(self::CHANGE_FREQ);
             $newUrl->setResource(ProductEntity::class);

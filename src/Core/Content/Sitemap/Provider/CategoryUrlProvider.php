@@ -11,10 +11,9 @@ use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Routing\RouterInterface;
 
 class CategoryUrlProvider implements UrlProviderInterface
 {
@@ -26,23 +25,23 @@ class CategoryUrlProvider implements UrlProviderInterface
     private $categoryRepository;
 
     /**
-     * @var RouterInterface
-     */
-    private $router;
-
-    /**
      * @var ConfigHandler
      */
     private $configHandler;
 
+    /**
+     * @var SeoUrlPlaceholderHandlerInterface
+     */
+    private $seoUrlPlaceholderHandler;
+
     public function __construct(
         SalesChannelRepositoryInterface $categoryRepository,
-        RouterInterface $router,
-        ConfigHandler $configHandler
+        ConfigHandler $configHandler,
+        SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler
     ) {
         $this->categoryRepository = $categoryRepository;
-        $this->router = $router;
         $this->configHandler = $configHandler;
+        $this->seoUrlPlaceholderHandler = $seoUrlPlaceholderHandler;
     }
 
     public function getName(): string
@@ -65,7 +64,7 @@ class CategoryUrlProvider implements UrlProviderInterface
             $lastmod = $category->getUpdatedAt() ?: $category->getCreatedAt();
 
             $newUrl = clone $url;
-            $newUrl->setLoc($this->router->generate('frontend.navigation.page', ['navigationId' => $category->getId()], UrlGeneratorInterface::ABSOLUTE_URL));
+            $newUrl->setLoc($this->seoUrlPlaceholderHandler->generate('frontend.navigation.page', ['navigationId' => $category->getId()]));
             $newUrl->setLastmod($lastmod);
             $newUrl->setChangefreq(self::CHANGE_FREQ);
             $newUrl->setResource(CategoryEntity::class);

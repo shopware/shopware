@@ -7,6 +7,7 @@ import './sw-cms-toolbar';
 import './sw-cms-list-item';
 import './sw-cms-stage-add-block';
 import './sw-cms-page-form';
+import './sw-cms-page-select';
 import './sw-cms-product-box-preview';
 import './sw-cms-layout-modal';
 import './sw-cms-section';

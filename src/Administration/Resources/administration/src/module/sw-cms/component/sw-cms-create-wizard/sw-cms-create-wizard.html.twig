@@ -10,22 +10,22 @@
                         <div class="sw-cms-create-wizard__page-type-selection">
                             <div class="sw-cms-create-wizard__page-type" @click="onPageTypeSelect('page')">
                                 <sw-icon name="default-object-lightbulb" size="24"></sw-icon>
-                                <p>{{ $tc('sw-cms.detail.labelPageTypeShopPage') }}</p>
+                                <p>{{ $tc('sw-cms.detail.label.pageTypeShopPage') }}</p>
                             </div>
 
                             <div class="sw-cms-create-wizard__page-type" @click="onPageTypeSelect('landingpage')">
                                 <sw-icon name="default-web-dashboard" size="24"></sw-icon>
-                                <p>{{ $tc('sw-cms.detail.labelPageTypeLandingpage') }}</p>
+                                <p>{{ $tc('sw-cms.detail.label.pageTypeLandingpage') }}</p>
                             </div>
 
                             <div class="sw-cms-create-wizard__page-type" @click="onPageTypeSelect('product_list')">
                                 <sw-icon name="default-shopping-basket" size="24"></sw-icon>
-                                <p>{{ $tc('sw-cms.detail.labelPageTypeCategory') }}</p>
+                                <p>{{ $tc('sw-cms.detail.label.pageTypeCategory') }}</p>
                             </div>
 
                             <div class="sw-cms-create-wizard__page-type is--disabled">
                                 <sw-icon name="default-action-tags" size="24"></sw-icon>
-                                <p>{{ $tc('sw-cms.detail.labelPageTypeProduct') }}</p>
+                                <p>{{ $tc('sw-cms.detail.label.pageTypeProduct') }}</p>
                             </div>
                         </div>
                     {% endblock %}
@@ -88,8 +88,8 @@
 
                                 {% block sw_cms_create_wizard_page_name %}
                                     <sw-field type="text"
-                                              :label="$tc('sw-cms.detail.labelPageName')"
-                                              :placeholder="$tc('sw-cms.detail.labelPageName')"
+                                              :label="$tc('sw-cms.detail.label.pageName')"
+                                              :placeholder="$tc('sw-cms.detail.label.pageName')"
                                               @keypress.enter="onCompletePageCreation"
                                               v-model="page.name">
                                     </sw-field>

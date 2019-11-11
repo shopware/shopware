@@ -4,5 +4,13 @@ import './sw-cms-product-box-preview.scss';
 const { Component } = Shopware;
 
 Component.register('sw-cms-product-box-preview', {
-    template
+    template,
+
+    props: {
+        hasText: {
+            type: Boolean,
+            default: true,
+            required: false
+        }
+    }
 });

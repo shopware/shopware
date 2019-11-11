@@ -3,7 +3,7 @@ import './preview';
 
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'image-highlight-row',
-    label: 'Three column highlight images',
+    label: 'sw-cms.blocks.image.imageHighlightRow.label',
     category: 'image',
     component: 'sw-cms-block-image-highlight-row',
     previewComponent: 'sw-cms-preview-image-highlight-row',

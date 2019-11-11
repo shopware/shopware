@@ -108,10 +108,10 @@ Component.register('sw-cms-detail', {
 
         cmsPageTypes() {
             return {
-                page: this.$tc('sw-cms.detail.labelPageTypeShopPage'),
-                landingpage: this.$tc('sw-cms.detail.labelPageTypeLandingpage'),
-                product_list: this.$tc('sw-cms.detail.labelPageTypeCategory'),
-                product_detail: this.$tc('sw-cms.detail.labelPageTypeProduct')
+                page: this.$tc('sw-cms.detail.label.pageTypeShopPage'),
+                landingpage: this.$tc('sw-cms.detail.label.pageTypeLandingpage'),
+                product_list: this.$tc('sw-cms.detail.label.pageTypeCategory'),
+                product_detail: this.$tc('sw-cms.detail.label.pageTypeProduct')
             };
         },
 
@@ -151,7 +151,7 @@ Component.register('sw-cms-detail', {
                 return this.$tc('sw-cms.general.disabledAddingBlocksToolTip');
             }
 
-            return this.$tc('sw-cms.detail.sidebarTitleBlockOverview');
+            return this.$tc('sw-cms.detail.sidebar.titleBlockOverview');
         },
 
         pageHasSections() {
@@ -433,8 +433,8 @@ Component.register('sw-cms-detail', {
             if ((this.isSystemDefaultLanguage && !this.page.name) || !this.page.type) {
                 this.pageConfigOpen();
 
-                const warningTitle = this.$tc('sw-cms.detail.notificationTitleMissingFields');
-                const warningMessage = this.$tc('sw-cms.detail.notificationMessageMissingFields');
+                const warningTitle = this.$tc('sw-cms.detail.notification.titleMissingFields');
+                const warningMessage = this.$tc('sw-cms.detail.notification.messageMissingFields');
                 this.createNotificationError({
                     title: warningTitle,
                     message: warningMessage
@@ -456,8 +456,8 @@ Component.register('sw-cms-detail', {
 
                 if (!foundListingBlock) {
                     this.createNotificationError({
-                        title: this.$tc('sw-cms.detail.notificationTitleMissingProductListing'),
-                        message: this.$tc('sw-cms.detail.notificationMessageMissingProductListing')
+                        title: this.$tc('sw-cms.detail.notification.titleMissingProductListing'),
+                        message: this.$tc('sw-cms.detail.notification.messageMissingProductListing')
                     });
 
                     this.cmsBlocks['product-listing'].hidden = false;
@@ -472,8 +472,8 @@ Component.register('sw-cms-detail', {
 
             if (sections.length < 1) {
                 this.createNotificationWarning({
-                    title: this.$tc('sw-cms.detail.notificationTitleMissingSections'),
-                    message: this.$tc('sw-cms.detail.notificationMessageMissingSections')
+                    title: this.$tc('sw-cms.detail.notification.titleMissingSections'),
+                    message: this.$tc('sw-cms.detail.notification.messageMissingSections')
                 });
 
                 return Promise.reject();
@@ -481,8 +481,8 @@ Component.register('sw-cms-detail', {
 
             if (sections.length === 1 && sections[0].blocks.length === 0) {
                 this.createNotificationWarning({
-                    title: this.$tc('sw-cms.detail.notificationTitleMissingBlocks'),
-                    message: this.$tc('sw-cms.detail.notificationMessageMissingBlocks')
+                    title: this.$tc('sw-cms.detail.notification.titleMissingBlocks'),
+                    message: this.$tc('sw-cms.detail.notification.messageMissingBlocks')
                 });
 
                 this.pageConfigOpen('blocks');
@@ -502,8 +502,8 @@ Component.register('sw-cms-detail', {
             });
 
             if (foundEmptyRequiredField.length > 0) {
-                const warningTitle = this.$tc('sw-cms.detail.notificationTitleMissingBlockFields');
-                const warningMessage = this.$tc('sw-cms.detail.notificationMessageMissingBlockFields');
+                const warningTitle = this.$tc('sw-cms.detail.notification.titleMissingBlockFields');
+                const warningMessage = this.$tc('sw-cms.detail.notification.messageMissingBlockFields');
                 this.createNotificationWarning({
                     title: warningTitle,
                     message: warningMessage
@@ -525,7 +525,7 @@ Component.register('sw-cms-detail', {
             }).catch((exception) => {
                 this.isLoading = false;
 
-                const errorNotificationTitle = this.$tc('sw-cms.detail.notificationTitlePageError');
+                const errorNotificationTitle = this.$tc('sw-cms.detail.notification.titlePageError');
                 this.createNotificationError({
                     title: errorNotificationTitle,
                     message: exception.message
@@ -541,8 +541,8 @@ Component.register('sw-cms-detail', {
                 }
 
                 if (hasEmptyConfig === true) {
-                    const warningTitle = this.$tc('sw-cms.detail.notificationTitleMissingElements');
-                    const warningMessage = this.$tc('sw-cms.detail.notificationMessageMissingElements');
+                    const warningTitle = this.$tc('sw-cms.detail.notification.titleMissingElements');
+                    const warningMessage = this.$tc('sw-cms.detail.notificationM.messageMissingElements');
                     this.createNotificationWarning({
                         title: warningTitle,
                         message: warningMessage,

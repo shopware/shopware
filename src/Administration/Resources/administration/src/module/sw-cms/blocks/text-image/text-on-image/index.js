@@ -3,7 +3,7 @@ import './preview';
 
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'text-on-image',
-    label: 'Text on top of an image',
+    label: 'sw-cms.blocks.textImage.textOnImage.label',
     category: 'text-image',
     component: 'sw-cms-block-text-on-image',
     previewComponent: 'sw-cms-preview-text-on-image',

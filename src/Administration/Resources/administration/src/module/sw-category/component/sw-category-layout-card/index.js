@@ -34,10 +34,10 @@ Component.register('sw-category-layout-card', {
     computed: {
         cmsPageTypes() {
             return {
-                page: this.$tc('sw-cms.detail.labelPageTypeShopPage'),
-                landingpage: this.$tc('sw-cms.detail.labelPageTypeLandingpage'),
-                product_list: this.$tc('sw-cms.detail.labelPageTypeCategory'),
-                product_detail: this.$tc('sw-cms.detail.labelPageTypeProduct')
+                page: this.$tc('sw-cms.detail.label.pageTypeShopPage'),
+                landingpage: this.$tc('sw-cms.detail.label.pageTypeLandingpage'),
+                product_list: this.$tc('sw-cms.detail.label.pageTypeCategory'),
+                product_detail: this.$tc('sw-cms.detail.label.pageTypeProduct')
             };
         }
     },

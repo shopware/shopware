@@ -3,7 +3,7 @@ import './preview';
 
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'text-hero',
-    label: 'Hero text',
+    label: 'sw-cms.blocks.text.textHero.label',
     category: 'text',
     component: 'sw-cms-block-text-hero',
     previewComponent: 'sw-cms-preview-text-hero',

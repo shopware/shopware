@@ -3,7 +3,7 @@ import './preview';
 
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'text-three-column',
-    label: 'Three column text',
+    label: 'sw-cms.blocks.text.textThreeColumn.label',
     category: 'text',
     component: 'sw-cms-block-text-three-column',
     previewComponent: 'sw-cms-preview-text-three-column',

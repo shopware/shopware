@@ -3,7 +3,7 @@ import './preview';
 
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'image-text-row',
-    label: 'Three column image and text grid',
+    label: 'sw-cms.blocks.textImage.imageTextRow.label',
     category: 'text-image',
     component: 'sw-cms-block-image-text-row',
     previewComponent: 'sw-cms-preview-image-text-row',

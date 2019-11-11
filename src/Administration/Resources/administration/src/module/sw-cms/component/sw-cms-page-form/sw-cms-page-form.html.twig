@@ -9,7 +9,7 @@
                         <template v-for="block in section.blocks">
 
                         {% block sw_cms_page_form_card %}
-                            <sw-card class="sw-cms-page-form__block-card" :title="getBlockTitle(block)" :key="block.id">
+                            <sw-card class="sw-cms-page-form__block-card" :title="$tc(getBlockTitle(block))" :key="block.id">
 
                                 {% block sw_cms_page_form_card_content %}
                                     <div class="sw-cms-page-form__element-config" v-for="element in block.slots">

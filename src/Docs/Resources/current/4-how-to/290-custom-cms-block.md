@@ -66,8 +66,6 @@ the `main.js` file already:
 import './module/sw-cms/blocks/text-image/image-text-reversed';
 ```
 
-Basically, your `main.js` file will remain like this now, you can leave it for the rest of this HowTo.
-
 Back to your `index.js`, which is still empty.
 In order to register a new block, you have to call the `registerCmsBlock` method of the [cmsService](https://github.com/shopware/platform/blob/master/src/Administration/Resources/administration/src/module/sw-cms/service/cms.service.js).
 Since it's available in the Dependency Injection Container, you can fetch it from there.
@@ -109,7 +107,7 @@ Here's what it should look like after having set all of those options:
 ```js
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'image-text-reversed',
-    label: 'Text next to image',
+    label: 'sw-cms.blocks.textImage.imageTextReversed.label',
     category: 'text-image',
     component: 'sw-cms-block-image-text-reversed',
     previewComponent: 'sw-cms-preview-image-text-reversed',
@@ -127,7 +125,40 @@ Shopware.Service('cmsService').registerCmsBlock({
 });
 ```
 
-The properties `name`, `label` and `category` do not require further explanation.
+The properties `name` and `category` do not require further explanation.
+But you need to create a snippet files in you plugin directory for the `label` property.
+
+To do this, create a folder with the name `snippet` in your `sw-cms` folder. After that create the files for the languages. For example `de-DE.json` and `en-GB.json`.
+
+The content of your snippet file should look something like this:
+
+```json
+{
+  "sw-cms": {
+    "blocks": {
+      "imageText": {
+        "imageTextReversed": {
+          "label": "YouTube Video"
+        }
+      }
+    }
+  }
+}
+```
+
+Next, import the snippet files into your `main.js`.
+
+```js
+import './module/sw-cms/blocks/text-image/image-text-reversed';
+import deDE from './module/sw-cms/snippet/de-DE.json';
+import enGB from './module/sw-cms/snippet/en-GB.json';
+
+Shopware.Locale.extend('de-DE', deDE);
+Shopware.Locale.extend('en-GB', enGB);
+```
+
+You've now finished the part for the snippets. For more information about snippets, [click here](https://docs.shopware.com/en/shopware-platform-dev-en/how-to/adding-snippets).
+
 For both fields `component` and `previewComponent`, components that do not **yet** exist were applied. Those will be created
 in the next few steps as well.
 The `defaultConfig` just gets some minor margins and the sizing mode 'boxed', which will result in a CSS class [is--boxed](https://github.com/shopware/platform/blob/master/src/Administration/Resources/administration/src/module/sw-cms/component/sw-cms-block/sw-cms-block.scss#L22) being applied

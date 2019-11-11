@@ -3,7 +3,7 @@ import './preview';
 
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'text-two-column',
-    label: 'Two column text',
+    label: 'sw-cms.blocks.text.textTwoColumn.label',
     category: 'text',
     component: 'sw-cms-block-text-two-column',
     previewComponent: 'sw-cms-preview-text-two-column',

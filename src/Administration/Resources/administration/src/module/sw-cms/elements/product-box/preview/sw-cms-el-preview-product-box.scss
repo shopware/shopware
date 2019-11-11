@@ -8,10 +8,14 @@
 
     .sw-cms-product-box-preview {
         max-width: 180px;
-        grid-template-rows: 95px 22px auto 22px 26px;
+        grid-template-rows: 75px 36px;
 
         .sw-cms-product-box-preview__image {
-            height: 90px;
+            height: 75px;
         }
+    }
+
+    .sw-cms-product-box-preview__action {
+        align-self: flex-end;
     }
 }

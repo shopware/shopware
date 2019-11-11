@@ -115,8 +115,8 @@ describe('CMS: Check usage and editing of image elements', () => {
         // Add simple image block
         cy.get('.sw-cms-section__empty-stage').click();
         cy.get('#sw-field--currentBlockCategory').select('Images');
-        cy.get('.sw-cms-sidebar__block-preview:nth-of-type(10)').scrollIntoView();
-        cy.get('.sw-cms-sidebar__block-preview:nth-of-type(10)')
+        cy.get('.sw-cms-sidebar__block-selection > div:nth-of-type(10)').scrollIntoView();
+        cy.get('.sw-cms-sidebar__block-selection > div:nth-of-type(10)')
             .dragTo('.sw-cms-section__empty-stage');
         cy.get('.sw-cms-block').should('be.visible');
         cy.get('.sw-cms-block__config-overlay').invoke('show');

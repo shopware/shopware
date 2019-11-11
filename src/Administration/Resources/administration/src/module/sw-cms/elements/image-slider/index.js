@@ -4,7 +4,7 @@ import './preview';
 
 Shopware.Service('cmsService').registerCmsElement({
     name: 'image-slider',
-    label: 'Image Slider',
+    label: 'sw-cms.elements.imageSlider.label',
     component: 'sw-cms-el-image-slider',
     configComponent: 'sw-cms-el-config-image-slider',
     previewComponent: 'sw-cms-el-preview-image-slider',

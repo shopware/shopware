@@ -3,7 +3,7 @@ import './preview';
 
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'image-text-cover',
-    label: 'Image next to text',
+    label: 'sw-cms.blocks.textImage.imageTextCover.label',
     category: 'text-image',
     component: 'sw-cms-block-image-text-cover',
     previewComponent: 'sw-cms-preview-image-text-cover',

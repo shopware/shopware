@@ -3,7 +3,7 @@ import './preview';
 
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'text-teaser',
-    label: 'Teaser text',
+    label: 'sw-cms.blocks.text.textTeaser.label',
     category: 'text',
     component: 'sw-cms-block-text-teaser',
     previewComponent: 'sw-cms-preview-text-teaser',

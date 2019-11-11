@@ -3,7 +3,7 @@ import './preview';
 
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'image-simple-grid',
-    label: 'Simple image grid',
+    label: 'sw-cms.blocks.image.imageSimpleGrid.label',
     category: 'image',
     component: 'sw-cms-block-image-simple-grid',
     previewComponent: 'sw-cms-preview-image-simple-grid',

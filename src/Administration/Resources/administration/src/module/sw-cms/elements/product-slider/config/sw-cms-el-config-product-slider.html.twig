@@ -4,17 +4,17 @@
             <sw-tabs class="sw-cms-el-config-product-slider__tabs" defaultItem="content">
                 <template slot-scope="{ active }" >
                     {% block sw_cms_element_product_slider_config_tab_content %}
-                        <sw-tabs-item :title="$tc('sw-cms.elements.configTabContent')"
+                        <sw-tabs-item :title="$tc('sw-cms.elements.general.config.tab.content')"
                                       name="content"
                                       :activeTab="active">
-                            {{ $tc('sw-cms.elements.configTabContent') }}
+                            {{ $tc('sw-cms.elements.general.config.tab.content') }}
                         </sw-tabs-item>
                     {% endblock %}
                     {% block sw_cms_element_product_slider_config_tab_options %}
-                        <sw-tabs-item :title="$tc('sw-cms.elements.configTabSettings')"
+                        <sw-tabs-item :title="$tc('sw-cms.elements.general.config.tab.settings')"
                                       name="settings"
                                       :activeTab="active">
-                            {{ $tc('sw-cms.elements.configTabSettings') }}
+                            {{ $tc('sw-cms.elements.general.config.tab.settings') }}
                         </sw-tabs-item>
                     {% endblock %}
                 </template>
@@ -24,8 +24,8 @@
                         <sw-container v-if="active === 'content'" class="sw-cms-el-config-product-slider__tab-content">
                             {% block sw_cms_element_product_slider_config_content_title %}
                                 <sw-field type="text"
-                                          :label="$tc('sw-cms.elements.labelProductSliderTitle')"
-                                          :placeholder="$tc('sw-cms.elements.placeholderProductSliderTitle')"
+                                          :label="$tc('sw-cms.elements.productSlider.config.label.title')"
+                                          :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.title')"
                                           v-model="element.config.title.value">
                                 </sw-field>
                             {% endblock %}
@@ -33,8 +33,8 @@
                             {% block sw_cms_element_product_slider_config_content_products %}
                                 <sw-entity-multi-select
                                         class="sw-cms-el-config-product-slider__products"
-                                        :label="$tc('sw-cms.elements.labelProductSliderSelection')"
-                                        :placeholder="$tc('sw-cms.elements.placeholderProductSliderSelection')"
+                                        :label="$tc('sw-cms.elements.productSlider.config.label.selection')"
+                                        :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.selection')"
                                         v-model="productCollection"
                                         @change="onProductsChange"
                                         :context="productMultiSelectContext"
@@ -55,37 +55,37 @@
                         <sw-container v-if="active === 'settings'" class="sw-cms-el-config-product-slider__tab-settings">
 
                             {% block sw_cms_element_product_slider_config_settings_display_mode %}
-                                <sw-select-field :label="$tc('sw-cms.elements.labelProductDisplayMode')"
+                                <sw-select-field :label="$tc('sw-cms.elements.general.config.label.displayMode')"
                                                  v-model="element.config.displayMode.value">
-                                    <option value="standard">{{ $tc('sw-cms.elements.labelProductDisplayModeStandard') }}</option>
-                                    <option value="cover">{{ $tc('sw-cms.elements.labelProductDisplayModeCover') }}</option>
-                                    <option value="contain">{{ $tc('sw-cms.elements.labelProductDisplayModeContain') }}</option>
+                                    <option value="standard">{{ $tc('sw-cms.elements.general.config.label.displayModeStandard') }}</option>
+                                    <option value="cover">{{ $tc('sw-cms.elements.general.config.label.displayModeCover') }}</option>
+                                    <option value="contain">{{ $tc('sw-cms.elements.general.config.label.displayModeContain') }}</option>
                                 </sw-select-field>
                             {% endblock %}
 
                             {% block sw_cms_element_product_slider_config_settings_vertical_align %}
-                                <sw-select-field :label="$tc('sw-cms.elements.labelVerticalAlign')"
+                                <sw-select-field :label="$tc('sw-cms.elements.general.config.label.verticalAlign')"
                                                  v-model="element.config.verticalAlign.value"
-                                                 :placeholder="$tc('sw-cms.elements.labelVerticalAlign')">
-                                    <option value="flex-start">{{ $tc('sw-cms.elements.labelVerticalAlignTop') }}</option>
-                                    <option value="center">{{ $tc('sw-cms.elements.labelVerticalAlignCenter') }}</option>
-                                    <option value="flex-end">{{ $tc('sw-cms.elements.labelVerticalAlignBottom') }}</option>
+                                                 :placeholder="$tc('sw-cms.elements.general.config.label.verticalAlign')">
+                                    <option value="flex-start">{{ $tc('sw-cms.elements.general.config.label.verticalAlignTop') }}</option>
+                                    <option value="center">{{ $tc('sw-cms.elements.general.config.label.verticalAlignCenter') }}</option>
+                                    <option value="flex-end">{{ $tc('sw-cms.elements.general.config.label.verticalAlignBottom') }}</option>
                                 </sw-select-field>
                             {% endblock %}
 
                             {% block sw_cms_element_product_slider_config_settings_box_layout %}
-                                <sw-select-field :label="$tc('sw-cms.elements.labelProductLayoutType')"
+                                <sw-select-field :label="$tc('sw-cms.elements.productBox.config.label.layoutType')"
                                                  v-model="element.config.boxLayout.value">
-                                    <option value="standard">{{ $tc('sw-cms.elements.labelProductLayoutTypeStandard') }}</option>
-                                    <option value="image">{{ $tc('sw-cms.elements.labelProductLayoutTypeImage') }}</option>
-                                    <option value="minimal">{{ $tc('sw-cms.elements.labelProductLayoutTypeMinimal') }}</option>
+                                    <option value="standard">{{ $tc('sw-cms.elements.productBox.config.label.layoutTypeStandard') }}</option>
+                                    <option value="image">{{ $tc('sw-cms.elements.productBox.config.label.layoutTypeImage') }}</option>
+                                    <option value="minimal">{{ $tc('sw-cms.elements.productBox.config.label.layoutTypeMinimal') }}</option>
                                 </sw-select-field>
                             {% endblock %}
 
                             {% block sw_cms_element_product_slider_config_settings_navigation %}
                                 <sw-field type="switch"
                                           bordered
-                                          :label="$tc('sw-cms.elements.labelProductSliderNavigation')"
+                                          :label="$tc('sw-cms.elements.productSlider.config.label.navigation')"
                                           v-model="element.config.navigation.value">
                                 </sw-field>
                             {% endblock %}
@@ -93,7 +93,7 @@
                             {% block sw_cms_element_product_slider_config_settings_rotate %}
                                 <sw-field type="switch"
                                           bordered
-                                          :label="$tc('sw-cms.elements.labelProductSliderRotate')"
+                                          :label="$tc('sw-cms.elements.productSlider.config.label.rotate')"
                                           v-model="element.config.rotate.value">
                                 </sw-field>
                             {% endblock %}
@@ -101,15 +101,15 @@
                             {% block sw_cms_element_product_slider_config_settings_border %}
                                 <sw-field type="switch"
                                           bordered
-                                          :label="$tc('sw-cms.elements.labelProductSliderBorder')"
+                                          :label="$tc('sw-cms.elements.productSlider.config.label.border')"
                                           v-model="element.config.border.value">
                                 </sw-field>
                             {% endblock %}
 
                             {% block sw_cms_element_product_slider_config_settings_min_width %}
                                 <sw-field type="text"
-                                          :label="$tc('sw-cms.elements.labelProductSliderMinWidth')"
-                                          :placeholder="$tc('sw-cms.elements.placeholderProductSliderMinWidth')"
+                                          :label="$tc('sw-cms.elements.productSlider.config.label.minWidth')"
+                                          :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.minWidth')"
                                           v-model="element.config.elMinWidth.value">
                                 </sw-field>
                             {% endblock %}

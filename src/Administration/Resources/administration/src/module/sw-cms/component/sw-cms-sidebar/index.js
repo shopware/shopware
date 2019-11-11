@@ -69,7 +69,7 @@ Component.register('sw-cms-sidebar', {
                 return this.$tc('sw-cms.general.disabledAddingBlocksToolTip');
             }
 
-            return this.$tc('sw-cms.detail.sidebarTitleBlockOverview');
+            return this.$tc('sw-cms.detail.sidebar.titleBlockOverview');
         },
 
         pageSections() {
@@ -78,10 +78,10 @@ Component.register('sw-cms-sidebar', {
 
         sidebarItemSettings() {
             if (this.selectedBlock !== null) {
-                return this.$tc('sw-cms.detail.sidebarTitleBlockSettings');
+                return this.$tc('sw-cms.detail.sidebar.titleBlockSettings');
             }
 
-            return this.$tc('sw-cms.detail.sidebarTitleSectionSettings');
+            return this.$tc('sw-cms.detail.sidebar.titleSectionSettings');
         }
     },
 

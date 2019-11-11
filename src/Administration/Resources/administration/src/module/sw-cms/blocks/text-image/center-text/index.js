@@ -3,7 +3,7 @@ import './preview';
 
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'center-text',
-    label: 'Text between two images',
+    label: 'sw-cms.blocks.textImage.centerText.label',
     category: 'text-image',
     component: 'sw-cms-block-center-text',
     previewComponent: 'sw-cms-preview-center-text',

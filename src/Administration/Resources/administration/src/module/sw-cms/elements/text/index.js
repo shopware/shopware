@@ -4,7 +4,7 @@ import './preview';
 
 Shopware.Service('cmsService').registerCmsElement({
     name: 'text',
-    label: 'Text',
+    label: 'sw-cms.elements.text.label',
     component: 'sw-cms-el-text',
     configComponent: 'sw-cms-el-config-text',
     previewComponent: 'sw-cms-el-preview-text',

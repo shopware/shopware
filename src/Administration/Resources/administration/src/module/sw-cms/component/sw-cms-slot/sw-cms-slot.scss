@@ -79,11 +79,20 @@
 
 .sw-cms-slot__element-selection {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-gap: 30px;
+    justify-content: center;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 32px;
+
+    .element-selection__element-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
 
     .element-selection__element {
-        padding: 15px;
+        width: 174px;
+        height: 134px;
+        padding: 10px;
         background: $color-white;
         border: 1px solid $color-steam-cloud;
         border-radius: 5px;
@@ -118,4 +127,11 @@
             border-radius: 5px;
         }
     }
+}
+
+.element-selection__label {
+    display: block;
+    width: 100%;
+    margin-top: 7px;
+    text-align: center;
 }

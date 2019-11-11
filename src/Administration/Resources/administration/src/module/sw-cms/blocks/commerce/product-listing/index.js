@@ -3,7 +3,7 @@ import './preview';
 
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'product-listing',
-    label: 'Product listing',
+    label: 'sw-cms.blocks.commerce.productListing.label',
     category: 'commerce',
     hidden: true,
     removable: false,

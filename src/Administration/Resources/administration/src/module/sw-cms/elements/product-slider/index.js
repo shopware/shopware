@@ -8,7 +8,7 @@ criteria.addAssociation('cover');
 
 Shopware.Service('cmsService').registerCmsElement({
     name: 'product-slider',
-    label: 'Product Slider',
+    label: 'sw-cms.elements.productSlider.label',
     component: 'sw-cms-el-product-slider',
     configComponent: 'sw-cms-el-config-product-slider',
     previewComponent: 'sw-cms-el-preview-product-slider',

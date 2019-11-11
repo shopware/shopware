@@ -23,8 +23,8 @@
             <div class="sw-cms-section-config__settings">
 
                 {% block sw_cms_section_config_name_field %}
-                    <sw-text-field :label="$tc('sw-cms.detail.labelSectionNameField')"
-                                   :helpText="$tc('sw-cms.detail.tooltipSectionNameField')"
+                    <sw-text-field :label="$tc('sw-cms.detail.label.sectionNameField')"
+                                   :helpText="$tc('sw-cms.detail.tooltip.sectionNameField')"
                                    v-model="section.name">
                     </sw-text-field>
                 {% endblock %}
@@ -32,15 +32,15 @@
                 {% block sw_cms_sidebar_section_config_css_classes_field %}
                     <sw-text-field
                         v-model="section.cssClass"
-                        :label="$tc('sw-cms.detail.labelCssClassField')"
-                        :helpText="$tc('sw-cms.detail.helpTextCssClassField')">
+                        :label="$tc('sw-cms.detail.label.cssClassField')"
+                        :helpText="$tc('sw-cms.detail.helpText.cssClassField')">
                     </sw-text-field>
                 {% endblock %}
 
                 {% block sw_cms_sidebar_section_config_sizing_field %}
-                    <sw-select-field :label="$tc('sw-cms.detail.labelSizingField')" v-model="section.sizingMode">
-                        <option value="boxed">{{ $tc('sw-cms.detail.labelSizingOptionBoxed') }}</option>
-                        <option value="full_width">{{ $tc('sw-cms.detail.labelSizingOptionFull') }}</option>
+                    <sw-select-field :label="$tc('sw-cms.detail.label.sizingField')" v-model="section.sizingMode">
+                        <option value="boxed">{{ $tc('sw-cms.detail.label.sizingOptionBoxed') }}</option>
+                        <option value="full_width">{{ $tc('sw-cms.detail.label.sizingOptionFull') }}</option>
                     </sw-select-field>
                 {% endblock %}
 
@@ -55,7 +55,7 @@
 
                 {% block sw_cms_section_config_background_color_field %}
                     <sw-colorpicker v-model="section.backgroundColor"
-                                    :label="$tc('sw-cms.detail.labelBackgroundColorLabel')"
+                                    :label="$tc('sw-cms.detail.label.backgroundColorLabel')"
                                     :placeholder="$tc('sw-cms.detail.labelBackgroundColorField')">
                     </sw-colorpicker>
                 {% endblock %}
@@ -64,7 +64,7 @@
                     <sw-media-compact-upload
                         :source="section && section.backgroundMedia && section.backgroundMedia.id ? section.backgroundMedia : null"
                         :uploadTag="uploadTag"
-                        :label="$tc('sw-cms.detail.labelBackgroundMediaLabel')"
+                        :label="$tc('sw-cms.detail.label.backgroundMediaLabel')"
                         :defaultFolder="cmsPageState.pageEntityName"
                         :allowMultiSelect="false"
                         @media-upload-remove-image="removeMedia"
@@ -77,12 +77,12 @@
                     </sw-upload-store-listener>
 
                     {% block sw_cms_section_config_background_image_position_field %}
-                        <sw-select-field :label="$tc('sw-cms.detail.labelBackgroundMediaMode')"
+                        <sw-select-field :label="$tc('sw-cms.detail.label.backgroundMediaMode')"
                                          v-model="section.backgroundMediaMode"
                                          :disabled="!section.backgroundMediaId">
-                            <option value="auto">{{ $tc('sw-cms.detail.labelBackgroundMediaModeAuto') }}</option>
-                            <option value="contain">{{ $tc('sw-cms.detail.labelBackgroundMediaModeContain') }}</option>
-                            <option value="cover">{{ $tc('sw-cms.detail.labelBackgroundMediaModeCover') }}</option>
+                            <option value="auto">{{ $tc('sw-cms.detail.label.backgroundMediaModeAuto') }}</option>
+                            <option value="contain">{{ $tc('sw-cms.detail.label.backgroundMediaModeContain') }}</option>
+                            <option value="cover">{{ $tc('sw-cms.detail.label.backgroundMediaModeCover') }}</option>
                         </sw-select-field>
                     {% endblock %}
                 {% endblock %}

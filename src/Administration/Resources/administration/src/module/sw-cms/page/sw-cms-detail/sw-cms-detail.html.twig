@@ -86,7 +86,7 @@
                                             @process-finish="saveFinish"
                                             v-tooltip.bottom="tooltipSave"
                                             @click="onSave">
-                                            {{ $tc('sw-cms.detail.labelButtonSave') }}
+                                            {{ $tc('sw-cms.detail.label.buttonSave') }}
                                     </sw-button-process>
                                 {% endblock %}
                             </div>
@@ -112,8 +112,8 @@
 
                                         {% block sw_cms_detail_stage_empty_stade_content %}
                                             <div class="sw-cms-detail__empty-stage-content">
-                                                <h2 class="sw-cms-detail__empty-stage-headline">{{ $tc('sw-cms.detail.headlineEmptyState') }}</h2>
-                                                <p class="sw-cms-detail__empty-stage-claim">{{ $tc('sw-cms.detail.claimEmptyState') }}</p>
+                                                <h2 class="sw-cms-detail__empty-stage-headline">{{ $tc('sw-cms.detail.label.headlineEmptyState') }}</h2>
+                                                <p class="sw-cms-detail__empty-stage-claim">{{ $tc('sw-cms.detail.label.claimEmptyState') }}</p>
                                                 <sw-cms-stage-add-section :key="0"
                                                                           :forceChoose="true"
                                                                           @stage-section-add="onAddSection($event, 0)">

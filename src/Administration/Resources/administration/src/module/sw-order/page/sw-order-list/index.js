@@ -22,7 +22,12 @@ Component.register('sw-order-list', {
             orders: [],
             sortBy: 'orderDateTime',
             sortDirection: 'DESC',
-            isLoading: false
+            isLoading: false,
+            filterLoading: false,
+            availableAffiliateCodes: [],
+            affiliateCodeFilter: [],
+            availableCampaignCodes: [],
+            campaignCodeFilter: []
         };
     },
 
@@ -33,7 +38,7 @@ Component.register('sw-order-list', {
     },
 
     computed: {
-        orderRepsitory() {
+        orderRepository() {
             return this.repositoryFactory.create('order');
         },
 
@@ -45,6 +50,13 @@ Component.register('sw-order-list', {
             const criteria = new Criteria(this.page, this.limit);
 
             criteria.setTerm(this.term);
+            if (this.affiliateCodeFilter.length > 0) {
+                criteria.addFilter(Criteria.equalsAny('affiliateCode', this.affiliateCodeFilter));
+            }
+            if (this.campaignCodeFilter.length > 0) {
+                criteria.addFilter(Criteria.equalsAny('campaignCode', this.campaignCodeFilter));
+            }
+
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
             criteria.addAssociation('addresses');
@@ -55,10 +67,30 @@ Component.register('sw-order-list', {
             criteria.addAssociation('deliveries');
 
             return criteria;
+        },
+
+        filterSelectCriteria() {
+            const criteria = new Criteria(1, 1);
+            criteria.addFilter(Criteria.not(
+                'AND',
+                [Criteria.equals('affiliateCode', null), Criteria.equals('campaignCode', null)]
+            ));
+            criteria.addAggregation(Criteria.terms('affiliateCodes', 'affiliateCode', null, null, null));
+            criteria.addAggregation(Criteria.terms('campaignCodes', 'campaignCode', null, null, null));
+
+            return criteria;
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            this.loadFilterValues();
+        },
+
         onEdit(order) {
             if (order && order.id) {
                 this.$router.push({
@@ -81,7 +113,7 @@ Component.register('sw-order-list', {
         getList() {
             this.isLoading = true;
 
-            return this.orderRepsitory.search(this.orderCriteria, this.apiContext).then((response) => {
+            return this.orderRepository.search(this.orderCriteria, this.apiContext).then((response) => {
                 this.total = response.total;
                 this.orders = response;
                 this.isLoading = false;
@@ -138,6 +170,18 @@ Component.register('sw-order-list', {
                 property: 'orderDateTime',
                 label: this.$tc('sw-order.list.orderDate'),
                 allowResize: true
+            }, {
+                property: 'affiliateCode',
+                inlineEdit: 'string',
+                label: this.$tc('sw-order.list.columnAffiliateCode'),
+                allowResize: true,
+                visible: false
+            }, {
+                property: 'campaignCode',
+                inlineEdit: 'string',
+                label: this.$tc('sw-order.list.columnCampaignCode'),
+                allowResize: true,
+                visible: false
             }];
         },
 
@@ -157,6 +201,30 @@ Component.register('sw-order-list', {
             return this.stateStyleDataProviderService.getStyle(
                 'order_delivery.state', order.deliveries[0].stateMachineState.technicalName
             ).variant;
+        },
+
+        loadFilterValues() {
+            this.filterLoading = true;
+
+            return this.orderRepository.search(this.filterSelectCriteria, this.apiContext).then(({ aggregations }) => {
+                this.availableAffiliateCodes = aggregations.affiliateCodes.buckets;
+                this.availableCampaignCodes = aggregations.campaignCodes.buckets;
+                this.filterLoading = false;
+
+                return aggregations;
+            }).catch(() => {
+                this.filterLoading = false;
+            });
+        },
+
+        onChangeAffiliateCodeFilter(value) {
+            this.affiliateCodeFilter = value;
+            this.getList();
+        },
+
+        onChangeCampaignCodeFilter(value) {
+            this.campaignCodeFilter = value;
+            this.getList();
         }
     }
 });

@@ -15,6 +15,8 @@
       "columnDeliveryState": "Delivery status",
       "columnOrderNumber": "Order number",
       "columnSalesChannel": "Sales channel",
+      "columnAffiliateCode": "Affiliate-Code",
+      "columnCampaignCode": "Campaign-Code",
       "orderDate": "Order date",
       "buttonAddOrder": "Add order",
       "textOrders": "Orders",
@@ -23,7 +25,10 @@
       "contextMenuDelete": "Delete",
       "contextMenuConfirmPayment": "Confirm payment",
       "messageEmpty": "No orders yet",
-      "titleSidebarItemRefresh": "Refresh"
+      "titleSidebarItemRefresh": "Refresh",
+      "titleSidebarItemFilter": "Filter",
+      "titleSidebarItemFilterAffiliateCode": "Affiliate-Code",
+      "titleSidebarItemFilterCampaignCode": "Campaign-Code"
     },
     "detail": {
       "buttonCancel": "Discard changes",
@@ -90,6 +95,8 @@
       "labelLastChange" : "Last changed",
       "labelNoChangesYet" : "No changes yet",
       "labelTrackingCodes" : "Track and trace code(s)",
+      "labelAffiliateCode": "Affiliate-Code",
+      "labelCampaignCode": "Campaign-Code",
       "buttonAddDeliveryAddress" : "Add new address",
       "labelSameDeliveryAndBillingAddress" : "Billing and shipping address identical",
       "buttonContinueOnVersionedOrder" : "Load",

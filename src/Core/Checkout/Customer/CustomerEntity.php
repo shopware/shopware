@@ -99,6 +99,16 @@ class CustomerEntity extends Entity
     protected $title;
 
     /**
+     * @var string|null
+     */
+    protected $affiliateCode;
+
+    /**
+     * @var string|null
+     */
+    protected $campaignCode;
+
+    /**
      * @var bool
      */
     protected $active;
@@ -687,5 +697,25 @@ class CustomerEntity extends Entity
     public function setProductReviews(?ProductReviewCollection $productReviews): void
     {
         $this->productReviews = $productReviews;
+    }
+
+    public function getAffiliateCode(): ?string
+    {
+        return $this->affiliateCode;
+    }
+
+    public function setAffiliateCode(?string $affiliateCode): void
+    {
+        $this->affiliateCode = $affiliateCode;
+    }
+
+    public function getCampaignCode(): ?string
+    {
+        return $this->campaignCode;
+    }
+
+    public function setCampaignCode(?string $campaignCode): void
+    {
+        $this->campaignCode = $campaignCode;
     }
 }

@@ -40,6 +40,8 @@
       "columnEmail": "Email",
       "columnLastLogin": "Last login",
       "columnActions": "Action(s)",
+      "columnAffiliateCode": "Affiliate-Code",
+      "columnCampaignCode": "Campaign-Code",
       "contextMenuView": "View",
       "contextMenuDelete": "Delete",
       "contextMenuDuplicate": "Duplicate",
@@ -49,7 +51,10 @@
       "textDeleteConfirm": "Are you sure you want to delete the customer \"{name}\"?",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
-      "titleSidebarItemRefresh": "Refresh"
+      "titleSidebarItemRefresh": "Refresh",
+      "titleSidebarItemFilter": "Filter",
+      "titleSidebarItemFilterAffiliateCode": "Affiliate-Code",
+      "titleSidebarItemFilterCampaignCode": "Campaign-Code"
     },
     "baseForm": {
       "labelSalutation": "Salutation",
@@ -83,6 +88,8 @@
       "labelTurnover": "Turnover",
       "labelDefaultPayment": "Default payment method",
       "labelActive": "Account status",
+      "labelAffiliateCode": "Affiliate-Code",
+      "labelCampaignCode": "Campaign-Code",
       "contentActive": "Active | Inactive",
       "emptyTextLogin": "No login yet",
       "emptyTextBirthday": "No information"

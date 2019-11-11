@@ -241,6 +241,8 @@ class AccountRegistrationService
             'lastName' => $data->get('lastName'),
             'email' => $data->get('email'),
             'title' => $data->get('title'),
+            'affiliateCode' => $data->get('affiliateCode'),
+            'campaignCode' => $data->get('campaignCode'),
             'active' => true,
             'birthday' => $this->getBirthday($data),
             'guest' => $isGuest,

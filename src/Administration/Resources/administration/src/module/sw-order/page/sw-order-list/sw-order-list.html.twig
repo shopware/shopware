@@ -171,6 +171,34 @@
                             @click="onRefresh">
                         </sw-sidebar-item>
                     {% endblock %}
+                    {% block sw_order_list_sidebar_filter %}
+                        <sw-sidebar-item icon="default-action-filter"
+                                         :title="$tc('sw-order.list.titleSidebarItemFilter')">
+                            {% block sw_order_list_sidebar_filter_affiliate_code %}
+                                <sw-multi-select
+                                    :label="$tc('sw-order.list.titleSidebarItemFilterAffiliateCode')"
+                                    :options="availableAffiliateCodes"
+                                    :isLoading="filterLoading"
+                                    valueProperty="key"
+                                    labelProperty="key"
+                                    :value="affiliateCodeFilter"
+                                    @change="onChangeAffiliateCodeFilter">
+                                </sw-multi-select>
+                            {% endblock %}
+
+                            {% block sw_order_list_sidebar_filter_campaign_code %}
+                                <sw-multi-select
+                                    :label="$tc('sw-order.list.titleSidebarItemFilterCampaignCode')"
+                                    :options="availableCampaignCodes"
+                                    :isLoading="filterLoading"
+                                    valueProperty="key"
+                                    labelProperty="key"
+                                    @change="onChangeCampaignCodeFilter"
+                                    :value="campaignCodeFilter">
+                                </sw-multi-select>
+                            {% endblock %}
+                        </sw-sidebar-item>
+                    {% endblock %}
                 </sw-sidebar>
             {% endblock %}
         {% endblock %}

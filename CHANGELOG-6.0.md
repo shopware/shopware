@@ -168,6 +168,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Fixed a bug that `SalesChannelDefinition`s are not used for associations.
     * Added `metaTitle`, `metaDescription` and `keywords` columns to category entity
     * Added `metaDescription` to product entity
+    * Added `campaignCode` and `affiliateCode` columns to customer and order entity
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain

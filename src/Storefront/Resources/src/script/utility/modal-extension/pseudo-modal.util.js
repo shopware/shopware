@@ -2,15 +2,20 @@ import DomAccess from 'src/script/helper/dom-access.helper';
 import { REMOVE_BACKDROP_DELAY } from 'src/script/utility/backdrop/backdrop.util';
 
 const PSEUDO_MODAL_CLASS = 'js-pseudo-modal';
+const PSEUDO_MODAL_TEMPLATE_CLASS = 'js-pseudo-modal-template';
+const PSEUDO_MODAL_TEMPLATE_CONTENT_CLASS = 'js-pseudo-modal-template-content-element';
 
 export default class PseudoModalUtil {
-
-    constructor(content, useBackdrop = true) {
+    constructor(
+        content,
+        useBackdrop = true,
+        templateSelector = `.${PSEUDO_MODAL_TEMPLATE_CLASS}`,
+        templateContentSelector = `.${PSEUDO_MODAL_TEMPLATE_CONTENT_CLASS}`
+    ) {
         this._content = content;
         this._useBackdrop = useBackdrop;
-
-        this._templateSelector = '.js-pseudo-modal-template';
-        this._templateContentSelector = '.js-pseudo-modal-template-content-element';
+        this._templateSelector = templateSelector;
+        this._templateContentSelector = templateContentSelector;
     }
 
     /**
@@ -48,6 +53,24 @@ export default class PseudoModalUtil {
      */
     updatePosition() {
         this._$modal.modal('handleUpdate');
+    }
+
+    /**
+     * This method can be used to update a modal's content.
+     * A callback may be provided, for example to re-initialise all plugins once
+     * the markup is changed.
+     *
+     * @param {string} content
+     * @param {function} callback
+     */
+    updateContent(content, callback) {
+        this._content = content;
+        this._setModalContent(content);
+        this.updatePosition();
+
+        if (typeof callback === 'function') {
+            callback.bind(this)();
+        }
     }
 
     /**
@@ -112,9 +135,18 @@ export default class PseudoModalUtil {
         const content = this._modalWrapper.innerHTML;
         this._modalWrapper.innerHTML = this._modalMarkupEl.innerHTML;
 
-        const contentElement = DomAccess.querySelector(this._modalWrapper, this._templateContentSelector);
-        contentElement.innerHTML = content;
+        this._setModalContent(content);
 
         return DomAccess.querySelector(this._modalWrapper, '.modal');
+    }
+
+    /**
+     * This method is used to set the modal element's content.
+     *
+     * @private
+     */
+    _setModalContent(content) {
+        const contentElement = DomAccess.querySelector(this._modalWrapper, this._templateContentSelector);
+        contentElement.innerHTML = content;
     }
 }

@@ -46,10 +46,10 @@
 
                 {% block sw_cms_sidebar_section_config_sidebar_mobile %}
                     <sw-select-field v-if="section.type === 'sidebar'"
-                                     :label="$tc('sw-cms.sidebar.labelSidebarMobile')"
+                                     :label="$tc('sw-cms.sidebar.mobile')"
                                      v-model="section.mobileBehavior">
-                        <option value="hidden">{{ $tc('sw-cms.sidebar.labelSidebarMobileOptionHidden') }}</option>
-                        <option value="wrap">{{ $tc('sw-cms.sidebar.labelSidebarMobileOptionWrap') }}</option>
+                        <option value="hidden">{{ $tc('sw-cms.sidebar.mobileOptionHidden') }}</option>
+                        <option value="wrap">{{ $tc('sw-cms.sidebar.mobileOptionWrap') }}</option>
                     </sw-select-field>
                 {% endblock %}
 

@@ -37,7 +37,6 @@ Component.register('sw-cms-detail', {
             page: {
                 sections: []
             },
-            cmsPageState: Shopware.State.get('cmsPageState'),
             salesChannels: [],
             isLoading: false,
             isSaveSuccessful: false,

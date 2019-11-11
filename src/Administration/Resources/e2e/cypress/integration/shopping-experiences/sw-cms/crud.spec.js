@@ -15,7 +15,7 @@ describe('CMS: Test crud operations of layouts', () => {
             });
     });
 
-    it.skip('@package @content: create and read layout', () => {
+    it('@package @content: create and read layout', () => {
         cy.server();
         cy.route({
             url: '/api/v1/cms-page',
@@ -26,7 +26,7 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.contains('Create new layout').click();
         cy.get('.sw-cms-detail').should('be.visible');
         cy.contains('.sw-cms-create-wizard__page-type', 'Landing page').click();
-        cy.get('.sw-cms-create-wizard__title').contains('What kind of section would you like to start with?');
+        cy.get('.sw-cms-create-wizard__title').contains('Choose a section type to start with.');
         cy.contains('.sw-cms-stage-section-selection__default', 'Full width').click();
         cy.get('.sw-cms-create-wizard__title').contains('How do you want to label your new layout?');
         cy.contains('.sw-button--primary', 'Create layout').should('not.be.enabled');

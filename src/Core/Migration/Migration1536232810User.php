@@ -41,6 +41,5 @@ class Migration1536232810User extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

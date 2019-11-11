@@ -31,6 +31,5 @@ class Migration1568787535AddSeoUrlConstraints extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

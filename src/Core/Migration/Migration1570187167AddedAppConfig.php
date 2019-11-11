@@ -30,6 +30,5 @@ class Migration1570187167AddedAppConfig extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

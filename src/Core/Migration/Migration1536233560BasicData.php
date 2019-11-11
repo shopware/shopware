@@ -88,7 +88,6 @@ class Migration1536233560BasicData extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 
     private function getDeDeLanguageId(): string

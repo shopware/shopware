@@ -34,6 +34,5 @@ class Migration1536233300CustomField extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

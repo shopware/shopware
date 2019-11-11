@@ -35,6 +35,5 @@ class Migration1563805586AddLanguageToOrder extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

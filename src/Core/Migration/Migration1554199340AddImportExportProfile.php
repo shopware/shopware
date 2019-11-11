@@ -37,7 +37,6 @@ class Migration1554199340AddImportExportProfile extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 
     private function getDefaultCustomerProfile(Connection $connection): array

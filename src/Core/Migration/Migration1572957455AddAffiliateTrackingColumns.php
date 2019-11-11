@@ -21,7 +21,6 @@ class Migration1572957455AddAffiliateTrackingColumns extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 
     private function addCustomerColumns(Connection $connection): void

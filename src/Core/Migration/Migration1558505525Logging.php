@@ -55,6 +55,5 @@ class Migration1558505525Logging extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

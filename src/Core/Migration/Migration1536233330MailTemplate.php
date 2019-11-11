@@ -97,6 +97,5 @@ class Migration1536233330MailTemplate extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

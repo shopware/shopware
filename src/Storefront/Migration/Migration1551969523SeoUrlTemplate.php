@@ -58,6 +58,5 @@ class Migration1551969523SeoUrlTemplate extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

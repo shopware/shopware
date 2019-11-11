@@ -21,7 +21,6 @@ class Migration1558443337PromotionSalesChannel extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 
     private function getQueries(): array

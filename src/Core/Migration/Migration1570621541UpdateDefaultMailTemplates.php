@@ -127,7 +127,6 @@ class Migration1570621541UpdateDefaultMailTemplates extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 
     private function fetchSystemMailTemplateIdFromType(Connection $connection, string $mailTemplateType): ?string

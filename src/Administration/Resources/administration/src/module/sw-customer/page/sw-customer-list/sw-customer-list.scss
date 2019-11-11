@@ -19,6 +19,8 @@ $sw-customer-list-color-success: $color-emerald;
     }
 }
 
-.sw-sidebar-item__scrollable-container {
-    padding: 0 25px;
+.sw-customer-list__sidebar {
+    .sw-sidebar-item__scrollable-container {
+        padding: 0 25px;
+    }
 }

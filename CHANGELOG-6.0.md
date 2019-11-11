@@ -170,6 +170,8 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added `metaTitle`, `metaDescription` and `keywords` columns to category entity
     * Added `metaDescription` to product entity
     * Added `campaignCode` and `affiliateCode` columns to customer and order entity
+    * Changed the calling of `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getDefaults` which is now only called by newly created entities. The check `$existence->exists()` inside this method is not necessary anymore
+    * Added new method `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getChildDefaults`. Use it to define defaults for newly created child entities
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain
@@ -196,6 +198,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
         - Example for simple sub entities: Writing a `product_price` entity now also dispatches a `product_category` event
         - Example for nested sub entities: Writing a `order_delivery_position` entity now also dispatches a `order_delivery.written` and a `order.written` event
     * Dropped `additionalText` column of product entity, use `metaDescription` instead
+    * Removed `EntityExistence $existence` parameter from `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getDefaults` as it is not necessary anymore
 * Storefront
     * Removed `\Shopware\Storefront\Framework\Cache\CacheWarmer\Navigation\NavigationRouteMessage`
     * Removed `\Shopware\Storefront\Framework\Cache\CacheWarmer\Product\ProductRouteMessage`

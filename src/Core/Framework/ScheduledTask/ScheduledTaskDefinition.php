@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageDefinition;
 
 class ScheduledTaskDefinition extends EntityDefinition
@@ -43,7 +42,7 @@ class ScheduledTaskDefinition extends EntityDefinition
         return ScheduledTaskEntity::class;
     }
 
-    public function getDefaults(EntityExistence $existence): array
+    public function getDefaults(): array
     {
         return [
             'nextExecutionTime' => new \DateTime(),

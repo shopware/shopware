@@ -331,7 +331,6 @@ trait CriteriaQueryHelper
     /**
      * Transforms NotFilter on associations into anti-joins
      *
-     *
      * Base case:
      *
      * NotFilter($op, [EqualsFilter, ContainsFilter])

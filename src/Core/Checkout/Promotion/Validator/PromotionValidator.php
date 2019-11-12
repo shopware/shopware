@@ -61,7 +61,6 @@ class PromotionValidator implements EventSubscriberInterface
      * and its aggregation. It does only check for business relevant rules and logic.
      * All primitive "required" constraints are done inside the definition of the entity.
      *
-     *
      * @throws WriteConstraintViolationException
      */
     public function preValidate(PreWriteValidationEvent $event): void

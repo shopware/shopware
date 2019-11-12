@@ -258,7 +258,6 @@ class Criteria extends Struct
      *
      * $criteria->addAssociation('categories.media.thumbnails')
      *
-     *
      * @throws InconsistentCriteriaIdsException
      *
      * @return Criteria
@@ -289,7 +288,6 @@ class Criteria extends Struct
      *      'cover.media',
      *      'categories.cover.media'
      * ]);
-     *
      *
      * @throws InconsistentCriteriaIdsException
      *

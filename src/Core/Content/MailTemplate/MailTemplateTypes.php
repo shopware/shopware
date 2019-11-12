@@ -31,22 +31,22 @@ class MailTemplateTypes
     public const MAILTYPE_CUSTOMER_REGISTER = 'customer_register';
 
     public const MAILTYPE_SEPA_CONFIRMATION = 'sepa_confirmation';
-    public const MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_SHIPPED_PARTIALLY = 'state_enter.order_delivery.state.shipped_partially';
-    public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REFUNDED_PARTIALLY = 'state_enter.order_transaction.state.refunded_partially';
-    public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REMINDED = 'state_enter.order_transaction.state.reminded';
-    public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_OPEN = 'state_enter.order_transaction.state.open';
-    public const MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_RETURNED_PARTIALLY = 'state_enter.order_delivery.state.returned_partially';
-    public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_PAID = 'state_enter.order_transaction.state.paid';
-    public const MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_RETURNED = 'state_enter.order_delivery.state.returned';
-    public const MAILTYPE_STATE_ENTER_ORDER_STATE_CANCELLED = 'state_enter.order.state.cancelled';
-    public const MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_CANCELLED = 'state_enter.order_delivery.state.cancelled';
-    public const MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_SHIPPED = 'state_enter.order_delivery.state.shipped';
-    public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_CANCELLED = 'state_enter.order_transaction.state.cancelled';
-    public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REFUNDED = 'state_enter.order_transaction.state.refunded';
-    public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_PAID_PARTIALLY = 'state_enter.order_transaction.state.paid_partially';
-    public const MAILTYPE_STATE_ENTER_ORDER_STATE_OPEN = 'state_enter.order.state.open';
-    public const MAILTYPE_STATE_ENTER_ORDER_STATE_IN_PROGRESS = 'state_enter.order.state.in_progress';
-    public const MAILTYPE_STATE_ENTER_ORDER_STATE_COMPLETED = 'state_enter.order.state.completed';
+    public const MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_SHIPPED_PARTIALLY = 'order_delivery.state.shipped_partially';
+    public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REFUNDED_PARTIALLY = 'order_transaction.state.refunded_partially';
+    public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REMINDED = 'order_transaction.state.reminded';
+    public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_OPEN = 'order_transaction.state.open';
+    public const MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_RETURNED_PARTIALLY = 'order_delivery.state.returned_partially';
+    public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_PAID = 'order_transaction.state.paid';
+    public const MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_RETURNED = 'order_delivery.state.returned';
+    public const MAILTYPE_STATE_ENTER_ORDER_STATE_CANCELLED = 'order.state.cancelled';
+    public const MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_CANCELLED = 'order_delivery.state.cancelled';
+    public const MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_SHIPPED = 'order_delivery.state.shipped';
+    public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_CANCELLED = 'order_transaction.state.cancelled';
+    public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REFUNDED = 'order_transaction.state.refunded';
+    public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_PAID_PARTIALLY = 'order_transaction.state.paid_partially';
+    public const MAILTYPE_STATE_ENTER_ORDER_STATE_OPEN = 'order.state.open';
+    public const MAILTYPE_STATE_ENTER_ORDER_STATE_IN_PROGRESS = 'order.state.in_progress';
+    public const MAILTYPE_STATE_ENTER_ORDER_STATE_COMPLETED = 'order.state.completed';
 
     public const MAILTYPE_CONTACT_FORM = 'contact_form';
 }

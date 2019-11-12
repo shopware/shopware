@@ -146,6 +146,7 @@
       "labelNumber": "Number",
       "labelType": "Type",
       "labelSent": "Sent",
+      "labelAttach": "Attach",
       "labelAmount": "Amount",
       "labelDownloadPdf": "Download as PDF",
       "labelCreateNew": "Create new",
@@ -171,6 +172,9 @@
       "labelHighlightedItemsEntry":"Total",
       "labelNoItems":"No credit",
       "fileInputLabel":"Upload custom document"
+    },
+    "stateModal": {
+      "modalTitle": "Add documents"
     }
   }
 }

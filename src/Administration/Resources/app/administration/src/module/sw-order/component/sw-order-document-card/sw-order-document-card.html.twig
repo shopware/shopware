@@ -14,7 +14,7 @@
 
                         <template slot="filter">
                             {% block sw_order_document_card_header_create_document_context_button %}
-                                <sw-context-button>
+                                <sw-context-button v-if="!attachView">
 
                                     {% block sw_order_document_card_header_create_document_button %}
                                         <sw-button slot="button"
@@ -59,7 +59,7 @@
                           :fullPage="false"
                           :showSettings="false"
                           :showSelection="false"
-                          :showActions="true"
+                          :showActions="!attachView"
                           :isLoading="isLoading"
                           :allowColumnEdit="false"
                           :allowInlineEdit="false"
@@ -81,8 +81,16 @@
                     </template>
                 {% endblock %}
 
+                {% block sw_order_document_card_grid_column_attach %}
+                    <template slot="column-attach" slot-scope="{ item }" v-if="attachView">
+                        {% block sw_order_document_card_grid_column_attach_label %}
+                            <sw-data-grid-column-boolean v-model="item.attach" :isInlineEdit="true" />
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+
                 {% block sw_order_document_card_grid_actions %}
-                    <template #actions="{ item }">
+                    <template #actions="{ item }" v-if="!attachView">
                         {% block sw_order_document_card_grid_action_download %}
                             <sw-context-menu-item @click="onDownload(item.id, item.deepLinkCode)">
                                 {% block sw_order_document_card_grid_action_download_label %}

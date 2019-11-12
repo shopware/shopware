@@ -31,7 +31,8 @@ Component.register('sw-order-document-card', {
         isLoading: {
             type: Boolean,
             required: true
-        }
+        },
+        attachView: false
     },
 
     data() {
@@ -44,7 +45,8 @@ Component.register('sw-order-document-card', {
             currentDocumentType: null,
             documentNumber: null,
             documentComment: '',
-            term: ''
+            term: '',
+            attachment: {}
         };
     },
 
@@ -104,7 +106,7 @@ Component.register('sw-order-document-card', {
         },
 
         getDocumentColumns() {
-            return [{
+            const columns = [{
                 property: 'createdAt',
                 dataIndex: 'createdAt',
                 label: this.$tc('sw-order.documentCard.labelDate'),
@@ -127,6 +129,18 @@ Component.register('sw-order-document-card', {
                 allowResize: false,
                 align: 'center'
             }];
+
+            if (this.attachView) {
+                columns.push({
+                    property: 'attach',
+                    dataIndex: 'attach',
+                    label: this.$tc('sw-order.documentCard.labelAttach'),
+                    allowResize: false,
+                    align: 'center'
+                });
+            }
+
+            return columns;
         }
     },
 

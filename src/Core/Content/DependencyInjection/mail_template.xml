@@ -70,7 +70,7 @@
             <argument type="service" id="Shopware\Core\Framework\Twig\StringTemplateRenderer" />
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MessageFactory" />
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailSender" />
-            <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator" />
+            <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaRepositoryDecorator" />
             <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannelDefinition" />
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
@@ -82,6 +82,14 @@
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailService"/>
             <argument type="service" id="mail_template.repository"/>
+        </service>
+
+        <!-- Commands -->
+        <service id="Shopware\Core\Content\MailTemplate\Commands\AssignAllTemplatesToAllSalesChannelsCommand">
+            <argument type="service" id="mail_template.repository"/>
+            <argument type="service" id="sales_channel.repository"/>
+
+            <tag name="console.command"/>
         </service>
 
     </services>

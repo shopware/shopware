@@ -560,7 +560,7 @@ Add those lines to your component configuration:
 ```js
 inject: [
     'repositoryFactory',
-    'context'
+    'apiContext'
 ],
 ```
 
@@ -577,21 +577,21 @@ the `sw-entity-listing`? Right, the `repository`, thus save it as an property to
 ```
 
 Your repository provides a `search` method to actually request your repositories' data via API.
-You need to provide two parameters to the search method, a `Criteria` object and the current context.
+You need to provide two parameters to the search method, a `Criteria` object and the current apiContext.
 The `Criteria` object has to be instantiated by yourself, so you need to access it via the Shopware global object first.
 
 ```js
 const Criteria = Shopware.Data.Criteria;
 ```
 
-The latter parameter, the `context`, is part of the DI container again, since it contains session and configuration options, such as the currently active `language_id` in the
+The latter parameter, the `apiContext`, is part of the DI container again, since it contains session and configuration options, such as the currently active `language_id` in the
 administration or the path to the API.
 Inject it, just like the `repositoryFactory`:
 
 ```js
 inject: [
     'repositoryFactory',
-    'context'
+    'apiContext'
 ],
 ```
 
@@ -604,7 +604,7 @@ created() {
     this.repository = this.repositoryFactory.create('swag_bundle');
 
     this.repository
-        .search(new Criteria(), this.context)
+        .search(new Criteria(), this.apiContext)
         .then((result) => {
             this.bundles = result;
         });
@@ -1032,7 +1032,7 @@ The `bundle` property has to contain the bundle data for the current detail page
 Do you still remember how you loaded the data for your `swag-bundle-list` component?
 In short: You used `created` lifecycle hook of your component and injected the `repositoryFactory` in order to get the repository for your bundle.
 The repository then executed the `search` method to fetch **all** bundles, but you only need a single one entity this time. This is done by using the `get` method instead,
-which only needs the entity's ID and the context. The latter was also injected into your component, remember?
+which only needs the entity's ID and the apiContext. The latter was also injected into your component, remember?
 The ID can be retrieved from the route, which is available in your component like this: `this.$route.params.id`
 Once the `get` method is executed, it will return a [promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise), which
 then contains the result upon being resolved.
@@ -1047,7 +1047,7 @@ Shopware.Component.register('swag-bundle-detail', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
     
     metaInfo() {
@@ -1070,7 +1070,7 @@ Shopware.Component.register('swag-bundle-detail', {
     methods: {
         getBundle() {
             this.repository
-                .get(this.$route.params.id, this.context)
+                .get(this.$route.params.id, this.apiContext)
                 .then((entity) => {
                      this.bundle = entity;
                 });
@@ -1085,7 +1085,7 @@ Therefore the `repository` is saved as a property to the component, otherwise it
 ##### Saving the data
 
 The method `onClickSave` is executed once the user clicks the button and has to save the bundle using the repository again.
-That's where you can use the repository's `save` method, which asks for the entity itself and, again, the `context`. As always,
+That's where you can use the repository's `save` method, which asks for the entity itself and, again, the `apiContext`. As always,
 this method will return a promise upon which you can react. This time, a small error handling will be added here as well.
 You may be wondering why there is error handling when saving, but not when reading. When reading data, you're just executing this search via default
 code, most times there's no user input involved. Saving data though requires somebody to enter data, which may or may not be valid, thus the shop manager
@@ -1102,7 +1102,7 @@ Shopware.Component.register('swag-bundle-detail', {
         
         onClickSave() {
             this.repository
-                .save(this.bundle, this.context)
+                .save(this.bundle, this.apiContext)
                 .then(() => {
                     this.getBundle();
                 });
@@ -1120,7 +1120,7 @@ onClickSave() {
     this.isLoading = true;
     
     this.repository
-        .save(this.bundle, this.context)
+        .save(this.bundle, this.apiContext)
         .then(() => {
             this.getBundle();
             this.isLoading = false;
@@ -1154,7 +1154,7 @@ onClickSave() {
     this.isLoading = true;
 
     this.repository
-        .save(this.bundle, this.context)
+        .save(this.bundle, this.apiContext)
         .then(() => {
             this.getBundle();
             this.isLoading = false;
@@ -1181,7 +1181,7 @@ onClickSave() {
     ...
 
     this.repository
-        .save(this.bundle, this.context)
+        .save(this.bundle, this.apiContext)
         .then(() => {
             ...
             
@@ -1241,7 +1241,7 @@ Component.register('swag-bundle-detail', {
 
     inject: [
         'repositoryFactory',
-        'context'
+        'apiContext'
     ],
 
     mixins: [
@@ -1280,7 +1280,7 @@ Component.register('swag-bundle-detail', {
     methods: {
         getBundle() {
             this.repository
-                .get(this.$route.params.id, this.context)
+                .get(this.$route.params.id, this.apiContext)
                 .then((entity) => {
                     this.bundle = entity;
                 });
@@ -1290,7 +1290,7 @@ Component.register('swag-bundle-detail', {
             this.isLoading = true;
 
             this.repository
-                .save(this.bundle, this.context)
+                .save(this.bundle, this.apiContext)
                 .then(() => {
                     this.getBundle();
                     this.isLoading = false;
@@ -1332,13 +1332,13 @@ Shopware.Component.extend('swag-bundle-create', 'swag-bundle-detail', {
 Now go ahead and implement your own `getBundle` method. While the original `getBundle` method had to fetch an actual bundle entity by its ID,
 you only have to create a new entity in this case. This does not send any request to the API, so also no need for a promise object here.
 You create a new entity using the `create` method of a repository. It does neither require an `Criteria` instance, nor an ID to fetch any bundle.
-It only needs the context to create a new entity.
+It only needs the apiContext to create a new entity.
 
 ```js
 Shopware.Component.extend('swag-bundle-create', 'swag-bundle-detail', {
     methods: {
         getBundle() {
-            this.bundle = this.repository.create(this.context);
+            this.bundle = this.repository.create(this.apiContext);
         }
     }
 });
@@ -1354,7 +1354,7 @@ onClickSave() {
     this.isLoading = true;
 
     this.repository
-        .save(this.bundle, this.context)
+        .save(this.bundle, this.apiContext)
         .then(() => {
             this.isLoading = false;
             this.$router.push({ name: 'swag.bundle.detail', params: { id: this.bundle.id } });
@@ -1379,14 +1379,14 @@ That's how your `swag-bundle-create` should look like now:
 Shopware.Component.extend('swag-bundle-create', 'swag-bundle-detail', {
     methods: {
         getBundle() {
-            this.bundle = this.repository.create(this.context);
+            this.bundle = this.repository.create(this.apiContext);
         },
 
         onClickSave() {
             this.isLoading = true;
 
             this.repository
-                .save(this.bundle, this.context)
+                .save(this.bundle, this.apiContext)
                 .then(() => {
                     this.isLoading = false;
                     this.$router.push({ name: 'swag.bundle.detail', params: { id: this.bundle.id } });

@@ -14,7 +14,7 @@ Component.register('sw-entity-many-to-many-select', {
         event: 'change'
     },
 
-    inject: { repositoryFactory: 'repositoryFactory', adminContext: 'apiContext' },
+    inject: { repositoryFactory: 'repositoryFactory', apiContext: 'apiContext' },
 
     props: {
         labelProperty: {

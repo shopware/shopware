@@ -84,6 +84,7 @@ use SwagMigrationAssistant\Migration\DataSelection\DataSelectionInterface;
 use SwagMigrationAssistant\Migration\DataSelection\DataSelectionStruct;
 use SwagMigrationAssistant\Migration\MigrationContextInterface;
 use SwagMigrationBundleExample\Profile\Shopware\DataSelection\DataSet\BundleDataSet;
+use SwagMigrationOwnProfileExample\Profile\OwnProfile\DataSelection\DataSet\ProductDataSet;
 
 class ProductDataSelection implements DataSelectionInterface
 {
@@ -132,7 +133,7 @@ class ProductDataSelection implements DataSelectionInterface
     public function getEntityNamesRequiredForCount(): array
     {
         return [
-            BundleDataSet::getEntity(),
+            ProductDataSet::getEntity(),
         ];
     }
 }
@@ -185,7 +186,13 @@ At last you have to create the `main.js` in the `Resources/administration` direc
 ```javascript
 import enGBSnippets from './snippet/en-GB.json';
 
-Shopware.Locale.extend('en-GB', enGBSnippets);
+const { Application } = Shopware;
+
+Application.addInitializerDecorator('locale', (localeFactory) => {
+    localeFactory.extend('en-GB', enGBSnippets);
+
+    return localeFactory;
+});
 ```
 
 As you see in the code above, you register your snippet file for the `en-GB` locale. Now the count entity description
@@ -298,8 +305,6 @@ namespace SwagMigrationBundleExample\Profile\Shopware\Converter;
 use Shopware\Core\Framework\Context;
 use SwagMigrationAssistant\Migration\Converter\ConvertStruct;
 use SwagMigrationAssistant\Migration\DataSelection\DefaultEntities;
-use SwagMigrationAssistant\Migration\Logging\LoggingServiceInterface;
-use SwagMigrationAssistant\Migration\Mapping\MappingServiceInterface;
 use SwagMigrationAssistant\Migration\MigrationContextInterface;
 use SwagMigrationAssistant\Profile\Shopware\Converter\ShopwareConverter;
 use SwagMigrationAssistant\Profile\Shopware\ShopwareProfileInterface;
@@ -307,24 +312,16 @@ use SwagMigrationBundleExample\Profile\Shopware\DataSelection\DataSet\BundleData
 
 class BundleConverter extends ShopwareConverter
 {
-
-    public function __construct(
-        MappingServiceInterface $mappingService,
-        LoggingServiceInterface $loggingService
-    ) {
-        parent::__construct($mappingService, $loggingService);
-    }
-
-    public function getSourceIdentifier(array $data): string
-    {
-        return $data['id'];
-    }
-
     public function supports(MigrationContextInterface $migrationContext): bool
     {
         // Take care that you specify the supports function the same way that you have in your reader
         return $migrationContext->getProfile() instanceof ShopwareProfileInterface
             && $migrationContext->getDataSet()::getEntity() === BundleDataSet::getEntity();
+    }
+    
+    public function getSourceIdentifier(array $data): string
+    {
+        return $data['id'];
     }
 
     public function convert(array $data, Context $context, MigrationContextInterface $migrationContext): ConvertStruct
@@ -333,14 +330,14 @@ class BundleConverter extends ShopwareConverter
         $this->generateChecksum($data);
 
         // Get uuid for bundle entity out of mapping table or create a new one
-        $mainMapping = $this->mappingService->getOrCreateMapping(
+        $this->mainMapping = $this->mappingService->getOrCreateMapping(
             $migrationContext->getConnection()->getId(),
             BundleDataSet::getEntity(),
             $data['id'],
             $context,
             $this->checksum
         );
-        $converted['id'] = $mainMapping['entityUuid'];
+        $converted['id'] = $this->mainMapping['entityUuid'];
         
         // This method checks if key is available in data array and set value in converted array
         $this->convertValue($converted, 'name', $data, 'name');
@@ -364,8 +361,13 @@ class BundleConverter extends ShopwareConverter
             $data['name'],
             $data['products']
         );
+        
+        if (empty($data)) {
+            $data = null;
+        }
+        $this->updateMainMapping($migrationContext, $context);
 
-        return new ConvertStruct($converted, $data);
+        return new ConvertStruct($converted, $data, $this->mainMapping['id']);
     }
 
     /** 
@@ -377,7 +379,12 @@ class BundleConverter extends ShopwareConverter
         $products = [];
         foreach ($data['products'] as $product) {
             // Get associated uuid of product out of mapping table
-            $mapping = $this->mappingService->getMapping($connectionId, DefaultEntities::PRODUCT . '_mainProduct', $product, $context);
+            $mapping = $this->mappingService->getMapping(
+                $connectionId,
+                DefaultEntities::PRODUCT . '_mainProduct',
+                $product,
+                $context
+            );
 
             // Log missing association of product
             if ($mapping === null) {

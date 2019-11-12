@@ -22,7 +22,7 @@ This method will receive one data entry at a time. It will have to return it in 
 
 /* SwagMigrationAssistant/Profile/Shopware/Converter/ProductConverter.php */
 
-class ProductConverter extends ShopwareConverter
+abstract class ProductConverter extends ShopwareConverter
 {
     /* ... */
 
@@ -35,6 +35,7 @@ class ProductConverter extends ShopwareConverter
         MigrationContextInterface $migrationContext
     ): ConvertStruct {
         $this->context = $context;
+        $this->migrationContext = $migrationContext;
         $this->runId = $migrationContext->getRunUuid();
         $this->connectionId = $migrationContext->getConnection()->getId();
         $this->oldProductId = $data['detail']['ordernumber'];
@@ -43,14 +44,12 @@ class ProductConverter extends ShopwareConverter
 
         $fields = $this->checkForEmptyRequiredDataFields($data, $this->requiredDataFieldKeys);
         if (!empty($fields)) {
-            foreach ($fields as $field) {
-                $this->loggingService->addLogEntry(new EmptyNecessaryFieldRunLog(
-                    $this->runId,
-                    DefaultEntities::PRODUCT,
-                    $this->oldProductId,
-                    $field
-                ));
-            }
+            $this->loggingService->addLogEntry(new EmptyNecessaryFieldRunLog(
+                $this->runId,
+                DefaultEntities::PRODUCT,
+                $this->oldProductId,
+                implode(',', $fields)
+            ));
 
             return new ConvertStruct(null, $data);
         }
@@ -89,8 +88,9 @@ class ProductConverter extends ShopwareConverter
         if (empty($data)) {
             $data = null;
         }
+        $this->updateMainMapping($migrationContext, $context);
 
-        return new ConvertStruct($converted, $data);
+        return new ConvertStruct($converted, $data, $this->mainMapping['id']);
     }
     
     /* ... */
@@ -102,7 +102,7 @@ of Shopware 6 and all source system data which could not be mapped to the Shopwa
 If the required fields are not filled, the convert method returns a `ConvertStruct` without a `converted` value and the hole given
 source system data as the `unmapped` value.
 
-Also every Converter needs to implement the `getSourceIdentifier` method like below:
+Also every `Converter` needs to implement the `getSourceIdentifier` method like below:
 ```php
 /* SwagMigrationAssistant/Profile/Shopware/Converter/ProductConverter.php */
 
@@ -303,6 +303,11 @@ public function convert(
     );
 
     /* ... */
+    
+    // Important to put the mainMapping['id'] to the ConvertStruct
+    return new ConvertStruct($converted, null, $this->mainMapping['id']);
+    
+    /* ... */
 }
 ```
 
@@ -310,6 +315,8 @@ For the checksum to be saved to the right mapping, make sure that you set the `m
 Internally the checksum of the main mapping of an entity will be compared to the incoming data checksum and if it is the same
 it will be skipped by the converter and also by the writer (you will not receive the data with the same checksum in your converter).
 For more information take a look at the corresponding `filterDeltas` method in the `MigrationDataConverter` class.
+Important for the delta concept is to return the `mainMapping` with the `ConvertStruct`, this is necessary to map the converted
+data to the main mapping entry.
 
 ## Additional performance tips
 
@@ -339,5 +346,23 @@ private function getUnit(array $data): array
     $this->convertValue($unit, 'name', $data, 'description');
 
     return $unit;
+}
+```
+To save these mapping ids in the `mainMapping`, it is necessary to call the `updateMainMapping` before return the `ConvertStruct`:
+```php
+/* SwagMigrationAssistant/Profile/Shopware/Converter/ProductConverter.php */
+
+public function convert(
+    array $data,
+    Context $context,
+    MigrationContextInterface $migrationContext
+): ConvertStruct {
+    /* ... */
+    
+    $this->updateMainMapping($this->migrationContext, $this->context);
+    
+    return new ConvertStruct($converted, null, $this->mainMapping['id']);
+    
+    /* ... */
 }
 ```

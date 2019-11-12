@@ -100,4 +100,4 @@ Take a look at the following HowTos for your scenario to get a step by step tuto
 - [Extending a Shopware migration profile](./../../../4-how-to/520-extend-shopware-migration-profile.md) <- migrating your first basic plugin data (via local gateway)
 - [Extending the Migration Connector](./../../../4-how-to/530-extend-shopware-migration-connector.md) <- add API support for your migration
 - [Decorating a Shopware Migration Assistant converter](./../../../4-how-to/550-decorate-shopware-migration-converter.md) <- implement a premapping and change the behavior of an existing converter
-- [Creating a new migration profile](./../../../4-how-to/600-create-migration-profile.md) <- create a new profile from scratch to support a third party source system (other than shopware)
+- [Creating a new migration profile](./../../../4-how-to/600-create-migration-profile.md) <- create a new profile from scratch to support a third party source system (other than Shopware)

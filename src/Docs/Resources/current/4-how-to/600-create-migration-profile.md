@@ -460,9 +460,7 @@ class ProductDataSelection implements DataSelectionInterface
 
     public function getEntityNamesRequiredForCount(): array
     {
-        return [
-            ProductDataSet::getEntity(),
-        ];
+        return $this->getEntityNames();
     }
 }
 ```
@@ -674,12 +672,9 @@ By using the gateway reader, you fetch all products, but don't use this data yet
 
 namespace SwagMigrationOwnProfileExample\Profile\OwnProfile\Converter;
 
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use SwagMigrationAssistant\Migration\Converter\ConvertStruct;
 use SwagMigrationAssistant\Migration\DataSelection\DefaultEntities;
-use SwagMigrationAssistant\Migration\Logging\LoggingServiceInterface;
-use SwagMigrationAssistant\Migration\Mapping\MappingServiceInterface;
 use SwagMigrationAssistant\Migration\MigrationContextInterface;
 use SwagMigrationAssistant\Profile\Shopware\Converter\ShopwareConverter;
 use SwagMigrationOwnProfileExample\Profile\OwnProfile\DataSelection\DataSet\ProductDataSet;
@@ -696,13 +691,6 @@ class ProductConverter extends ShopwareConverter
      * @var Context
      */
     private $context;
-
-    public function __construct(
-        MappingServiceInterface $mappingService,
-        LoggingServiceInterface $loggingService
-    ) {
-        parent::__construct($mappingService, $loggingService);
-    }
 
     public function getSourceIdentifier(array $data): string
     {
@@ -735,7 +723,7 @@ class ProductConverter extends ShopwareConverter
         /**
          * Gets the product uuid out of the mapping table or creates a new one
          */
-        $mainMapping = $this->mappingService->getOrCreateMapping(
+        $this->mainMapping = $this->mappingService->getOrCreateMapping(
             $migrationContext->getConnection()->getId(),
             ProductDataSet::getEntity(),
             $data['id'],
@@ -743,7 +731,7 @@ class ProductConverter extends ShopwareConverter
             $this->checksum
         );
 
-        $converted['id'] = $mainMapping['entityUuid'];
+        $converted['id'] = $this->mainMapping['entityUuid'];
         $this->convertValue($converted, 'productNumber', $data, 'product_number');
         $this->convertValue($converted, 'name', $data, 'product_name');
         $this->convertValue($converted, 'stock', $data, 'stock', self::TYPE_INTEGER);
@@ -765,8 +753,9 @@ class ProductConverter extends ShopwareConverter
         if (empty($data)) {
             $data = null;
         }
+        $this->updateMainMapping($migrationContext, $context);
 
-        return new ConvertStruct($converted, $data);
+        return new ConvertStruct($converted, $data, $this->mainMapping['id']);
     }
 
     private function getTax(array $data): array
@@ -781,12 +770,11 @@ class ProductConverter extends ShopwareConverter
         /**
          * If no tax rate is found, create a new one
          */
-        if (empty($taxUuid)) {
+        if ($taxUuid === null) {
             $mapping = $this->mappingService->createMapping(
                 $this->connectionId,
                 DefaultEntities::TAX,
-                $data['id'],
-                $this->context
+                $data['id']
             );
             $taxUuid = $mapping['entityUuid'];
         }

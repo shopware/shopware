@@ -73,29 +73,29 @@ To get the associated new identifier, you can make use of the `MappingService` s
 /* ... */
 
 protected function getSalutation(string $salutation): ?string
-    {
-        $mapping = $this->mappingService->getMapping(
-            $this->connectionId,
-            SalutationReader::getMappingName(),
+{
+    $mapping = $this->mappingService->getMapping(
+        $this->connectionId,
+        SalutationReader::getMappingName(),
+        $salutation,
+        $this->context
+    );
+
+    if ($mapping === null) {
+        $this->loggingService->addLogEntry(new UnknownEntityLog(
+            $this->runId,
+            DefaultEntities::SALUTATION,
             $salutation,
-            $this->context
-        );
+            DefaultEntities::CUSTOMER,
+            $this->oldCustomerId
+        ));
 
-        if ($mapping === null) {
-            $this->loggingService->addLogEntry(new UnknownEntityLog(
-                $this->runId,
-                DefaultEntities::SALUTATION,
-                $salutation,
-                DefaultEntities::CUSTOMER,
-                $this->oldCustomerId
-            ));
-
-            return null;
-        }
-        $this->mappingIds[] = $mapping['id'];
-
-        return $mapping['entityUuid'];
+        return null;
     }
+    $this->mappingIds[] = $mapping['id'];
+
+    return $mapping['entityUuid'];
+}
 
 /* ... */
 ```
@@ -103,4 +103,6 @@ The `getMapping` method used in the mapping service looks up the `swag_migration
 old identifier and entity name stored in the current connection.
 Then it returns the mapping object, which contains the new Shopware 6 identifier.
 With this identifier it is possible to map your converted entity to your premapping choice. If `getMapping` returns null,
-then no valid mapping is available and you have to log this with [LoggingService](./071-logging.md).
+then no valid mapping is available and you have to log this with [LoggingService](./071-logging.md). The mapping object has
+two keys: `id` and `entityUuid`. The `id` key is the identifier of the `swag_migration_mapping` entry
+and have to be inserted in the `mappingIds`, if the mapping should be preloaded. The `entityUuid` key is the UUID of the mapped entity.

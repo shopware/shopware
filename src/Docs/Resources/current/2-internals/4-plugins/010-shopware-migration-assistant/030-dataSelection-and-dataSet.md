@@ -17,6 +17,7 @@ Each `DataSelection` consists of one or more `DataSets`:
 ```
 The order of the `DataSets` in the `DataSelection` class is important and specifies the processing order.
 `DataSelection` also holds a position specifying the order applied when migrating (lower numbers are migrated earlier).
+The `getEntityNamesRequiredForCount` method returns a array of all entities, which count should be displayed in the administration.
 
 `DataSelection` example:
 ```php
@@ -55,7 +56,7 @@ class ProductDataSelection implements DataSelectionInterface
             100, // The position of the dataSelection
             true, // Is process-media needed (to download / copy images for example),
             DataSelectionStruct::BASIC_DATA_TYPE, // specify the type of data (core data or plugin data)
-            false // Is the selection required for every migration? (the user can't unselect this data selection)
+            true // Is the selection required for every migration? (the user can't unselect this data selection)
         );
     }
 
@@ -139,7 +140,7 @@ The `dataSelections` are registered the following way:
 </service>
 ```
 
-It is also possible to specify the same DataSets in multiple DataSelections (which should be only done if not possible otherwise).
+It is also possible to specify the same `DataSets` in multiple `DataSelections` (which should be only done if not possible otherwise).
 Have a look at the `ProductReviewDataSelection`:
 ```php
 <?php declare(strict_types=1);
@@ -210,5 +211,5 @@ class ProductReviewDataSelection implements DataSelectionInterface
     }
 }
 ```
-There are duplicate DataSets from the ProductDataSelection (because they are also required if the user does not select the product DataSelection).
-If the user selects both, this DataSets will be only migrated once (with their first occurrence).
+There are duplicate DataSets from the `ProductDataSelection`, because they are also required if the user does not select the product `DataSelection`.
+If the user selects both, this `DataSets` will be only migrated once (with their first occurrence).

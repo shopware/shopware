@@ -27,6 +27,7 @@
             <label lang="de-DE">Adresse</label>
             <placeholder>Enter address...</placeholder>
             <placeholder lang="de-DE">Adresse eingeben ...</placeholder>
+            <placeholder lang="de-DE">Adresse eingeben ...</placeholder>
         </input-field>
 
         <input-field type="textarea">
@@ -55,32 +56,50 @@
             <name>tosPage</name>
             <entity>cms_page</entity>
             <pageType>page</pageType>
-            <label>Shop page for terms of service</label>
-            <label lang="de-DE">Shopseite für AGB</label>
+            <label>Shop page layout assignment for terms of service</label>
+            <label lang="de-DE">Shopseiten-Layout Zuweisung für AGB</label>
+            <placeholder>Select layout</placeholder>
+            <placeholder lang="de-DE">Layout auswählen</placeholder>
         </component>
 
         <component name="sw-cms-page-select">
             <name>revocationPage</name>
             <entity>cms_page</entity>
             <pageType>page</pageType>
-            <label>Shop page for revocation notice</label>
-            <label lang="de-DE">Shopseite für Widerrufsbelehrung</label>
+            <label>Shop page layout assignment for revocation notice</label>
+            <label lang="de-DE">Shopseiten-Layout Zuweisung für Widerrufsbelehrung</label>
+            <placeholder>Select layout</placeholder>
+            <placeholder lang="de-DE">Layout auswählen</placeholder>
         </component>
 
         <component name="sw-cms-page-select">
             <name>shippingPaymentInfoPage</name>
             <entity>cms_page</entity>
             <pageType>page</pageType>
-            <label>Shop page for shipping and payment info</label>
-            <label lang="de-DE">Shopseite für Versand- und Zahlungsarten</label>
+            <label>Shop page layout assignment for shipping and payment info</label>
+            <label lang="de-DE">Shopseiten-Layout Zuweisung für Versand- und Zahlungsarten</label>
+            <placeholder>Select layout</placeholder>
+            <placeholder lang="de-DE">Layout auswählen</placeholder>
         </component>
 
         <component name="sw-cms-page-select">
             <name>privacyPage</name>
             <entity>cms_page</entity>
             <pageType>page</pageType>
-            <label>Shop page for privacy</label>
-            <label lang="de-DE">Shopseite für Datenschutz</label>
+            <label>Shop page layout assignment for privacy</label>
+            <label lang="de-DE">Shopseiten-Layout Zuweisung für Datenschutz</label>
+            <placeholder>Select layout</placeholder>
+            <placeholder lang="de-DE">Layout auswählen</placeholder>
+        </component>
+
+        <component name="sw-cms-page-select">
+            <name>404Page</name>
+            <entity>cms_page</entity>
+            <pageType>page</pageType>
+            <label>Shop page layout assignment for 404 not found</label>
+            <label lang="de-DE">Shopseiten-Layout Zuweisung für 404 nicht gefunden</label>
+            <placeholder>Select layout</placeholder>
+            <placeholder lang="de-DE">Layout auswählen</placeholder>
         </component>
     </card>
 </config>

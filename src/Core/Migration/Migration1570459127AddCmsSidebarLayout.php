@@ -22,7 +22,6 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 
     private function addFilterPanelToDefault(Connection $connection): void

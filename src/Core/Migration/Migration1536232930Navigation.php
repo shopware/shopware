@@ -60,6 +60,5 @@ class Migration1536232930Navigation extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

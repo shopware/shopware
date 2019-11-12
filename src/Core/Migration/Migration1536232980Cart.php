@@ -47,6 +47,5 @@ class Migration1536232980Cart extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

@@ -39,6 +39,5 @@ class Migration1571059598ChangeGreatBritainToUnitedKingdom extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

@@ -30,6 +30,5 @@ class Migration1555406153SalesChannelTheme extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

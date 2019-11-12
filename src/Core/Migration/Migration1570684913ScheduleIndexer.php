@@ -39,6 +39,5 @@ class Migration1570684913ScheduleIndexer extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

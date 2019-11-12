@@ -12,7 +12,7 @@ class BasicDataUntouchedTest extends TestCase
     public function testBasicDataUntouched(): void
     {
         static::assertSame(
-            '95a362e0da1a47148b9db84cb5ee4af87272110f',
+            '26b1b1e446693e9e37ff64b36c8b7c3248e3bbb3',
             sha1_file(TEST_PROJECT_DIR . '/platform/src/Core/Migration/Migration1536233560BasicData.php'),
             'BasicData migration has changed. This is not allowed.'
         );

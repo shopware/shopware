@@ -27,6 +27,5 @@ class Migration1563288227MarkAsNewConfig extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

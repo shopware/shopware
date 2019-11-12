@@ -46,6 +46,5 @@ class Migration1536232630PropertyGroup extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

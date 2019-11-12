@@ -56,6 +56,5 @@ class Migration1536232990Order extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

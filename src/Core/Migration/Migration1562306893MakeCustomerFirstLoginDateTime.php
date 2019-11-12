@@ -22,6 +22,5 @@ class Migration1562306893MakeCustomerFirstLoginDateTime extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

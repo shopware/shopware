@@ -19,6 +19,5 @@ class Migration1562841035AddProductChildCount extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

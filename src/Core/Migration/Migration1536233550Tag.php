@@ -114,6 +114,5 @@ class Migration1536233550Tag extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

@@ -23,6 +23,5 @@ class Migration1572858066UpdateDefaultCategorySeoUrlTemplate extends MigrationSt
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

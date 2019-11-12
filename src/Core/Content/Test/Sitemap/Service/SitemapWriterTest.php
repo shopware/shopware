@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use function sprintf;
 use function stream_get_contents;
 use function tmpfile;
 
@@ -103,7 +104,7 @@ class SitemapWriterTest extends TestCase
         /** @var string $content */
         $content = $this->extractGZStream($this->testOutputGZFilename);
 
-        $expected = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://shopware.com</loc><lastmod>2019-11-07</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url></urlset>';
+        $expected = sprintf('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://shopware.com</loc><lastmod>%s</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url></urlset>', (new \DateTime())->format('Y-m-d'));
         static::assertSame($expected, $content);
     }
 

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Sitemap\Commands;
 
 use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporterInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -12,6 +13,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use function sprintf;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -80,6 +82,7 @@ class SitemapGenerateCommand extends Command
         if ($salesChannelId) {
             $criteria = new Criteria([$salesChannelId]);
             $criteria->addAssociation('domains');
+            $criteria->addAssociation('type');
             $salesChannels = $this->salesChannelRepository->search($criteria, $context);
 
             if ($salesChannels->count() === 0) {
@@ -88,11 +91,17 @@ class SitemapGenerateCommand extends Command
         } else {
             $criteria = new Criteria();
             $criteria->addAssociation('domains');
+            $criteria->addAssociation('type');
             $salesChannels = $this->salesChannelRepository->search($criteria, $context)->getEntities();
         }
 
         /** @var SalesChannelEntity $salesChannel */
         foreach ($salesChannels as $salesChannel) {
+            if ($salesChannel->getType()->getId() === Defaults::SALES_CHANNEL_TYPE_API) {
+                $output->writeln(sprintf('ignored headless sales channel %s (%s)', $salesChannel->getId(), $salesChannel->getName()));
+                continue;
+            }
+
             if (\count($salesChannel->getDomains()) === 0) {
                 $languageIds = [$salesChannel->getLanguageId()];
             } else {
@@ -103,7 +112,7 @@ class SitemapGenerateCommand extends Command
 
             foreach ($languageIds as $languageId) {
                 $salesChannelContext = $this->salesChannelContextFactory->create('', $salesChannel->getId(), [SalesChannelContextService::LANGUAGE_ID => $languageId]);
-                $output->writeln(sprintf('Generating sitemaps for sales channel #%s (%s) and language %s...', $salesChannel->getId(), $salesChannel->getName(), $languageId));
+                $output->writeln(sprintf('Generating sitemaps for sales channel %s (%s) and language %s...', $salesChannel->getId(), $salesChannel->getName(), $languageId));
 
                 try {
                     $this->generateSitemap($salesChannelContext, $input->getOption('force'));

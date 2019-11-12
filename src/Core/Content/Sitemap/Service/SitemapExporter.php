@@ -196,8 +196,14 @@ class SitemapExporter implements SitemapExporterInterface
     private function getHost(SalesChannelContext $salesChannelContext): string
     {
         $domains = $salesChannelContext->getSalesChannel()->getDomains();
-        if ($domains instanceof SalesChannelDomainCollection && $domains->count() > 0) {
-            return $domains->first()->getUrl();
+        $languageId = $salesChannelContext->getSalesChannel()->getLanguageId();
+
+        if ($domains instanceof SalesChannelDomainCollection) {
+            foreach ($domains as $domain) {
+                if ($domain->getLanguageId() === $languageId) {
+                    return $domain->getUrl();
+                }
+            }
         }
 
         return '';

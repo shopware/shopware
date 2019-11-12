@@ -7,6 +7,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Sitemap\Provider\CategoryUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -91,6 +92,10 @@ class CategoryUrlProviderTest extends TestCase
 
     private function getCategoryUrlProvider(): CategoryUrlProvider
     {
-        return new CategoryUrlProvider($this->categorySalesChannelRepository, $this->getContainer()->get('router.default'), $this->getContainer()->get(ConfigHandler::class));
+        return new CategoryUrlProvider(
+            $this->categorySalesChannelRepository,
+            $this->getContainer()->get(ConfigHandler::class),
+            $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class)
+        );
     }
 }

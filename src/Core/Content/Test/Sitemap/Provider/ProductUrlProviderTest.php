@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Sitemap\Provider\ProductUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -74,7 +75,11 @@ class ProductUrlProviderTest extends TestCase
 
     private function getProductUrlProvider(): ProductUrlProvider
     {
-        return new ProductUrlProvider($this->productSalesChannelRepository, $this->getContainer()->get('router.default'), $this->getContainer()->get(ConfigHandler::class));
+        return new ProductUrlProvider(
+            $this->productSalesChannelRepository,
+            $this->getContainer()->get(ConfigHandler::class),
+            $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class)
+        );
     }
 
     private function createProducts(): void

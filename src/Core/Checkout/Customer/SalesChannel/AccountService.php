@@ -4,15 +4,19 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Composer\Semver\Constraint\ConstraintInterface;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
+use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerChangedPaymentMethodEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
+use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
+use Shopware\Core\Checkout\Customer\Exception\CustomerRecoveryHashExpiredException;
 use Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches;
@@ -21,10 +25,12 @@ use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\DataMappingEvent;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
@@ -38,6 +44,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\Length;
@@ -56,6 +64,11 @@ class AccountService
      * @var EntityRepositoryInterface
      */
     private $customerRepository;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $customerRecoveryRepository;
 
     /**
      * @var SalesChannelContextPersister
@@ -92,19 +105,27 @@ class AccountService
      */
     private $systemConfigService;
 
+    /**
+     * @var RouterInterface
+     */
+    private $router;
+
     public function __construct(
         EntityRepositoryInterface $customerAddressRepository,
         EntityRepositoryInterface $customerRepository,
+        EntityRepositoryInterface $customerRecoveryRepository,
         SalesChannelContextPersister $contextPersister,
         EventDispatcherInterface $eventDispatcher,
         DataValidator $validator,
         CustomerProfileValidationService $customerProfileValidationService,
         LegacyPasswordVerifier $legacyPasswordVerifier,
         EntityRepositoryInterface $paymentMethodRepository,
-        SystemConfigService $systemConfigService
+        SystemConfigService $systemConfigService,
+        RouterInterface $router
     ) {
         $this->customerAddressRepository = $customerAddressRepository;
         $this->customerRepository = $customerRepository;
+        $this->customerRecoveryRepository = $customerRecoveryRepository;
         $this->contextPersister = $contextPersister;
         $this->eventDispatcher = $eventDispatcher;
         $this->validator = $validator;
@@ -112,6 +133,7 @@ class AccountService
         $this->customerProfileValidationService = $customerProfileValidationService;
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->systemConfigService = $systemConfigService;
+        $this->router = $router;
     }
 
     /**
@@ -200,6 +222,109 @@ class AccountService
         ];
 
         $this->customerRepository->update([$customerData], $context->getContext());
+    }
+
+    /**
+     * @throws CustomerNotFoundException
+     * @throws InconsistentCriteriaIdsException
+     */
+    public function generateAccountRecovery(DataBag $data, SalesChannelContext $context): void
+    {
+        $this->validateRecoverEmail($data, $context);
+
+        try {
+            $customer = $this->getCustomerByEmail($data->get('email'), $context);
+        } catch (CustomerNotFoundException $exception) {
+            throw new CustomerNotFoundException($exception->getMessage());
+        }
+
+        $customerId = $customer->getId();
+
+        $customerIdCriteria = new Criteria();
+        $customerIdCriteria->addFilter(new EqualsFilter('customerId', $customerId));
+        $customerIdCriteria->addAssociation('customer');
+
+        $repoContext = $context->getContext();
+
+        if ($existingRecovery = $this->getCustomerRecovery($customerIdCriteria, $repoContext)) {
+            $this->deleteRecoveryForCustomer($existingRecovery, $repoContext);
+        }
+
+        $recoveryData = [
+            'customerId' => $customerId,
+            'hash' => Random::getAlphanumericString(32),
+        ];
+
+        $this->customerRecoveryRepository->create([$recoveryData], $repoContext);
+
+        $customerRecovery = $this->getCustomerRecovery($customerIdCriteria, $repoContext);
+
+        if (!$customerRecovery) {
+            return;
+        }
+
+        $hash = $customerRecovery->getHash();
+        $recoverUrl = $this->router->generate('frontend.account.recover.password.page', ['hash' => $hash], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        $event = new CustomerAccountRecoverRequestEvent($context, $customerRecovery, $recoverUrl);
+        $this->eventDispatcher->dispatch($event, CustomerAccountRecoverRequestEvent::EVENT_NAME);
+    }
+
+    /**
+     * @throws InconsistentCriteriaIdsException
+     * @throws ConstraintViolationException
+     * @throws CustomerNotFoundByHashException
+     * @throws CustomerRecoveryHashExpiredException
+     */
+    public function resetPassword(DataBag $data, SalesChannelContext $context): bool
+    {
+        $this->validateResetPassword($data, $context);
+
+        $hash = $data->get('hash');
+
+        if (!$this->checkHash($hash, $context->getContext())) {
+            throw new CustomerRecoveryHashExpiredException($hash);
+        }
+
+        $customerHashCriteria = new Criteria();
+        $customerHashCriteria->addFilter(new EqualsFilter('hash', $hash));
+        $customerHashCriteria->addAssociation('customer');
+
+        $customerRecovery = $this->getCustomerRecovery($customerHashCriteria, $context->getContext());
+
+        if (!$customerRecovery) {
+            throw new CustomerNotFoundByHashException($hash);
+        }
+
+        $customer = $customerRecovery->getCustomer();
+
+        if (!$customer) {
+            throw new CustomerNotFoundByHashException($hash);
+        }
+
+        $customerData = [
+            'id' => $customer->getId(),
+            'password' => $data->get('newPassword'),
+        ];
+
+        $this->customerRepository->update([$customerData], $context->getContext());
+        $this->deleteRecoveryForCustomer($customerRecovery, $context->getContext());
+
+        return true;
+    }
+
+    public function checkHash(string $hash, Context $context): bool
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new EqualsFilter('hash', $hash)
+        );
+
+        $recovery = $this->getCustomerRecovery($criteria, $context);
+
+        $validDateTime = (new \DateTime())->sub(new \DateInterval('PT2H'));
+
+        return $recovery && $validDateTime < $recovery->getCreatedAt();
     }
 
     /**
@@ -386,6 +511,39 @@ class AccountService
         return $customer;
     }
 
+    public function getCustomerRecovery(Criteria $criteria, Context $context): ?CustomerRecoveryEntity
+    {
+        return $this->customerRecoveryRepository->search($criteria, $context)->first();
+    }
+
+    /**
+     * @throws ConstraintViolationException
+     */
+    private function validateResetPassword(DataBag $data, SalesChannelContext $context): void
+    {
+        /** @var DataValidationDefinition $definition */
+        $definition = new DataValidationDefinition('customer.password.update');
+
+        $minPasswordLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength');
+
+        $definition->add('newPassword', new NotBlank(), new Length(['min' => $minPasswordLength]), new EqualTo(['propertyPath' => 'newPasswordConfirm']));
+
+        $this->dispatchValidationEvent($definition, $context->getContext());
+
+        $this->validator->validate($data->all(), $definition);
+
+        $this->tryValidateEqualtoConstraint($data->all(), 'newPassword', $definition);
+    }
+
+    private function deleteRecoveryForCustomer(CustomerRecoveryEntity $existingRecovery, Context $context): void
+    {
+        $recoveryData = [
+            'id' => $existingRecovery->getId(),
+        ];
+
+        $this->customerRecoveryRepository->delete([$recoveryData], $context);
+    }
+
     private function validateEmail(DataBag $data, SalesChannelContext $context): void
     {
         $validation = new DataValidationDefinition('customer.email.update');
@@ -398,6 +556,23 @@ class AccountService
                 new CustomerEmailUnique(['context' => $context->getContext()])
             )
             ->add('password', new CustomerPasswordMatches(['context' => $context]));
+
+        $this->dispatchValidationEvent($validation, $context->getContext());
+
+        $this->validator->validate($data->all(), $validation);
+
+        $this->tryValidateEqualtoConstraint($data->all(), 'email', $validation);
+    }
+
+    private function validateRecoverEmail(DataBag $data, SalesChannelContext $context): void
+    {
+        $validation = new DataValidationDefinition('customer.email.recover');
+
+        $validation
+            ->add(
+                'email',
+                new Email()
+            );
 
         $this->dispatchValidationEvent($validation, $context->getContext());
 

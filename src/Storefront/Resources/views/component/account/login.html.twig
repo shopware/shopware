@@ -88,8 +88,14 @@
                         </div>
                     {% endblock %}
 
-                    {% block component_account_login_password_lost %}
-                        {#TODO: NEXT-2785 - add password lost link#}
+                    {% block component_account_login_password_recover %}
+                        <div class="login-password-recover">
+                            {% block component_account_login_password_recover_link %}
+                                <a href="{{ seoUrl('frontend.account.recover.page') }}">
+                                    {{ 'account.loginPasswordRecover'|trans }}
+                                </a>
+                            {% endblock %}
+                        </div>
                     {% endblock %}
 
                     {% block component_account_login_submit %}

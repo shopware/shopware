@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 trait MailTemplateTestBehaviour
 {
@@ -14,6 +16,12 @@ trait MailTemplateTestBehaviour
         $mailTemplates = $mailTemplateRepository->search(new Criteria(), $context);
 
         $mailTemplatesArray = [];
+
+        $this->getContainer()
+            ->get(Connection::class)
+            ->executeUpdate('DELETE FROM mail_template_sales_channel WHERE sales_channel_id = :id', [
+                'id' => Uuid::fromHexToBytes($salesChannelId),
+            ]);
 
         /** @var MailTemplateEntity $mailTemplate */
         foreach ($mailTemplates as $mailTemplate) {

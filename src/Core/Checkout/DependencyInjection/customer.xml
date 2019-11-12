@@ -18,6 +18,10 @@
             <tag name="shopware.entity.definition" entity="customer_address"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryDefinition">
+            <tag name="shopware.entity.definition" entity="customer_recovery"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition">
             <tag name="shopware.entity.definition" entity="customer_group"/>
         </service>
@@ -29,6 +33,7 @@
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService">
             <argument type="service" id="customer_address.repository"/>
             <argument type="service" id="customer.repository"/>
+            <argument type="service" id="customer_recovery.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
@@ -36,6 +41,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier"/>
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="router"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\SalesChannelCustomerController" public="true">

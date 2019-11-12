@@ -5,23 +5,23 @@ namespace Shopware\Core\Checkout\Customer\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-class CustomerNotFoundException extends ShopwareHttpException
+class CustomerRecoveryHashExpiredException extends ShopwareHttpException
 {
-    public function __construct(string $email)
+    public function __construct(string $hash)
     {
         parent::__construct(
-            'No matching customer for the email "{{ email }}" was found.',
-            ['email' => $email]
+            'The hash "{{ hash }}" is expired.',
+            ['hash' => $hash]
         );
     }
 
     public function getErrorCode(): string
     {
-        return 'CHECKOUT__CUSTOMER_NOT_FOUND';
+        return 'CHECKOUT__CUSTOMER_RECOVERY_HASH_EXPIRED';
     }
 
     public function getStatusCode(): int
     {
-        return Response::HTTP_NOT_FOUND;
+        return Response::HTTP_GONE;
     }
 }

@@ -60,7 +60,7 @@ const modules = {
             ],
         },
         {
-            test: /\.(woff(2)?|ttf|eot|svg|otf)(\?v=\d+\.\d+\.\d+)?$/,
+            test: /\.(woff(2)?|ttf|eot|svg|otf)$/,
             use: [
                 {
                     loader: 'file-loader',

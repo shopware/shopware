@@ -6,8 +6,8 @@ use Composer\Autoload\ClassLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Test\Filesystem\Adapter\MemoryAdapterFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Component\DependencyInjection\ResettableContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 class KernelLifecycleManager
 {
@@ -70,7 +70,7 @@ class KernelLifecycleManager
      */
     public static function bootKernel(): KernelInterface
     {
-        static::ensureKernelShutdown();
+        self::ensureKernelShutdown();
 
         static::$kernel = static::createKernel();
         static::$kernel->boot();
@@ -155,8 +155,10 @@ class KernelLifecycleManager
         $container = static::$kernel->getContainer();
         static::$kernel->shutdown();
 
-        if ($container instanceof ResettableContainerInterface) {
+        if ($container instanceof ResetInterface) {
             $container->reset();
         }
+
+        static::$kernel = null;
     }
 }

@@ -14,15 +14,15 @@
     "minimum-stability": "dev",
     "require": {
         "ext-curl": "*",
-        "doctrine/dbal": "2.9.2",
-        "elasticsearch/elasticsearch": "7.2.1",
-        "ongr/elasticsearch-dsl": "6.0.3",
+        "doctrine/dbal": "2.10.0",
+        "elasticsearch/elasticsearch": "7.2.2",
+        "ongr/elasticsearch-dsl": "6.0.4",
         "shopware/core": "*",
-        "symfony/http-foundation": "4.3.5",
-        "symfony/messenger": "4.3.5"
+        "symfony/http-foundation": "4.3.7",
+        "symfony/messenger": "4.3.7"
     },
     "require-dev": {
-        "symfony/dependency-injection": "4.3.5",
-        "phpunit/phpunit": "8.4.0"
+        "symfony/dependency-injection": "4.3.7",
+        "phpunit/phpunit": "8.4.3"
     }
 }

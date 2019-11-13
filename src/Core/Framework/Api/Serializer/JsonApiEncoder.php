@@ -60,8 +60,9 @@ class JsonApiEncoder
 
     protected function serializeEntity(Entity $entity, EntityDefinition $definition, JsonApiEncodingResult $result, bool $isRelationship = false): void
     {
-        $included = $result->contains($entity->getUniqueIdentifier(), $definition->getEntityName());
-        if ($included) {
+        if ($result->containsInData($entity->getUniqueIdentifier(), $definition->getEntityName())
+            || ($isRelationship && $result->containsInIncluded($entity->getUniqueIdentifier(), $definition->getEntityName()))
+        ) {
             return;
         }
 

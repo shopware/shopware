@@ -4,5 +4,4 @@ namespace Shopware\Storefront\Framework;
 
 interface ThemeInterface
 {
-    public function getThemeConfigPath(): ?string;
 }

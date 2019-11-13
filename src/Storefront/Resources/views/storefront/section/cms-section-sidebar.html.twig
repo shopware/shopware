@@ -1,0 +1,32 @@
+{% block page_content_section_sidebar %}
+    {% set sectionMobileBehaviorClass = 'cms-section-sidebar-mobile-' ~ section.mobileBehavior %}
+    {% set layout = section.sizingMode ? section.sizingMode|replace({"_": "-"}) : "container" %}
+
+    <div class="cms-section-sidebar {{ sectionMobileBehaviorClass }} {{ layout }} row">
+
+        {% set sidebarBlocks = section.blocks.filterBySectionPosition('sidebar') %}
+        {% set mainContentBlocks = section.blocks.filterBySectionPosition('main') %}
+
+        {% block section_sidebar_content %}
+            <div class="cms-section-sidebar-sidebar-content col-lg-4 col-xl-3">
+
+                {% for block in sidebarBlocks %}
+                    {% block section_sidebar_content_block %}
+                        {% sw_include "@Storefront/storefront/section/cms-section-block-container.html.twig" %}
+                    {% endblock %}
+                {% endfor %}
+            </div>
+        {% endblock %}
+
+        {% block section_main_content %}
+            <div class="cms-section-sidebar-main-content col-lg-8 col-xl-9">
+
+                {% for block in mainContentBlocks %}
+                    {% block section_main_content_block %}
+                        {% sw_include "@Storefront/storefront/section/cms-section-block-container.html.twig" %}
+                    {% endblock %}
+                {% endfor %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

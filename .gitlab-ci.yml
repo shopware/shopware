@@ -57,11 +57,11 @@ Javascript analysis:
         - cd src/Administration/Resources
         - npm clean-install
         - npm run lerna -- bootstrap
-        - cd administration
+        - cd app/administration
         - PROJECT_ROOT=$(pwd) node_modules/.bin/eslint --ext .js,.vue --format junit src test > eslint.junit.xml
     artifacts:
         reports:
-            junit: src/Administration/Resources/administration/eslint.junit.xml
+            junit: src/Administration/Resources/app/administration/eslint.junit.xml
 
 PHP analysis:
     stage: Static analysis
@@ -224,7 +224,7 @@ Storefront (Jest):
     script:
         - ./psh.phar init
         - ./psh.phar storefront:install-dependencies
-        - npm --prefix vendor/shopware/platform/src/Storefront/Resources/ run unit
+        - npm --prefix vendor/shopware/platform/src/Storefront/Resources/app/storefront/ run unit
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
     artifacts:
         reports:
@@ -354,8 +354,8 @@ Component Library:
     script:
         - npm install --prefix src/Administration/Resources/
         - npm run --prefix src/Administration/Resources lerna -- bootstrap
-        - npm install --prefix src/Administration/Resources/administration/build/nuxt-component-library/
-        - npm run --prefix src/Administration/Resources/administration/build/nuxt-component-library/ generate
+        - npm install --prefix src/Administration/Resources/app/administration/build/nuxt-component-library/
+        - npm run --prefix src/Administration/Resources/app/administration/build/nuxt-component-library/ generate
         - "[[ -d build/artifacts/component-library/ ]] && (ls -1qA build/artifacts/component-library/ | grep -q .)"
     artifacts:
         paths:

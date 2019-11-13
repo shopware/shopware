@@ -100,7 +100,7 @@ class CheckoutController extends StorefrontController
     {
         $page = $this->cartPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/checkout/cart/index.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/storefront/page/checkout/cart/index.html.twig', ['page' => $page]);
     }
 
     /**
@@ -118,7 +118,7 @@ class CheckoutController extends StorefrontController
 
         $page = $this->confirmPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/checkout/confirm/index.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/storefront/page/checkout/confirm/index.html.twig', ['page' => $page]);
     }
 
     /**
@@ -136,7 +136,7 @@ class CheckoutController extends StorefrontController
 
         $page = $this->finishPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/checkout/finish/index.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/storefront/page/checkout/finish/index.html.twig', ['page' => $page]);
     }
 
     /**
@@ -182,7 +182,7 @@ class CheckoutController extends StorefrontController
     {
         $page = $this->offcanvasCartPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/layout/header/actions/cart-widget.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/storefront/layout/header/actions/cart-widget.html.twig', ['page' => $page]);
     }
 
     /**
@@ -194,7 +194,7 @@ class CheckoutController extends StorefrontController
     {
         $page = $this->offcanvasCartPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/component/checkout/offcanvas-cart.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/storefront/component/checkout/offcanvas-cart.html.twig', ['page' => $page]);
     }
 
     private function addAffiliateTracking(string $orderId, Request $request, SalesChannelContext $context): void

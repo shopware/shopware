@@ -14,8 +14,8 @@ Of course any Shopware 6 specific code will be explained, don't worry about that
 ### Setting up the the administration
 
 Each plugin has a main entry point to add custom javascript code to the administration. By default, Shopware 6 is looking for a 
-`main.js` file inside a `Resources/administration` directory in your plugin.
-Thus, create a new file `main.js` in the directory `<plugin root>/src/Resources/administration`. That's it, this file will now be considered when building
+`main.js` file inside a `Resources/app/administration` directory in your plugin.
+Thus, create a new file `main.js` in the directory `<plugin root>/src/Resources/app/administration`. That's it, this file will now be considered when building
 the administration.
 
 ### Setting up a new module
@@ -24,7 +24,7 @@ You want to have your very own menu entry in the administration, which then shou
 In the `Administration` core code, each module is defined in a directory called `module`, so simply stick to it.
 Inside of the `module` directory lies the list of several modules, each having their own directory named after the module itself. Makes sense, right?
 
-So, go ahead and create a new directory `<plugin root>/src/Resources/administration/module/swag-bundle`, so you can store your own modules files in there.
+So, go ahead and create a new directory `<plugin root>/src/Resources/app/administration/module/swag-bundle`, so you can store your own modules files in there.
 Right afterwards create a new file called `index.js` in there. This is necessary, because Shopware 6 is automatically requiring an `index.js` file
 for each module. Consider it to be the main file for your custom module.
 
@@ -40,7 +40,7 @@ Now your module's `index.js` will be executed.
 #### Registering the module
 
 Your `index.js` is still empty now, so let's get going to actually create a new module.
-This is technically done by calling the method `registerModule` method of our [ModuleFactory](https://github.com/shopware/platform/blob/master/src/Administration/Resources/administration/src/core/factory/module.factory.js),
+This is technically done by calling the method `registerModule` method of our [ModuleFactory](https://github.com/shopware/platform/blob/master/src/Administration/Resources/app/administration/src/core/factory/module.factory.js),
 but you're not going to use this directly.
 
 Instead, you're using the `Shopware.Module.register()` method, but why is that?
@@ -1190,7 +1190,7 @@ onClickSave() {
 },
 ```
 
-The second thing you need to take care of, is the method `saveFinish`. It is executed by the [watch](https://github.com/shopware/platform/blob/master/src/Administration/Resources/administration/src/app/component/base/sw-button-process/index.js#L45) option,
+The second thing you need to take care of, is the method `saveFinish`. It is executed by the [watch](https://github.com/shopware/platform/blob/master/src/Administration/Resources/app/administration/src/app/component/base/sw-button-process/index.js#L45) option,
 which reacts on changes on the `processSuccess` property. Once a change happens to the `processSuccess` property, a timeout is applied and the event `process-finish` emitted once the timeout ran off.
 You're calling the `saveFinish` method in your template then, which is supposed to reset the `processSuccess` property to false, so the `sw-button-process` resets its state as well.
 

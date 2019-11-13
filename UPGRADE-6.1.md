@@ -670,6 +670,7 @@ SHOPWARE_HTTP_DEFAULT_TTL=7200
 
     $response = $kernel->handle($request);
     ```
+* We moved the administration sources from Resources/administration to Resources/app/administration. This also applies to the expected plugin admin extensions. 
 
 * CSRF implementation
     * Every `POST` method needs to append a CSRF token now

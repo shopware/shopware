@@ -28,5 +28,6 @@ class Migration1572264837AddCacheId extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
+        // implement update destructive
     }
 }

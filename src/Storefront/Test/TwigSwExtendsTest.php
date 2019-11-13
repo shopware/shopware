@@ -56,7 +56,7 @@ class TwigSwExtendsTest extends TestCase
         $twig->addExtension(new InheritanceExtension($templateFinder));
         $twig->getExtension(InheritanceExtension::class)->getFinder();
 
-        $templatePath = $templateFinder->find('frontend/base.html.twig');
+        $templatePath = $templateFinder->find('storefront/frontend/base.html.twig');
         $template = $twig->loadTemplate($templatePath);
         static::assertSame('Base/TestPlugin1/TestPlugin2', $template->render([]));
     }
@@ -117,7 +117,7 @@ class TwigSwExtendsTest extends TestCase
         $twig->addExtension(new InheritanceExtension($templateFinder));
         $twig->getExtension(InheritanceExtension::class)->getFinder();
 
-        $templatePath = $templateFinder->find('@TestPlugin1/frontend/new_template.html.twig');
+        $templatePath = $templateFinder->find('@TestPlugin1/storefront/frontend/new_template.html.twig');
         $template = $twig->loadTemplate($templatePath);
 
         $template->render([]);
@@ -141,7 +141,7 @@ class TwigSwExtendsTest extends TestCase
         $twig->addExtension(new InheritanceExtension($templateFinder));
         $twig->getExtension(InheritanceExtension::class)->getFinder();
 
-        $templatePath = $templateFinder->find('@Storefront/frontend/testExtendWithLoop/loop.html.twig');
+        $templatePath = $templateFinder->find('@Storefront/storefront/frontend/testExtendWithLoop/loop.html.twig');
         $template = $twig->loadTemplate($templatePath);
 
         $template->render([]);

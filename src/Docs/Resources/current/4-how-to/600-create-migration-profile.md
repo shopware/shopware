@@ -190,7 +190,7 @@ have to register the new gateway in the `service.xml` and tag it with `shopware.
 
 If you would like to try your current progress in the administration, you could select the profile and gateway in the migration wizard already.
 If you try to go to the next page, there will be an error message, because no credentials page was found. To create
-a new credentials page, you have to add an `index.js` for your new component into `Resources/administration/src/own-profile/profile`:
+a new credentials page, you have to add an `index.js` for your new component into `Resources/app/administration/src/own-profile/profile`:
 
 ```js
 import { Component } from 'src/core/shopware';

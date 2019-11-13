@@ -23,7 +23,7 @@ class TwigCacheTest extends TestCase
         $bundlePlugin1 = new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1');
         $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2');
         $templateFinder->addBundle($bundlePlugin1);
-        $templateName = 'frontend/index.html.twig';
+        $templateName = 'storefront/frontend/index.html.twig';
         $templateFinder->find($templateName);
 
         $firstCacheKey = $twig->getCache(false)->generateKey($templateName, get_class($this));

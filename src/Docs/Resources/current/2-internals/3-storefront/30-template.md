@@ -5,12 +5,12 @@ The templating engine used is [Twig](https://twig.symfony.com/).
 For styling [SASS](https://sass-lang.com/) is used as CSS preprocessor.
 The bundling and transpiling of the javascript [Webpack](https://webpack.js.org/) is used.
 
-The templates can be found in [`/src/Storefront/Resources/views`](https://github.com/shopware/platform/tree/master/src/Storefront/Resources/views) 
+The templates can be found in [`/src/Storefront/Resources/views/storefront/`](https://github.com/shopware/platform/tree/master/src/Storefront/Resources/views) 
 
 ## Template Top Level 
 
 ```
-<platform/src/Storefront/Resources/views>
+<platform/src/Storefront/Resources/views/storefront/>
 └── block
 └── component
 └── element
@@ -43,7 +43,7 @@ The templates can be found in [`/src/Storefront/Resources/views`](https://github
 The page directory contains the entry points of the templating system. These are referenced by page controllers and rendered through the Twig engine. The structure is derived from the [page controller](https://github.com/shopware/platform/tree/master/src/Storefront/PageController) naming.
 
 ```
-<platform/src/Storefront/Resources/views/page>
+<platform/src/Storefront/Resources/views/storefront/page>
 └── account
 └── checkout
 └── content
@@ -70,7 +70,7 @@ The order of the inheritance is determined by the order the plugins or themes ar
 The style sheets are written in SASS. The organization is inspired by the [7-1 pattern](https://sass-guidelin.es/#architecture) structure. 
 
 ```
-<platform/src/Storefront/Resources/src/style>
+<platform/src/Storefront/Resources/app/storefront/src/scss>
 └── abstract
 └── base
 └── component
@@ -91,7 +91,7 @@ The storefront includes a set of small plugins handling singular use cases on to
 The `script` root looks like this: 
 
 ```
-<platform/src/Storefront/Resources/src/script>
+<platform/src/Storefront/Resources/app/storefront/src/script>
 └── config
 └── helper
 └── plugin

@@ -41,7 +41,7 @@ class NavigationController extends StorefrontController
     {
         $page = $this->navigationPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/content/index.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => $page]);
     }
 
     /**
@@ -56,7 +56,7 @@ class NavigationController extends StorefrontController
             return $this->redirectToRoute('frontend.home.page');
         }
 
-        return $this->renderStorefront('@Storefront/page/content/index.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => $page]);
     }
 
     /**
@@ -67,6 +67,6 @@ class NavigationController extends StorefrontController
     {
         $page = $this->offcanvasLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/layout/navigation/offcanvas/navigation.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/storefront/layout/navigation/offcanvas/navigation.html.twig', ['page' => $page]);
     }
 }

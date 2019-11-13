@@ -20,7 +20,7 @@ class ErrorTemplateResolver
 
     public function resolve(\Exception $exception, Request $request): ErrorTemplateStruct
     {
-        $template = '@Storefront/page/error/error';
+        $template = '@Storefront/storefront/page/error/error';
 
         if ($request->isXmlHttpRequest()) {
             $template .= '-ajax';

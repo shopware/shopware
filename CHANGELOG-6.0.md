@@ -157,6 +157,8 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Rename old `State` to `StateDeprecated`
     * Make vuex store initially available in global Shopware object `Shopware.State`
     * Move context to the Store
+    * Make vuex store initially available
+    * Moved `Resources/administration` directory to `Resources/app/administration`
 * Core
     * Moved the seo module from the storefront into the core.
     * Switched the execution condition of `\Shopware\Core\Framework\Migration\MigrationStep::addBackwardTrigger()` and `\Shopware\Core\Framework\Migration\MigrationStep::addForwardTrigger()` to match the execution conditions in the methods documentation.
@@ -205,6 +207,13 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
         - Example for nested sub entities: Writing a `order_delivery_position` entity now also dispatches a `order_delivery.written` and a `order.written` event
     * Removed seoUrls extensions in `product` and `category`. Use `product/category.seoUrls` instead 
     * Removed `shopware.api.api_browser.public` config value
+    * Removed `Bundle::getAdministrationEntryPath`
+    * Removed `Bundle::getStorefrontEntryPath`
+    * Removed `Bundle::getConfigPath`
+    * Removed `Bundle::getStorefrontScriptPath`
+    * Removed `Bundle::getViewPaths`
+    * Removed `Bundle::getRoutesPath`
+    * Removed `Bundle::getServicesFilePath`
     * When a sub entity is written or deleted, a written event is dispatched for the configured root entity. 
         - Example for mapping entities: Writing a `product_category` entity now also dispatches a `product.written` and `category.written` event
         - Example for simple sub entities: Writing a `product_price` entity now also dispatches a `product_category` event

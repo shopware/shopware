@@ -28,7 +28,7 @@ It's recommended to use the `storefront:watch` command when developing, so the f
 
 It's also possible to use the webpack-dev-server with hot module reloading (HMR) activated.
 To be able to use HMR you have to run the command `storefront:hot` and set the `isHMRMode` variable,
-located in `platform/src/Storefront/Resources/views/base.html.twig`, to true.
+located in `platform/src/Storefront/Resources/views/storefront/base.html.twig`, to true.
 
 
 Resources

@@ -1,0 +1,187 @@
+{% block component_offcanvas_cart_item_inner %}
+    {% set isDiscount = (not lineItem.good and lineItem.price.totalPrice <= 0) %}
+    {% set isNested = lineItem.children.count > 0 %}
+
+    {% block component_offcanvas_cart_item_container %}
+        <div class="cart-item cart-item-{{ lineItem.type }}{% if isDiscount %} is-discount{% endif %}{% if isNested %} is-nested{% endif %}{% if isChild %} is-child{% endif %} js-cart-item">
+            <div class="row cart-item-row">
+                {% block component_offcanvas_product_image %}
+                    <div class="col-auto">
+                        {% block component_offcanvas_product_image_inner %}
+                            <div class="cart-item-img">
+                                {% if isDiscount %}
+                                    <div class="cart-item-discount-icon">
+                                        {% sw_icon 'marketing' style {
+                                            'color': 'success'
+                                        } %}
+                                    </div>
+                                {% elseif isNested %}
+                                    <div class="cart-item-nested-icon">
+                                        {% sw_icon 'bag-product' style {
+                                            'color': 'light'
+                                        } %}
+                                    </div>
+                                {% else %}
+                                    <a href="{{ seoUrl('frontend.detail.page', {'productId': lineItem.referencedId}) }}"
+                                       class="cart-item-img-link"
+                                       title="{{ lineItem.label }}">
+                                        {% if lineItem.cover.url %}
+                                            {% sw_thumbnails 'cart-item-img-thumbnails' with {
+                                                media: lineItem.cover,
+                                                sizes: {
+                                                    'default': '100px'
+                                                },
+                                                attributes: {
+                                                    'class': 'img-fluid cart-item-img-source',
+                                                    'alt': lineItem.label,
+                                                    'title': lineItem.label
+                                                }
+                                            } %}
+                                        {% else %}
+                                            {% sw_icon 'placeholder' style {
+                                                'size': 'fluid'
+                                            } %}
+                                        {% endif %}
+                                    </a>
+                                {% endif %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block component_offcanvas_product_details %}
+                    <div class="col cart-item-details">
+                        {% block component_offcanvas_product_details_inner %}
+                            <div class="cart-item-details-container">
+                                {% block component_offcanvas_product_label %}
+                                    <div class="cart-item-details">
+                                        {% if lineItem.type == 'product' %}
+                                            <a href="{{ seoUrl('frontend.detail.page', {'productId': lineItem.referencedId}) }}"
+                                               class="cart-item-label"
+                                               title="{{ lineItem.label }}">
+                                                {{ lineItem.quantity }}{{ "checkout.quantityTimes"|trans }} {{ lineItem.label|truncate(60) }}
+                                            </a>
+                                        {% else %}
+                                            <div class="cart-item-label">
+                                                {{ lineItem.label|truncate(60) }}
+                                            </div>
+                                        {% endif  %}
+                                    </div>
+                                {% endblock %}
+
+                                {% block component_offcanvas_product_variants %}
+                                    {% if lineItem.payload.options|length >= 1 %}
+                                        <div class="cart-item-variants">
+                                            {% for option in lineItem.payload.options %}
+                                                <div class="cart-item-variants-properties">
+                                                    <div class="cart-item-variants-properties-name">{{ option.group.translated.name }}:</div>
+                                                    <div class="cart-item-variants-properties-value">{{ option.translated.name }}</div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                {% endblock %}
+
+                                {% block component_offcanvas_product_quantity_price %}
+                                    <div class="cart-quantity-price">
+                                        {% block component_offcanvas_product_quantity %}
+                                            <div class="cart-item-quantity">
+                                                {% block component_offcanvas_product_quantity_form %}
+                                                    {% if lineItem.quantityInformation and lineItem.stackable %}
+                                                        <form action="{{ path('frontend.checkout.line-item.change-quantity', {'id': lineItem.id}) }}"
+                                                              class="cart-item-quantity-container"
+                                                              method="post">
+
+                                                            {% block component_offcanvas_product_quantity_form_csrf %}
+                                                                {{ sw_csrf('frontend.checkout.line-item.change-quantity') }}
+                                                            {% endblock %}
+
+                                                            {% block component_offcanvas_product_quantity_form_redirect %}
+                                                                <input type="hidden"
+                                                                       name="redirectTo"
+                                                                       value="frontend.cart.offcanvas"/>
+                                                            {% endblock %}
+
+                                                            {% if lineItem.quantityInformation.maxPurchase %}
+                                                                {% if lineItem.deliveryInformation.stock < lineItem.quantityInformation.maxPurchase %}
+                                                                    {% set maxQuantity = lineItem.deliveryInformation.stock %}
+                                                                {% else %}
+                                                                    {% set maxQuantity = lineItem.quantityInformation.maxPurchase %}
+                                                                {% endif %}
+                                                            {% else %}
+                                                                {% set maxQuantity = shopware.config.core.cart.maxQuantity %}
+                                                            {% endif %}
+
+                                                            {% block component_offcanvas_product_buy_quantity %}
+                                                                <select name="quantity"
+                                                                        class="custom-select quantity-select-{{ lineItem.id }} js-offcanvas-cart-change-quantity">
+                                                                    {% for quantity in range(lineItem.quantityInformation.minPurchase, maxQuantity, lineItem.quantityInformation.purchaseSteps) %}
+                                                                        <option value="{{ quantity }}"
+                                                                            {% if quantity == lineItem.quantity %} selected="selected"{% endif %}>
+                                                                            {{ quantity }}
+                                                                        </option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            {% endblock %}
+                                                        </form>
+                                                    {% endif %}
+                                                {% endblock %}
+                                            </div>
+                                        {% endblock %}
+
+                                        {% block component_offcanvas_product_total_price %}
+                                            <div class="cart-item-price">
+                                                {{ lineItem.price.totalPrice|currency }}{{ "general.star"|trans }}
+                                            </div>
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block component_offcanvas_product_remove %}
+                    <div class="col-2 cart-item-remove">
+                        {% block component_offcanvas_product_remove_form %}
+                            {% if lineItem.removable %}
+                                <form action="{{ path('frontend.checkout.line-item.delete', {'id': lineItem.id}) }}"
+                                      class="cart-item-remove js-offcanvas-cart-remove-product"
+                                      method="post">
+
+                                    {% block component_offcanvas_product_remove_form_csrf %}
+                                        {{ sw_csrf('frontend.checkout.line-item.delete') }}
+                                    {% endblock %}
+
+                                    {% block component_offcanvas_product_remove_redirect %}
+                                        <input type="hidden"
+                                               name="redirectTo"
+                                               value="frontend.cart.offcanvas"/>
+                                    {% endblock %}
+
+                                    {% block component_offcanvas_product_remove_submit %}
+                                        <button type="submit"
+                                                title="{{ "checkout.removeLineItem"|trans }}"
+                                                class="btn btn-light">
+                                            {% sw_icon 'x' style { 'size': 'sm' } %}
+                                        </button>
+                                    {% endblock %}
+                                </form>
+                            {% endif %}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        </div>
+    {% endblock %}
+
+    {% block component_offcanvas_cart_item_children %}
+        {% for lineItem in lineItem.children %}
+            {% block component_offcanvas_cart_item_child %}
+                {% sw_include '@Storefront/storefront/component/checkout/offcanvas-item.html.twig' with {
+                    'isChild': true
+                } %}
+            {% endblock %}
+        {% endfor %}
+    {% endblock %}
+{% endblock %}

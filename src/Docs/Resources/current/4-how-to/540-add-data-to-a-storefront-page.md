@@ -130,7 +130,7 @@ For our case we extend the footer template and add a new column to the navigatio
 
 ```twig
 <!-- in Resources/views/layout/footer/footer.html.twig -->
-{% sw_extends '@Storefront/layout/footer/footer.html.twig' %}
+{% sw_extends '@Storefront/storefront/layout/footer/footer.html.twig' %}
 
 {% block layout_footer_navigation_columns %}
     {{ parent() }}

@@ -17,7 +17,7 @@ learn creating a plugin at first.
 ## Injecting into the administration
 
 The main entry point to customize the administration via plugin is the `main.js` file.
-It has to be placed into a `<plugin root>/src/Resources/administration` directory in order to be automatically found by Shopware 6.
+It has to be placed into a `<plugin root>/src/Resources/app/administration` directory in order to be automatically found by Shopware 6.
 *Note: This path can be changed by overriding the [getAdministrationEntryPath](./../2-internals/4-plugins/020-plugin-base-class.md#getAdministrationEntryPath) method of your plugin's base class.*
 
 Your `main.js` file then needs to override the [Vue component](https://vuejs.org/v2/guide/components.html) using the
@@ -43,7 +43,7 @@ Time to create the referenced twig template for your plugin now.
 *Note: We're dealing with a [TwigJS](https://github.com/twigjs/twig.js/wiki) template here.* 
 
 Create a file called `sw-product-settings-form.html.twig` in the following directory:
-`<plugin root>/src/Resources/administration/src/extension/sw-product-settings-form`
+`<plugin root>/src/Resources/app/administration/src/extension/sw-product-settings-form`
 
 *Note: The path starting from 'src' is fully customizable, yet we recommend choosing a pattern like this one.*
 

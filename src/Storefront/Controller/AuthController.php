@@ -57,7 +57,7 @@ class AuthController extends StorefrontController
 
         $page = $this->loginPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/account/register/index.html.twig', [
+        return $this->renderStorefront('@Storefront/storefront/page/account/register/index.html.twig', [
             'redirectTo' => $redirect,
             'redirectParameters' => $request->get('redirectParameters', json_encode([])),
             'page' => $page,

@@ -1,0 +1,154 @@
+{% sw_extends '@Storefront/storefront/utilities/offcanvas.html.twig' %}
+
+{% block utilities_offcanvas_content %}
+    {% block layout_navigation_offcanvas_navigation_actions %}
+        <nav class="nav navigation-offcanvas-actions">
+            {% block layout_navigation_offcanvas_navigation_action_language %}
+                {% sw_include '@Storefront/storefront/layout/header/actions/language-widget.html.twig' with {position: 'offcanvas'} %}
+            {% endblock %}
+
+            {% block layout_navigation_offcanvas_navigation_action_currency %}
+                {% sw_include '@Storefront/storefront/layout/header/actions/currency-widget.html.twig' with {position: 'offcanvas'} %}
+            {% endblock %}
+        </nav>
+    {% endblock %}
+
+    {# @var page \Shopware\Storefront\Page\Page   #}
+    {% set offcanvasNavigation = page.header.navigation.children(page.header.navigation.active.id) %}
+    {% if offcanvasNavigation is null %}
+        {% set offcanvasNavigation = page.navigation %}
+    {% endif %}
+
+    {% block layout_navigation_offcanvas_navigation %}
+        {% set isRootLevel = offcanvasNavigation.active.parentId is null %}
+        {% set activeItem = offcanvasNavigation.active %}
+
+        <div class="navigation-offcanvas-container js-navigation-offcanvas">
+
+            {% block layout_navigation_offcanvas_navigation_overlay %}
+                <div class="navigation-offcanvas-overlay-content js-navigation-offcanvas-overlay-content">
+                    {% block layout_navigation_offcanvas_navigation_overlay_content %}
+                        {% if not isRootLevel %}
+                            {% block layout_navigation_offcanvas_navigation_home_link %}
+                                <a class="nav-item nav-link is-home-link navigation-offcanvas-link js-navigation-offcanvas-link"
+                                   href="{{ path('frontend.menu.offcanvas') }}"
+                                   itemprop="url"
+                                   title="{{ "general.mainMenu"|trans }}">
+                                    {% block layout_navigation_offcanvas_navigation_home_link_text %}
+                                        <span class="navigation-offcanvas-link-icon js-navigation-offcanvas-loading-icon">
+                                            {% sw_icon 'stack' %}
+                                        </span>
+                                        <span itemprop="{{ "general.mainMenu"|trans }}">
+                                            {{ "general.mainMenu"|trans }}
+                                        </span>
+                                    {% endblock %}
+                                </a>
+                            {% endblock %}
+
+                            {% block layout_navigation_offcanvas_navigation_category_headline %}
+                                <a class="nav-item nav-link navigation-offcanvas-headline"
+                                   href="{{ path('frontend.navigation.page', {'navigationId': activeItem.parentId}) }}"
+                                   itemprop="url">
+                                    {% block layout_navigation_offcanvas_navigation_category_headline_text %}
+                                        <span itemprop="name">
+                                            {{ activeItem.translated.name }}
+                                        </span>
+                                    {% endblock %}
+                                </a>
+                            {% endblock %}
+
+                            {% block layout_navigation_offcanvas_navigation_category_back_link %}
+                                {% if activeItem.id != context.salesChannel.navigationCategoryId %}
+                                    <a class="nav-item nav-link is-back-link navigation-offcanvas-link js-navigation-offcanvas-link"
+                                       href="{{ path('frontend.menu.offcanvas', {'navigationId': activeItem.parentId}) }}"
+                                       itemprop="url"
+                                       title="{{ "general.back"|trans }}">
+                                        {% block layout_navigation_offcanvas_navigation_category_back_link_text %}
+                                            <span class="navigation-offcanvas-link-icon js-navigation-offcanvas-loading-icon">
+                                                {% block layout_utilities_offcanvas_close_icon %}
+                                                    {% sw_icon 'arrow-medium-left' style { 'pack':'solid', 'size': 'sm' } %}
+                                                {% endblock %}
+                                            </span>
+                                            <span itemprop="name">
+                                                {{ "general.back"|trans }}
+                                            </span>
+                                        {% endblock %}
+                                    </a>
+                                {% endif %}
+                            {% endblock %}
+                        {% else %}
+                            {% block layout_navigation_offcanvas_navigation_categories_headline %}
+                                <div class="navigation-offcanvas-headline">
+                                    {% block layout_navigation_offcanvas_navigation_categories_headline_text %}
+                                        {{ "general.categories"|trans }}
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+                        {% endif %}
+
+                        {% block layout_navigation_offcanvas_navigation_categories_list %}
+                            <ul class="list-unstyled navigation-offcanvas-list">
+
+                                {% if not isRootLevel %}
+                                    {% block layout_navigation_offcanvas_navigation_categories_list_current_category_item %}
+                                        <li class="navigation-offcanvas-list-item">
+                                            {% block layout_navigation_offcanvas_navigation_categories_list_current_category_item_link %}
+                                                <a class="nav-item nav-link navigation-offcanvas-link is-current-category"
+                                                   href="{{ seoUrl('frontend.navigation.page', { navigationId: activeItem.id }) }}"
+                                                   itemprop="url"
+                                                   title="{{ activeItem.translated.name }}">
+                                                    {% block layout_navigation_offcanvas_navigation_categories_list_current_category_item_text %}
+                                                        <span itemprop="name">
+                                                            {{ "general.showCategory"|trans({"%category%": activeItem.name}) }}
+                                                        </span>
+                                                    {% endblock %}
+                                                </a>
+                                            {% endblock %}
+                                        </li>
+                                    {% endblock %}
+                                {% endif %}
+
+                                {% set firstCategoryItem = offcanvasNavigation.tree|first %}
+                                {% for treeItem in  firstCategoryItem.children %}
+                                    {% set entity = treeItem.category %}
+
+                                    {% if entity.id is not same as( activeItem.id) %}
+                                        {% block layout_navigation_offcanvas_navigation_categories_list_category_item %}
+                                            <li class="navigation-offcanvas-list-item">
+
+                                                {% set hasChildren = entity.childCount > 0 %}
+
+                                                {% block layout_navigation_offcanvas_navigation_categories_list_category_item_link %}
+                                                    <a class="navigation-offcanvas-link nav-item nav-link{% if entity.id is same as(activeItem.id) %} active{% endif %}{% if hasChildren %} js-navigation-offcanvas-link{% endif %}"
+                                                       href="{{ seoUrl('frontend.navigation.page', { navigationId: treeItem.category.id }) }}"
+                                                        {% if hasChildren %}
+                                                            data-href="{{ path('frontend.menu.offcanvas', {'navigationId': entity.id}) }}"
+                                                        {% endif %}
+                                                       itemprop="url"
+                                                       title="{{ entity.translated.name }}">
+                                                        {% block layout_navigation_offcanvas_navigation_categories_list_category_item_link_text %}
+                                                            <span itemprop="name">{{ entity.translated.name }}</span>
+                                                            {% if hasChildren %}
+                                                                {% block layout_navigation_offcanvas_navigation_categories_list_category_item_link_icon %}
+                                                                    <span
+                                                                        class="navigation-offcanvas-link-icon js-navigation-offcanvas-loading-icon">
+                                                                        {% sw_icon 'arrow-medium-right' style { 'pack':'solid', 'size': 'sm' } %}
+                                                                    </span>
+                                                                {% endblock %}
+                                                            {% endif %}
+                                                        {% endblock %}
+                                                    </a>
+                                                {% endblock %}
+                                            </li>
+                                        {% endblock %}
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        {% endblock %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}
+

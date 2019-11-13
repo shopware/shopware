@@ -181,7 +181,7 @@ First of all you create a new snippet file e.g. `en-GB.json`:
 All count entity descriptions are located in the `swag-migration.index.selectDataCard.entities` namespace, so you have to
 create a new entry with the entity name of the new bundle entity.
 
-At last you have to create the `main.js` in the `Resources/administration` directory like this:
+At last you have to create the `main.js` in the `Resources/app/administration` directory like this:
 
 ```javascript
 import enGBSnippets from './snippet/en-GB.json';

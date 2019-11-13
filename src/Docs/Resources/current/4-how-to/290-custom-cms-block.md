@@ -21,7 +21,7 @@ It renders an image element on the left side and a simple text element on the ri
 For this HowTo, you're going to create a new block to swap those two elements, so the text is on the left side
 and the image on the right side.
 
-All blocks can be found in the directory [<platform root>/src/Administration/Resources/administration/src/module/sw-cms/blocks](https://github.com/shopware/platform/tree/master/src/Administration/Resources/administration/src/module/sw-cms/blocks).
+All blocks can be found in the directory [<platform root>/src/Administration/Resources/app/administration/src/module/sw-cms/blocks](https://github.com/shopware/platform/tree/master/src/Administration/Resources/app/administration/src/module/sw-cms/blocks).
 In there, they are divided into the categories `text`, `text-image`, `image` and `commerce`.
 
 `text`
@@ -41,7 +41,7 @@ Creating a new block means adjusting the administration with your plugin, and th
 ### Injecting into the administration
     
 The main entry point to customize the administration via plugin is the `main.js` file.
-It has to be placed into a `<plugin root>/src/Resources/administration` directory in order to be automatically found by the Shopware
+It has to be placed into a `<plugin root>/src/Resources/app/administration` directory in order to be automatically found by the Shopware
 platform.
 *Note: This path can be changed by overriding the [getAdministrationEntryPath](./../2-internals/4-plugins/020-plugin-base-class.md#getAdministrationEntryPath) method of your plugin's base class.*
 
@@ -52,7 +52,7 @@ Create this `main.js` file for now, it will be used later.
 Your plugin's structure should always match the core's structure. When thinking about creating a new block, you should
 recreate the directory structure of core blocks in your plugin.
 The block, which you're going to create, consists of an `image` and a `text` element, so it belongs to the category `text-image`.
-Thus, create the directory `<plugin root>/src/Resources/administration/module/sw-cms/blocks/text-image`.
+Thus, create the directory `<plugin root>/src/Resources/app/administration/module/sw-cms/blocks/text-image`.
 
 In there, you have to create a new directory for each block you want to create, the directory's name representing
 the block's name. For this example, the name `image-text-reversed` is going to be used, so create this directory in there.
@@ -67,7 +67,7 @@ import './module/sw-cms/blocks/text-image/image-text-reversed';
 ```
 
 Back to your `index.js`, which is still empty.
-In order to register a new block, you have to call the `registerCmsBlock` method of the [cmsService](https://github.com/shopware/platform/blob/master/src/Administration/Resources/administration/src/module/sw-cms/service/cms.service.js).
+In order to register a new block, you have to call the `registerCmsBlock` method of the [cmsService](https://github.com/shopware/platform/blob/master/src/Administration/Resources/app/administration/src/module/sw-cms/service/cms.service.js).
 Since it's available in the Dependency Injection Container, you can fetch it from there.
 
 First of all, access our `Applicaton` wrapper, which will grant you access to the DI container. This `Application` wrapper has access to the DI container, so go ahead and fetch the `cmsService` from it and call the
@@ -161,7 +161,7 @@ You've now finished the part for the snippets. For more information about snippe
 
 For both fields `component` and `previewComponent`, components that do not **yet** exist were applied. Those will be created
 in the next few steps as well.
-The `defaultConfig` just gets some minor margins and the sizing mode 'boxed', which will result in a CSS class [is--boxed](https://github.com/shopware/platform/blob/master/src/Administration/Resources/administration/src/module/sw-cms/component/sw-cms-block/sw-cms-block.scss#L22) being applied
+The `defaultConfig` just gets some minor margins and the sizing mode 'boxed', which will result in a CSS class [is--boxed](https://github.com/shopware/platform/blob/master/src/Administration/Resources/app/administration/src/module/sw-cms/component/sw-cms-block/sw-cms-block.scss#L22) being applied
 to that block later.
 
 The slots are defined by an object, where the key represents the slot's name and the value being the technical name
@@ -346,11 +346,11 @@ So go ahead and re-create that structure in your plugin:
 
 In there create a new twig template named after your block, so `cms-block-image-text-reversed.html.twig` that is.
 
-Since the [original 'image_text' file](https://github.com/shopware/platform/blob/master/src/Storefront/Resources/views/block/cms-block-image-text.html.twig) is already perfectly fine, you can simply extend from it
+Since the [original 'image_text' file](https://github.com/shopware/platform/blob/master/src/Storefront/Resources/views/storefront/block/cms-block-image-text.html.twig) is already perfectly fine, you can simply extend from it
 in your storefront template.
 
 ```twig
-{% sw_extends '@Storefront/block/cms-block-image-text.html.twig' %}
+{% sw_extends '@Storefront/storefront/block/cms-block-image-text.html.twig' %}
 ```
 
 And that's it for the Storefront as well in this example!

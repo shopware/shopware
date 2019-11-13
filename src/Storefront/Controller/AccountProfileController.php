@@ -61,7 +61,7 @@ class AccountProfileController extends StorefrontController
 
         $page = $this->overviewPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/account/index.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/storefront/page/account/index.html.twig', ['page' => $page]);
     }
 
     /**
@@ -78,7 +78,7 @@ class AccountProfileController extends StorefrontController
 
         $page = $this->profilePageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/account/profile/index.html.twig', [
+        return $this->renderStorefront('@Storefront/storefront/page/account/profile/index.html.twig', [
             'page' => $page,
             'passwordFormViolation' => $request->get('passwordFormViolation'),
             'emailFormViolation' => $request->get('emailFormViolation'),

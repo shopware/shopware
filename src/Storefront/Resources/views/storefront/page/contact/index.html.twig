@@ -1,0 +1,278 @@
+{% sw_extends '@Storefront/storefront/base.html.twig' %}
+
+{% block base_content %}
+    {% block page_contact %}
+        <div class="row">
+            <div class="contact-content col-lg-6">
+                {% block page_contact_headline %}
+                    <div class="card contact-headline">
+                        <div class="card-body">
+                            {% block page_contact_headline_title %}
+                                <h1 class="contact-title">
+                                    {{ "contact.headline"|trans }}
+                                </h1>
+                            {% endblock %}
+
+                            {% block page_contact_headline_info %}
+                                <div class="contact-info">
+                                    {{ "contact.info"|trans|raw }}
+                                </div>
+                            {% endblock %}
+                        </div>
+                    </div>
+                {% endblock %}
+
+                {% block page_contact_form_content %}
+                    <div class="card contact-form">
+                        <div class="card-body">
+                            {% block page_contact_form_title %}
+                                <div class="card-title">
+                                    {{ "contact.headline"|trans }}
+                                </div>
+                            {% endblock %}
+
+                            {% block page_contact_form %}
+                                <form action="{{ path('frontend.page.contact.send') }}"
+                                      method="post"
+                                      data-form-csrf-handler="true"
+                                      data-form-validation="true">
+
+                                    {% block page_contact_form_csrf %}
+                                        {{ sw_csrf('frontend.page.contact.send') }}
+                                    {% endblock %}
+
+                                    {% block page_contact_form_additional_fields %}
+                                        {% block page_contact_form_field_salutation %}
+                                            <div class="form-row">
+                                                <div class="form-group col-md-4 contact-salutation">
+                                                    {% block page_contact_form_field_salutation_select_label %}
+                                                        <label class="form-label" for="contactSalutation">
+                                                            {{ "account.personalSalutationLabel"|trans }}{{ "general.required"|trans }}
+                                                        </label>
+                                                    {% endblock %}
+                                                    {% block page_contact_form_field_salutation_select %}
+                                                        <select name="salutationId"
+                                                                id="contactSalutation"
+                                                                required="required"
+                                                                class="custom-select contact-select{% if formViolations.getViolations('/salutationId') %} is-invalid{% endif %}">
+                                                            {% if not data.get('salutationId') %}
+                                                                <option disabled="disabled"
+                                                                        selected="selected"
+                                                                        value="">
+                                                                    {{ "account.personalSalutationPlaceholder"|trans }}{{ "general.required"|trans }}
+                                                                </option>
+                                                            {% endif %}
+
+                                                            {% for salutation in page.salutations %}
+                                                                <option value="{{ salutation.id }}">
+                                                                    {{ salutation.displayName }}
+                                                                </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    {% endblock %}
+
+                                                    {% block page_contact_form_field_salutation_error %}
+                                                        {% if formViolations.getViolations('/salutationId') is not empty %}
+                                                            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                                                violationPath: '/salutationId'
+                                                            } %}
+                                                        {% endif %}
+                                                    {% endblock %}
+                                                </div>
+                                            </div>
+                                        {% endblock %}
+
+                                        {% block page_contact_form_field_firstname %}
+                                            <div class="form-group contact-firstname">
+                                                {% block page_contact_form_field_firstname_label %}
+                                                    <label class="form-label" for="contactFirstName">
+                                                        {{ "account.personalFirstNameLabel"|trans }}{{ "general.required"|trans }}
+                                                    </label>
+                                                {% endblock %}
+
+                                                {% block page_contact_form_field_firstname_input %}
+                                                    <input name="firstName"
+                                                           id="contactFirstName"
+                                                           type="text"
+                                                           placeholder="{{ "account.personalFirstNamePlaceholder"|trans }}{{ "general.required"|trans }}"
+                                                           required="required"
+                                                           value="{{ data.get('firstName') }}"
+                                                           class="form-control{% if formViolations.getViolations('/firstName') %} is-invalid{% endif %}"/>
+                                                {% endblock %}
+
+                                                {% block page_contact_form_field_firstname_error %}
+                                                    {% if formViolations.getViolations('/firstName') is not empty %}
+                                                        {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                                            violationPath: '/firstName'
+                                                        } %}
+                                                    {% endif %}
+                                                {% endblock %}
+                                            </div>
+                                        {% endblock %}
+
+                                        {% block page_contact_form_field_lastname %}
+                                            <div class="form-group contact-lastname">
+                                                {% block page_contact_form_field_lastname_label %}
+                                                    <label class="form-label" for="contactLastName">
+                                                        {{ "account.personalLastNameLabel"|trans }}{{ "general.required"|trans }}
+                                                    </label>
+                                                {% endblock %}
+
+                                                {% block page_contact_form_field_lastname_input %}
+                                                    <input name="lastName"
+                                                           id="contactLastName"
+                                                           type="text"
+                                                           placeholder="{{ "account.personalLastNamePlaceholder"|trans }}{{ "general.required"|trans }}"
+                                                           required="required"
+                                                           value="{{ data.get('lastName') }}"
+                                                           class="form-control{% if formViolations.getViolations('/lastName') %} is-invalid{% endif %}"/>
+                                                {% endblock %}
+
+                                                {% block page_contact_form_field_lastname_error %}
+                                                    {% if formViolations.getViolations('/lastName') is not empty %}
+                                                        {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                                            violationPath: '/lastName'
+                                                        } %}
+                                                    {% endif %}
+                                                {% endblock %}
+                                            </div>
+                                        {% endblock %}
+
+                                        {% block page_contact_form_field_email %}
+                                            <div class="form-group contact-email">
+                                                {% block page_contact_form_field_email_label %}
+                                                    <label class="form-label" for="contactMail">
+                                                        {{ "account.loginMailLabel"|trans }}{{ "general.required"|trans }}
+                                                    </label>
+                                                {% endblock %}
+
+                                                {% block page_contact_form_field_email_input %}
+                                                    <input name="email"
+                                                           type="email"
+                                                           id="contactMail"
+                                                           placeholder="{{ "account.loginMailPlaceholder"|trans }}{{ "general.required"|trans }}"
+                                                           required="required"
+                                                           value="{{ data.get('email') }}"
+                                                           class="form-control{% if formViolations.getViolations('/email') %} is-invalid{% endif %}"/>
+                                                {% endblock %}
+
+                                                {% block page_contact_form_field_email_error %}
+                                                    {% if formViolations.getViolations('/email') is not empty %}
+                                                        {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                                            violationPath: '/email'
+                                                        } %}
+                                                    {% endif %}
+                                                {% endblock %}
+                                            </div>
+                                        {% endblock %}
+
+                                        {% block page_contact_form_field_phone %}
+                                            <div class="form-group contact-phone">
+                                                {% block page_contact_form_field_phone_label %}
+                                                    <label class="form-label" for="contactPhone">
+                                                        {{ "account.personalPhoneLabel"|trans }}{{ "general.required"|trans }}
+                                                    </label>
+                                                {% endblock %}
+                                                {% block page_contact_form_field_phone_input %}
+                                                    <input name="phone"
+                                                           id="contactPhone"
+                                                           type="text"
+                                                           placeholder="{{ "account.personalPhonePlaceholder"|trans }}{{ "general.required"|trans }}"
+                                                           required="required"
+                                                           value="{{ data.get('phone') }}"
+                                                           class="form-control{% if formViolations.getViolations('/phone') %} is-invalid{% endif %}"/>
+                                                {% endblock %}
+
+                                                {% block page_contact_form_field_phone_error %}
+                                                    {% if formViolations.getViolations('/phone') is not empty %}
+                                                        {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                                            violationPath: '/phone'
+                                                        } %}
+                                                    {% endif %}
+                                                {% endblock %}
+                                            </div>
+                                        {% endblock %}
+
+                                        {% block page_contact_form_field_subject %}
+                                            <div class="form-group contact-subject">
+                                                {% block page_contact_form_field_subject_label %}
+                                                    <label class="form-label" for="contactSubject">
+                                                        {{ "contact.subjectLabel"|trans }}{{ "general.required"|trans }}
+                                                    </label>
+                                                {% endblock %}
+                                                {% block page_contact_form_field_subject_input %}
+                                                    <input name="subject"
+                                                           id="contactSubject"
+                                                           type="text"
+                                                           placeholder="{{ "contact.subjectPlaceholder"|trans }}{{ "general.required"|trans }}"
+                                                           required="required"
+                                                           value="{{ data.get('subject') }}"
+                                                           class="form-control{% if formViolations.getViolations('/subject') %} is-invalid{% endif %}"/>
+                                                {% endblock %}
+
+                                                {% block page_contact_form_field_subject_error %}
+                                                    {% if formViolations.getViolations('/subject') is not empty %}
+                                                        {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                                            violationPath: '/subject'
+                                                        } %}
+                                                    {% endif %}
+                                                {% endblock %}
+                                            </div>
+                                        {% endblock %}
+
+                                        {% block page_contact_form_field_comment %}
+                                            <div class="form-group contact-comment">
+                                                {% block page_contact_form_field_comment_label %}
+                                                    <label class="form-label" for="contactComment">
+                                                        {{ "contact.commentLabel"|trans }}{{ "general.required"|trans }}
+                                                    </label>
+                                                {% endblock %}
+                                                {% block page_contact_form_field_comment_textarea %}
+                                                    <textarea name="comment"
+                                                              rows="5"
+                                                              id="contactComment"
+                                                              placeholder="{{ "contact.commentPlaceholder"|trans }}{{ "general.required"|trans }}"
+                                                              required="required"
+                                                              class="form-control{% if formViolations.getViolations('/comment') %} is-invalid{% endif %}"/>{{ data.get('comment') }}</textarea>
+                                                {% endblock %}
+
+                                                {% block page_contact_form_field_comment_error %}
+                                                    {% if formViolations.getViolations('/comment') is not empty %}
+                                                        {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                                            violationPath: '/comment'
+                                                        } %}
+                                                    {% endif %}
+                                                {% endblock %}
+                                            </div>
+                                        {% endblock %}
+                                    {% endblock %}
+
+                                    {% block page_contact_form_required %}
+                                        <p class="form-text contact-required-info">
+                                            {{ "general.requiredFields"|trans }}
+                                        </p>
+                                    {% endblock %}
+
+                                    {% block page_contact_form_captcha %}{% endblock %}
+
+                                    {% block page_contact_form_privacy %}
+                                        {% sw_include '@Storefront/storefront/component/privacy-notice.html.twig' %}
+                                    {% endblock %}
+
+                                    {% block page_contact_form_submit %}
+                                        <div class="contact-action">
+                                            <button type="submit"
+                                                    class="btn btn-primary contact-btn">
+                                                {{ "contact.formSubmit"|trans }}
+                                            </button>
+                                        </div>
+                                    {% endblock %}
+                                </form>
+                            {% endblock %}
+                        </div>
+                    </div>
+                {% endblock %}
+            </div>
+        </div>
+    {% endblock %}
+{% endblock %}

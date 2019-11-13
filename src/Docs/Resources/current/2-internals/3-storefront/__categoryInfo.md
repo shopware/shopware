@@ -14,10 +14,10 @@ The Storefront is the least fancy of the components of Shopware 6. If you did so
 **[Mapping Requests to the Core](./20-writing-data.md)** ([Pagecontroller](https://github.com/shopware/platform/tree/master/src/Storefront/PageController), [PageletController](https://github.com/shopware/platform/tree/master/src/Storefront/PageletController))
    : The Storefront uses the SalesChannel API internally and forwards possibly slightly changed requests to the core.
    
-**[Rendering templates](./30-template.md)** ([page templates](https://github.com/shopware/platform/tree/master/src/Storefront/Resources/views/page))
+**[Rendering templates](./30-template.md)** ([page templates](https://github.com/shopware/platform/tree/master/src/Storefront/Resources/views/storefront/page))
    : Contrary to the core that can almost completely omit templating in favor JSON responses, the Storefront contains a rich set of `Twig` templates to display a fully functional shop.
 
-**Theming** ([styles](https://github.com/shopware/platform/tree/master/src/Storefront/Resources/src/style))
+**Theming** ([styles](https://github.com/shopware/platform/tree/master/src/Storefront/Resources/app/storefront/src/scss))
    : The Storefront not just contains static templates but also inhibits a theming engine to modify the rendered templates or change the default layout programmatically.
    
 These concerns are mapped to a *Web-MVC* structure:

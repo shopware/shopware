@@ -121,6 +121,12 @@
             <argument type="service" id="Shopware\Core\Content\Category\CategoryDefinition"/>
         </service>
 
+        <service id="Shopware\Storefront\Page\Navigation\Error\ErrorPageLoader">
+            <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
         <service id="Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoader">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoader"/>

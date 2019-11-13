@@ -7,11 +7,14 @@ import ScheduledTaskService from 'src/core/service/api/scheduled-task.api.servic
 import MessageQueueService from 'src/core/service/api/message-queue.api.service';
 import Axios from 'axios';
 
-// eslint-disable-next-line
-self.onmessage = ({ data: { context, bearerAuth, host, transports } }) => {
+// eslint-disable-next-line no-restricted-globals
+self.onmessage = onMessage;
+
+function onMessage({ data: { context, bearerAuth, host, transports } }) {
     const baseURL = process.env.NODE_ENV !== 'production' ? `${host}${context.apiResourcePath}` : context.apiResourcePath;
     const client = Axios.create({
-        baseURL: baseURL
+        baseURL: baseURL,
+        timeout: 1000 * 60 * 5
     });
 
     const loginService = LoginService(client, context, bearerAuth);
@@ -28,7 +31,7 @@ self.onmessage = ({ data: { context, bearerAuth, host, transports } }) => {
     transports.forEach((receiver) => {
         consumeMessages(messageQueueService, receiver);
     });
-};
+}
 
 function runTasks(scheduledTaskService, timeout) {
     scheduledTaskService.runTasks().catch((error) => {
@@ -44,16 +47,22 @@ function runTasks(scheduledTaskService, timeout) {
     }, timeout);
 }
 
-function consumeMessages(messageQueueService, receiver) {
+function consumeMessages(messageQueueService, receiver, _setTimeout = setTimeout) {
     messageQueueService.consume(receiver)
         .then(() => {
             consumeMessages(messageQueueService, receiver);
         })
         .catch((error) => {
-            const { response: { status } } = error;
+            _setTimeout(() => {
+                consumeMessages(messageQueueService, receiver);
+            }, 10000);
 
-            if (status === 401) {
-                postMessage('expiredToken');
-            }
+            return error;
         });
 }
+
+export default {
+    onMessage,
+    runTasks,
+    consumeMessages
+};

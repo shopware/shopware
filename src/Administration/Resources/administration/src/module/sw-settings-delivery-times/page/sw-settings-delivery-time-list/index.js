@@ -11,10 +11,7 @@ Component.register('sw-settings-delivery-time-list', {
         Mixin.getByName('placeholder')
     ],
 
-    inject: [
-        'repositoryFactory',
-        'apiContext'
-    ],
+    inject: ['repositoryFactory'],
 
     data() {
         return {
@@ -46,7 +43,7 @@ Component.register('sw-settings-delivery-time-list', {
             this.isLoading = true;
 
             this.deliveryTimeRepository
-                .search(criteria, this.apiContext)
+                .search(criteria, Shopware.Context.api)
                 .then((deliveryTime) => {
                     this.total = deliveryTime.total;
                     this.deliveryTimes = deliveryTime;

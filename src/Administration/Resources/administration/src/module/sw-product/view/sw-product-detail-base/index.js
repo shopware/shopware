@@ -7,7 +7,7 @@ const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-detail-base', {
     template,
-    inject: ['repositoryFactory', 'apiContext'],
+    inject: ['repositoryFactory'],
 
     props: {
         productId: {
@@ -106,7 +106,7 @@ Component.register('sw-product-detail-base', {
 
         mediaRemoveInheritanceFunction(newValue) {
             newValue.forEach(({ id, mediaId, position }) => {
-                const media = this.productMediaRepository.create(this.apiContext);
+                const media = this.productMediaRepository.create(Shopware.Context.api);
                 Object.assign(media, { mediaId, position, productId: this.product.id });
                 if (this.parentProduct.coverId === id) {
                     this.product.coverId = media.id;
@@ -139,7 +139,7 @@ Component.register('sw-product-detail-base', {
         onConfirmReviewDelete() {
             this.onCloseReviewDeleteModal();
 
-            this.reviewRepository.delete(this.toDeleteReviewId, this.apiContext).then(() => {
+            this.reviewRepository.delete(this.toDeleteReviewId, Shopware.Context.api).then(() => {
                 this.toDeleteReviewId = null;
                 this.reloadReviews();
             });
@@ -170,7 +170,7 @@ Component.register('sw-product-detail-base', {
 
             // load all our individual codes of our promotion
             // into our local promotion object.
-            this.reviewRepository.search(criteria, this.apiContext).then((reviewCollection) => {
+            this.reviewRepository.search(criteria, Shopware.Context.api).then((reviewCollection) => {
                 // assign our ui data
                 this.total = reviewCollection.total;
                 this.reviewItemData = reviewCollection;

@@ -6,10 +6,7 @@ const { mapApiErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-customer-address-form', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'apiContext'
-    ],
+    inject: ['repositoryFactory'],
 
     props: {
         customer: {

@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-promotion-sales-channel-select', {
     template,
 
-    inject: ['repositoryFactory', 'apiContext'],
+    inject: ['repositoryFactory'],
 
     props: {
         promotion: {
@@ -69,7 +69,7 @@ Component.register('sw-promotion-sales-channel-select', {
 
     methods: {
         createdComponent() {
-            this.salesChannelRepository.search(new Criteria(), this.apiContext).then((searchresult) => {
+            this.salesChannelRepository.search(new Criteria(), Shopware.Context.api).then((searchresult) => {
                 this.salesChannels = searchresult;
             });
         },

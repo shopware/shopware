@@ -8,10 +8,7 @@ const { mapPageErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-customer-detail', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'apiContext'
-    ],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -130,7 +127,7 @@ Component.register('sw-customer-detail', {
 
             this.customerRepository.get(
                 this.customerId,
-                this.apiContext,
+                Shopware.Context.api,
                 this.defaultCriteria
             ).then((customer) => {
                 this.customer = customer;
@@ -155,7 +152,7 @@ Component.register('sw-customer-detail', {
                 this.customer.birthday = null;
             }
 
-            return this.customerRepository.save(this.customer, this.apiContext).then(() => {
+            return this.customerRepository.save(this.customer, Shopware.Context.api).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
                 this.createdComponent();

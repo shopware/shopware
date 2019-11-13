@@ -38,9 +38,9 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
         createdComponent() {
             Shopware.State.commit('adminMenu/collapseSidebar');
 
-            const isSystemDefaultLanguage = this.apiContext.languageId === this.apiContext.systemLanguageId;
+            const isSystemDefaultLanguage = Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId;
             if (!isSystemDefaultLanguage) {
-                this.languageStore.setCurrentId(this.apiContext.systemLanguageId);
+                this.languageStore.setCurrentId(Shopware.Context.api.systemLanguageId);
                 this.$store.commit('cmsPageState/setIsSystemDefaultLanguage', isSystemDefaultLanguage);
             }
 
@@ -66,7 +66,7 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
 
             this.isLoading = true;
 
-            return this.pageRepository.save(this.page, this.apiContext).then(() => {
+            return this.pageRepository.save(this.page, Shopware.Context.api).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
 

@@ -9,7 +9,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-document-detail', {
     template,
 
-    inject: ['repositoryFactory', 'apiContext'],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -394,15 +394,16 @@ Component.register('sw-settings-document-detail', {
             documentSalesChannelCriteria.addFilter(
                 Criteria.equals('documentTypeId', id)
             );
-            documentSalesChannels.search(documentSalesChannelCriteria, this.apiContext).then((responseSalesChannels) => {
-                const assignedSalesChannelIds = [];
-                responseSalesChannels.forEach((salesChannel) => {
-                    if (salesChannel.salesChannelId !== null) {
-                        assignedSalesChannelIds.push(salesChannel.salesChannelId);
-                    }
+            documentSalesChannels.search(documentSalesChannelCriteria, Shopware.Context.api)
+                .then((responseSalesChannels) => {
+                    const assignedSalesChannelIds = [];
+                    responseSalesChannels.forEach((salesChannel) => {
+                        if (salesChannel.salesChannelId !== null) {
+                            assignedSalesChannelIds.push(salesChannel.salesChannelId);
+                        }
+                    });
+                    this.getPossibleSalesChannels(assignedSalesChannelIds);
                 });
-                this.getPossibleSalesChannels(assignedSalesChannelIds);
-            });
         },
         getPossibleSalesChannels(assignedSalesChannelIds) {
             this.setSalesChannelCriteria(assignedSalesChannelIds);

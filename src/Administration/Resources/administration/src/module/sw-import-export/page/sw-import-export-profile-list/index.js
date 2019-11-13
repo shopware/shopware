@@ -7,7 +7,7 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-import-export-profile-list', {
     template,
 
-    inject: ['repositoryFactory', 'apiContext'],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -39,7 +39,7 @@ Component.register('sw-import-export-profile-list', {
             this.repository = this.repositoryFactory.create('import_export_profile');
 
             return this.repository
-                .search(new Criteria(), this.apiContext)
+                .search(new Criteria(), Shopware.Context.api)
                 .then((result) => {
                     this.importExportProfiles = result;
                     this.isLoading = false;
@@ -68,7 +68,7 @@ Component.register('sw-import-export-profile-list', {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.repository.delete(id, this.apiContext).then(() => {
+            return this.repository.delete(id, Shopware.Context.api).then(() => {
                 this.createdComponent();
             });
         },

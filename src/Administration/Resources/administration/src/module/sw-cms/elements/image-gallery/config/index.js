@@ -12,10 +12,7 @@ Component.register('sw-cms-el-config-image-gallery', {
         Mixin.getByName('cms-element')
     ],
 
-    inject: [
-        'repositoryFactory',
-        'apiContext'
-    ],
+    inject: ['repositoryFactory'],
 
     data() {
         return {
@@ -68,7 +65,7 @@ Component.register('sw-cms-el-config-image-gallery', {
                     Criteria.equalsAny('id', mediaIds)
                 );
 
-                this.mediaRepository.search(criteria, this.apiContext).then((response) => {
+                this.mediaRepository.search(criteria, Shopware.Context.api).then((response) => {
                     this.mediaItems = response;
                 });
             }

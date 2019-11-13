@@ -20,7 +20,7 @@ export default class EntityStore {
         this.EntityClass = EntityClass;
 
         const serviceContainer = Shopware.Application.getContainer('service');
-        this.versionId = Shopware.Context.Api.liveVersionId;
+        this.versionId = Shopware.Context.api.liveVersionId;
 
         if (Shopware.Utils.types.isString(apiService)) {
             this.apiService = serviceContainer[apiService];

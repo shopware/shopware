@@ -7,10 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-customer-detail-order', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'apiContext'
-    ],
+    inject: ['repositoryFactory'],
 
     props: {
         customer: {
@@ -94,7 +91,7 @@ Component.register('sw-customer-detail-order', {
             criteria.addAssociation('stateMachineState')
                 .addAssociation('currency');
 
-            this.orderRepository.search(criteria, this.apiContext).then((orders) => {
+            this.orderRepository.search(criteria, Shopware.Context.api).then((orders) => {
                 this.orders = orders;
                 this.isLoading = false;
             });

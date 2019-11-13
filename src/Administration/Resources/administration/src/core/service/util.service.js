@@ -14,7 +14,8 @@ import {
     getArrayChanges,
     cloneDeep,
     merge,
-    get
+    get,
+    set
 } from './utils/object.utils';
 import { warn } from './utils/debug.utils';
 import { currency, date, fileSize, md5 } from './utils/format.utils';
@@ -31,7 +32,8 @@ export const object = {
     getArrayChanges: getArrayChanges,
     cloneDeep: cloneDeep,
     merge: merge,
-    get: get
+    get: get,
+    set: set
 };
 
 export const debug = {

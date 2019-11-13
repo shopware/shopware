@@ -8,7 +8,7 @@ const { Criteria } = Shopware.Data;
 
 Component.register('sw-promotion-persona-form', {
     template,
-    inject: ['repositoryFactory', 'apiContext'],
+    inject: ['repositoryFactory'],
 
     props: {
         promotion: {
@@ -137,7 +137,7 @@ Component.register('sw-promotion-persona-form', {
                 return;
             }
 
-            this.customerService.addCustomer(item.id, this.apiContext).then(() => {
+            this.customerService.addCustomer(item.id, Shopware.Context.api).then(() => {
                 // remove from vue search field
                 // and make it empty for the next searches
                 this.$refs.selectCustomerSearch.clearSelection();

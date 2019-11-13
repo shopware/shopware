@@ -11,10 +11,7 @@ Component.register('sw-cms-el-config-product-box', {
         Mixin.getByName('cms-element')
     ],
 
-    inject: [
-        'repositoryFactory',
-        'apiContext'
-    ],
+    inject: ['repositoryFactory'],
 
     computed: {
         productRepository() {
@@ -22,7 +19,7 @@ Component.register('sw-cms-el-config-product-box', {
         },
 
         productSelectContext() {
-            const context = Object.assign({}, this.apiContext);
+            const context = Object.assign({}, Shopware.Context.api);
             context.inheritance = true;
 
             return context;

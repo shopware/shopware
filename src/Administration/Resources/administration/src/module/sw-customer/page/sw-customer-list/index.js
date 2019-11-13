@@ -7,10 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-customer-list', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'apiContext'
-    ],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -106,7 +103,7 @@ Component.register('sw-customer-list', {
         getList() {
             this.isLoading = true;
 
-            this.customerRepository.search(this.defaultCriteria, this.apiContext).then((items) => {
+            this.customerRepository.search(this.defaultCriteria, Shopware.Context.api).then((items) => {
                 this.total = items.total;
                 this.customers = items;
                 this.isLoading = false;
@@ -128,7 +125,7 @@ Component.register('sw-customer-list', {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.customerRepository.delete(id, this.apiContext).then(() => {
+            return this.customerRepository.delete(id, Shopware.Context.api).then(() => {
                 this.getList();
             });
         },
@@ -187,7 +184,7 @@ Component.register('sw-customer-list', {
         loadFilterValues() {
             this.filterLoading = true;
 
-            return this.customerRepository.search(this.filterSelectCriteria, this.apiContext).then(({ aggregations }) => {
+            return this.customerRepository.search(this.filterSelectCriteria, Shopware.Context.api).then(({ aggregations }) => {
                 this.availableAffiliateCodes = aggregations.affiliateCodes.buckets;
                 this.availableCampaignCodes = aggregations.campaignCodes.buckets;
                 this.filterLoading = false;

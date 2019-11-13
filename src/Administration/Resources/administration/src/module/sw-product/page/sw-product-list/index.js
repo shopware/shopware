@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-product-list', {
     template,
 
-    inject: ['repositoryFactory', 'apiContext'],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -93,8 +93,8 @@ Component.register('sw-product-list', {
             const currencyCriteria = new Criteria(1, 500);
 
             return Promise.all([
-                this.productRepository.search(productCriteria, this.apiContext),
-                this.currencyRepository.search(currencyCriteria, this.apiContext)
+                this.productRepository.search(productCriteria, Shopware.Context.api),
+                this.currencyRepository.search(currencyCriteria, Shopware.Context.api)
             ]).then((result) => {
                 const products = result[0];
                 const currencies = result[1];

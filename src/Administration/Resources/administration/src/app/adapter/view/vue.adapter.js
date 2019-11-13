@@ -289,7 +289,7 @@ export default class VueAdapter extends ViewAdapter {
     initLocales(store) {
         const registry = this.localeFactory.getLocaleRegistry();
         const messages = {};
-        const fallbackLocale = Shopware.Context.App.fallbackLocale;
+        const fallbackLocale = Shopware.Context.app.fallbackLocale;
 
         registry.forEach((localeMessages, key) => {
             store.commit('registerAdminLocale', key);

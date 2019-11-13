@@ -7,10 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-cms-layout-modal', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'apiContext'
-    ],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('listing')
@@ -47,7 +44,7 @@ Component.register('sw-cms-layout-modal', {
                 criteria.setTerm(this.term);
             }
 
-            return this.pageRepository.search(criteria, this.apiContext).then((searchResult) => {
+            return this.pageRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
                 this.total = searchResult.total;
                 this.pages = searchResult;
                 this.isLoading = false;

@@ -56,7 +56,8 @@ Application
     .addServiceProvider('loginService', () => {
         const serviceContainer = Application.getContainer('service');
         const initContainer = Application.getContainer('init');
-        const loginService = LoginService(initContainer.httpClient, serviceContainer.apiContext);
+
+        const loginService = LoginService(initContainer.httpClient, Shopware.Context.api);
 
         addPluginUpdatesListener(loginService, serviceContainer);
         addShopwareUpdatesListener(loginService, serviceContainer);

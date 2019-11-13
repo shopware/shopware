@@ -6,9 +6,7 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-cms-section', {
     template,
 
-    inject: [
-        'repositoryFactory'
-    ],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('cms-state')
@@ -57,7 +55,7 @@ Component.register('sw-cms-section', {
         },
 
         sectionStyles() {
-            const apiContext = Shopware.Context.Api;
+            const apiContext = Shopware.Context.api;
             let backgroundMedia = null;
 
             if (this.section.backgroundMedia) {

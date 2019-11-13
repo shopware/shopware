@@ -8,7 +8,7 @@ const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 Component.register('sw-product-detail-variants', {
     template,
 
-    inject: ['repositoryFactory', 'apiContext'],
+    inject: ['repositoryFactory'],
 
     data() {
         return {
@@ -91,7 +91,7 @@ Component.register('sw-product-detail-variants', {
                 criteria.addAssociation('configuratorSettings.option');
                 criteria.addAssociation('prices');
 
-                this.productRepository.get(this.product.id, this.apiContext, criteria).then((product) => {
+                this.productRepository.get(this.product.id, Shopware.Context.api, criteria).then((product) => {
                     this.productEntity = product;
                     this.productEntityLoaded = true;
                     resolve();
@@ -107,7 +107,7 @@ Component.register('sw-product-detail-variants', {
                         .setLimit(100)
                         .setPage(1);
 
-                    this.groupRepository.search(groupCriteria, this.apiContext).then((searchResult) => {
+                    this.groupRepository.search(groupCriteria, Shopware.Context.api).then((searchResult) => {
                         this.groups = searchResult;
                         resolve();
                     });

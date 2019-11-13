@@ -5,7 +5,7 @@ const { Component, Mixin, StateDeprecated } = Shopware;
 Component.register('sw-customer-create', {
     template,
 
-    inject: ['repositoryFactory', 'apiContext', 'numberRangeService'],
+    inject: ['repositoryFactory', 'numberRangeService'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -38,16 +38,16 @@ Component.register('sw-customer-create', {
 
     methods: {
         createdComponent() {
-            this.languageStore.setCurrentId(Shopware.Context.Api.systemLanguageId);
+            this.languageStore.setCurrentId(Shopware.Context.api.systemLanguageId);
 
-            this.customer = this.customerRepository.create(this.apiContext);
+            this.customer = this.customerRepository.create(Shopware.Context.api);
 
             const addressRepository = this.repositoryFactory.create(
                 this.customer.addresses.entity,
                 this.customer.addresses.source
             );
 
-            this.address = addressRepository.create(this.apiContext);
+            this.address = addressRepository.create(Shopware.Context.api);
 
             this.customer.addresses.add(this.address);
             this.customer.defaultBillingAddressId = this.address.id;
@@ -74,7 +74,7 @@ Component.register('sw-customer-create', {
             }
 
             numberRangePromise.then(() => {
-                this.customerRepository.save(this.customer, this.apiContext).then(() => {
+                this.customerRepository.save(this.customer, Shopware.Context.api).then(() => {
                     this.isLoading = false;
                     this.isSaveSuccessful = true;
                 }).catch(() => {

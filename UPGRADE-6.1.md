@@ -442,19 +442,28 @@ To migrate your existing data run `bin/console database:migrate --all Shopware\\
   
     After:
     ```js
-      Shopware.Context.App // or
-      Shopware.Context.Api
+      Shopware.Context.app // or
+      Shopware.Context.api
     ```
   
     Before:
     ```js
       inject: ['context'],
-    ```
-        
-    After:
+      ...
+      this.repository.search(criteria, context)
+    ```  
+    or
     ```js
       inject: ['apiContext'],
-    ```  
+      ...
+      this.repository.search(criteria, apiContext)
+    ```
+  
+    After:  
+    Now you do not need to inject the context and can use the context directly.
+    ```
+      this.repository.search(criteria, Shopware.Context.api)
+    ```
   
 * State was replaced by Vuex state. The old state was renamed to `StateDeprecated`
 

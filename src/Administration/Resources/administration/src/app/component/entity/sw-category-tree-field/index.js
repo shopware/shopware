@@ -8,7 +8,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-category-tree-field', {
     template,
 
-    inject: ['repositoryFactory', 'apiContext'],
+    inject: ['repositoryFactory'],
 
     props: {
         categoriesCollection: {
@@ -172,7 +172,7 @@ Component.register('sw-category-tree-field', {
             categoryCriteria.addFilter(Criteria.equals('parentId', parentId), 'AND', Criteria.equals('type', 'page'));
 
             // search for categories
-            return this.globalCategoryRepository.search(categoryCriteria, this.apiContext).then((searchResult) => {
+            return this.globalCategoryRepository.search(categoryCriteria, Shopware.Context.api).then((searchResult) => {
                 // when requesting root categories, replace the data
                 if (parentId === null) {
                     this.categories = searchResult;
@@ -235,7 +235,7 @@ Component.register('sw-category-tree-field', {
             categorySearchCriteria.setTerm(term);
 
             // search for categories
-            return this.globalCategoryRepository.search(categorySearchCriteria, this.apiContext);
+            return this.globalCategoryRepository.search(categorySearchCriteria, Shopware.Context.api);
         },
 
         isSearchItemChecked(itemId) {

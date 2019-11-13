@@ -7,7 +7,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
 Component.register('sw-cms-el-config-product-slider', {
     template,
 
-    inject: ['repositoryFactory', 'apiContext'],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('cms-element')
@@ -40,7 +40,7 @@ Component.register('sw-cms-el-config-product-slider', {
         },
 
         productMultiSelectContext() {
-            const context = Object.assign({}, this.apiContext);
+            const context = Object.assign({}, Shopware.Context.api);
             context.inheritance = true;
 
             return context;
@@ -55,7 +55,7 @@ Component.register('sw-cms-el-config-product-slider', {
         createdComponent() {
             this.initElementConfig('product-slider');
 
-            this.productCollection = new EntityCollection('/product', 'product', this.apiContext);
+            this.productCollection = new EntityCollection('/product', 'product', Shopware.Context.api);
 
             // We have to fetch the assigned entities again
             // ToDo: Fix with NEXT-4830
@@ -64,7 +64,7 @@ Component.register('sw-cms-el-config-product-slider', {
                 criteria.addAssociation('cover');
                 criteria.setIds(this.element.config.products.value);
 
-                this.productRepository.search(criteria, Object.assign({}, this.apiContext, { inheritance: true }))
+                this.productRepository.search(criteria, Object.assign({}, Shopware.Context.api, { inheritance: true }))
                     .then(result => {
                         this.productCollection = result;
                     });

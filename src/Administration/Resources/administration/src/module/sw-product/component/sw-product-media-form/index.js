@@ -6,7 +6,7 @@ const { mapGetters } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-media-form', {
     template,
-    inject: ['repositoryFactory', 'apiContext'],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -182,7 +182,7 @@ Component.register('sw-product-media-form', {
         },
 
         createMediaAssociation(targetId) {
-            const productMedia = this.productMediaRepository.create(this.apiContext);
+            const productMedia = this.productMediaRepository.create(Shopware.Context.api);
 
             productMedia.productId = this.product.id;
             productMedia.mediaId = targetId;

@@ -8,7 +8,7 @@ const { Criteria } = Shopware.Data;
 const discountHandler = new DiscountHandler();
 
 Component.register('sw-promotion-discount-component', {
-    inject: ['repositoryFactory', 'apiContext'],
+    inject: ['repositoryFactory'],
     template,
 
     mixins: [
@@ -239,7 +239,7 @@ Component.register('sw-promotion-discount-component', {
             this.syncService = Shopware.Service('syncService');
             this.httpClient = this.syncService.httpClient;
 
-            this.currencyRepository.search(new Criteria(), this.apiContext).then((response) => {
+            this.currencyRepository.search(new Criteria(), Shopware.Context.api).then((response) => {
                 this.currencies = response;
                 this.defaultCurrency = this.currencies.find(currency => currency.isSystemDefault);
                 this.currencySymbol = this.defaultCurrency.symbol;
@@ -314,7 +314,7 @@ Component.register('sw-promotion-discount-component', {
                 setPrice = discountHandler.getMinValue();
             }
             // now create the value with the calculated and translated value
-            const newAdvancedCurrencyPrices = this.advancedPricesRepo.create(this.apiContext);
+            const newAdvancedCurrencyPrices = this.advancedPricesRepo.create(Shopware.Context.api);
             newAdvancedCurrencyPrices.discountId = this.discount.id;
             newAdvancedCurrencyPrices.price = setPrice;
             newAdvancedCurrencyPrices.currencyId = currency.id;
@@ -387,7 +387,7 @@ Component.register('sw-promotion-discount-component', {
                 Criteria.equals('promotionId', this.promotion.id)
             );
 
-            await this.repositoryGroups.search(criteria, this.apiContext).then((groups) => {
+            await this.repositoryGroups.search(criteria, Shopware.Context.api).then((groups) => {
                 this.availableSetGroups = groups;
             });
 

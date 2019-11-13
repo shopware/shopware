@@ -8,10 +8,7 @@ const utils = Shopware.Utils;
 Component.register('sw-settings-payment-list', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'apiContext'
-    ],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -56,7 +53,7 @@ Component.register('sw-settings-payment-list', {
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
 
-            this.paymentRepository.search(criteria, this.apiContext).then((items) => {
+            this.paymentRepository.search(criteria, Shopware.Context.api).then((items) => {
                 this.total = items.total;
                 this.payment = items;
                 this.isLoading = false;
@@ -93,7 +90,7 @@ Component.register('sw-settings-payment-list', {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.paymentRepository.delete(id, this.apiContext).then(() => {
+            return this.paymentRepository.delete(id, Shopware.Context.api).then(() => {
                 this.getList();
             });
         },

@@ -24,7 +24,7 @@ export default class LanguageStore extends EntityStore {
      * @param {String} languageId
      */
     setCurrentId(languageId) {
-        Shopware.Context.Api.languageId = languageId;
+        Shopware.State.commit('context/setApiLanguageId', languageId);
         localStorage.setItem('sw-admin-current-language', languageId);
     }
 
@@ -51,19 +51,19 @@ export default class LanguageStore extends EntityStore {
     }
 
     get systemLanguageId() {
-        return Shopware.Context.Api.systemLanguageId;
+        return Shopware.Context.api.systemLanguageId;
     }
 
     set systemLanguageId(newValue) {
-        Shopware.Context.Api.systemLanguageId = newValue;
+        Shopware.State.commit('context/setApiSystemLanguageId', newValue);
     }
 
     get currentLanguageId() {
-        return Shopware.Context.Api.languageId;
+        return Shopware.Context.api.languageId;
     }
 
     set currentLanguageId(newValue) {
-        Shopware.Context.Api.languageId = newValue;
+        Shopware.State.commit('context/setApiLanguageId', newValue);
     }
 
     init() {

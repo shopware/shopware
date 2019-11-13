@@ -11,8 +11,7 @@ Component.register('sw-first-run-wizard-demodata', {
         'addNextCallback',
         'storeService',
         'pluginService',
-        'repositoryFactory',
-        'apiContext'
+        'repositoryFactory'
     ],
 
     data() {
@@ -110,7 +109,7 @@ Component.register('sw-first-run-wizard-demodata', {
                 .setLimit(1);
 
             this.pluginRepository
-                .search(pluginCriteria, this.apiContext)
+                .search(pluginCriteria, Shopware.Context.api)
                 .then((result) => {
                     if (result.total < 1) {
                         return;

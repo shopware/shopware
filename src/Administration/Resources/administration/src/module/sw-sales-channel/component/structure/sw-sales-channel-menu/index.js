@@ -7,10 +7,7 @@ const FlatTree = Shopware.Helper.FlatTreeHelper;
 Component.register('sw-sales-channel-menu', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'apiContext'
-    ],
+    inject: ['repositoryFactory'],
 
     data() {
         return {
@@ -58,7 +55,7 @@ Component.register('sw-sales-channel-menu', {
             criteria.addSorting(Criteria.sort('sales_channel.name', 'ASC'));
             criteria.addAssociation('type');
 
-            this.salesChannelRepository.search(criteria, this.apiContext).then((response) => {
+            this.salesChannelRepository.search(criteria, Shopware.Context.api).then((response) => {
                 this.salesChannels = response;
                 this.createMenuTree();
             });

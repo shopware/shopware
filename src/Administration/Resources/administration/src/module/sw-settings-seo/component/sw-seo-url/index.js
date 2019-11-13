@@ -8,7 +8,7 @@ const EntityCollection = Shopware.Data.EntityCollection;
 Component.register('sw-seo-url', {
     template,
 
-    inject: ['apiContext', 'repositoryFactory'],
+    inject: ['repositoryFactory'],
 
     mixins: [],
 
@@ -120,7 +120,7 @@ Component.register('sw-seo-url', {
             salesChannelCriteria.setIds([]);
             salesChannelCriteria.addAssociation('type');
 
-            this.salesChannelRepository.search(salesChannelCriteria, this.apiContext).then((salesChannelCollection) => {
+            this.salesChannelRepository.search(salesChannelCriteria, Shopware.Context.api).then((salesChannelCollection) => {
                 Shopware.State.commit('swSeoUrl/setSalesChannelCollection', salesChannelCollection);
             });
         },
@@ -130,7 +130,8 @@ Component.register('sw-seo-url', {
             const seoUrlCollection = new EntityCollection(
                 this.seoUrlRepository.route,
                 this.seoUrlRepository.schema.entity,
-                this.apiContext, new Criteria()
+                Shopware.Context.api,
+                new Criteria()
             );
 
             const defaultSeoUrlData = this.urls.find((entityData) => {
@@ -141,13 +142,13 @@ Component.register('sw-seo-url', {
                 this.showEmptySeoUrlError = true;
             }
 
-            const defaultSeoUrlEntity = this.seoUrlRepository.create(this.apiContext);
+            const defaultSeoUrlEntity = this.seoUrlRepository.create(Shopware.Context.api);
             Object.assign(defaultSeoUrlEntity, defaultSeoUrlData);
             seoUrlCollection.add(defaultSeoUrlEntity);
             Shopware.State.commit('swSeoUrl/setDefaultSeoUrl', defaultSeoUrlEntity);
 
             this.urls.forEach((entityData) => {
-                const entity = this.seoUrlRepository.create(this.apiContext);
+                const entity = this.seoUrlRepository.create(Shopware.Context.api);
                 Object.assign(entity, entityData);
 
                 seoUrlCollection.add(entity);
@@ -175,14 +176,14 @@ Component.register('sw-seo-url', {
         },
 
         refreshCurrentSeoUrl() {
-            const actualLanguageId = this.apiContext.languageId;
+            const actualLanguageId = Shopware.Context.api.languageId;
 
             const currentSeoUrl = this.seoUrlCollection.find((entity) => {
                 return entity.languageId === actualLanguageId && entity.salesChannelId === this.currentSalesChannelId;
             });
 
             if (!currentSeoUrl) {
-                const entity = this.seoUrlRepository.create(this.apiContext);
+                const entity = this.seoUrlRepository.create(Shopware.Context.api);
                 entity.foreignKey = this.defaultSeoUrl.foreignKey;
                 entity.isCanonical = true;
                 entity.languageId = actualLanguageId;

@@ -6,10 +6,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-mail-header-footer-list', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'apiContext'
-    ],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('listing')
@@ -47,7 +44,7 @@ Component.register('sw-mail-header-footer-list', {
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('salesChannels');
 
-            this.mailHeaderFooterRepository.search(criteria, this.apiContext).then((items) => {
+            this.mailHeaderFooterRepository.search(criteria, Shopware.Context.api).then((items) => {
                 this.total = items.total;
                 this.mailHeaderFooters = items;
                 this.isLoading = false;

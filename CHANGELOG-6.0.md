@@ -154,7 +154,8 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Moved the sw-product-maintain-currencies-modal to sw-maintain-currencies-modal.
     * Seperate the Shopware context to App-Context and Api-Context
     * Rename old `State` to `StateDeprecated`
-    * Make vuex store initially available
+    * Make vuex store initially available in global Shopware object `Shopware.State`
+    * Move context to the Store
 * Core
     * Moved the seo module from the storefront into the core.
     * Switched the execution condition of `\Shopware\Core\Framework\Migration\MigrationStep::addBackwardTrigger()` and `\Shopware\Core\Framework\Migration\MigrationStep::addForwardTrigger()` to match the execution conditions in the methods documentation.

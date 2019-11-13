@@ -13,10 +13,7 @@ Component.register('sw-entity-single-select', {
         event: 'change'
     },
 
-    inject: {
-        repositoryFactory: 'repositoryFactory',
-        adminContext: 'apiContext'
-    },
+    inject: { repositoryFactory: 'repositoryFactory' },
 
     props: {
         value: {
@@ -57,7 +54,7 @@ Component.register('sw-entity-single-select', {
             type: Object,
             required: false,
             default() {
-                return this.adminContext;
+                return Shopware.Context.api;
             }
         }
     },

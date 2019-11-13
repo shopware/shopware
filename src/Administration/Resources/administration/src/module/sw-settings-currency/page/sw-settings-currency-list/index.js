@@ -6,10 +6,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-currency-list', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'apiContext'
-    ],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -55,7 +52,7 @@ Component.register('sw-settings-currency-list', {
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
 
-            this.currencyRepository.search(criteria, this.apiContext).then((items) => {
+            this.currencyRepository.search(criteria, Shopware.Context.api).then((items) => {
                 this.total = items.total;
                 this.currency = items;
                 this.isLoading = false;
@@ -97,7 +94,7 @@ Component.register('sw-settings-currency-list', {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.currencyRepository.delete(id, this.apiContext).then(() => {
+            return this.currencyRepository.delete(id, Shopware.Context.api).then(() => {
                 this.getList();
             });
         },

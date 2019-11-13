@@ -4,10 +4,14 @@
  * @type factory
  */
 export default function createContext(context = {}) {
-    Object.assign(context, {
-        environment: process.env.NODE_ENV,
-        fallbackLocale: 'en-GB'
+    // set initial context
+    Shopware.State.commit('context/setAppEnvironment', process.env.NODE_ENV);
+    Shopware.State.commit('context/setAppFallbackLocale', 'en-GB');
+
+    // assign unknown context information
+    Object.entries(context).forEach(([key, value]) => {
+        Shopware.State.commit('context/addAppValue', { key, value });
     });
 
-    return context;
+    return Shopware.Context.app;
 }

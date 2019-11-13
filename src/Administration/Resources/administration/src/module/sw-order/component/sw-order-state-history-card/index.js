@@ -13,8 +13,7 @@ Component.register('sw-order-state-history-card', {
     inject: [
         'orderService',
         'stateMachineService',
-        'repositoryFactory',
-        'apiContext'
+        'repositoryFactory'
     ],
     props: {
         title: {
@@ -124,7 +123,7 @@ Component.register('sw-order-state-history-card', {
         getStateHistoryEntries() {
             return this.stateMachineHistoryRepository.search(
                 this.stateMachineHistoryCriteria,
-                this.apiContext
+                Shopware.Context.api
             ).then((fetchedEntries) => {
                 this.orderHistory = this.buildStateHistory(this.order, fetchedEntries);
                 if (this.transaction) {
@@ -217,7 +216,7 @@ Component.register('sw-order-state-history-card', {
         },
 
         getAllStates() {
-            return this.stateMachineStateRepository.search(this.stateMachineStateCriteria(), this.apiContext);
+            return this.stateMachineStateRepository.search(this.stateMachineStateCriteria(), Shopware.Context.api);
         },
 
         stateMachineStateCriteria() {

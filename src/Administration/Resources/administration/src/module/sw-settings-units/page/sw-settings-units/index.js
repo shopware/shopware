@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-units', {
     template,
 
-    inject: ['repositoryFactory', 'apiContext'],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -64,7 +64,7 @@ Component.register('sw-settings-units', {
         loadUnits() {
             this.isLoading = true;
 
-            this.unitRepository.search(this.unitsCriteria, this.apiContext).then((searchResult) => {
+            this.unitRepository.search(this.unitsCriteria, Shopware.Context.api).then((searchResult) => {
                 this.units = searchResult;
                 this.placeholderAmount = searchResult.total;
                 this.isLoading = false;
@@ -72,7 +72,7 @@ Component.register('sw-settings-units', {
         },
 
         createNewUnit() {
-            this.newUnit = this.unitRepository.create(this.apiContext);
+            this.newUnit = this.unitRepository.create(Shopware.Context.api);
             this.newUnit.name = '';
             this.newUnit.shortCode = '';
 
@@ -82,7 +82,7 @@ Component.register('sw-settings-units', {
         saveUnit(unit) {
             this.isLoading = true;
 
-            this.unitRepository.save(unit, this.apiContext).then(() => {
+            this.unitRepository.save(unit, Shopware.Context.api).then(() => {
                 this.isLoading = false;
 
                 this.loadUnits();
@@ -122,7 +122,7 @@ Component.register('sw-settings-units', {
 
         deleteUnit(unit) {
             this.isLoading = true;
-            this.unitRepository.delete(unit.id, this.apiContext).then(() => {
+            this.unitRepository.delete(unit.id, Shopware.Context.api).then(() => {
                 this.isLoading = false;
                 this.loadUnits();
             });

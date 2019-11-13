@@ -18,8 +18,8 @@ Component.register('sw-product-detail-properties', {
 
     computed: {
         ...mapState('swProductDetail', [
-            'product',
-            'apiContext'
+            'product'
+
         ]),
 
         ...mapGetters('swProductDetail', [
@@ -41,7 +41,7 @@ Component.register('sw-product-detail-properties', {
         },
 
         checkIfPropertiesExists() {
-            this.propertyRepository.search(new Criteria(1, 1), this.apiContext).then((res) => {
+            this.propertyRepository.search(new Criteria(1, 1), Shopware.Context.api).then((res) => {
                 this.propertiesAvailable = res.total > 0;
             });
         }

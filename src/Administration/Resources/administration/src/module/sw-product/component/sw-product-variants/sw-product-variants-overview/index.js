@@ -42,7 +42,6 @@ Component.register('sw-product-variants-overview', {
 
     computed: {
         ...mapState('swProductDetail', [
-            'apiContext',
             'product',
             'currencies',
             'taxes',
@@ -153,7 +152,7 @@ Component.register('sw-product-variants-overview', {
 
                 // Start search
                 this.productRepository
-                    .search(searchCriteria, this.apiContext)
+                    .search(searchCriteria, Shopware.Context.api)
                     .then((res) => {
                         this.total = res.total;
                         Shopware.State.commit('swProductDetail/setVariants', res);
@@ -368,7 +367,7 @@ Component.register('sw-product-variants-overview', {
                 return `${acc}${index > 0 ? ' - ' : ''}${option.translated.name}`;
             }, '');
 
-            this.productRepository.save(variation, this.apiContext).then(() => {
+            this.productRepository.save(variation, Shopware.Context.api).then(() => {
                 // create success notification
                 const titleSaveSuccess = this.$tc('sw-product.detail.titleSaveSuccess');
                 const messageSaveSuccess = this.$tc('sw-product.detail.messageSaveSuccess', 0, {
@@ -408,7 +407,7 @@ Component.register('sw-product-variants-overview', {
             this.modalLoading = true;
             this.showDeleteModal = false;
 
-            this.productRepository.delete(item.id, this.apiContext).then(() => {
+            this.productRepository.delete(item.id, Shopware.Context.api).then(() => {
                 this.modalLoading = false;
 
                 this.createNotificationSuccess({

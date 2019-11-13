@@ -9,5 +9,5 @@ module.exports = (() => {
     require(resolve(srcPath, 'src/app/directive/index.js')).default(); // eslint-disable-line
     require(resolve(srcPath, 'src/app/filter/index.js')).default(); // eslint-disable-line
     require(resolve(srcPath, 'src/app/filter/index.js')).default(); // eslint-disable-line
-    require(resolve(srcPath, 'src/app/init-pre/vuex.init.js')).default(); // eslint-disable-line
+    require(resolve(srcPath, 'src/app/init-pre/state.init.js')).default(); // eslint-disable-line
 })();

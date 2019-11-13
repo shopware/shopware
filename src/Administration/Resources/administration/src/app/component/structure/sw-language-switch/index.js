@@ -16,8 +16,6 @@ const { warn } = Shopware.Utils.debug;
 Component.register('sw-language-switch', {
     template,
 
-    inject: ['apiContext'],
-
     props: {
         disabled: {
             type: Boolean,

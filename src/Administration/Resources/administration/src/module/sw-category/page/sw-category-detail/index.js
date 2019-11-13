@@ -14,7 +14,6 @@ Component.register('sw-category-detail', {
         'cmsPageService',
         'cmsService',
         'repositoryFactory',
-        'apiContext',
         'seoUrlService'
     ],
 
@@ -51,7 +50,7 @@ Component.register('sw-category-detail', {
             splitBreakpoint: 1024,
             isDisplayingLeavePageWarning: false,
             nextRoute: null,
-            currentLanguageId: this.apiContext.languageId
+            currentLanguageId: Shopware.Context.api.languageId
         };
     },
 
@@ -197,7 +196,7 @@ Component.register('sw-category-detail', {
                 .addSorting(Criteria.sort('position', 'ASC'))
                 .addAssociation('slots');
 
-            return this.cmsPageRepository.search(criteria, this.apiContext).then((response) => {
+            return this.cmsPageRepository.search(criteria, Shopware.Context.api).then((response) => {
                 const cmsPage = response.get(this.cmsPageId);
                 if (this.category.slotConfig !== null) {
                     cmsPage.sections.forEach((section) => {
@@ -239,7 +238,7 @@ Component.register('sw-category-detail', {
 
             return Shopware.State.dispatch('swCategoryDetail/loadActiveCategory', {
                 repository: this.categoryRepository,
-                apiContext: this.apiContext,
+                apiContext: Shopware.Context.api,
                 id: this.categoryId
             }).then(() => Shopware.State.dispatch('cmsPageState/resetCmsPageState'))
                 .then(this.getAssignedCmsPage)
@@ -249,7 +248,7 @@ Component.register('sw-category-detail', {
         },
 
         onSaveCategories() {
-            return this.categoryRepository.save(this.category, this.apiContext);
+            return this.categoryRepository.save(this.category, Shopware.Context.api);
         },
 
         openChangeModal(destination) {
@@ -283,7 +282,7 @@ Component.register('sw-category-detail', {
 
         setMediaItemFromSidebar(sideBarMedia) {
             // be consistent and fetch from repository
-            this.mediaRepository.get(sideBarMedia.id, this.apiContext).then((media) => {
+            this.mediaRepository.get(sideBarMedia.id, Shopware.Context.api).then((media) => {
                 this.category.mediaId = media.id;
                 this.category.media = media;
             });
@@ -325,7 +324,7 @@ Component.register('sw-category-detail', {
             });
 
             this.isLoading = true;
-            return this.categoryRepository.save(this.category, this.apiContext).then(() => {
+            return this.categoryRepository.save(this.category, Shopware.Context.api).then(() => {
                 this.isSaveSuccessful = true;
                 return this.setCategory();
             }).catch(() => {

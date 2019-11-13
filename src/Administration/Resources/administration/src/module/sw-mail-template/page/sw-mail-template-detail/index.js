@@ -13,7 +13,7 @@ Component.register('sw-mail-template-detail', {
         Mixin.getByName('notification')
     ],
 
-    inject: ['mailService', 'entityMappingService', 'repositoryFactory', 'apiContext'],
+    inject: ['mailService', 'entityMappingService', 'repositoryFactory'],
 
     data() {
         return {
@@ -111,7 +111,7 @@ Component.register('sw-mail-template-detail', {
             criteria.addAssociation('salesChannels.salesChannel');
             criteria.addAssociation('mailTemplateType');
             this.isLoading = true;
-            this.mailTemplateRepository.get(this.mailTemplateId, this.apiContext, criteria).then((item) => {
+            this.mailTemplateRepository.get(this.mailTemplateId, Shopware.Context.api, criteria).then((item) => {
                 this.mailTemplate = item;
                 this.mailTemplateSalesChannels = this.createSalesChannelCollection();
                 this.mailTemplate.salesChannels.forEach((salesChannelAssoc) => {
@@ -122,14 +122,14 @@ Component.register('sw-mail-template-detail', {
         },
 
         createSalesChannelCollection() {
-            return new EntityCollection('/sales-channel', 'sales_channel', this.apiContext);
+            return new EntityCollection('/sales-channel', 'sales_channel', Shopware.Context.api);
         },
 
         getMailTemplateType() {
             if (this.mailTemplate.mailTemplateTypeId) {
                 this.mailTemplateTypeRepository.get(
                     this.mailTemplate.mailTemplateTypeId,
-                    this.apiContext
+                    Shopware.Context.api
                 ).then((item) => {
                     this.mailTemplateType = item;
                     this.$refs.htmlEditor.defineAutocompletion(this.outerCompleterFunction);
@@ -163,10 +163,10 @@ Component.register('sw-mail-template-detail', {
             this.handleSalesChannel();
             this.mailTemplateSalesChannelsAssoc.forEach((salesChannelAssoc) => {
                 updatePromises.push(
-                    this.mailTemplateSalesChannelAssociationRepository.save(salesChannelAssoc, this.apiContext)
+                    this.mailTemplateSalesChannelAssociationRepository.save(salesChannelAssoc, Shopware.Context.api)
                 );
             });
-            updatePromises.push(this.mailTemplateRepository.save(this.mailTemplate, this.apiContext).then(() => {
+            updatePromises.push(this.mailTemplateRepository.save(this.mailTemplate, Shopware.Context.api).then(() => {
                 this.mailTemplate.salesChannels.forEach((salesChannelAssoc) => {
                     if (
                         typeof salesChannelAssoc.salesChannelId !== 'undefined' &&
@@ -174,7 +174,7 @@ Component.register('sw-mail-template-detail', {
                     ) {
                         updatePromises.push(
                             this.mailTemplateSalesChannelAssociationRepository.delete(
-                                salesChannelAssoc.id, this.apiContext
+                                salesChannelAssoc.id, Shopware.Context.api
                             )
                         );
                     }
@@ -246,7 +246,7 @@ Component.register('sw-mail-template-detail', {
             }
             this.isLoading = true;
             this.getMailTemplateType();
-            this.mailTemplateTypeRepository.get(id, this.apiContext).then((item) => {
+            this.mailTemplateTypeRepository.get(id, Shopware.Context.api).then((item) => {
                 this.selectedType = item;
             });
 
@@ -257,7 +257,7 @@ Component.register('sw-mail-template-detail', {
             mailTemplateSalesChannelCriteria.addFilter(
                 Criteria.equals('mailTemplateTypeId', id)
             );
-            mailTemplateSalesChannelsEntry.search(mailTemplateSalesChannelCriteria, this.apiContext).then(
+            mailTemplateSalesChannelsEntry.search(mailTemplateSalesChannelCriteria, Shopware.Context.api).then(
                 (responseSalesChannels) => {
                     const assignedSalesChannelIds = [];
                     responseSalesChannels.forEach((salesChannel) => {
@@ -277,7 +277,7 @@ Component.register('sw-mail-template-detail', {
             criteria.addAssociation('salesChannel');
             this.mailTemplateSalesChannelAssociationRepository.search(
                 criteria,
-                this.apiContext
+                Shopware.Context.api
             ).then((responseAssoc) => {
                 this.enrichAssocStores(responseAssoc);
             });
@@ -332,7 +332,7 @@ Component.register('sw-mail-template-detail', {
             if (selectedIds && selectedIds.length > 0) {
                 selectedIds.forEach((salesChannelId) => {
                     if (!this.mailTemplateHasSaleschannel(salesChannelId)) {
-                        const assocConfig = this.mailTemplateSalesChannelAssociationRepository.create(this.apiContext);
+                        const assocConfig = this.mailTemplateSalesChannelAssociationRepository.create(Shopware.Context.api);
                         assocConfig.mailTemplateId = this.mailTemplate.id;
                         assocConfig.mailTemplateTypeId = this.selectedType.id;
                         assocConfig.salesChannelId = salesChannelId;

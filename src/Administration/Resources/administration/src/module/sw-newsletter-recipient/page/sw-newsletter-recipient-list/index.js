@@ -8,10 +8,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
 Component.register('sw-newsletter-recipient-list', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'apiContext'
-    ],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('listing')
@@ -68,14 +65,14 @@ Component.register('sw-newsletter-recipient-list', {
 
     methods: {
         createdComponent() {
-            this.tagCollection = new EntityCollection('/tag', 'tag', this.apiContext, new Criteria());
+            this.tagCollection = new EntityCollection('/tag', 'tag', Shopware.Context.api, new Criteria());
 
             const criteria = new Criteria(1, 100);
-            this.languageStore.search(criteria, this.apiContext).then((items) => {
+            this.languageStore.search(criteria, Shopware.Context.api).then((items) => {
                 this.languageFilters = items;
             });
 
-            this.salesChannelStore.search(criteria, this.apiContext).then((items) => {
+            this.salesChannelStore.search(criteria, Shopware.Context.api).then((items) => {
                 this.salesChannelFilters = items;
             });
 
@@ -93,7 +90,7 @@ Component.register('sw-newsletter-recipient-list', {
             });
 
             this.repository = this.repositoryFactory.create('newsletter_recipient');
-            this.repository.search(criteria, this.apiContext).then((searchResult) => {
+            this.repository.search(criteria, Shopware.Context.api).then((searchResult) => {
                 this.items = searchResult;
                 this.total = searchResult.total;
 

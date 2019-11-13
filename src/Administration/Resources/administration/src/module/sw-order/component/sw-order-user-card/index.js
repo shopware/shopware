@@ -11,8 +11,7 @@ Component.register('sw-order-user-card', {
 
     inject: [
         'orderService',
-        'repositoryFactory',
-        'apiContext'
+        'repositoryFactory'
     ],
 
     mixins: [
@@ -130,7 +129,7 @@ Component.register('sw-order-user-card', {
         },
 
         reload() {
-            this.countryRepository.search(this.countryCriteria(), this.apiContext).then((response) => {
+            this.countryRepository.search(this.countryCriteria(), Shopware.Context.api).then((response) => {
                 this.countries = response;
             });
         },
@@ -206,13 +205,13 @@ Component.register('sw-order-user-card', {
         },
 
         onAddTag(item) {
-            this.OrderTagRepository.assign(item.id, this.apiContext).then(() => {
+            this.OrderTagRepository.assign(item.id, Shopware.Context.api).then(() => {
                 this.emitChange();
             });
         },
 
         onRemoveTag(item) {
-            this.OrderTagRepository.delete(item.id, this.apiContext).then(() => {
+            this.OrderTagRepository.delete(item.id, Shopware.Context.api).then(() => {
                 this.emitChange();
             });
         }

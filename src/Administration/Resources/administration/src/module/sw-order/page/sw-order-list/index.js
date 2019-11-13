@@ -9,7 +9,6 @@ Component.register('sw-order-list', {
 
     inject: [
         'repositoryFactory',
-        'apiContext',
         'stateStyleDataProviderService'
     ],
 
@@ -113,7 +112,7 @@ Component.register('sw-order-list', {
         getList() {
             this.isLoading = true;
 
-            return this.orderRepository.search(this.orderCriteria, this.apiContext).then((response) => {
+            return this.orderRepository.search(this.orderCriteria, Shopware.Context.api).then((response) => {
                 this.total = response.total;
                 this.orders = response;
                 this.isLoading = false;
@@ -206,7 +205,7 @@ Component.register('sw-order-list', {
         loadFilterValues() {
             this.filterLoading = true;
 
-            return this.orderRepository.search(this.filterSelectCriteria, this.apiContext).then(({ aggregations }) => {
+            return this.orderRepository.search(this.filterSelectCriteria, Shopware.Context.api).then(({ aggregations }) => {
                 this.availableAffiliateCodes = aggregations.affiliateCodes.buckets;
                 this.availableCampaignCodes = aggregations.campaignCodes.buckets;
                 this.filterLoading = false;

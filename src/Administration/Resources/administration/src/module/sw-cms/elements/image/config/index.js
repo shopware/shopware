@@ -10,10 +10,7 @@ Component.register('sw-cms-el-config-image', {
         Mixin.getByName('cms-element')
     ],
 
-    inject: [
-        'repositoryFactory',
-        'apiContext'
-    ],
+    inject: ['repositoryFactory'],
 
     data() {
         return {
@@ -50,7 +47,7 @@ Component.register('sw-cms-el-config-image', {
         },
 
         onImageUpload({ targetId }) {
-            this.mediaRepository.get(targetId, this.apiContext).then((mediaEntity) => {
+            this.mediaRepository.get(targetId, Shopware.Context.api).then((mediaEntity) => {
                 this.element.config.media.value = mediaEntity.id;
 
                 this.updateElementData(mediaEntity);

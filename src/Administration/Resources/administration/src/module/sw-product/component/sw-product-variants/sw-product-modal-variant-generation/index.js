@@ -8,7 +8,7 @@ const { mapState } = Shopware.Component.getComponentHelper();
 Component.register('sw-product-modal-variant-generation', {
     template,
 
-    inject: ['repositoryFactory', 'apiContext'],
+    inject: ['repositoryFactory'],
 
     props: {
         product: {
@@ -96,7 +96,7 @@ Component.register('sw-product-modal-variant-generation', {
 
             this.variantsGenerator.createNewVariants(forceGenerating, this.currencies, this.product).then(() => {
                 // Save the product after generating
-                this.productRepository.save(this.product, this.apiContext).then(() => {
+                this.productRepository.save(this.product, Shopware.Context.api).then(() => {
                     this.$emit('variations-finish-generate');
                     this.$emit('modal-close');
                     this.isLoading = false;

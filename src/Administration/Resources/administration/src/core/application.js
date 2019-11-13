@@ -166,9 +166,8 @@ class ApplicationBootstrapper {
      * @returns {ApplicationBootstrapper}
      */
     registerApiContext(context) {
-        this.addServiceProvider('apiContext', () => {
-            return Shopware.Classes._private.ApiContextFactory(context);
-        });
+        Shopware.Context.api = Shopware.Classes._private.ApiContextFactory(context);
+
         return this;
     }
 
@@ -179,9 +178,8 @@ class ApplicationBootstrapper {
      * @returns {ApplicationBootstrapper}
      */
     registerAppContext(context) {
-        this.addServiceProvider('appContext', () => {
-            return Shopware.Classes._private.AppContextFactory(context);
-        });
+        Shopware.Context.app = Shopware.Classes._private.AppContextFactory(context);
+
         return this;
     }
 
@@ -230,9 +228,7 @@ class ApplicationBootstrapper {
      * @returns {module:core/application.ApplicationBootstrapper}
      */
     initializeFeatureFlags() {
-        const appContext = Shopware.Context.App;
-
-        Shopware.FeatureConfig.init(appContext.features);
+        Shopware.FeatureConfig.init(Shopware.Context.app.features);
 
         return this;
     }
@@ -283,9 +279,24 @@ class ApplicationBootstrapper {
      * @returns {module:core/application.ApplicationBootstrapper}
      */
     start(config = {}) {
-        return this.registerConfig(config)
+        return this.initState()
+            .registerConfig(config)
             .initializeFeatureFlags()
             .startBootProcess();
+    }
+
+    /**
+     * Get the global state
+     * @returns {Object}
+     */
+    initState() {
+        const initaliziation = this.getContainer('init').state;
+
+        if (initaliziation) {
+            return this;
+        }
+
+        return new Error('State could not be initialized');
     }
 
     /**
@@ -380,11 +391,10 @@ class ApplicationBootstrapper {
      */
     createApplicationRoot() {
         const initContainer = this.getContainer('init');
-        const serviceContainer = this.getContainer('service');
         const router = initContainer.router.getRouterInstance();
 
         // We're in a test environment, we're not needing an application root
-        if (serviceContainer.appContext.environment === 'testing') {
+        if (Shopware.Context.app.environment === 'testing') {
             return Promise.resolve(this);
         }
 
@@ -394,7 +404,7 @@ class ApplicationBootstrapper {
             this.getContainer('service')
         );
 
-        const firstRunWizard = serviceContainer.appContext.firstRunWizard;
+        const firstRunWizard = Shopware.Context.app.firstRunWizard;
         if (firstRunWizard && !router.history.current.name.startsWith('sw.first.run.wizard.')) {
             router.push({
                 name: 'sw.first.run.wizard.index'
@@ -458,12 +468,11 @@ class ApplicationBootstrapper {
     initializeLoginInitializer() {
         const loginInitializer = [
             'login',
-            'vuex',
             'baseComponents',
-            'coreState',
             'locale',
             'apiServices',
-            'svgIcons'
+            'svgIcons',
+            'stateDeprecated'
         ];
 
         const initContainer = this.getContainer('init');
@@ -513,8 +522,7 @@ class ApplicationBootstrapper {
         }
 
         // in production
-        const appContext = Shopware.Context.App;
-        const plugins = appContext.config.bundles;
+        const plugins = Shopware.Context.app.config.bundles;
 
         const injectAllPlugins = Object.values(plugins).map((plugin) => this.injectPlugin(plugin));
         return Promise.all(injectAllPlugins);

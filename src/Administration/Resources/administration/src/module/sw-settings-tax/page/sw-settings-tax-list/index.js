@@ -6,10 +6,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-tax-list', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'apiContext'
-    ],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('listing')
@@ -47,7 +44,7 @@ Component.register('sw-settings-tax-list', {
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
 
-            this.taxRepository.search(criteria, this.apiContext).then((items) => {
+            this.taxRepository.search(criteria, Shopware.Context.api).then((items) => {
                 this.total = items.total;
                 this.tax = items;
                 this.isLoading = false;
@@ -84,7 +81,7 @@ Component.register('sw-settings-tax-list', {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.taxRepository.delete(id, this.apiContext).then(() => {
+            return this.taxRepository.delete(id, Shopware.Context.api).then(() => {
                 this.getList();
             });
         },

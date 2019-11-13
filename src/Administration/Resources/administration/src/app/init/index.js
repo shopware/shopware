@@ -6,7 +6,6 @@ import initEntity from 'src/app/init/entity.init';
 import initComponentHelper from 'src/app/init/component-helper.init';
 import initHttpClient from 'src/app/init/http.init';
 import initRepository from 'src/app/init/repository.init';
-import initState from 'src/app/init/state.init';
 import initMixin from 'src/app/init/mixin.init';
 import initCoreModules from 'src/app/init/modules.init';
 import initLogin from 'src/app/init/login.init';
@@ -17,9 +16,9 @@ import initLocale from 'src/app/init/locale.init';
 import initComponents from 'src/app/init/component.init';
 import initSvgIcons from 'src/app/init/svg-icons.init';
 import initShortcut from 'src/app/init/shortcut.init';
+import initStateDeprecated from 'src/app/init/state-deprecated.init';
 
 export default {
-    coreState: initState,
     coreMixin: initMixin,
     coreDirectives: initDirectives,
     coreFilter: initFilter,
@@ -33,5 +32,6 @@ export default {
     shortcut: initShortcut,
     httpClient: initHttpClient,
     componentHelper: initComponentHelper,
-    entity: initEntity
+    entity: initEntity,
+    stateDeprecated: initStateDeprecated
 };

@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-language-list', {
     template,
 
-    inject: ['repositoryFactory', 'apiContext'],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -88,7 +88,7 @@ Component.register('sw-settings-language-list', {
     methods: {
         getList() {
             this.isLoading = true;
-            return this.languageRepository.search(this.listingCriteria, this.apiContext).then((languageResult) => {
+            return this.languageRepository.search(this.listingCriteria, Shopware.Context.api).then((languageResult) => {
                 const parentCriteria = (new Criteria(1, this.limit));
                 const parentIds = {};
 
@@ -99,7 +99,7 @@ Component.register('sw-settings-language-list', {
                 });
 
                 parentCriteria.setIds(Object.keys(parentIds));
-                return this.languageRepository.search(parentCriteria, this.apiContext).then((parentResult) => {
+                return this.languageRepository.search(parentCriteria, Shopware.Context.api).then((parentResult) => {
                     this.languages = languageResult;
                     this.parentLanguages = parentResult;
                     this.isLoading = false;
@@ -120,7 +120,7 @@ Component.register('sw-settings-language-list', {
         },
 
         isDefault(languageId) {
-            return Shopware.Context.Api.systemLanguageId.includes(languageId);
+            return Shopware.Context.api.systemLanguageId.includes(languageId);
         }
     }
 });

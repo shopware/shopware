@@ -94,14 +94,14 @@
                             {% endblock %}
 
                             {% block sw_settings_currency_detail_content_field_factor %}
-                                <sw-field type="number"
-                                          required
-                                          :label="$tc('sw-settings-currency.detail.labelFactor')"
-                                          :placeholder="$tc('sw-settings-currency.detail.placeholderFactor')"
-                                          :error="currencyFactorError"
-                                          v-model="currency.factor"
-                                          :disabled="currency.isDefault">
-                                </sw-field>
+                                <sw-number-field required
+                                                 :digits="14"
+                                                 :label="$tc('sw-settings-currency.detail.labelFactor')"
+                                                 :placeholder="$tc('sw-settings-currency.detail.placeholderFactor')"
+                                                 :error="currencyFactorError"
+                                                 v-model="currency.factor"
+                                                 :disabled="currency.isDefault">
+                                </sw-number-field>
                             {% endblock %}
 
                             {% block sw_settings_currency_detail_content_field_decimal_precision %}

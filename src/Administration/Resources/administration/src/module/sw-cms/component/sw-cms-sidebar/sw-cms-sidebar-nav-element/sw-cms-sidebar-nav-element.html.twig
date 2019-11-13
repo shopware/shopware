@@ -10,7 +10,7 @@
         {% block sw_cms_sidebar_sidebar_navigator_element_duplicate %}
             <div class="navigator-element__action-duplicate"
                  v-if="removable"
-                 @click="onBlockDuplicate(block)">
+                 @click="onBlockDuplicate">
                 <sw-icon name="default-action-duplicate" size="16"></sw-icon>
             </div>
         {% endblock %}
@@ -18,7 +18,7 @@
         {% block sw_cms_sidebar_sidebar_navigator_element_delete %}
             <div class="navigator-element__action-delete"
                  v-if="removable"
-                 @click="onBlockDelete(block.id)">
+                 @click="onBlockDelete">
                 <sw-icon name="default-action-trash" size="16"></sw-icon>
             </div>
         {% endblock %}

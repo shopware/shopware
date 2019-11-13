@@ -137,7 +137,24 @@
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder">
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuilder">
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder">
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader">
+            <argument>%kernel.project_dir%</argument>
+        </service>
+
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator">
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator">

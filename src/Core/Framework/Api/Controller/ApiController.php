@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
+use OpenApi\Annotations as OA;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Acl\Resource\AclResourceDefinition;
 use Shopware\Core\Framework\Api\Converter\ConverterService;
@@ -98,6 +99,61 @@ class ApiController extends AbstractController
     }
 
     /**
+     * @OA\Get(
+     *      path="/_search",
+     *      description="Search for multiple entites by a given term",
+     *      operationId="compositeSearch",
+     *      tags={"Admin Api"},
+     *      @OA\Parameter(
+     *          parameter="limit",
+     *          name="limit",
+     *          in="query",
+     *          description="Max amount of resources per entity",
+     *          @OA\Schema(type="integer"),
+     *      ),
+     *      @OA\Parameter(
+     *          parameter="term",
+     *          name="term",
+     *          in="query",
+     *          description="The term to search for",
+     *          required=true,
+     *          @OA\Schema(type="string")
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="The list of found entities",
+     *          @OA\JsonContent(
+     *              type="array",
+     *              @OA\Items(
+     *                  type="object",
+     *                  @OA\Property(
+     *                      property="entity",
+     *                      type="string",
+     *                      description="The name of the entity",
+     *                  ),
+     *                  @OA\Property(
+     *                      property="total",
+     *                      type="integer",
+     *                      description="The total amount of search results for this entity",
+     *                  ),
+     *                  @OA\Property(
+     *                      property="entities",
+     *                      type="array",
+     *                      description="The found entities",
+     *                      @OA\Items(type="object", additionalProperties=true),
+     *                  ),
+     *              ),
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/400"
+     *      ),
+     *     @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/401"
+     *      )
+     * )
      * @Route("/api/v{version}/_search", name="api.composite.search", methods={"GET"}, requirements={"version"="\d+"})
      */
     public function compositeSearch(Request $request, Context $context, int $version): JsonResponse

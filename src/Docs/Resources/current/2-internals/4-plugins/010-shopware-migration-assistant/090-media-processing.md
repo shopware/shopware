@@ -145,7 +145,7 @@ class HttpMediaDownloadService implements MediaFileProcessorInterface
     }
 }
 ```
-First, the service fetches all media files associated with given media ids and downloads these media files from the source system.
+First, the service fetches all media files associated with the given media IDs and downloads these media files from the source system.
 After this, it handles the response, saves the media files in a temporary folder and copies them to Shopware 6 filesystem.
 In the end the service sets a `processed` status to these media files, saves all warnings that may have occurred and
 returns the status of the processed files.

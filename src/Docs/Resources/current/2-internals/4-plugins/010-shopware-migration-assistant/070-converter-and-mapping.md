@@ -99,7 +99,7 @@ abstract class ProductConverter extends ShopwareConverter
 As you see above the `convert` method gets the source system data, checks with `checkForEmptyRequiredDataFields` if the
 necessary data fields are filled and returns a `ConvertStruct`. The `ConvertStruct` contains the converted value in the structure
 of Shopware 6 and all source system data which could not be mapped to the Shopware 6 structure.
-If the required fields are not filled, the convert method returns a `ConvertStruct` without a `converted` value and the hole given
+If the required fields are not filled, the convert method returns a `ConvertStruct` without a `converted` value and all of the given
 source system data as the `unmapped` value.
 
 Also every `Converter` needs to implement the `getSourceIdentifier` method like below:
@@ -153,7 +153,7 @@ Find a mapping example in the following code snippet:
 ```
 The following function employs the `getOrCreateMapping` function, that is part of the mapping service to acquire a unique identifier
 for the product that is about to get mapped to the source system's identifier and at the same time creating a new mapping
-entry in the `swag_migration_mapping` table. In case of that there is already a unique identifier for the product,
+entry in the `swag_migration_mapping` table. If there already is a unique identifier for the product,
 the `getOrCreateMapping` method instead of creating a duplicate entry, returns the existing identifier:
 ```php
     /* SwagMigrationAssistant/Migration/Mapping/MappingService.php */
@@ -263,7 +263,7 @@ public function getMapping(
 ## Deltas
 
 One of the parameters for the `getOrCreateMapping` Method is the `checksum`.
-It is used to identify unchanged data (source system data has not been changed since last migration).
+It is used to identify unchanged data (source system data that has not been changed since the last migration).
 This will greatly improve the performance of future migrations.
 
 To get this checksum you can use the `generateChecksum` Method of the base `Converter` class:
@@ -313,7 +313,8 @@ public function convert(
 
 For the checksum to be saved to the right mapping, make sure that you set the `mainMapping` attribute of the base `Converter` class.
 Internally the checksum of the main mapping of an entity will be compared to the incoming data checksum and if it is the same
-it will be skipped by the converter and also by the writer (you will not receive the data with the same checksum in your converter).
+it will be skipped by the converter and also by the writer (you will not receive the data with the same checksum in your converter), 
+which increases performance of repeated migrations massively.
 For more information take a look at the corresponding `filterDeltas` method in the `MigrationDataConverter` class.
 Important for the delta concept is to return the `mainMapping` with the `ConvertStruct`, this is necessary to map the converted
 data to the main mapping entry.
@@ -321,11 +322,11 @@ data to the main mapping entry.
 ## Additional performance tips
 
 The `Converter` base class also contains an array named `mappingIds`.
-This can be filled with all mapping ids that relate to the current data.
+This can be filled with all mapping IDs that relate to the current data.
 Internally the related mappings will be fetched all at once in future migrations,
 which reduces the performance impact of `getMapping` calls
 (because not every call needs to query data from the database).
-So it is advised to add related mapping ids like so:
+So it is advised to add related mapping IDs in the following manner:
 ```php
 /* SwagMigrationAssistant/Profile/Shopware/Converter/ProductConverter.php */
 
@@ -348,7 +349,7 @@ private function getUnit(array $data): array
     return $unit;
 }
 ```
-To save these mapping ids in the `mainMapping`, it is necessary to call the `updateMainMapping` before return the `ConvertStruct`:
+To save these mapping IDs in the `mainMapping`, it is necessary to call the `updateMainMapping` before returning the `ConvertStruct`:
 ```php
 /* SwagMigrationAssistant/Profile/Shopware/Converter/ProductConverter.php */
 

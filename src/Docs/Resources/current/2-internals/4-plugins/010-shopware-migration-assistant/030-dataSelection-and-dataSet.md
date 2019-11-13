@@ -17,7 +17,7 @@ Each `DataSelection` consists of one or more `DataSets`:
 ```
 The order of the `DataSets` in the `DataSelection` class is important and specifies the processing order.
 `DataSelection` also holds a position specifying the order applied when migrating (lower numbers are migrated earlier).
-The `getEntityNamesRequiredForCount` method returns a array of all entities, which count should be displayed in the administration.
+The `getEntityNamesRequiredForCount` method returns an array of all entities. Its count should be displayed in the administration.
 
 `DataSelection` example:
 ```php
@@ -140,7 +140,7 @@ The `dataSelections` are registered the following way:
 </service>
 ```
 
-It is also possible to specify the same `DataSets` in multiple `DataSelections` (which should be only done if not possible otherwise).
+It is also possible to specify the same `DataSets` in multiple `DataSelections` (this should only be done if no other options are available).
 Have a look at the `ProductReviewDataSelection`:
 ```php
 <?php declare(strict_types=1);

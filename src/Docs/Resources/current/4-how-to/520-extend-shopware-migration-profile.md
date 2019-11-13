@@ -473,11 +473,11 @@ of the field.) In the end of this step, you have to register your new converter 
 </service>
 ```
 
-If you need more information about the converter and mapping, take a look at [converter, mapping and deltas concept](./../2-internals/4-plugins/010-shopware-migration-assistant/070-converter-and-mapping.md).
+If you need more information on the converter and mapping in general, take a look at [converter, mapping and deltas concept](./../2-internals/4-plugins/010-shopware-migration-assistant/070-converter-and-mapping.md).
 
 ## Adding a writer
 
-After adding a reader and converter, you get bundle data from your source system and convert it, but the final step is
+After adding a reader and converter, you will receive the product bundle data from your source system and convert it, but the final step is
 to write the converted data into Shopware 6. To finish this tutorial, you have to create a new writer, register and
 tag it with `shopware.migration.writer` in the `migration_assistant_extension.xml`:
 
@@ -512,7 +512,7 @@ The logic to write the data is defined in the `AbstractWriter` class and should 
 Take a look at [writer concept](./../2-internals/4-plugins/010-shopware-migration-assistant/080-writer.md) for more information.
 
 And that's it, you're done and have already implemented your first plugin migration.
-Install your plugin, clear the cache and build the administration to see the migration of your bundle entities.
+Install your plugin, clear the cache and build the administration anew to see the migration of your bundle entities.
 
 ## Source
 

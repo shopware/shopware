@@ -55,7 +55,7 @@ Also a checksum is saved to the mapping to identify and skip the same source dat
 You can find out more about them here: [Converter, mapping and deltas](./070-converter-and-mapping.md)
 
 ## Logging
-During a migration, especially during the data conversion there will be possibly errors that you should log.
+During any migration, especially during the data conversion, there will possibly be errors that should be logged.
 The users can see these errors and these should be as helpful as possible.
 For more information have a look at [Logging](./071-logging.md).
 

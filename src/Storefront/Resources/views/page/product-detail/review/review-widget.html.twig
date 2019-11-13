@@ -5,7 +5,7 @@
 				<div class="product-detail-review-info js-review-info">
 					{% block page_product_detail_review_title %}
 						<p class="product-detail-review-title h5">
-                            {{ "detail.reviewTitle"|trans({'%count%': page.reviews.total, '%total%':page.totalReviews }) }}
+                            {{ "detail.reviewTitle"|trans({'%count%': reviews.total, '%total%': reviews.totalReviews }) }}
 						</p>
 					{% endblock %}
 
@@ -25,7 +25,7 @@
 							</p>
 							{% if productReviewCount > 0 %}
 								<p class="h6">
-									{{ productAvgRating|round(1) }} {{ "detail.reviewAvgRate"|trans }} {{ page.ratingMatrix.maxPoints }} {{ "detail.reviewAvgRateElements"|trans }}
+									{{ productAvgRating|round(1) }} {{ "detail.reviewAvgRate"|trans }} {{ reviews.matrix.maxPoints }} {{ "detail.reviewAvgRateElements"|trans }}
 								</p>
 							{% endif %}
 						</div>
@@ -41,7 +41,7 @@
                 {% if productReviewCount > 0 %}
                     <div class="js-review-filter">
                         <form class="review-filter-form"
-						  action="{{ path('frontend.product.reviews', { productId: productId }) }}"
+						  action="{{ path('frontend.product.reviews', { productId: reviews.productId }) }}"
 						  method="post"
 						  data-form-ajax-submit="true"
 						  data-form-ajax-submit-options='{
@@ -69,7 +69,7 @@
 							<input type="hidden" name="sort" value="{{ app.request.get('sort') }}">
 						{% endif %}
 
-						{% for matrix in page.ratingMatrix.matrix %}
+						{% for matrix in reviews.matrix.matrix %}
 							{% block page_product_detail_review_filter_box %}
 								<div class="row product-detail-review-filter">
 									{% block page_product_detail_review_filter_checkbox %}
@@ -136,7 +136,7 @@
 			<div class="product-detail-review-teaser js-review-teaser">
                 {% block page_product_detail_review_form_teaser_header %}
 					<p class="h4">
-                        {% if not page.customerReview %}
+                        {% if not reviews.customerReview %}
 							{{ "detail.reviewTeaserTitle"|trans }}
 						{% else %}
                             {{ "detail.reviewExistsTeaserTitle"|trans }}
@@ -162,7 +162,7 @@
 							aria-expanded="false"
 							aria-controls="review-form review-list">
                         <span class="product-detail-review-teaser-show">
-							{% if not page.customerReview %}
+							{% if not reviews.customerReview %}
 								{{ "detail.reviewTeaserButton"|trans }}
 							{% else %}
 								{{ "detail.reviewExistsTeaserButton"|trans }}

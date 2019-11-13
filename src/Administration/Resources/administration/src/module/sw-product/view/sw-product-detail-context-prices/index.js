@@ -169,12 +169,12 @@ Component.register('sw-product-detail-context-prices', {
                 ])
             );
 
-            this.$store.commit('swProductDetail/setLoading', ['rules', true]);
+            Shopware.State.commit('swProductDetail/setLoading', ['rules', true]);
             this.ruleRepository.search(ruleCriteria, this.apiContext).then((res) => {
                 this.rules = res;
                 this.totalRules = res.total;
 
-                this.$store.commit('swProductDetail/setLoading', ['rules', false]);
+                Shopware.State.commit('swProductDetail/setLoading', ['rules', false]);
             });
         },
 

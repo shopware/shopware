@@ -19,11 +19,11 @@ Component.register('sw-category-view', {
 
     computed: {
         category() {
-            return this.$store.state.swCategoryDetail.category;
+            return Shopware.State.get('swCategoryDetail').category;
         },
 
         cmsPage() {
-            return this.$store.state.cmsPageState.currentPage;
+            return Shopware.State.get('cmsPageState').currentPage;
         }
     }
 });

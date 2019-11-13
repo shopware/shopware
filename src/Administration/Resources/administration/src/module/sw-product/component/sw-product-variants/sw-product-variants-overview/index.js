@@ -115,7 +115,7 @@ Component.register('sw-product-variants-overview', {
         getList() {
             // Promise needed for inline edit error handling
             return new Promise((resolve) => {
-                this.$store.commit('swProductDetail/setLoading', ['variants', true]);
+                Shopware.State.commit('swProductDetail/setLoading', ['variants', true]);
 
                 // Get criteria for search and for option sorting
                 const searchCriteria = new Criteria();
@@ -156,8 +156,8 @@ Component.register('sw-product-variants-overview', {
                     .search(searchCriteria, this.apiContext)
                     .then((res) => {
                         this.total = res.total;
-                        this.$store.commit('swProductDetail/setVariants', res);
-                        this.$store.commit('swProductDetail/setLoading', ['variants', false]);
+                        Shopware.State.commit('swProductDetail/setVariants', res);
+                        Shopware.State.commit('swProductDetail/setLoading', ['variants', false]);
                         this.$emit('variants-finish-update', this.variants);
                         resolve();
                     });

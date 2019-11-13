@@ -8,7 +8,7 @@ Component.register('sw-category-detail-cms', {
 
     computed: {
         cmsPage() {
-            return this.$store.state.cmsPageState.currentPage;
+            return Shopware.State.get('cmsPageState').currentPage;
         }
     }
 });

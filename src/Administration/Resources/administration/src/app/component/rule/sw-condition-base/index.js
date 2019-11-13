@@ -68,7 +68,7 @@ Component.register('sw-condition-base', {
             return this.hasErrors ? 'has--error' : '';
         },
         currentLocale() {
-            return this.$store.state.adminLocale.currentLocale;
+            return Shopware.State.get('adminLocale').currentLocale;
         }
     },
 

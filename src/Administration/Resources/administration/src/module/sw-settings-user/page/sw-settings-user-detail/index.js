@@ -112,7 +112,7 @@ Component.register('sw-settings-user-detail', {
         },
 
         languageId() {
-            return this.$store.state.adminLocale.languageId;
+            return Shopware.State.get('adminLocale').languageId;
         },
 
         tooltipSave() {
@@ -288,7 +288,7 @@ Component.register('sw-settings-user-detail', {
 
             if (this.currentUser.id === this.user.id) {
                 promises = [this.localeRepository.get(this.user.localeId, this.apiContext).then(({ code }) => {
-                    this.$store.dispatch('setAdminLocale', code);
+                    Shopware.State.dispatch('setAdminLocale', code);
                 })];
             }
 

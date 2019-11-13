@@ -23,7 +23,7 @@ Component.register('sw-notification-center', {
 
     computed: {
         notifications() {
-            return this.$store.getters['notification/getNotifications'];
+            return Shopware.State.getters['notification/getNotifications'];
         },
 
         additionalContextButtonClass() {
@@ -34,7 +34,7 @@ Component.register('sw-notification-center', {
     },
 
     created() {
-        this.unsubscribeFromStore = this.$store.subscribeAction(this.createNotificationFromSystemError);
+        this.unsubscribeFromStore = Shopware.State.subscribeAction(this.createNotificationFromSystemError);
         this.$root.$on('on-change-notification-center-visibility', this.changeVisibility);
     },
 
@@ -48,17 +48,17 @@ Component.register('sw-notification-center', {
 
     methods: {
         onContextMenuOpen() {
-            this.$store.commit('notification/setWorkerProcessPollInterval', POLL_FOREGROUND_INTERVAL);
+            Shopware.State.commit('notification/setWorkerProcessPollInterval', POLL_FOREGROUND_INTERVAL);
         },
         onContextMenuClose() {
-            this.$store.dispatch('notification/setAllNotificationsVisited');
-            this.$store.commit('notification/setWorkerProcessPollInterval', POLL_BACKGROUND_INTERVAL);
+            Shopware.State.dispatch('notification/setAllNotificationsVisited');
+            Shopware.State.commit('notification/setWorkerProcessPollInterval', POLL_BACKGROUND_INTERVAL);
         },
         openDeleteModal() {
             this.showDeleteModal = true;
         },
         onConfirmDelete() {
-            this.$store.commit('notification/clearNotificationsForCurrentUser');
+            Shopware.State.commit('notification/clearNotificationsForCurrentUser');
             this.showDeleteModal = false;
         },
         onCloseDeleteModal() {

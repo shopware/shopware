@@ -36,7 +36,7 @@ Component.register('sw-product-media-form', {
 
     computed: {
         product() {
-            const state = this.$store.state.swProductDetail;
+            const state = Shopware.State.get('swProductDetail');
 
             if (this.isInherited) {
                 return state.parentProduct;

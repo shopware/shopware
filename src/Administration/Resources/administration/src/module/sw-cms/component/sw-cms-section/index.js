@@ -134,7 +134,7 @@ Component.register('sw-cms-section', {
         },
 
         onBlockSelection(block) {
-            this.$store.dispatch('cmsPageState/setBlock', block);
+            Shopware.State.dispatch('cmsPageState/setBlock', block);
             this.$emit('page-config-open', 'itemConfig');
         },
 
@@ -146,7 +146,7 @@ Component.register('sw-cms-section', {
             this.section.blocks.remove(blockId);
 
             if (this.selectedBlock && this.selectedBlock.id === blockId) {
-                this.$store.commit('cmsPageState/removeSelectedBlock');
+                Shopware.State.commit('cmsPageState/removeSelectedBlock');
             }
 
             this.updateBlockPositions();

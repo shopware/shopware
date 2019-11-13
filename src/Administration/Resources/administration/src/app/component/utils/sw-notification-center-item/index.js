@@ -59,7 +59,7 @@ Component.register('sw-notification-center-item', {
         },
 
         onDelete() {
-            this.$store.commit('notification/removeNotification', this.notification);
+            Shopware.State.commit('notification/removeNotification', this.notification);
         },
 
         handleAction(action) {

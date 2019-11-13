@@ -19,24 +19,24 @@ Component.register('sw-promotion-detail-discounts', {
 
     computed: {
         promotion() {
-            return this.$store.state.swPromotionDetail.promotion;
+            return Shopware.State.get('swPromotionDetail').promotion;
         },
 
         isLoading: {
             get() {
-                return this.$store.state.swPromotionDetail.isLoading;
+                return Shopware.State.get('swPromotionDetail').isLoading;
             },
             set(isLoading) {
-                this.$store.commit('swPromotionDetail/setIsLoading', isLoading);
+                Shopware.State.commit('swPromotionDetail/setIsLoading', isLoading);
             }
         },
 
         discounts: {
             get() {
-                return this.$store.state.swPromotionDetail.discounts;
+                return Shopware.State.get('swPromotionDetail').discounts;
             },
             set(discounts) {
-                this.$store.commit('swPromotionDetail/setDiscounts', discounts);
+                Shopware.State.commit('swPromotionDetail/setDiscounts', discounts);
             }
         }
 

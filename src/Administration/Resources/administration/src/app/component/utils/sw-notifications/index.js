@@ -37,7 +37,7 @@ Component.register('sw-notifications', {
 
     computed: {
         notifications() {
-            return this.$store.getters['notification/getGrowlNotifications'];
+            return Shopware.State.getters['notification/getGrowlNotifications'];
         },
 
         notificationsStyle() {
@@ -67,7 +67,7 @@ Component.register('sw-notifications', {
 
     methods: {
         onClose(notification) {
-            this.$store.commit('notification/removeGrowlNotification', notification);
+            Shopware.State.commit('notification/removeGrowlNotification', notification);
         },
 
         handleAction(action, notification) {

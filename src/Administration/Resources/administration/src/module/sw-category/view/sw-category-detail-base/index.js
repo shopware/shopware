@@ -37,11 +37,11 @@ Component.register('sw-category-detail-base', {
         },
 
         category() {
-            return this.$store.state.swCategoryDetail.category;
+            return Shopware.State.get('swCategoryDetail').category;
         },
 
         cmsPage() {
-            return this.$store.state.cmsPageState.currentPage;
+            return Shopware.State.get('cmsPageState').currentPage;
         },
 
         productColumns() {

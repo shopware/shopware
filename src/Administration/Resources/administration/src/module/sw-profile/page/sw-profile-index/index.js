@@ -69,7 +69,7 @@ Component.register('sw-profile-index', {
         },
 
         languageId() {
-            return this.$store.state.adminLocale.languageId;
+            return Shopware.State.get('adminLocale').languageId;
         }
     },
 
@@ -245,7 +245,7 @@ Component.register('sw-profile-index', {
                 this.$refs.mediaSidebarItem.getList();
 
                 this.localeRepository.get(this.user.localeId, this.apiContext).then(({ code }) => {
-                    this.$store.dispatch('setAdminLocale', code);
+                    Shopware.State.dispatch('setAdminLocale', code);
                 });
 
                 this.oldPassword = '';

@@ -40,11 +40,11 @@ Component.register('sw-seo-main-category', {
         },
 
         isHeadlessSalesChannel() {
-            if (this.$store.state.swSeoUrl.salesChannelCollection === null) {
+            if (Shopware.State.get('swSeoUrl').salesChannelCollection === null) {
                 return true;
             }
 
-            const salesChannel = this.$store.state.swSeoUrl.salesChannelCollection.find((entry) => {
+            const salesChannel = Shopware.State.get('swSeoUrl').salesChannelCollection.find((entry) => {
                 return entry.id === this.currentSalesChannelId;
             });
 

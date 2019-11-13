@@ -95,8 +95,8 @@ Component.register('sw-cms-sidebar', {
         },
 
         onCloseBlockConfig() {
-            this.$store.commit('cmsPageState/removeSelectedBlock');
-            this.$store.commit('cmsPageState/removeSelectedSection');
+            Shopware.State.commit('cmsPageState/removeSelectedBlock');
+            Shopware.State.commit('cmsPageState/removeSelectedSection');
         },
 
         openSectionSettings(sectionIndex) {
@@ -305,7 +305,7 @@ Component.register('sw-cms-sidebar', {
         },
 
         onSectionDelete(sectionId) {
-            this.$store.commit('cmsPageState/removeSelectedSection');
+            Shopware.State.commit('cmsPageState/removeSelectedSection');
             this.page.sections.remove(sectionId);
             this.pageUpdate();
         },
@@ -318,7 +318,7 @@ Component.register('sw-cms-sidebar', {
             section.blocks.remove(block.id);
 
             if (this.selectedBlock && this.selectedBlock.id === block.id) {
-                this.$store.commit('cmsPageState/removeSelectedBlock');
+                Shopware.State.commit('cmsPageState/removeSelectedBlock');
             }
 
             this.pageUpdate();

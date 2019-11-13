@@ -75,11 +75,11 @@ Component.register('sw-category-detail', {
         },
 
         category() {
-            return this.$store.state.swCategoryDetail.category;
+            return Shopware.State.get('swCategoryDetail').category;
         },
 
         cmsPage() {
-            return this.$store.state.cmsPageState.currentPage;
+            return Shopware.State.get('cmsPageState').currentPage;
         },
 
         cmsPageId() {
@@ -126,15 +126,15 @@ Component.register('sw-category-detail', {
         cmsPageId() {
             if (!this.isLoading) {
                 this.category.slotConfig = null;
-                this.$store.dispatch('cmsPageState/resetCmsPageState')
+                Shopware.State.dispatch('cmsPageState/resetCmsPageState')
                     .then(this.getAssignedCmsPage);
             }
         }
     },
 
     beforeCreate() {
-        this.$store.registerModule('swCategoryDetail', pageState);
-        this.$store.dispatch('cmsPageState/resetCmsPageState');
+        Shopware.State.registerModule('swCategoryDetail', pageState);
+        Shopware.State.dispatch('cmsPageState/resetCmsPageState');
     },
 
     created() {
@@ -142,7 +142,7 @@ Component.register('sw-category-detail', {
     },
 
     beforeDestroy() {
-        this.$store.unregisterModule('swCategoryDetail');
+        Shopware.State.unregisterModule('swCategoryDetail');
     },
 
     beforeRouteLeave(to, from, next) {
@@ -212,36 +212,36 @@ Component.register('sw-category-detail', {
                 }
 
                 this.updateCmsPageDataMapping();
-                this.$store.commit('cmsPageState/setCurrentPage', cmsPage);
+                Shopware.State.commit('cmsPageState/setCurrentPage', cmsPage);
                 return this.cmsPage;
             });
         },
 
         updateCmsPageDataMapping() {
-            this.$store.commit('cmsPageState/setCurrentMappingEntity', 'category');
-            this.$store.commit(
+            Shopware.State.commit('cmsPageState/setCurrentMappingEntity', 'category');
+            Shopware.State.commit(
                 'cmsPageState/setCurrentMappingTypes',
                 this.cmsService.getEntityMappingTypes('category')
             );
-            this.$store.commit('cmsPageState/setCurrentDemoEntity', this.category);
+            Shopware.State.commit('cmsPageState/setCurrentDemoEntity', this.category);
         },
 
         setCategory() {
             this.isLoading = true;
 
             if (this.categoryId === null) {
-                return this.$store.dispatch('swCategoryDetail/setActiveCategory', { category: null })
-                    .then(() => this.$store.dispatch('cmsPageState/resetCmsPageState'))
+                return Shopware.State.dispatch('swCategoryDetail/setActiveCategory', { category: null })
+                    .then(() => Shopware.State.dispatch('cmsPageState/resetCmsPageState'))
                     .then(() => {
                         this.isLoading = false;
                     });
             }
 
-            return this.$store.dispatch('swCategoryDetail/loadActiveCategory', {
+            return Shopware.State.dispatch('swCategoryDetail/loadActiveCategory', {
                 repository: this.categoryRepository,
                 apiContext: this.apiContext,
                 id: this.categoryId
-            }).then(() => this.$store.dispatch('cmsPageState/resetCmsPageState'))
+            }).then(() => Shopware.State.dispatch('cmsPageState/resetCmsPageState'))
                 .then(this.getAssignedCmsPage)
                 .then(() => {
                     this.isLoading = false;
@@ -315,7 +315,7 @@ Component.register('sw-category-detail', {
                 this.category.slotConfig = cloneDeep(pageOverrides);
             }
 
-            const seoUrls = this.$store.getters['swSeoUrl/getNewOrModifiedUrls']();
+            const seoUrls = Shopware.State.getters['swSeoUrl/getNewOrModifiedUrls']();
 
             seoUrls.forEach(seoUrl => {
                 if (seoUrl.seoPathInfo) {

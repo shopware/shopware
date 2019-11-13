@@ -57,5 +57,10 @@ class MigrationContext extends Struct implements MigrationContextInterface
     {
         return $this->gateway;
     }
+    
+    public function setGateway(GatewayInterface $gateway): void
+    {
+        $this->gateway = $gateway;
+    }
 }
 ```

@@ -217,9 +217,15 @@ class ManufacturerReader extends AbstractPremappingReader
  the plugin, like this:
  
  ```javascript
- import enGBSnippets from './snippet/en-GB.json';
+import enGBSnippets from './snippet/en-GB.json';
+
+const { Application } = Shopware;
  
- Shopware.Locale.extend('en-GB', enGBSnippets);
+Application.addInitializerDecorator('locale', (localeFactory) => {
+    localeFactory.extend('en-GB', enGBSnippets);
+
+     return localeFactory;
+});
  ```
  Now your new premapping card has a correct title.
  
@@ -267,6 +273,11 @@ class ManufacturerReader extends AbstractPremappingReader
      {
          return $this->originalProductConverter->supports($migrationContext);
      }
+     
+     public function getSourceIdentifier(array $data): string
+     {
+         return $this->originalProductConverter->getSourceIdentifier($data);
+     }
  
      public function writeMapping(Context $context): void
      {
@@ -286,7 +297,7 @@ class ManufacturerReader extends AbstractPremappingReader
          $manufacturerId = $data['manufacturer']['id'];
          unset($data['manufacturer']);
  
-         $manufacturerUuid = $this->mappingService->getUuid(
+         $mapping = $this->mappingService->getMapping(
              $migrationContext->getConnection()->getId(),
              ManufacturerReader::getMappingName(),
              $manufacturerId,
@@ -295,14 +306,14 @@ class ManufacturerReader extends AbstractPremappingReader
  
          $convertedStruct = $this->originalProductConverter->convert($data, $context, $migrationContext);
  
-         if ($manufacturerUuid === null) {
+         if ($mapping === null) {
              return $convertedStruct;
          }
  
          $converted = $convertedStruct->getConverted();
-         $converted['manufacturerId'] = $manufacturerUuid;
+         $converted['manufacturerId'] = $mapping['entityUuid'];
  
-         return new ConvertStruct($converted, $convertedStruct->getUnmapped());
+         return new ConvertStruct($converted, $convertedStruct->getUnmapped(), $convertedStruct->getMappingUuid());
      }
  }
  ``` 

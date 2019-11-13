@@ -49,11 +49,6 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
         },
 
         onSave() {
-            this.savePage();
-            this.$router.push({ name: 'sw.cms.detail', params: { id: this.page.id } });
-        },
-
-        savePage() {
             this.isSaveSuccessful = false;
 
             if ((this.isSystemDefaultLanguage && !this.page.name) || !this.page.type) {
@@ -74,6 +69,8 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
             return this.pageRepository.save(this.page, this.apiContext).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
+
+                this.$router.push({ name: 'sw.cms.detail', params: { id: this.page.id } });
             }).catch((exception) => {
                 this.isLoading = false;
 

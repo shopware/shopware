@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait DataAbstractionLayerFieldTestBehaviour
 {
-    abstract public function getContainer(): ContainerInterface;
+    abstract protected function getContainer(): ContainerInterface;
 
     protected function registerDefinition(string ...$definitionClasses): EntityDefinition
     {

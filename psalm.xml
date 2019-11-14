@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <psalm
-    totallyTyped="false"
+    ensureArrayStringOffsetsExist="true"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
@@ -158,15 +158,5 @@
         <InvalidPropertyAssignmentValue errorLevel="info"/>
         <InvalidArrayOffset errorLevel="info"/>
         <InvalidArrayAssignment errorLevel="info"/>
-        <InvalidArrayAccess errorLevel="info"/>
-        <InvalidClone errorLevel="info"/>
-
-        <!-- level 8 issues - some fatal errors in PHP -->
-
-        <ReservedWord errorLevel="info"/>
-        <MethodSignatureMismatch errorLevel="info"/>
-        <OverriddenMethodAccess errorLevel="info"/>
-        <InaccessibleProperty errorLevel="info"/>
-
     </issueHandlers>
 </psalm>

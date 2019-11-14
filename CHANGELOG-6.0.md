@@ -104,6 +104,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     It's path `property` should now point to the object that is inspected by an validator while the `propertyPath` property in `WriteConstraint` objects should only point to the invalid property. 
     For more information read the updated "write command validation" article in the docs.
     * Added new function `\Shopware\Core\Framework\Migration\MigrationStep::registerIndexer`. This method registers an indexer that needs to run (after the update). See `\Shopware\Core\Migration\Migration1570684913ScheduleIndexer` for an example.
+    
 * Storefront
     * Changed the default storefront script path in `Bundle` to `Resources/dist/storefront/js`
     * Changed the name of `messages.<locale>.json` to `storefront.<locale>.json` and changed to **not** be a base file anymore.
@@ -190,6 +191,9 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added JS plugin for handling csrf token generation in native forms(only if `csrf` `mode` is set to `ajax`)
     * Added `MetaInformation` struct to handle meta information in `pageLoader`
     * Renamed the `breadcrumb` variable used in category seo url templates. It can now be access using `category.seoBreadcrumb` to align it with all other variables.
+* Elasticsearch
+    * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.
+        * You can set them with a parameter.yml too.
 
 **Removals**
 

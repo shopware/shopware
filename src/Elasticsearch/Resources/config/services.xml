@@ -5,11 +5,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
-        <parameter key="shopware.ses.hosts">%env(SHOPWARE_SES_HOSTS)%</parameter>
-        <parameter key="shopware.ses.enabled">%env(SHOPWARE_SES_ENABLED)%</parameter>
-        <parameter key="shopware.ses.indexing.enabled">%env(SHOPWARE_SES_INDEXING_ENABLED)%</parameter>
-        <parameter key="shopware.ses.index_prefix">%env(SHOPWARE_SES_INDEX_PREFIX)%</parameter>
-        <parameter key="shopware.ses.index.config" type="collection">
+        <parameter key="elasticsearch.index.config" type="collection">
             <parameter key="settings" type="collection">
                 <parameter key="number_of_shards">3</parameter>
                 <parameter key="number_of_replicas">2</parameter>
@@ -26,9 +22,9 @@
 
         <service id="Shopware\Elasticsearch\Framework\ElasticsearchHelper" public="true">
             <argument>%kernel.environment%</argument>
-            <argument>%shopware.ses.enabled%</argument>
-            <argument>%shopware.ses.indexing.enabled%</argument>
-            <argument>%shopware.ses.index_prefix%</argument>
+            <argument>%elasticsearch.enabled%</argument>
+            <argument>%elasticsearch.indexing_enabled%</argument>
+            <argument>%elasticsearch.index_prefix%</argument>
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser"/>
@@ -39,7 +35,7 @@
 
         <service id="Elasticsearch\Client" public="true">
             <factory class="Shopware\Elasticsearch\Framework\ClientFactory" method="createClient" />
-            <argument>%shopware.ses.hosts%</argument>
+            <argument>%elasticsearch.hosts%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\EntityIndexer" public="true">
@@ -55,7 +51,7 @@
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexCreator">
             <argument type="service" id="Elasticsearch\Client"/>
-            <argument>%shopware.ses.index.config%</argument>
+            <argument>%elasticsearch.index.config%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexMessageDispatcher">

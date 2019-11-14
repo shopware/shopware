@@ -121,7 +121,7 @@ class AuthController extends StorefrontController
     {
         $page = $this->loginPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/account/profile/recover-password.html.twig', [
+        return $this->renderStorefront('@Storefront/storefront/page/account/profile/recover-password.html.twig', [
             'page' => $page,
         ]);
     }
@@ -179,7 +179,7 @@ class AuthController extends StorefrontController
             return $this->redirectToRoute('frontend.account.recover.request');
         }
 
-        return $this->renderStorefront('@Storefront/page/account/profile/reset-password.html.twig', [
+        return $this->renderStorefront('@Storefront/storefront/page/account/profile/reset-password.html.twig', [
             'page' => $page,
             'hash' => $hash,
             'formViolations' => $request->get('formViolations'),

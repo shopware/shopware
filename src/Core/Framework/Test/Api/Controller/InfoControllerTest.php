@@ -20,16 +20,7 @@ class InfoControllerTest extends TestCase
                 'enableAdminWorker' => $this->getContainer()->getParameter('shopware.admin_worker.enable_admin_worker'),
                 'transports' => $this->getContainer()->getParameter('shopware.admin_worker.transports'),
             ],
-            'bundles' => [
-                'Storefront' => [
-                    'css' => [
-                        '/bundles/storefront/administration/css/storefront.css',
-                    ],
-                    'js' => [
-                        '/bundles/storefront/administration/js/storefront.js',
-                    ],
-                ],
-            ],
+            'bundles' => [],
         ];
 
         $url = sprintf('/api/v%s/_info/config', PlatformRequest::API_VERSION);

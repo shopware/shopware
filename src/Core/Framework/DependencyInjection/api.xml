@@ -70,8 +70,9 @@
         </service>
 
         <service id="Shopware\Core\Framework\Api\Command\DumpSchemaCommand">
-            <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
+
+            <tag name="console.command" command="framework:schema"/>
         </service>
 
         <!-- Serializer -->

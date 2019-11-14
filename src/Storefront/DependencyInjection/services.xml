@@ -37,6 +37,7 @@
             <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
             <argument>%storefront.csrf.enabled%</argument>
             <argument>%storefront.csrf.mode%</argument>
+
             <tag name="twig.extension"/>
         </service>
 
@@ -47,6 +48,7 @@
 
         <service id="Shopware\Storefront\Framework\Twig\ThumbnailExtension">
             <argument type="service" id="Shopware\Core\Framework\Twig\TemplateFinder"/>
+
             <tag name="twig.extension"/>
         </service>
 
@@ -73,10 +75,11 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\StorefrontSubscriber">
-            <tag name="kernel.event_subscriber"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="router"/>
             <argument type="service" id="Shopware\Storefront\Controller\ErrorController"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Csrf\CsrfRouteListener">
@@ -104,7 +107,7 @@
             <argument type="service" id="snippet_set.repository"/>
             <argument type="service" id="category.repository"/>
 
-            <tag name="console.command"/>
+            <tag name="console.command" command="sales-channel:create:storefront"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Navigation\NavigationPageLoader">
@@ -322,6 +325,7 @@
         <service id="Shopware\Storefront\Framework\Cache\CacheResponseSubscriber">
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService" />
             <argument>%shopware.http.cache.default_ttl%</argument>
+
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -333,6 +337,7 @@
             <argument type="service" id="kernel" />
             <argument type="service" id="router" />
             <argument type="service" id="Shopware\Core\Framework\Routing\RequestTransformerInterface" />
+
             <tag name="messenger.message_handler"/>
         </service>
 
@@ -343,12 +348,14 @@
         <service id="Shopware\Storefront\Framework\Cache\CacheWarmer\Product\ProductRouteWarmer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
+
             <tag name="http_cache.route_warmer" />
         </service>
 
         <service id="Shopware\Storefront\Framework\Cache\CacheWarmer\Navigation\NavigationRouteWarmer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="Shopware\Core\Content\Category\CategoryDefinition"/>
+
             <tag name="http_cache.route_warmer"/>
         </service>
 
@@ -356,7 +363,8 @@
             <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer"/>
             <argument type="service" id="kernel"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <tag name="console.command"/>
+
+            <tag name="console.command" command="http:cache:warm:up"/>
         </service>
     </services>
 </container>

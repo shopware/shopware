@@ -16,6 +16,7 @@
         <parameter key="import_export.write_buffer_size">100</parameter>
         <parameter key="import_export.http_batch_size">100</parameter>
     </parameters>
+
     <services>
         <service id="Shopware\Core\Content\ImportExport\ImportExportProfileDefinition">
             <tag name="shopware.entity.definition"  entity="import_export_profile"/>
@@ -35,6 +36,7 @@
 
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\SystemDefaultValidator">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -85,17 +87,20 @@
 
         <service id="Shopware\Core\Content\ImportExport\Iterator\CsvFileIteratorFactory">
             <argument type="service" id="shopware.filesystem.private"/>
+
             <tag name="shopware.import_export.iterator_factory"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\Iterator\XmlFileIteratorFactory">
             <argument type="service" id="shopware.filesystem.private"/>
+
             <tag name="shopware.import_export.iterator_factory"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\Iterator\RepositoryIteratorFactory">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument>%import_export.read_buffer_size%</argument>
+
             <tag name="shopware.import_export.iterator_factory"/>
         </service>
 
@@ -109,41 +114,48 @@
 
         <service id="Shopware\Core\Content\ImportExport\Writer\CsvFileWriterFactory">
             <argument type="service" id="shopware.filesystem.private"/>
+
             <tag name="shopware.import_export.writer_factory"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\Writer\XmlFileWriterFactory">
             <argument type="service" id="shopware.filesystem.private"/>
+
             <tag name="shopware.import_export.writer_factory"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\Writer\RepositoryWriterFactory">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+
             <tag name="shopware.import_export.writer_factory"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\Command\DeleteExpiredFilesCommand">
             <argument type="service" id="Shopware\Core\Content\ImportExport\Service\DeleteExpiredFilesService"/>
-            <tag name="console.command"/>
+
+            <tag name="console.command" command="import-export:delete-expired"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\Command\ImportEntityCommand">
-            <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Content\ImportExport\Service\InitiationService"/>
             <argument type="service" id="Shopware\Core\Content\ImportExport\Service\ProcessingService"/>
             <argument type="service" id="import_export_profile.repository"/>
+
+            <tag name="console.command" command="import:entity"/>
         </service>
 
         <!-- Message handler -->
         <service id="Shopware\Core\Content\ImportExport\Message\DeleteFileHandler">
             <argument type="service" id="shopware.filesystem.private"/>
+
             <tag name="messenger.message_handler"/>
         </service>
 
         <!-- Subscriber -->
         <service id="Shopware\Core\Content\ImportExport\Subscriber\FileDeletedSubscriber">
-            <tag name="kernel.event_subscriber"/>
             <argument type="service" id="messenger.bus.shopware"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

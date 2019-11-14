@@ -71,8 +71,8 @@ class PromotionDiscountCompositionTest extends TestCase
         $code = 'BF19';
 
         // add a new sample product
-        $this->createTestFixtureProduct($productId1, 50, 19, $this->getContainer());
-        $this->createTestFixtureProduct($productId2, 100, 19, $this->getContainer());
+        $this->createTestFixtureProduct($productId1, 50, 19, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($productId2, 100, 19, $this->getContainer(), $this->context);
 
         // add a new promotion
         $this->createTestFixtureAbsolutePromotion($promotionId, $code, 30, $this->getContainer(), PromotionDiscountEntity::SCOPE_CART);
@@ -121,8 +121,8 @@ class PromotionDiscountCompositionTest extends TestCase
         $code = 'BF19';
 
         // add a new sample product
-        $this->createTestFixtureProduct($productId1, 50, 19, $this->getContainer());
-        $this->createTestFixtureProduct($productId2, 100, 19, $this->getContainer());
+        $this->createTestFixtureProduct($productId1, 50, 19, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($productId2, 100, 19, $this->getContainer(), $this->context);
 
         // add a new promotion
         $this->createTestFixturePercentagePromotion($promotionId, $code, 25, null, $this->getContainer(), PromotionDiscountEntity::SCOPE_CART);
@@ -172,8 +172,8 @@ class PromotionDiscountCompositionTest extends TestCase
         $code = 'BF19';
 
         // add a new sample product
-        $this->createTestFixtureProduct($productId1, 50, 19, $this->getContainer());
-        $this->createTestFixtureProduct($productId2, 100, 19, $this->getContainer());
+        $this->createTestFixtureProduct($productId1, 50, 19, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($productId2, 100, 19, $this->getContainer(), $this->context);
 
         // add a new promotion
         $this->createTestFixtureFixedUnitDiscountPromotion($promotionId, 10, PromotionDiscountEntity::SCOPE_CART, $code, $this->getContainer(), $this->context);
@@ -225,8 +225,8 @@ class PromotionDiscountCompositionTest extends TestCase
         $code = 'BF19';
 
         // add a new sample product
-        $this->createTestFixtureProduct($productId1, 50, 19, $this->getContainer());
-        $this->createTestFixtureProduct($productId2, 100, 19, $this->getContainer());
+        $this->createTestFixtureProduct($productId1, 50, 19, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($productId2, 100, 19, $this->getContainer(), $this->context);
 
         // add a new promotion
         $this->createTestFixtureFixedDiscountPromotion($promotionId, 70, PromotionDiscountEntity::SCOPE_CART, $code, $this->getContainer(), $this->context);

@@ -31,7 +31,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
 
     private function buildPriceDefinitions(ProductEntity $product, SalesChannelContext $salesChannelContext): PriceDefinitionCollection
     {
-        $taxRules = $product->getTaxRuleCollection();
+        $taxRules = $salesChannelContext->buildTaxRules($product->getTaxId());
 
         $prices = $this->getFirstMatchingPriceRule($product->getPrices(), $salesChannelContext);
 
@@ -68,7 +68,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
 
         return new QuantityPriceDefinition(
             $price * $salesChannelContext->getContext()->getCurrencyFactor(),
-            $product->getTaxRuleCollection(),
+            $salesChannelContext->buildTaxRules($product->getTaxId()),
             $salesChannelContext->getContext()->getCurrencyPrecision(),
             1,
             true,
@@ -78,7 +78,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
 
     private function buildListingPriceDefinition(ProductEntity $product, SalesChannelContext $salesChannelContext): array
     {
-        $taxRules = $product->getTaxRuleCollection();
+        $taxRules = $salesChannelContext->buildTaxRules($product->getTaxId());
 
         $currencyPrecision = $salesChannelContext->getContext()->getCurrencyPrecision();
 
@@ -130,7 +130,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
 
     private function buildPriceDefinitionForQuantity(ProductEntity $product, SalesChannelContext $salesChannelContext, int $quantity): QuantityPriceDefinition
     {
-        $taxRules = $product->getTaxRuleCollection();
+        $taxRules = $salesChannelContext->buildTaxRules($product->getTaxId());
 
         /** @var ProductPriceEntity[]|null $prices */
         $prices = $this->getFirstMatchingPriceRule($product->getPrices(), $salesChannelContext);

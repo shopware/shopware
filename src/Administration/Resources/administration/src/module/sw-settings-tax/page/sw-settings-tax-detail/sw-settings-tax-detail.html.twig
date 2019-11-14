@@ -1,6 +1,5 @@
 {% block sw_settings_tax_detail %}
     <sw-page class="sw-settings-tax-detail">
-
         {% block sw_settings_tax_detail_header %}
             <template slot="smart-bar-header">
                 <h2 v-if="tax.name">{{ tax.name }}</h2>
@@ -32,7 +31,6 @@
 
         {% block sw_settings_tax_detail_content %}
             <sw-card-view slot="content">
-
                 {% block sw_settings_tax_detail_content_card %}
                     <sw-card :title="$tc('sw-settings-tax.detail.titleCard')">
                         <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
@@ -50,8 +48,8 @@
                             {% block sw_settings_tax_detail_content_field_tax_rate %}
                                 <sw-field type="number"
                                           required
-                                          :label="$tc('sw-settings-tax.detail.labelTaxRate')"
-                                          :placeholder="$tc('sw-settings-tax.detail.placeholderTaxRate')"
+                                          :label="$tc('sw-settings-tax.detail.labelDefaultTaxRate')"
+                                          :placeholder="$tc('sw-settings-tax.detail.placeholderDefaultTaxRate')"
                                           :error="taxTaxRateError"
                                           v-model="tax.taxRate">
                                     <template #suffix>
@@ -63,6 +61,16 @@
                             {% endblock %}
                         </sw-container>
                     </sw-card>
+                {% endblock %}
+
+                {% block sw_settings_tax_detail_rule_card %}
+                    <sw-tax-rule-card v-if="tax.id"
+                                      :disabled="!taxId"
+                                      class="sw-settings-tax-detail__tax-rule-grid"
+                                      :tax="tax"
+                                      @tax-rule-save="saveAndReload"
+                                      :isLoading="isLoading">
+                    </sw-tax-rule-card>
                 {% endblock %}
             </sw-card-view>
         {% endblock %}

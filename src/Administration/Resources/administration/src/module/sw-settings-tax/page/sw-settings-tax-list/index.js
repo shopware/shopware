@@ -97,9 +97,9 @@ Component.register('sw-settings-tax-list', {
                 width: '250px',
                 primary: true
             }, {
-                property: 'taxRate',
-                inlineEdit: 'string',
-                label: this.$tc('sw-settings-tax.list.columnTaxRate')
+                property: 'defaultTaxRate',
+                inlineEdit: 'number',
+                label: this.$tc('sw-settings-tax.list.columnDefaultTaxRate')
             }];
         }
     }

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -32,6 +33,7 @@ class StateMachineActionControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;
     use IntegrationTestBehaviour;
+    use TaxAddToSalesChannelTestBehaviour;
 
     /**
      * @var StateMachineRegistry
@@ -185,7 +187,7 @@ class StateMachineActionControllerTest extends TestCase
             'price' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 100, 'linked' => false],
             ],
-            'tax' => ['name' => 'test', 'taxRate' => 18],
+            'tax' => ['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 18],
             'manufacturer' => [
                 'name' => [
                     'de-DE' => 'test',
@@ -196,6 +198,7 @@ class StateMachineActionControllerTest extends TestCase
 
         $this->getContainer()->get('product.repository')
             ->create([$product], $salesChannelContext->getContext());
+        $this->addTaxDataToSalesChannel($salesChannelContext, $product['tax']);
 
         $lineItem = (new ProductLineItemFactory())->create($productId);
 
@@ -249,7 +252,7 @@ class StateMachineActionControllerTest extends TestCase
             'visibilities' => [
                 ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
-            'tax' => ['name' => 'test', 'taxRate' => 18],
+            'tax' => ['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 18],
             'manufacturer' => [
                 'name' => [
                     'de-DE' => 'test',
@@ -260,6 +263,7 @@ class StateMachineActionControllerTest extends TestCase
 
         $this->getContainer()->get('product.repository')
             ->create([$product], $salesChannelContext->getContext());
+        $this->addTaxDataToSalesChannel($salesChannelContext, $product['tax']);
 
         $lineItem = (new ProductLineItemFactory())->create($productId);
 

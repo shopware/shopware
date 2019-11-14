@@ -19,6 +19,7 @@
             <argument type="service" id="serializer.mapping.cache.symfony"/>
             <argument>%shopware.sitemap.batchsize%</argument>
             <argument type="service" id="Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\Content\Sitemap\Service\SitemapLister">
@@ -79,6 +80,7 @@
             <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapExporter"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="messenger.bus.shopware"/>
 
             <tag name="messenger.message_handler"/>
         </service>

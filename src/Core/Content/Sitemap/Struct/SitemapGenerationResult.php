@@ -21,11 +21,23 @@ class SitemapGenerationResult extends Struct
      */
     private $offset;
 
-    public function __construct(bool $finish, ?string $provider, ?int $offset)
+    /**
+     * @var string|null
+     */
+    private $lastSalesChannelId;
+
+    /**
+     * @var string
+     */
+    private $lastLanguageId;
+
+    public function __construct(bool $finish, ?string $provider, ?int $offset, string $lastSalesChannelId, string $lastLanguageId)
     {
         $this->finish = $finish;
         $this->provider = $provider;
         $this->offset = $offset;
+        $this->lastSalesChannelId = $lastSalesChannelId;
+        $this->lastLanguageId = $lastLanguageId;
     }
 
     public function isFinish(): bool
@@ -41,5 +53,15 @@ class SitemapGenerationResult extends Struct
     public function getOffset(): ?int
     {
         return $this->offset;
+    }
+
+    public function getLastSalesChannelId(): ?string
+    {
+        return $this->lastSalesChannelId;
+    }
+
+    public function getLastLanguageId(): string
+    {
+        return $this->lastLanguageId;
     }
 }

@@ -92,6 +92,8 @@ class ProductUrlProviderTest extends TestCase
 
     private function getProductTestData(SalesChannelContext $salesChannelContext): array
     {
+        $taxId = $salesChannelContext->getTaxRules()->first()->getId();
+
         $products = [
             [
                 'id' => Uuid::randomHex(),
@@ -99,7 +101,7 @@ class ProductUrlProviderTest extends TestCase
                 'stock' => 100,
                 'name' => 'test product 1',
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
-                'tax' => ['name' => 'test', 'taxRate' => 19],
+                'tax' => ['id' => $taxId],
                 'manufacturer' => ['name' => 'test'],
                 'visibilities' => [
                     ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
@@ -111,7 +113,7 @@ class ProductUrlProviderTest extends TestCase
                 'stock' => 100,
                 'name' => 'test product 2',
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
-                'tax' => ['name' => 'test', 'taxRate' => 19],
+                'tax' => ['id' => $taxId],
                 'manufacturer' => ['name' => 'test'],
                 'visibilities' => [
                     ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
@@ -123,7 +125,7 @@ class ProductUrlProviderTest extends TestCase
                 'stock' => 100,
                 'name' => 'test product 3',
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
-                'tax' => ['name' => 'test', 'taxRate' => 19],
+                'tax' => ['id' => $taxId],
                 'manufacturer' => ['name' => 'test'],
                 'visibilities' => [
                     ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
@@ -135,7 +137,7 @@ class ProductUrlProviderTest extends TestCase
                 'stock' => 100,
                 'name' => 'test product 4',
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
-                'tax' => ['name' => 'test', 'taxRate' => 19],
+                'tax' => ['id' => $taxId],
                 'manufacturer' => ['name' => 'test'],
                 'visibilities' => [
                     ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
@@ -147,7 +149,7 @@ class ProductUrlProviderTest extends TestCase
                 'stock' => 100,
                 'name' => 'test product 5',
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
-                'tax' => ['name' => 'test', 'taxRate' => 19],
+                'tax' => ['id' => $taxId],
                 'manufacturer' => ['name' => 'test'],
                 'visibilities' => [
                     ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],

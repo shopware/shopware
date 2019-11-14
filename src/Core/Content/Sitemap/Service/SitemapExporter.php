@@ -114,7 +114,13 @@ class SitemapExporter implements SitemapExporterInterface
             $this->lock($salesChannelContext);
         }
 
-        return new SitemapGenerationResult($finish, $lastProvider, $urlResult->getNextOffset() ?: 0);
+        return new SitemapGenerationResult(
+            $finish,
+            $lastProvider,
+            $urlResult->getNextOffset(),
+            $salesChannelContext->getSalesChannel()->getId(),
+            $salesChannelContext->getSalesChannel()->getLanguageId()
+        );
     }
 
     private function getFileName(UrlProviderInterface $urlProvider, ?int $offset): string

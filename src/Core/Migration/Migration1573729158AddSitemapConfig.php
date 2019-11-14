@@ -7,11 +7,11 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-class Migration1569246880AddSitemapConfig extends MigrationStep
+class Migration1573729158AddSitemapConfig extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
-        return 1569246880;
+        return 1573729158;
     }
 
     public function update(Connection $connection): void

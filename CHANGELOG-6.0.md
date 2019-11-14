@@ -157,6 +157,8 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Rename old `State` to `StateDeprecated`
     * Make vuex store initially available in global Shopware object `Shopware.State`
     * Move context to the Store
+    * Make vuex store initially available
+    * Moved `Resources/administration` directory to `Resources/app/administration`
 * Core
     * Moved the seo module from the storefront into the core.
     * Switched the execution condition of `\Shopware\Core\Framework\Migration\MigrationStep::addBackwardTrigger()` and `\Shopware\Core\Framework\Migration\MigrationStep::addForwardTrigger()` to match the execution conditions in the methods documentation.
@@ -181,6 +183,56 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added `taxRules` association to country entity
     * Changed the calling of `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getDefaults` which is now only called by newly created entities. The check `$existence->exists()` inside this method is not necessary anymore
     * Added new method `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getChildDefaults`. Use it to define defaults for newly created child entities
+    * We adjusted the entry points for administration and storefront resources so that there are no naming conflicts anymore. It is no longer possible to adjust the paths to the corresponding sources. The new structure looks as follows:
+        ```
+        MyPlugin
+         └──Resources
+            ├── theme.json
+            ├── app
+            │   ├── administration
+            │   │   └── src
+            │   │       ├── main.js
+            │   │       └── scss
+            │   │           └── base.scss
+            │   └── storefront
+            │       ├── dist
+            │       └── src
+            │           ├── main.js
+            │           └── scss
+            │               └── base.scss
+            ├── config
+            │   ├── routes.xml
+            │   └── services.xml
+            ├── public
+            │   ├── administration
+            │   └── storefront
+            └── views
+                ├── administration
+                ├── documents
+                └── storefront
+        ```
+    * We unified the twig template directory structure of the core, administration and storefront bundle. Storefront template are now stored in a sub directory named `storefront`. This has an effect on the previous includes and extends:
+        Before: 
+        `{% sw_extends '@Storefront/base.html.twig' %}`
+        After:
+        `{% sw_extends '@Storefront/storefront/base.html.twig' %}`
+    * We removed the corresponding public functions in the `Bundle.php`:
+        * `getClassName`
+        * `getViewPaths`
+        * `getAdministrationEntryPath`
+        * `getStorefrontEntryPath`
+        * `getConfigPath`
+        * `getStorefrontScriptPath`
+        * `getStorefrontStylePath`
+        * `getAdministrationStyles`
+        * `getAdministrationScripts`
+        * `getRoutesPath`
+        * `getServicesFilePath`
+    * We changed the accessibility of different internal `Bundle.php` functions
+        * `registerContainerFile` from `protected` to `private`
+        * `registerEvents` from `protected` to `private`
+        * `registerFilesystem` from `protected` to `private`
+        * `getContainerPrefix` from `protected` to `final public`
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain
@@ -205,6 +257,13 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
         - Example for nested sub entities: Writing a `order_delivery_position` entity now also dispatches a `order_delivery.written` and a `order.written` event
     * Removed seoUrls extensions in `product` and `category`. Use `product/category.seoUrls` instead 
     * Removed `shopware.api.api_browser.public` config value
+    * Removed `Bundle::getAdministrationEntryPath`
+    * Removed `Bundle::getStorefrontEntryPath`
+    * Removed `Bundle::getConfigPath`
+    * Removed `Bundle::getStorefrontScriptPath`
+    * Removed `Bundle::getViewPaths`
+    * Removed `Bundle::getRoutesPath`
+    * Removed `Bundle::getServicesFilePath`
     * When a sub entity is written or deleted, a written event is dispatched for the configured root entity. 
         - Example for mapping entities: Writing a `product_category` entity now also dispatches a `product.written` and `category.written` event
         - Example for simple sub entities: Writing a `product_price` entity now also dispatches a `product_category` event

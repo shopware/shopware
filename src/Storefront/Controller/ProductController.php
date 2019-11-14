@@ -80,7 +80,7 @@ class ProductController extends StorefrontController
 
         $ratingSuccess = $request->get('success');
 
-        return $this->renderStorefront('@Storefront/page/product-detail/index.html.twig', ['page' => $page, 'ratingSuccess' => $ratingSuccess]);
+        return $this->renderStorefront('@Storefront/storefront/page/product-detail/index.html.twig', ['page' => $page, 'ratingSuccess' => $ratingSuccess]);
     }
 
     /**
@@ -117,7 +117,7 @@ class ProductController extends StorefrontController
     {
         $page = $this->minimalQuickViewPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/component/product/quickview/minimal.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/storefront/component/product/quickview/minimal.html.twig', ['page' => $page]);
     }
 
     /**

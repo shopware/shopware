@@ -406,7 +406,7 @@ class BaseClass extends Plugin
 ### getAdministrationEntryPath
 
 It's a common thing to customize the Shopware 6 administration.
-In order to do so, Shopware 6 is looking for an entry point .js file called `main.js` or `main.ts` inside the directory `/Resources/administration` next to your
+In order to do so, Shopware 6 is looking for an entry point .js file called `main.js` or `main.ts` inside the directory `/Resources/app/administration` next to your
 plugin's base class.
 If this doesn't fit your needs, override this method to return a custom path.
 

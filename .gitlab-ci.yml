@@ -57,11 +57,11 @@ Javascript analysis:
         - cd src/Administration/Resources
         - npm clean-install
         - npm run lerna -- bootstrap
-        - cd administration
+        - cd app/administration
         - PROJECT_ROOT=$(pwd) node_modules/.bin/eslint --ext .js,.vue --format junit src test > eslint.junit.xml
     artifacts:
         reports:
-            junit: src/Administration/Resources/administration/eslint.junit.xml
+            junit: src/Administration/Resources/app/administration/eslint.junit.xml
 
 PHP analysis:
     stage: Static analysis
@@ -224,7 +224,7 @@ Storefront (Jest):
     script:
         - ./psh.phar init
         - ./psh.phar storefront:install-dependencies
-        - npm --prefix vendor/shopware/platform/src/Storefront/Resources/ run unit
+        - npm --prefix vendor/shopware/platform/src/Storefront/Resources/app/storefront/ run unit
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
     artifacts:
         reports:
@@ -254,9 +254,9 @@ Storefront (Jest):
         - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
         - ./psh.phar e2e:dump-db --APP_ENV="prod"
         - chown -R 1000:1000 .
-        - docker run --name cypress -d -t --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/vendor/shopware/platform/src/Storefront/Resources/e2e:/e2e-Storefront -v $(pwd):/app cypress/browsers:node10.11.0-chrome75
+        - docker run --name cypress -d -t --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/vendor/shopware/platform/src/Storefront/Resources/app/storefront/test/e2e:/e2e-Storefront -v $(pwd):/app cypress/browsers:node10.11.0-chrome75
         - docker exec cypress npm clean-install --prefix /e2e-Storefront
-        - forever start vendor/shopware/platform/src/Storefront/Resources/e2e/routes/cypress.js
+        - forever start vendor/shopware/platform/src/Storefront/Resources/app/storefront/test/e2e/routes/cypress.js
         - docker exec cypress npx cypress run --project /e2e-Storefront --browser chrome --config baseUrl=http://docker.vm:8000
         - docker rm -f cypress
 
@@ -266,9 +266,9 @@ Storefront (Jest):
         - ./psh.phar administration:init --APP_ENV="prod"
         - ./psh.phar e2e:dump-db --APP_ENV="prod"
         - chown -R 1000:1000 .
-        - docker run --name cypress -d -t --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/vendor/shopware/platform/src/Administration/Resources/e2e:/e2e-Administration -v $(pwd):/app cypress/browsers:node10.11.0-chrome75
+        - docker run --name cypress -d -t --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e:/e2e-Administration -v $(pwd):/app cypress/browsers:node10.11.0-chrome75
         - docker exec cypress npm clean-install --prefix /e2e-Administration
-        - forever start vendor/shopware/platform/src/Administration/Resources/e2e/routes/cypress.js
+        - forever start vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e/routes/cypress.js
         - docker exec cypress npx cypress run --project /e2e-Administration --browser chrome --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0 --spec $TEST_DIRECTORY
         - docker rm -f cypress
 
@@ -279,9 +279,9 @@ Storefront (Jest):
         - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
         - ./psh.phar e2e:dump-db --APP_ENV="prod"
         - chown -R 1000:1000 .
-        - docker run --name cypress -d -t --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/vendor/shopware/platform/src/Administration/Resources/e2e:/e2e-Administration -v $(pwd):/app cypress/browsers:node10.11.0-chrome75
+        - docker run --name cypress -d -t --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e:/e2e-Administration -v $(pwd):/app cypress/browsers:node10.11.0-chrome75
         - docker exec cypress npm clean-install --prefix /e2e-Administration
-        - forever start vendor/shopware/platform/src/Administration/Resources/e2e/routes/cypress.js
+        - forever start vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e/routes/cypress.js
         - docker exec cypress npx cypress run --project /e2e-Administration --browser chrome --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0 --spec $TEST_DIRECTORY
         - docker rm -f cypress
 
@@ -354,8 +354,8 @@ Component Library:
     script:
         - npm install --prefix src/Administration/Resources/
         - npm run --prefix src/Administration/Resources lerna -- bootstrap
-        - npm install --prefix src/Administration/Resources/administration/build/nuxt-component-library/
-        - npm run --prefix src/Administration/Resources/administration/build/nuxt-component-library/ generate
+        - npm install --prefix src/Administration/Resources/app/administration/build/nuxt-component-library/
+        - npm run --prefix src/Administration/Resources/app/administration/build/nuxt-component-library/ generate
         - "[[ -d build/artifacts/component-library/ ]] && (ls -1qA build/artifacts/component-library/ | grep -q .)"
     artifacts:
         paths:

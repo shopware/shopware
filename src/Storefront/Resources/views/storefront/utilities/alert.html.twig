@@ -1,0 +1,136 @@
+{#
+Global messages template
+
+https://getbootstrap.com/docs/4.3/components/alerts/
+
+*Type:
+The template provides an easy way to display messages in the storefront. The following types are supported:
+
+* primary
+* secondary
+* danger (red)
+* success (green)
+* warning (yellow)
+* info (blue)
+* light (white)
+* dark (dark gray)
+
+    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+        type:"primary",
+        content:"Primary Lorem ipsum dolor"
+    } %}
+
+*Icons:
+Icons are shown by default. To hide the icon within the alert, set the value of "icon" to false:
+
+    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+        type:"primary",
+        content:"Primary Lorem ipsum dolor",
+        icon: false
+    } %}
+
+*Message Content:
+The component requires the parameters ```content``` or ```list``` to display a message. If no ```type``` is defined it
+will use the fallback option (success).
+
+    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+        type:"primary",
+        content:"Primary Lorem ipsum dolor"
+    } %}
+
+*Message List:
+If you need to display a bunch of messages (for example error messages in the registration), you can pass an array
+of messages to the template using the parameter ```list```:
+
+     {% set list1 = [
+        'Error message 1',
+        'Error message 2',
+        'Error message 3'
+    ] %}
+
+    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+        type:"secondary",
+        list: list1
+    } %}
+
+*Heading:
+To display a heading, use "heading".
+
+    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+        type:"primary",
+        content:"Primary Lorem ipsum dolor",
+        heading: "Test Heading"
+    } %}
+
+*Dismissible Button:
+To display a dismissible button set the value of "dismissible" to true.
+
+    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+        type:"primary",
+        content:"Primary Lorem ipsum dolor",
+        dismissible: true
+    } %}
+
+#}
+
+{% block utilities_alert %}
+    <div role="alert"
+         class="alert {% if type %}alert-{{ type }}{% endif %}{% if dismissible %} alert-dismissible fade show{% endif %}{% if icon != "error" %} alert-has-icon{% endif %}">
+        {% block utilities_alert_icon %}
+            {% if icon != "false" %}
+                {% if type == "danger" %}
+                    {% sw_icon 'blocked' %}
+                {% elseif type == "warning" %}
+                    {% sw_icon 'warning' %}
+                {% elseif type == "info" %}
+                    {% sw_icon 'info' %}
+                {% elseif type == "success" %}
+                    {% sw_icon 'checkmark-circle' %}
+                {% else %}
+                    {% sw_icon 'alert' %}
+                {% endif %}
+            {% endif %}
+        {% endblock %}
+
+        {% block utilities_alert_content_container %}
+            <div class="alert-content-container">
+                {% block utilities_alert_heading %}
+                    {% if heading %}
+                        <div class="alert-heading h5">
+                            {{ heading }}
+                        </div>
+                    {% endif %}
+                {% endblock %}
+
+                {% block utilities_alert_content %}
+                    <div class="alert-content">
+                        {% if list|length > 1 %}
+                            <ul class="alert-list">
+                                {% for entry in list %}
+                                    <li>{{ entry }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% elseif list|length == 1 %}
+                            {% for entry in list %}
+                                {{ entry }}
+                            {% endfor %}
+                        {% else %}
+                            {{ content }}
+                        {% endif %}
+                    </div>
+                {% endblock %}
+
+                {% block utilities_alert_dismissible %}
+                    {% if dismissible %}
+                        <button type="button"
+                                class="close"
+                                data-dismiss="alert"
+                                aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    {% endif %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

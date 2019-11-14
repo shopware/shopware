@@ -34,7 +34,7 @@ class SnippetFinder implements SnippetFinderInterface
         $paths = [];
 
         foreach ($activePlugins as $plugin) {
-            $pluginPath = $plugin->getPath() . '/' . $plugin->getAdministrationEntryPath();
+            $pluginPath = $plugin->getPath() . '/Resources/app/administration';
             if (!file_exists($pluginPath)) {
                 continue;
             }
@@ -49,7 +49,7 @@ class SnippetFinder implements SnippetFinderInterface
     {
         $finder = (new Finder())
             ->files()
-            ->in(__DIR__ . '/../Resources/administration/src/')
+            ->in(__DIR__ . '/../Resources/app/administration/src/')
             ->ignoreUnreadableDirs();
 
         if ($locale) {

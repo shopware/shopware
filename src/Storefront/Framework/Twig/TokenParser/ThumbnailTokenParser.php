@@ -22,7 +22,7 @@ final class ThumbnailTokenParser extends AbstractTokenParser
         $stream = $this->parser->getStream();
 
         $className = $expr->getAttribute('value');
-        $expr->setAttribute('value', '@Storefront/utilities/thumbnail.html.twig');
+        $expr->setAttribute('value', '@Storefront/storefront/utilities/thumbnail.html.twig');
 
         $variables = new ArrayExpression([], $token->getLine());
         if ($stream->nextIf(Token::NAME_TYPE, 'with')) {

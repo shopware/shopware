@@ -4,7 +4,7 @@
 ## Overview
 
 The main entry point for this purpose is the plugin's `main.js` file.
-It has to be placed into the `<plugin root>/src/Resources/administration` directory in order to be automatically found by Shopware 6.
+It has to be placed into the `<plugin root>/src/Resources/app/administration` directory in order to be automatically found by Shopware 6.
 *Note: This path can be changed by overriding the [getAdministrationEntryPath()](./../2-internals/4-plugins/020-plugin-base-class.md#getAdministrationEntryPath()) method of the plugin's base class.*
 
 ## Register a new service

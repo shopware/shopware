@@ -58,7 +58,7 @@ class ErrorController extends StorefrontController
             }
         } catch (\Exception $e) { //final Fallback
             $response = $this->renderStorefront(
-                '@Storefront/page/error/index.html.twig',
+                '@Storefront/storefront/page/error/index.html.twig',
                 ['exception' => $exception, 'followingException' => $e]
             );
 

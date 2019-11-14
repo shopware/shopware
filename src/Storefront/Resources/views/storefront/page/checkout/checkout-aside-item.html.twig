@@ -1,0 +1,80 @@
+{% block page_checkout_aside_item %}
+    {% set isDiscount = (not lineItem.good and lineItem.price.totalPrice <= 0) %}
+    {% set isNested = lineItem.children.count > 0 %}
+
+    {% block page_checkout_aside_item_container %}
+        <div class="row checkout-aside-item cart-item cart-item-{{ lineItem.type }}{% if isDiscount %} is-discount{% endif %}{% if isNested %} is-nested{% endif %}{% if isChild %} is-child{% endif %}">
+            {% block page_checkout_aside_item_image %}
+                <div class="col-4 checkout-aside-item-image">
+                    {% block page_checkout_aside_item_image_inner %}
+                        {% if isDiscount %}
+                            <div class="cart-item-discount-icon cart-item-img">
+                                {% sw_icon 'marketing' style {
+                                    'color': 'success'
+                                } %}
+                            </div>
+                        {% elseif isNested %}
+                            <div class="cart-item-nested-icon">
+                                {% sw_icon 'bag-product' style {
+                                    'color': 'light'
+                                } %}
+                            </div>
+                        {%  else %}
+                            {% if lineItem.cover.url %}
+                                {% sw_thumbnails 'cart-item-img-thumbnails' with {
+                                    media: lineItem.cover,
+                                    sizes: {
+                                        'default': '100px'
+                                    },
+                                    attributes: {
+                                        'class': 'img-fluid cart-item-img',
+                                        'alt': (lineItem.cover.translated.alt ?: ''),
+                                        'title': (lineItem.cover.translated.title ?: '')
+                                    }
+                                } %}
+                            {% else %}
+                                {% sw_icon 'placeholder' style {
+                                    'size': 'fluid'
+                                } %}
+                            {% endif %}
+                        {% endif %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block page_checkout_aside_item_data %}
+                <div class="col-8 checkout-aside-item-data">
+                    {% block page_checkout_aside_item_title %}
+                        <div class="checkout-aside-item-title">
+                            {{ lineItem.label|truncate(60) }}
+                        </div>
+                    {% endblock %}
+
+                    {% block page_checkout_aside_item_quantity %}
+                        <div class="checkout-aside-item-link-quantity">
+                            {% if lineItem.quantity %}
+                                {{ "checkout.cartHeaderQuantity"|trans }}: {{ lineItem.quantity }}
+                            {% endif %}
+                        </div>
+                    {% endblock %}
+
+                    {% block page_checkout_aside_item_price %}
+                        <div class="checkout-aside-item-link-price">
+                            {{ lineItem.price.totalPrice|currency }}{{ "general.star"|trans }}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+
+    {% block page_checkout_aside_item_children %}
+        {% for lineItem in lineItem.children %}
+            {% block page_checkout_aside_item_child %}
+                {% sw_include '@Storefront/storefront/page/checkout/checkout-aside-item.html.twig' with {
+                    "isChild": true
+                } %}
+            {% endblock %}
+        {% endfor %}
+    {% endblock %}
+{% endblock %}

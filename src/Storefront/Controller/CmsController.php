@@ -69,7 +69,7 @@ class CmsController extends StorefrontController
 
         $cmsPage = $this->load($id, $request, $salesChannelContext);
 
-        return $this->renderStorefront('@Storefront/page/content/detail.html.twig', ['cmsPage' => $cmsPage]);
+        return $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $cmsPage]);
     }
 
     /**
@@ -104,7 +104,7 @@ class CmsController extends StorefrontController
 
         $cmsPage = $this->load($category->getCmsPageId(), $request, $salesChannelContext, $category->getSlotConfig());
 
-        return $this->renderStorefront('@Storefront/page/content/detail.html.twig', ['cmsPage' => $cmsPage]);
+        return $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $cmsPage]);
     }
 
     /**

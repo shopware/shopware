@@ -1,7 +1,7 @@
 {
   "packages": [
-    "common/*",
-    "administration"
+    "app/common/*",
+    "app/administration"
   ],
   "version": "independent"
 }

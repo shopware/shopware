@@ -89,7 +89,7 @@ class RegisterController extends StorefrontController
 
         $page = $this->loginPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/account/register/index.html.twig', [
+        return $this->renderStorefront('@Storefront/storefront/page/account/register/index.html.twig', [
             'redirectTo' => $redirect,
             'redirectParameters' => $request->get('redirectParameters', json_encode([])),
             'page' => $page,
@@ -116,7 +116,7 @@ class RegisterController extends StorefrontController
         $page = $this->registerPageLoader->load($request, $context);
 
         return $this->renderStorefront(
-            '@Storefront/page/checkout/address/index.html.twig',
+            '@Storefront/storefront/page/checkout/address/index.html.twig',
             ['redirectTo' => $redirect, 'page' => $page, 'data' => $data]
         );
     }

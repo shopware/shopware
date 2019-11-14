@@ -1,6 +1,5 @@
 /vendor/
 composer.lock
 phpunit.xml
-**/Resources/public
-**/Resources/vendor
-!**/Resources/vendor/Inter-3.5
+Resources/app/storefront/vendor/*
+!Resources/app/storefront/vendor/Inter-3.5

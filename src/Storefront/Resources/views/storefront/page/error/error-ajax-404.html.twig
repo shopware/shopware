@@ -1,0 +1,7 @@
+{% sw_extends '@Storefront/storefront/page/error/_pagelet.html.twig' %}
+
+{% block base_flashbags %}
+    <div class="flashbags">
+        {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with { type: "danger", content: "error.message-404"|trans } %}
+    </div>
+{% endblock %}

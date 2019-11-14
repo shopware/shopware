@@ -1,0 +1,69 @@
+{% block block_image_text_gallery %}
+    {% set columns = 3 %}
+
+    {% block block_image_text_gallery_left %}
+        <div class="col-md-4">
+            <div class="image-text-gallery-card">
+                {% block block_image_text_gallery_left_image %}
+                    {% set element = block.slots.getSlot('left-image') %}
+
+                    <div data-cms-element-id="{{ element.id }}">
+                        {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
+                    </div>
+                {% endblock %}
+
+                {% block block_image_text_gallery_left_text %}
+                    {% set element = block.slots.getSlot('left-text') %}
+
+                    <div data-cms-element-id="{{ element.id }}">
+                        {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
+                    </div>
+                {% endblock %}
+            </div>
+        </div>
+    {% endblock %}
+
+    {% block block_image_text_gallery_center %}
+        <div class="col-md-4">
+            <div class="image-text-gallery-card">
+                {% block block_image_text_gallery_center_image %}
+                    {% set element = block.slots.getSlot('center-image') %}
+
+                    <div data-cms-element-id="{{ element.id }}">
+                        {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
+                    </div>
+                {% endblock %}
+
+                {% block block_image_text_gallery_center_text %}
+                    {% set element = block.slots.getSlot('center-text') %}
+
+                    <div data-cms-element-id="{{ element.id }}">
+                        {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
+                    </div>
+                {% endblock %}
+            </div>
+        </div>
+    {% endblock %}
+
+    {% block block_image_text_gallery_right %}
+        <div class="col-md-4">
+            <div class="image-text-gallery-card">
+                {% block block_image_text_gallery_right_image %}
+                    {% set element = block.slots.getSlot('right-image') %}
+
+                    <div data-cms-element-id="{{ element.id }}">
+                        {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
+                    </div>
+                {% endblock %}
+
+                {% block block_image_text_gallery_right_text %}
+                    {% set element = block.slots.getSlot('right-text') %}
+
+                    <div data-cms-element-id="{{ element.id }}">
+                        {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
+                    </div>
+                {% endblock %}
+            </div>
+        </div>
+    {% endblock %}
+{% endblock %}

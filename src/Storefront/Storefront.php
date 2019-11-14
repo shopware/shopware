@@ -43,32 +43,9 @@ class Storefront extends Bundle implements ThemeInterface
         $container->addCompilerPass(new DisableTemplateCachePass());
     }
 
-    public function getViewPaths(): array
-    {
-        return [
-            'Resources/views',
-            'Administration/views',
-        ];
-    }
-
-    public function getAdministrationEntryPath(): string
-    {
-        return 'Administration';
-    }
-
-    public function getThemeConfigPath(): ?string
-    {
-        return 'Resources/theme.json';
-    }
-
-    public function getStorefrontEntryPath(): string
-    {
-        return 'Resources/src/script';
-    }
-
     private function buildConfig(ContainerBuilder $container, $environment): void
     {
-        $locator = new FileLocator($this->getConfigPath());
+        $locator = new FileLocator('Resources/config');
 
         $resolver = new LoaderResolver([
             new XmlFileLoader($container, $locator),
@@ -82,7 +59,7 @@ class Storefront extends Bundle implements ThemeInterface
 
         $configLoader = new DelegatingLoader($resolver);
 
-        $confDir = $this->getPath() . '/' . $this->getConfigPath();
+        $confDir = $this->getPath() . '/Resources/config';
 
         $configLoader->load($confDir . '/{packages}/*' . Kernel::CONFIG_EXTS, 'glob');
         $configLoader->load($confDir . '/{packages}/' . $environment . '/*' . Kernel::CONFIG_EXTS, 'glob');

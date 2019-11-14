@@ -144,13 +144,13 @@ class InfoController extends AbstractController
                 $url = sprintf('bundles/%s/administration/css/%s', $bundleName, $filename);
 
                 return $package->getUrl($url);
-            }, $bundle->getAdministrationStyles());
+            }, $this->getAdministrationStyles($bundle));
 
             $scripts = array_map(static function (string $filename) use ($package, $bundleName) {
                 $url = sprintf('bundles/%s/administration/js/%s', $bundleName, $filename);
 
                 return $package->getUrl($url);
-            }, $bundle->getAdministrationScripts());
+            }, $this->getAdministrationScripts($bundle));
 
             if (empty($styles) && empty($scripts)) {
                 continue;
@@ -163,5 +163,29 @@ class InfoController extends AbstractController
         }
 
         return $assets;
+    }
+
+    private function getAdministrationStyles(Bundle $bundle): array
+    {
+        $bundleName = str_replace('_', '-', $bundle->getContainerPrefix());
+        $filename = $bundleName . '.css';
+
+        if (!file_exists($bundle->getPath() . '/Resources/public/administration/css/' . $filename)) {
+            return [];
+        }
+
+        return [$filename];
+    }
+
+    private function getAdministrationScripts(Bundle $bundle): array
+    {
+        $bundleName = str_replace('_', '-', $bundle->getContainerPrefix());
+        $filename = $bundleName . '.js';
+
+        if (!file_exists($bundle->getPath() . '/Resources/public/administration/js/' . $filename)) {
+            return [];
+        }
+
+        return [$filename];
     }
 }

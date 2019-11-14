@@ -1,0 +1,166 @@
+{# Set variable to "true" to enable HMR (hot page reloading) mode #}
+{% set isHMRMode = false %}
+
+{% block base_doctype %}
+<!DOCTYPE html>
+{% endblock %}
+
+{% block base_html %}
+<html lang="{{ "meta.xmlLang"|trans }}"
+      itemscope="itemscope"
+      itemtype="https://schema.org/WebPage">
+{% endblock %}
+
+{% block base_head %}
+    {% sw_include '@Storefront/storefront/layout/meta.html.twig' %}
+{% endblock %}
+
+{% block base_body %}
+    <body class="is-ctl-{{ controllerName|lower }} is-act-{{ controllerAction|lower }}">
+    {% block base_body_inner %}
+        {% block base_noscript %}
+            <noscript class="noscript-main">
+                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                    type: 'info',
+                    content: 'general.noscriptNotice'|trans
+                } %}
+            </noscript>
+        {% endblock %}
+
+        {% block base_header %}
+            <header class="header-main">
+                {% block base_header_inner %}
+                    <div class="container">
+                        {% sw_include '@Storefront/storefront/layout/header/header.html.twig' %}
+                    </div>
+                {% endblock %}
+            </header>
+        {% endblock %}
+
+        {% block base_navigation %}
+            <div class="nav-main">
+                {% block base_navigation_inner %}
+                    {% sw_include '@Storefront/storefront/layout/navigation/navigation.html.twig' %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block base_offcanvas_navigation %}
+            <div class="d-none js-navigation-offcanvas-initial-content">
+                {% block base_offcanvas_navigation_inner %}
+                    {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/navigation.html.twig' %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block base_main %}
+            <main class="content-main">
+                {% block base_flashbags %}
+                    <div class="flashbags container">
+                        {% for type, messages in app.flashes %}
+                            {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with { type: type, list: messages } %}
+                        {% endfor %}
+                    </div>
+                {% endblock %}
+
+                {% block base_main_inner %}
+                    <div class="container">
+                        {% block base_main_container %}
+                            <div class="container-main">
+                                {% block base_breadcrumb %}
+                                    {% if breadcrumbList %}
+                                        {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' %}
+                                    {% endif %}
+                                {% endblock %}
+
+                                {% block base_content %}{% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </main>
+        {% endblock %}
+
+        {% block base_footer %}
+            <footer class="footer-main">
+                {% block base_footer_inner %}
+                    <div class="container">
+                        {% sw_include '@Storefront/storefront/layout/footer/footer.html.twig' %}
+                    </div>
+                {% endblock %}
+            </footer>
+        {% endblock %}
+    {% endblock %}
+
+    {% block base_scroll_up %}
+        {% sw_include '@Storefront/storefront/layout/scroll-up.html.twig' %}
+    {% endblock %}
+
+    {% block base_cookie_permission %}
+        {% sw_include '@Storefront/storefront/layout/cookie-permission.html.twig' %}
+    {% endblock %}
+
+    {% block base_pseudo_modal %}
+        {% sw_include '@Storefront/storefront/component/pseudo-modal.html.twig' %}
+    {% endblock %}
+
+    {% block base_body_script %}
+        {% block base_script_token %}
+            <script>
+                window.accessKey = '{{ context.salesChannel.accessKey }}';
+                window.contextToken = '{{ context.token }}';
+            </script>
+        {% endblock %}
+
+        {% block base_script_router %}
+            {# Register all routes that will be needed in JavaScript to the window.router object #}
+            <script>
+                window.activeNavigationId = '{{ page.header.navigation.active.id }}';
+                window.router = {
+                    'frontend.cart.offcanvas': '{{ path('frontend.cart.offcanvas') }}',
+                    'frontend.checkout.finish.page': '{{ path('frontend.checkout.finish.page') }}',
+                    'frontend.checkout.info': '{{ path('frontend.checkout.info') }}',
+                    'frontend.menu.offcanvas': '{{ path('frontend.menu.offcanvas') }}',
+                    'frontend.cms.page': '{{ path('frontend.cms.page') }}',
+                    'frontend.cms.navigation.page': '{{ path('frontend.cms.navigation.page') }}',
+                    'frontend.account.addressbook': '{{ path('frontend.account.addressbook') }}',
+                    'frontend.csrf.generateToken': '{{ path('frontend.csrf.generateToken') }}',
+                };
+            </script>
+        {% endblock %}
+
+        {% block base_script_breakpoints %}
+            {# Register the available viewport breakpoints the window.breakpoints object #}
+            <script>
+                window.breakpoints = {{ shopware.theme.breakpoint|json_encode()|raw }};
+            </script>
+        {% endblock %}
+
+        {% block base_script_csrf %}
+            <script>
+                window.csrf = {
+                    'enabled': '{{ shopware.csrfEnabled }}',
+                    'mode': '{{ shopware.csrfMode }}'
+                }
+            </script>
+        {% endblock %}
+
+        {% block base_script_hmr_mode %}
+            {% if isHMRMode %}
+                {% set baseUrl = app.request.getScheme() ~ '://' ~ app.request.getHost() %}
+                <script type="text/javascript" src="{{ baseUrl }}:9999/js/vendor-node.js"></script>
+                <script type="text/javascript" src="{{ baseUrl }}:9999/js/vendor-shared.js"></script>
+                <script type="text/javascript" src="{{ baseUrl }}:9999/js/runtime.js"></script>
+                <script type="text/javascript" src="{{ baseUrl }}:9999/js/app.js"></script>
+                {# The storefront entry is a combined entry point which contains all plugins & themes #}
+                <script type="text/javascript" src="{{ baseUrl }}:9999/js/storefront.js"></script>
+            {% else %}
+                {% for file in shopware.theme.assets.js %}
+                    <script type="text/javascript" src="{{ asset(file) }}"></script>
+                {% endfor %}
+            {% endif %}
+        {% endblock %}
+    {% endblock %}
+    </body>
+{% endblock %}
+</html>

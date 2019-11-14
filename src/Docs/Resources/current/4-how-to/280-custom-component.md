@@ -17,7 +17,7 @@ learn creating a plugin at first.
 ## Injecting into the administration
 
 The main entry point to extend the administration via plugin is the `main.js` file.
-It has to be placed into a `<plugin root>/src/Resources/administration` directory in order to be found by Shopware 6.
+It has to be placed into a `<plugin root>/src/Resources/app/administration` directory in order to be found by Shopware 6.
 *Note: This path can be changed by overriding the [getAdministrationEntryPath](./../2-internals/4-plugins/020-plugin-base-class.md#getAdministrationEntryPath) method of your plugin's base class.*
 
 ## Creating a custom component
@@ -30,17 +30,17 @@ by several other components, such as an element that prints 'Hello world' everyw
 
 In order to properly structure your plugin's code and to be similar to the core structure, you have to answer this question first.
 If it's going to be used as page for a module, it should be placed here:
-`<plugin-root>/src/Resources/administration/module/<your module's name>/page/<your component name>`
+`<plugin-root>/src/Resources/app/administration/module/<your module's name>/page/<your component name>`
 
 Otherwise, if it's going to be a general component to be used by other components, the following will be the proper path.
 For this example, this scenario is used.
-`<plugin-root>/src/Resources/administration/app/component/<name of your plugin>/<name of your component>`
+`<plugin-root>/src/Resources/app/administration/app/component/<name of your plugin>/<name of your component>`
 
 Those are **not** a hard requirement, but rather a recommendation. This way, third party developers having a glance at your code will
 get used to it real quick, because you sticked to Shopware 6's core conventions.
 
 Since the latter example is being used, this is the path being created in the plugin now:
-`<plugin-root>/src/Resources/administration/app/component/custom-component/hello-world`
+`<plugin-root>/src/Resources/app/administration/app/component/custom-component/hello-world`
 
 ### Main.js
 

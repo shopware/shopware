@@ -343,9 +343,17 @@ class ThemeService
 
         // Is inherited Theme -> get Plugin
         if ($pluginConfig === null) {
-            $pluginConfig = $this->pluginRegistry->getConfigurations()->getByTechnicalName(StorefrontPluginRegistry::BASE_THEME_NAME);
+            if ($theme->getParentThemeId() !== null) {
+                $criteria = (new Criteria())->addFilter(new EqualsFilter('id', $theme->getParentThemeId()));
+                /** @var ThemeEntity $parentTheme */
+                $parentTheme = $this->themeRepository->search($criteria, $context)->first();
+                $pluginConfig = $this->pluginRegistry->getConfigurations()->getByTechnicalName($parentTheme->getTechnicalName());
+            } else {
+                $parentTheme = false;
+                $pluginConfig = $this->pluginRegistry->getConfigurations()->getByTechnicalName(StorefrontPluginRegistry::BASE_THEME_NAME);
+            }
             if (!$pluginConfig) {
-                throw new InvalidThemeException(StorefrontPluginRegistry::BASE_THEME_NAME);
+                throw new InvalidThemeException($parentTheme ? $parentTheme->getTechnicalName() : StorefrontPluginRegistry::BASE_THEME_NAME);
             }
         }
 

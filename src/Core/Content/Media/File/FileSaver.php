@@ -233,13 +233,11 @@ class FileSaver
         return $this->renameFile(
             $this->urlGenerator->getRelativeThumbnailUrl(
                 $currentMedia,
-                $thumbnail->getWidth(),
-                $thumbnail->getHeight()
+                $thumbnail
             ),
             $this->urlGenerator->getRelativeThumbnailUrl(
                 $updatedMedia,
-                $thumbnail->getWidth(),
-                $thumbnail->getHeight()
+                $thumbnail
             ),
             $this->getFileSystem($currentMedia)
         );

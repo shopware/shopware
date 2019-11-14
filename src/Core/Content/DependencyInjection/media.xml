@@ -190,11 +190,19 @@
             <argument>%shopware.cdn.strategy%</argument>
         </service>
 
-        <service id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\Md5PathnameStrategy">
+        <service id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\FilenamePathnameStrategy">
+            <argument type="service" id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PlainPathnameStrategy"/>
+
             <tag name="shopware.pathname.strategy"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PlainPathnameStrategy">
+            <tag name="shopware.pathname.strategy"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\IdPathnameStrategy">
+            <argument type="service" id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PlainPathnameStrategy"/>
+
             <tag name="shopware.pathname.strategy"/>
         </service>
 

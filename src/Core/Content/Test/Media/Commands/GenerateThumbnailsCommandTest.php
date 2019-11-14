@@ -218,8 +218,7 @@ class GenerateThumbnailsCommandTest extends TestCase
     {
         $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl(
             $media,
-            $thumbnail->getWidth(),
-            $thumbnail->getHeight()
+            $thumbnail
         );
         static::assertTrue($this->getPublicFilesystem()->has($thumbnailPath));
     }

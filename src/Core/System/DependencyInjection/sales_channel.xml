@@ -100,7 +100,8 @@
             <argument type="service" id="country.repository"/>
             <argument type="service" id="snippet_set.repository"/>
             <argument type="service" id="category.repository"/>
-            <tag name="console.command"/>
+
+            <tag name="console.command" command="sales-channel:create"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry" public="true">
@@ -111,8 +112,9 @@
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextValueResolver">
-            <tag name="controller.argument_value_resolver" priority="1000"/>
             <argument type="service" id="request_stack"/>
+
+            <tag name="controller.argument_value_resolver" priority="1000"/>
         </service>
 
     </services>

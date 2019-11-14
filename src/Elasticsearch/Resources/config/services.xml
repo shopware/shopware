@@ -66,13 +66,15 @@
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand">
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\EntityIndexer"/>
+
             <tag name="kernel.event_subscriber"/>
-            <tag name="console.command"/>
+            <tag name="console.command" command="es:index"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchTestAnalyzerCommand">
             <argument id="Elasticsearch\Client" type="service"/>
-            <tag name="console.command"/>
+
+            <tag name="console.command" command="es:test:analyzer"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher"
@@ -113,11 +115,12 @@
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexingMessageHandler">
-            <tag name="messenger.message_handler"/>
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="messenger.bus.shopware"/>
+
+            <tag name="messenger.message_handler"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler" public="true">
@@ -125,6 +128,7 @@
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="logger"/>
+
             <tag name="messenger.message_handler"/>
         </service>
 
@@ -139,12 +143,14 @@
         <service id="Shopware\Elasticsearch\Product\ElasticsearchProductDefinition">
             <argument id="Shopware\Core\Content\Product\ProductDefinition" type="service"/>
             <argument id="Shopware\Elasticsearch\Framework\Indexing\EntityMapper" type="service"/>
+
             <tag name="shopware.es.definition" />
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchCreateAliasCommand">
             <argument id="Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler" type="service"/>
-            <tag name="console.command"/>
+
+            <tag name="console.command" command="es:create:alias"/>
         </service>
     </services>
 </container>

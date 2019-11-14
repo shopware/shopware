@@ -160,18 +160,20 @@
             <argument type="service" id="media_folder.repository"/>
             <argument type="service" id="messenger.bus.shopware"/>
 
-            <tag name="console.command"/>
+            <tag name="console.command" command="media:generate-thumbnails"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Commands\GenerateMediaTypesCommand">
             <argument type="service" id="Shopware\Core\Content\Media\TypeDetector\TypeDetector"/>
             <argument type="service" id="media.repository"/>
-            <tag name="console.command"/>
+
+            <tag name="console.command" command="media:generate-media-types"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Commands\DeleteNotUsedMediaCommand">
             <argument type="service" id="Shopware\Core\Content\Media\DeleteNotUsedMediaService"/>
-            <tag name="console.command"/>
+
+            <tag name="console.command" command="media:delete-unused"/>
         </service>
 
         <!-- Pathname -->

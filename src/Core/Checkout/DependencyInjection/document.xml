@@ -16,24 +16,28 @@
         <service id="Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator">
             <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
             <argument>%kernel.root_dir%</argument>
+
             <tag name="document.generator"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator">
             <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
             <argument>%kernel.root_dir%</argument>
+
             <tag name="document.generator"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\DocumentGenerator\StornoGenerator">
             <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
             <argument>%kernel.root_dir%</argument>
+
             <tag name="document.generator"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\DocumentGenerator\CreditNoteGenerator">
             <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
             <argument>%kernel.root_dir%</argument>
+
             <tag name="document.generator"/>
         </service>
 

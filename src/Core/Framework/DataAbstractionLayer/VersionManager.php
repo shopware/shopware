@@ -39,6 +39,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitCollection;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinition;
+use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitEntity;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataEntity;
 use Shopware\Core\Framework\Version\VersionDefinition;
@@ -273,7 +274,14 @@ class VersionManager
                     case 'insert':
                     case 'update':
                     case 'upsert':
+                        if ($dataDefinition instanceof EntityTranslationDefinition && $this->translationHasParent($commit, $data)) {
+                            break;
+                        }
+
                         $payload = $this->addVersionToPayload($data->getPayload(), $dataDefinition, Defaults::LIVE_VERSION);
+
+                        $payload = $this->addTranslationToPayload($data->getEntityId(), $payload, $dataDefinition, $commit);
+
                         $events = $this->entityWriter->upsert($dataDefinition, [$payload], $liveContext);
 
                         $writtenEvents = array_merge_recursive($writtenEvents, $events);
@@ -835,5 +843,81 @@ class VersionManager
         }
 
         return $primaryKeys;
+    }
+
+    private function translationHasParent(VersionCommitEntity $commit, VersionCommitDataEntity $translationData): bool
+    {
+        $translationDefinition = $this->registry->getByEntityName($translationData->getEntityName());
+
+        $parentEntity = $translationDefinition->getParentDefinition()->getEntityName();
+
+        $parentPropertyName = $this->getEntityForeignKeyName($parentEntity);
+
+        $parentId = $translationData->getPayload()[$parentPropertyName];
+
+        foreach ($commit->getData() as $data) {
+            if ($data->getEntityName() !== $parentEntity) {
+                continue;
+            }
+
+            $primary = $data->getEntityId();
+
+            if (!isset($primary['id'])) {
+                continue;
+            }
+
+            if ($primary['id'] === $parentId) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function addTranslationToPayload(array $entityId, array $payload, EntityDefinition $definition, VersionCommitEntity $commit): array
+    {
+        $translationDefinition = $definition->getTranslationDefinition();
+
+        if (!$translationDefinition) {
+            return $payload;
+        }
+        if (!isset($entityId['id'])) {
+            return $payload;
+        }
+
+        $id = $entityId['id'];
+
+        $translations = [];
+
+        $foreignKeyName = $this->getEntityForeignKeyName($definition->getEntityName());
+
+        foreach ($commit->getData() as $data) {
+            if ($data->getEntityName() !== $translationDefinition->getEntityName()) {
+                continue;
+            }
+
+            $translation = $data->getPayload();
+            if (!isset($translation[$foreignKeyName])) {
+                continue;
+            }
+
+            if ($translation[$foreignKeyName] !== $id) {
+                continue;
+            }
+
+            $translations[] = $this->addVersionToPayload($translation, $translationDefinition, Defaults::LIVE_VERSION);
+        }
+
+        $payload['translations'] = $translations;
+
+        return $payload;
+    }
+
+    private function getEntityForeignKeyName(string $parentEntity): string
+    {
+        $parentPropertyName = \explode('_', $parentEntity);
+        $parentPropertyName = \array_map('ucfirst', $parentPropertyName);
+
+        return \lcfirst(\implode($parentPropertyName)) . 'Id';
     }
 }

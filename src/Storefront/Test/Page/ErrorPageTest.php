@@ -70,7 +70,7 @@ class ErrorPageTest extends TestCase
         $event = null;
         $this->catchEvent(ErrorPageLoadedEvent::class, $event);
 
-        $page = $this->getPageLoader()->load($this->errorLayoutId ,$request, $context);
+        $page = $this->getPageLoader()->load($this->errorLayoutId, $request, $context);
 
         static::assertInstanceOf(ErrorPage::class, $page);
         self::assertPageEvent(ErrorPageLoadedEvent::class, $event, $context, $request, $page);

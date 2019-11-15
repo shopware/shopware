@@ -70,7 +70,20 @@
       "navigationCategoryId": "Entry point main navigation",
       "navigationCategoryHelpText": "For this entry point, you can not select categories of the type \"customizable link\" or \"structuring element\".",
       "footerCategory": "Entry point footer navigation",
-      "serviceCategory": "Entry point service navigation"
+      "serviceCategory": "Entry point service navigation",
+      "titleOptionsApiKey": "API access",
+      "titleDeleteSalesChannelWarning": "Warning:",
+      "textDeleteSalesChannelWarning": "Removing this sales channel cannot be undone.",
+      "buttonCopyApiKeyButton": "Copy API key",
+      "titleStatus": "Status",
+      "titleActiveHeadline": "Active",
+      "titleDomainHeadline": "Create domain URLs",
+      "buttonEditDomain": "Edit domain",
+      "titleCreateDomain": "Create domain",
+      "titleEditDomain": "Edit \"{name}\" domain",
+      "textDomainDescription": "Each selected language must have it's own domain in order to work in your online sales channel. You can also add custom domains here.",
+      "textApiAccessDescription": "In order to get API access, you need the API key shown below. Generating the key anew will overwrite the old key and by that terminate all existing access routes that were set up with it. This action cannot be undone.",
+      "textActiveDescription": "Switching off a sales channel will make it inaccessible to visitors and API connections."
     }
   }
 }

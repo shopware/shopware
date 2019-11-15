@@ -55,7 +55,6 @@
       "placeholderName": "Gib einen Namen für den Verkaufskanal ein ...",
       "placeholderInputCategories": "Kategorien hinzufügen",
       "titleDomains": "Domänen",
-      "titleDomainItem": "URL {index}",
       "labelInputCurrency": "Währung",
       "labelInputLanguage": "Sprache",
       "labelInputSnippet": "Textbaustein-Set",
@@ -70,7 +69,22 @@
       "navigationCategoryId": "Einstiegspunkt Hauptnavigation",
       "navigationCategoryHelpText": "Für diesen Einstiegspunkt können keine Kategorien des Typs \"benutzerdefinierter Link\" oder \"Strukturkategorie\" ausgewählt werden.",
       "footerCategory": "Einstiegspunkt Footernavigation",
-      "serviceCategory": "Einstiegspunkt Servicenavigation"
+      "serviceCategory": "Einstiegspunkt Servicenavigation",
+      "titleOptionsApiKey": "API-Zugang",
+      "titleApiAccess": "API-Zugang",
+      "titleDeleteSalesChannelWarning": "Achtung:",
+      "textDeleteSalesChannelWarning": "Das Entfernen dieses Verkaufskanal kann nicht wieder rückgängig gemacht werden.",
+      "buttonCopyApiKeyButton": "API Schlüssel kopieren",
+      "titleStatus": "Status",
+      "titleActiveHeadline": "Aktiv",
+      "titleDomainHeadline": "Erstelle Domäne URLs",
+      "buttonEditDomain": "Domäne bearbeiten",
+      "buttonEditDomain": "Domäne bearbeiten",
+      "titleCreateDomain": "Neue Domäne erstellen",
+      "titleEditDomain": "Domäne \"{name}\" bearbeiten",
+      "textDomainDescription": "Jede selektierte Sprache benötigt ihre eigene Domain in ihren Verkaufskanal. Sie können zudem weitere eigene Domänen für ihren Verkaufskanal hinzufügen.",
+      "textApiAccessDescription": "Um API-Zugriff zu erhalten benötigen sie die unten angezeigte API-Zugangs-ID. Eine Neugenerierung überschreibt die alte API-Zugangs-ID und terminiert alle existierenden Zugriffsrouten. Diese Aktion kann nicht rückgängig gemacht werden.",
+      "textActiveDescription": "Deaktivieren dieses Verkaufskanals bewirkt dass dieser für Besucher und API Verbindungen unzugänglich gemacht wird."
     }
   }
 }

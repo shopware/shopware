@@ -24,12 +24,34 @@ $sw-sales-channel-detail-color-text-access-key: $color-gutenberg;
         border-top: 1px solid $color-steam-cloud;
     }
 
-    .sw-sales-channel-detail-base__domain-headline {
+    .sw-sales-channel-detail-base__headline {
         display: flex;
     }
 
-    .sw-sales-channel-detail-base__domain-headline-text {
+    .sw-sales-channel-detail-base__headline-text {
         font-weight: bold;
+    }
+
+    .sw-sales-channel-detail-base__description-text {
+        font-size: $font-size-small;
+        margin-bottom: 20px;
+    }
+
+    .sw-sales-channel-detail__action-buttons {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .sw-sales-channel-detail-base__button-delete {
+        justify-self: end;
+    }
+
+    .sw-sales-channel-detail__button-domain-add {
+        margin: 0 0 15px;
+    }
+
+    .sw-sales-channel-detail-base__domains-meta {
+        padding: 30px 30px 0;
     }
 
     .sw-sales-channel-detail-base__domain-delete {
@@ -45,6 +67,14 @@ $sw-sales-channel-detail-color-text-access-key: $color-gutenberg;
 
     .sw-sales-channel-detail-base__domain-container {
         margin-bottom: 30px;
+    }
+
+    .sw-sales-channel-detail-base__delete-sales-channel {
+        align-items: center;
+
+        .sw-sales-channel-detail-base__description-text {
+            margin: 8px 0 0;
+        }
     }
 }
 

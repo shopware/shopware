@@ -49,42 +49,64 @@ class SyncService implements SyncServiceInterface
      */
     public function sync(array $operations, Context $context, SyncBehavior $behavior): SyncResult
     {
-        $this->connection->beginTransaction();
+        if ($behavior->failOnError()) {
+            $this->connection->beginTransaction();
+        }
 
         $hasError = false;
         $results = [];
         foreach ($operations as $operation) {
-            $result = $this->execute($operation, $context);
+            if (!$behavior->failOnError()) {
+                //begin a new transaction for every operation to provide chunk-safe operations
+                $this->connection->beginTransaction();
+            }
+
+            $result = $this->execute($operation, $context, $behavior);
 
             $results[$operation->getKey()] = $result;
 
             $hasError = $result->hasError();
-        }
 
-        if ($behavior->failOnError() && $hasError) {
-            $this->connection->rollBack();
-
-            /** @var SyncOperationResult $result */
-            foreach ($results as $result) {
-                $result->resetEntities();
+            if ($hasError) {
+                if ($behavior->failOnError()) {
+                    /** @var SyncOperationResult $result */
+                    foreach ($results as $result) {
+                        $result->resetEntities();
+                    }
+                    continue;
+                }
+                $this->connection->rollBack();
+            } elseif (!$behavior->failOnError()) {
+                // Only commit if transaction not already marked as rollback
+                if (!$this->connection->isRollbackOnly()) {
+                    $this->connection->commit();
+                } else {
+                    $this->connection->rollBack();
+                }
             }
-        } else {
-            $this->connection->commit();
+        }
+        if ($behavior->failOnError()) {
+            // Only commit if transaction not already marked as rollback
+            if ($hasError === false && !$this->connection->isRollbackOnly()) {
+                $this->connection->commit();
+            } else {
+                $this->connection->rollBack();
+            }
         }
 
         return new SyncResult($results, $hasError === false);
     }
 
-    private function execute(SyncOperation $operation, Context $context): SyncOperationResult
+    private function execute(SyncOperation $operation, Context $context, SyncBehavior $behavior): SyncOperationResult
     {
         $repository = $this->definitionRegistry->getRepository($operation->getEntity());
 
         switch (mb_strtolower($operation->getAction())) {
             case 'upsert':
-                return $this->upsertRecords($operation, $context, $repository);
+                return $this->upsertRecords($operation, $context, $repository, $behavior);
 
             case 'delete':
-                return $this->deleteRecords($operation, $context, $repository);
+                return $this->deleteRecords($operation, $context, $repository, $behavior);
 
             default:
                 throw new \RuntimeException(
@@ -93,7 +115,7 @@ class SyncService implements SyncServiceInterface
         }
     }
 
-    private function upsertRecords(SyncOperation $operation, Context $context, EntityRepositoryInterface $repository): SyncOperationResult
+    private function upsertRecords(SyncOperation $operation, Context $context, EntityRepositoryInterface $repository, SyncBehavior $behavior): SyncOperationResult
     {
         $results = [];
 
@@ -126,7 +148,7 @@ class SyncService implements SyncServiceInterface
         return new SyncOperationResult($results);
     }
 
-    private function deleteRecords(SyncOperation $operation, Context $context, EntityRepositoryInterface $repository): SyncOperationResult
+    private function deleteRecords(SyncOperation $operation, Context $context, EntityRepositoryInterface $repository, SyncBehavior $behavior): SyncOperationResult
     {
         $results = [];
 

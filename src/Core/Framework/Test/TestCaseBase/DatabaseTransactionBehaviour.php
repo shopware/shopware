@@ -25,9 +25,17 @@ trait DatabaseTransactionBehaviour
      */
     public function stopTransactionAfter(): void
     {
-        $this->getContainer()
-            ->get(Connection::class)
-            ->rollBack();
+        /** @var Connection $connection */
+        $connection = $this->getContainer()
+            ->get(Connection::class);
+        self::assertEquals(
+            1,
+            $connection->getTransactionNestingLevel(),
+            'Too many Nesting Levels. 
+            Probably one transactions was not closed propely. 
+            This may affect following Tests in an unpredictable manner!'
+        );
+        $connection->rollBack();
     }
 
     abstract protected function getContainer(): ContainerInterface;

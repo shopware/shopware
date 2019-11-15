@@ -76,6 +76,129 @@ class SyncControllerTest extends TestCase
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
     }
 
+    public function testDuplicateProductNumberInsert(): void
+    {
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+        $productNumber = Uuid::randomHex();
+
+        $data = [
+            [
+                'action' => SyncController::ACTION_UPSERT,
+                'entity' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+                'payload' => [
+                    [
+                        'id' => $id1,
+                        'productNumber' => $productNumber,
+                        'stock' => 1,
+                        'manufacturer' => ['name' => 'test'],
+                        'tax' => ['name' => 'test', 'taxRate' => 15],
+                        'name' => 'CREATE-1',
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
+                    ],
+                ],
+            ],
+            [
+                'action' => SyncController::ACTION_UPSERT,
+                'entity' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+                'payload' => [
+                    [
+                        'id' => $id2,
+                        'productNumber' => $productNumber,
+                        'stock' => 1,
+                        'manufacturer' => ['name' => 'test'],
+                        'name' => 'CREATE-2',
+                        'tax' => ['name' => 'test', 'taxRate' => 15],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
+                    ],
+                ],
+            ],
+        ];
+        $this->getBrowser()->setServerParameter('HTTP_fail-on-error', 'false');
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], json_encode($data));
+        $response = $this->getBrowser()->getResponse();
+        $this->getBrowser()->setServerParameter('HTTP_fail-on-error', 'true');
+        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertStringContainsString('Product with number \u0022' . $productNumber . '\u0022 already exists.', $response->getContent());
+
+        $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id1);
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id2);
+        static::assertSame(Response::HTTP_NOT_FOUND, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $this->getBrowser()->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id1);
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id1);
+        static::assertSame(Response::HTTP_NOT_FOUND, $this->getBrowser()->getResponse()->getStatusCode());
+    }
+
+    public function testDuplicateProductNumberInsertKeyChanged(): void
+    {
+        $this->connection->executeQuery('
+            ALTER TABLE `product` DROP INDEX `uniq.product.product_number__version_id`
+        ');
+        $this->connection->executeQuery('
+            ALTER TABLE `product` ADD CONSTRAINT `uniq.product.product_number__version_idTEST` UNIQUE (`product_number`, `version_id`)
+        ');
+
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+        $productNumber = Uuid::randomHex();
+
+        $data = [
+            [
+                'action' => SyncController::ACTION_UPSERT,
+                'entity' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+                'payload' => [
+                    [
+                        'id' => $id1,
+                        'productNumber' => $productNumber,
+                        'stock' => 1,
+                        'manufacturer' => ['name' => 'test'],
+                        'tax' => ['name' => 'test', 'taxRate' => 15],
+                        'name' => 'CREATE-KeyChanged-1',
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
+                    ],
+                ],
+            ],
+            [
+                'action' => SyncController::ACTION_UPSERT,
+                'entity' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+                'payload' => [
+                    [
+                        'id' => $id2,
+                        'productNumber' => $productNumber,
+                        'stock' => 1,
+                        'manufacturer' => ['name' => 'test'],
+                        'name' => 'CREATE-KeyChanged-2',
+                        'tax' => ['name' => 'test', 'taxRate' => 15],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
+                    ],
+                ],
+            ],
+        ];
+        $this->getBrowser()->setServerParameter('HTTP_fail-on-error', 'false');
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], json_encode($data));
+        $response = $this->getBrowser()->getResponse();
+        $this->getBrowser()->setServerParameter('HTTP_fail-on-error', 'true');
+
+        $this->connection->executeQuery('
+            ALTER TABLE `product` DROP INDEX `uniq.product.product_number__version_idTEST`
+        ');
+
+        $this->connection->executeQuery('
+            ALTER TABLE `product` ADD CONSTRAINT `uniq.product.product_number__version_id` UNIQUE (`product_number`, `version_id`)
+        ');
+
+        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertStringNotContainsString('Product with number \u0022' . $productNumber . '\u0022 already exists.', $response->getContent());
+
+        $this->getBrowser()->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id1);
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
+    }
+
     public function testInsertAndUpdateSameEntity(): void
     {
         $id = Uuid::randomHex();

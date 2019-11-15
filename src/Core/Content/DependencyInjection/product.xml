@@ -20,6 +20,10 @@
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\ProductExceptionHandler">
+            <tag name="shopware.dal.exception_handler"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\ProductDefinition">
             <tag name="shopware.entity.definition" entity="product"/>
             <tag name="shopware.composite_search.definition"  priority="600"/>

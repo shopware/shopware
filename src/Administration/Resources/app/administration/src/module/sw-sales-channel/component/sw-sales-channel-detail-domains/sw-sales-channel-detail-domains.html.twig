@@ -1,19 +1,19 @@
 {% block sw_sales_channel_detail_domains %}
     <sw-card :title="$tc('sw-sales-channel.detail.titleDomains')"
-             class="sw-sales-channel-detail-base__domains">
+             class="sw-sales-channel-detail-domains">
 
         {% block sw_sales_channel_detail_domains_meta %}
-            <div class="sw-sales-channel-detail-base__domains-meta">
+            <div class="sw-sales-channel-detail-domains__meta">
                 {% block sw_sales_channel_detail_domains_headline %}
-                    <h4 class="sw-sales-channel-detail-base__headline">
-                        <span class="sw-sales-channel-detail-base__headline-text">
+                    <h4 class="sw-sales-channel-detail-domains__headline sw-sales-channel-detail-base__headline">
+                        <span class="sw-sales-channel-detail-domains__headline-text sw-sales-channel-detail-base__headline-text">
                             {{ $tc('sw-sales-channel.detail.titleDomainHeadline') }}
                         </span>
                     </h4>
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_domains_description %}
-                    <div class="sw-sales-channel-detail-base__description-text">
+                    <div class="sw-sales-channel-detail-domains__description-text sw-sales-channel-detail-base__description-text ">
                         {{ $tc('sw-sales-channel.detail.textDomainDescription') }}
                     </div>
                 {% endblock %}
@@ -75,64 +75,69 @@
             </template>
         {% endblock %}
 
-        <sw-modal v-if="currentDomain"
-                  :title="currentDomainModalTitle"
-                  @modal-close="onCloseCreateDomainModal">
-            <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
-                {% block sw_sales_channel_detail_domains_input_url %}
-                    <sw-url-field type="text" label="Url" v-model="currentDomain.url"></sw-url-field>
+        {% block sw_sales_channel_detail_domains_create_modal %}
+            <sw-modal v-if="currentDomain"
+                      :title="currentDomainModalTitle"
+                      @modal-close="onCloseCreateDomainModal">
+
+                {% block sw_sales_channel_detail_domains_create_modal_content %}
+                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
+                        {% block sw_sales_channel_detail_domains_input_url %}
+                            <sw-url-field type="text" label="Url" v-model="currentDomain.url"></sw-url-field>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_domains_input_language %}
+                            <sw-entity-single-select
+                                    :label="$tc('sw-sales-channel.detail.labelInputLanguage')"
+                                    entity="language"
+                                    required
+                                    :record="currentDomain"
+                                    association="language"
+                                    v-model="currentDomain.languageId">
+                            </sw-entity-single-select>
+                        {% endblock %}
+                    </sw-container>
+
+                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
+                        {% block sw_sales_channel_detail_domains_input_currency %}
+                            <sw-entity-single-select
+                                    :label="$tc('sw-sales-channel.detail.labelInputCurrency')"
+                                    entity="currency"
+                                    required
+                                    :record="currentDomain"
+                                    association="currency"
+                                    v-model="currentDomain.currencyId">
+                            </sw-entity-single-select>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_domains_input_snippet_set %}
+                            <sw-entity-single-select
+                                    :label="$tc('sw-sales-channel.detail.labelInputSnippet')"
+                                    v-model="currentDomain.snippetSetId"
+                                    :record="currentDomain"
+                                    association="snippetSet"
+                                    required
+                                    entity="snippet_set">
+                            </sw-entity-single-select>
+                        {% endblock %}
+                    </sw-container>
                 {% endblock %}
 
-                {% block sw_sales_channel_detail_domains_input_language %}
-                    <sw-entity-single-select
-                            :label="$tc('sw-sales-channel.detail.labelInputLanguage')"
-                            entity="language"
-                            required
-                            :record="currentDomain"
-                            association="language"
-                            v-model="currentDomain.languageId">
-                    </sw-entity-single-select>
-                {% endblock %}
-            </sw-container>
+                <template slot="modal-footer">
+                    {% block sw_sales_channel_detail_domains_create_action_cancel %}
+                        <sw-button size="small" @click="onCloseCreateDomainModal">
+                            {{ $tc('sw-sales-channel.modal.buttonCancel') }}
+                        </sw-button>
+                    {% endblock %}
 
-            <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
-                {% block sw_sales_channel_detail_domains_input_currency %}
-                    <sw-entity-single-select
-                            :label="$tc('sw-sales-channel.detail.labelInputCurrency')"
-                            entity="currency"
-                            required
-                            :record="currentDomain"
-                            association="currency"
-                            v-model="currentDomain.currencyId">
-                    </sw-entity-single-select>
-                {% endblock %}
-
-                {% block sw_sales_channel_detail_domains_input_snippet_set %}
-                    <sw-entity-single-select
-                            :label="$tc('sw-sales-channel.detail.labelInputSnippet')"
-                            v-model="currentDomain.snippetSetId"
-                            :record="currentDomain"
-                            association="snippetSet"
-                            required
-                            entity="snippet_set">
-                    </sw-entity-single-select>
-                {% endblock %}
-            </sw-container>
-
-            <template slot="modal-footer">
-                {% block sw_sales_channel_detail_domains_create_action_cancel %}
-                    <sw-button size="small" @click="onCloseCreateDomainModal">
-                        {{ $tc('sw-sales-channel.modal.buttonCancel') }}
-                    </sw-button>
-                {% endblock %}
-
-                {% block sw_sales_channel_detail_domains_create_action_create %}
-                    <sw-button size="small" variant="primary" @click="onClickAddNewDomain">
-                        {{ currentDomainModalButtonText }}
-                    </sw-button>
-                {% endblock %}
-            </template>
-        </sw-modal>
+                    {% block sw_sales_channel_detail_domains_create_action_create %}
+                        <sw-button size="small" variant="primary" @click="onClickAddNewDomain">
+                            {{ currentDomainModalButtonText }}
+                        </sw-button>
+                    {% endblock %}
+                </template>
+            </sw-modal>
+        {% endblock %}
 
         {% block sw_sales_channel_detail_domains_delete_modal %}
             <sw-modal

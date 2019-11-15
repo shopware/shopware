@@ -1,4 +1,5 @@
 import template from './sw-sales-channel-detail-domains.html.twig';
+import './sw-sales-channel-detail-domains.scss';
 
 const { Component, Context } = Shopware;
 
@@ -56,7 +57,8 @@ Component.register('sw-sales-channel-detail-domains', {
         },
 
         onClickAddNewDomain() {
-            if (this.currentDomain.isNew()) {
+            const currentDomainId = this.currentDomain.id;
+            if (this.currentDomain.isNew() && !this.salesChannel.domains.has(currentDomainId)) {
                 this.salesChannel.domains.add(this.currentDomain);
             }
             this.onCloseCreateDomainModal();
@@ -100,26 +102,26 @@ Component.register('sw-sales-channel-detail-domains', {
             return [{
                 property: 'url',
                 dataIndex: 'url',
-                label: 'URL',
+                label: this.$t('sw-sales-channel.detail.columnDomainUrl'),
                 allowResize: false,
                 primary: true,
                 inlineEdit: true
             }, {
                 property: 'languageId',
                 dataIndex: 'languageId',
-                label: 'Language',
+                label: this.$t('sw-sales-channel.detail.columnDomainLanguage'),
                 allowResize: false,
                 inlineEdit: false
             }, {
                 property: 'snippetSetId',
                 dataIndex: 'snippetSetId',
-                label: 'Snippet',
+                label: this.$t('sw-sales-channel.detail.columnDomainSnippetSet'),
                 allowResize: false,
                 inlineEdit: false
             }, {
                 property: 'currencyId',
                 dataIndex: 'currencyId',
-                label: 'Currency',
+                label: this.$t('sw-sales-channel.detail.columnDomainCurrency'),
                 allowResize: false,
                 inlineEdit: false
             }];

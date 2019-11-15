@@ -193,26 +193,19 @@
             </sw-card>
         {% endblock %}
 
-        <sw-sales-channel-detail-domains
-                v-if="salesChannel && isStoreFront"
-                :salesChannel="salesChannel"
-                :isLoading="isLoading">
-        </sw-sales-channel-detail-domains>
+        {% block sw_sales_channel_detail_base_options_domains %}
+            <sw-sales-channel-detail-domains
+                    v-if="salesChannel && isStoreFront"
+                    :salesChannel="salesChannel"
+                    :isLoading="isLoading">
+            </sw-sales-channel-detail-domains>
+        {% endblock %}
 
         {% block sw_sales_channel_detail_base_options_api %}
             <sw-card v-if="salesChannel" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleOptionsApiKey')">
-                {% block sw_sales_channel_detail_base_options_api_headline %}
-                    <h4 class="sw-sales-channel-detail-base__headline">
-                        <span class="sw-sales-channel-detail-base__headline-text">
-                            {{ $tc('sw-sales-channel.detail.titleOptionsApiKey') }}
-                        </span>
-                    </h4>
-                {% endblock %}
 
                 {% block sw_sales_channel_detail_base_options_api_description %}
-                    <div class="sw-sales-channel-detail-base__description-text">
-                        {{ $tc('sw-sales-channel.detail.textApiAccessDescription') }}
-                    </div>
+                    <div class="sw-sales-channel-detail-base__description-text" v-html="$tc('sw-sales-channel.detail.textApiAccessDescription')"></div>
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_options_input_access_key %}
@@ -305,14 +298,6 @@
 
         {% block sw_sales_channel_detail_base_options_status %}
             <sw-card :title="$tc('sw-sales-channel.detail.titleStatus')" v-if="salesChannel" :isLoading="isLoading">
-                {% block sw_sales_channel_detail_base_options_status_headline %}
-                    <h4 class="sw-sales-channel-detail-base__headline">
-                        <span class="sw-sales-channel-detail-base__headline-text">
-                            {{ $tc('sw-sales-channel.detail.titleActiveHeadline') }}
-                        </span>
-                    </h4>
-                {% endblock %}
-
                 {% block sw_sales_channel_detail_base_options_status_description %}
                     <div class="sw-sales-channel-detail-base__description-text">
                         {{ $tc('sw-sales-channel.detail.textActiveDescription') }}

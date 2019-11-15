@@ -1,6 +1,6 @@
 import template from './sw-sales-channel-detail.html.twig';
 
-const { Component, Mixin, Context } = Shopware;
+const { Component, Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-sales-channel-detail', {
@@ -40,7 +40,7 @@ Component.register('sw-sales-channel-detail', {
         },
 
         isStoreFront() {
-            return this.salesChannel.typeId === '8a243080f92e4c719546314b577cf82b';
+            return this.salesChannel.typeId === Defaults.storefrontSalesChannelTypeId;
         },
 
         salesChannelRepository() {

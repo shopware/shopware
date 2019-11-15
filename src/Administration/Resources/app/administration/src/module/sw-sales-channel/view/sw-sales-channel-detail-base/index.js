@@ -2,7 +2,7 @@ import { mapApiErrors } from 'src/app/service/map-errors.service';
 import template from './sw-sales-channel-detail-base.html.twig';
 import './sw-sales-channel-detail-base.scss';
 
-const { Component, Mixin, Context } = Shopware;
+const { Component, Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 const domUtils = Shopware.Utils.dom;
 
@@ -48,7 +48,7 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         isStoreFront() {
-            return this.salesChannel.typeId === '8a243080f92e4c719546314b577cf82b';
+            return this.salesChannel.typeId === Defaults.storefrontSalesChannelTypeId;
         },
 
         salesChannelRepository() {

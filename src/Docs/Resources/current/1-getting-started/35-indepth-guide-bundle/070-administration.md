@@ -24,7 +24,7 @@ You want to have your very own menu entry in the administration, which then shou
 In the `Administration` core code, each module is defined in a directory called `module`, so simply stick to it.
 Inside of the `module` directory lies the list of several modules, each having their own directory named after the module itself. Makes sense, right?
 
-So, go ahead and create a new directory `<plugin root>/src/Resources/app/administration/module/swag-bundle`, so you can store your own modules files in there.
+So, go ahead and create a new directory `<plugin root>/src/Resources/app/administration/src/module/swag-bundle`, so you can store your own modules files in there.
 Right afterwards create a new file called `index.js` in there. This is necessary, because Shopware 6 is automatically requiring an `index.js` file
 for each module. Consider it to be the main file for your custom module.
 

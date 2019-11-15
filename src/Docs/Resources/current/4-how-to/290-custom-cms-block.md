@@ -41,9 +41,8 @@ Creating a new block means adjusting the administration with your plugin, and th
 ### Injecting into the administration
     
 The main entry point to customize the administration via plugin is the `main.js` file.
-It has to be placed into a `<plugin root>/src/Resources/app/administration` directory in order to be automatically found by the Shopware
+It has to be placed into a `<plugin root>/src/Resources/app/administration/src` directory in order to be automatically found by the Shopware
 platform.
-*Note: This path can be changed by overriding the [getAdministrationEntryPath](./../2-internals/4-plugins/020-plugin-base-class.md#getAdministrationEntryPath) method of your plugin's base class.*
 
 Create this `main.js` file for now, it will be used later.
 
@@ -52,7 +51,7 @@ Create this `main.js` file for now, it will be used later.
 Your plugin's structure should always match the core's structure. When thinking about creating a new block, you should
 recreate the directory structure of core blocks in your plugin.
 The block, which you're going to create, consists of an `image` and a `text` element, so it belongs to the category `text-image`.
-Thus, create the directory `<plugin root>/src/Resources/app/administration/module/sw-cms/blocks/text-image`.
+Thus, create the directory `<plugin root>/src/Resources/app/administration/src/module/sw-cms/blocks/text-image`.
 
 In there, you have to create a new directory for each block you want to create, the directory's name representing
 the block's name. For this example, the name `image-text-reversed` is going to be used, so create this directory in there.
@@ -338,11 +337,11 @@ You should now be able to use your new block in the "Shopping Experiences" modul
 
 While your new block is fully functional in the administration already, you've never defined a template for it for the Storefront.
 
-A block's storefront representation is always expected in the directory [platform/src/Storefront/Resources/views/block](https://github.com/shopware/platform/tree/master/src/Storefront/Resources/views/block).
+A block's storefront representation is always expected in the directory [platform/src/Storefront/Resources/views/storefront/block](https://github.com/shopware/platform/tree/master/src/Storefront/Resources/views/block).
 In there, a twig template named after your block is expected.
 
 So go ahead and re-create that structure in your plugin:
-`<plugin root>/src/Resources/views/block/`
+`<plugin root>/src/Resources/views/storefront/block/`
 
 In there create a new twig template named after your block, so `cms-block-image-text-reversed.html.twig` that is.
 

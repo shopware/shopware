@@ -183,10 +183,10 @@ class WebpackPluginInjector {
 
         const assetPaths = [];
         if (pluginDefinition.administration) {
-            assetPaths.push(join(basePath, pluginDefinition.administration.path, 'static'));
+            assetPaths.push(join(basePath, pluginDefinition.administration.path, '../static'));
         }
         if (pluginDefinition.storefront) {
-            assetPaths.push(join(basePath, pluginDefinition.storefront.path, 'static'));
+            assetPaths.push(join(basePath, pluginDefinition.storefront.path, '../static'));
         }
 
         return {

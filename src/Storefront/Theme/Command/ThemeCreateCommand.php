@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 class ThemeCreateCommand extends Command
 {
@@ -36,6 +37,9 @@ class ThemeCreateCommand extends Command
 
         $name = $input->getArgument('theme-name');
 
+        $snakeCaseName = (new CamelCaseToSnakeCaseNameConverter())->normalize($name);
+        $snakeCaseName = str_replace('_', '-', $snakeCaseName);
+
         if (!$name) {
             $question = new Question('Please enter a theme name:');
             $name = $helper->ask($input, $output, $question);
@@ -62,8 +66,10 @@ class ThemeCreateCommand extends Command
             $this->createDirectory($directory . '/src/Resources/app/storefront/');
             $this->createDirectory($directory . '/src/Resources/app/storefront/src/');
             $this->createDirectory($directory . '/src/Resources/app/storefront/src/scss');
-            $this->createDirectory($directory . '/src/Resources/app/storefront/src/asset');
-            $this->createDirectory($directory . '/src/Resources/app/storefront/dist/script');
+            $this->createDirectory($directory . '/src/Resources/app/storefront/src/assets');
+            $this->createDirectory($directory . '/src/Resources/app/storefront/dist');
+            $this->createDirectory($directory . '/src/Resources/app/storefront/dist/storefront');
+            $this->createDirectory($directory . '/src/Resources/app/storefront/dist/storefront/js');
         } catch (\RuntimeException $e) {
             $io->error($e->getMessage());
 
@@ -72,7 +78,7 @@ class ThemeCreateCommand extends Command
 
         $composerFile = $directory . '/composer.json';
         $bootstrapFile = $directory . '/src/' . $name . '.php';
-        $themeConfigFile = $directory . '/src/theme.json';
+        $themeConfigFile = $directory . '/src/Resources/theme.json';
 
         $composer = str_replace(
             ['#namespace#', '#class#'],
@@ -87,8 +93,8 @@ class ThemeCreateCommand extends Command
         );
 
         $themeConfig = str_replace(
-            ['#name#'],
-            [$name],
+            ['#name#', '#snake-case#'],
+            [$name, $snakeCaseName],
             $this->getThemeConfigTemplate()
         );
 
@@ -96,8 +102,9 @@ class ThemeCreateCommand extends Command
         file_put_contents($bootstrapFile, $bootstrap);
         file_put_contents($themeConfigFile, $themeConfig);
 
-        touch($directory . '/src/Resources/app/storefront/dist/script/all.js');
         touch($directory . '/src/Resources/app/storefront/src/scss/base.scss');
+        touch($directory . '/src/Resources/app/storefront/src/main.js');
+        touch($directory . '/src/Resources/app/storefront/dist/storefront/js/' . $snakeCaseName . '.js');
 
         return null;
     }
@@ -164,14 +171,14 @@ EOL;
   "author": "Shopware AG",
   "style": [
     "@Storefront",
-    "Resources/app/storefront/scr/scss/base.scss"
+    "app/storefront/src/scss/base.scss"
   ],
   "script": [
     "@Storefront",
-    "Resources/storefront/dist/script/all.js"
+    "app/storefront/dist/storefront/js/#snake-case#.js"
   ],
   "asset": [
-    "Resources/app/storefront/src/asset"
+    "app/storefront/src/assets"
   ]
 }
 EOL;

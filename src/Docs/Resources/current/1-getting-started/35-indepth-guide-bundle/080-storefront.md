@@ -111,7 +111,7 @@ This way you'll eventually find the file `<platform root>/src/Storefront/Resourc
 for the detail page. That's it, you've found the right file and now know the path to it.
 
 Time for the next step, recreate this path in your plugin's `views` directory, so it looks like this:
-`<plugin root>/src/Resources/views/page/product-detail/index.html.twig`
+`<plugin root>/src/Resources/views/storefront/page/product-detail/index.html.twig`
 
 You've already got the template file, now make it extend from the original one.
 This is done using our custom Twig parser `sw_extends` to extend from the default file. It will also need the path to the original file.

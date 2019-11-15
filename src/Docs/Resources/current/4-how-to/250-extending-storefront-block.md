@@ -36,7 +36,7 @@ In this case, the file `logo.html.twig` is located in a directory called `views/
 Now, that you've found the proper template for the logo, you can override it.
 
 This is done by creating the very same directory structure for your custom file, which is also being used in the Storefront core.
-As you hopefully remember, you have to set up the following directory path in your plugin: `<plugin root>/src/Resources/views/layout/header` 
+As you hopefully remember, you have to set up the following directory path in your plugin: `<plugin root>/src/Resources/views/storefront/layout/header` 
 In there you want to create a new file called `logo.html.twig`, just like the original file.
 Once more to understand what's going on here:
 In the Storefront code, the path to the logo file looks like this: `Storefront/Resources/views/storefront/layout/header/logo.html.twig`

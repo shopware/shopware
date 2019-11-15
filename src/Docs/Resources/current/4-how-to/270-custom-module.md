@@ -24,7 +24,7 @@ It has to be placed into a `<plugin root>/src/Resources/app/administration` dire
 
 Every module in the Shopware 6 core can be found in the `module` directory relative to the administration source directory.
 We recommend to copy this structure, so everybody being used to Shopware 6 core code will automatically get the hang of it as well.
-The path in your plugin would be: `<plugin root>/src/Resources/app/administration/module`
+The path in your plugin would be: `<plugin root>/src/Resources/app/administration/src/module`
 
 Inside of this `module` directory in the core code, you find a list of all available modules. Stick to that and
 create a new directory for each module of your plugin. In this case it is just one, so create a new directory

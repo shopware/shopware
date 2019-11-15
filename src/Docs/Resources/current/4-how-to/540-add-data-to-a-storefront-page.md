@@ -129,7 +129,7 @@ You can find detailed information on how to extend templates and override blocks
 For our case we extend the footer template and add a new column to the navigation block:
 
 ```twig
-<!-- in Resources/views/layout/footer/footer.html.twig -->
+<!-- in Resources/views/storefront/layout/footer/footer.html.twig -->
 {% sw_extends '@Storefront/storefront/layout/footer/footer.html.twig' %}
 
 {% block layout_footer_navigation_columns %}

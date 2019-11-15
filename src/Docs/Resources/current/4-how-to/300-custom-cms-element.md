@@ -37,7 +37,7 @@ Create this `main.js` file for now, it will be used later.
 Your plugin's structure should always match the core's structure. When thinking about creating a new element, you should
 recreate the directory structure of core elements in your plugin.
 Thus, recreate [this structure](https://github.com/shopware/platform/tree/master/src/Administration/Resources/app/administration/src/module/sw-cms/elements) in your plugin:
-`<plugin root>/src/Resources/app/administration/module/sw-cms/elements`
+`<plugin root>/src/Resources/app/administration/src/module/sw-cms/elements`
 
 In there you create a directory for each new element you want to create, in this example a directory `youtube` is created.
 
@@ -470,15 +470,15 @@ This is **not** necessary, but it comes with a neat feature: It is capable of de
 Otherwise you'd have to explain to the shop manager, how he finds a video's ID. Using the custom component `swag-youtube-field`, this will be taken
 care of automatically, the shop manager can just copy the full YouTube video's URL and paste it into the configuration.
 
-The source for this custom component can be found [here](https://github.com/shopware/swag-docs-custom-cms-element/tree/master/src/Resources/app/administration/app/component/form/swag-youtube-field).
+The source for this custom component can be found [here](https://github.com/shopware/swag-docs-custom-cms-element/tree/master/src/Resources/app/administration/src/app/component/form/swag-youtube-field).
 
 ### Storefront implementation
 
-Just like the CMS blocks, each element's storefront representation is always expected in the directory [platform/src/Storefront/Resources/views/storefront/element](https://github.com/shopware/platform/tree/master/src/Storefront/Resources/views/element).
+Just like the CMS blocks, each element's storefront representation is always expected in the directory [platform/src/Storefront/Resources/views/storefront/element](https://github.com/shopware/platform/tree/master/src/Storefront/Resources/views/storefront/element).
 In there, a twig template named after your custom element is expected, in this case a file named `cms-element-youtube.html.twig` is expected.
 
 So go ahead and re-create that structure in your plugin:
-`<plugin root>/src/Resources/views/element/`
+`<plugin root>/src/Resources/views/storefront/element/`
 
 In there create a new twig template named after your element, so `cms-element-youtube.html.twig` that is.
 

@@ -251,6 +251,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added JS plugin for handling csrf token generation in native forms(only if `csrf` `mode` is set to `ajax`)
     * Added `MetaInformation` struct to handle meta information in `pageLoader`
     * Renamed the `breadcrumb` variable used in category seo url templates. It can now be access using `category.seoBreadcrumb` to align it with all other variables.
+    * Added an automatic hot reload watcher with automatic detection. Use `./psh.phar storefront:hot-proxy` 
     * Added twig filter `sw_sanitize` to filter unwanted tags and attributes (prevent XSS)
 * Elasticsearch
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.

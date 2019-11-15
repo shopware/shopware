@@ -146,6 +146,7 @@
       "labelNumber": "Nummer",
       "labelType": "Typ",
       "labelSent": "Gesendet",
+      "labelAttach": "Anhängen",
       "labelAmount": "Betrag",
       "labelDownloadPdf": "Als PDF herunterladen",
       "labelCreateNew": "Neu erstellen",
@@ -171,6 +172,9 @@
       "labelHighlightedItemsEntry":"Gesamt",
       "labelNoItems":"Keine Gutschriften hinzugefügt",
       "fileInputLabel":"Eigenes Dokument hochladen"
+    },
+    "stateModal": {
+      "modalTitle": "Dokumente anhängen"
     }
   }
 }

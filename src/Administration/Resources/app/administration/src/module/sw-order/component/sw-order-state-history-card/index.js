@@ -1,4 +1,5 @@
 import template from './sw-order-state-history-card.html.twig';
+import '../sw-order-state-change-modal/';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -13,7 +14,9 @@ Component.register('sw-order-state-history-card', {
     inject: [
         'orderService',
         'stateMachineService',
-        'repositoryFactory'
+        'orderStateMachineService',
+        'repositoryFactory',
+        'apiContext'
     ],
     props: {
         title: {
@@ -32,13 +35,17 @@ Component.register('sw-order-state-history-card', {
     },
     data() {
         return {
+            showModal: false,
             orderHistory: [],
             orderOptions: [],
             transactionHistory: [],
             transactionOptions: [],
             deliveryHistory: [],
             deliveryOptions: [],
-            statesLoading: true
+            statesLoading: true,
+            modalConfirmed: false,
+            currentActionName: null,
+            currentStateType: null
         };
     },
     computed: {
@@ -101,6 +108,7 @@ Component.register('sw-order-state-history-card', {
         },
         loadHistory() {
             this.statesLoading = true;
+            this.modalConfirmed = false;
 
             Promise.all([
                 this.getStateHistoryEntries(),
@@ -265,13 +273,17 @@ Component.register('sw-order-state-history-card', {
                 this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
                 return;
             }
+            if (this.modalConfirmed === false) {
+                this.currentActionName = actionName;
+                this.currentStateType = 'orderState';
+                this.showModal = true;
+                return;
+            }
+            this.modalConfirmed = false;
+        },
 
-            this.stateMachineService.transitionState('order', this.order.id, actionName).then(() => {
-                this.$emit('order-state-change');
-                this.loadHistory();
-            }).catch((error) => {
-                this.createStateChangeErrorNotification(error);
-            });
+        onCancelCreation() {
+            this.showModal = false;
         },
 
         onTransactionStateSelected(actionName) {
@@ -279,17 +291,13 @@ Component.register('sw-order-state-history-card', {
                 this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
                 return;
             }
-
-            this.stateMachineService.transitionState(
-                'order_transaction',
-                this.transaction.id,
-                actionName
-            ).then(() => {
-                this.$emit('order-state-change');
-                this.loadHistory();
-            }).catch((error) => {
-                this.createStateChangeErrorNotification(error);
-            });
+            if (this.modalConfirmed === false) {
+                this.currentActionName = actionName;
+                this.currentStateType = 'orderTransactionState';
+                this.showModal = true;
+                return;
+            }
+            this.modalConfirmed = false;
         },
 
         onDeliveryStateSelected(actionName) {
@@ -297,17 +305,60 @@ Component.register('sw-order-state-history-card', {
                 this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
                 return;
             }
+            if (this.modalConfirmed === false) {
+                this.currentActionName = actionName;
+                this.currentStateType = 'orderDeliveryState';
+                this.showModal = true;
+                return;
+            }
+            this.modalConfirmed = false;
+        },
 
-            this.stateMachineService.transitionState(
-                'order_delivery',
-                this.delivery.id,
-                actionName
-            ).then(() => {
-                this.$emit('order-state-change');
-                this.loadHistory();
-            }).catch((error) => {
-                this.createStateChangeErrorNotification(error);
-            });
+        onLeaveModalClose() {
+            this.modalConfirmed = false;
+            this.currentActionName = null;
+            this.currentStateType = null;
+            this.showModal = false;
+        },
+
+        onLeaveModalConfirm(docIds) {
+            this.showModal = false;
+            if (this.currentStateType === 'orderTransactionState') {
+                this.orderStateMachineService.transitionOrderTransactionState(
+                    this.transaction.id,
+                    this.currentActionName,
+                    { documentIds: docIds }
+                ).then(() => {
+                    this.$emit('order-state-change');
+                    this.loadHistory();
+                }).catch((error) => {
+                    this.createStateChangeErrorNotification(error);
+                });
+            } else if (this.currentStateType === 'orderState') {
+                this.orderStateMachineService.transitionOrderState(
+                    this.order.id,
+                    this.currentActionName,
+                    { documentIds: docIds }
+                ).then(() => {
+                    this.$emit('order-state-change');
+                    this.loadHistory();
+                }).catch((error) => {
+                    this.createStateChangeErrorNotification(error);
+                });
+            } else if (this.currentStateType === 'orderDeliveryState') {
+                this.orderStateMachineService.transitionOrderDeliveryState(
+                    this.delivery.id,
+                    this.currentActionName,
+                    { documentIds: docIds }
+                ).then(() => {
+                    this.$emit('order-state-change');
+                    this.loadHistory();
+                }).catch((error) => {
+                    this.createStateChangeErrorNotification(error);
+                });
+            }
+            this.currentActionName = null;
+            this.currentStateType = null;
         },
 
         createStateChangeErrorNotification(errorMessage) {

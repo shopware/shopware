@@ -19,7 +19,7 @@ export default class OrderPageObject extends GeneralPageObject {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `/api/v1/_action/state-machine/order${callType}/**/state/${call}`,
+            url: `/api/v1/_action/order${callType}/**/state/${call}`,
             method: 'post'
         }).as(`${call}Call`);
 
@@ -28,6 +28,12 @@ export default class OrderPageObject extends GeneralPageObject {
         cy.get(`.sw-order-state-${scope}__${type}-state select[name=sw-field--selectedActionName]`)
             .should('be.visible')
             .select(stateTitle);
+
+        cy.get(`.sw-order-state-change-modal`)
+            .should('be.visible');
+
+        cy.get(`.sw-order-state-change-modal__btn`)
+            .click();
 
         cy.wait(`@${call}Call`).then((xhr) => {
             expect(xhr).to.have.property('status', 200);

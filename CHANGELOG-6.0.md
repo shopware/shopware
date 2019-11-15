@@ -233,6 +233,13 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
         * `registerEvents` from `protected` to `private`
         * `registerFilesystem` from `protected` to `private`
         * `getContainerPrefix` from `protected` to `final public`
+    * We changed implementation details for the state machine and the mail service
+        * Added return type of method `getAvailableTransitions` in `\Core\System\StateMachine\StateMachineRegistry`. This method now has to return an array
+        * changed return type of method `transition` in `\Core\System\StateMachine\StateMachineRegistry`. This method now returns `StateMachineStateCollection`
+        * Added `StateMachineStateChangeEvent` to handle specific StateMachine Changes
+        * Changed the technical_name for all stateMachine default mailTemplates by stripping the `state_enter` from the beginning.
+        * Added optional Parameter `binAttachments` to method `createMessage` in `\Core\Content\MailTemplate\Service\MessageFactory` to provide binary attachments for mails.
+        * Added `\Core\Checkout\Order\Api\OrderActionController` to provide endpoints for combine order state changes with sending of mails.  
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain

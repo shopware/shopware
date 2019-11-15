@@ -9,22 +9,18 @@
         <directory name="vendor/shopware/platform/src"/>
         <ignoreFiles>
             <directory name="vendor"/>
-            <directory name="vendor/shopware/platform/src/Core/Flag"/>
-            <directory name="vendor/shopware/platform/src/Core/Framework/Test/FeatureFlag"/>
-            <file name="vendor/shopware/platform/src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php"/>
-            <file name="vendor/shopware/platform/src/Core/Migration/Test/BasicDataUntouchedTest.php"/>
         </ignoreFiles>
     </projectFiles>
 
     <issueHandlers>
+        <!-- Shopware related issues which are ignored -->
         <UndefinedDocblockClass>
             <errorLevel type="suppress">
-                <file name="vendor/shopware/platform/src/Core/Framework/Plugin/PluginLifecycleService.php"/> <!-- Issue with loading traits in Docblocks -->
-                <file name="vendor/shopware/platform/src/Core/Kernel.php"/> <!-- Issue with loading traits in Docblocks -->
+                <referencedClass name="Symfony\Component\DependencyInjection\ContainerAwareTrait"/> <!-- Issue with loading traits in Docblocks -->
             </errorLevel>
         </UndefinedDocblockClass>
         <InvalidCast>
-            <errorLevel type="suppress">
+            <errorLevel type="info">
                 <file name="vendor/shopware/platform/src/Core/Profiling/Twig/DoctrineExtension.php"/>
             </errorLevel>
         </InvalidCast>
@@ -35,8 +31,21 @@
                 <file name="vendor/shopware/platform/src/Core/Framework/Test/Plugin/KernelPluginLoader/DbalKernelPluginLoaderTest.php"/>
                 <file name="vendor/shopware/platform/src/Core/Framework/Test/Plugin/KernelPluginLoader/StaticKernelPluginLoaderTest.php"/>
                 <file name="vendor/shopware/platform/src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php"/>
+                <file name="vendor/shopware/platform/src/Core/Migration/Test/BasicDataUntouchedTest.php"/>
+                <file name="vendor/shopware/platform/src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php"/>
             </errorLevel>
         </UndefinedConstant>
+        <InvalidScope>
+            <errorLevel type="info">
+                <directory name="vendor/shopware/platform/src/Core/Flag"/>
+                <directory name="vendor/shopware/platform/src/Core/Framework/Test/FeatureFlag"/>
+            </errorLevel>
+        </InvalidScope>
+        <MissingFile>
+            <errorLevel type="info">
+                <file name="vendor/shopware/platform/src/Core/Framework/Test/FeatureFlag/FeatureTest.php"/>
+            </errorLevel>
+        </MissingFile>
 
         <LessSpecificReturnType errorLevel="info"/>
 

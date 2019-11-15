@@ -240,6 +240,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
         * Changed the technical_name for all stateMachine default mailTemplates by stripping the `state_enter` from the beginning.
         * Added optional Parameter `binAttachments` to method `createMessage` in `\Core\Content\MailTemplate\Service\MessageFactory` to provide binary attachments for mails.
         * Added `\Core\Checkout\Order\Api\OrderActionController` to provide endpoints for combine order state changes with sending of mails.  
+    * Marked the `\Shopware\Core\Framework\Context::createDefaultContext()` as internal  
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain

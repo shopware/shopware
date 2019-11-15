@@ -1,0 +1,140 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\Test\Routing;
+
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Controller\ApiController;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Exception\InvalidRouteScopeException;
+use Shopware\Core\Framework\Routing\RouteScopeListener;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\RequestStackHelper;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
+
+class RouteScopeListenerTest extends TestCase
+{
+    use IntegrationTestBehaviour;
+
+    /**
+     * @before
+     * @after
+     */
+    public function clearStack(): void
+    {
+        RequestStackHelper::clear($this->getContainer()->get(RequestStack::class));
+    }
+
+    public function testRouteScopeListenerFailsHardWithoutMasterRequest(): void
+    {
+        $listener = $this->getContainer()->get(RouteScopeListener::class);
+
+        $request = $this->createRequest('/api', 'api', new Context\AdminApiSource(null, null));
+
+        $event = $this->createEvent($request);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $listener->checkScope($event);
+    }
+
+    public function testRouteScopeListenerIgnoresSymfonyControllers(): void
+    {
+        $listener = $this->getContainer()->get(RouteScopeListener::class);
+
+        $request = $this->createRequest('/api', 'api', new Context\AdminApiSource(null, null));
+
+        $event = $this->createEvent($request);
+        $event->setController([$this->getContainer()->get('web_profiler.controller.profiler'), 'panelAction']);
+
+        static::assertNull($listener->checkScope($event));
+    }
+
+    public function testRouteScopeListenerFailsHardWithoutAnnotation(): void
+    {
+        $listener = $this->getContainer()->get(RouteScopeListener::class);
+
+        $request = $this->createRequest('/api', 'api', new Context\AdminApiSource(null, null));
+        $request->attributes->remove(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE);
+
+        $event = $this->createEvent($request);
+
+        $this->expectException(InvalidRouteScopeException::class);
+        $listener->checkScope($event);
+    }
+
+    public function testRouteScopeListenerHandlesValidAdminRequests(): void
+    {
+        $stack = $this->getContainer()->get(RequestStack::class);
+        $listener = $this->getContainer()->get(RouteScopeListener::class);
+
+        $request = $this->createRequest('/api', 'api', new Context\AdminApiSource(null, null));
+
+        $stack->push($request);
+        $event = $this->createEvent($request);
+
+        static::assertNull($listener->checkScope($event));
+    }
+
+    public function testRouteScopeListenerDeniesInvalidAdminRequest(): void
+    {
+        $stack = $this->getContainer()->get(RequestStack::class);
+        $listener = $this->getContainer()->get(RouteScopeListener::class);
+
+        $request = $this->createRequest('/api', 'api', new Context\SalesChannelApiSource(Uuid::randomHex()));
+
+        $stack->push($request);
+        $event = $this->createEvent($request);
+
+        $this->expectException(InvalidRouteScopeException::class);
+        $listener->checkScope($event);
+    }
+
+    public function testSubrequestsAreValidatedAgainstTheMasterScope(): void
+    {
+        $stack = $this->getContainer()->get(RequestStack::class);
+        $listener = $this->getContainer()->get(RouteScopeListener::class);
+
+        $requestMaster = $this->createRequest('/api', 'api', new Context\AdminApiSource(null, null));
+        $requestSub = $this->createRequest('/api', 'api', new Context\SalesChannelApiSource(Uuid::randomHex()));
+
+        $stack->push($requestMaster);
+        $stack->push($requestSub);
+
+        $event = $this->createEvent($requestSub);
+
+        static::assertNull($listener->checkScope($event));
+    }
+
+    private function createEvent(Request $request): ControllerEvent
+    {
+        return new ControllerEvent(
+            $this->getContainer()->get('kernel'),
+            [$this->getContainer()->get(ApiController::class), 'compositeSearch'],
+            $request,
+            HttpKernelInterface::SUB_REQUEST
+        );
+    }
+
+    private function createRequest(string $route, string $scopeName, Context\ContextSource $source): Request
+    {
+        $request = Request::create(
+            $route,
+            'GET', /*parameters*/
+            [], /*cookies*/
+            [], /*files*/
+            [], /*server*/
+            [], /*content*/
+            null
+        );
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, new RouteScope(['scopes' => [$scopeName]]));
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, Context::createDefaultContext($source));
+        $request->attributes->set('_route', 'test.it');
+
+        return $request;
+    }
+}

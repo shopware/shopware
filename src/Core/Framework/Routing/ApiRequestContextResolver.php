@@ -30,19 +30,14 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         $this->connection = $connection;
     }
 
-    public function resolve(Request $master, Request $request): void
+    public function resolve(Request $request): void
     {
-        //sub requests can use context of master
-        if ($master->attributes->has(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT)) {
-            $request->attributes->set(
-                PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT,
-                $master->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT)
-            );
-
+        //sub requests can not use context of master
+        if ($request->attributes->has(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT)) {
             return;
         }
 
-        $params = $this->getContextParameters($master);
+        $params = $this->getContextParameters($request);
         $languageIdChain = $this->getLanguageIdChain($params);
 
         $context = new Context(
@@ -59,7 +54,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
     }
 
-    private function getContextParameters(Request $master)
+    private function getContextParameters(Request $request)
     {
         $params = [
             'currencyId' => Defaults::CURRENCY,
@@ -67,11 +62,11 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             'systemFallbackLanguageId' => Defaults::LANGUAGE_SYSTEM,
             'currencyFactory' => 1.0,
             'currencyPrecision' => 2,
-            'versionId' => $master->headers->get(PlatformRequest::HEADER_VERSION_ID),
+            'versionId' => $request->headers->get(PlatformRequest::HEADER_VERSION_ID),
             'considerInheritance' => false,
         ];
 
-        $runtimeParams = $this->getRuntimeParameters($master);
+        $runtimeParams = $this->getRuntimeParameters($request);
         $params = array_replace_recursive($params, $runtimeParams);
 
         return $params;

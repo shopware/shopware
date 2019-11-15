@@ -143,16 +143,19 @@
 
         <!-- Routing -->
         <service id="Shopware\Core\Framework\Routing\ContextResolverListener">
-            <argument type="service" id="request_stack"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\ApiRequestContextResolver"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Routing\SymfonyRouteScopeWhitelist">
+            <tag name="shopware.route_scope_whitelist"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Routing\RouteScopeListener">
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
             <argument type="service" id="request_stack"/>
-            <argument type="service" id="event_dispatcher"/>
+            <argument type="tagged" tag="shopware.route_scope_whitelist"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

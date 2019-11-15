@@ -6,5 +6,5 @@ use Symfony\Component\HttpFoundation\Request;
 
 interface RequestContextResolverInterface
 {
-    public function resolve(Request $master, Request $request): void;
+    public function resolve(Request $request): void;
 }

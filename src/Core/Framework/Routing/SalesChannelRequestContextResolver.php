@@ -37,31 +37,31 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function resolve(SymfonyRequest $master, SymfonyRequest $request): void
+    public function resolve(SymfonyRequest $request): void
     {
-        if (!$master->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID)) {
-            $this->decorated->resolve($master, $request);
+        if ($request->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {
+            return;
+        }
+
+        if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID)) {
+            $this->decorated->resolve($request);
 
             return;
         }
 
-        if (!$master->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)) {
-            $master->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, Random::getAlphanumericString(32));
+        if (!$request->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)) {
+            $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, Random::getAlphanumericString(32));
         }
 
-        $contextToken = $master->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        $salesChannelId = $master->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+        $contextToken = $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        $salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+        $language = $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID);
 
-        // sub requests can use the context of the master request
-        if ($master->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {
-            $context = $master->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
-        } else {
-            $context = $this->contextService->get(
-                $salesChannelId,
-                $contextToken,
-                $master->headers->get(PlatformRequest::HEADER_LANGUAGE_ID)
-            );
-        }
+        $context = $this->contextService->get(
+            $salesChannelId,
+            $contextToken,
+            $language
+        );
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
@@ -71,14 +71,12 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         );
     }
 
-    public function handleSalesChannelContext(Request $request, Request $master, string $salesChannelId, string $contextToken): void
+    public function handleSalesChannelContext(Request $request, string $salesChannelId, string $contextToken): void
     {
-        // sub requests can use the context of the master request
-        if ($master->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {
-            $context = $master->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
-        } else {
-            $context = $this->contextService->get($salesChannelId, $contextToken, $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID));
-        }
+        $language = $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID);
+
+        $context = $this->contextService
+            ->get($salesChannelId, $contextToken, $language);
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);

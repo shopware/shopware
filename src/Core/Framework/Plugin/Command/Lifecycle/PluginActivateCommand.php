@@ -13,6 +13,8 @@ class PluginActivateCommand extends AbstractPluginLifecycleCommand
 {
     private const LIFECYCLE_METHOD = 'activate';
 
+    protected static $defaultName = 'plugin:activate';
+
     protected function configure(): void
     {
         $this->configureCommand(self::LIFECYCLE_METHOD);

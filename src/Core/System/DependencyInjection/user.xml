@@ -12,7 +12,7 @@
         <service id="Shopware\Core\System\User\Command\UserCreateCommand">
             <argument type="service" id="Shopware\Core\Framework\Provisioning\UserProvisioner"/>
 
-            <tag name="console.command" command="user:create"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition">

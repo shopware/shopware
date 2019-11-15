@@ -13,6 +13,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class CreateMigrationCommand extends Command
 {
+    protected static $defaultName = 'database:create-migration';
+
     /**
      * @var string
      */
@@ -38,7 +40,7 @@ class CreateMigrationCommand extends Command
 
     protected function configure(): void
     {
-        $this->setName('database:create-migration')
+        $this
             ->addArgument('directory', InputArgument::OPTIONAL)
             ->addArgument('namespace', InputArgument::OPTIONAL)
             ->addOption('plugin', 'p', InputOption::VALUE_REQUIRED)

@@ -12,6 +12,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class CreateEntitiesCommand extends Command
 {
+    protected static $defaultName = 'dal:create:entities';
+
     /**
      * @var EntityGenerator
      */
@@ -36,11 +38,6 @@ class CreateEntitiesCommand extends Command
         $this->registry = $registry;
         $this->dir = $rootDir . '/../schema/';
         $this->entityGenerator = $entityGenerator;
-    }
-
-    protected function configure(): void
-    {
-        $this->setName('dal:create:entities');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

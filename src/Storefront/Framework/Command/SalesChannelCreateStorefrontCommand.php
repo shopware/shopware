@@ -16,6 +16,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
 {
+    protected static $defaultName = 'sales-channel:create:storefront';
+
     /**
      * @var EntityRepositoryInterface
      */
@@ -46,7 +48,7 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
     {
         parent::configure();
 
-        $this->setName('sales-channel:create:storefront')
+        $this
             ->addOption('url', null, InputOption::VALUE_REQUIRED, 'App URL for storefront')
         ;
     }

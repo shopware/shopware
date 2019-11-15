@@ -13,7 +13,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument>%kernel.root_dir%</argument>
 
-            <tag name="console.command" command="dal:create:schema"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\CreateEntitiesCommand">
@@ -21,7 +21,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument>%kernel.root_dir%</argument>
 
-            <tag name="console.command" command="dal:create:entities"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator" public="true">
@@ -321,7 +321,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryInterface"/>
 
             <tag name="kernel.event_subscriber"/>
-            <tag name="console.command" command="dal:refresh:index"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber\RegisteredIndexerSubscriber">
@@ -334,7 +334,7 @@
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\DataAbstractionLayerValidateCommand">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator"/>
 
-            <tag name="console.command" command="dal:validate"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\InheritanceIndexer">

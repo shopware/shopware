@@ -21,6 +21,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 class GenerateThumbnailsCommand extends Command
 {
+    protected static $defaultName = 'media:generate-thumbnails';
+
     /**
      * @var ThumbnailService
      */
@@ -81,7 +83,6 @@ class GenerateThumbnailsCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setName('media:generate-thumbnails')
             ->setDescription('Generates the thumbnails for media entities')
             ->addOption(
                 'batch-size',

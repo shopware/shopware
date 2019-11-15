@@ -133,7 +133,7 @@
         <service id="Shopware\Core\Content\ImportExport\Command\DeleteExpiredFilesCommand">
             <argument type="service" id="Shopware\Core\Content\ImportExport\Service\DeleteExpiredFilesService"/>
 
-            <tag name="console.command" command="import-export:delete-expired"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\Command\ImportEntityCommand">
@@ -141,7 +141,7 @@
             <argument type="service" id="Shopware\Core\Content\ImportExport\Service\ProcessingService"/>
             <argument type="service" id="import_export_profile.repository"/>
 
-            <tag name="console.command" command="import:entity"/>
+            <tag name="console.command"/>
         </service>
 
         <!-- Message handler -->

@@ -151,6 +151,8 @@ Core
 * Replace `product/category.extensions.seoUrls` with `product/category.seoUrls`
 * Dropped `additionalText` column of product entity, use `metaDescription` instead
 * If your entity definition overwrites the `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getDefaults` method, you will have to remove the parameter, as it is not needed anymore. Remove the check `$existence->exists()` as this is done before by the Core now. If you want to define different defaults for child entities, overwrite `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getChildDefaults`
+* 
+* If you depend on `\Shopware\Core\Framework\Context::createDefaultContext()` outside of tests, pass the context as a parameter to your method instead
 
 Administration
 --------------

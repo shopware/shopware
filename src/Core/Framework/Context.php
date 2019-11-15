@@ -103,6 +103,9 @@ class Context extends Struct
         $this->taxState = $taxState;
     }
 
+    /**
+     * @internal
+     */
     public static function createDefaultContext(?ContextSource $source = null): self
     {
         $source = $source ?? new SystemSource();

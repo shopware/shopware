@@ -24,9 +24,7 @@ abstract class StorefrontController extends AbstractController
     {
         $request = $this->get('request_stack')->getCurrentRequest();
 
-        $master = $this->get('request_stack')->getMasterRequest();
-
-        $salesChannelContext = $master->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+        $salesChannelContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
 
         $activeThemeName = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_NAME);
         $activeThemeBaseName = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME);
@@ -119,10 +117,10 @@ abstract class StorefrontController extends AbstractController
     {
         /** @var RequestStack $requestStack */
         $requestStack = $this->get('request_stack');
-        $request = $requestStack->getMasterRequest();
+        $request = $requestStack->getCurrentRequest();
 
         if (!$request) {
-            return;
+            throw new CustomerNotLoggedInException();
         }
 
         /** @var SalesChannelContext|null $context */

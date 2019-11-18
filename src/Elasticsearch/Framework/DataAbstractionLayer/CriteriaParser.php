@@ -58,26 +58,24 @@ class CriteriaParser
     {
         $root = $definition->getEntityName();
 
-        $accessor = $fieldName;
-        if (mb_strpos($fieldName, $root . '.') !== false) {
-            $accessor = str_replace($root . '.', '', $fieldName);
+        $parts = explode('.', $fieldName);
+        if ($root === $parts[0]) {
+            array_shift($parts);
         }
 
         $field = $this->helper->getField($fieldName, $definition, $root);
 
         if ($field instanceof TranslatedField) {
-            $parts = explode('.', $accessor);
             array_pop($parts);
             $parts[] = 'translated';
             $parts[] = $field->getPropertyName();
-            $accessor = implode('.', $parts);
         }
 
         if ($field instanceof PriceField) {
-            $accessor .= '.gross';
+            $parts[] = 'gross';
         }
 
-        return $accessor;
+        return implode('.', $parts);
     }
 
     public function parseSorting(FieldSorting $sorting, EntityDefinition $definition, Context $context): FieldSort

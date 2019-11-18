@@ -254,6 +254,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
 * Elasticsearch
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.
         * You can set them with a parameter.yml too.
+    * The extensions are now saved at the top level of the entities.
 
 **Removals**
 

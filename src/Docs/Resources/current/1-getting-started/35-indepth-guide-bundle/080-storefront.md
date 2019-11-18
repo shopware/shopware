@@ -341,6 +341,7 @@ it into a form element.
 This form has to add an line item to the cart by using the `frontend.checkout.line-item.add` API route for it. A line item is just a raw item in the cart, whatever that means.
 You need to recognize the `Bundle` line items later in the process, so also a `type` has to be submitted.
 Since you want your button to also open the off canvas cart, you have to add the `OffCanvasCart-Plugin` by adding the data attribute `data-add-to-cart` to your form element.
+To protect this form with CSRF-Protection you have to add `data-form-csrf-handler` data attribute to add the `Csrf-Plugin` and use the `sw_csrf` twig-function to generate a csrf-token for the given route name.
 
 Here's the example code, it will be explained afterwards
 ```twig
@@ -348,6 +349,7 @@ Here's the example code, it will be explained afterwards
     <form action="{{ path('frontend.checkout.line-item.add') }}"
         method="post"
         class="buy-widget js-add-to-cart"
+        data-form-csrf-handler="true"
         data-add-to-cart="true">
         <div class="form-row buy-widget-container">
             <button class="btn btn-primary btn-block buy-widget-submit" style="margin-top: 10px;">
@@ -359,6 +361,8 @@ Here's the example code, it will be explained afterwards
             <input type="hidden" name="lineItems[{{ bundle.id }}][quantity]" value="1">
             <input type="hidden" name="lineItems[{{ bundle.id }}][referencedId]" value="{{ bundle.id }}">
             <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas"/>
+
+            {{ sw_csrf('frontend.checkout.line-item.add') }}
         </div>
     </form>
 </div>

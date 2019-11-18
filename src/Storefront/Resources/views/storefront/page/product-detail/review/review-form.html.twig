@@ -37,7 +37,7 @@
                 {% block page_product_detail_review_form_rating %}
                     <div class="form-group col-md-4 product-detail-review-form-rating">
                         <label for="#review-form-rating">
-                            {{ "detail.reviewFormRatingLabel"|trans }}{{ "general.required"|trans }}
+                            {{ "detail.reviewFormRatingLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                         </label>
 
                         <div id="review-form-rating"
@@ -68,7 +68,7 @@
                             {% for matrix in reviews.matrix.matrix %}
                                 <p class="h6 product-detail-review-form-rating-text {% if currentPoints != matrix.points %} d-none{% endif %}"
                                    data-rating-text="{{ matrix.points }}">
-                                    {{ "detail.review#{matrix.points}PointRatingText"|trans }}
+                                    {{ "detail.review#{matrix.points}PointRatingText"|trans|sw_sanitize }}
                                 </p>
                             {% endfor %}
                         </div>
@@ -79,7 +79,7 @@
                     <div class="form-group col-12 product-detail-review-form-title">
                         {% block page_product_detail_review_form_title_label %}
                             <label class="form-label" for="reviewTitle">
-                                {{ "detail.reviewFormTitleLabel"|trans }}{{ "general.required"|trans }}
+                                {{ "detail.reviewFormTitleLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                             </label>
                         {% endblock %}
 
@@ -87,7 +87,7 @@
                             <input type="text"
                                    class="form-control{% if formViolations.getViolations('/title') %} is-invalid{% endif %}"
                                    id="reviewTitle"
-                                   placeholder="{{ "detail.reviewFormTitlePlaceholder"|trans }}{{ "general.required"|trans }}"
+                                   placeholder="{{ "detail.reviewFormTitlePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
                                    name="title"
                                    value="{{ data.get('title') }}"
                                    required="required"
@@ -110,7 +110,7 @@
             <div class="form-group product-detail-review-form-content">
                 {% block page_product_detail_review_form_content_label %}
                     <label for="reviewContent">
-                        {{ "detail.reviewFormContentLabel"|trans }}{{ "general.required"|trans }}
+                        {{ "detail.reviewFormContentLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                     </label>
                 {% endblock %}
 
@@ -137,7 +137,7 @@
             <div class="product-detail-review-form-footer">
                 {% block page_product_detail_review_form_required %}
                     <p class="required-fields">
-                        {{ "general.requiredFields"|trans }}
+                        {{ "general.requiredFields"|trans|sw_sanitize }}
                     </p>
                 {% endblock %}
 
@@ -149,14 +149,14 @@
                            data-target=".multi-collapse"
                            aria-expanded="false"
                            aria-controls="review-form review-list">
-                            {{ "detail.reviewFormCancelText"|trans }}
+                            {{ "detail.reviewFormCancelText"|trans|sw_sanitize }}
                         </a>
                     {% endblock %}
 
                     {% block page_product_detail_review_form_submit %}
                         <button type="submit"
                                 class="btn btn-primary btn-review-submit">
-                            {{ "detail.reviewFormSubmitText"|trans }}
+                            {{ "detail.reviewFormSubmitText"|trans|sw_sanitize }}
                         </button>
                     {% endblock %}
                 </div>

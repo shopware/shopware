@@ -50,7 +50,7 @@
                                         {% block component_account_register_personal_mail_label %}
                                             <label class="form-label"
                                                    for="personalMail">
-                                                {{ "account.personalMailLabel"|trans }}{{ "general.required"|trans }}
+                                                {{ "account.personalMailLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                                             </label>
                                         {% endblock %}
 
@@ -59,7 +59,7 @@
                                                    class="form-control{% if formViolations.getViolations('/email') is not empty %} is-invalid{% endif %}"
                                                    autocomplete="section-personal email"
                                                    id="personalMail"
-                                                   placeholder="{{ "account.personalMailPlaceholder"|trans }}{{ "general.required"|trans }}"
+                                                   placeholder="{{ "account.personalMailPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
                                                    name="email"
                                                    value="{{ data.get('email') }}"
                                                    {% if shopware.config.core.loginRegistration.requireEmailConfirmation %}
@@ -83,7 +83,7 @@
                                         {% block component_account_register_personal_mail_confirmation_label %}
                                             <label class="form-label"
                                                    for="personalMailConfirmation">
-                                                {{ "account.personalMailConfirmationLabel"|trans }}{{ "general.required"|trans }}
+                                                {{ "account.personalMailConfirmationLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                                             </label>
                                         {% endblock %}
 
@@ -92,11 +92,11 @@
                                                    class="form-control{% if formViolations.getViolations('/email') is not empty or formViolations.getViolations('/emailConfirmation') is not empty %} is-invalid{% endif %}"
                                                    autocomplete="section-personal email"
                                                    id="personalMailConfirmation"
-                                                   placeholder="{{ "account.personalMailConfirmationPlaceholder"|trans }}{{ "general.required"|trans }}"
+                                                   placeholder="{{ "account.personalMailConfirmationPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
                                                    name="emailConfirmation"
                                                    value="{{ data.get('emailConfirmation') }}"
                                                    data-form-validation-equal="personalMail"
-                                                   data-form-validation-equal-message="{{ "account.personalMailConfirmationInvalidMessage"|trans }}"
+                                                   data-form-validation-equal-message="{{ "account.personalMailConfirmationInvalidMessage"|trans|striptags }}"
                                                    required="required">
                                         {% endblock %}
 
@@ -122,7 +122,7 @@
                                             {% block component_account_register_personal_password_label %}
                                                 <label class="form-label"
                                                        for="personalPassword">
-                                                    {{ "account.personalPasswordLabel"|trans }}{{ "general.required"|trans }}
+                                                    {{ "account.personalPasswordLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                                                 </label>
                                             {% endblock %}
 
@@ -131,7 +131,7 @@
                                                        class="form-control{% if formViolations.getViolations('/password') is not empty %} is-invalid{% endif %}"
                                                        autocomplete="new-password"
                                                        id="personalPassword"
-                                                       placeholder="{{ "account.personalPasswordPlaceholder"|trans }}{{ "general.required"|trans }}"
+                                                       placeholder="{{ "account.personalPasswordPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
                                                        name="password"
                                                        minlength="shopware.config.core.loginRegistration.passwordMinLength"
                                                        {% if shopware.config.core.loginRegistration.requirePasswordConfirmation %}
@@ -141,7 +141,7 @@
                                                        data-form-validation-length="{{ shopware.config.core.loginRegistration.passwordMinLength }}"
                                                        data-form-validation-length-message=" {{ "account.personalPasswordDescription"|trans({
                                                            '%minLength%': shopware.config.core.loginRegistration.passwordMinLength
-                                                       }) }}"
+                                                       })|sw_sanitize }}"
                                                        {% endif %}
                                                        required="required">
                                             {% endblock %}
@@ -152,7 +152,7 @@
                                                            data-form-validation-length-text="true">
                                                         {{ "account.personalPasswordDescription"|trans({
                                                             '%minLength%': shopware.config.core.loginRegistration.passwordMinLength
-                                                        }) }}
+                                                        })|sw_sanitize }}
                                                     </small>
                                                 {% endif %}
                                             {% endblock %}
@@ -174,7 +174,7 @@
                                             {% block component_account_register_personal_password_confirmation_label %}
                                                 <label class="form-label"
                                                        for="personalPasswordConfirmation">
-                                                    {{ "account.personalPasswordConfirmationLabel"|trans }}{{ "general.required"|trans }}
+                                                    {{ "account.personalPasswordConfirmationLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                                                 </label>
                                             {% endblock %}
 
@@ -183,11 +183,11 @@
                                                        class="form-control{% if formViolations.getViolations('/password') is not empty or formViolations.getViolations('/passwordConfirmation') is not empty %} is-invalid{% endif %}"
                                                        autocomplete="new-password"
                                                        id="personalPasswordConfirmation"
-                                                       placeholder="{{ "account.personalPasswordConfirmationPlaceholder"|trans }}{{ "general.required"|trans }}"
+                                                       placeholder="{{ "account.personalPasswordConfirmationPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
                                                        name="passwordConfirmation"
                                                        minlength="shopware.config.core.loginRegistration.passwordMinLength"
                                                        data-form-validation-equal="newPassword"
-                                                       data-form-validation-equal-message="{{ "account.personalPasswordConfirmationInvalidMessage"|trans }}"
+                                                       data-form-validation-equal-message="{{ "account.personalPasswordConfirmationInvalidMessage"|trans|striptags }}"
                                                        required="required">
                                             {% endblock %}
 
@@ -243,7 +243,7 @@
                                     <div class="register-billing">
                                         {% block component_account_register_address_billing_header %}
                                             <div class="card-title">
-                                                {{ "account.registerAddressBillingHeader"|trans }}
+                                                {{ "account.registerAddressBillingHeader"|trans|sw_sanitize }}
                                             </div>
                                         {% endblock %}
 
@@ -275,7 +275,7 @@
                                                 {% block component_account_register_address_different_shipping_label %}
                                                     <label class="custom-control-label no-validation"
                                                            for="differentShippingAddress">
-                                                        {{ "account.registerDifferentShipping"|trans }}
+                                                        {{ "account.registerDifferentShipping"|trans|sw_sanitize }}
                                                     </label>
                                                 {% endblock %}
                                             </div>
@@ -285,7 +285,7 @@
                                             <div class="register-shipping js-form-field-toggle-shipping-address d-none">
                                                 {% block component_account_register_address_shipping_header %}
                                                     <div class="card-title">
-                                                        {{ "account.registerAddressShippingHeader"|trans }}
+                                                        {{ "account.registerAddressShippingHeader"|trans|sw_sanitize }}
                                                     </div>
                                                 {% endblock %}
 
@@ -323,7 +323,7 @@
 
                     {% block component_account_register_required_fields %}
                         <p class="register-required-info">
-                            {{ "general.requiredFields"|trans }}
+                            {{ "general.requiredFields"|trans|sw_sanitize }}
                         </p>
                     {% endblock %}
 
@@ -331,7 +331,7 @@
                         <div class="register-submit">
                             <button type="submit"
                                     class="btn btn-primary btn-lg">
-                                {{ "account.registerSubmit"|trans }}
+                                {{ "account.registerSubmit"|trans|sw_sanitize }}
                             </button>
                         </div>
                     {% endblock %}

@@ -60,7 +60,7 @@
 
                     {% block page_checkout_aside_item_price %}
                         <div class="checkout-aside-item-link-price">
-                            {{ lineItem.price.totalPrice|currency }}{{ "general.star"|trans }}
+                            {{ lineItem.price.totalPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
                         </div>
                     {% endblock %}
                 </div>

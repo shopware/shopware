@@ -6,11 +6,11 @@
             {% block page_account_payment_welcome %}
                 <div class="account-welcome">
                     {% block page_account_payment_welcome_headline %}
-                        <h1>{{ "account.paymentTitle"|trans }}</h1>
+                        <h1>{{ "account.paymentTitle"|trans|sw_sanitize }}</h1>
                     {% endblock %}
 
                     {% block page_account_payment_welcome_intro %}
-                        <p>{{ "account.paymentText"|trans }}</p>
+                        <p>{{ "account.paymentText"|trans|sw_sanitize }}</p>
                     {% endblock %}
                 </div>
             {% endblock %}
@@ -20,7 +20,7 @@
                     <div class="card-body">
                         {% block page_account_payment_title %}
                             <h2 class="card-title">
-                                {{ "account.overviewPaymentHeader"|trans }}
+                                {{ "account.overviewPaymentHeader"|trans|sw_sanitize }}
                             </h2>
                         {% endblock %}
 
@@ -43,8 +43,8 @@
                                 {% block page_account_payment_actions %}
                                     <button class="btn btn-primary"
                                             type="submit"
-                                            title="{{ "account.paymentChangeSubmit"|trans }}">
-                                        {{ "account.paymentChangeSubmit"|trans }}
+                                            title="{{ "account.paymentChangeSubmit"|trans|striptags }}">
+                                        {{ "account.paymentChangeSubmit"|trans|sw_sanitize }}
                                     </button>
                                 {% endblock %}
                             </form>

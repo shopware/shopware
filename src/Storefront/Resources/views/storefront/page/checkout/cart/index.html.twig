@@ -8,7 +8,7 @@
     {% if page.cart.lineItems.count is same as(0) %}
         {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
             type: "info",
-            content: "checkout.cartEmpty"|trans
+            content: "checkout.cartEmpty"|trans|sw_sanitize
         } %}
     {% else %}
         {{ parent() }}
@@ -19,7 +19,7 @@
     {% block page_checkout_cart %}
         {% block page_checkout_cart_header %}
             <h1 class="cart-main-header">
-                {{ "checkout.cartHeader"|trans }}
+                {{ "checkout.cartHeader"|trans|sw_sanitize }}
             </h1>
         {% endblock %}
 
@@ -30,7 +30,7 @@
 
                     {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                         type: "danger",
-                        content: snippetName|trans({'%name%': error.name})
+                        content: snippetName|trans({'%name%': error.name})|sw_sanitize
                     } %}
                 {% endfor %}
             {% endblock %}
@@ -79,7 +79,7 @@
                                 <div class="input-group">
                                     {% block page_checkout_cart_add_product_label %}
                                         <label class="sr-only" for="addProductInput">
-                                            {{ "checkout.addProductLabel"|trans }}
+                                            {{ "checkout.addProductLabel"|trans|sw_sanitize }}
                                         </label>
                                     {% endblock %}
 
@@ -88,8 +88,8 @@
                                                name="number"
                                                class="form-control"
                                                id="addProductInput"
-                                               placeholder="{{ "checkout.addProductPlaceholder"|trans }}"
-                                               aria-label="{{ "checkout.addProductLabel"|trans }}"
+                                               placeholder="{{ "checkout.addProductPlaceholder"|trans|striptags }}"
+                                               aria-label="{{ "checkout.addProductLabel"|trans|striptags }}"
                                                aria-describedby="addProductButton"
                                                required="required">
                                     {% endblock %}
@@ -127,7 +127,7 @@
                                        role="button"
                                        aria-expanded="false"
                                        aria-controls="collapseExample">
-                                        {{ "checkout.shippingCosts"|trans }}
+                                        {{ "checkout.shippingCosts"|trans|sw_sanitize }}
                                         {% block page_checkout_cart_shipping_costs_trigger_icon %}
                                             {% sw_icon 'arrow-medium-right' style { 'pack':'solid', 'size': 'sm' } %}
                                         {% endblock %}
@@ -138,7 +138,7 @@
                                 <div class="collapse" id="collapseShippingCost">
                                     {% block page_checkout_cart_shipping_costs_form_group_country %}
                                         <div class="form-group">
-                                            <label for="countryId">{{ "checkout.shippingCountry"|trans }}</label>
+                                            <label for="countryId">{{ "checkout.shippingCountry"|trans|sw_sanitize }}</label>
                                             <select class="custom-select" type="text" id="countryId" name="countryId">
                                                 {% for country in page.countries %}
                                                     <option value="{{ country.id }}"
@@ -152,7 +152,7 @@
 
                                     {% block page_checkout_cart_shipping_costs_form_group_payment_method %}
                                         <div class="form-group">
-                                            <label for="paymentMethodId">{{ "checkout.paymentMethod"|trans }}</label>
+                                            <label for="paymentMethodId">{{ "checkout.paymentMethod"|trans|sw_sanitize }}</label>
                                             <select class="custom-select" type="text" id="paymentMethodId" name="paymentMethodId">
                                                 {% for payment in page.paymentMethods %}
                                                     <option value="{{ payment.id }}"
@@ -166,7 +166,7 @@
 
                                     {% block page_checkout_cart_shipping_costs_form_group_shipping_method %}
                                         <div class="form-group">
-                                            <label for="shippingMethodId">{{ "checkout.shippingMethod"|trans }}</label>
+                                            <label for="shippingMethodId">{{ "checkout.shippingMethod"|trans|sw_sanitize }}</label>
                                             <select class="custom-select" type="text" id="shippingMethodId" name="shippingMethodId">
                                                 {% for shipping in page.shippingMethods %}
                                                     <option value="{{ shipping.id }}"
@@ -210,7 +210,7 @@
                     <div class="input-group checkout-aside-add-code">
                         {% block page_checkout_cart_add_promotion_label %}
                             <label class="sr-only" for="addPromotionInput">
-                                {{ "checkout.addPromotionLabel"|trans }}
+                                {{ "checkout.addPromotionLabel"|trans|sw_sanitize }}
                             </label>
                         {% endblock %}
 
@@ -219,8 +219,8 @@
                                    name="code"
                                    class="form-control"
                                    id="addPromotionInput"
-                                   placeholder="{{ "checkout.addPromotionPlaceholder"|trans }}"
-                                   aria-label="{{ "checkout.addPromotionLabel"|trans }}"
+                                   placeholder="{{ "checkout.addPromotionPlaceholder"|trans|striptags }}"
+                                   aria-label="{{ "checkout.addPromotionLabel"|trans|striptags }}"
                                    aria-describedby="addPromotion"
                                    required="required">
                         {% endblock %}
@@ -244,8 +244,8 @@
         <div class="checkout-aside-action">
             <a href="{{ path('frontend.checkout.confirm.page') }}"
                class="btn btn-primary btn-block btn-lg"
-               title="{{ "checkout.proceedLink"|trans }}">
-                {{ "checkout.proceedLink"|trans }}
+               title="{{ "checkout.proceedLink"|trans|striptags }}">
+                {{ "checkout.proceedLink"|trans|sw_sanitize }}
             </a>
         </div>
     {% endblock %}

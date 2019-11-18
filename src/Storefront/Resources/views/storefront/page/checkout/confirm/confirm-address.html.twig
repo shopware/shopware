@@ -10,7 +10,7 @@
                         <div class="card-body">
                             {% block page_checkout_confirm_address_billing_title %}
                                 <div class="card-title">
-                                    {{ "checkout.billingAddressHeader"|trans }}
+                                    {{ "checkout.billingAddressHeader"|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}
 
@@ -26,14 +26,14 @@
                                 <div class="card-actions">
                                     {% block  page_checkout_confirm_address_billing_actions_link %}
                                         <a href="{{ path('frontend.account.address.edit.page', {'addressId': billingAddress.id}) }}"
-                                           title="{{ "account.overviewChangeBilling"|trans }}"
+                                           title="{{ "account.overviewChangeBilling"|trans|striptags }}"
                                            class="btn btn-light"
                                            data-address-editor="true"
                                            data-address-editor-options='{
                                                 "changeBilling": true,
                                                 "csrfToken": "{{ sw_csrf("frontend.account.addressbook", {"mode": "token"}) }}"
                                             }'>
-                                            {{ "account.overviewChangeBilling"|trans }}
+                                            {{ "account.overviewChangeBilling"|trans|sw_sanitize }}
                                         </a>
                                     {% endblock %}
                                 </div>
@@ -49,7 +49,7 @@
                         <div class="card-body">
                             {% block page_checkout_confirm_address_shipping_title %}
                                 <div class="card-title">
-                                    {{ "checkout.shippingAddressHeader"|trans }}
+                                    {{ "checkout.shippingAddressHeader"|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}
 
@@ -58,7 +58,7 @@
                                     {% if billingAddress.id is same as(shippingAddress.id) %}
                                         {% block page_checkout_confirm_address_shipping_data_equal %}
                                             <p>
-                                                {{ "checkout.addressEqualText"|trans }}
+                                                {{ "checkout.addressEqualText"|trans|sw_sanitize }}
                                             </p>
                                         {% endblock %}
                                     {% else %}
@@ -73,14 +73,14 @@
                                 <div class="card-actions">
                                     {% block  page_checkout_confirm_address_shipping_actions_link %}
                                         <a href="{{ path('frontend.account.address.edit.page', {'addressId': shippingAddress.id}) }}"
-                                           title="{{ "account.overviewChangeShipping"|trans }}"
+                                           title="{{ "account.overviewChangeShipping"|trans|striptags }}"
                                            class="btn btn-light"
                                            data-address-editor="true"
                                            data-address-editor-options='{
                                                 "changeShipping": true,
                                                 "csrfToken": "{{ sw_csrf("frontend.account.addressbook", {"mode": "token"}) }}"
                                             }'>
-                                            {{ "account.overviewChangeShipping"|trans }}
+                                            {{ "account.overviewChangeShipping"|trans|sw_sanitize }}
                                         </a>
                                     {% endblock %}
                                 </div>

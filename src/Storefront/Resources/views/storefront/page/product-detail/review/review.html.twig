@@ -35,17 +35,17 @@
 								{% if ratingSuccess == 1 %}
 									{% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
 										type: "success",
-										content: "detail.reviewFormSuccessAlert"|trans
+										content: "detail.reviewFormSuccessAlert"|trans|sw_sanitize
 									} %}
                                 {% elseif ratingSuccess == 2  %}
                                     {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                                         type: "success",
-                                        content: "detail.reviewFormSuccessUpdateAlert"|trans
+                                        content: "detail.reviewFormSuccessUpdateAlert"|trans|sw_sanitize
                                     } %}
 								{% elseif ratingSuccess == -1  %}
 									{% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
 										type: "danger",
-										content: "detail.reviewFormErrorAlert"|trans
+										content: "detail.reviewFormErrorAlert"|trans|sw_sanitize
 									} %}
 								{% endif %}
 							{% endblock %}
@@ -109,7 +109,7 @@
                                                                                 {% endif %}>
 																		<label class="custom-control-label form-label"
 																			   for="showForeignReviews">
-																			<small>{{ "detail.reviewLanguageFilterLabel"|trans }}</small>
+																			<small>{{ "detail.reviewLanguageFilterLabel"|trans|sw_sanitize }}</small>
 																		</label>
 																	</div>
 																</form>
@@ -154,7 +154,7 @@
 																	{% block page_product_detail_review_list_action_sortby_label %}
 																		<label class="form-label product-detail-review-sortby-label"
 																			   for="reviewsSortby">
-																			<small>{{ "detail.reviewSortLabel"|trans }}</small>
+																			<small>{{ "detail.reviewSortLabel"|trans|sw_sanitize }}</small>
 																		</label>
 																	{% endblock %}
 
@@ -163,10 +163,10 @@
 																				name="sort"
 																				id="reviewsSortby">
 																			<option value="createdAt"{% if reviews.criteria.sorting.0.field == 'createdAt' %} selected{% endif %}>
-																				{{ "detail.reviewSortNewLabel"|trans }}
+																				{{ "detail.reviewSortNewLabel"|trans|sw_sanitize }}
 																			</option>
-																			<option value="points"{% if reviews.criteria.sorting.0.field == 'points' %} selected{% endif %}>
-                                                                                {{ "detail.reviewSortTopRatedLabel"|trans }}
+																			<option value="points"{% if reviews.criteria.sorting.0.field== 'points' %} selected{% endif %}>
+                                                                                {{ "detail.reviewSortTopRatedLabel"|trans|sw_sanitize }}
 																			</option>
 																		</select>
 																	{% endblock %}
@@ -187,9 +187,9 @@
 
 												<p class="text-right product-detail-review-counter">
 													{% if (listReviewsCount > 1 and listReviewsCount > reviewsPerListPage) %}
-														<small><strong>{{ currentListPage }}</strong> - <strong>{{ reviewsPerListPage }}</strong> {{ "detail.reviewCountBefore"|trans }} <strong>{{ listReviewsCount }}</strong> {{ "detail.reviewCountAfter"|trans({'%count%': listReviewsCount }) }}</small>
+														<small><strong>{{ currentListPage }}</strong> - <strong>{{ reviewsPerListPage }}</strong> {{ "detail.reviewCountBefore"|trans|sw_sanitize }} <strong>{{ listReviewsCount }}</strong> {{ "detail.reviewCountAfter"|trans({'%count%': listReviewsCount })|sw_sanitize }}</small>
 													{% elseif listReviewsCount > 0 %} {# TODO fix detail.reviewCountAfter snippet for listReviewsCount = 0#}
-														<small><strong>{{ listReviewsCount }}</strong> {{ "detail.reviewCountAfter"|trans({'%count%': listReviewsCount }) }}</small>
+														<small><strong>{{ listReviewsCount }}</strong> {{ "detail.reviewCountAfter"|trans({'%count%': listReviewsCount })|sw_sanitize }}</small>
 													{% endif %}
 												</p>
 											{% endblock %}
@@ -256,7 +256,7 @@
                                             {% if ratingSuccess < 2 %}
                                                 {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                                                     type: "info",
-                                                    content: "detail.reviewListEmpty"|trans
+                                                    content: "detail.reviewListEmpty"|trans|sw_sanitize
                                                 } %}
                                             {% endif %}
 										{% endblock %}

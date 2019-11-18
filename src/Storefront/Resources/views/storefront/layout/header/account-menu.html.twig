@@ -5,7 +5,7 @@
         {% block layout_header_actions_account_widget_dropdown_header %}
             {% if not context.customer.guest %}
                 <div class="dropdown-header account-menu-header">
-                    {{ "account.myAccount"|trans }}
+                    {{ "account.myAccount"|trans|sw_sanitize }}
                 </div>
             {% endif %}
         {% endblock %}
@@ -14,14 +14,14 @@
             {% if not context.customer %}
                 <div class="account-menu-login">
                     <a href="{{ path('frontend.account.login.page') }}"
-                       title="{{ "account.loginSubmit"|trans }}"
+                       title="{{ "account.loginSubmit"|trans|striptags }}"
                        class="btn btn-primary account-menu-login-button">
-                        {{ "account.loginSubmit"|trans }}
+                        {{ "account.loginSubmit"|trans|sw_sanitize }}
                     </a>
 
                     <div class="account-menu-register">
-                        {{ "account.orRegister"|trans }} <a href="{{ path('frontend.account.login.page') }}"
-                                                            title="{{ "account.orRegisterLink"|trans }}">{{ "account.orRegisterLink"|trans }}</a>
+                        {{ "account.orRegister"|trans|sw_sanitize }} <a href="{{ path('frontend.account.login.page') }}"
+                                                            title="{{ "account.orRegisterLink"|trans|striptags }}">{{ "account.orRegisterLink"|trans|striptags }}</a>
                     </div>
                 </div>
             {% endif %}

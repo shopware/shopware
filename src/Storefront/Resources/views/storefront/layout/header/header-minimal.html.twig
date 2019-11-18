@@ -14,7 +14,7 @@
 
                         {% block layout_header_minimal_contact %}
                             <div class="col-md-4 header-minimal-contact">
-                                {{ "header.supportInfo"|trans|raw }}
+                                {{ "header.supportInfo"|trans|sw_sanitize }}
                             </div>
                         {% endblock %}
 
@@ -22,12 +22,12 @@
                             <div class="col-6 col-md-4 header-minimal-home">
                                 <a class="btn btn-link btn-sm header-minimal-home-btn"
                                    href="{{ path('frontend.home.page') }}"
-                                   title="{{ "header.logoLink"|trans }}">
+                                   title="{{ "header.logoLink"|trans|striptags }}">
                                     {% sw_icon 'arrow-medium-left' style {
                                         'size': 'sm',
                                         'pack': 'solid'
                                     } %}
-                                    {{ "header.logoLink"|trans }}
+                                    {{ "header.logoLink"|trans|sw_sanitize }}
                                 </a>
                             </div>
                         {% endblock %}

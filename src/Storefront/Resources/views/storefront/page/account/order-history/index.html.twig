@@ -6,8 +6,8 @@
             {% block page_account_orders_welcome %}
                 <div class="account-welcome">
                     {% block page_account_orders_welcome_headline %}
-                        <h1>{{ "account.ordersTitle"|trans }}</h1>
-                        <p>{{ "account.ordersWelcome"|trans }}</p>
+                        <h1>{{ "account.ordersTitle"|trans|sw_sanitize }}</h1>
+                        <p>{{ "account.ordersWelcome"|trans|sw_sanitize }}</p>
                     {% endblock %}
                 </div>
             {% endblock %}
@@ -18,7 +18,7 @@
                         {% block page_account_orders_info_empty %}
                             {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                                 type: "warning",
-                                content: "account.ordersInfoEmpty"|trans
+                                content: "account.ordersInfoEmpty"|trans|sw_sanitize
                             } %}
                         {% endblock %}
                     {% else %}
@@ -31,31 +31,31 @@
                                                 <div class="row">
                                                     {% block page_account_orders_table_header_date %}
                                                         <div class="col order-header-date">
-                                                            {{ "account.orderItemColumnDate"|trans }}
+                                                            {{ "account.orderItemColumnDate"|trans|sw_sanitize }}
                                                         </div>
                                                     {% endblock %}
 
                                                     {% block page_account_orders_table_header_number %}
                                                         <div class="col order-header-number">
-                                                            {{ "account.orderItemColumnNumber"|trans }}
+                                                            {{ "account.orderItemColumnNumber"|trans|sw_sanitize }}
                                                         </div>
                                                     {% endblock %}
 
                                                     {% block page_account_orders_table_header_payment_method %}
                                                         <div class="col order-header-payment-method">
-                                                            {{ "account.orderItemColumnPaymentMethod"|trans }}
+                                                            {{ "account.orderItemColumnPaymentMethod"|trans|sw_sanitize }}
                                                         </div>
                                                     {% endblock %}
 
                                                     {% block page_account_orders_table_header_shipping_method %}
                                                         <div class="col order-header-shipping-method">
-                                                            {{ "account.orderItemColumnShippingMethod"|trans }}
+                                                            {{ "account.orderItemColumnShippingMethod"|trans|sw_sanitize }}
                                                         </div>
                                                     {% endblock %}
 
                                                     {% block page_account_orders_table_header_actions %}
                                                         <div class="col order-header-actions">
-                                                            {{ "account.orderItemColumnActions"|trans }}
+                                                            {{ "account.orderItemColumnActions"|trans|sw_sanitize }}
                                                         </div>
                                                     {% endblock %}
                                                 </div>

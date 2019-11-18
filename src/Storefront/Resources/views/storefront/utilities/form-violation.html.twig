@@ -8,6 +8,6 @@
             {% set violationParams =  {'%field%': fieldName} %}
         {% endif %}
 
-        {{ snippetName|trans(violationParams) }}
+        {{ snippetName|trans|sw_sanitize(violationParams) }}
     </div>
 {% endfor %}

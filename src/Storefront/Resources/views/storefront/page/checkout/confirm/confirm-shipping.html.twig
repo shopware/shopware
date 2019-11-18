@@ -11,7 +11,7 @@
 
             {% block page_checkout_confirm_shipping_title %}
                 <div class="card-title">
-                    {{ "checkout.confirmShippingMethod"|trans }}
+                    {{ "checkout.confirmShippingMethod"|trans|sw_sanitize }}
                 </div>
             {% endblock %}
 
@@ -34,7 +34,7 @@
                     {% endblock %}
 
                     {% block page_checkout_confirm_shipping_current_text %}
-                        <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
+                        <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans|sw_sanitize }}</strong>
                         {{ context.shippingMethod.translated.name }}
                     {% endblock %}
 
@@ -43,7 +43,7 @@
                             <a data-toggle="tooltip"
                                data-placement="right"
                                class="confirm-method-tooltip"
-                               title="{{ "checkout.confirmShippingMethodNotAvailable"|trans }}">
+                               title="{{ "checkout.confirmShippingMethodNotAvailable"|trans|striptags }}">
                                 {% sw_icon 'help' style {
                                     'color': 'danger',
                                     'size': 'xs'
@@ -60,7 +60,7 @@
                         data-toggle="modal"
                         data-backdrop="static"
                         data-target="#confirmShippingModal">
-                    {{ "checkout.confirmChangeShipping"|trans }}
+                    {{ "checkout.confirmChangeShipping"|trans|sw_sanitize }}
                 </button>
             {% endblock %}
 
@@ -74,7 +74,7 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <div class="modal-title h5">
-                                    {{ "checkout.confirmChangeShipping"|trans }}
+                                    {{ "checkout.confirmChangeShipping"|trans|sw_sanitize }}
                                 </div>
                                 <button type="button"
                                         class="modal-close close"
@@ -159,7 +159,7 @@
 
                                         {% block page_checkout_confirm_shipping_form_submit %}
                                             <button class="btn btn-primary" type="submit">
-                                                {{ "checkout.confirmChangePaymentShippingSave"|trans }}
+                                                {{ "checkout.confirmChangePaymentShippingSave"|trans|sw_sanitize }}
                                             </button>
                                         {% endblock %}
 
@@ -168,7 +168,7 @@
                                                     type="button"
                                                     data-dismiss="modal"
                                                     aria-label="Close">
-                                                {{ "checkout.confirmChangePaymentShippingCancel"|trans }}
+                                                {{ "checkout.confirmChangePaymentShippingCancel"|trans|sw_sanitize }}
                                             </button>
                                         {% endblock %}
                                     </form>

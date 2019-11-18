@@ -59,7 +59,7 @@
                                             <a href="{{ seoUrl('frontend.detail.page', {'productId': lineItem.referencedId}) }}"
                                                class="cart-item-label"
                                                title="{{ lineItem.label }}">
-                                                {{ lineItem.quantity }}{{ "checkout.quantityTimes"|trans }} {{ lineItem.label|truncate(60) }}
+                                                {{ lineItem.quantity }}{{ "checkout.quantityTimes"|trans|sw_sanitize }} {{ lineItem.label|truncate(60) }}
                                             </a>
                                         {% else %}
                                             <div class="cart-item-label">
@@ -131,7 +131,7 @@
 
                                         {% block component_offcanvas_product_total_price %}
                                             <div class="cart-item-price">
-                                                {{ lineItem.price.totalPrice|currency }}{{ "general.star"|trans }}
+                                                {{ lineItem.price.totalPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
                                             </div>
                                         {% endblock %}
                                     </div>
@@ -161,7 +161,7 @@
 
                                     {% block component_offcanvas_product_remove_submit %}
                                         <button type="submit"
-                                                title="{{ "checkout.removeLineItem"|trans }}"
+                                                title="{{ "checkout.removeLineItem"|trans|striptags }}"
                                                 class="btn btn-light">
                                             {% sw_icon 'x' style { 'size': 'sm' } %}
                                         </button>

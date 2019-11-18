@@ -79,17 +79,17 @@
 
                         {% block page_account_order_item_detail_unitprice %}
                             {% set referencePrice = lineItem.price.referencePrice %}
-                            
+
                             {% if referencePrice.purchaseUnit %}
                                 <div class="order-price-unit">
                                     {% block page_account_order_item_detail_purchaseunit %}
                                         <div class="order-price-purchase">
                                             {% block page_account_order_item_detail_purchaseunit_label %}
                                                 <span class="order-price-purchase-label">
-                                                    {{ "account.orderItemInfoContent"|trans }}
+                                                    {{ "account.orderItemInfoContent"|trans|sw_sanitize }}
                                                 </span>
                                             {% endblock %}
-            
+
                                             {% block page_account_order_item_detail_purchaseunit_content %}
                                                 <span class="order-price-purchase-content">
                                                    {{ referencePrice.purchaseUnit }} {{ referencePrice.unitName }}
@@ -97,13 +97,13 @@
                                             {% endblock %}
                                         </div>
                                     {% endblock %}
-                                    
+
                                     {% block page_account_order_item_detail_referenceunit %}
                                         {% if referencePrice.referenceUnit is not null %}
                                             <div class="order-price-reference">
                                                 {% block page_account_order_item_detail_referenceunit_content %}
                                                     <span class="order-price-reference-content">
-                                                        ({{ referencePrice.price|currency }}{{ "general.star"|trans }} / {{ referencePrice.referenceUnit }} {{ referencePrice.unitName }})
+                                                        ({{ referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ referencePrice.referenceUnit }} {{ referencePrice.unitName }})
                                                     </span>
                                                 {% endblock %}
                                             </div>
@@ -120,7 +120,7 @@
                         {% if not isChild %}
                             {% block page_account_order_item_detail_quantity_label %}
                                 <strong class="order-item-label order-item-quantity-label">
-                                    {{ "account.orderItemColumnQuantity"|trans }}
+                                    {{ "account.orderItemColumnQuantity"|trans|sw_sanitize }}
                                 </strong>
                             {% endblock %}
 
@@ -138,18 +138,18 @@
                         {% if not isDiscount and not isNested %}
                             {% block page_account_order_item_detail_price_label %}
                                 <strong class="order-item-label order-item-price-label">
-                                    {{ "account.orderItemColumnPrice"|trans }}
+                                    {{ "account.orderItemColumnPrice"|trans|sw_sanitize }}
                                 </strong>
                             {% endblock %}
 
                             {% block page_account_order_item_detail_price_value %}
                                 <span class="order-item-value order-item-price-value">
                                     {% if lineItem.unitPrice and lineItem.type == 'product' %}
-                                        {{ lineItem.unitPrice|currency }}{{ "general.star"|trans }}
+                                        {{ lineItem.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
                                     {% elseif lineItem.type == 'promotion' %}
                                         /
                                     {% else %}
-                                        {{ "account.orderItemInfoFree"|trans }}
+                                        {{ "account.orderItemInfoFree"|trans|sw_sanitize }}
                                     {% endif %}
                                 </span>
                             {% endblock %}
@@ -161,16 +161,16 @@
                     <div class="col-12 col-md-2 order-item order-item-total">
                         {% block page_account_order_item_detail_total_label %}
                             <strong class="order-item-label order-item-total-label">
-                                {{ "account.orderItemColumnTotal"|trans }}
+                                {{ "account.orderItemColumnTotal"|trans|sw_sanitize }}
                             </strong>
                         {% endblock %}
 
                         {% block page_account_order_item_detail_total_value %}
                             <span class="order-item-value order-item-total-value">
                                 {% if lineItem.totalPrice %}
-                                    {{ lineItem.totalPrice|currency }}{{ "general.star"|trans }}
+                                    {{ lineItem.totalPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
                                 {% else %}
-                                    {{ "account.orderItemInfoFree"|trans }}
+                                    {{ "account.orderItemInfoFree"|trans|sw_sanitize }}
                                 {% endif %}
                             </span>
                         {% endblock %}

@@ -15,7 +15,7 @@
                                    class="form-control header-search-input"
                                    autocomplete="off"
                                    autocapitalize="off"
-                                   placeholder="{{ "header.searchPlaceholder"|trans }}"
+                                   placeholder="{{ "header.searchPlaceholder"|trans|striptags }}"
                                    maxlength="30"
                                    value="{{ page.searchTerm }}"
                             >

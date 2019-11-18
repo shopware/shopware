@@ -7,7 +7,7 @@
             {% block component_delivery_information_shipping_free %}
                 <p class="delivery-information delivery-shipping-free">
                     <span class="delivery-status-indicator bg-info"></span>
-                    {{ "general.deliveryShippingFree"|trans }}
+                    {{ "general.deliveryShippingFree"|trans|sw_sanitize }}
                 </p>
             {% endblock %}
         {% endif %}
@@ -18,7 +18,7 @@
                       href="http://schema.org/LimitedAvailability"/>
                 <p class="delivery-information">
                     <span class="delivery-status-indicator bg-danger"></span>
-                    {{ "general.deliveryNotAvailable"|trans }}
+                    {{ "general.deliveryNotAvailable"|trans|sw_sanitize }}
                 </p>
             {% endblock %}
         {% elseif product.releaseDate and product.releaseDate|date('U') > "now"|date('U') %}
@@ -27,7 +27,7 @@
                       href="http://schema.org/PreOrder"/>
                 <p class="delivery-information">
                     <span class="delivery-status-indicator bg-warning"></span>
-                    {{ "general.deliveryShipping"|trans }} {{ product.releaseDate|localizeddate('long', 'none', app.request.locale) }}
+                    {{ "general.deliveryShipping"|trans|sw_sanitize }} {{ product.releaseDate|localizeddate('long', 'none', app.request.locale) }}
                 </p>
             {% endblock %}
 
@@ -39,14 +39,14 @@
 
                 {{ "detail.deliveryTimeAvailable"|trans({
                     '%name%': product.deliveryTime.translation('name')
-                }) }}
+                })|sw_sanitize }}
             </p>
         {% elseif product.isCloseout and product.availableStock < product.minPurchase %}
 
             <link itemprop="availability" href="http://schema.org/LimitedAvailability"/>
             <p class="delivery-information">
                 <span class="delivery-status-indicator bg-danger"></span>
-                {{ "detail.soldOut"|trans }}
+                {{ "detail.soldOut"|trans|sw_sanitize }}
             </p>
 
         {% elseif product.availableStock < product.minPurchase and product.deliveryTime and product.restockTime %}
@@ -57,7 +57,7 @@
                 {{ "detail.deliveryTimeRestock"|trans({
                     '%restockTime%': product.restockTime,
                     '%name%': product.deliveryTime.translation('name')
-                }) }}
+                })|sw_sanitize }}
             </p>
         {% endif %}
     </div>

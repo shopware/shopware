@@ -51,11 +51,11 @@
                                     {% endblock %}
                                 {% endfor %}
                             {% endblock %}
-                                
+
                             {% block page_account_order_item_detail_reorder_button %}
                                 <button class="btn btn-buy order-item-detail-reorder-btn"
-                                        title="{{ "account.orderLinkRepeat"|trans }}">
-                                    {{ "account.orderLinkRepeat"|trans }}
+                                        title="{{ "account.orderLinkRepeat"|trans|striptags }}">
+                                    {{ "account.orderLinkRepeat"|trans|sw_sanitize }}
                                 </button>
                             {% endblock %}
                         </form>

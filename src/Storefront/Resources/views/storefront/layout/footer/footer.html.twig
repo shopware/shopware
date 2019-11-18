@@ -10,7 +10,7 @@
                             data-target="#collapseFooterHotline"
                             aria-expanded="true"
                             aria-controls="collapseFooterHotline">
-                            {{ 'footer.serviceHotlineHeadline'|trans }}
+                            {{ 'footer.serviceHotlineHeadline'|trans|sw_sanitize }}
                             {% block layout_footer_navigation_hotline_icons %}
                                 <div class="footer-column-toggle">
                                     <span class="footer-plus-icon">
@@ -30,10 +30,10 @@
                              aria-labelledby="headingOne">
                             <div class="footer-column-content-inner">
                                 <p class="footer-contact-hotline">
-                                    {{ 'footer.serviceHotline'|trans|raw }}
+                                    {{ 'footer.serviceHotline'|trans|sw_sanitize }}
                                 </p>
                                 <div class="footer-contact-form">
-                                    {{ 'footer.serviceContactLink'|trans({'%link%': path('frontend.page.contact') })|raw }}
+                                    {{ 'footer.serviceContactLink'|trans({'%link%': path('frontend.page.contact') })|sw_sanitize }}
                                 </div>
                             </div>
                         </div>
@@ -150,9 +150,9 @@
             {% block layout_footer_vat %}
                 <div class="footer-vat">
                     {% if context.taxState == "gross" %}
-                        <p>{{ "footer.includeVat"|trans|raw }}</p>
+                        <p>{{ "footer.includeVat"|trans|sw_sanitize }}</p>
                     {% else %}
-                        <p>{{ "footer.excludeVat"|trans|raw }}</p>
+                        <p>{{ "footer.excludeVat"|trans|sw_sanitize }}</p>
                     {% endif %}
                 </div>
             {% endblock %}
@@ -180,7 +180,7 @@
             {% block layout_footer_copyright %}
                 <div class="footer-copyright">
                     {% sw_icon 'shopware' style {'size':'xs'} %}
-                    {{ "footer.copyrightInfo"|trans }}
+                    {{ "footer.copyrightInfo"|trans|sw_sanitize }}
                 </div>
             {% endblock %}
         </div>

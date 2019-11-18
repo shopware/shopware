@@ -11,6 +11,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ElasticsearchTestAnalyzerCommand extends Command
 {
+    protected static $defaultName = 'es:test:analyzer';
+
     /**
      * @var Client
      */
@@ -33,7 +35,6 @@ class ElasticsearchTestAnalyzerCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setName('es:test:analyzer')
             ->addArgument('term', InputArgument::REQUIRED)
             ->setDescription('Allows to test an elasticsearch analyzer');
     }

@@ -17,6 +17,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class PluginListCommand extends Command
 {
+    protected static $defaultName = 'plugin:list';
+
     /**
      * @var EntityRepositoryInterface
      */
@@ -33,7 +35,7 @@ class PluginListCommand extends Command
      */
     protected function configure(): void
     {
-        $this->setName('plugin:list')
+        $this
             ->setDescription('Show a list of available plugins.')
             ->addOption('filter', 'f', InputOption::VALUE_REQUIRED, 'Filter the plugin list to a given term');
     }

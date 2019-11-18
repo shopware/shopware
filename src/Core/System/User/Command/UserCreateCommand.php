@@ -13,6 +13,8 @@ use Symfony\Component\Console\Question\Question;
 
 class UserCreateCommand extends Command
 {
+    protected static $defaultName = 'user:create';
+
     /**
      * @var UserProvisioner
      */
@@ -29,7 +31,7 @@ class UserCreateCommand extends Command
      */
     protected function configure(): void
     {
-        $this->setName('user:create')
+        $this
             ->addArgument('username', InputArgument::REQUIRED, 'Username for the user')
             ->addOption('admin', 'a', InputOption::VALUE_NONE, 'mark the user as admin')
             ->addOption('password', 'p', InputOption::VALUE_REQUIRED, 'Password for the user')

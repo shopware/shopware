@@ -107,7 +107,7 @@
             <argument type="service" id="snippet_set.repository"/>
             <argument type="service" id="category.repository"/>
 
-            <tag name="console.command" command="sales-channel:create:storefront"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Navigation\NavigationPageLoader">
@@ -364,7 +364,7 @@
             <argument type="service" id="kernel"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 
-            <tag name="console.command" command="http:cache:warm:up"/>
+            <tag name="console.command"/>
         </service>
     </services>
 </container>

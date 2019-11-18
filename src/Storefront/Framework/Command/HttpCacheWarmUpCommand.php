@@ -10,6 +10,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class HttpCacheWarmUpCommand extends Command
 {
+    protected static $defaultName = 'http:cache:warm:up';
+
     /**
      * @var CacheWarmer
      */
@@ -17,15 +19,8 @@ class HttpCacheWarmUpCommand extends Command
 
     public function __construct(CacheWarmer $warmer)
     {
-        parent::__construct('http:cache:warm:up');
+        parent::__construct();
         $this->warmer = $warmer;
-    }
-
-    protected function configure(): void
-    {
-        parent::configure();
-
-        $this->setName('http:cache:warm:up');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

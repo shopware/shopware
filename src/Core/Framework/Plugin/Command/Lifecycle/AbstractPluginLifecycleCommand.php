@@ -55,7 +55,6 @@ abstract class AbstractPluginLifecycleCommand extends Command
     protected function configureCommand(string $lifecycleMethod): void
     {
         $this
-            ->setName(sprintf('plugin:%s', $lifecycleMethod))
             ->setDescription(sprintf('%ss given plugins', ucfirst($lifecycleMethod)))
             ->addArgument(
                 'plugins',

@@ -11,6 +11,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class FeatureFlagCreateCommand extends Command
 {
+    protected static $defaultName = 'feature:add';
+
     /**
      * @var FeatureFlagGenerator
      */

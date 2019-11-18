@@ -17,6 +17,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class GenerateMediaTypesCommand extends Command
 {
+    protected static $defaultName = 'media:generate-media-types';
+
     /**
      * @var SymfonyStyle
      */
@@ -51,7 +53,6 @@ class GenerateMediaTypesCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setName('media:generate-media-types')
             ->setDescription('Generates the media type for all media entities')
             ->addOption('batch-size', 'b', InputOption::VALUE_REQUIRED, 'Batch Size')
         ;

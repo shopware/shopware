@@ -4,10 +4,7 @@ namespace Shopware\Core\Framework\Migration\Command;
 
 class MigrationDestructiveCommand extends MigrationCommand
 {
-    protected function getMigrationCommandName(): string
-    {
-        return 'database:migrate-destructive';
-    }
+    protected static $defaultName = 'database:migrate-destructive';
 
     protected function getMigrationGenerator(?int $until, ?int $limit): \Generator
     {

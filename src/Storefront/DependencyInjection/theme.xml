@@ -81,7 +81,7 @@
         <service id="Shopware\Storefront\Theme\Command\ThemeCreateCommand">
             <argument>%kernel.project_dir%</argument>
 
-            <tag name="console.command" command="theme:create"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\Command\ThemeChangeCommand">
@@ -92,14 +92,14 @@
             <argument type="service" id="theme_sales_channel.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator"/>
 
-            <tag name="console.command" command="theme:change"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\Command\ThemeCompileCommand">
             <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
             <argument type="service" id="sales_channel.repository"/>
 
-            <tag name="console.command" command="theme:compile"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\Command\ThemeDumpCommand">
@@ -108,13 +108,13 @@
             <argument type="service" id="theme.repository"/>
             <argument>%kernel.cache_dir%</argument>
 
-            <tag name="console.command" command="theme:dump"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\Command\ThemeRefreshCommand">
             <argument type="service" id="Shopware\Storefront\Theme\ThemeLifecycleService"/>
 
-            <tag name="console.command" command="theme:refresh"/>
+            <tag name="console.command"/>
         </service>
 
         <!-- Subscriber -->

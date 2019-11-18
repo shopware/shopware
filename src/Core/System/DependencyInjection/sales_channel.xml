@@ -101,7 +101,7 @@
             <argument type="service" id="snippet_set.repository"/>
             <argument type="service" id="category.repository"/>
 
-            <tag name="console.command" command="sales-channel:create"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry" public="true">

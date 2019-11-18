@@ -12,6 +12,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class CreateSchemaCommand extends Command
 {
+    protected static $defaultName = 'dal:create:schema';
+
     /**
      * @var SchemaGenerator
      */
@@ -36,11 +38,6 @@ class CreateSchemaCommand extends Command
         $this->schemaGenerator = $generator;
         $this->registry = $registry;
         $this->dir = $rootDir . '/../schema/';
-    }
-
-    protected function configure(): void
-    {
-        $this->setName('dal:create:schema');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

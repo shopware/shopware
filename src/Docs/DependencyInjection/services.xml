@@ -6,14 +6,14 @@
 
     <services>
         <service id="Shopware\Docs\Command\DocsPlatformUpdates">
-            <tag name="console.command" command="docs:dump-platform-updates"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Docs\Command\DocsDumpErd">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Docs\Inspection\ErdGenerator"/>
 
-            <tag name="console.command" command="docs:dump-erd"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Docs\Inspection\ErdTypeMap" />
@@ -24,12 +24,12 @@
         <service id="Shopware\Docs\Command\DocsModuleCharacteristics">
             <argument type="service" id="Shopware\Docs\Inspection\ModuleInspector"/>
 
-            <tag name="console.command" command="docs:dump-core-characteristics"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Docs\Inspection\ModuleInspector"/>
         <service id="Shopware\Docs\Command\ConvertMarkdownDocsCommand">
-            <tag name="console.command" command="docs:convert"/>
+            <tag name="console.command"/>
         </service>
     </services>
 </container>

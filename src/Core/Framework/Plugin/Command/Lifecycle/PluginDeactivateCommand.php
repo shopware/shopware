@@ -14,6 +14,8 @@ class PluginDeactivateCommand extends AbstractPluginLifecycleCommand
 {
     private const LIFECYCLE_METHOD = 'deactivate';
 
+    protected static $defaultName = 'plugin:deactivate';
+
     protected function configure(): void
     {
         $this->configureCommand(self::LIFECYCLE_METHOD);

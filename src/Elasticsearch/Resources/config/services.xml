@@ -64,13 +64,13 @@
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\EntityIndexer"/>
 
             <tag name="kernel.event_subscriber"/>
-            <tag name="console.command" command="es:index"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchTestAnalyzerCommand">
             <argument id="Elasticsearch\Client" type="service"/>
 
-            <tag name="console.command" command="es:test:analyzer"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher"
@@ -146,7 +146,7 @@
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchCreateAliasCommand">
             <argument id="Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler" type="service"/>
 
-            <tag name="console.command" command="es:create:alias"/>
+            <tag name="console.command"/>
         </service>
     </services>
 </container>

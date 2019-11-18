@@ -14,6 +14,8 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
 {
     private const LIFECYCLE_METHOD = 'install';
 
+    protected static $defaultName = 'plugin:install';
+
     protected function configure(): void
     {
         $this->configureCommand(self::LIFECYCLE_METHOD);

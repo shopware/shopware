@@ -18,7 +18,7 @@ Shopware.Service('exportTemplateService').registerProductExportTemplate({
     </image>
         `.trim(),
     bodyTemplate: `    <item> 
-        <g:id>{{ product.id }}</g:id>
+        <g:id>{{ product.productNumber }}</g:id>
         <title>{{ product.translated.name|escape }}</title>
         <description>{{ product.translated.description|escape }}</description>
         <g:google_product_category>950{# change your Google Shopping category #}</g:google_product_category>
@@ -29,7 +29,7 @@ Shopware.Service('exportTemplateService').registerProductExportTemplate({
         <g:availability>{% if product.availableStock >= product.minPurchase and product.deliveryTime %}bestellbar{% elseif product.availableStock < product.minPurchase and product.deliveryTime and product.restockTime %}vorbestellt{% else %}nicht auf lager{% endif %}</g:availability>
         <g:price>{{ product.calculatedListingPrice.from.unitPrice|currency }}</g:price>
         <g:brand>{{ product.manufacturer.translated.name|escape }}</g:brand>
-        <g:gtin>{{ product.manufacturerNumber }}</g:gtin>
+        <g:gtin>{{ product.ean }}</g:gtin>
         <g:mpn>{{ product.manufacturerNumber }}</g:mpn>
         <g:shipping>
             <g:country>DE</g:country>

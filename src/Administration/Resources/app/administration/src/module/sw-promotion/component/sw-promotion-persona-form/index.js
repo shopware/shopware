@@ -115,7 +115,8 @@ Component.register('sw-promotion-persona-form', {
             this.customerService = new PersonaCustomerGridService(
                 this,
                 this.repositoryFactory.create('customer'),
-                this.customerPersonaRepository
+                this.customerPersonaRepository,
+                Shopware.Context.api
             );
 
             this.customerService.reloadCustomers().then(() => {

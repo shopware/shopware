@@ -1,10 +1,11 @@
 const { Criteria } = Shopware.Data;
 
 export default class PersonaCustomerGridService {
-    constructor(component, repoCustomers, repoPromotionCustomers) {
+    constructor(component, repoCustomers, repoPromotionCustomers, context) {
         this.component = component;
         this.repoCustomers = repoCustomers;
         this.repoPromotionCustomers = repoPromotionCustomers;
+        this.context = context;
 
         this.dataSource = [];
         this.addIds = [];
@@ -32,7 +33,7 @@ export default class PersonaCustomerGridService {
 
         // search all customer persona entries and load them
         // into our customer list which will be shown using our vue grid.
-        await this.repoPromotionCustomers.search(criteria, this.component.context).then((customers) => {
+        await this.repoPromotionCustomers.search(criteria, this.context).then((customers) => {
             this.dataSource = customers;
         });
     }

@@ -60,17 +60,21 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
         $this->cartService = $cartService;
     }
 
-    public function get(string $salesChannelId, string $token, ?string $languageId = null): SalesChannelContext
+    public function get(string $salesChannelId, string $token, ?string $languageId = null, ?string $currencyId = null): SalesChannelContext
     {
-        return $this->load($salesChannelId, $token, $languageId);
+        return $this->load($salesChannelId, $token, $languageId, $currencyId);
     }
 
-    private function load(string $salesChannelId, string $token, ?string $languageId = null): SalesChannelContext
+    private function load(string $salesChannelId, string $token, ?string $languageId = null, ?string $currencyId = null): SalesChannelContext
     {
         $parameters = $this->contextPersister->load($token);
 
         if ($languageId) {
             $parameters[self::LANGUAGE_ID] = $languageId;
+        }
+
+        if ($currencyId) {
+            $parameters[self::CURRENCY_ID] = $currencyId;
         }
 
         $context = $this->factory->create($token, $salesChannelId, $parameters);

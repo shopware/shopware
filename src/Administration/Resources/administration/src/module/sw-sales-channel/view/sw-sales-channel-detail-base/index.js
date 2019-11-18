@@ -28,7 +28,6 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         productExport: {
-            // type: Entity
             type: Object,
             required: true
         },
@@ -104,6 +103,14 @@ Component.register('sw-sales-channel-detail-base', {
             const criteria = new Criteria();
 
             return criteria.addFilter(Criteria.equals('salesChannelId', this.productExport.storefrontSalesChannelId));
+        },
+
+        storefrontSalesChannelCurrencyCriteria() {
+            const criteria = new Criteria();
+
+            criteria.addAssociation('salesChannels');
+
+            return criteria.addFilter(Criteria.equals('salesChannels.id', this.productExport.storefrontSalesChannelId));
         },
 
         storefrontDomainsLoaded() {
@@ -399,6 +406,7 @@ Component.register('sw-sales-channel-detail-base', {
                 .get(storefrontSalesChannelDomainId, this.context)
                 .then((entity) => {
                     this.productExport.salesChannelDomain = entity;
+                    this.productExport.currencyId = entity.currencyId;
                     this.$emit('domain-changed');
                 });
         },

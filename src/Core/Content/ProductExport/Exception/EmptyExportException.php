@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ProductExport\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
 
 class EmptyExportException extends ShopwareHttpException
 {
@@ -13,6 +14,11 @@ class EmptyExportException extends ShopwareHttpException
         } else {
             parent::__construct('No products for export with ID {{ id }} found', ['id' => $id]);
         }
+    }
+
+    public function getStatusCode(): int
+    {
+        return Response::HTTP_NOT_FOUND;
     }
 
     public function getErrorCode(): string

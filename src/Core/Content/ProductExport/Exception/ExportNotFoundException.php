@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ProductExport\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
 
 class ExportNotFoundException extends ShopwareHttpException
 {
@@ -17,6 +18,11 @@ class ExportNotFoundException extends ShopwareHttpException
         }
 
         parent::__construct($message, ['id' => $id, 'fileName' => $fileName]);
+    }
+
+    public function getStatusCode(): int
+    {
+        return Response::HTTP_NOT_FOUND;
     }
 
     public function getErrorCode(): string

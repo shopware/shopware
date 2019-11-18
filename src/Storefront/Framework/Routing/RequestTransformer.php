@@ -20,6 +20,26 @@ class RequestTransformer implements RequestTransformerInterface
     public const SALES_CHANNEL_ABSOLUTE_BASE_URL = 'sw-sales-channel-absolute-base-url';
     public const SALES_CHANNEL_RESOLVED_URI = 'resolved-uri';
 
+    private const INHERITABLE_ATTRIBUTE_NAMES = [
+        self::SALES_CHANNEL_BASE_URL,
+        self::SALES_CHANNEL_ABSOLUTE_BASE_URL,
+        self::SALES_CHANNEL_RESOLVED_URI,
+
+        PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID,
+        SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST,
+
+        SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE,
+        SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID,
+        SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID,
+        SalesChannelRequest::ATTRIBUTE_DOMAIN_ID,
+
+        SalesChannelRequest::ATTRIBUTE_THEME_ID,
+        SalesChannelRequest::ATTRIBUTE_THEME_NAME,
+        SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME,
+
+        SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK,
+    ];
+
     /**
      * @var Connection
      */
@@ -125,33 +145,49 @@ class RequestTransformer implements RequestTransformerInterface
             ['REQUEST_URI' => rtrim($request->getBaseUrl(), '/') . $resolved['pathInfo']]
         );
 
-        $clone = $request->duplicate(null, null, null, null, null, $transformedServerVars);
+        $transformedRequest = $request->duplicate(null, null, null, null, null, $transformedServerVars);
 
-        $clone->attributes->set(self::SALES_CHANNEL_BASE_URL, $baseUrl);
-        $clone->attributes->set(self::SALES_CHANNEL_ABSOLUTE_BASE_URL, rtrim($absoluteBaseUrl, '/'));
-        $clone->attributes->set(self::SALES_CHANNEL_RESOLVED_URI, $resolved['pathInfo']);
+        $transformedRequest->attributes->set(self::SALES_CHANNEL_BASE_URL, $baseUrl);
+        $transformedRequest->attributes->set(self::SALES_CHANNEL_ABSOLUTE_BASE_URL, rtrim($absoluteBaseUrl, '/'));
+        $transformedRequest->attributes->set(self::SALES_CHANNEL_RESOLVED_URI, $resolved['pathInfo']);
 
-        $clone->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannel['salesChannelId']);
-        $clone->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST, true);
-        $clone->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE, $salesChannel['locale']);
-        $clone->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, $salesChannel['snippetSetId']);
-        $clone->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, $salesChannel['currencyId']);
-        $clone->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID, $salesChannel['id']);
-        $clone->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, $salesChannel['themeId']);
-        $clone->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, $salesChannel['themeName']);
-        $clone->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME, $salesChannel['parentThemeName']);
+        $transformedRequest->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannel['salesChannelId']);
+        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST, true);
+        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE, $salesChannel['locale']);
+        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, $salesChannel['snippetSetId']);
+        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, $salesChannel['currencyId']);
+        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID, $salesChannel['id']);
+        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, $salesChannel['themeId']);
+        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, $salesChannel['themeName']);
+        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME, $salesChannel['parentThemeName']);
 
         if (isset($resolved['canonicalPathInfo'])) {
-            $clone->attributes->set(
+            $transformedRequest->attributes->set(
                 SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK,
                 $this->getSchemeAndHttpHost($request) . $baseUrl . $resolved['canonicalPathInfo']
             );
         }
 
-        $clone->headers->add($request->headers->all());
-        $clone->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $salesChannel['languageId']);
+        $transformedRequest->headers->add($request->headers->all());
+        $transformedRequest->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $salesChannel['languageId']);
 
-        return $clone;
+        return $transformedRequest;
+    }
+
+    public function extractInheritableAttributes(Request $sourceRequest): array
+    {
+        $inheritableAttributes = $this->decorated
+            ->extractInheritableAttributes($sourceRequest);
+
+        foreach (self::INHERITABLE_ATTRIBUTE_NAMES as $attributeName) {
+            if (!$sourceRequest->attributes->has($attributeName)) {
+                continue;
+            }
+
+            $inheritableAttributes[$attributeName] = $sourceRequest->attributes->get($attributeName);
+        }
+
+        return $inheritableAttributes;
     }
 
     private function isSalesChannelRequired(string $pathInfo): bool

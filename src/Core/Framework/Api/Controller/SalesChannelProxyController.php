@@ -87,19 +87,19 @@ class SalesChannelProxyController extends AbstractController
         $contextToken = $this->getContextToken($request);
 
         $server = array_merge($request->server->all(), ['REQUEST_URI' => '/sales-channel-api/' . $path]);
-        $cloned = $request->duplicate(null, null, [], null, null, $server);
+        $subrequest = $request->duplicate(null, null, [], null, null, $server);
 
-        $cloned->headers->set(PlatformRequest::HEADER_ACCESS_KEY, $salesChannel->getAccessKey());
-        $cloned->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
-        $cloned->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $salesChannel->getAccessKey());
+        $subrequest->headers->set(PlatformRequest::HEADER_ACCESS_KEY, $salesChannel->getAccessKey());
+        $subrequest->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
+        $subrequest->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $salesChannel->getAccessKey());
 
         $this->requestContextResolver->handleSalesChannelContext(
-            $cloned,
+            $subrequest,
             $salesChannelId,
             $contextToken
         );
 
-        return $cloned;
+        return $subrequest;
     }
 
     /**

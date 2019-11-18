@@ -85,6 +85,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
     public function startSession(): void
     {
         $master = $this->requestStack->getMasterRequest();
+
         if (!$master) {
             return;
         }

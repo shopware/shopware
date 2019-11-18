@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -97,7 +98,11 @@ abstract class StorefrontController extends AbstractController
         $router->getContext()->setMethod($method);
 
         $request = $this->container->get('request_stack')->getCurrentRequest();
-        $parameters = array_merge($request->attributes->all(), $parameters);
+
+        $parameters = array_merge(
+            $this->get(RequestTransformerInterface::class)->extractInheritableAttributes($request),
+            $parameters
+        );
 
         return $this->forward($route['_controller'], $parameters);
     }

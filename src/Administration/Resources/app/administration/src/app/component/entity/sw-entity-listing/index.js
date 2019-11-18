@@ -11,38 +11,51 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             type: String,
             required: false
         },
+
         repository: {
-            required: true,
-            type: Object
+            type: Object,
+            required: true
         },
+
         items: {
             type: Array,
             required: false,
             default: null
         },
+
         dataSource: {
             type: [Array, Object],
             required: false
         },
+
         showSettings: {
             type: Boolean,
-            default: true,
-            required: false
+            required: false,
+            default: true
         },
+
         fullPage: {
             type: Boolean,
-            default: true,
-            required: false
+            required: false,
+            default: true
         },
+
         allowInlineEdit: {
             type: Boolean,
-            default: true,
-            required: false
+            required: false,
+            default: true
         },
+
         allowColumnEdit: {
             type: Boolean,
-            default: true,
-            required: false
+            required: false,
+            default: true
+        },
+
+        criteriaLimit: {
+            type: Number,
+            required: false,
+            default: 25
         }
     },
 
@@ -52,7 +65,7 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             showBulkDeleteModal: false,
             isBulkLoading: false,
             page: 1,
-            limit: 25,
+            limit: this.criteriaLimit,
             total: 10
         };
     },

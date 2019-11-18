@@ -8,6 +8,8 @@ import './component/sw-order-saveable-field';
 import './../sw-customer/component/sw-customer-address-form';
 import './component/sw-order-address-modal';
 import './component/sw-order-leave-page-modal';
+import './component/sw-order-state-change-modal/sw-order-state-change-modal-attach-documents';
+import './component/sw-order-state-change-modal/sw-order-state-change-modal-assign-mail-template';
 import './component/sw-order-state-history-card';
 import './component/sw-order-state-history-card-entry';
 import './component/sw-order-state-select';

@@ -44,6 +44,7 @@ Component.register('sw-mail-template-list', {
                 this.total = items.total;
                 this.mailTemplates = items;
                 this.isLoading = false;
+
                 return this.mailTemplates;
             });
         },
@@ -94,7 +95,10 @@ Component.register('sw-mail-template-list', {
         },
 
         onDuplicate(id) {
-            this.mailTemplateRepository.clone(id).then((mailTemplate) => {
+            this.isLoading = true;
+            this.mailTemplateRepository.clone(id, Shopware.Context.api).then((mailTemplate) => {
+                this.getList();
+                this.isLoading = false;
                 this.$router.push(
                     {
                         name: 'sw.mail.template.detail',

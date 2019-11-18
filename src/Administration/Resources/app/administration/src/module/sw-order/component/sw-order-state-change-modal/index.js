@@ -1,50 +1,64 @@
 import template from './sw-order-state-change-modal.html.twig';
+import './sw-order-state-change-modal.scss';
 
 const { Component } = Shopware;
 
 Component.register('sw-order-state-change-modal', {
     template,
 
-    inject: [],
-
     props: {
         order: {
             type: Object,
             required: true
         },
+
         isLoading: {
             type: Boolean,
+            required: true
+        },
+
+        mailTemplatesExist: {
+            required: false
+        },
+
+        technicalName: {
+            type: String,
             required: true
         }
     },
 
     data() {
         return {
-            showModal: false
+            showModal: false,
+            assignMailTemplatesOptions: [],
+            userCanConfirm: false,
+            userHasAssignedMailTemplate: false
         };
     },
 
     computed: {
-    },
+        modalTitle() {
+            return this.mailTemplatesExist || this.userHasAssignedMailTemplate ?
+                this.$tc('sw-order.documentCard.cardTitle') :
+                this.$tc('sw-order.assignMailTemplateCard.cardTitle');
+        },
 
-    created() {
-
+        showDocuments() {
+            return this.mailTemplatesExist || this.userHasAssignedMailTemplate;
+        }
     },
 
     methods: {
-        onConfirm() {
-            const docIds = [];
-            this.$refs.attachDocuments.documents.forEach((doc) => {
-                if (doc.attach) {
-                    docIds.push(doc.id);
-                }
-            });
+        onCancel() {
+            this.$emit('page-leave');
+        },
+
+        onDocsConfirm(docIds) {
             this.$emit('page-leave-confirm', docIds);
         },
 
-        onCancel() {
-            this.$emit('page-leave');
+        onAssignMailTemplate() {
+            this.userHasAssignedMailTemplate = true;
         }
-
     }
 });

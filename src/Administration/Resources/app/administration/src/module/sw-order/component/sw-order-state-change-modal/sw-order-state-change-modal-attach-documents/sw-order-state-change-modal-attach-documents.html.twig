@@ -1,0 +1,29 @@
+{% block sw_order_state_change_modal_attach_documents %}
+    <div class="sw-order-state-change-modal-attach-document">
+
+        {% block sw_order_state_change_modal_attach_documents_documents_grid %}
+            <sw-order-document-card
+                class="sw-order-detail-base__documents-grid"
+                :order="order"
+                attachView="true"
+                :isLoading="isLoading"
+                ref="attachDocuments">
+            </sw-order-document-card>
+        {% endblock %}
+
+        {% block sw_order_state_change_modal_attach_documents_button_wrapper %}
+            <div class="sw-order-state-change-modal-attach-documents__button-wrapper">
+
+                {% block sw_order_state_change_modal_attach_documents_button %}
+                    <sw-button
+                        class="sw-order-state-change-modal-attach-documents__button"
+                        variant="primary"
+                        size="small"
+                        @click="onConfirm">
+                        {{ $tc('sw-order.stateCard.labelSelectStateButton') }}
+                    </sw-button>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

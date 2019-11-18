@@ -132,12 +132,23 @@
       "labelLastEditedBy":"Zuletzt geändert von",
       "labelSystemUser":"System",
       "labelSelectStatePlaceholder":"Bitte wählen ...",
-      "labelSelectStateButton":"Status setzen",
+      "labelSelectStateButton":"Status ändern und E-Mail versenden",
       "headlineErrorStateChange":"Fehler",
       "labelErrorStateChange":"Beim setzen des Status ist ein Fehler aufgetreten. Zusätzliche Informationen:",
       "labelErrorNoAction":"Kein neuer Zustand gewählt.",
       "labelNoTransactionState": "Keine Transaktion vorhanden",
       "labelNoDeliveryState": "Keine Lieferung vorhanden"
+    },
+    "assignMailTemplateCard": {
+        "cardTitle": "E-Mail-Vorlage zuweisen",
+        "headline": "Dieser Bestellstatus hat keine E-Mail-Vorlage, weise eine zu.",
+        "placeholderAssignMailTemplate": "Weise ein E-Mail-Vorlage zu ...",
+        "alertHeadline": "Hinweis",
+        "alertMessage": "Diese Zuweisung wirkt sich auf alle nachfolgenden Bestellungen dieses Verkaufskanals aus.",
+        "buttonCreateMailTemplate": "Erstelle eine E-Mail-Vorlage",
+        "buttonAssignMailTemplate": "E-Mail-Vorlage zuweisen",
+        "gridColumnType": "Typ",
+        "gridColumnDescription": "Beschreibung"
     },
     "documentCard": {
       "searchBarPlaceholder": "Suche nach Belegen",

@@ -12,7 +12,7 @@ export default class OrderPageObject extends GeneralPageObject {
         };
     }
 
-    setOrderState({stateTitle, type, signal = 'neutral', scope = 'select', call = null}) {
+    setOrderState({stateTitle, type, signal = 'neutral', scope = 'select', call = null}, isMailTemplateAssigned) {
         const stateColor = `.sw-order-state__${signal}-select`;
         const callType = type === 'payment' ? '_transaction' : '';
 
@@ -32,7 +32,15 @@ export default class OrderPageObject extends GeneralPageObject {
         cy.get(`.sw-order-state-change-modal`)
             .should('be.visible');
 
-        cy.get(`.sw-order-state-change-modal__btn`)
+        if (!isMailTemplateAssigned) {
+            cy.get('.sw-order-state-change-modal-assign-mail-template__entity-listing .sw-data-grid__row--0 input')
+                .click();
+
+            cy.get(`.sw-order-state-change-modal-assign-mail-template__button`)
+                .click();
+        }
+
+        cy.get(`.sw-order-state-change-modal-attach-documents__button`)
             .click();
 
         cy.wait(`@${call}Call`).then((xhr) => {

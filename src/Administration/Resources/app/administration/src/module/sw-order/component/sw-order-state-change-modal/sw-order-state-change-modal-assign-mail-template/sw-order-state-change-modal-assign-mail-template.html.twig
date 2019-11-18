@@ -1,0 +1,103 @@
+{% block sw_order_state_change_modal_assign_mail_template %}
+    <div class="sw-order-state-change-modal-assign-mail-template">
+
+        {% block sw_order_state_change_modal_assign_mail_template_wrapper %}
+            <div class="sw-order-state-change-modal-assign-mail-template__wrapper">
+
+                {% block sw_order_state_change_modal_assign_mail_template_paragraph %}
+                    <p class="sw-order-state-change-modal-assign-mail-template__paragraph">
+                        {{ $tc('sw-order.assignMailTemplateCard.headline') }}
+
+                        {% block sw_order_state_change_modal_assing_mail_template_paragraph_bold %}
+                            <span class="is--bold">
+                                {{ $tc('sw-order.assignMailTemplateCard.alertMessage') }}
+                            </span>
+                        {% endblock %}
+                    </p>
+                {% endblock %}
+
+                {% block sw_order_state_change_modal_assign_mail_template_card %}
+                    <sw-card>
+                        <template #toolbar>
+
+                            {% block sw_order_state_change_modal_assign_mail_template_card_filter %}
+                                <sw-card-filter
+                                    @sw-card-filter-term-change="onSearchTermChange">
+                                    <template #filter>
+
+                                        {% block sw_order_state_change_modal_assign_mail_template_card_button %}
+                                            <sw-button :disabled="false"
+                                                        variant="ghost"
+                                                        size="small"
+                                                        :square="false"
+                                                        :block="false"
+                                                        :isLoading="false"
+                                                        @click="onCreateMailTemplate">
+                                                {{ $tc('sw-order.assignMailTemplateCard.buttonCreateMailTemplate') }}
+                                            </sw-button>
+                                        {% endblock %}
+                                    </template>
+                                </sw-card-filter>
+                            {% endblock %}
+                        </template>
+
+                    {% block sw_order_state_change_modal_assign_mail_template_grid %}
+                        <sw-entity-listing
+                            class="sw-order-state-change-modal-assign-mail-template__entity-listing"
+                            @column-sort="onColumnSort"
+                            :repository="mailTemplateRepository"
+                            :columns="mailTemplateGridColumns"
+                            :items="mailTemplates"
+                            :criteriaLimit="10"
+                            :showSelection="false"
+                            :showSettings="false"
+                            :showActions="false"
+                            :allowColumnEdit="false"
+                            :skeletonItemAmount="3"
+                            ref="mailTemplateGridRef">
+
+                            {% block sw_order_state_change_modal_assign_mail_template_grid_radio_column %}
+                                <template
+                                    class="sw-order-state-change-modal-assign-mail-template__radio-column"
+                                    slot="column-radioButtons"
+                                    slot-scope="{ item }">
+
+                                    {% block sw_order_state_change_modal_assign_mail_template_grid_radio_column_wrapper %}
+                                        <div class="sw-order-state-change-modal-assign-mail-template__radio-button-wrapper">
+
+                                            {% block sw_order_state_change_modal_assign_mail_template_grid_radio_column_button %}
+                                                <sw-field
+                                                    class="sw-order-state-change-modal-assign-mail-template__radio-button"
+                                                    type="radio"
+                                                    name="mailTemplate"
+                                                    @change="onChangeMailTemplate(item.id)"
+                                                    :options="[{ value: item.id }]">
+                                                </sw-field>
+                                            {% endblock %}
+                                        </div>
+                                    {% endblock %}
+                                </template>
+                            {% endblock %}
+                        </sw-entity-listing>
+                    {% endblock %}
+                </sw-card>
+               {% endblock %}
+
+                {% block sw_order_state_change_modal_assign_mail_template_button_wrapper %}
+                    <div class="sw-order-state-change-modal-assign-mail-template__button-wrapper">
+
+                        {% block sw_order_state_change_modal_assign_mail_template_button_assign_mail_template %}
+                            <sw-button class="sw-order-state-change-modal-assign-mail-template__button"
+                                       variant="primary"
+                                       size="small"
+                                       :disabled="!userHasSetMailTemplate"
+                                       @click="onConfirm">
+                                {{ $tc('sw-order.assignMailTemplateCard.buttonAssignMailTemplate') }}
+                            </sw-button>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -1,22 +1,26 @@
 {% block sw_order_state_change_modal %}
-    <sw-modal :title="$tc('sw-order.stateModal.modalTitle')"
-        @modal-close="onCancel"
-        class="sw-order-state-change-modal">
-        {% block sw_order_state_change_document_grid %}
-            <sw-order-document-card class="sw-order-detail-base__document-grid"
-                                    :order="order"
-                                    attachView="true"
-                                    :isLoading="isLoading"
-                                    ref="attachDocuments">
-            </sw-order-document-card>
+    <sw-modal :title="modalTitle"
+              @modal-close="onCancel"
+              class="sw-order-state-change-modal">
+
+        {% block sw_order_state_change_modal_attach_documents_component %}
+            <sw-order-state-change-modal-attach-documents
+                v-if="showDocuments"
+                :order="order"
+                :isLoading="isLoading"
+                @on-confirm="onDocsConfirm">
+            </sw-order-state-change-modal-attach-documents>
         {% endblock %}
-        {% block sw_order_state_change_button %}
-            <sw-button class="sw-order-state-change-modal__btn"
-                       variant="ghost"
-                       size="small"
-                       @click="onConfirm">
-               {{ $tc('sw-order.stateCard.labelSelectStateButton') }}
-            </sw-button>
+
+        {% block sw_order_state_change_modal_assign_mail_template_component %}
+            <sw-order-state-change-modal-assign-mail-template
+                v-else
+                :mailTemplatesExist="mailTemplatesExist"
+                :technicalName="technicalName"
+                :order="order"
+                @on-assigned-mail-template="onAssignMailTemplate"
+                @on-create-mail-template="onCancel">
+            </sw-order-state-change-modal-assign-mail-template>
         {% endblock %}
     </sw-modal>
 {% endblock %}

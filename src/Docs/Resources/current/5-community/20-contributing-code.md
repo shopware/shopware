@@ -15,7 +15,7 @@ Set up your user information with your real name and a working email address:
 ```git config --global user.email you@example.com```
 
 ## Create a Fork
-Navigate to the [Shopware Platform Github Repository](https://github.com/shopware/plaform) and click the **"Fork"**-Button in the upper right hand corner.
+Navigate to the [Shopware Platform Github Repository](https://github.com/shopware/platform) and click the **"Fork"**-Button in the upper right hand corner.
 
 ![GitHub fork button](./img/github-fork-button.png)
 

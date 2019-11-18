@@ -85,7 +85,7 @@ class CachedEntityReader implements EntityReaderInterface
         }
 
         // load full result from storage
-        $collection = $this->decorated->read($definition, $criteria, $context);
+        $collection = $this->decorated->read($definition, clone $criteria, $context);
 
         // cache the full result
         $this->cacheCollection($definition, $criteria, $context, $collection);

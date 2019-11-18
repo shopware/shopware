@@ -74,10 +74,13 @@ class ProductGenerator implements DemodataGeneratorInterface
 
         $mediaIds = $context->getIds('media');
 
+        $ids = [];
         $payload = [];
         for ($i = 0; $i < $count; ++$i) {
             $product = $this->createSimpleProduct($context, $taxes);
             $product['visibilities'] = $visibilities;
+
+            $ids[] = $product['id'];
 
             if ($mediaIds) {
                 $product['cover'] = [
@@ -105,19 +108,29 @@ class ProductGenerator implements DemodataGeneratorInterface
                 $context->getConsole()->progressAdvance(\count($payload));
                 $this->write($payload, $context);
                 $payload = [];
+                $ids = [];
+
+                // set inherited association fields, normally set in Indexer
+                // these are needed in Order generation
+                $this->connection->executeQuery(
+                    'UPDATE product SET visibilities = id, prices = id WHERE id IN (:ids);',
+                    ['ids' => Uuid::fromHexToBytesList($ids)],
+                    ['ids' => Connection::PARAM_STR_ARRAY]
+                );
             }
         }
 
         if (!empty($payload)) {
             $this->write($payload, $context);
-        }
 
-        // set inherited association fields, normally set in Indexer
-        // these are needed in Order generation
-        $this->connection->executeQuery('
-            UPDATE product
-            SET visibilities = id, prices = id;
-        ');
+            // set inherited association fields, normally set in Indexer
+            // these are needed in Order generation
+            $this->connection->executeQuery(
+                'UPDATE product SET visibilities = id, prices = id WHERE id IN (:ids);',
+                ['ids' => Uuid::fromHexToBytesList($ids)],
+                ['ids' => Connection::PARAM_STR_ARRAY]
+            );
+        }
 
         $context->getConsole()->progressFinish();
     }
@@ -140,14 +153,13 @@ class ProductGenerator implements DemodataGeneratorInterface
     private function createSimpleProduct(DemodataContext $context, EntitySearchResult $taxes): array
     {
         $price = random_int(1, 1000);
-        $manufacturer = $context->getIds('product_manufacturer');
-        $categories = $context->getIds('category');
         $rules = $context->getIds('rule');
         $tax = $taxes->get(array_rand($taxes->getIds()));
         $reverseTaxrate = 1 + ($tax->getTaxRate() / 100);
 
         $faker = $context->getFaker();
         $product = [
+            'id' => Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price / $reverseTaxrate, 'linked' => true]],
             'name' => $faker->productName,
@@ -158,10 +170,10 @@ class ProductGenerator implements DemodataGeneratorInterface
                 $context
             ),
             'taxId' => $tax->getId(),
-            'manufacturerId' => $manufacturer[array_rand($manufacturer)],
+            'manufacturerId' => $context->getRandomId('product_manufacturer'),
             'active' => true,
             'categories' => [
-                ['id' => $categories[array_rand($categories)]],
+                ['id' => $context->getRandomId('category')],
             ],
             'stock' => random_int(1, 50),
             'prices' => $this->createPrices($rules, $reverseTaxrate),

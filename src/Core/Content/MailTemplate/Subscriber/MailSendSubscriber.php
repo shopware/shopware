@@ -95,12 +95,12 @@ class MailSendSubscriber implements EventSubscriberInterface
 
         $data = new DataBag();
         $data->set('recipients', $mailEvent->getMailStruct()->getRecipients());
-        $data->set('senderName', $mailTemplate->getSenderName());
+        $data->set('senderName', $mailTemplate->getTranslation('senderName'));
         $data->set('salesChannelId', $mailEvent->getSalesChannelId());
 
-        $data->set('contentHtml', $mailTemplate->getContentHtml());
-        $data->set('contentPlain', $mailTemplate->getContentPlain());
-        $data->set('subject', $mailTemplate->getSubject());
+        $data->set('contentHtml', $mailTemplate->getTranslation('contentHtml'));
+        $data->set('contentPlain', $mailTemplate->getTranslation('contentPlain'));
+        $data->set('subject', $mailTemplate->getTranslation('subject'));
         $data->set('mediaIds', []);
 
         $this->mailService->send(

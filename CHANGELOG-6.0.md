@@ -165,6 +165,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Move context to the Store
     * Make vuex store initially available
     * Moved `Resources/administration` directory to `Resources/app/administration`
+    * Add cache busting to the administration script and style files through last modified timestamp in combination with the filesize
     * Double opt in for registrations and guests is now configurable in the settings at the Login / Registration module
     * Added component `sw-entitiy-multi-id-select` which can be used to select entities but only emit their ids
         * The v-model is bound to `change` event and sets the `ids` property

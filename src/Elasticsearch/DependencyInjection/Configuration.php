@@ -16,10 +16,10 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
-                ->scalarNode('hosts')->defaultValue(getenv('SHOPWARE_ES_HOSTS'))->end()
-                ->booleanNode('enabled')->defaultValue(getenv('SHOPWARE_ES_ENABLED'))->end()
-                ->booleanNode('indexing_enabled')->defaultValue(getenv('SHOPWARE_ES_INDEXING_ENABLED'))->end()
-                ->scalarNode('index_prefix')->defaultValue(getenv('SHOPWARE_ES_INDEX_PREFIX'))->end()
+                ->booleanNode('enabled')->end()
+                ->booleanNode('indexing_enabled')->end()
+                ->scalarNode('hosts')->defaultValue('')->end()
+                ->scalarNode('index_prefix')->defaultValue('sw')->end()
             ->end();
 
         return $treeBuilder;

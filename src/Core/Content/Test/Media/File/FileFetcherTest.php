@@ -124,7 +124,7 @@ class FileFetcherTest extends TestCase
 
     public function testFetchFileFromUrl(): void
     {
-        $url = getenv('APP_URL') . '/favicon.ico';
+        $url = ($_SERVER['APP_URL'] ?? '') . '/favicon.ico';
 
         $tempFile = tempnam(sys_get_temp_dir(), '');
         $request = $this->createMock(Request::class);

@@ -33,6 +33,7 @@ if (!class_exists(Dotenv::class)) {
 }
 (new Dotenv(true))->load(TEST_PROJECT_DIR . '/.env');
 
-$testDb = getenv('DATABASE_URL') . '_test';
+$testDb = ($_SERVER['DATABASE_URL'] ?? '') . '_test';
 putenv('DATABASE_URL=' . $testDb);
 $_ENV['DATABASE_URL'] = $testDb;
+$_SERVER['DATABASE_URL'] = $testDb;

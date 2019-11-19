@@ -13,6 +13,7 @@
   "scripts": {
     "development": "NODE_ENV=development webpack --config webpack.config.js",
     "hot": "NODE_ENV=development MODE=hot webpack-dev-server --config webpack.config.js",
+    "hot-proxy": "NODE_ENV=development MODE=hot node ./build/start-hot-reload.js",
     "lint": "eslint --config .eslintrc.js ./src && stylelint --config stylelint.config.js ./src",
     "lint-fix": "eslint --fix --config .eslintrc.js ./src && stylelint --fix --config stylelint.config.js ./src/scss",
     "production": "NODE_ENV=production webpack --config webpack.config.js",

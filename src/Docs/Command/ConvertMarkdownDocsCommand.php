@@ -128,7 +128,7 @@ class ConvertMarkdownDocsCommand extends Command
 
         //compile into tree
         $tree = new DocumentTree();
-        foreach ($documents as $path => $document) {
+        foreach ($documents as $document) {
             if ($document->isCategory()) {
                 $parentPath = \dirname($document->getFile()->getRelativePath()) . '/' . self::CATEGORY_SITE_FILENAME;
             } else {

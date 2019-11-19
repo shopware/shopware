@@ -180,7 +180,7 @@ class ProductListingPriceIndexer implements IndexerInterface
             $listingPrices = [];
 
             foreach ($ruleIds as $ruleId) {
-                foreach ($currencies as $currencyId => $currency) {
+                foreach ($currencies as $currencyId => $_currency) {
                     $range = $this->calculatePriceRange($currencyId, $ruleId, $productPrices);
 
                     $currencyKey = 'c' . $currencyId;

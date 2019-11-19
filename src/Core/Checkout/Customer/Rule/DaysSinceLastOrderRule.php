@@ -48,7 +48,6 @@ class DaysSinceLastOrderRule extends Rule
         }
 
         $currentDate = $this->dateTime ?? new \DateTime();
-        $lastOrderDate = null;
         $customer = $scope->getSalesChannelContext()->getCustomer();
 
         if (!$customer) {

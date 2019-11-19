@@ -40,13 +40,13 @@ class ContactFormServiceTest extends TestCase
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
         $phpunit = $this;
+        $eventDidRun = false;
         $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit): void {
             $eventDidRun = true;
             $phpunit->assertStringContainsString('Contact email address: test@shopware.com', $event->getContents()['text/html']);
             $phpunit->assertStringContainsString('essage: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
-        $eventDidRun = false;
         $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
 
         $dataBag = new DataBag();

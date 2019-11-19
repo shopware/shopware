@@ -4,8 +4,15 @@ namespace Shopware\Core\Checkout\Promotion\Cart;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
+use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
+use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
-use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
@@ -24,7 +31,6 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\Calculator\DiscountFixedPrice
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Calculator\DiscountFixedUnitPriceCalculator;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Calculator\DiscountPercentageCalculator;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionBuilder;
-use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorInterface;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorResult;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
@@ -37,6 +43,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetScopeDiscoun
 use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidScopeDefinitionException;
+use Shopware\Core\Checkout\Promotion\Exception\SetGroupNotFoundException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -107,11 +114,11 @@ class PromotionCalculator
      *
      * @throws DiscountCalculatorNotFoundException
      * @throws InvalidPriceDefinitionException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
+     * @throws PayloadKeyNotFoundException
      */
     public function calculate(LineItemCollection $discountLineItems, Cart $original, Cart $calculated, SalesChannelContext $context, CartBehavior $behaviour): void
     {
@@ -174,13 +181,13 @@ class PromotionCalculator
      * @throws Discount\Filter\Exception\FilterSorterNotFoundException
      * @throws InvalidPriceDefinitionException
      * @throws InvalidScopeDefinitionException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
-     * @throws \Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException
-     * @throws \Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException
-     * @throws \Shopware\Core\Checkout\Promotion\Exception\SetGroupNotFoundException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotFoundException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
+     * @throws LineItemGroupPackagerNotFoundException
+     * @throws LineItemGroupSorterNotFoundException
+     * @throws SetGroupNotFoundException
      */
     private function calculateDiscount(LineItem $lineItem, Cart $calculatedCart, SalesChannelContext $context): DiscountCalculatorResult
     {
@@ -193,9 +200,6 @@ class PromotionCalculator
 
         // get the cart total price => discount may never be higher than this value
         $maxDiscountValue = $calculatedCart->getPrice()->getTotalPrice();
-
-        /** @var DiscountPackagerInterface $packager */
-        $packager = null;
 
         switch ($discount->getScope()) {
             case PromotionDiscountEntity::SCOPE_CART:
@@ -252,9 +256,6 @@ class PromotionCalculator
         // update our line item data for the new and filtered packages.
         // these items will then be used in our calculator
         $packages = $this->enrichPackagesWithCartData($packages, $calculatedCart, $context);
-
-        /** @var DiscountCalculatorInterface $calculator */
-        $calculator = null;
 
         switch ($discount->getType()) {
             case PromotionDiscountEntity::TYPE_ABSOLUTE:
@@ -349,18 +350,16 @@ class PromotionCalculator
     }
 
     /**
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
      */
     private function enrichPackagesWithCartData(DiscountPackageCollection $result, Cart $cart, SalesChannelContext $context): DiscountPackageCollection
     {
         // set the line item from the cart for each unit
-        /** @var DiscountPackage $package */
         foreach ($result as $package) {
             $cartItemsForUnit = new LineItemFlatCollection();
 
-            /** @var LineItemQuantity $item */
             foreach ($package->getMetaData() as $item) {
                 /** @var LineItem $cartItem */
                 $cartItem = $cart->get($item->getLineItemId());

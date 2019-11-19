@@ -194,10 +194,8 @@ class LanguageValidator implements EventSubscriberInterface
             $root,
             $propertyPath,
             $invalidValue,
-            $plural = null,
-            $code,
-            $constraint = null,
-            $cause = null
+            null,
+            $code
         );
     }
 }

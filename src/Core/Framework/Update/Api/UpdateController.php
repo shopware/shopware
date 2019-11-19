@@ -204,7 +204,7 @@ class UpdateController extends AbstractController
             return $this->redirectToRoute('administration.index');
         }
 
-        ignore_user_abort(true);
+        $_unusedPreviousSetting = ignore_user_abort(true);
         $this->eventDispatcher->dispatch(new UpdateFinishedEvent($context));
 
         return $this->redirectToRoute('administration.index');

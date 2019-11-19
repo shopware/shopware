@@ -27,8 +27,6 @@ class CustomerPasswordMatchesValidator extends ConstraintValidator
 
         $context = $constraint->getContext();
 
-        $customer = null;
-
         try {
             $email = $context->getCustomer()->getEmail();
 

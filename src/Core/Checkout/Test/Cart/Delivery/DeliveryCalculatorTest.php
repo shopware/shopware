@@ -721,7 +721,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setName(Uuid::randomHex());
         $shippingMethod->setId(Uuid::randomHex());
         $prices = new ShippingMethodPriceCollection();
-        foreach ([42, 23, 8, 10, 14] as $index => $price) {
+        foreach ([42, 23, 8, 10, 14] as $price) {
             $priceEntity = new ShippingMethodPriceEntity();
             $priceEntity->setUniqueIdentifier(Uuid::randomHex());
             $priceEntity->setPrice($price);

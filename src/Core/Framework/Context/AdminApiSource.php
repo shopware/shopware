@@ -50,7 +50,7 @@ class AdminApiSource implements ContextSource
 
     public function addPermissions(array $permissions): void
     {
-        foreach ($permissions as $key => $permission) {
+        foreach ($permissions as $permission) {
             $this->permissions->add($permission);
         }
     }

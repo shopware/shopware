@@ -321,7 +321,7 @@ class SeoUrlIndexer implements IndexerInterface
             $templateLanguageGroups = $this->templateLoader->getTemplateGroups($config->getRouteName(), []);
             $activeTemplateLanguageGroups = $this->filterAffectedTemplateGroups($templateLanguageGroups, $event, $seoUrlRoute);
 
-            foreach ($activeTemplateLanguageGroups as $language => $templateGroups) {
+            foreach ($activeTemplateLanguageGroups as $templateGroups) {
                 /* @var TemplateGroup $templateGroup */
                 foreach ($templateGroups as $templateGroup) {
                     $affectedSalesChannelIds[] = $templateGroup->getSalesChannelIds();
@@ -340,8 +340,8 @@ class SeoUrlIndexer implements IndexerInterface
         $salesChannels = $this->fetchSalesChannels($affectedSalesChannelIds);
 
         // Assign the sales channel entities each TemplateGroup.
-        foreach ($activeTemplateGroupsPerRoute as $routeName => $templateLanguageGroups) {
-            foreach ($templateLanguageGroups as $language => $templateGroups) {
+        foreach ($activeTemplateGroupsPerRoute as $templateLanguageGroups) {
+            foreach ($templateLanguageGroups as $templateGroups) {
                 /** @var TemplateGroup $templateGroup */
                 foreach ($templateGroups as $templateGroup) {
                     $activeSalesChannelIdForTemplate = $templateGroup->getSalesChannelIds();

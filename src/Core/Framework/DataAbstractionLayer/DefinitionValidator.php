@@ -581,7 +581,7 @@ class DefinitionValidator
 
         $associationViolations = $this->validateIsPlural($definition, $association);
 
-        $reverseSide = $reference->getFields()->filter(
+        $reference->getFields()->filter(
             function (Field $field) use ($association, $definition) {
                 if (!$field instanceof ManyToOneAssociationField) {
                     return false;

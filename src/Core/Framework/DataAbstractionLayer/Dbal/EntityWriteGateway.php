@@ -161,7 +161,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
     private static function isAssociative(array $array): bool
     {
-        foreach ($array as $key => $_) {
+        foreach ($array as $key => $_value) {
             if (!is_int($key)) {
                 return true;
             }
@@ -228,7 +228,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         );
 
         $identifier = $command->getPrimaryKey();
-        foreach ($identifier as $key => $value) {
+        foreach ($identifier as $key => $_value) {
             $query->andWhere(EntityDefinitionQueryHelper::escape($key) . ' = ?');
         }
         $query->setParameters(array_merge($values, array_values($identifier)));

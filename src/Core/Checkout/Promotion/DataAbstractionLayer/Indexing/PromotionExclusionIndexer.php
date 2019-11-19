@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Framework\Cache\CacheClearer;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
@@ -62,8 +61,6 @@ class PromotionExclusionIndexer implements IndexerInterface
 
     public function index(\DateTimeInterface $timestamp): void
     {
-        $context = Context::createDefaultContext();
-
         $iterator = $this->iteratorFactory->createIterator($this->promotionDefinition);
 
         if ($iterator->fetchCount() === 0) {
@@ -76,7 +73,7 @@ class PromotionExclusionIndexer implements IndexerInterface
         );
 
         while ($ids = $iterator->fetch()) {
-            $this->update($ids, $context);
+            $this->update($ids);
 
             $this->eventDispatcher->dispatch(
                 new ProgressAdvancedEvent(\count($ids)),
@@ -92,8 +89,6 @@ class PromotionExclusionIndexer implements IndexerInterface
 
     public function partial(?array $lastId, \DateTimeInterface $timestamp): ?array
     {
-        $context = Context::createDefaultContext();
-
         $iterator = $this->iteratorFactory->createIterator($this->promotionDefinition, $lastId);
 
         $ids = $iterator->fetch();
@@ -101,7 +96,7 @@ class PromotionExclusionIndexer implements IndexerInterface
             return null;
         }
 
-        $this->update($ids, $context);
+        $this->update($ids);
 
         return $iterator->getOffset();
     }
@@ -117,7 +112,7 @@ class PromotionExclusionIndexer implements IndexerInterface
         if ($nested instanceof EntityDeletedEvent) {
             $this->delete($nested->getIds());
         } else {
-            $this->update($nested->getIds(), $event->getContext());
+            $this->update($nested->getIds());
         }
     }
 
@@ -149,7 +144,7 @@ class PromotionExclusionIndexer implements IndexerInterface
      * function is called when a promotion is saved.
      * the exclusions of promotions will be checked and are written/deleted if necessary
      */
-    private function update(array $ids, Context $context): void
+    private function update(array $ids): void
     {
         // if there are no ids, we don't have to do anything
         if (empty($ids)) {

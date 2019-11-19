@@ -163,13 +163,15 @@ class ProductVisibilityTest extends TestCase
             $request = new Request([], [], ['productId' => $case['productId']]);
 
             $e = null;
+            $page = null;
             try {
                 $page = $this->productPageLoader->load($request, $salesChannelContext);
             } catch (\Exception $e) {
             }
 
             if ($case['visible']) {
-                static::assertTrue($e === null, 'Exception is not be thrown.');
+                static::assertNull($e, 'Exception should not be thrown.');
+                static::assertNotNull($page, 'Page should not be null');
                 static::assertSame($case['productId'], $page->getProduct()->getId());
                 continue;
             }

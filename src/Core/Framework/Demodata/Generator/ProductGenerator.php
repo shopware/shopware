@@ -89,7 +89,7 @@ class ProductGenerator implements DemodataGeneratorInterface
             }
 
             $productProperties = [];
-            foreach ($properties as $groupId => $options) {
+            foreach ($properties as $options) {
                 $productProperties = array_merge(
                     $productProperties,
                     $context->getFaker()->randomElements($options, 3)

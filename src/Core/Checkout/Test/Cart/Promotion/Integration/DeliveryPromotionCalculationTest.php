@@ -572,7 +572,7 @@ class DeliveryPromotionCalculationTest extends TestCase
         // add a new sample product
         $this->createTestFixtureProduct($productId, $productGross, 19, $this->getContainer(), $this->context);
 
-        $discountId = $this->createTestFixturePercentagePromotion($promotionId, $code, $percentage, $maxValueGlobal, $this->getContainer(), PromotionDiscountEntity::SCOPE_DELIVERY);
+        $this->createTestFixturePercentagePromotion($promotionId, $code, $percentage, $maxValueGlobal, $this->getContainer(), PromotionDiscountEntity::SCOPE_DELIVERY);
 
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
@@ -660,7 +660,7 @@ class DeliveryPromotionCalculationTest extends TestCase
         $this->createTestFixtureProduct($productId, $productGross, 19, $this->getContainer(), $this->context);
         $this->createTestFixtureProduct($productTwoId, $productGross, 7, $this->getContainer(), $this->context);
 
-        $discountId = $this->createTestFixturePercentagePromotion($promotionId, $code, $percentage, null, $this->getContainer(), PromotionDiscountEntity::SCOPE_DELIVERY);
+        $this->createTestFixturePercentagePromotion($promotionId, $code, $percentage, null, $this->getContainer(), PromotionDiscountEntity::SCOPE_DELIVERY);
 
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 

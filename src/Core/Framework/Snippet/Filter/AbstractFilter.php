@@ -13,9 +13,9 @@ abstract class AbstractFilter
 
     public function readjust(array $result, array $snippetSets): array
     {
-        foreach ($snippetSets as $setId => $snippets) {
-            foreach ($result as $currentSetId => $currentSnippets) {
-                foreach ($currentSnippets['snippets'] as $translationKey => $snippet) {
+        foreach ($snippetSets as $setId => $_snippets) {
+            foreach ($result as $currentSnippets) {
+                foreach ($currentSnippets['snippets'] as $translationKey => $_snippet) {
                     if (isset($result[$setId]['snippets'][$translationKey])) {
                         continue;
                     }

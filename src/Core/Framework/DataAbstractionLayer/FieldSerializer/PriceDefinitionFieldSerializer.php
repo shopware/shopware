@@ -238,7 +238,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
             );
         }
 
-        foreach ($payload as $fieldName => $value) {
+        foreach ($payload as $fieldName => $_value) {
             $currentPath = sprintf('%s/%s', $basePath, $fieldName);
 
             if (!array_key_exists($fieldName, $fieldValidations)) {

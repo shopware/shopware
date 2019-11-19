@@ -99,6 +99,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             }
 
             if ($behavior->isRecalculation()) {
+                $definition->setQuantity($lineItem->getQuantity());
                 $lineItem->setPrice($this->calculator->calculate($definition, $context));
                 $toCalculate->add($lineItem);
 

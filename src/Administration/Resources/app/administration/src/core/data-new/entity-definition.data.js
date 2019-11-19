@@ -89,7 +89,7 @@ export default class EntityDefinition {
 
     /**
      * Filter field definitions by a given predicate
-     * @param {function: boolean} filter
+     * @param {Function} filter
      */
     filterProperties(filter) {
         if (typeof filter !== 'function') {

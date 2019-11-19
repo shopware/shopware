@@ -134,7 +134,11 @@ if (window.csrf.enabled && window.csrf.mode === 'ajax') {
 /*
 run plugins
 */
-document.addEventListener('DOMContentLoaded', () => { PluginManager.initializePlugins() }, false);
+document.addEventListener('readystatechange', (event) => {
+    if (event.target.readyState === 'complete') {
+        PluginManager.initializePlugins();
+    }
+}, false);
 
 /*
 run utils

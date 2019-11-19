@@ -13,5 +13,9 @@ Contains custom skin styles for the search suggest popover in the shop header.
 }
 
 .search-suggest-product-link {
-    color: $gray-600;
+    color: $body-color;
+
+    &:hover {
+        color: $primary;
+    }
 }

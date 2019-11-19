@@ -13,7 +13,7 @@ https://getbootstrap.com/docs/4.3/components/navs/
 
 @include media-breakpoint-up(md) {
     .main-navigation-link {
-        color: $gray-600;
+        color: $body-color;
 
         &:first-child {
             padding-left: 0;

@@ -324,6 +324,10 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
             ]
         }
       ```
+    * Added the `async` Attribute to the main `<script>` tag.
+    * The `src/Storefront/Resources/app/storefront/src/main.js` now uses the `readystatechange` event to initialize all JavaScript plugins.
+    * Introduced new SCSS variable `$font-weight-semibold` with the value of `600`.
+    * Added `fallbackImageTitle` variable to `src/Storefront/Resources/views/storefront/element/cms-element-image-gallery.html.twig` to add fallback values to the images `alt` and `title` attribute if the media object itself has no `alt` or `title` defined.
 * Elasticsearch
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.
         * You can set them with a parameter.yml too.
@@ -363,3 +367,34 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Removed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmerSender`
     * Removed `\Shopware\Storefront\Framework\Cache\CacheWarmer\IteratorMessage`
     * Removed `\Shopware\Storefront\Framework\Cache\CacheWarmer\IteratorMessageHandler`
+    * Removed unused font variants:
+        * Removed vendor css file for the "Inter" font face: `src/Storefront/Resources/app/storefront/vendor/Inter-3.5/inter.css`. The font file imports can now be found in `src/Storefront/Resources/app/storefront/src/scss/skin/shopware/vendor/_inter-fontface.scss`.
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-Black.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-Black.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-BlackItalic.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-BlackItalic.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-ExtraBold.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-ExtraBold.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-ExtraBoldItalic.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-ExtraBoldItalic.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-ExtraLight-BETA.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-ExtraLight-BETA.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-ExtraLightItalic-BETA.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-ExtraLightItalic-BETA.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-Light-BETA.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-Light-BETA.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-LightItalic-BETA.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-LightItalic-BETA.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-Medium.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-Medium.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-MediumItalic.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-Medium.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-MediumItalic.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-MediumItalic.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-Thin-BETA.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-Thin-BETA.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-ThinItalic-BETA.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-ThinItalic-BETA.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-italic.var.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-upright.var.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter.var.woff2`

@@ -27,8 +27,8 @@
                                 {% if product.cover.media.url %}
                                     {% set attributes = {
                                         'class': 'product-image is-'~displayMode,
-                                        'alt': (product.cover.media.translated.alt ?: ''),
-                                        'title': (product.cover.media.translated.title ?: '')
+                                        'alt': (product.cover.media.translated.alt ?: product.translated.name),
+                                        'title': (product.cover.media.translated.title ?: product.translated.name)
                                     } %}
 
                                     {% if displayMode == 'cover' or displayMode == 'contain' %}

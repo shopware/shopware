@@ -34,8 +34,6 @@ Contains styles for the search suggest popover in the shop header.
 }
 
 .search-suggest-product {
-    padding: $spacer-sm 0;
-
     &.is-active {
         .search-suggest-product-link {
             color: $primary;
@@ -50,6 +48,11 @@ Contains styles for the search suggest popover in the shop header.
     }
 }
 
+.search-suggest-product-link {
+    display: block;
+    padding: $spacer-sm 0;
+}
+
 .search-suggest-product-name {
     white-space: nowrap;
     overflow: hidden;
@@ -57,17 +60,23 @@ Contains styles for the search suggest popover in the shop header.
 }
 
 .search-suggest-product-reference-price {
-    color: lighten($sw-text-color, 20);
-    float: right;
+    color: $gray-400;
+    display: block;
 }
 
 .search-suggest-product-image-container {
-    margin: 0 $spacer-sm 0 0;
+    width: 35px;
+    height: 35px;
+    margin: 0 $spacer-sm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .search-suggest-product-image {
     max-width: 35px;
     max-height: 35px;
+    display: block;
 }
 
 .search-suggest-total {

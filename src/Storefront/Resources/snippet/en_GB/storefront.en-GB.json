@@ -26,6 +26,9 @@
         "requiredFields": "Fields marked with asterisks (*) are required.",
         "privacyTitle": "Privacy",
         "privacyNotice": "I have read the <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Data protection information\">data protection information</a>.",
+        "sortingLabel": "Sorting",
+        "next": "Next",
+        "previous": "Previous",
         "formSubmit": "Submit"
     },
     "header": {

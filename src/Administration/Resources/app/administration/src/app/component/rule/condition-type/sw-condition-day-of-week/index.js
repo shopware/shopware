@@ -1,7 +1,7 @@
-import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-condition-day-of-week.html.twig';
 
 const { Component } = Shopware;
+const { mapApiErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -13,20 +13,25 @@ const { Component } = Shopware;
  */
 Component.extend('sw-condition-day-of-week', 'sw-condition-base', {
     template,
-    inject: ['ruleConditionDataProviderService'],
 
     computed: {
-        fieldNames() {
-            return ['operator', 'dayOfWeek'];
+        operators() {
+            return this.conditionDataProviderService.getOperatorSet('string');
         },
-        defaultValues() {
-            return {
-                operator: this.ruleConditionDataProviderService.operators.equals.identifier,
-                dayOfWeek: 1
-            };
+
+        dayOfWeek: {
+            get() {
+                this.ensureValueExist();
+                return this.condition.value.dayOfWeek;
+            },
+            set(dayOfWeek) {
+                this.ensureValueExist();
+                this.condition.value = { ...this.condition.value, dayOfWeek };
+            }
         },
+
         weekdays() {
-            const weekdays = [
+            return [
                 {
                     label: this.$tc('global.day-of-week.monday'),
                     value: 1
@@ -56,8 +61,12 @@ Component.extend('sw-condition-day-of-week', 'sw-condition-base', {
                     value: 7
                 }
             ];
+        },
 
-            return new LocalStore(weekdays, 'value');
+        ...mapApiErrors('condition', ['value.operator', 'value.dayOfWeek']),
+
+        currentError() {
+            return this.conditionValueOperatorError || this.conditionValueDayOfWeekError;
         }
     }
 });

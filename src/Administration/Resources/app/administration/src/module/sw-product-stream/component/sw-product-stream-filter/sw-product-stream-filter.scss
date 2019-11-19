@@ -6,102 +6,44 @@ $sw-condition-base-api: #F0F2F5;
 $sw-condition-base-z-index-arrow: 100;
 
 .sw-product-stream-filter {
-    .sw-select__input-single {
-        font-size: 14px;
+    width: 100%;
+
+    .sw-product-stream-filter__container {
+        background-color: $color-white;
+        display: grid;
+        grid-template-columns: 1fr 40px;
+        border: 1px solid $color-gray-300;
+        border-radius: $border-radius-default;
     }
 
-    .field--condition {
-        &.field--not-last {
-            &:before {
-                content: '';
-                position: absolute;
-                right: -5px;
-                top: -1px;
-                width: 1px;
-                height: 21px;
-                background: $color-white;
-                z-index: $sw-condition-base-z-index-arrow;
-                transform: rotate(-20deg);
-            }
+    .sw-product-stream-filter__selects {
+        display: flex;
 
-            &:after {
-                content: '';
-                position: absolute;
-                right: -5px;
-                bottom: -1px;
-                width: 1px;
-                height: 21px;
-                background: $color-white;
-                z-index: $sw-condition-base-z-index-arrow;
-                transform: rotate(20deg);
-            }
+        .sw-arrow-field:nth-child(1) {
+            border-radius: $border-radius-default 0 0 $border-radius-default;
         }
     }
 
-    &.is--api {
-        background: $sw-condition-base-api;
-        .sw-condition-base__container {
-            .sw-tagged-field, .sw-tagged-field__inner {
-                background: transparent;
-            }
+    .sw-arrow-field {
+        height: unset;
+    }
 
-            .condition--api {
-                padding: 4px 24px 0 6px;
-                min-height: 40px;
+    .sw-product-stream-filter__context-button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-left: 1px solid $color-gray-300;
 
-                .condition--api-value {
-                    padding: 2px 12px 2px 16px;
-                    line-height: 26px;
-                    font-size: 14px;
-                    white-space: nowrap;
-                    text-overflow: ellipsis;
-                    overflow: hidden;
-                }
-            }
-
-            .field--condition {
-                background: $sw-select-api;
-                border-top-color: $sw-select-api;
-                border-bottom-color: $sw-select-api;
-                color: $sw-field-color-text;
-                padding-left: 6px;
-
-                &:not(.field--not-last) {
-                    &:before {
-                        background: $sw-select-api;
-                    }
-
-                    &:after {
-                        background: $sw-select-api;
-                    }
-                }
-            }
-
-            .sw-field {
-                background: transparent;
-
-
-                input,
-                textarea {
-                    background: transparent;
-                }
-            }
-
-            .field--actions {
-                background: transparent;
-            }
-
-            .sw-select {
-                background: transparent;
-
-                .sw-select__inner {
-                    background: transparent;
-
-                    .sw-select__single-selection {
-                        color: $sw-field-color-text;
-                    }
-                }
-            }
+        button.sw-context-button__button {
+            border: 0 none;
         }
+    }
+
+    .sw-select .sw-select__select-indicator {
+        display: none;
+    }
+
+    &.has--error .sw-product-stream-filter__container {
+        border: 1px solid $color-crimson-500;
     }
 }

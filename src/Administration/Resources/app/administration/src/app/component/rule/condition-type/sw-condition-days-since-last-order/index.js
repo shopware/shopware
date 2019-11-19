@@ -1,19 +1,31 @@
 import template from './sw-condition-days-since-last-order.html.twig';
 
 const { Component } = Shopware;
+const { mapApiErrors } = Component.getComponentHelper();
 
 Component.extend('sw-condition-days-since-last-order', 'sw-condition-base', {
     template,
-    inject: ['ruleConditionDataProviderService'],
 
     computed: {
-        fieldNames() {
-            return ['operator', 'daysPassed'];
+        operators() {
+            return this.conditionDataProviderService.getOperatorSet('number');
         },
-        defaultValues() {
-            return {
-                operator: this.ruleConditionDataProviderService.operators.equals.identifier
-            };
+
+        daysPassed: {
+            get() {
+                this.ensureValueExist();
+                return this.condition.value.daysPassed;
+            },
+            set(daysPassed) {
+                this.ensureValueExist();
+                this.condition.value = { ...this.condition.value, daysPassed };
+            }
+        },
+
+        ...mapApiErrors('condition', ['value.operator', 'value.daysPassed']),
+
+        currentError() {
+            return this.conditionValueOperatorError || this.conditionValueDaysPassedError;
         }
     }
 });

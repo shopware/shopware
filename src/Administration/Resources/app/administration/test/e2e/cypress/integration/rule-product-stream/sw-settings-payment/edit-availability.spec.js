@@ -37,23 +37,28 @@ describe('Payment: Test crud operations', () => {
 
         // Open modal and create new availability rule
         cy.get('.sw-settings-payment-detail__condition_container .sw-select-rule-create').click();
-        cy.get('.sw-select__results').should('be.visible');
-        cy.get('.sw-select-option---1').click();
+        cy.get('.sw-select-result-list').should('be.visible');
+        cy.get('.sw-select-result').contains('Create new rule...').click();
 
+        cy.get('.sw-modal.sw-rule-modal').should('be.visible');
 
-        cy.get('input[name=sw-field--rule-name]').type('Rule for new customers');
-        cy.get('input[name=sw-field--rule-priority]').type('1');
+        cy.get('.sw-modal.sw-rule-modal').within(() => {
+            cy.get('input[name=sw-field--rule-name]').type('Rule for new customers');
+            cy.get('input[name=sw-field--rule-priority]').type('1');
 
-        rulePage.createBasicSelectCondition({
-            type: 'Is new customer',
-            ruleSelector: '.sw-condition-container__and-child--0',
-            value: 'Yes',
-            isMulti: false
+            rulePage.createBasicSelectCondition({
+                type: 'Is new customer',
+                selector: '.sw-condition',
+                operator: null,
+                value: 'Yes',
+            });
+
+            cy.get('button.sw-button').contains('Save').click();
         });
 
-        cy.get(`${rulePage.elements.modal} ${rulePage.elements.primaryButton}`).click();
-        cy.get(rulePage.elements.modal).should('not.exist');
+        cy.get('.sw-modal.sw-rule-modal').should('not.exist');
         cy.awaitAndCheckNotification('The rule "Rule for new customers" has been saved.');
+
         cy.get('.sw-select-rule-create').contains('Rule for new customers');
 
         // Save and verify payment method

@@ -1,14 +1,14 @@
-import LocalStore from 'src/core/data/LocalStore';
+import { mapApiErrors } from 'src/app/service/map-errors.service';
 import template from './sw-settings-rule-detail.html.twig';
 import './sw-settings-rule-detail.scss';
 
-const { Component, StateDeprecated, Mixin } = Shopware;
-const { warn } = Shopware.Utils.debug;
+const { Component, Mixin, Context } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-settings-rule-detail', {
     template,
 
-    inject: ['ruleConditionDataProviderService'],
+    inject: ['ruleConditionDataProviderService', 'repositoryFactory'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -20,57 +20,20 @@ Component.register('sw-settings-rule-detail', {
         ESCAPE: 'onCancel'
     },
 
+    props: {
+        ruleId: {
+            type: String,
+            required: false,
+            default: null
+        }
+    },
+
     data() {
         return {
-            rule: {},
-            moduleTypes: null,
-            nestedConditions: {},
-            treeConfig: {
-                conditionStore: new LocalStore(this.ruleConditionDataProviderService.getConditions((condition) => {
-                    condition.translated = {
-                        label: this.$tc(condition.label),
-                        type: this.$tc(condition.label)
-                    };
-                }, ['checkout', 'cart', 'global', 'lineItem']), 'type'),
-                entityName: 'rule',
-                conditionIdentifier: 'conditions',
-                childName: 'children',
-                andContainer: {
-                    type: 'andContainer'
-                },
-                orContainer: {
-                    type: 'orContainer'
-                },
-                placeholder: {
-                    type: null
-                },
-                dataCheckMethods: {},
-                getComponent(condition) {
-                    if (this.isPlaceholder(condition)) {
-                        return 'sw-condition-base';
-                    }
-                    if (this.isAndContainer(condition)) {
-                        return 'sw-condition-and-container';
-                    }
-                    if (this.isOrContainer(condition)) {
-                        return 'sw-condition-or-container';
-                    }
-
-                    condition = this.conditionStore.getById(condition.type);
-                    if (!condition.component) {
-                        return 'sw-condition-not-found';
-                    }
-
-                    return condition.component;
-                },
-                isAndContainer(condition) { return condition.type === 'andContainer'; },
-                isOrContainer(condition) { return condition.type === 'orContainer'; },
-                isPlaceholder(condition) { return !condition.type; },
-                isDataSet(condition) {
-                    return typeof this.dataCheckMethods[condition.type] !== 'function'
-                        || this.dataCheckMethods[condition.type](condition);
-                }
-            },
+            rule: null,
+            conditions: null,
+            conditionTree: null,
+            deletedIds: [],
             isLoading: false,
             isSaveSuccessful: false
         };
@@ -84,17 +47,42 @@ Component.register('sw-settings-rule-detail', {
 
     computed: {
         identifier() {
-            return this.rule.name || '';
+            return this.rule ? this.rule.name : '';
         },
 
-        ruleStore() {
-            return StateDeprecated.getStore('rule');
+        ruleRepository() {
+            return this.repositoryFactory.create('rule');
         },
 
-        moduleTypeStore() {
-            return new LocalStore(this.ruleConditionDataProviderService.getModuleTypes((moduleType) => {
-                moduleType.label = this.$tc(moduleType.name);
-            }), 'id');
+        conditionRepository() {
+            if (!this.rule) {
+                return null;
+            }
+
+            return this.repositoryFactory.create(
+                this.rule.conditions.entity,
+                this.rule.conditions.source
+            );
+        },
+
+        availableModuleTypes() {
+            return this.ruleConditionDataProviderService.getModuleTypes(moduleType => moduleType);
+        },
+
+        moduleTypes: {
+            get() {
+                if (!this.rule || !this.rule.moduleTypes) {
+                    return [];
+                }
+                return this.rule.moduleTypes.types;
+            },
+            set(value) {
+                if (value === null || value.length === 0) {
+                    this.rule.moduleTypes = null;
+                    return;
+                }
+                this.rule.moduleTypes = { types: value };
+            }
         },
 
         tooltipSave() {
@@ -111,181 +99,132 @@ Component.register('sw-settings-rule-detail', {
                 message: 'ESC',
                 appearance: 'light'
             };
-        }
-    },
+        },
 
-    created() {
-        this.createdComponent();
+        ...mapApiErrors('rule', ['name', 'priority'])
     },
 
     watch: {
-        'rule.moduleTypes': {
-            deep: true,
+        ruleId: {
+            immediate: true,
             handler() {
-                this.checkModuleType();
+                if (!this.ruleId) {
+                    this.createRule();
+                    return;
+                }
+
+                this.isLoading = true;
+                this.loadEntityData(this.ruleId).then(() => {
+                    this.isLoading = false;
+                });
             }
         }
     },
 
     methods: {
-        createdComponent() {
-            if (!this.$route.params.id) {
-                return;
-            }
-
-            this.rule = this.ruleStore.getById(this.$route.params.id);
+        createRule() {
+            this.rule = this.ruleRepository.create(Context.api);
+            this.conditions = this.rule.conditions;
         },
 
-        checkModuleType() {
-            if (!this.rule.moduleTypes || (this.rule.moduleTypes && !this.rule.moduleTypes.types)) {
-                this.moduleTypes = [];
-                return;
-            }
+        loadEntityData(ruleId) {
+            this.isLoading = true;
+            this.conditions = null;
 
-            this.moduleTypes = this.rule.moduleTypes.types;
+            return this.ruleRepository.get(ruleId, Context.api).then((rule) => {
+                this.rule = rule;
+                return this.loadConditions();
+            });
         },
 
-        saveFinish() {
-            this.isSaveSuccessful = false;
+        loadConditions(conditions = null) {
+            if (conditions === null) {
+                return this.conditionRepository.search(new Criteria(), Context.api).then((searchResult) => {
+                    return this.loadConditions(searchResult);
+                });
+            }
+
+            if (conditions.total <= conditions.length) {
+                this.conditions = conditions;
+                return Promise.resolve();
+            }
+
+            const criteria = new Criteria(
+                conditions.criteria.page + 1,
+                conditions.criteria.limit
+            );
+
+            return this.conditionRepository.search(criteria, conditions.context).then((searchResult) => {
+                conditions.push(...searchResult);
+                conditions.criteria = searchResult.criteria;
+                conditions.total = searchResult.total;
+
+                return this.loadConditions(conditions);
+            });
+        },
+
+        conditionsChanged({ conditions, deletedIds }) {
+            this.conditionTree = conditions;
+            this.deletedIds = [...this.deletedIds, ...deletedIds];
         },
 
         onSave() {
-            const titleSaveError = this.$tc('sw-settings-rule.detail.titleSaveError');
-            const messageSaveError = this.$tc(
-                'sw-settings-rule.detail.messageSaveError', 0, { name: this.rule.name }
-            );
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            if (this.moduleTypes.length === 0) {
-                this.rule.moduleTypes = null;
-            } else {
-                this.rule.moduleTypes = { types: this.moduleTypes };
+            if (this.rule.isNew()) {
+                this.rule.conditions = this.conditionTree;
+                this.saveRule().then(() => {
+                    this.$router.push({ name: 'sw.settings.rule.detail', params: { id: this.rule.id } });
+                    this.isSaveSuccessful = true;
+                }).catch(() => {
+                    this.showErrorNotification();
+                });
+
+                return;
             }
 
-            if (this.conditionsClientValidation(this.rule.conditions, false)) {
-                this.createNotificationError({
-                    title: titleSaveError,
-                    message: messageSaveError
+            this.saveRule()
+                .then(this.syncConditions)
+                .then(() => {
+                    this.isSaveSuccessful = true;
+                    this.loadEntityData(this.rule.id);
+                })
+                .then(() => {
+                    this.isLoading = false;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                    this.showErrorNotification();
                 });
-                warn(this._name, 'client validation failure');
-                this.$refs.conditionTree.$emit('entity-save', false);
-                this.isLoading = false;
+        },
 
-                return null;
-            }
+        saveRule() {
+            return this.ruleRepository.save(this.rule, Context.api);
+        },
 
-            this.removeOriginalConditionTypes(this.rule.conditions);
-
-            return this.rule.save().then(() => {
-                this.isLoading = false;
-                this.isSaveSuccessful = true;
-                this.$refs.conditionTree.$emit('entity-save', true);
-
-                this.checkModuleType();
-
-                return true;
-            }).catch((exception) => {
-                this.createNotificationError({
-                    title: titleSaveError,
-                    message: messageSaveError
+        syncConditions() {
+            return this.conditionRepository.sync(this.conditionTree, Context.api)
+                .then(() => {
+                    if (this.deletedIds.length > 0) {
+                        return this.conditionRepository.syncDeleted(this.deletedIds, Context.api).then(() => {
+                            this.deletedIds = [];
+                        });
+                    }
+                    return Promise.resolve();
                 });
-                warn(this._name, exception.message, exception.response);
-                this.isLoading = false;
-                this.$refs.conditionTree.$emit('entity-save', false);
+        },
+
+        showErrorNotification() {
+            this.createNotificationError({
+                title: this.$tc('sw-settings-rule.detail.titleSaveError'),
+                message: this.$tc('sw-settings-rule.detail.messageSaveError', 0, { name: this.rule.name })
             });
+            this.isLoading = false;
         },
 
         onCancel() {
             this.$router.push({ name: 'sw.settings.rule.index' });
-        },
-
-        removeOriginalConditionTypes(conditions) {
-            conditions.forEach((condition) => {
-                if (condition.children) {
-                    this.removeOriginalConditionTypes(condition.children);
-                }
-
-                const changes = Object.keys(condition.getChanges()).length;
-                if (condition.isDeleted === false
-                    && (changes || !this.areConditionsValueEqual(condition, condition.original))) {
-                    condition.original.type = '';
-                    condition.original.value = {};
-                }
-            });
-        },
-
-        conditionsClientValidation(conditions, error) {
-            conditions.forEach((condition) => {
-                if (this.hasDeletedParent(condition.parentId, conditions)) {
-                    condition.remove();
-                    return;
-                }
-
-                if (condition.children) {
-                    error = this.conditionsClientValidation(condition.children, error);
-                }
-
-                if (this.treeConfig.isAndContainer(condition) || this.treeConfig.isOrContainer(condition)) {
-                    return;
-                }
-
-                if (condition.errors.map(obj => obj.id).includes('clientValidationError')) {
-                    error = true;
-                    return;
-                }
-
-                if (this.treeConfig.isPlaceholder(condition)) {
-                    condition.errors.push({
-                        id: 'clientValidationError',
-                        type: 'placeholder'
-                    });
-
-                    error = true;
-                }
-
-                if (!this.treeConfig.isDataSet(condition)) {
-                    condition.errors.push({
-                        id: 'clientValidationError',
-                        type: 'data'
-                    });
-
-                    error = true;
-                }
-            });
-
-            return error;
-        },
-
-        areConditionsValueEqual(conditionA, conditionB) {
-            if (!(conditionA.value && conditionB.value)) {
-                return true;
-            }
-
-            const propsA = Object.keys(conditionA.value);
-            const propsB = Object.keys(conditionB.value);
-
-            if (propsA.length !== propsB.length) {
-                return false;
-            }
-
-            return !propsA.find(property => {
-                return conditionA.value[property].toString() !== conditionB.value[property].toString();
-            });
-        },
-
-        hasDeletedParent(parentId, conditions) {
-            if (!parentId) {
-                return false;
-            }
-
-            const parent = conditions.find(condition => condition.id === parentId);
-
-            if (!parent) {
-                return false;
-            }
-
-            return parent.isDeleted || this.hasDeletedParent(parent.parentId, conditions);
         }
     }
 });

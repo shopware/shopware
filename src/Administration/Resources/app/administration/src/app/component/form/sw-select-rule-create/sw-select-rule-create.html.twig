@@ -1,41 +1,27 @@
 {% block sw_select_rule_create %}
     <div class="sw-select-rule-create">
         {% block sw_select_rule_create_select %}
-            <sw-select :store="ruleStore"
-                       :value="ruleId"
-                       :criteria="ruleFilter"
-                       :required="required"
-                       :size="size"
-                       :placeholder="placeholder"
-                       @input="onRuleSelectInput"
-                       @option-click="onSelectRule">
-                <template slot="sw_select_list_before">
-                    {% block sw_select_rule_create_select_before %}
-                        <sw-select-option :index="-1"
-                                          :item="itemAddNewRule">
-                            {{ $tc('sw-select-rule-create.addNewRule') }}
-                        </sw-select-option>
-                    {% endblock %}
-                </template>
-                <template slot="result_items" slot-scope="{ item, index }">
-                    {% block sw_select_rule_create_select_result %}
-                        <slot name="result_items" :item="item" :index="index">
-                            <sw-select-option
-                                    :index="index"
-                                    :item="item">
-                                {{ item.name }}
-                            </sw-select-option>
-                        </slot>
-                    {% endblock %}
-                </template>
-            </sw-select>
+            <sw-entity-single-select
+                entity="rule"
+                :criteria="ruleFilter"
+                :value="ruleId"
+                @change="onSaveRule">
+                    <template #before-item-list>
+                        {% block sw_select_rule_create_select_before %}
+                            <div class="sw-select-rule-create__create-rule-item sw-select-result" @click="openCreateRuleModal">
+                                {{ $tc('sw-select-rule-create.addNewRule') }}
+                            </div>
+                        {% endblock %}
+                    </template>
+            </sw-entity-single-select>
         {% endblock %}
 
         {% block sw_select_rule_create_rule_modal %}
-            <sw-rule-modal v-if="showRuleModal"
-                           @save="onSaveRule"
-                           @modal-close="onCloseRuleModal"
-                           :allowedRuleScopes="['cart', 'checkout', 'global', 'lineItem']">
+            <sw-rule-modal
+                v-if="showRuleModal"
+                @save="onSaveRule"
+                @modal-close="onCloseRuleModal"
+                :allowedRuleScopes="['cart', 'checkout', 'global', 'lineItem']">
             </sw-rule-modal>
         {% endblock %}
     </div>

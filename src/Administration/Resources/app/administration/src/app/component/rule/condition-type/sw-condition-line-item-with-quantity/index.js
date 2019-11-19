@@ -1,7 +1,8 @@
 import template from './sw-condition-line-item-with-quantity.html.twig';
 import './sw-condition-line-item-with-quantity.scss';
 
-const { Component, StateDeprecated } = Shopware;
+const { Component } = Shopware;
+const { mapApiErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -13,25 +14,50 @@ const { Component, StateDeprecated } = Shopware;
  */
 Component.extend('sw-condition-line-item-with-quantity', 'sw-condition-base', {
     template,
-    inject: ['ruleConditionDataProviderService'],
 
-    computed: {
-        fieldNames() {
-            return ['id', 'operator', 'quantity'];
-        },
-        conditionClass() {
-            return 'sw-condition-line-item-with-quantity';
-        },
-        defaultValues() {
-            return {
-                operator: this.ruleConditionDataProviderService.operators.equals.identifier
-            };
-        }
+    inject: ['repositoryFactory'],
+
+    data() {
+        return {
+            initialProduct: null
+        };
     },
 
-    methods: {
-        getProductStore() {
-            return StateDeprecated.getStore('product');
+    computed: {
+        operators() {
+            return this.conditionDataProviderService.getOperatorSet('number');
+        },
+
+        productRepository() {
+            return this.repositoryFactory.create('product');
+        },
+
+        quantity: {
+            get() {
+                this.ensureValueExist();
+                return this.condition.value.quantity;
+            },
+            set(quantity) {
+                this.ensureValueExist();
+                this.condition.value = { ...this.condition.value, quantity };
+            }
+        },
+
+        id: {
+            get() {
+                this.ensureValueExist();
+                return this.condition.value.id;
+            },
+            set(id) {
+                this.ensureValueExist();
+                this.condition.value = { ...this.condition.value, id };
+            }
+        },
+
+        ...mapApiErrors('condition', ['value.operator', 'value.quantity', 'value.id']),
+
+        currentError() {
+            return this.conditionValueOperatorError || this.conditionValueQuantityError || this.conditionValueIdError;
         }
     }
 });

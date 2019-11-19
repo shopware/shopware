@@ -1,6 +1,8 @@
 import template from './sw-condition-line-item.html.twig';
 
-const { Component, StateDeprecated } = Shopware;
+const { Component, Context } = Shopware;
+const { mapApiErrors } = Component.getComponentHelper();
+const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
  * @public
@@ -12,22 +14,69 @@ const { Component, StateDeprecated } = Shopware;
  */
 Component.extend('sw-condition-line-item', 'sw-condition-base', {
     template,
-    inject: ['ruleConditionDataProviderService'],
+
+    inject: ['repositoryFactory'],
 
     computed: {
-        fieldNames() {
-            return ['operator', 'identifiers'];
+        operators() {
+            return this.conditionDataProviderService.getOperatorSet('multiStore');
         },
-        defaultValues() {
-            return {
-                operator: this.ruleConditionDataProviderService.operators.isOneOf.identifier
-            };
+
+        productRepository() {
+            return this.repositoryFactory.create('product');
+        },
+
+        productIds: {
+            get() {
+                this.ensureValueExist();
+                return this.condition.value.identifiers || [];
+            },
+            set(identifiers) {
+                this.ensureValueExist();
+                this.condition.value = { ...this.condition.value, identifiers };
+            }
+        },
+
+        ...mapApiErrors('condition', ['value.operator', 'value.identifiers']),
+
+        currentError() {
+            return this.conditionValueOperatorError || this.conditionValueIdentifiersError;
         }
     },
 
+    data() {
+        return {
+            products: null
+        };
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
-        getProductStore() {
-            return StateDeprecated.getStore('product');
+        createdComponent() {
+            this.products = new EntityCollection(
+                this.productRepository.route,
+                this.productRepository.entityName,
+                Context.api
+            );
+
+            if (this.productIds.length <= 0) {
+                return Promise.resolve();
+            }
+
+            const criteria = new Criteria();
+            criteria.setIds(this.productIds);
+
+            return this.productRepository.search(criteria, Context.api).then((products) => {
+                this.products = products;
+            });
+        },
+
+        setIds(productCollection) {
+            this.productIds = productCollection.getIds();
+            this.products = productCollection;
         }
     }
 });

@@ -2,7 +2,8 @@
   "global": {
     "error-codes": {
       "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "This value should not be blank",
-      "INVALID_MEDIA_URL": "Please enter a valid URL to upload a file."
+      "INVALID_MEDIA_URL": "Please enter a valid URL to upload a file.",
+      "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "You must choose a type for this rule."
     },
     "default": {
       "add": "Add",
@@ -12,7 +13,9 @@
       "edit": "Edit",
       "error": "Error",
       "save": "Save",
-      "success": "Success"
+      "success": "Success",
+      "yes": "Yes",
+      "no": "No"
     },
     "notification": {
       "notificationSaveErrorMessage": "An error occurred while saving the entity \"{entityName}\".",
@@ -349,6 +352,9 @@
     "sw-search-more-results": {
       "labelShowResultsInModule": "Show results in module({count})"
     },
+    "sw-tagged-field": {
+      "text-default-placeholder": "Enter Taste benutzen um die Werte einzufügen."
+    },
     "sw-condition": {
       "operator": {
         "lowerThanEquals": "Lower than equals",
@@ -362,9 +368,6 @@
       },
       "placeholderErrorMessage": "Placeholder cannot be saved.",
       "dataErrorMessage": "Required fields not filled.",
-      "tag": {
-        "placeholder": "Enter condition..."
-      },
       "condition": {
         "dateRangeRule": {
           "label": "Date range",
@@ -619,7 +622,7 @@
     "messageSaveError": "An error occurred while saving rule \"{name}\"."
   },
   "sw-select-rule-create": {
-    "addNewRule": "Neue Regel erstellen"
+    "addNewRule": "Create new rule..."
   },
   "sw-shortcut-overview": {
     "title": "Keyboard shortcuts",

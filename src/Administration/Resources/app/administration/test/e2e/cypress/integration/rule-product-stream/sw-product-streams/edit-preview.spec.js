@@ -26,40 +26,49 @@ describe('Dynamic product groups: Test dynamic product group preview', () => {
 
         // Verify product stream details
         cy.clickContextMenuItem(
-            '.sw_product_stream_list__edit-action',
+            '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
+
+        cy.get(page.elements.smartBarHeader).contains('1st Productstream');
         cy.get(page.elements.loader).should('not.exist');
 
-        page.createBasicSelectCondition({
-            type: 'Product',
-            operator: 'Is equal to any of',
-            ruleSelector: `${page.elements.conditionOrContainer}--0 ${page.elements.baseCondition}`,
-            value: 'Product name',
-            isMulti: true
+        page.fillFilterWithEntityMultiSelect(
+            '.sw-product-stream-filter',
+            {
+                field: null,
+                operator: 'Is equal to any of',
+                value: ['Product name']
+            }
+        );
+
+        cy.get('button.sw-button').contains('Preview').click();
+        cy.get('.sw-product-stream-modal-preview').should('be.visible');
+
+        cy.get('.sw-product-stream-modal-preview').within(() => {
+            cy.get('.sw-modal__header').contains('Preview (1)');
+            cy.get('.sw-data-grid .sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Product name');
+            cy.get('.sw-modal__close').click();
         });
 
-        cy.get('.sw-product-stream-detail__open_modal_preview').click();
-        cy.get('.sw-modal__title').contains('Preview (1)');
-        cy.get('.sw-product-stream-modal-preview__column-product-name').contains('Product name');
+        page.fillFilterWithEntityMultiSelect(
+            '.sw-product-stream-filter',
+            {
+                field: null,
+                operator: 'Is not equal to any of',
+                value: []
+            }
+        );
 
-        cy.get('.sw-product-stream-modal-preview__close-action').click();
-        cy.get(page.elements.modal).should('not.exist');
-        cy.get('.sw-select--multi').type('{backspace}');
+        cy.get('button.sw-button').contains('Preview').click();
+        cy.get('.sw-product-stream-modal-preview').should('be.visible');
 
-        page.createBasicSelectCondition({
-            type: 'Product',
-            operator: 'Is not equal to',
-            ruleSelector: `${page.elements.conditionOrContainer}--0 ${page.elements.baseCondition}`,
-            value: 'Product name',
-            isMulti: false
+        cy.get('.sw-product-stream-modal-preview').within(() => {
+            cy.get('.sw-modal__header').contains('Preview (0)').should('be.visible');
+            cy.get('.sw-data-grid .sw-data-grid__row--0').should('not.exist');
+            cy.get('.sw-modal__close').click();
+            cy.get('.sw-empty-state').should('be.visible');
         });
-        cy.get('.sw-product-stream-detail__open_modal_preview').click();
-        cy.get('.sw-modal__title').contains('Preview (0)');
-        cy.get('.sw-empty-state').should('be.visible');
-
-        cy.get('.sw-product-stream-modal-preview__close-action').click();
-        cy.get(page.elements.modal).should('not.exist');
     });
 });

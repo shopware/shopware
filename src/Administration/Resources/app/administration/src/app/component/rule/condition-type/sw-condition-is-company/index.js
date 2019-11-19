@@ -1,7 +1,7 @@
-import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-condition-is-company.html.twig';
 
 const { Component } = Shopware;
+const { mapApiErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -16,40 +16,33 @@ Component.extend('sw-condition-is-company', 'sw-condition-base', {
 
     computed: {
         selectValues() {
-            const values = [
+            return [
                 {
                     label: this.$tc('global.sw-condition.condition.yes'),
-                    value: 'true'
+                    value: true
                 },
                 {
                     label: this.$tc('global.sw-condition.condition.no'),
-                    value: 'false'
+                    value: false
                 }
             ];
-
-            return new LocalStore(values, 'value');
         },
-        fieldNames() {
-            return ['isCompany'];
-        },
-        defaultValues() {
-            return {
-                isCompany: true
-            };
-        }
-    },
 
-    watch: {
         isCompany: {
-            handler(newValue) {
-                this.condition.value.isCompany = newValue === 'true';
+            get() {
+                this.ensureValueExist();
+                return this.condition.value.isCompany;
+            },
+            set(isCompany) {
+                this.ensureValueExist();
+                this.condition.value = { ...this.condition.value, isCompany };
             }
-        }
-    },
+        },
 
-    data() {
-        return {
-            isCompany: this.condition.value.isCompany ? String(this.condition.value.isCompany) : String(true)
-        };
+        ...mapApiErrors('condition', ['value.isCompany']),
+
+        currentError() {
+            return this.conditionValueIsCompanyError;
+        }
     }
 });

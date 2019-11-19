@@ -54,9 +54,10 @@
                             :columns="getProductStreamColumns()"
                             :repository="productStreamRepository"
                             detailRoute="sw.product.stream.detail"
-                            :showSelection="false"
+                            :showSelection="true"
                             :isLoading="isLoading"
-                            @inline-edit-save="onInlineEditSave">
+                            @inline-edit-save="onInlineEditSave"
+                            @items-delete-finish="getList">
 
                             <template #column-invalid="{item}">
                                 <template v-if="item.invalid">
@@ -75,61 +76,6 @@
                                     {{ item.createdAt|date }}
                                 </template>
                             </template>
-
-                            {% block sw_product_stream_list_grid_columns_actions %}
-                                <template #actions="{ item }">
-                                    {% block sw_product_stream_list_grid_columns_actions_edit %}
-                                        <sw-context-menu-item class="sw_product_stream_list__edit-action" :routerLink="{ name: 'sw.product.stream.detail', params: { id: item.id } }">
-                                            {{ $tc('sw-product-stream.list.contextMenuEdit') }}
-                                        </sw-context-menu-item>
-                                    {% endblock %}
-
-                                    {% block sw_product_stream_list_grid_columns_actions_duplicate %}
-                                         <sw-context-menu-item :disabled="true">
-                                            {{ $tc('sw-product-stream.list.contextMenuDuplicate') }}
-                                         </sw-context-menu-item>
-                                    {% endblock %}
-
-                                    {% block sw_product_stream_list_grid_columns_actions_delete %}
-                                        <sw-context-menu-item @click="onDelete(item.id)" variant="danger">
-                                            {{ $tc('sw-product-stream.list.contextMenuDelete') }}
-                                        </sw-context-menu-item>
-                                    {% endblock %}
-                                </template>
-                            {% endblock %}
-
-                            {% block sw_product_stream_list_grid_action_modals %}
-                                <template #action-modals="{ item }">
-                                    {% block sw_product_stream_list_delete_modal %}
-                                        <sw-modal v-if="showDeleteModal === item.id"
-                                            @modal-close="onCloseDeleteModal"
-                                            :title="$tc('sw-product-stream.list.modalTitleDelete')"
-                                            variant="small">
-                                                {% block sw_product_stream_list_delete_modal_confirm_delete_text %}
-                                                    <p class="sw-product-stream-list__confirm-delete-text">
-                                                        {{ $tc('sw-product-stream.list.textDeleteConfirm', 0, { name: `${item.name}` }) }}
-                                                    </p>
-                                                {% endblock %}
-
-                                                {% block sw_product_stream_list_delete_modal_footer %}
-                                                    <template #modal-footer>
-                                                        {% block sw_product_stream_list_delete_modal_cancel %}
-                                                            <sw-button @click="onCloseDeleteModal" size="small">
-                                                                {{ $tc('sw-product-stream.list.buttonCancel') }}
-                                                            </sw-button>
-                                                        {% endblock %}
-
-                                                        {% block sw_product_stream_list_delete_modal_confirm %}
-                                                            <sw-button @click="onConfirmDelete(item.id)" variant="primary" size="small">
-                                                                {{ $tc('sw-product-stream.list.buttonDelete') }}
-                                                            </sw-button>
-                                                        {% endblock %}
-                                                    </template>
-                                                {% endblock %}
-                                        </sw-modal>
-                                    {% endblock %}
-                                </template>
-                            {% endblock %}
                         </sw-entity-listing>
                     {% endblock %}
 

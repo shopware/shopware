@@ -1,8 +1,8 @@
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-settings-payment-detail.html.twig';
 import './sw-settings-payment-detail.scss';
 
 const { Component, StateDeprecated, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 
 Component.register('sw-settings-payment-detail', {
@@ -24,11 +24,6 @@ Component.register('sw-settings-payment-detail', {
             paymentMethod: {},
             mediaItem: null,
             uploadTag: 'sw-payment-method-upload-tag',
-            ruleFilter: CriteriaFactory.multi(
-                'OR',
-                CriteriaFactory.contains('rule.moduleTypes.types', 'payment'),
-                CriteriaFactory.equals('rule.moduleTypes', null)
-            ),
             isLoading: false,
             isSaveSuccessful: false
         };
@@ -79,6 +74,19 @@ Component.register('sw-settings-payment-detail', {
                 message: 'ESC',
                 appearance: 'light'
             };
+        },
+
+        ruleFilter() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.multi(
+                'OR',
+                [
+                    Criteria.contains('rule.moduleTypes.types', 'payment'),
+                    Criteria.equals('rule.moduleTypes', null)
+                ]
+            ));
+
+            return criteria;
         }
     },
 

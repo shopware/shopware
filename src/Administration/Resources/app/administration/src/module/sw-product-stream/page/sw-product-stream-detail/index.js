@@ -1,14 +1,30 @@
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-product-stream-detail.html.twig';
 import './sw-product-stream-detail.scss';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
-const { warn } = Shopware.Utils.debug;
+const { Component, Mixin, Context } = Shopware;
+const { mapApiErrors } = Shopware.Component.getComponentHelper();
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-product-stream-detail', {
     template,
 
-    inject: ['productStreamConditionService'],
+    inject: ['repositoryFactory', 'productStreamConditionService'],
+
+    provide() {
+        return {
+            productCustomFields: this.productCustomFields
+        };
+    },
+
+    beforeRouteLeave(to, from, next) {
+        if (this.showModalPreview) {
+            this.showModalPreview = false;
+            this.$nextTick(() => next());
+            return;
+        }
+
+        next();
+    },
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -21,61 +37,25 @@ Component.register('sw-product-stream-detail', {
         ESCAPE: 'onCancel'
     },
 
+    props: {
+        productStreamId: {
+            type: String,
+            required: false,
+            default: null
+        }
+    },
+
     data() {
         return {
-            nameRequired: this.isSystemLanguage(),
-            productStream: {},
-            nestedFilters: {},
-            filterAssociations: {},
-            // conditionsStore will not be used for product stream conditions
-            conditionStore: {},
             isLoading: false,
-            isSaveLoading: false,
             isSaveSuccessful: false,
-            treeConfig: {
-                entityName: 'product-stream',
-                conditionIdentifier: 'filters',
-                childName: 'queries',
-                andContainer: {
-                    type: 'multi',
-                    operator: 'AND'
-                },
-                orContainer: {
-                    type: 'multi',
-                    operator: 'OR'
-                },
-                placeholder: {
-                    type: 'equals'
-                },
-                getComponent(condition) {
-                    let component = 'sw-product-stream-filter';
-
-                    if (condition.type.toLowerCase() === this.andContainer.type) {
-                        component = 'sw-condition-and-container';
-
-                        if (condition.operator
-                            && condition.operator.toLowerCase() === this.orContainer.operator.toLowerCase()) {
-                            component = 'sw-condition-or-container';
-                        }
-                    }
-
-                    return component;
-                },
-                isAndContainer(condition) {
-                    return condition.type.toLowerCase() === this.andContainer.type
-                        && condition.operator.toLowerCase() === this.andContainer.operator.toLowerCase();
-                },
-                isOrContainer(condition) {
-                    return condition.type.toLowerCase() === this.orContainer.type
-                        && condition.operator.toLowerCase() === this.orContainer.operator.toLowerCase();
-                },
-                isPlaceholder(condition) {
-                    return (!condition.field || condition.field === 'id')
-                        && (!condition.type || condition.type === 'equals')
-                        && !(condition.value || (condition.parameters && Object.keys(condition.parameters).length));
-                }
-            },
-            showModalPreview: false
+            productStream: null,
+            productStreamFilters: null,
+            productStreamFiltersTree: null,
+            deletedProductStreamFilters: [],
+            productCustomFields: {},
+            showModalPreview: false,
+            languageId: null
         };
     },
 
@@ -89,15 +69,26 @@ Component.register('sw-product-stream-detail', {
         identifier() {
             return this.placeholder(this.productStream, 'name');
         },
-        productStreamStore() {
-            return StateDeprecated.getStore('product_stream');
+
+        productStreamRepository() {
+            return this.repositoryFactory.create('product_stream');
         },
-        productStreamFilterStore() {
-            return StateDeprecated.getStore('product_stream_filter');
+
+        productStreamFiltersRepository() {
+            if (!this.productStream) {
+                return null;
+            }
+
+            return this.repositoryFactory.create(
+                this.productStream.filters.entity,
+                this.productStream.filters.source,
+            );
         },
-        customFieldSetStore() {
-            return StateDeprecated.getStore('custom_field_set');
+
+        customFieldSetRepository() {
+            return this.repositoryFactory.create('custom_field_set');
         },
+
         tooltipSave() {
             const systemKey = this.$device.getSystemKey();
 
@@ -106,11 +97,39 @@ Component.register('sw-product-stream-detail', {
                 appearance: 'light'
             };
         },
+
         tooltipCancel() {
             return {
                 message: 'ESC',
                 appearance: 'light'
             };
+        },
+
+        isSystemLanguage() {
+            return this.languageId === Context.api.systemLanguageId;
+        },
+
+        nameRequired() {
+            return this.isSystemLanguage;
+        },
+
+        ...mapApiErrors('productStream', ['name'])
+    },
+
+    watch: {
+        productStreamId: {
+            immediate: true,
+            handler() {
+                if (!this.productStreamId) {
+                    this.createProductStream();
+                    return;
+                }
+
+                this.isLoading = true;
+                this.loadEntityData(this.productStreamId).then(() => {
+                    this.isLoading = false;
+                });
+            }
         }
     },
 
@@ -118,153 +137,164 @@ Component.register('sw-product-stream-detail', {
         this.createdComponent();
     },
 
-    watch: {
-        '$route.params.id'() {
-            this.createdComponent();
-        }
-    },
-    beforeRouteLeave(to, from, next) {
-        if (!this.showModalPreview) {
-            next(true);
-        }
-        this.closeModalPreview().then(() => {
-            next(true);
-        });
-    },
     methods: {
         createdComponent() {
-            if (this.$route.params.id) {
-                this.getProductCustomFields();
-                this.productStreamId = this.$route.params.id;
-                if (this.productStream.isLocal) {
-                    this.filterAssociations = this.productStream.getAssociation('filters');
-                    return;
-                }
+            this.languageId = Context.api.languageId;
+            this.getProductCustomFields();
+        },
 
-                this.loadEntityData();
+        createProductStream() {
+            Context.api.languageId = Context.api.systemLanguageId;
+            this.productStream = this.productStreamRepository.create(Context.api);
+            this.productStreamFilters = this.productStream.filters;
+        },
+
+        loadEntityData(productStreamId) {
+            return this.productStreamRepository.get(productStreamId, Context.api).then((productStream) => {
+                this.productStream = productStream;
+                return this.loadFilters();
+            });
+        },
+
+        loadFilters(collection = null) {
+            if (collection === null) {
+                const filterCriteria = new Criteria();
+                filterCriteria.addFilter(Criteria.equals('productStreamId', this.productStreamId));
+
+                return this.productStreamFiltersRepository.search(filterCriteria, Context.api).then((productFilter) => {
+                    return this.loadFilters(productFilter);
+                });
             }
-        },
 
-        isSystemLanguage() {
-            const languageStore = StateDeprecated.getStore('language');
-            const isSystem = languageStore.systemLanguageId === languageStore.currentLanguageId;
-            return isSystem ? 'required' : null;
-        },
+            if (collection.length >= collection.total) {
+                this.productStreamFilters = collection;
+                return Promise.resolve();
+            }
 
-        loadEntityData() {
-            this.productStream = this.productStreamStore.getById(this.productStreamId);
-            this.filterAssociations = this.productStream.getAssociation('filters');
+            const nextCriteria = Criteria.fromCriteria(collection.criteria);
+            nextCriteria.page += 1;
+
+            return this.productStreamFiltersRepository.search(nextCriteria, collection.context).then((nextFilters) => {
+                collection.push(...nextFilters);
+                collection.criteria = nextFilters.criteria;
+                collection.total = nextFilters.total;
+
+                return this.loadFilters(collection);
+            });
         },
 
         abortOnLanguageChange() {
-            return this.productStream.hasChanges();
+            return this.productStreamRepository.hasChanges(this.productStream);
         },
 
         saveOnLanguageChange() {
             return this.onSave();
         },
 
-        onChangeLanguage() {
-            this.nameRequired = this.isSystemLanguage();
-            this.loadEntityData();
-        },
+        onChangeLanguage(languageId) {
+            this.languageId = languageId;
 
-        saveFinish() {
-            this.isSaveSuccessful = false;
+            this.isLoading = true;
+            this.loadEntityData(this.productStream.id).then(() => {
+                this.isLoading = false;
+            });
         },
 
         onSave() {
-            const productStreamName = this.productStream.name;
-            const titleSaveError = this.$tc('global.default.error');
-            const messageSaveError = this.$tc(
-                'global.notification.notificationSaveErrorMessage', 0, { entityName: productStreamName }
-            );
-            this.isSaveLoading = true;
-            const deletions = this.createDeletionQueue();
             this.isSaveSuccessful = false;
+            this.isLoading = true;
 
-            return this.productStream.save().then(() => {
-                this.isSaveLoading = false;
-                this.isSaveSuccessful = true;
-                this.syncDeletions(deletions);
-            }).catch((exception) => {
-                this.createNotificationError({
-                    title: titleSaveError,
-                    message: messageSaveError
+            if (this.productStream.isNew()) {
+                this.productStream.filters = this.productStreamFiltersTree;
+                this.saveProductStream()
+                    .then(() => {
+                        this.$router.push({ name: 'sw.product.stream.detail', params: { id: this.productStream.id } });
+                        this.isSaveSuccessful = true;
+                    })
+                    .catch(() => {
+                        this.showErrorNotification();
+                        this.isLoading = false;
+                    });
+
+                return;
+            }
+
+            this.productStreamRepository.save(this.productStream, Context.api)
+                .then(this.syncProductStreamFilters)
+                .then(() => {
+                    return this.loadEntityData(this.productStream.id);
+                })
+                .then(() => {
+                    this.isSaveSuccessful = true;
+                    this.isLoading = false;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                    this.showErrorNotification();
                 });
-                this.isSaveLoading = false;
-                warn(this._name, exception.message, exception.response);
+        },
+
+        showErrorNotification() {
+            this.createNotificationError({
+                title: this.$tc('global.default.error'),
+                message: this.$tc(
+                    'global.notification.notificationSaveErrorMessage', 0, { entityName: this.productStream.name }
+                )
             });
+        },
+
+        saveProductStream() {
+            return this.productStreamRepository.save(this.productStream, Context.api);
+        },
+
+        syncProductStreamFilters() {
+            return this.productStreamFiltersRepository.sync(this.productStreamFiltersTree, Context.api)
+                .then(() => {
+                    if (this.deletedProductStreamFilters.length > 0) {
+                        return this.productStreamFiltersRepository
+                            .syncDeleted(this.deletedProductStreamFilters, Context.api)
+                            .then(() => {
+                                this.deletedProductStreamFilters = [];
+                            });
+                    }
+
+                    return Promise.resolve();
+                });
         },
 
         onCancel() {
             this.$router.push({ name: 'sw.product.stream.index' });
         },
 
-
         openModalPreview() {
             this.showModalPreview = true;
         },
         closeModalPreview() {
-            return new Promise((resolve) => {
-                this.showModalPreview = false;
-                if (this.$refs.modalPreview) {
-                    this.$refs.modalPreview.$on('destroy', () => {
-                        resolve();
-                    });
-                }
-            });
+            this.showModalPreview = false;
         },
 
-        createDeletionQueue() {
-            if (!this.filterAssociations.store) {
-                return [];
-            }
-
-            const deletions = Object.values(this.filterAssociations.store).filter(entity => {
-                return entity.isDeleted && entity.type === 'not';
-            });
-
-            deletions.forEach(deletion => this.filterAssociations.remove(deletion));
-
-            return deletions;
-        },
-
-        syncDeletions(deletions) {
-            if (!deletions.length) {
-                return;
-            }
-
-            deletions.forEach(deletion => this.productStreamFilterStore.add(deletion));
-            this.productStreamFilterStore.sync(true);
-        },
         getProductCustomFields() {
-            this.isLoading = true;
+            const customFieldsCriteria = new Criteria();
+            customFieldsCriteria.addFilter(Criteria.equals('relations.entityName', 'product'))
+                .addAssociation('customFields')
+                .addAssociation('relations');
 
-            const params = {
-                criteria: CriteriaFactory.equals('relations.entityName', 'product'),
-                associations: {
-                    customFields: {},
-                    relations: {}
-                }
-            };
-            this.customFieldSetStore.getList(params, true).then((response) => {
-                response.items.forEach((customFieldSet) => {
-                    const customFields = {};
-                    customFieldSet.customFields.forEach((customField) => {
-                        customField = {
-                            type: customField.type,
-                            name: customField.name,
-                            label: customField.name
-                        };
-                        customField = this.mapCustomFieldType(customField);
-                        customFields[customField.name] = customField;
-                    });
-                    this.productStreamConditionService.productCustomFields = customFields;
+            this.customFieldSetRepository.search(customFieldsCriteria, Context.api).then((customFieldSets) => {
+                customFieldSets.forEach((customFieldSet) => {
+                    const customFields = customFieldSet.customFields
+                        .reduce((acc, customField) => {
+                            acc[customField.name] = this.mapCustomFieldType({
+                                type: customField.type,
+                                value: customField.name,
+                                label: customField.name
+                            });
+                            return acc;
+                        }, {});
+                    Object.assign(this.productCustomFields, customFields);
                 });
-                this.isLoading = false;
             });
         },
+
         mapCustomFieldType(customField) {
             switch (customField.type) {
                 case 'bool':
@@ -274,20 +304,22 @@ Component.register('sw-product-stream-detail', {
                 case 'text':
                     customField.type = 'string';
                     break;
-                case 'datetime':
+                case 'date':
                     customField.type = 'string';
                     customField.format = 'date-time';
-                    break;
-                case 'int':
-                    customField.type = 'integer';
-                    break;
-                case 'float':
-                    customField.type = 'number';
                     break;
                 default:
                     break;
             }
             return customField;
+        },
+
+        updateFilterTree({ conditions, deletedIds }) {
+            this.productStreamFiltersTree = conditions;
+            this.deletedProductStreamFilters = [
+                ...this.deletedProductStreamFilters,
+                ...deletedIds
+            ];
         }
     }
 });

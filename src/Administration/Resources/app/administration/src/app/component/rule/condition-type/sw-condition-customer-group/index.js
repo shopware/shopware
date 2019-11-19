@@ -1,6 +1,8 @@
 import template from './sw-condition-customer-group.html.twig';
 
-const { Component, StateDeprecated } = Shopware;
+const { Component, Context } = Shopware;
+const { mapApiErrors } = Component.getComponentHelper();
+const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
  * @public
@@ -12,22 +14,70 @@ const { Component, StateDeprecated } = Shopware;
  */
 Component.extend('sw-condition-customer-group', 'sw-condition-base', {
     template,
-    inject: ['ruleConditionDataProviderService'],
+    inheritAttrs: false,
+
+    inject: ['repositoryFactory'],
+
+    created() {
+        this.createdComponent();
+    },
+
+    data() {
+        return {
+            customerGroups: null
+        };
+    },
 
     computed: {
-        fieldNames() {
-            return ['operator', 'customerGroupIds'];
+        customerGroupRepository() {
+            return this.repositoryFactory.create('customer_group');
         },
-        defaultValues() {
-            return {
-                operator: this.ruleConditionDataProviderService.operators.isOneOf.identifier
-            };
+
+        operators() {
+            return this.conditionDataProviderService.getOperatorSet('multiStore');
+        },
+
+        customerGroupIds: {
+            get() {
+                this.ensureValueExist();
+                return this.condition.value.customerGroupIds || [];
+            },
+            set(customerGroupIds) {
+                this.ensureValueExist();
+                this.condition.value = { ...this.condition.value, customerGroupIds };
+            }
+        },
+
+        ...mapApiErrors('condition', ['value.operator', 'value.customerGroupIds']),
+
+        currentError() {
+            return this.conditionValueOperatorError || this.conditionValueCustomerGroupIdsError;
         }
     },
 
     methods: {
-        getCustomerGroupStore() {
-            return StateDeprecated.getStore('customer_group');
+        createdComponent() {
+            this.customerGroups = new EntityCollection(
+                this.customerGroupRepository.route,
+                this.customerGroupRepository.entityName,
+                Context.api
+            );
+
+            if (this.customerGroupIds.length <= 0) {
+                return Promise.resolve();
+            }
+
+            const criteria = new Criteria();
+            criteria.setIds(this.customerGroupIds);
+
+            return this.customerGroupRepository.search(criteria, Context.api).then((customerGroups) => {
+                this.customerGroups = customerGroups;
+            });
+        },
+
+        setCustomerGroupIds(customerGroups) {
+            this.customerGroupIds = customerGroups.getIds();
+            this.customerGroups = customerGroups;
         }
     }
 });

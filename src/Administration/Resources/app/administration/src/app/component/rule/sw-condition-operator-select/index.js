@@ -1,61 +1,52 @@
-import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-condition-operator-select.html.twig';
+import './sw-condition-operator-select.scss';
 
 const { Component } = Shopware;
-const utils = Shopware.Utils;
 
-/**
- * @public
- * @description Provides the operator select for the sw-condition-base.
- * @status prototype
- * @example-type code-only
- * @component-example
- * <sw-condition-operator-select operatorSetName="multiStore" v-model="operator"></sw-condition-operator-select>
- */
 Component.register('sw-condition-operator-select', {
-    template,
-    inject: ['ruleConditionDataProviderService'],
+    template: template,
 
     props: {
-        operatorSetName: {
-            type: String,
+        operators: {
+            type: Array,
             required: true
         },
-        value: {
-            required: true
-        }
-    },
 
-    watch: {
-        value: {
-            immediate: true,
-            handler(newValue) {
-                this.operatorValue = newValue;
-            }
+        condition: {
+            type: Object,
+            required: true
         }
     },
 
     computed: {
-        operators() {
-            const operators = this.ruleConditionDataProviderService.getOperatorSet(this.operatorSetName, (operator) => {
-                operator.translated = {
-                    label: this.$tc(operator.label)
+        operator: {
+            get() {
+                if (!this.condition.value) {
+                    return null;
+                }
+                return this.condition.value.operator;
+            },
+            set(operator) {
+                if (!this.condition.value) {
+                    this.condition.value = {};
+                }
+                this.condition.value = { ...this.condition.value, operator };
+            }
+        },
+
+        translatedOperators() {
+            return this.operators.map(({ identifier, label }) => {
+                return {
+                    identifier,
+                    label: this.$tc(label)
                 };
             });
-
-            return new LocalStore(operators, 'identifier');
         }
     },
 
-    data() {
-        return {
-            operatorValue: null
-        };
-    },
-
     methods: {
-        createId() {
-            return utils.createId();
+        changeOperator(event) {
+            this.operator = event;
         }
     }
 });

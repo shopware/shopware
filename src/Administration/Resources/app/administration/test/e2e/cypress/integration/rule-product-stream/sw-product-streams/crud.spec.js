@@ -22,7 +22,7 @@ describe('Dynamic product group: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/product-stream?_response=true',
+            url: '/api/v1/product-stream',
             method: 'post'
         }).as('saveData');
 
@@ -35,7 +35,7 @@ describe('Dynamic product group: Test crud operations', () => {
 
         // Verify property in listing
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+            expect(xhr).to.have.property('status', 204);
         });
 
         cy.get(page.elements.smartBarBack).click();
@@ -56,7 +56,7 @@ describe('Dynamic product group: Test crud operations', () => {
 
         // Edit product stream
         cy.clickContextMenuItem(
-            '.sw_product_stream_list__edit-action',
+            '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
@@ -66,7 +66,7 @@ describe('Dynamic product group: Test crud operations', () => {
 
         // Verify property in listing
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+            expect(xhr).to.have.property('status', 204);
         });
 
         cy.get(page.elements.smartBarBack).click();
@@ -88,7 +88,13 @@ describe('Dynamic product group: Test crud operations', () => {
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('1st Productstream');
 
         // Delete dynamic product group
-        page.deleteProductStream('1st Productstream');
+        // Edit product stream
+        cy.clickContextMenuItem(
+            '.sw-context-menu-item--danger',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+        cy.get('button.sw-button').contains('Delete').click();
 
         // Verify property in listing
         cy.wait('@deleteData').then((xhr) => {

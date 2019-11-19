@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Rule;
 
 use Symfony\Component\Validator\Constraints\DateTime as DateTimeConstraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
 class DateRangeRule extends Rule
@@ -58,7 +59,7 @@ class DateRangeRule extends Rule
         return [
             'fromDate' => [new NotBlank(), new DateTimeConstraint(['format' => \DateTime::ATOM])],
             'toDate' => [new NotBlank(), new DateTimeConstraint(['format' => \DateTime::ATOM])],
-            'useTime' => [new Type('bool')],
+            'useTime' => [new NotNull(), new Type('bool')],
         ];
     }
 

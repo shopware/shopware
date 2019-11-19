@@ -2,7 +2,7 @@
     <sw-page class="sw-settings-rule-detail">
         {% block sw_settings_rule_detail_header %}
             <template slot="smart-bar-header">
-                <h2 v-if="rule.name">{{ rule.name }}</h2>
+                <h2 v-if="rule">{{ rule.name }}</h2>
                 <h2 v-else>{{ $tc('sw-settings-rule.detail.textHeadline') }}</h2>
             </template>
         {% endblock %}
@@ -11,83 +11,97 @@
             <template slot="smart-bar-actions">
 
                 {% block sw_settings_rule_detail_actions_cancel %}
-                    <sw-button :disabled="rule.isLoading" v-tooltip.bottom="tooltipCancel" @click="onCancel">
+                    <sw-button :disabled="isLoading" v-tooltip.bottom="tooltipCancel" @click="onCancel">
                         {{ $tc('sw-settings-rule.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
 
                 {% block sw_settings_rule_detail_actions_save %}
-                <sw-button-process
-                        class="sw-settings-rule-detail__save-action"
-                        :isLoading="isLoading"
-                        :processSuccess="isSaveSuccessful"
-                        :disabled="rule.isLoading"
-                        variant="primary"
-                        @process-finish="saveFinish"
-                        v-tooltip.bottom="tooltipSave"
-                        @click="onSave">
-                    {{ $tc('sw-settings-rule.detail.buttonSave') }}
-                </sw-button-process>
+                    <sw-button-process
+                            class="sw-settings-rule-detail__save-action"
+                            :isLoading="isLoading"
+                            v-model="isSaveSuccessful"
+                            variant="primary"
+                            v-tooltip.bottom="tooltipSave"
+                            @click="onSave">
+                        {{ $tc('sw-settings-rule.detail.buttonSave') }}
+                    </sw-button-process>
                 {% endblock %}
 
             </template>
         {% endblock %}
 
         {% block sw_settings_rule_detail_content %}
-            <sw-card-view slot="content">
-                {% block sw_settings_rule_detail_content_card %}
-                    <sw-card :large="true" :title="$tc('sw-settings-rule.detail.titleCard')">
-                        <sw-container columns="2fr 1fr" gap="0px 32px">
-                            {% block sw_settings_rule_detail_content_card_field_name %}
-                                <sw-field type="text"
-                                          :label="$tc('sw-settings-rule.detail.labelName')"
-                                          :placeholder="$tc('sw-settings-rule.detail.placeholderName')"
-                                          validation="required"
-                                          required
-                                          v-model="rule.name">
-                                </sw-field>
-                            {% endblock %}
+            <template #content>
+                <sw-card-view>
+                    {% block sw_settings_rule_detail_content_card %}
+                        <sw-card :large="true" :title="$tc('sw-settings-rule.detail.titleCard')">
+                            <template v-if="rule">
+                                <sw-container columns="2fr 1fr" gap="0px 32px">
+                                    {% block sw_settings_rule_detail_content_card_field_name %}
+                                        <sw-field type="text"
+                                                  :label="$tc('sw-settings-rule.detail.labelName')"
+                                                  :placeholder="$tc('sw-settings-rule.detail.placeholderName')"
+                                                  :error="ruleNameError"
+                                                  required
+                                                  v-model="rule.name">
+                                        </sw-field>
+                                    {% endblock %}
 
-                            {% block sw_settings_rule_detail_content_card_field_priority %}
-                                <sw-field type="number"
-                                          :label="$tc('sw-settings-rule.detail.labelPriority')"
-                                          :placeholder="$tc('sw-settings-rule.detail.placeholderPriority')"
-                                          validation="required"
-                                          required
-                                          v-model="rule.priority">
-                                </sw-field>
-                            {% endblock %}
-                        </sw-container>
-                        {% block sw_settings_rule_detail_content_card_field_description %}
-                            <sw-field type="textarea"
-                                      :label="$tc('sw-settings-rule.detail.labelDescription')"
-                                      :placeholder="$tc('sw-settings-rule.detail.placeholderDescription')"
-                                      v-model="rule.description">
-                            </sw-field>
-                        {% endblock %}
-                        {% block sw_settings_rule_detail_content_card_field_type %}
-                            <sw-condition-value v-if="moduleTypes"
-                                                multi
-                                                id="ruleType"
-                                                :label="$tc('sw-settings-rule.detail.labelType')"
-                                                :store="moduleTypeStore"
-                                                v-model="moduleTypes"
-                                                displayName="label">
-                            </sw-condition-value>
-                        {% endblock %}
-                    </sw-card>
-                {% endblock %}
+                                    {% block sw_settings_rule_detail_content_card_field_priority %}
+                                        <sw-field type="number"
+                                                  :label="$tc('sw-settings-rule.detail.labelPriority')"
+                                                  :placeholder="$tc('sw-settings-rule.detail.placeholderPriority')"
+                                                  :error="rulePriorityError"
+                                                  required
+                                                  v-model="rule.priority">
+                                        </sw-field>
+                                    {% endblock %}
+                                </sw-container>
+                                {% block sw_settings_rule_detail_content_card_field_description %}
+                                    <sw-field type="textarea"
+                                              :label="$tc('sw-settings-rule.detail.labelDescription')"
+                                              :placeholder="$tc('sw-settings-rule.detail.placeholderDescription')"
+                                              v-model="rule.description">
+                                    </sw-field>
+                                {% endblock %}
+                                {% block sw_settings_rule_detail_content_card_field_type %}
+                                    <sw-multi-select
+                                            v-if="rule"
+                                            valueProperty="id"
+                                            labelProperty="name"
+                                            :label="$tc('sw-settings-rule.detail.labelType')"
+                                            :options="availableModuleTypes"
+                                            v-model="moduleTypes">
+                                        <template #selection-label-property="{ item }">
+                                            {{ $tc(item.name) }}
+                                        </template>
 
-                {% block sw_settings_rule_detail_conditions_card %}
-                    <sw-card class="sw-settings-rule-detail__condition_container" :large="true" :title="$tc('sw-settings-rule.detail.ruleCard')">
-                        <sw-condition-tree :entity="rule"
-                                           :conditionStore="treeConfig.conditionStore"
-                                           :config="treeConfig"
-                                           ref="conditionTree">
-                        </sw-condition-tree>
-                    </sw-card>
-                {% endblock %}
-            </sw-card-view>
+                                        <template #result-label-property="{ item }">
+                                            {{ $tc(item.name) }}
+                                        </template>
+                                    </sw-multi-select>
+                                {% endblock %}
+                            </template>
+                            <sw-loader v-else></sw-loader>
+                        </sw-card>
+                    {% endblock %}
+
+                    {% block sw_settings_rule_detail_conditions_card %}
+                        <sw-card class="sw-settings-rule-detail__condition_container" :large="true" :title="$tc('sw-settings-rule.detail.ruleCard')">
+                            <sw-condition-tree
+                                :initialConditions="conditions"
+                                :conditionRepository="conditionRepository"
+                                :conditionDataProviderService="ruleConditionDataProviderService"
+                                associationField="ruleId"
+                                :associationValue="ruleId || rule.id"
+                                :rootCondition="null"
+                                @conditions-changed="conditionsChanged">
+                            </sw-condition-tree>
+                        </sw-card>
+                    {% endblock %}
+                </sw-card-view>
+            </template>
         {% endblock %}
     </sw-page>
 {% endblock %}

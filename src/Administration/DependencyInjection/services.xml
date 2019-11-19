@@ -21,6 +21,7 @@
         </service>
 
         <service id="Shopware\Administration\Framework\Routing\AdministrationRouteScope">
+            <argument type="service" id="Symfony\Component\Routing\Generator\UrlGeneratorInterface"/>
             <tag name="shopware.route_scope"/>
         </service>
 

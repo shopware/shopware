@@ -20,6 +20,7 @@
 
             <argument type="service" id="Shopware\Storefront\Framework\Routing\RequestTransformer.inner" />
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Symfony\Component\Routing\Generator\UrlGeneratorInterface"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\Router" decorates="router">

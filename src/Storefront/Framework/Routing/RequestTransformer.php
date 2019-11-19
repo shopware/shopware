@@ -12,6 +12,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use TrueBV\Punycode;
 
 class RequestTransformer implements RequestTransformerInterface
@@ -39,18 +40,23 @@ class RequestTransformer implements RequestTransformerInterface
         '/_error/',
         '/api/',
         '/sales-channel-api/',
-        '/admin/',
     ];
+
+    /**
+     * @var UrlGeneratorInterface
+     */
+    private $generator;
 
     /**
      * @var Punycode
      */
     private $punycode;
 
-    public function __construct(RequestTransformerInterface $decorated, Connection $connection)
+    public function __construct(RequestTransformerInterface $decorated, Connection $connection, UrlGeneratorInterface $generator)
     {
         $this->connection = $connection;
         $this->decorated = $decorated;
+        $this->generator = $generator;
         $this->punycode = new Punycode();
     }
 
@@ -59,6 +65,12 @@ class RequestTransformer implements RequestTransformerInterface
         $request = $this->decorated->transform($request);
 
         if (!$this->isSalesChannelRequired($request->getPathInfo())) {
+            return $this->decorated->transform($request);
+        }
+
+        $adminPath = $this->generator->generate('administration.index', [], UrlGeneratorInterface::ABSOLUTE_PATH);
+
+        if ($this->generator->getContext()->getBaseUrl() . $request->getPathInfo() === $adminPath) {
             return $this->decorated->transform($request);
         }
 

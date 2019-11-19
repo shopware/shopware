@@ -1,6 +1,9 @@
 import domPurify from 'dompurify';
 
-/** @type {Array<String>} Contains all valid middleware names */
+/**
+ * @description Contains all valid middleware names
+ * @type {Array<String>}
+ */
 const middlewareNames = [
     'beforeSanitizeElements',
     'uponSanitizeElement',

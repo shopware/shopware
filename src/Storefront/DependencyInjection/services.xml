@@ -10,6 +10,9 @@
 
         <parameter key="shopware_http_cache_default_ttl_default">7200</parameter>
         <parameter key="shopware.http.cache.default_ttl">%env(default:shopware_http_cache_default_ttl_default:SHOPWARE_HTTP_DEFAULT_TTL)%</parameter>
+
+        <parameter key="storefront.hmr_mode_enabled_default">0</parameter>
+        <parameter key="storefront.hmr_mode_enabled">%env(default:storefront.hmr_mode_enabled_default:SHOPWARE_STOREFRONT_HMR_MODE)%</parameter>
     </parameters>
 
     <services>
@@ -37,6 +40,7 @@
             <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
             <argument>%storefront.csrf.enabled%</argument>
             <argument>%storefront.csrf.mode%</argument>
+            <argument>%storefront.hmr_mode_enabled%</argument>
 
             <tag name="twig.extension"/>
         </service>

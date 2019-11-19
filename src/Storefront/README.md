@@ -27,8 +27,7 @@ $ ./psh.phar storefront:dev
 It's recommended to use the `storefront:watch` command when developing, so the files will be compiled as soon as they change.
 
 It's also possible to use the webpack-dev-server with hot module reloading (HMR) activated.
-To be able to use HMR you have to run the command `storefront:hot` and set the `isHMRMode` variable,
-located in `platform/src/Storefront/Resources/views/storefront/base.html.twig`, to true.
+To be able to use HMR you have to run the command `storefront:hot` and set the ENV variable `SHOPWARE_STOREFRONT_HMR_MODE=1`.
 
 
 Resources

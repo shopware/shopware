@@ -41,18 +41,25 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
      */
     private $csrfMode;
 
+    /**
+     * @var bool
+     */
+    private $hmrModeEnabled;
+
     public function __construct(
         RequestStack $requestStack,
         SystemConfigService $systemConfigService,
         ThemeService $themeService,
         bool $csrfEnabled,
-        string $csrfMode
+        string $csrfMode,
+        bool $hmrModeEnabled
     ) {
         $this->requestStack = $requestStack;
         $this->systemConfigService = $systemConfigService;
         $this->themeService = $themeService;
         $this->csrfEnabled = $csrfEnabled;
         $this->csrfMode = $csrfMode;
+        $this->hmrModeEnabled = $hmrModeEnabled;
     }
 
     public function getGlobals(): array
@@ -90,6 +97,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
             'context' => $context,
             'activeRoute' => $request->attributes->get('_route'),
             'formViolations' => $request->attributes->get('formViolations'),
+            'isHMRMode' => $this->hmrModeEnabled,
         ];
     }
 

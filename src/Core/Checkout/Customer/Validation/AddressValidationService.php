@@ -25,26 +25,7 @@ class AddressValidationService implements ValidationServiceInterface
     {
         $definition = new DataValidationDefinition('address.create');
 
-        $this->buildCommonValidation($definition, $context)
-            ->add('salutationId', new NotBlank())
-            ->add('firstName', new NotBlank())
-            ->add('lastName', new NotBlank())
-            ->add('street', new NotBlank())
-            ->add('zipcode', new NotBlank())
-            ->add('city', new NotBlank())
-            ->add('countryId', new NotBlank());
-
-        if ($this->systemConfigService->get('core.loginRegistration.showAdditionalAddressField1') && $this->systemConfigService->get('core.loginRegistration.additionalAddressField1Required')) {
-            $definition->add('additionalAddressLine1', new NotBlank());
-        }
-
-        if ($this->systemConfigService->get('core.loginRegistration.showAdditionalAddressField2') && $this->systemConfigService->get('core.loginRegistration.additionalAddressField2Required')) {
-            $definition->add('additionalAddressLine2', new NotBlank());
-        }
-
-        if ($this->systemConfigService->get('core.loginRegistration.showPhoneNumberField') && $this->systemConfigService->get('core.loginRegistration.phoneNumberFieldRequired')) {
-            $definition->add('phoneNumber', new NotBlank());
-        }
+        $this->buildCommonValidation($definition, $context);
 
         return $definition;
     }
@@ -64,7 +45,26 @@ class AddressValidationService implements ValidationServiceInterface
         $definition
             ->add('salutationId', new EntityExists(['entity' => 'salutation', 'context' => $context]))
             ->add('countryId', new EntityExists(['entity' => 'country', 'context' => $context]))
-            ->add('countryStateId', new EntityExists(['entity' => 'country_state', 'context' => $context]));
+            ->add('countryStateId', new EntityExists(['entity' => 'country_state', 'context' => $context]))
+            ->add('salutationId', new NotBlank())
+            ->add('firstName', new NotBlank())
+            ->add('lastName', new NotBlank())
+            ->add('street', new NotBlank())
+            ->add('zipcode', new NotBlank())
+            ->add('city', new NotBlank())
+            ->add('countryId', new NotBlank());
+
+        if ($this->systemConfigService->get('core.loginRegistration.showAdditionalAddressField1') && $this->systemConfigService->get('core.loginRegistration.additionalAddressField1Required')) {
+            $definition->add('additionalAddressLine1', new NotBlank());
+        }
+
+        if ($this->systemConfigService->get('core.loginRegistration.showAdditionalAddressField2') && $this->systemConfigService->get('core.loginRegistration.additionalAddressField2Required')) {
+            $definition->add('additionalAddressLine2', new NotBlank());
+        }
+
+        if ($this->systemConfigService->get('core.loginRegistration.showPhoneNumberField') && $this->systemConfigService->get('core.loginRegistration.phoneNumberFieldRequired')) {
+            $definition->add('phoneNumber', new NotBlank());
+        }
 
         return $definition;
     }

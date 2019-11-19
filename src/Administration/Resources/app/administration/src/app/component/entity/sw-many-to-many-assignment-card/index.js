@@ -161,6 +161,15 @@ Component.register('sw-many-to-many-assignment-card', {
             }
         },
 
+        entityCollection() {
+            if (!this.localMode) {
+                this.paginateGrid();
+                return;
+            }
+
+            this.gridData = this.entityCollection;
+        },
+
         languageId() {
             if (!this.localMode) {
                 this.paginateGrid();

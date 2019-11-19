@@ -82,6 +82,7 @@
             <argument type="service" id="request_stack"/>
             <argument type="service" id="router"/>
             <argument type="service" id="Shopware\Storefront\Controller\ErrorController"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -119,6 +120,12 @@
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Category\CategoryDefinition"/>
+        </service>
+
+        <service id="Shopware\Storefront\Page\Navigation\Error\ErrorPageLoader">
+            <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoader">

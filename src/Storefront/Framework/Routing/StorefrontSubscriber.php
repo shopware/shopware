@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Storefront\Controller\ErrorController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -35,14 +36,21 @@ class StorefrontSubscriber implements EventSubscriberInterface
      */
     private $errorController;
 
+    /**
+     * @var SalesChannelContextServiceInterface
+     */
+    private $contextService;
+
     public function __construct(
         RequestStack $requestStack,
         RouterInterface $router,
-        ErrorController $errorController
+        ErrorController $errorController,
+        SalesChannelContextServiceInterface $contextService
     ) {
         $this->requestStack = $requestStack;
         $this->router = $router;
         $this->errorController = $errorController;
+        $this->contextService = $contextService;
     }
 
     public static function getSubscribedEvents(): array
@@ -126,6 +134,10 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     public function showHtmlExceptionResponse(ExceptionEvent $event): void
     {
+        if (!$event->getRequest()->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {
+            //When no saleschannel context is resolved, we need to resolve it now.
+            $this->setSalesChannelContext($event);
+        }
         if ($event->getRequest()->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {
             $event->stopPropagation();
             $content = $this->errorController->error(
@@ -195,5 +207,18 @@ class StorefrontSubscriber implements EventSubscriberInterface
             $canonical = sprintf('<%s>; rel="canonical"', $canonical);
             $event->getResponse()->headers->set('Link', $canonical);
         }
+    }
+
+    private function setSalesChannelContext(ExceptionEvent $event): void
+    {
+        $contextToken = $event->getRequest()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        $salesChannelId = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+
+        $context = $this->contextService->get(
+            $salesChannelId,
+            $contextToken,
+            $event->getRequest()->headers->get(PlatformRequest::HEADER_LANGUAGE_ID)
+        );
+        $event->getRequest()->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
     }
 }

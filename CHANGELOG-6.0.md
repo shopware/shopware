@@ -63,6 +63,8 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * The changeset generator now ommits write protected fields
     * We added `fromCollection` and `fromCriteria` methods to criteria/collections to deep copy them if needed
     * Due to the redesign of the cms blocks and elements you can now translate the label of your blocks and elements
+    * The Layouts which can be assigned under settings > basic information > Shop Pages now have to be of the type `shop page`
+    * You can now assign a 404 error page layout in settings > basic information > Shop Pages which will be rolled out in a 404 not found error.
    
 * Core
     * Added DAL support for multi primary keys.
@@ -117,6 +119,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added `\Shopware\Storefront\Framework\Cache\ObjectCacheKeyFinder` which finds all entity cache keys in a none entity object.
     * Added twig helper function `seoUrl` that returns a seo url if possible, otherwise just calls `url`. 
     * Deprecated twig helper functions `productUrl` and `navigationUrl`, use `seoUrl` instead.
+    * Added ErrorPage, ErrorpageLoader and ErrorPageLoaderEvent which is used in the `ErrorController` to load the CMS error layout if a 404 layout is assigned.
 
 **Removals**
 

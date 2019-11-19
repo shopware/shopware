@@ -184,15 +184,16 @@ Component.register('sw-customer-list', {
         loadFilterValues() {
             this.filterLoading = true;
 
-            return this.customerRepository.search(this.filterSelectCriteria, Shopware.Context.api).then(({ aggregations }) => {
-                this.availableAffiliateCodes = aggregations.affiliateCodes.buckets;
-                this.availableCampaignCodes = aggregations.campaignCodes.buckets;
-                this.filterLoading = false;
+            return this.customerRepository.search(this.filterSelectCriteria, Shopware.Context.api)
+                .then(({ aggregations }) => {
+                    this.availableAffiliateCodes = aggregations.affiliateCodes.buckets;
+                    this.availableCampaignCodes = aggregations.campaignCodes.buckets;
+                    this.filterLoading = false;
 
-                return aggregations;
-            }).catch(() => {
-                this.filterLoading = false;
-            });
+                    return aggregations;
+                }).catch(() => {
+                    this.filterLoading = false;
+                });
         },
 
         onChangeAffiliateCodeFilter(value) {

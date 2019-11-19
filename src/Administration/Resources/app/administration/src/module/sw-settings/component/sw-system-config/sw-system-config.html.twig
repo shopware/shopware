@@ -10,6 +10,7 @@
         {% block sw_system_config_content_card %}
             <sw-card v-for="card, index in config"
                      :key="index"
+                     :class="`sw-system-config__card--${index}`"
                      :isLoading="isLoading"
                      :title="getInlineSnippet(card.title)">
                 <slot name="beforeElements" v-bind="{ card, config: actualConfigData[currentSalesChannelId] }"></slot>

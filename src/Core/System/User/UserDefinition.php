@@ -68,8 +68,13 @@ class UserDefinition extends EntityDefinition
             new OneToManyAssociationField('accessKeys', UserAccessKeyDefinition::class, 'user_id', 'id'),
             new OneToManyAssociationField('stateMachineHistoryEntries', StateMachineHistoryDefinition::class, 'user_id', 'id'),
             new OneToManyAssociationField('importExportLogEntries', ImportExportLogDefinition::class, 'user_id', 'id'),
-            new ManyToManyAssociationField('aclRoles', AclRoleDefinition::class, AclUserRoleDefinition::class, 'user_id', 'acl_role_id'),
-            new OneToOneAssociationField('recoveryUser', 'id', 'user_id', UserRecoveryDefinition::class, false),
+
+            (new ManyToManyAssociationField('aclRoles', AclRoleDefinition::class, AclUserRoleDefinition::class, 'user_id', 'acl_role_id'))
+                ->addFlags(new ReadProtected(SalesChannelApiSource::class)),
+
+            (new OneToOneAssociationField('recoveryUser', 'id', 'user_id', UserRecoveryDefinition::class, false))
+                ->addFlags(new ReadProtected(SalesChannelApiSource::class)),
+
             (new StringField('store_token', 'storeToken'))->addFlags(new ReadProtected(SalesChannelApiSource::class, AdminApiSource::class)),
         ]);
     }

@@ -380,6 +380,8 @@ class TestBasicWithToManyRelationships extends SerializationFixture
     protected function removeProtectedSalesChannelJsonApiData(array $fixtures): array
     {
         unset(
+            $fixtures['data']['relationships']['recoveryUser'],
+            $fixtures['data']['relationships']['aclRoles'],
             $fixtures['included'][0]['attributes']['userId'],
             $fixtures['included'][0]['attributes']['mediaType'],
             $fixtures['included'][0]['attributes']['mediaFolderId'],
@@ -409,6 +411,8 @@ class TestBasicWithToManyRelationships extends SerializationFixture
     protected function removeProtectedSalesChannelJsonData(array $fixtures): array
     {
         unset(
+            $fixtures['recoveryUser'],
+            $fixtures['aclRoles'],
             $fixtures['media'][0]['userId'],
             $fixtures['media'][0]['user'],
             $fixtures['media'][0]['avatarUser'],

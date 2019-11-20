@@ -198,10 +198,10 @@ Component.register('sw-promotion-individualcodes', {
             });
         },
 
-        onGridSelectionChanged(selection) {
+        onGridSelectionChanged(selection, selectionCount) {
             // enable our button if rows have been selected.
             // disable our delete button if nothing has been selected
-            this.deleteButtonDisabled = Object.keys(selection).length <= 0;
+            this.deleteButtonDisabled = selectionCount <= 0;
         },
 
         onOpenCustomer(customerId) {
@@ -232,11 +232,6 @@ Component.register('sw-promotion-individualcodes', {
                     }
                 });
             });
-
-            // reset our selection in the grid
-            // and also deselect the checkbox in the header
-            this.$refs.gridCodes.selection = [];
-            this.$refs.gridCodes.allSelectedChecked = false;
 
             // refresh our grid and
             // make sure everything is up to date

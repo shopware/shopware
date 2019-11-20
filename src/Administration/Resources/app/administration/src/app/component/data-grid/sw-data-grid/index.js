@@ -140,7 +140,6 @@ Component.register('sw-data-grid', {
             currentColumns: [],
             columnIndex: null,
             selection: {},
-            allSelectedChecked: false,
             originalTarget: null,
             compact: this.compactMode,
             previews: this.showPreviews,
@@ -176,6 +175,21 @@ Component.register('sw-data-grid', {
 
         selectionCount() {
             return Object.values(this.selection).length;
+        },
+
+        allSelectedChecked() {
+            if (!this.records || this.selectionCount < this.records.length) {
+                return false;
+            }
+
+            const selectedItems = Object.values(this.selection);
+            return this.records.reduce((acc, item) => {
+                if (!selectedItems.some((selection) => selection === item)) {
+                    acc = false;
+                }
+
+                return acc;
+            }, true);
         }
     },
 
@@ -214,6 +228,10 @@ Component.register('sw-data-grid', {
 
         compactMode() {
             this.compact = this.compactMode;
+        },
+
+        selection() {
+            this.$emit('selection-change', this.selection, this.selectionCount);
         }
     },
 
@@ -385,7 +403,6 @@ Component.register('sw-data-grid', {
                 }
             });
 
-            this.allSelectedChecked = selected;
             this.$emit('select-all-items', this.selection);
         },
 
@@ -398,7 +415,6 @@ Component.register('sw-data-grid', {
                 this.$delete(this.selection, item.id);
             }
 
-            this.checkSelection();
             this.$emit('select-item', this.selection, item, selected);
         },
 
@@ -406,19 +422,8 @@ Component.register('sw-data-grid', {
             return typeof this.selection[itemId] !== 'undefined';
         },
 
-        checkSelection() {
-            let selected = true;
-            this.records.forEach((item) => {
-                if (this.selection[item.id] === undefined) {
-                    selected = false;
-                }
-            });
-            this.allSelectedChecked = selected;
-        },
-
         resetSelection() {
             this.selection = {};
-            this.allSelectedChecked = false;
         },
 
         onClickSaveInlineEdit(item) {

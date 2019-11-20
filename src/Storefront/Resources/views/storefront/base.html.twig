@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block base_html %}
-<html lang="{{ "meta.xmlLang"|trans|striptags }}"
+<html lang="{{ app.request.locale }}"
       itemscope="itemscope"
       itemtype="https://schema.org/WebPage">
 {% endblock %}

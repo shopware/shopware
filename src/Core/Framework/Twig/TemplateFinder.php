@@ -41,7 +41,7 @@ class TemplateFinder
         $this->twig = $twig;
         $this->loader = $loader;
         $this->kernel = $kernel;
-        $this->cacheDir = $kernel->getCacheDir();
+        $this->cacheDir = $kernel->getCacheDir() . '/twig';
         $this->addBundles($kernel);
     }
 

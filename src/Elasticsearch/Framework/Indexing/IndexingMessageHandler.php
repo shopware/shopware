@@ -3,6 +3,7 @@
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use Elasticsearch\Client;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -30,14 +31,21 @@ class IndexingMessageHandler extends AbstractMessageHandler
      */
     private $entityRegistry;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     public function __construct(
         Client $client,
         ElasticsearchRegistry $registry,
-        DefinitionInstanceRegistry $entityRegistry
+        DefinitionInstanceRegistry $entityRegistry,
+        LoggerInterface $logger
     ) {
         $this->client = $client;
         $this->registry = $registry;
         $this->entityRegistry = $entityRegistry;
+        $this->logger = $logger;
     }
 
     public static function getHandledMessages(): iterable
@@ -173,6 +181,8 @@ class IndexingMessageHandler extends AbstractMessageHandler
                 'type' => $item['error']['type'],
                 'reason' => $item['error']['reason'],
             ];
+
+            $this->logger->error($item['error']['reason']);
         }
 
         return $errors;

@@ -100,6 +100,8 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
             $entity = $row['entity'];
             $count = (int) $row['doc_count'];
 
+            $this->client->indices()->refresh(['index' => $index]);
+
             if (!$this->indexReady($index, $entity, $count)) {
                 continue;
             }
@@ -108,7 +110,13 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
 
             $this->createAlias($index, $alias);
 
-            $this->client->indices()->refresh(['index' => $index]);
+            $this->client->indices()->putSettings([
+                'index' => $index,
+                'body' => [
+                    'number_of_replicas' => 3,
+                    'refresh_interval' => null,
+                ],
+            ]);
 
             $this->connection->executeUpdate(
                 'DELETE FROM elasticsearch_index_task WHERE id = :id',

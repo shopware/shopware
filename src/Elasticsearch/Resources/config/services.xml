@@ -8,7 +8,7 @@
         <parameter key="elasticsearch.index.config" type="collection">
             <parameter key="settings" type="collection">
                 <parameter key="number_of_shards">3</parameter>
-                <parameter key="number_of_replicas">2</parameter>
+                <parameter key="number_of_replicas">3</parameter>
                 <parameter key="mapping.total_fields.limit">5000</parameter>
                 <parameter key="mapping.nested_fields.limit">500</parameter>
             </parameter>
@@ -114,7 +114,7 @@
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="logger"/>
 
             <tag name="messenger.message_handler"/>
         </service>

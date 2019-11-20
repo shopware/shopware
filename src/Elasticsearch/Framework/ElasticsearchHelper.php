@@ -5,7 +5,6 @@ namespace Shopware\Elasticsearch\Framework;
 use Elasticsearch\Client;
 use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
-use ONGR\ElasticsearchDSL\Query\FullText\MultiMatchQuery;
 use ONGR\ElasticsearchDSL\Search;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
@@ -198,19 +197,26 @@ class ElasticsearchHelper
         $bool = new BoolQuery();
 
         $bool->add(
-            // search boosting
-            new MultiMatchQuery(
-                ['fullText^2', 'fullTextBoosted^7'],
-                $criteria->getTerm(),
-                ['type' => 'cross_fields']
-            ),
+            new MatchQuery('fullText', $criteria->getTerm(), ['boost' => 2]),
             BoolQuery::SHOULD
         );
 
         $bool->add(
-            // fuzziness for typos
-            new MatchQuery('fullText', $criteria->getTerm(), ['fuzziness' => 'auto'])
+            new MatchQuery('fullTextBoosted', $criteria->getTerm(), ['boost' => 5]),
+            BoolQuery::SHOULD
         );
+
+        $bool->add(
+            new MatchQuery('fullText', $criteria->getTerm(), ['fuzziness' => 'auto']),
+            BoolQuery::SHOULD
+        );
+
+        $bool->add(
+            new MatchQuery('description', $criteria->getTerm()),
+            BoolQuery::SHOULD
+        );
+
+        $bool->addParameter('minimum_should_match', 1);
 
         $search->addQuery($bool);
     }

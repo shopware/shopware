@@ -9,5 +9,5 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 interface SalesChannelContextServiceInterface
 {
-    public function get(string $salesChannelId, string $token, ?string $languageId): SalesChannelContext;
+    public function get(string $salesChannelId, string $token, ?string $languageId, ?string $currencyId = null): SalesChannelContext;
 }

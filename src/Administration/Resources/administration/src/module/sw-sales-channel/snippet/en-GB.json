@@ -137,8 +137,7 @@
           "help": "Automatically selected from sales channel domain"
         },
         "storefrontDomainCurrency": {
-          "label": "Currency",
-          "help": "Automatically selected from sales channel domain"
+          "label": "Currency"
         },
         "storefrontSalesChannelCustomerGroup": {
           "label": "Customer Group",

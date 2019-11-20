@@ -137,8 +137,7 @@
           "help": "Auf Basis der Storefront-Domain automatisch gewählt"
         },
         "storefrontDomainCurrency": {
-          "label": "Währung",
-          "help": "Auf Basis der Storefront-Domain automatisch gewählt"
+          "label": "Währung"
         },
         "storefrontSalesChannelCustomerGroup": {
           "label": "Kundengruppe",

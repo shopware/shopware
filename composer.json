@@ -51,7 +51,7 @@
         "league/oauth2-server": "7.3.3",
         "marc1706/fast-image-size": "1.1.5",
         "nyholm/psr7": "1.2.1",
-        "ongr/elasticsearch-dsl": "6.0.4",
+        "ongr/elasticsearch-dsl": "7.0.0",
         "padaliyajay/php-autoprefixer": "1.2",
         "psr/cache": "1.0.1",
         "psr/http-factory": "1.0.1",

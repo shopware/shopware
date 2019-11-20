@@ -132,8 +132,11 @@ class Kernel extends HttpKernel
     public static function getConnection(): Connection
     {
         if (!self::$connection) {
+            $url = $_ENV['DATABASE_URL']
+                ?? $_SERVER['DATABASE_URL']
+                ?? getenv('DATABASE_URL');
             $parameters = [
-                'url' => getenv('DATABASE_URL'),
+                'url' => $url,
                 'charset' => 'utf8mb4',
             ];
 

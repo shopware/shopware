@@ -28,6 +28,7 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         productExport: {
+            // type: Entity
             type: Object,
             required: true
         },

@@ -4,6 +4,8 @@ UPGRADE FROM 6.0 to 6.1
 Core
 ----
 
+
+* We've added an additional optional parameter to the `get` method of `\Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface` for defining the currency. 
 * If you have implemented a custom FieldResolver, you need to implement the `getJoinBuilder` method.
 * `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria` association handling
 

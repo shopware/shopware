@@ -382,17 +382,17 @@
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain_currency %}
-                <div class="sw-sales-channel-detail-base__product-comparison-container" v-if="productExport.salesChannelDomain">
-                    <sw-entity-single-select
-                            :label="$tc('sw-sales-channel.detail.productComparison.storefrontDomainCurrency.label')"
-                            :criteria="storefrontSalesChannelCurrencyCriteria"
-                            labelProperty="name"
-                            valueProperty="id"
-                            required
-                            entity="currency"
-                            v-model="productExport.currencyId">
-                    </sw-entity-single-select>
-                </div>
+                    <div class="sw-sales-channel-detail-base__product-comparison-container" v-if="productExport.salesChannelDomain">
+                        <sw-entity-single-select
+                                :label="$tc('sw-sales-channel.detail.productComparison.storefrontDomainCurrency.label')"
+                                :criteria="storefrontSalesChannelCurrencyCriteria"
+                                labelProperty="name"
+                                valueProperty="id"
+                                required
+                                entity="currency"
+                                v-model="productExport.currencyId">
+                        </sw-entity-single-select>
+                    </div>
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain_language %}

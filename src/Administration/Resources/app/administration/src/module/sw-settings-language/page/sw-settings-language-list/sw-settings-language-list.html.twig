@@ -90,6 +90,9 @@
                                 {{ $tc('global.default.delete') }}
                             </sw-context-menu-item>
                         </template>
+                        <template #delete-confirm-text="{ item }">
+                            {{ $tc('sw-settings-language.list.textDeleteConfirm', 1, { name: item.name } ) }}
+                        </template>
                     </sw-entity-listing>
                 </template>
             {% endblock %}

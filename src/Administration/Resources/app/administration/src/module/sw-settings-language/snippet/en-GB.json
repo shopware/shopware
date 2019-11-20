@@ -6,7 +6,7 @@
     },
     "list": {
       "textHeadline": "Languages",
-      "textDeleteConfirm": "Are you sure you want to delete the language \"{name}\"?",
+      "textDeleteConfirm": "Are you sure you want to delete the language \"{name}\"? This will delete all content in this language and can not be undone!",
       "columnName": "Name",
       "columnLocaleName": "Locale",
       "columnIsoCode": "ISO Code ",

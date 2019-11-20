@@ -8,6 +8,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 
 class ProductExceptionHandler implements ExceptionHandlerInterface
 {
+    public function getPriority(): int
+    {
+        return ExceptionHandlerInterface::PRIORITY_DEFAULT;
+    }
+
     public function matchException(\Exception $e, WriteCommand $command): ?\Exception
     {
         if ($e->getCode() !== 0 || $command->getDefinition()->getEntityName() !== 'product') {

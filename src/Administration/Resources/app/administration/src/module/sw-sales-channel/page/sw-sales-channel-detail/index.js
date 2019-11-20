@@ -57,6 +57,19 @@ Component.register('sw-sales-channel-detail', {
                 message: `${systemKey} + S`,
                 appearance: 'light'
             };
+        },
+
+        salesChannelCriteria() {
+            const criteria = new Criteria();
+
+            criteria.addAssociation('paymentMethods');
+            criteria.addAssociation('shippingMethods');
+            criteria.addAssociation('countries');
+            criteria.addAssociation('currencies');
+            criteria.addAssociation('languages');
+            criteria.addAssociation('domains');
+
+            return criteria;
         }
     },
 
@@ -93,18 +106,9 @@ Component.register('sw-sales-channel-detail', {
         },
 
         loadSalesChannel() {
-            const criteria = new Criteria();
-
-            criteria.addAssociation('paymentMethods');
-            criteria.addAssociation('shippingMethods');
-            criteria.addAssociation('countries');
-            criteria.addAssociation('currencies');
-            criteria.addAssociation('languages');
-            criteria.addAssociation('domains');
-
             this.isLoading = true;
             this.salesChannelRepository
-                .get(this.$route.params.id, Shopware.Context.api, criteria)
+                .get(this.$route.params.id, Shopware.Context.api, this.salesChannelCriteria)
                 .then((entity) => {
                     this.salesChannel = entity;
                     this.isLoading = false;

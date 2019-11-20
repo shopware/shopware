@@ -153,6 +153,7 @@ Cypress.Commands.add('typeMultiSelectAndCheck', {
 
     // close search results
     cy.get(`${subject.selector} ${inputCssSelector}`).type('{esc}');
+    cy.get(`${subject.selector} .sw-select-result-list`).should('not.exist');
     return this;
 });
 
@@ -197,6 +198,8 @@ Cypress.Commands.add('typeSingleSelect', {
         // Select the first element
         cy.get(`${resultPrefix}-option--0`).click({force: true});
     }
+
+    cy.get(`${selector} .sw-select-result-list`).should('not.exist');
 
     return this;
 });

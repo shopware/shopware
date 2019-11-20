@@ -2,65 +2,68 @@
     <sw-page class="sw-dashboard-index" :showSmartBar="false">
         {% block sw_dashboard_index_content %}
             <sw-card-view slot="content" class="sw-dashboard-index__content">
-                <sw-card>
-                    {% block sw_dashboard_index_content_intro %}
-                        <div class="sw-dashboard-index__intro">
-                            {% block sw_dashboard_index_content_intro_content %}
-                                <div class="sw-dashboard-index__intro-content">
-                                    {% block sw_dashboard_index_content_intro_content_headline %}
-                                        <h1>{{ $tc('sw-dashboard.introduction.headline') }}</h1>
-                                    {% endblock %}
 
-                                    {% block sw_dashboard_index_content_intro_content_external_link_doc_enduser %}
-                                        <sw-dashboard-external-link :title="$tc('sw-dashboard.introduction.enduserDocumentation')"
-                                                                    :link="$tc('sw-dashboard.introduction.enduserDocumentationLink')">
-                                        </sw-dashboard-external-link>
-                                    {% endblock %}
+                {% block sw_dashboard_index_content_intro_card %}
+                    <sw-card>
+                        {% block sw_dashboard_index_content_intro %}
+                            <div class="sw-dashboard-index__intro">
+                                {% block sw_dashboard_index_content_intro_content %}
+                                    <div class="sw-dashboard-index__intro-content">
+                                        {% block sw_dashboard_index_content_intro_content_headline %}
+                                            <h1>{{ $tc('sw-dashboard.introduction.headline') }}</h1>
+                                        {% endblock %}
 
-                                    {% block sw_dashboard_index_content_intro_content_external_link_doc_developer %}
-                                        <sw-dashboard-external-link :title="$tc('sw-dashboard.introduction.developerDocumentation')"
-                                                                    :link="$tc('sw-dashboard.introduction.developerDocumentationLink')">
-                                        </sw-dashboard-external-link>
-                                    {% endblock %}
+                                        {% block sw_dashboard_index_content_intro_content_external_link_doc_enduser %}
+                                            <sw-dashboard-external-link :title="$tc('sw-dashboard.introduction.enduserDocumentation')"
+                                                                        :link="$tc('sw-dashboard.introduction.enduserDocumentationLink')">
+                                            </sw-dashboard-external-link>
+                                        {% endblock %}
 
-                                    {% block sw_dashboard_index_content_intro_content_external_link_doc_migration %}
-                                        <sw-dashboard-external-link :title="$tc('sw-dashboard.introduction.migrationDocumentation')"
-                                                                    :link="$tc('sw-dashboard.introduction.migrationDocumentationLink')">
-                                        </sw-dashboard-external-link>
-                                    {% endblock %}
+                                        {% block sw_dashboard_index_content_intro_content_external_link_doc_developer %}
+                                            <sw-dashboard-external-link :title="$tc('sw-dashboard.introduction.developerDocumentation')"
+                                                                        :link="$tc('sw-dashboard.introduction.developerDocumentationLink')">
+                                            </sw-dashboard-external-link>
+                                        {% endblock %}
 
-                                    {% block sw_dashboard_index_content_intro_content_external_link_intro_buttons %}
-                                        <sw-container columns="1fr 1fr" gap="16px" justify="start" class="sw-dashboard-index__intro-buttons">
+                                        {% block sw_dashboard_index_content_intro_content_external_link_doc_migration %}
+                                            <sw-dashboard-external-link :title="$tc('sw-dashboard.introduction.migrationDocumentation')"
+                                                                        :link="$tc('sw-dashboard.introduction.migrationDocumentationLink')">
+                                            </sw-dashboard-external-link>
+                                        {% endblock %}
 
-                                            {% block sw_dashboard_index_content_intro_content_external_link_intro_buttons_roadmap %}
-                                                <sw-button variant="primary"
-                                                           target="_blank"
-                                                           :link="$tc('sw-dashboard.introduction.roadmapLink')">
-                                                    {{ $tc('sw-dashboard.introduction.roadmap') }}
-                                                </sw-button>
-                                            {% endblock %}
+                                        {% block sw_dashboard_index_content_intro_content_external_link_intro_buttons %}
+                                            <sw-container columns="1fr 1fr" gap="16px" justify="start" class="sw-dashboard-index__intro-buttons">
 
-                                            {% block sw_dashboard_index_content_intro_content_external_link_intro_buttons_feedback %}
-                                                <sw-button variant="ghost"
-                                                           target="_blank"
-                                                           :link="$tc('sw-dashboard.introduction.feedbackLink')">
-                                                    {{ $tc('sw-dashboard.introduction.feedback') }}
-                                                </sw-button>
-                                            {% endblock %}
+                                                {% block sw_dashboard_index_content_intro_content_external_link_intro_buttons_roadmap %}
+                                                    <sw-button variant="primary"
+                                                               target="_blank"
+                                                               :link="$tc('sw-dashboard.introduction.roadmapLink')">
+                                                        {{ $tc('sw-dashboard.introduction.roadmap') }}
+                                                    </sw-button>
+                                                {% endblock %}
 
-                                        </sw-container>
-                                    {% endblock %}
-                                </div>
-                            {% endblock %}
+                                                {% block sw_dashboard_index_content_intro_content_external_link_intro_buttons_feedback %}
+                                                    <sw-button variant="ghost"
+                                                               target="_blank"
+                                                               :link="$tc('sw-dashboard.introduction.feedbackLink')">
+                                                        {{ $tc('sw-dashboard.introduction.feedback') }}
+                                                    </sw-button>
+                                                {% endblock %}
 
-                            {% block sw_dashboard_index_content_intro_image %}
-                                <div class="sw-dashboard-index__intro-image">
-                                    <img :src="'administration/static/img/dashboard-logo.svg' | asset">
-                                </div>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
-                </sw-card>
+                                            </sw-container>
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+
+                                {% block sw_dashboard_index_content_intro_image %}
+                                    <div class="sw-dashboard-index__intro-image">
+                                        <img :src="'administration/static/img/dashboard-logo.svg' | asset">
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </sw-card>
+                {% endblock %}
 
                 <template v-if="hasOrderToday">
                     {% block sw_dashboard_index_content_intro_stats_headline %}

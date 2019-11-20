@@ -124,21 +124,6 @@ class ElasticsearchProductTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
-        $this->connection->executeQuery('
-            DROP TABLE IF EXISTS `extended_product`;
-            CREATE TABLE `extended_product` (
-                `id` BINARY(16) NOT NULL,
-                `name` VARCHAR(255) NULL,
-                `product_id` BINARY(16) NULL,
-                `language_id` BINARY(16) NULL,
-                `created_at` DATETIME(3) NOT NULL,
-                `updated_at` DATETIME(3) NULL,
-                PRIMARY KEY (`id`),
-                CONSTRAINT `fk.extended_product.id` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`),
-                CONSTRAINT `fk.extended_product.language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`)
-            )
-        ');
-
         $elasticsearchRegistry = $this->getContainer()->get(ElasticsearchRegistry::class);
 
         $extension = new ElasticsearchProductDefinitionExtension(
@@ -154,8 +139,6 @@ class ElasticsearchProductTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->connection->executeQuery('DROP TABLE `extended_product`');
-
         $this->removeExtension(ProductExtension::class);
 
         parent::tearDown();
@@ -166,10 +149,26 @@ class ElasticsearchProductTest extends TestCase
      */
     public static function startTransactionBefore(): void
     {
-        KernelLifecycleManager::getKernel()
+        $connection = KernelLifecycleManager::getKernel()
             ->getContainer()
-            ->get(Connection::class)
-            ->beginTransaction();
+            ->get(Connection::class);
+
+        $connection->executeQuery('
+            DROP TABLE IF EXISTS `extended_product`;
+            CREATE TABLE `extended_product` (
+                `id` BINARY(16) NOT NULL,
+                `name` VARCHAR(255) NULL,
+                `product_id` BINARY(16) NULL,
+                `language_id` BINARY(16) NULL,
+                `created_at` DATETIME(3) NOT NULL,
+                `updated_at` DATETIME(3) NULL,
+                PRIMARY KEY (`id`),
+                CONSTRAINT `fk.extended_product.id` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`),
+                CONSTRAINT `fk.extended_product.language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`)
+            )
+        ');
+
+        $connection->beginTransaction();
     }
 
     /**
@@ -177,21 +176,17 @@ class ElasticsearchProductTest extends TestCase
      */
     public static function stopTransactionAfter(): void
     {
-        KernelLifecycleManager::getKernel()
+        $connection = KernelLifecycleManager::getKernel()
             ->getContainer()
-            ->get(Connection::class)
-            ->rollBack();
+            ->get(Connection::class);
+
+        $connection->rollBack();
+        $connection->executeQuery('DROP TABLE `extended_product`');
     }
 
     public function testIndexing()
     {
-        /** @var Connection $connection */
-        $connection = $this->getContainer()->get(Connection::class);
-        if ($connection->isRollbackOnly()) {
-            $connection->rollBack();
-            $connection->beginTransaction();
-        }
-        $connection->executeUpdate('DELETE FROM product');
+        $this->connection->executeUpdate('DELETE FROM product');
 
         $context = Context::createDefaultContext();
 

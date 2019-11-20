@@ -59,7 +59,7 @@
                                            :showSelection="true"
                                            :isLoading="isLoading"
                                            @inline-edit-save="onInlineEditSave"
-                                           @select-item="updateSelection"
+                                           @selection-change="updateSelection"
                                            @update-records="updateTotal">
                             {% block sw_product_list_grid_columns %}
                                 {% block sw_product_list_grid_columns_name_preview %}

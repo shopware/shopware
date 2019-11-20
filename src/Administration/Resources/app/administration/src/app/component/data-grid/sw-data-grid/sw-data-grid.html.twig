@@ -40,7 +40,7 @@
                                                     <div class="sw-data-grid__cell-content">
                                                         {% block sw_data_grid_select_all_checkbox %}
                                                             <sw-checkbox-field
-                                                                v-model="allSelectedChecked"
+                                                                :value="allSelectedChecked"
                                                                 @change="selectAll"
                                                                 class="sw-data-grid__select-all">
                                                             </sw-checkbox-field>

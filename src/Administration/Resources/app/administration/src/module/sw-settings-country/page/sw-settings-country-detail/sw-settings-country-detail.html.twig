@@ -154,7 +154,7 @@
                                     :collection="country.states"
                                     :fullPage="false"
                                     :localMode="country.isNew()"
-                                    @select-item="countryStateSelectionChanged"
+                                    @selection-change="countryStateSelectionChanged"
                                     :columns="stateColumns">
                                 <template #column-name="{ item }">
                                     <a class="sw-settings-country-detail__link"

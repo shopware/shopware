@@ -183,7 +183,10 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added APi validation for rules and product streams
     * Split `sw-product-stream-filter` component into smaler subcomponents `sw-product-stream-field-select` and `sw-product-stream-value`
     * Removed `sw-product-stream-create` page
-* Removed `sw-settings-rule-create` page
+    * Removed `sw-settings-rule-create` page
+    * Added event `selection-change` to `sw-data-grid`. The event is fired whenever the selection in the grid changes including pagination and delete requests.
+      * The event emits two values: the actual selection and the selection count of the `sw-data-grid`.
+      * `change-selection` should be preferred over `select-item` if you are interested in the selection itself and not in a specific item that was selected. 
 * Core
     * Moved the seo module from the storefront into the core.
     * Switched the execution condition of `\Shopware\Core\Framework\Migration\MigrationStep::addBackwardTrigger()` and `\Shopware\Core\Framework\Migration\MigrationStep::addForwardTrigger()` to match the execution conditions in the methods documentation.

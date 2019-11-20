@@ -165,6 +165,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Move context to the Store
     * Make vuex store initially available
     * Moved `Resources/administration` directory to `Resources/app/administration`
+    * Double opt in for registrations and guests is now configurable in the settings at the Login / Registration module
     * Added component `sw-entitiy-multi-id-select` which can be used to select entities but only emit their ids
         * The v-model is bound to `change` event and sets the `ids` property
         * exposes the same slots as any `select` component
@@ -207,6 +208,12 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added `taxRules` association to country entity
     * Changed the calling of `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getDefaults` which is now only called by newly created entities. The check `$existence->exists()` inside this method is not necessary anymore
     * Added new method `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getChildDefaults`. Use it to define defaults for newly created child entities
+    * Extended the `\Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService::register` method which sets additional the double opt in data (only if set in the admin settings) and dispatches the respective event which send the mail with the confirm link
+        - the confirm link includes the route to the `\Shopware\Storefront\Controller\RegisterController::confirmRegistration` method and two parameters (the sha1 hashed email address of the customer and a random generated hash)
+    * Added new method `\Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService::finishDoubleOptInRegistration` which validates the double opt in confirmation and activates the customer when the data is valid
+    * Added new event `\Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent` for sending the confirm mail for double opt in guests
+    * Added new event `\Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent` for sending the confirm mail for double opt in registrations
+    * Extended the `\Shopware\Core\System\Resources\config\loginRegistration.xml` with input fields for double opt in registrations and guests
     * We adjusted the entry points for administration and storefront resources so that there are no naming conflicts anymore. It is no longer possible to adjust the paths to the corresponding sources. The new structure looks as follows:
         ```
         MyPlugin
@@ -278,6 +285,8 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added `MetaInformation` struct to handle meta information in `pageLoader`
     * Renamed the `breadcrumb` variable used in category seo url templates. It can now be access using `category.seoBreadcrumb` to align it with all other variables.
     * Added an automatic hot reload watcher with automatic detection. Use `./psh.phar storefront:hot-proxy` 
+    * Extended the `\Shopware\Storefront\Controller\RegisterController::register` method with the double opt in logic (only if set in the admin settings)
+    * Added new method `\Shopware\Storefront\Controller\RegisterController::confirmRegistration` to confirm double opt in registrations or email addresses
     * Added twig filter `sw_sanitize` to filter unwanted tags and attributes (prevent XSS)
 * Elasticsearch
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.

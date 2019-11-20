@@ -52,23 +52,26 @@ They are automatically loaded and executed, if you place them in the proper dire
 By default, those are expected to be in a `Migration` directory, relative to your plugin's base class.
 Since your base class' location is the `src` directory, that's also where the `Migration` directory has to be in: `<plugin root>/src/Migration`
 
-After creating the directory, create a new PHP file in there.
-Its name has to follow this pattern: `Migration<UnixTimeStap><MigrationName>.php`
-A real example would then look like this: `Migration1554708925Bundle.php`
+After creating the directory, you can use symfony's `bin/console` to create boilerplate migration files.
 
-You can get the current UNIX timestamp from [here](https://www.unixtimestamp.com) or any other source. Make sure to
-note down this timestamp, you'll need it in a minute.
-The name can be freely chosen, in this case "Bundle" is enough.
+    bin/console database:create-migration --plugin SwagBundleExample --name Bundle
+    
+<dl>
+<dt>`--plugin`</dt>
+<dd>specifies the plugin's name in order to create the file in the correct directory</dd>
+<dt>`--name`</dt>
+<dd>specifies an arbitrary suffix for the migration file helping you to quickly see, which migration file is doing what</dd>
+</dl>
 
-The actual PHP class has to be named after the filename, so `Migration1554708925Bundle` that is.
-Your migration has to extend from the class `Shopware\Core\Framework\Migration\MigrationStep`. 
+The actual PHP class name has to match the filename, so `Migration1554708925Bundle` it is.
+Migrations have to extend from the class `Shopware\Core\Framework\Migration\MigrationStep`. 
 
-You'll now be asked to implement three methods: `getCreationTimestamp`, `update` and `updateDestructive`
+Every migration must three methods: `getCreationTimestamp`, `update` and `updateDestructive`
 
 <dl>
     <dt>getCreationTimestamp</dt>
     <dd>
-        Simply return the timestamp here, that you've used in the class name. Return it as an integer.
+        Simply returns the timestamp here, that's used in the class name. Return value must be an integer.
         This timestamp will be saved into the database table `migration`, so Shopware 6 can keep track of which migrations were executed already and which ones are still necessary.
     </dd>
     

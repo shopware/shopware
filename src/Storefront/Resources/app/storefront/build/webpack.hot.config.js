@@ -53,7 +53,11 @@ const modules = {
                     loader: 'sass-resources-loader',
                     options: {
                         resources: [
+                            // Dumped theme variables
                             join(utils.getProjectRootPath(), 'var/theme-variables.scss'),
+
+                            // Storefront & vendor variables + mixins + functions
+                            join(__dirname, '..', 'src/scss/variables.scss'),
                         ],
                     },
                 },

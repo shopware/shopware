@@ -342,17 +342,10 @@ Component.register('sw-category-detail', {
                 this.category.slotConfig = cloneDeep(pageOverrides);
             }
 
-            const seoUrls = Shopware.State.getters['swSeoUrl/getNewOrModifiedUrls']();
-
-            seoUrls.forEach(seoUrl => {
-                if (seoUrl.seoPathInfo) {
-                    seoUrl.isModified = true;
-                    this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId);
-                }
-            });
-
             this.isLoading = true;
-            return this.categoryRepository.save(this.category, Shopware.Context.api).then(() => {
+            this.updateSeoUrls().then(() => {
+                return this.categoryRepository.save(this.category, Shopware.Context.api);
+            }).then(() => {
                 this.isSaveSuccessful = true;
                 return this.setCategory();
             }).catch(() => {
@@ -409,6 +402,23 @@ Component.register('sw-category-detail', {
                 });
             }
             return slotOverrides;
+        },
+
+        updateSeoUrls() {
+            if (!Shopware.State.list().includes('swSeoUrl')) {
+                return Promise.resolve();
+            }
+
+            const seoUrls = Shopware.State.getters['swSeoUrl/getNewOrModifiedUrls']();
+
+            return Promise.all(seoUrls.map((seoUrl) => {
+                if (seoUrl.seoPathInfo) {
+                    seoUrl.isModified = true;
+                    return this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId);
+                }
+
+                return Promise.resolve();
+            }));
         }
     }
 });

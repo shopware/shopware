@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Controller;
 
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition;
 use Shopware\Core\Content\ImportExport\Exception\ProfileNotFoundException;
 use Shopware\Core\Content\ImportExport\Exception\UnexpectedFileTypeException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
@@ -9,6 +10,7 @@ use Shopware\Core\Content\ImportExport\Service\DownloadService;
 use Shopware\Core\Content\ImportExport\Service\InitiationService;
 use Shopware\Core\Content\ImportExport\Service\ProcessingService;
 use Shopware\Core\Content\ImportExport\Service\SupportedFeaturesService;
+use Shopware\Core\Framework\Api\Converter\ConverterService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -64,6 +66,16 @@ class ImportExportActionController extends AbstractController
      */
     private $processingBatchSize;
 
+    /**
+     * @var ImportExportLogDefinition
+     */
+    private $logDefinition;
+
+    /**
+     * @var ConverterService
+     */
+    private $converterService;
+
     public function __construct(
         SupportedFeaturesService $supportedFeaturesService,
         InitiationService $initiationService,
@@ -71,6 +83,8 @@ class ImportExportActionController extends AbstractController
         DownloadService $downloadService,
         EntityRepositoryInterface $profileRepository,
         DataValidator $dataValidator,
+        ImportExportLogDefinition $logDefinition,
+        ConverterService $converterService,
         int $processingBatchSize
     ) {
         $this->supportedFeaturesService = $supportedFeaturesService;
@@ -80,6 +94,8 @@ class ImportExportActionController extends AbstractController
         $this->profileRepository = $profileRepository;
         $this->dataValidator = $dataValidator;
         $this->processingBatchSize = $processingBatchSize;
+        $this->logDefinition = $logDefinition;
+        $this->converterService = $converterService;
     }
 
     /**
@@ -97,7 +113,7 @@ class ImportExportActionController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/import-export/initiate", name="api.action.import_export.initiate", methods={"POST"})
      */
-    public function initiate(Request $request, Context $context): JsonResponse
+    public function initiate(int $version, Request $request, Context $context): JsonResponse
     {
         $params = $request->request->all();
         $definition = new DataValidationDefinition();
@@ -129,7 +145,7 @@ class ImportExportActionController extends AbstractController
             $log = $this->initiationService->initiate($context, 'export', $profile, $expireDate);
         }
 
-        return new JsonResponse(['log' => $log]);
+        return new JsonResponse(['log' => $this->converterService->convertEntity($this->logDefinition, $log, $version)]);
     }
 
     /**

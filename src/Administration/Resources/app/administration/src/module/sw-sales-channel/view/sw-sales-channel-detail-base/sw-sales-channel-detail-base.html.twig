@@ -4,46 +4,46 @@
         <sw-card v-if="salesChannel" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleGeneralSettings')">
             {% block sw_sales_channel_detail_base_general_input_name %}
                 <sw-field
-                        type="text"
-                        validation="required"
-                        required
-                        :placeholder="placeholder(salesChannel, 'name', $tc('sw-sales-channel.detail.placeholderName'))"
-                        :label="$tc('sw-sales-channel.detail.labelInputName')"
-                        v-model="salesChannel.name">
+                    type="text"
+                    validation="required"
+                    required
+                    :placeholder="placeholder(salesChannel, 'name', $tc('sw-sales-channel.detail.placeholderName'))"
+                    :label="$tc('sw-sales-channel.detail.labelInputName')"
+                    v-model="salesChannel.name">
                 </sw-field>
             {% endblock %}
 
             {% block sw_sales_channel_detail_base_general_input_navigation_category %}
                 <sw-entity-single-select
-                        required
-                        class="sw-sales-channel-detail__select-navigation-category-id"
-                        id="navigationCategoryId"
-                        :label="$tc('sw-sales-channel.detail.navigationCategoryId')"
-                        :criteria="mainNavigationCriteria"
-                        :helpText="$tc('sw-sales-channel.detail.navigationCategoryHelpText')"
-                        v-model="salesChannel.navigationCategoryId"
-                        :error="salesChannelNavigationCategoryIdError"
-                        entity="category">
+                    required
+                    class="sw-sales-channel-detail__select-navigation-category-id"
+                    id="navigationCategoryId"
+                    :label="$tc('sw-sales-channel.detail.navigationCategoryId')"
+                    :criteria="mainNavigationCriteria"
+                    :helpText="$tc('sw-sales-channel.detail.navigationCategoryHelpText')"
+                    v-model="salesChannel.navigationCategoryId"
+                    :error="salesChannelNavigationCategoryIdError"
+                    entity="category">
                 </sw-entity-single-select>
             {% endblock %}
 
             {% block sw_sales_channel_detail_base_general_input_footer_category %}
                 <sw-entity-single-select
-                        class="sw-sales-channel-detail__select-footer-category-id"
-                        id="footerCategoryId"
-                        :label="$tc('sw-sales-channel.detail.footerCategory')"
-                        v-model="salesChannel.footerCategoryId"
-                        entity="category">
+                    class="sw-sales-channel-detail__select-footer-category-id"
+                    id="footerCategoryId"
+                    :label="$tc('sw-sales-channel.detail.footerCategory')"
+                    v-model="salesChannel.footerCategoryId"
+                    entity="category">
                 </sw-entity-single-select>
             {% endblock %}
 
             {% block sw_sales_channel_detail_base_general_input_service_category %}
                 <sw-entity-single-select
-                        class="sw-sales-channel-detail__select-service-category-id"
-                        id="serviceCategoryId"
-                        :label="$tc('sw-sales-channel.detail.serviceCategory')"
-                        v-model="salesChannel.serviceCategoryId"
-                        entity="category">
+                    class="sw-sales-channel-detail__select-service-category-id"
+                    id="serviceCategoryId"
+                    :label="$tc('sw-sales-channel.detail.serviceCategory')"
+                    v-model="salesChannel.serviceCategoryId"
+                    entity="category">
                 </sw-entity-single-select>
             {% endblock %}
         </sw-card>
@@ -53,11 +53,11 @@
 
                 {% block sw_sales_channel_detail_base_general_input_customer_group %}
                     <sw-entity-single-select
-                            class="sw-sales-channel-detail__select-customer-group"
-                            :label="$tc('sw-sales-channel.detail.customerGroup')"
-                            entity="customer_group"
-                            :error="salesChannelCustomerGroupIdError"
-                            v-model="salesChannel.customerGroupId">
+                        class="sw-sales-channel-detail__select-customer-group"
+                        :label="$tc('sw-sales-channel.detail.customerGroup')"
+                        entity="customer_group"
+                        :error="salesChannelCustomerGroupIdError"
+                        v-model="salesChannel.customerGroupId">
                     </sw-entity-single-select>
                 {% endblock %}
 
@@ -195,9 +195,9 @@
 
         {% block sw_sales_channel_detail_base_options_domains %}
             <sw-sales-channel-detail-domains
-                    v-if="salesChannel && isStoreFront"
-                    :salesChannel="salesChannel"
-                    :isLoading="isLoading">
+                v-if="salesChannel && isStoreFront"
+                :salesChannel="salesChannel"
+                :isLoading="isLoading">
             </sw-sales-channel-detail-domains>
         {% endblock %}
 
@@ -306,10 +306,10 @@
 
                 {% block sw_sales_channel_detail_base_status_input_active %}
                     <sw-field
-                            type="switch"
-                            :label="$tc('sw-sales-channel.detail.labelInputActive')"
-                            @change="onToggleActive"
-                            v-model="salesChannel.active">
+                        type="switch"
+                        :label="$tc('sw-sales-channel.detail.labelInputActive')"
+                        @change="onToggleActive"
+                        v-model="salesChannel.active">
                     </sw-field>
                 {% endblock %}
             </sw-card>

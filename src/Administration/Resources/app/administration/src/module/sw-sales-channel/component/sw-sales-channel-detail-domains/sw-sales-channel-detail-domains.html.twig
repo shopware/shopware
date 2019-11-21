@@ -29,12 +29,12 @@
         <template #grid>
             {% block sw_sales_channel_detail_domains_grid %}
                 <sw-data-grid
-                        ref="gridDomains"
-                        :dataSource="salesChannel.domains"
-                        :columns="getDomainColumns()"
-                        :showSelection="false"
-                        :isLoading="isLoadingDomains"
-                        :showActions="true">
+                    ref="gridDomains"
+                    :dataSource="salesChannel.domains"
+                    :columns="getDomainColumns()"
+                    :showSelection="false"
+                    :isLoading="isLoadingDomains"
+                    :showActions="true">
                     {% block sw_sales_channel_detail_domains_columns_template %}
 
                         {% block sw_sales_channel_detail_domains_column_language_id %}
@@ -76,9 +76,10 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_domains_create_modal %}
-            <sw-modal v-if="currentDomain"
-                      :title="currentDomainModalTitle"
-                      @modal-close="onCloseCreateDomainModal">
+            <sw-modal
+                v-if="currentDomain"
+                :title="currentDomainModalTitle"
+                @modal-close="onCloseCreateDomainModal">
 
                 {% block sw_sales_channel_detail_domains_create_modal_content %}
                     <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
@@ -88,12 +89,11 @@
 
                         {% block sw_sales_channel_detail_domains_input_language %}
                             <sw-entity-single-select
-                                    :label="$tc('sw-sales-channel.detail.labelInputLanguage')"
-                                    entity="language"
-                                    required
-                                    :record="currentDomain"
-                                    association="language"
-                                    v-model="currentDomain.languageId">
+                                :label="$tc('sw-sales-channel.detail.labelInputLanguage')"
+                                entity="language"
+                                required
+                                v-model="currentDomain.languageId"
+                                @option-select="onOptionSelect">
                             </sw-entity-single-select>
                         {% endblock %}
                     </sw-container>
@@ -101,23 +101,21 @@
                     <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
                         {% block sw_sales_channel_detail_domains_input_currency %}
                             <sw-entity-single-select
-                                    :label="$tc('sw-sales-channel.detail.labelInputCurrency')"
-                                    entity="currency"
-                                    required
-                                    :record="currentDomain"
-                                    association="currency"
-                                    v-model="currentDomain.currencyId">
+                                :label="$tc('sw-sales-channel.detail.labelInputCurrency')"
+                                entity="currency"
+                                required
+                                v-model="currentDomain.currencyId"
+                                @option-select="onOptionSelect">
                             </sw-entity-single-select>
                         {% endblock %}
 
                         {% block sw_sales_channel_detail_domains_input_snippet_set %}
                             <sw-entity-single-select
-                                    :label="$tc('sw-sales-channel.detail.labelInputSnippet')"
-                                    v-model="currentDomain.snippetSetId"
-                                    :record="currentDomain"
-                                    association="snippetSet"
-                                    required
-                                    entity="snippet_set">
+                                :label="$tc('sw-sales-channel.detail.labelInputSnippet')"
+                                v-model="currentDomain.snippetSetId"
+                                required
+                                entity="snippet_set"
+                                @option-select="onOptionSelect">
                             </sw-entity-single-select>
                         {% endblock %}
                     </sw-container>

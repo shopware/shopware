@@ -1,7 +1,7 @@
 import './sw-entity-single-select.scss';
 import template from './sw-entity-single-select.html.twig';
 
-const { Component } = Shopware;
+const { Component, Utils } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 const { debounce, get } = Shopware.Utils;
 
@@ -56,16 +56,6 @@ Component.register('sw-entity-single-select', {
             default() {
                 return Shopware.Context.api;
             }
-        },
-        record: {
-            type: Object,
-            required: false,
-            default: null
-        },
-        association: {
-            type: String,
-            required: false,
-            default: ''
         }
     },
 
@@ -282,9 +272,7 @@ Component.register('sw-entity-single-select', {
             this.$emit('input', item.id, item);
             this.$emit('change', item.id, item);
 
-            if (this.record && this.association) {
-                this.record[this.association] = item;
-            }
+            this.$emit('option-select', Utils.string.camelCase(this.entity), item);
         },
 
         clearSelection() {
@@ -293,9 +281,7 @@ Component.register('sw-entity-single-select', {
             this.$emit('input', null);
             this.$emit('change', null);
 
-            if (this.record && this.association) {
-                this.record[this.association] = null;
-            }
+            this.$emit('option-select', Utils.string.camelCase(this.entity), null);
         },
 
         resetActiveItem(pos = 0) {

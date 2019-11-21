@@ -71,7 +71,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * We splitted the component `sw-sales-channel-modal` up into two additional components `sw-sales-channel-modal-detail` and `sw-sales-channel-modal-grid`
     * `sw-sales-channel-detail-base` got refactored based on a new design, the domain management was moved to a new component
     * Created a new component `sw-sales-channel-detail-domains` which handles the domain management of a sales channel now
-    * `sw-entity-single-select` accepts the two new properties `record` and `association`. If both properties are provided it automatically fills the corresponding association into the entity provided in `record` 
+    * `sw-entity-single-select` fires a new event called `option-select` which provides the selected entity and  as the payload
    
 * Core
     * Added DAL support for multi primary keys.

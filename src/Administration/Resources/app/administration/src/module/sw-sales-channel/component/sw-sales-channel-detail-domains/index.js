@@ -41,34 +41,65 @@ Component.register('sw-sales-channel-detail-domains', {
 
     data() {
         return {
-            salesChannelDomains: [],
             currentDomain: null,
+            currentDomainBackup: {
+                url: null,
+                language: null,
+                languageId: null,
+                currency: null,
+                currencyId: null,
+                snippetSet: null,
+                snippetSetId: null
+            },
             isLoadingDomains: false,
             deleteDomain: null
         };
     },
 
     methods: {
-        onClickOpenCreateDomainModal() {
-            const currentDomain = this.domainRepository.create(Context.api);
+        setCurrentDomainBackup(domain) {
+            this.currentDomainBackup = {
+                url: domain.url,
+                language: domain.language,
+                languageId: domain.languageId,
+                currency: domain.currency,
+                currencyId: domain.currencyId,
+                snippetSet: domain.snippetSet,
+                snippetSetId: domain.snippetSetId
+            };
+        },
 
-            currentDomain.snippetSetId = this.defaultSnippetSetId;
-            this.currentDomain = currentDomain;
+        resetCurrentDomainToBackup() {
+            this.currentDomain.url = this.currentDomainBackup.url;
+            this.currentDomain.language = this.currentDomainBackup.language;
+            this.currentDomain.languageId = this.currentDomainBackup.languageId;
+            this.currentDomain.currency = this.currentDomainBackup.currency;
+            this.currentDomain.currencyId = this.currentDomainBackup.currencyId;
+            this.currentDomain.snippetSet = this.currentDomainBackup.snippetSet;
+            this.currentDomain.snippetSetId = this.currentDomainBackup.snippetSetId;
+        },
+
+        onClickOpenCreateDomainModal() {
+            this.currentDomain = this.domainRepository.create(Context.api);
+            this.setCurrentDomainBackup(this.currentDomain);
         },
 
         onClickAddNewDomain() {
             const currentDomainId = this.currentDomain.id;
+
             if (this.currentDomain.isNew() && !this.salesChannel.domains.has(currentDomainId)) {
                 this.salesChannel.domains.add(this.currentDomain);
             }
-            this.onCloseCreateDomainModal();
+            this.currentDomain = null;
         },
 
         onClickEditDomain(domain) {
             this.currentDomain = domain;
+            this.setCurrentDomainBackup(this.currentDomain);
         },
 
         onCloseCreateDomainModal() {
+            this.resetCurrentDomainToBackup();
             this.currentDomain = null;
         },
 
@@ -96,6 +127,10 @@ Component.register('sw-sales-channel-detail-domains', {
 
         onCloseDeleteDomainModal() {
             this.deleteDomain = null;
+        },
+
+        onOptionSelect(name, entity) {
+            this.currentDomain[name] = entity;
         },
 
         getDomainColumns() {

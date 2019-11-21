@@ -5,7 +5,7 @@
 				<div class="product-detail-review-info js-review-info">
 					{% block page_product_detail_review_title %}
 						<p class="product-detail-review-title h5">
-                            {{ "detail.reviewTitle"|trans({'%count%': reviews.total, '%total%':page.totalReviews })|sw_sanitize }}
+                            {{ "detail.reviewTitle"|trans({'%count%': reviews.total, '%total%':reviews.totalReviews })|sw_sanitize }}
 						</p>
 					{% endblock %}
 

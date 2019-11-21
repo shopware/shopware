@@ -45,10 +45,8 @@ class PromotionActionController extends AbstractController
      * @Route("/api/v{version}/_action/promotion/{promotionId}/codes/individual", name="api.action.promotion.codes", methods={"GET"})
      *
      * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidException
-     *
-     * @return JsonResponse
      */
-    public function getIndividualCodes(string $promotionId, Context $context)
+    public function getIndividualCodes(string $promotionId, Context $context): JsonResponse
     {
         return new JsonResponse($this->codesLoader->loadIndividualCodes($promotionId));
     }
@@ -57,24 +55,20 @@ class PromotionActionController extends AbstractController
      * @Route("/api/v{version}/_action/promotion/{promotionId}/codes/individual", name="api.action.promotion.codes.remove", methods={"DELETE"})
      *
      * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidException
-     *
-     * @return JsonResponse
      */
-    public function deleteIndividualCodes(string $promotionId, Context $context)
+    public function deleteIndividualCodes(string $promotionId, Context $context): Response
     {
         $this->codesRemover->removeIndividualCodes($promotionId, $context);
 
-        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+        return new Response(null, Response::HTTP_NO_CONTENT);
     }
 
     /**
      * @Route("/api/v{version}/_action/promotion/setgroup/packager", name="api.action.promotion.setgroup.packager", methods={"GET"})
      *
      * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidException
-     *
-     * @return JsonResponse
      */
-    public function getSetGroupPackagers()
+    public function getSetGroupPackagers(): JsonResponse
     {
         $packagerKeys = [];
 
@@ -90,10 +84,8 @@ class PromotionActionController extends AbstractController
      * @Route("/api/v{version}/_action/promotion/setgroup/sorter", name="api.action.promotion.setgroup.sorter", methods={"GET"})
      *
      * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidException
-     *
-     * @return JsonResponse
      */
-    public function getSetGroupSorters()
+    public function getSetGroupSorters(): JsonResponse
     {
         $sorterKeys = [];
 

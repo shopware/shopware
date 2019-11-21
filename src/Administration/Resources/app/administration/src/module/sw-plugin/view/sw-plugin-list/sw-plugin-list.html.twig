@@ -1,6 +1,5 @@
 {% block sw_plugin_list_content %}
     <div class="sw-plugin-list">
-
         {% block sw_plugin_list_top_actions %}
             <div class="sw-plugin-manager__top-actions">
                 {% block sw_plugin_list_top_actions_header %}
@@ -9,32 +8,14 @@
                 {% block sw_plugin_list_top_actions_sorting %}
                     <div class="sw-plugin-list__action">
                         {% block sw_plugin_list_sort %}
-                            <sw-field class="sw-plugin-list__sort_field"
-                                      type="select"
-                                      name="sortType"
-                                      :label="$tc('sw-plugin.list.sortLabel')"
-                                      size="small"
-                                      aside
-                                      v-model="sortType"
-                                      @change="sortPluginList">
-                                {% block sw_plugin_list_sort_options_upgraded_at_asc %}
-                                    <option value="upgradedAt:desc">
-                                        {{ $tc('sw-plugin.list.sortUpgradedAtAsc') }}
-                                    </option>
-                                {% endblock %}
-
-                                {% block sw_plugin_list_sort_options_pluginName_asc %}
-                                    <option value="label:asc">
-                                        {{ $tc('sw-plugin.list.sortPluginNameAsc') }}
-                                    </option>
-                                {% endblock %}
-
-                                {% block sw_plugin_list_sort_options_pluginName_dsc %}
-                                    <option value="label:desc">
-                                        {{ $tc('sw-plugin.list.sortPluginNameDsc') }}
-                                    </option>
-                                {% endblock %}
-                            </sw-field>
+                            <sw-single-select
+                                class="sw-plugin-list__sort_field"
+                                size="small"
+                                :label="$tc('sw-plugin.list.sortLabel')"
+                                :options="sortOptions"
+                                :value="sorting"
+                                @change="sortPluginList">
+                            </sw-single-select>
                         {% endblock %}
                     </div>
                 {% endblock %}
@@ -45,150 +26,126 @@
             <sw-card :isLoading="isLoading || pageLoading">
                 {% block sw_plugin_list_grid %}
                     <template #grid>
-                        <sw-grid v-show="isLoading || total"
-                                 :items="plugins"
-                                 :sortBy="sortBy"
-                                 :sortDirection="sortDirection"
-                                 :selectable="false"
-                                 @sort-column="onSortColumn"
-                                 table>
+                        {% block sw_plugin_list_card_empty_state %}
+                        <sw-empty-state
+                                v-if="!isLoading && totalPlugins === 0"
+                                :title="$tc('sw-plugin.list.messageEmpty')">
+                        </sw-empty-state>
+                        {% endblock %}
 
-                            {% block sw_plugin_list_grid_slots %}
-                                <template #columns="{ item }">
+                        <sw-entity-listing v-else
+                            class="sw-plugin-list__listing"
+                            :repository="pluginRepository"
+                            :columns="pluginColumns"
+                            :dataSource="plugins"
+                            :showSelection="false"
+                            :fullPage="false"
+                            :showPreviews="true"
+                            :sortBy="sortBy"
+                            :sortDirection="sortDirection"
+                            :compactMode="false">
 
-                                    {% block sw_plugin_list_grid_columns_label %}
-                                        <sw-grid-column flex="minmax(100px, 1fr)"
-                                                        :label="$tc('sw-plugin.list.columnPluginName')"
-                                                        dataIndex="label">
-                                            {% block sw_plugin_list_grid_columns_label_label %}
-                                                <sw-plugin-table-entry :icon="item.icon"
-                                                                       :licenseInformation="getLicenseInformationForPlugin(item)"
-                                                                       :title="item.translated.label"
-                                                                       :subtitle="item.author || ''">
-                                                </sw-plugin-table-entry>
-                                            {% endblock %}
-                                        </sw-grid-column>
-                                    {% endblock %}
+                            <template #column-label="{ item, compact }" >
+                                {% block sw_plugin_list_grid_columns_label_label %}
+                                    <sw-plugin-table-entry
+                                        :icon="item.icon"
+                                        :licenseInformation="getLicenseInformationForPlugin(item)"
+                                        :title="item.translated.label"
+                                        :subtitle="item.author || ''">
+                                    </sw-plugin-table-entry>
+                                {% endblock %}
+                            </template>
 
-                                    {% block sw_plugin_list_grid_columns_activated %}
-                                        <sw-grid-column flex="minmax(80px, 150px)"
-                                                        :label="$tc('sw-plugin.list.columnActive')"
-                                                        dataIndex="active">
-                                            {% block sw_plugin_list_grid_columns_activated_label %}
-                                                <sw-field type="switch"
-                                                          :disabled="!item.installedAt"
-                                                          :label="item.active ? $tc('sw-plugin.list.activated') : $tc('sw-plugin.list.deactivated')"
-                                                          :value="item.active"
-                                                          @change="changeActiveState(item, $event)">
-                                                </sw-field>
-                                            {% endblock %}
-                                        </sw-grid-column>
-                                    {% endblock %}
+                            <template #column-active="{ item, compact }">
+                                {% block sw_plugin_list_grid_columns_activated_label %}
+                                    <sw-switch-field
+                                        class="sw-plugin-list__switch-active"
+                                        :value="item.active"
+                                        :label="item.active ? $tc('sw-plugin.list.activated') : $tc('sw-plugin.list.deactivated')"
+                                        :disabled="!item.installedAt"
+                                        @change="changeActiveState(item, $event)"
+                                        v-tooltip="{ disable: !item.installedAt, message: $tc('sw-plugin.list.tooltipActivationDisabled') }">
+                                    </sw-switch-field>
+                                {% endblock %}
+                            </template>
 
-                                    {% block sw_plugin_list_grid_columns_version %}
-                                        <sw-grid-column flex="minmax(80px, 100px)"
-                                                        :label="$tc('sw-plugin.list.columnVersion')"
-                                                        dataIndex="version">
-                                            {% block sw_plugin_list_grid_columns_version_label %}
-                                                {{ item.version }}
-                                            {% endblock %}
-                                        </sw-grid-column>
-                                    {% endblock %}
+                            <template #actions="{ item }">
+                                {% block sw_plugin_list_grid_columns_actions_install %}
+                                    <sw-context-menu-item v-if="!item.installedAt" @click="onInstallPlugin(item)">
+                                        {{ $tc('sw-plugin.list.contextInstall') }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
 
-                                    {% block sw_plugin_list_grid_columns_actions %}
-                                        <sw-grid-column flex="minmax(100px, 100px)"
-                                                        align="center">
-                                            {% block sw_plugin_list_grid_columns_actions_context_button %}
-                                                <sw-context-button>
-                                                    {% block sw_plugin_list_grid_columns_actions_install %}
-                                                        <sw-context-menu-item v-if="!item.installedAt" @click="onInstallPlugin(item)">
-                                                            {{ $tc('sw-plugin.list.contextInstall') }}
-                                                        </sw-context-menu-item>
-                                                    {% endblock %}
+                                {% block sw_plugin_list_grid_columns_actions_update %}
+                                    <sw-context-menu-item v-if="item.upgradeVersion" @click="onUpdatePlugin(item)">
+                                        {{ $tc('sw-plugin.list.contextUpdate') }} {{ item.upgradeVersion }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
 
-                                                    {% block sw_plugin_list_grid_columns_actions_update %}
-                                                        <sw-context-menu-item v-if="item.upgradeVersion" @click="onUpdatePlugin(item)">
-                                                            {{ $tc('sw-plugin.list.contextUpdate') }} {{ item.upgradeVersion }}
-                                                        </sw-context-menu-item>
-                                                    {% endblock %}
+                                <template v-if="item.customFields">
+                                    {% block sw_plugin_list_grid_columns_actions_settings %}
+                                        <sw-context-menu-item
+                                            v-if="item.customFields.configAvailable"
+                                            @click="onPluginSettings(item)">
 
-                                                    <template v-if="item.customFields">
-                                                        {% block sw_plugin_list_grid_columns_actions_settings %}
-                                                            <sw-context-menu-item v-if="item.customFields.configAvailable" @click="onPluginSettings(item)">
-                                                                {{ $tc('sw-plugin.list.config') }}
-                                                            </sw-context-menu-item>
-                                                        {% endblock %}
-                                                    </template>
-
-                                                    {% block sw_plugin_list_grid_columns_actions_uninstall %}
-                                                        <sw-context-menu-item v-if="item.installedAt"
-                                                                              variant="danger"
-                                                                              @click="onUninstallPlugin(item)">
-                                                            {{ $tc('sw-plugin.list.contextUninstall') }}
-                                                        </sw-context-menu-item>
-                                                    {% endblock %}
-
-                                                    {% block sw_plugin_list_grid_columns_actions_delete %}
-                                                        <sw-context-menu-item v-if="!item.installedAt"
-                                                                              variant="danger"
-                                                                              @click="onDeletePlugin(item)">
-                                                            {{ $tc('sw-plugin.list.contextDelete') }}
-                                                        </sw-context-menu-item>
-                                                    {% endblock %}
-                                                </sw-context-button>
-                                            {% endblock %}
-                                        </sw-grid-column>
-                                    {% endblock %}
-
-                                    {% block sw_plugin_list_delete_modal %}
-                                        <sw-modal v-if="showDeleteModal === item.id"
-                                                  @modal-close="onCloseDeleteModal"
-                                                  :title="$tc('sw-plugin.list.titleDeleteConfirm')"
-                                                  variant="small">
-                                            {% block sw_plugin_list_delete_modal_confirm_delete_text %}
-                                                <p class="sw-plugin-list__confirm-delete-text">
-                                                    {{ $tc('sw-plugin.list.messageDeleteConfirm') }}
-                                                </p>
-                                            {% endblock %}
-
-                                            {% block sw_plugin_list_delete_modal_footer %}
-                                                <template #modal-footer>
-                                                    {% block sw_plugin_list_delete_modal_cancel %}
-                                                        <sw-button @click="onCloseDeleteModal" size="small">
-                                                            {{ $tc('global.default.cancel') }}
-                                                        </sw-button>
-                                                    {% endblock %}
-
-                                                    {% block sw_plugin_list_delete_modal_confirm %}
-                                                        <sw-button @click="onConfirmDelete(item)" variant="primary" size="small">
-                                                            {{ $tc('global.default.delete') }}
-                                                        </sw-button>
-                                                    {% endblock %}
-                                                </template>
-                                            {% endblock %}
-                                        </sw-modal>
+                                            {{ $tc('sw-plugin.list.config') }}
+                                        </sw-context-menu-item>
                                     {% endblock %}
                                 </template>
-                            {% endblock %}
 
-                            {% block sw_plugin_list_grid_pagination %}
-                                <template #pagination>
-                                    <sw-pagination :page="page"
-                                                   :limit="limit"
-                                                   :total="total"
-                                                   :total-visible="7"
-                                                   @page-change="onPageChange">
-                                    </sw-pagination>
-                                </template>
-                            {% endblock %}
-                        </sw-grid>
+                                {% block sw_plugin_list_grid_columns_actions_uninstall %}
+                                    <sw-context-menu-item
+                                        v-if="item.installedAt"
+                                        variant="danger"
+                                        @click="onUninstallPlugin(item)">
+
+                                        {{ $tc('sw-plugin.list.contextUninstall') }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
+
+                                {% block sw_plugin_list_grid_columns_actions_delete %}
+                                    <sw-context-menu-item
+                                        v-if="!item.installedAt"
+                                        variant="danger"
+                                        @click="onDeletePlugin(item)">
+
+                                        {{ $tc('sw-plugin.list.contextDelete') }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
+                            </template>
+
+                            <template #action-modals="{ item }">
+                                {% block sw_plugin_list_delete_modal %}
+                                <sw-modal v-if="showDeleteModal === item.id"
+                                          @modal-close="onCloseDeleteModal"
+                                          :title="$tc('sw-plugin.list.titleDeleteConfirm')"
+                                          variant="small">
+                                    {% block sw_plugin_list_delete_modal_confirm_delete_text %}
+                                    <p class="sw-plugin-list__confirm-delete-text">
+                                        {{ $tc('sw-plugin.list.messageDeleteConfirm') }}
+                                    </p>
+                                    {% endblock %}
+
+                                    {% block sw_plugin_list_delete_modal_footer %}
+                                    <template #modal-footer>
+                                        {% block sw_plugin_list_delete_modal_cancel %}
+                                        <sw-button @click="onCloseDeleteModal" size="small">
+                                            {{ $tc('global.default.cancel') }}
+                                        </sw-button>
+                                        {% endblock %}
+
+                                        {% block sw_plugin_list_delete_modal_confirm %}
+                                        <sw-button @click="onConfirmDelete(item)" variant="primary" size="small">
+                                            {{ $tc('global.default.delete') }}
+                                        </sw-button>
+                                        {% endblock %}
+                                    </template>
+                                    {% endblock %}
+                                </sw-modal>
+                                {% endblock %}
+                            </template>
+                        </sw-entity-listing>
                     </template>
-                {% endblock %}
-
-                {% block sw_plugin_list_card_empty_state %}
-                    <sw-empty-state v-if="!isLoading && !total"
-                                    :title="$tc('sw-plugin.list.messageEmpty')">
-                    </sw-empty-state>
                 {% endblock %}
             </sw-card>
         {% endblock %}

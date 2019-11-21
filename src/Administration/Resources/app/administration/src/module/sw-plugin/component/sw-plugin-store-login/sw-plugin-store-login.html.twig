@@ -35,9 +35,9 @@
                         {% block sw_plugin_store_login_modal_content_login_form_input %}
                             <form role="form">
                                 {% block sw_plugin_store_login_modal_content_login_form_input_shopwareId %}
-                                    <sw-text-field v-model="shopwareId" :label="$tc('sw-plugin.store-login.labelShopwareId')" v-on:keyup.enter="onLoginClick()">
+                                    <sw-text-field v-model="shopwareId" :label="$tc('sw-plugin.store-login.labelShopwareId')" @keyup.enter="onLoginClick">
                                         {% block sw_plugin_store_login_modal_content_login_form_input_shopwareId_label %}
-                                            <template slot="label">
+                                            <template label>
                                                 <div class="shopware-id-label">
                                                     <span>{{ $tc('sw-plugin.store-login.labelShopwareId') }}</span>
                                                     <a :href="$tc('sw-plugin.store-login.linkShopwareIdHelp')" target="_blank">{{ $tc('sw-plugin.store-login.labelShopwareIdHelp') }}</a>
@@ -47,8 +47,9 @@
                                     </sw-text-field>
                                 {% endblock %}
                                 {% block sw_plugin_store_login_modal_content_login_form_input_password %}
-                                    <sw-password-field v-model="password" :label="$tc('sw-plugin.store-login.labelPassword')"
-                                                       v-on:keyup.enter="onLoginClick()">
+                                    <sw-password-field v-model="password"
+                                                       :label="$tc('sw-plugin.store-login.labelPassword')"
+                                                       @keyup.enter="onLoginClick">
                                     </sw-password-field>
                                 {% endblock %}
                             </form>
@@ -66,7 +67,7 @@
         {% endblock %}
 
         {% block sw_plugin_store_login_modal_footer %}
-            <template slot="modal-footer">
+            <template #modal-footer>
                 <div class="sw-plugin-store-login__footer">
                     {% block sw_plugin_store_login_modal_footer_information %}
                         <div class="footer-information">
@@ -79,12 +80,12 @@
                     {% block sw_plugin_store_login_modal_footer_actions %}
                         <div class="footer-button-container">
                             {% block sw_plugin_store_login_modal_footer_actions_cancel %}
-                                <sw-button class="cancel-button" size="small" @click="onCloseModal()">
+                                <sw-button class="cancel-button" size="small" @click="onCloseModal">
                                     {{ $tc('sw-plugin.store-login.buttonCancel') }}
                                 </sw-button>
                             {% endblock %}
                             {% block sw_plugin_store_login_modal_footer_actions_login %}
-                                <sw-button variant="primary" type="submit" size="small" @click="onLoginClick()">
+                                <sw-button variant="primary" type="submit" size="small" @click="onLoginClick">
                                     {{ $tc('sw-plugin.store-login.buttonLogin') }}
                                 </sw-button>
                             {% endblock %}

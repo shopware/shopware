@@ -1,7 +1,7 @@
 {% block sw_plugin_manager %}
     <sw-page class="sw-plugin-manager">
         {% block sw_plugin_manager_search_bar %}
-            <template slot="search-bar">
+            <template #search-bar>
                 <sw-search-bar initialSearchType="plugin_manager"
                                :placeholder="$tc('sw-plugin.general.placeholderSearchBar')"
                                @search="onSearch">
@@ -10,7 +10,7 @@
         {% endblock %}
 
         {% block sw_plugin_manager_smart_bar_header %}
-            <template slot="smart-bar-header">
+            <template #smart-bar-header>
                 {% block sw_plugin_manager_smart_bar_header_title %}
                     <h2>
                         {% block sw_plugin_manager_smart_bar_header_title_text %}
@@ -22,7 +22,7 @@
         {% endblock %}
 
         {% block sw_plugin_manager_smart_bar_actions %}
-            <template slot="smart-bar-actions">
+            <template #smart-bar-actions>
                 {% block sw_plugin_list_top_actions_upload %}
                     <sw-plugin-file-upload @upload-success="reloadPluginListing"></sw-plugin-file-upload>
                 {% endblock %}
@@ -30,17 +30,12 @@
         {% endblock %}
 
         {% block sw_plugin_manager_content %}
-            <template slot="content">
-                <sw-card-view slot="content">
-                    {% block sw_plugin_manger_content_alert %}
-                        <sw-alert class="sw-plugin-manager__top-actions" v-if="!storeAvailable" variant="warning">
-                            {{ $tc('sw-plugin.general.storeNotAvailable') }}
-                        </sw-alert>
-                    {% endblock %}
+            <template #content>
+                <sw-card-view>
                     {% block sw_plugin_manager_content_sidebar %}
                         <div class="plugin-manager-sidebar">
                             {% block sw_plugin_manager_content_sidebar_tabs %}
-                                <sw-tabs :isVertical="true" small>
+                                <sw-tabs isVertical small>
                                     {% block sw_plugin_manager_content_sidebar_tabs_list %}
                                         <sw-tabs-item :route="{ name: 'sw.plugin.index.list' }"
                                                       :title="$tc('sw-plugin.general.tabList')"
@@ -92,8 +87,18 @@
                         </div>
                     {% endblock %}
 
-                    {% block sw_plugin_manager_content_view %}
-                        <router-view :searchTerm="searchTerm" :pageLoading="isLoading"></router-view>
+                    {% block sw_plugin_main_content %}
+                        <div class="sw-plugin-manager__main-content">
+                            {% block sw_plugin_manger_content_alert %}
+                                <sw-alert class="sw-plugin-manager__top-actions" v-if="!storeAvailable && !isLoading" variant="warning">
+                                    {{ $tc('sw-plugin.general.storeNotAvailable') }}
+                                </sw-alert>
+                            {% endblock %}
+
+                            {% block sw_plugin_manager_content_view %}
+                                <router-view :searchTerm="searchTerm" :pageLoading="isLoading"></router-view>
+                            {% endblock %}
+                        </div>
                     {% endblock %}
                 </sw-card-view>
             </template>

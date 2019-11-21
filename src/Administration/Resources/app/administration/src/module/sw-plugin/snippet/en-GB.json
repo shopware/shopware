@@ -24,7 +24,7 @@
       "loggedIn": "Logged in as"
     },
     "errors": {
-      "messageToTheShopwareDocumentation": "Open Shopware documentation",
+      "messageToTheShopwareDocumentation": "<a href=\"{documentationLink}\" target=\"_blank\">Open Shopware Documentation</a>",
       "titleGenericFailure": "Error",
       "messageGenericFailure": "An error has occurred.",
       "titleUploadFailure": "Error",
@@ -34,7 +34,9 @@
       "titleLoginDataInvalid": "Error",
       "messageLoginDataInvalid": "Login data incomplete.",
       "titleStoreHostMissing": "Error",
-      "messageStoreLicenseDomainMissing": "Login failed. Did you provide the correct license domain from your Shopware Account in \"Settings/Shopware Account\"?"
+      "messageStoreLicenseDomainMissing": "Login failed. Did you provide the correct license domain from your Shopware Account in \"Settings/Shopware Account\"?",
+      "titleStoreNotAvailable": "Connection refused",
+      "messageStoreNotAvailable": "The Shopware Store is not available."
     },
     "fileUpload":{
       "buttonFileUpload":"Upload plugin",
@@ -99,7 +101,8 @@
       "messageDeleteConfirm":"Are you sure you really want to delete this plugin?",
       "deactivated": "Deactivated",
       "activated": "Activated",
-      "config": "Config"
+      "config": "Config",
+      "tooltipActivationDisabled": "You can only activate installed plugins."
     },
     "license-list":{
       "textMyPurchases":"Purchased licenses",

@@ -1,5 +1,4 @@
 .sw-plugin-manager {
-
     .sw-plugin-manager__top-actions {
         display: flex;
         flex-direction: row;
@@ -14,8 +13,15 @@
 
     }
 
+    .sw-card-view__content {
+        display: grid;
+        grid-template-columns: minmax(auto, 1fr) minmax(0px, 800px) 1fr;
+
+    }
+
     .plugin-manager-sidebar {
-        position: absolute;
+        position: relative;
+        margin-right: 16px;
         top: 100px;
 
         .external-icon {

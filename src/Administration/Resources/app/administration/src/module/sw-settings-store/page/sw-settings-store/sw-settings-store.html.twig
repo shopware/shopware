@@ -2,14 +2,14 @@
     <sw-page class="sw-settings-store">
 
         {% block sw_settings_store_search_bar %}
-            <template slot="search-bar">
+            <template #search-bar>
                 <sw-search-bar>
                 </sw-search-bar>
             </template>
         {% endblock %}
 
         {% block sw_settings_store_smart_bar_header %}
-            <template slot="smart-bar-header">
+            <template #smart-bar-header>
                 {% block sw_settings_store_smart_bar_header_title %}
                     <h2>
                         {% block sw_settings_store_smart_bar_header_title_text %}
@@ -24,7 +24,7 @@
         {% endblock %}
 
         {% block sw_settings_store_smart_bar_actions %}
-            <template slot="smart-bar-actions">
+            <template #smart-bar-actions>
                 {% block sw_settings_store_actions_save %}
                     <sw-button-process
                         class="sw-store-detail__save-action"
@@ -41,7 +41,7 @@
         {% endblock %}
 
         {% block sw_settings_store_content %}
-            <template slot="content">
+            <template #content>
                 <sw-card-view>
                     <sw-system-config
                             ref="systemConfig"

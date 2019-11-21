@@ -1,4 +1,3 @@
-import './mixin/plugin-error-handler.mixin';
 import './page/sw-plugin-manager';
 import './view/sw-plugin-list';
 import './view/sw-plugin-license-list';
@@ -13,10 +12,13 @@ import './component/sw-plugin-table-entry';
 import './extension/sw-settings-index';
 import './component/sw-plugin-config';
 
+import swPluginState from './state/plugin.store';
+
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
 
-const { Module } = Shopware;
+const { Module, State } = Shopware;
+State.registerModule('swPlugin', swPluginState);
 
 Module.register('sw-plugin', {
     type: 'core',
@@ -80,6 +82,12 @@ Module.register('sw-plugin', {
             path: 'settings/:namespace',
             meta: {
                 parentPath: 'sw.plugin.index'
+            },
+
+            props: {
+                default(route) {
+                    return { namespace: route.params.namespace };
+                }
             }
         }
     }

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Store\Api;
 
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ConnectException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
@@ -96,7 +97,7 @@ class StoreController extends AbstractController
     {
         try {
             $this->storeClient->ping();
-        } catch (ClientException $exception) {
+        } catch (ClientException | ConnectException $exception) {
             throw new StoreNotAvailableException();
         }
 

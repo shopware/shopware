@@ -24,7 +24,7 @@
       "loggedIn": "Angemeldet als"
     },
     "errors": {
-      "messageToTheShopwareDocumentation": "Zur Shopware Dokumentation",
+      "messageToTheShopwareDocumentation": "<a href=\"{documentationLink}\" target=\"_blank\">Zur Shopware Dokumentation</a>",
       "titleGenericFailure": "Unbekannter Fehler aufgetreten",
       "messageGenericFailure": "Es ist ein unbekannter Fehler aufgetreten",
       "titleUploadFailure": "Hochladen fehlgeschlagen",
@@ -34,7 +34,9 @@
       "titleLoginDataInvalid": "Logindaten unvollständig",
       "messageLoginDataInvalid": "Logindaten wurden nicht vollständig angegeben",
       "titleStoreHostMissing": "Fehler",
-      "messageStoreLicenseDomainMissing": "Um Dich erfolgreich anmelden zu können, musst Du zunächst in \"Einstellungen/Shopware Account\" Deine Lizenzdomain angeben."
+      "messageStoreLicenseDomainMissing": "Um Dich erfolgreich anmelden zu können, musst Du zunächst in \"Einstellungen/Shopware Account\" Deine Lizenzdomain angeben.",
+      "titleStoreNotAvailable": "Verbindung gescheitert",
+      "messageStoreNotAvailable": "Der Shopware Store ist nicht erreichbar."
     },
     "fileUpload":{
       "buttonFileUpload":"Plugin hochladen",
@@ -99,7 +101,8 @@
       "messageDeleteConfirm":"Bist Du sicher, dass Du dieses Plugin löschen möchtest?",
       "deactivated": "Deaktiviert",
       "activated": "Aktiviert",
-      "config": "Konfiguration"
+      "config": "Konfiguration",
+      "tooltipActivationDisabled": "Du kannst nur installierte Plugins aktivieren."
     },
     "license-list":{
       "textMyPurchases":"Eingekaufte Lizenzen",

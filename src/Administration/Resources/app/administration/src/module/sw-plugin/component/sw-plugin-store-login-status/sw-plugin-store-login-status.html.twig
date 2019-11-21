@@ -24,13 +24,13 @@
                 {% block sw_plugin_store_login_status_box_actions %}
                     <sw-context-button class="sw-plugin-store-login-status__context-button" icon="default-action-more-vertical" :menuOffsetLeft="17">
                         {% block sw_plugin_store_login_status_box_actions_to_account %}
-                            <sw-context-menu-item @click="openAccount()">
+                            <sw-context-menu-item @click="openAccount">
                                 {{ $tc('sw-plugin.general.accountLabel') }}
                             </sw-context-menu-item>
                         {% endblock %}
 
                         {% block sw_plugin_store_login_status_box_actions_logout %}
-                            <sw-context-menu-item v-if="isLoggedIn && shopwareId" @click="logout()">
+                            <sw-context-menu-item v-if="isLoggedIn && shopwareId" @click="logout">
                                 {{ $tc('sw-plugin.general.logout') }}
                             </sw-context-menu-item>
                         {% endblock %}
@@ -40,10 +40,7 @@
         {% endblock %}
 
         {% block sw_plugin_store_login_status_login_modal %}
-        <sw-plugin-store-login v-if="showLoginModal"
-                               @login-abort="loginAbort"
-                               @login-success="loginSuccess">
-        </sw-plugin-store-login>
+            <sw-plugin-store-login v-if="showLoginModal" @close-modal="closeModal"></sw-plugin-store-login>
         {% endblock %}
 
     </div>

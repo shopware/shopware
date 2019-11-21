@@ -1,12 +1,12 @@
 import template from './sw-plugin-store-login-status.html.twig';
 import './sw-plugin-store-login-status.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, State, Mixin } = Shopware;
+
+const systemConfigApiService = Shopware.Service('systemConfigApiService');
 
 Component.register('sw-plugin-store-login-status', {
     template,
-
-    inject: ['storeService', 'systemConfigApiService'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -14,51 +14,33 @@ Component.register('sw-plugin-store-login-status', {
 
     data() {
         return {
-            shopwareId: null,
-            showLoginModal: false,
-            isLoggedIn: false
+            showLoginModal: false
         };
+    },
+
+    computed: {
+        shopwareId: {
+            get() { return State.get('swPlugin').shopwareId; },
+            set(shopwareId) { State.dispatch('swPlugin/storeShopwareId', shopwareId); }
+        },
+
+        isLoggedIn() {
+            return State.get('swPlugin').loginStatus;
+        }
     },
 
     created() {
         this.createdComponent();
     },
 
-    destroyed() {
-        this.destroyedComponent();
-    },
-
     methods: {
         createdComponent() {
-            this.load();
-
-            this.$root.$on('plugin-login', this.load);
-        },
-
-        destroyedComponent() {
-            this.$root.$off('plugin-login', this.load);
-        },
-
-        load() {
-            this.loadShopwareId();
-            this.checkLogin();
-        },
-
-        loadShopwareId() {
-            this.systemConfigApiService.getValues('core.store').then((response) => {
-                const shopwareId = response['core.store.shopwareId'];
-                if (shopwareId) {
-                    this.shopwareId = shopwareId;
-                }
-            });
-        },
-
-        checkLogin() {
-            this.storeService.checkLogin().then((response) => {
-                this.isLoggedIn = response.storeTokenExists;
-            }).catch(() => {
-                this.isLoggedIn = false;
-            });
+            return systemConfigApiService.getValues('core.store')
+                .then((response) => {
+                    this.shopwareId = response['core.store.shopwareId'] || null;
+                }).then(() => {
+                    State.dispatch('swPlugin/checkLogin');
+                });
         },
 
         openAccount() {
@@ -70,19 +52,10 @@ Component.register('sw-plugin-store-login-status', {
         },
 
         logout() {
-            this.storeService.logout().then(() => {
-                this.shopwareId = null;
-                this.load();
-                this.$root.$emit('plugin-logout');
-            });
+            State.dispatch('swPlugin/logoutShopwareUser');
         },
 
-        loginSuccess() {
-            this.showLoginModal = false;
-            this.load();
-        },
-
-        loginAbort() {
+        closeModal() {
             this.showLoginModal = false;
         }
     }

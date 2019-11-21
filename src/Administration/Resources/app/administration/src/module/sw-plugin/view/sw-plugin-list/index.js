@@ -2,7 +2,12 @@ import { mapState } from 'vuex';
 import template from './sw-plugin-list.html.twig';
 import './sw-plugin-list.scss';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin, State } = Shopware;
+const { Criteria } = Shopware.Data;
+
+const cacheApiService = Shopware.Service('cacheApiService');
+const pluginService = Shopware.Service('pluginService');
+const systemConfigApiService = Shopware.Service('systemConfigApiService');
 
 Component.register('sw-plugin-list', {
     template,
@@ -21,9 +26,6 @@ Component.register('sw-plugin-list', {
     },
 
     inject: [
-        'pluginService',
-        'systemConfigApiService',
-        'cacheApiService',
         'licenseViolationService'
     ],
 
@@ -34,18 +36,12 @@ Component.register('sw-plugin-list', {
 
     data() {
         return {
-            limit: 25,
-            plugins: [],
             isLoading: false,
             sortBy: 'upgradedAt',
             sortDirection: 'desc',
             sortType: 'upgradedAt:desc',
             showDeleteModal: false
         };
-    },
-
-    mounted() {
-        this.mountedComponent();
     },
 
     computed: {
@@ -55,12 +51,41 @@ Component.register('sw-plugin-list', {
             'other'
         ]),
 
-        pluginsStore() {
-            return StateDeprecated.getStore('plugin');
+        pluginRepository() {
+            return Shopware.Service('repositoryFactory').create('plugin');
         },
 
-        showPagination() {
-            return (this.total >= 25);
+        pluginCriteria() {
+            const criteria = new Criteria(this.page, this.limit);
+            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
+            if (this.searchTerm) {
+                criteria.setTerm(this.searchTerm);
+            }
+
+            return criteria;
+        },
+
+        searchData() {
+            return {
+                repository: this.pluginRepository,
+                criteria: this.pluginCriteria,
+                context: this.apiContext
+            };
+        },
+
+        apiContext() {
+            return {
+                ...Shopware.Context.api,
+                languageId: this.languageId
+            };
+        },
+
+        plugins() {
+            return State.get('swPlugin').plugins;
+        },
+
+        totalPlugins() {
+            return State.get('swPlugin').totalPlugins;
         },
 
         currentLocale() {
@@ -69,97 +94,154 @@ Component.register('sw-plugin-list', {
 
         languageId() {
             return Shopware.State.get('adminLocale').languageId;
+        },
+
+        sorting: {
+            get() {
+                return `${this.sortBy}:${this.sortDirection}`;
+            },
+            set(sorting) {
+                [this.sortBy, this.sortDirection] = sorting.split(':');
+            }
+        },
+
+        sortOptions() {
+            return [
+                {
+                    label: this.$tc('sw-plugin.list.sortUpgradedAtAsc'),
+                    value: 'upgradedAt:desc'
+                }, {
+                    label: this.$tc('sw-plugin.list.sortPluginNameAsc'),
+                    value: 'label:asc'
+                }, {
+                    label: this.$tc('sw-plugin.list.sortPluginNameDsc'),
+                    value: 'label:desc'
+                }
+            ];
+        },
+
+        pluginColumns() {
+            return [{
+                property: 'label',
+                dataProperty: 'label',
+                primary: true,
+                label: this.$tc('sw-plugin.list.columnPluginName')
+            }, {
+                property: 'active',
+                label: this.$tc('sw-plugin.list.columnActive')
+            }, {
+                property: 'version',
+                label: this.$tc('sw-plugin.list.columnVersion')
+            }];
         }
     },
 
     watch: {
-        currentLocale() {
-            this.getList();
-        },
-
         searchTerm() {
             this.onSearch(this.searchTerm);
         },
 
-        languageId() {
-            this.getList();
+        plugins() {
+            return this.isConfigAvailableForPlugins();
         }
     },
 
     methods: {
-        mountedComponent() {
-            this.$root.$on('force-refresh', () => {
-                this.getList();
-            });
+        changeActiveState(plugin, newActiveState) {
+            this.isLoading = true;
 
-            // force reload of license violations
-            this.licenseViolationService.removeTimeFromLocalStorage(this.licenseViolationService.key.lastLicenseFetchedKey);
+            if (newActiveState) {
+                return this.activatePlugin(plugin);
+            }
+
+            return this.deactivatePlugin(plugin);
         },
 
-        changeActiveState(plugin, event) {
-            plugin.active = event;
-            if (!plugin.active) {
-                this.pluginService.deactivate(plugin.name).then(() => {
-                    this.createNotificationSuccess({
-                        title: this.$tc('sw-plugin.list.titleDeactivateSuccess'),
-                        message: this.$tc('sw-plugin.list.messageDeactivateSuccess')
-                    });
-                    this.getList();
-                    this.cacheApiService.clear();
+        activatePlugin(plugin) {
+            this.isLoading = true;
 
-                    window.location.reload();
+            return pluginService.activate(plugin.name).then(() => {
+                this.createNotificationSuccess({
+                    title: this.$tc('sw-plugin.list.titleActivateSuccess'),
+                    message: this.$tc('sw-plugin.list.messageActivateSuccess')
                 });
-            } else {
-                this.pluginService.activate(plugin.name).then(() => {
-                    this.createNotificationSuccess({
-                        title: this.$tc('sw-plugin.list.titleActivateSuccess'),
-                        message: this.$tc('sw-plugin.list.messageActivateSuccess')
-                    });
-                    this.getList();
-                    this.cacheApiService.clear();
+            }).then(() => {
+                return this.clearCacheAndReloadPage();
+            }).catch((e) => {
+                this.isLoading = false;
 
-                    window.location.reload();
+                throw e;
+            });
+        },
+
+        deactivatePlugin(plugin) {
+            this.isLoading = true;
+
+            return pluginService.deactivate(plugin.name).then(() => {
+                this.createNotificationSuccess({
+                    title: this.$tc('sw-plugin.list.titleDeactivateSuccess'),
+                    message: this.$tc('sw-plugin.list.messageDeactivateSuccess')
                 });
-            }
+            }).then(() => {
+                return this.clearCacheAndReloadPage();
+            }).catch((e) => {
+                this.isLoading = false;
+
+                throw e;
+            });
         },
 
         onInstallPlugin(plugin) {
             this.isLoading = true;
-            this.pluginService.install(plugin.name).then(() => {
+
+            pluginService.install(plugin.name).then(() => {
                 this.createNotificationSuccess({
                     title: this.$tc('sw-plugin.list.titleInstallSuccess'),
                     message: this.$tc('sw-plugin.list.messageInstallSuccess')
                 });
-                this.getList();
+            }).then(() => {
+                return this.getList();
+            }).catch((e) => {
+                this.isLoading = false;
+
+                throw e;
             });
         },
 
         onUninstallPlugin(plugin) {
             this.isLoading = true;
-            this.pluginService.uninstall(plugin.name).then(() => {
+
+            pluginService.uninstall(plugin.name).then(() => {
                 this.createNotificationSuccess({
                     title: this.$tc('sw-plugin.list.titleUninstallSuccess'),
                     message: this.$tc('sw-plugin.list.messageUninstallSuccess')
                 });
-                this.getList();
-                this.cacheApiService.clear();
 
-                // Reload if plugin gets uninstalled while active
                 if (plugin.active === true) {
-                    window.location.reload();
+                    return this.clearCacheAndReloadPage();
                 }
+
+                return this.getList();
+            }).catch((e) => {
+                this.isLoading = false;
+
+                throw e;
             });
         },
 
         onUpdatePlugin(plugin) {
             this.isLoading = true;
-            this.pluginService.update(plugin.name).then(() => {
+            return pluginService.update(plugin.name).then(() => {
                 this.createNotificationSuccess({
                     title: this.$tc('sw-plugin.list.titleUpdateSuccess'),
                     message: this.$tc('sw-plugin.list.messageUpdateSuccess')
                 });
-                this.getList();
-                this.cacheApiService.clear();
+            }).then(() => {
+                return this.clearCacheAndReloadPage();
+            }).catch((e) => {
+                this.isLoading = false;
+
+                throw e;
             });
         },
 
@@ -169,16 +251,18 @@ Component.register('sw-plugin-list', {
 
         onConfirmDelete(plugin) {
             this.isLoading = true;
-            this.pluginService.delete(plugin.name).then(() => {
+            pluginService.delete(plugin.name).then(() => {
                 this.createNotificationSuccess({
                     title: this.$tc('sw-plugin.list.titleDeleteSuccess'),
                     message: this.$tc('sw-plugin.list.messageDeleteSuccess')
                 });
-                this.getList();
-                this.$root.$emit('updates-refresh');
-                this.cacheApiService.clear();
-
                 this.showDeleteModal = false;
+            }).then(() => {
+                this.clearCacheAndReloadPage();
+            }).catch((e) => {
+                this.isLoading = false;
+
+                throw e;
             });
         },
 
@@ -190,60 +274,39 @@ Component.register('sw-plugin-list', {
             this.$router.push({ name: 'sw.plugin.settings', params: { namespace: plugin.name } });
         },
 
-        successfulUpload() {
-            this.getList();
-        },
-
         getList() {
             this.isLoading = true;
 
-            this.pluginService.refresh().then(() => {
-                const params = this.getListingParams();
-
-                return this.pluginsStore.getList(
-                    params,
-                    false,
-                    Shopware.State.get('adminLocale').languageId
-                );
-            }).then((response) => {
-                this.plugins = response.items;
-                this.isConfigAvailableForPlugins();
-                this.total = response.total;
-                this.isLoading = false;
-            });
+            return State.dispatch('swPlugin/updatePluginList', this.searchData)
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
-        getListingParams() {
-            return {
-                limit: this.limit,
-                page: this.page,
-                sortBy: this.sortBy,
-                sortDirection: this.sortDirection,
-                term: this.term
-            };
-        },
-
-        sortPluginList(event) {
-            this.sortType = event;
-            const sorting = this.sortType.split(':');
-            this.sortBy = sorting[0];
-            this.sortDirection = sorting[1];
+        sortPluginList(sorting) {
+            this.sorting = sorting;
             this.page = 1;
+
             this.updateRoute({
                 sortBy: this.sortBy,
                 sortDirection: this.sortDirection,
                 page: this.page
             });
-            this.getList();
         },
 
         isConfigAvailableForPlugins() {
-            this.plugins.forEach((plugin) => {
+            this.isLoading = true;
+
+            return Promise.all(this.plugins.map((plugin) => {
                 if (!plugin.active) {
-                    return;
+                    plugin.customFields = {
+                        configAvailable: false
+                    };
+
+                    return Promise.resolve();
                 }
 
-                this.systemConfigApiService.checkConfig(`${plugin.name}.config`).then((response) => {
+                return systemConfigApiService.checkConfig(`${plugin.name}.config`).then((response) => {
                     plugin.customFields = {
                         configAvailable: response
                     };
@@ -252,6 +315,8 @@ Component.register('sw-plugin-list', {
                         configAvailable: false
                     };
                 });
+            })).finally(() => {
+                this.isLoading = false;
             });
         },
 
@@ -272,6 +337,13 @@ Component.register('sw-plugin-list', {
                     actions: violation.actions
                 };
             });
+        },
+
+        clearCacheAndReloadPage() {
+            return cacheApiService.clear()
+                .then(() => {
+                    window.location.reload();
+                });
         }
     }
 });

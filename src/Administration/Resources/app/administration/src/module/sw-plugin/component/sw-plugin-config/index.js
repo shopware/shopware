@@ -9,15 +9,25 @@ Shopware.Component.register('sw-plugin-config', {
 
     template,
 
+    props: {
+        namespace: {
+            type: String,
+            required: true
+        }
+    },
+
     data() {
-        const domain = `${this.$route.params.namespace}.config`;
         return {
-            namespace: this.$route.params.namespace,
-            domain: domain,
             salesChannelId: null,
             config: {},
             actualConfigData: {}
         };
+    },
+
+    computed: {
+        domain() {
+            return `${this.namespace}.config`;
+        }
     },
 
     methods: {

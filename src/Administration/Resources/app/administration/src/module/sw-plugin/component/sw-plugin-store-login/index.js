@@ -1,7 +1,7 @@
 import template from './sw-plugin-store-login.html.twig';
 import './sw-plugin-store-login.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, State, Mixin } = Shopware;
 
 Component.register('sw-plugin-store-login', {
     template,
@@ -9,8 +9,7 @@ Component.register('sw-plugin-store-login', {
     inject: ['storeService'],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('plugin-error-handler')
+        Mixin.getByName('notification')
     ],
 
     data() {
@@ -22,19 +21,22 @@ Component.register('sw-plugin-store-login', {
 
     methods: {
         onLoginClick() {
-            this.storeService.login(this.shopwareId, this.password).then(() => {
+            State.dispatch(
+                'swPlugin/loginShopwareUser', {
+                    shopwareId: this.shopwareId,
+                    password: this.password
+                }
+            ).then(() => {
                 this.createNotificationSuccess({
                     title: this.$tc('sw-plugin.store-login.titleLoginSuccess'),
                     message: this.$tc('sw-plugin.store-login.titleLoginMessage')
                 });
-                this.$emit('login-success');
-            }).catch((exception) => {
-                this.handleErrorResponse(exception);
+                this.$emit('close-modal');
             });
         },
 
         onCloseModal() {
-            this.$emit('login-abort');
+            this.$emit('close-modal');
         }
     }
 });

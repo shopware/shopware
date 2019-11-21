@@ -21,76 +21,64 @@
         {% block sw_plugin_updates_grid_card %}
             <sw-card :isLoading="isLoading || pageLoading">
                 {% block sw_plugin_updates_list_grid %}
-                    <template slot="grid">
-                        <sw-grid v-show="isLoading || total"
-                                 :items="updates"
-                                 :selectable="false"
-                                 table>
+                    <template #grid>
+                        <sw-data-grid v-show="isLoading || total"
+                                      class="sw-plugin-updates-grid__grid"
+                                      :columns="updateColumns"
+                                      :dataSource="updates"
+                                      :showSelection="false"
+                                      :showActions="false">
+                            <template #column-label="{ item }">
+                                {% block sw_plugin_updates_list_grid_columns_name_label %}
+                                    <sw-plugin-table-entry :iconPath="item.iconPath"
+                                                           :title="item.label"
+                                                           :subtitle="item.releaseDate | date">
+                                    </sw-plugin-table-entry>
+                                {% endblock %}
+                            </template>
 
-                            {% block sw_plugin_updates_list_grid_slots %}
-                                <template slot="columns" slot-scope="{ item }">
+                            <template #column-changelog="{ item }">
+                                {% block sw_plugin_updates_list_grid_columns_changelog_label %}
+                                <div v-html="$sanitize(item.changelog)"></div>
+                                {% endblock %}
+                            </template>
 
-                                    {% block sw_plugin_updates_list_grid_columns_name %}
-                                        <sw-grid-column flex="minmax(220px, 220px)"
-                                                        :label="$tc('sw-plugin.list.columnPlugin')"
-                                                        dataIndex="name">
-                                            {% block sw_plugin_updates_list_grid_columns_name_label %}
-                                                <sw-plugin-table-entry :iconPath="item.iconPath" :title="item.label"
-                                                                       :subtitle="item.releaseDate | date">
-                                                </sw-plugin-table-entry>
-                                            {% endblock %}
-                                        </sw-grid-column>
-                                    {% endblock %}
+                            <template #column-action-update="{ item }">
+                                {% block sw_plugin_updates_list_grid_columns_update %}
+                                    <div class="sw-plugin-updates-grid__update-context">
+                                        {% block sw_plugin_updates_list_grid_columns_update_button %}
+                                            <sw-button v-if="!isUpdating(item)"
+                                                       variant="ghost"
+                                                       size="small"
+                                                       @click="onUpdate(item)">
+                                                {{ $tc('sw-plugin.updates.updateButton') }}
+                                            </sw-button>
+                                        {% endblock %}
 
-                                    {% block sw_plugin_updates_list_grid_columns_changelog %}
-                                        <sw-grid-column flex="minmax(100px, 1fr)"
-                                                        :label="$tc('sw-plugin.list.columnChangelog')"
-                                                        dataIndex="changelog">
-                                            {% block sw_plugin_updates_list_grid_columns_changelog_label %}
-                                                <div v-html="$sanitize(item.changelog)"></div>
-                                            {% endblock %}
-                                        </sw-grid-column>
-                                    {% endblock %}
+                                        {% block sw_plugin_updates_list_grid_columns_update_loader %}
+                                            <sw-loader v-else size="14px"></sw-loader>
+                                        {% endblock %}
 
-                                    {% block sw_plugin_updates_list_grid_columns_action %}
-                                        <sw-grid-column flex="minmax(100px, 140px)"
-                                                        align="right">
-                                            {% block sw_plugin_updates_list_grid_columns_update %}
-                                                <div class="sw-plugin-updates-grid__update-context">
-                                                    {% block sw_plugin_updates_list_grid_columns_update_button %}
-                                                        <sw-button v-if="!isUpdating(item.name)" variant="ghost" size="small"
-                                                                   @click="onUpdate(item.name)">
-                                                            {{ $tc('sw-plugin.updates.updateButton') }}
-                                                        </sw-button>
-                                                    {% endblock %}
-                                                    {% block sw_plugin_updates_list_grid_columns_update_loader %}
-                                                        <sw-loader v-else size="14px"></sw-loader>
-                                                    {% endblock %}
-                                                    {% block sw_plugin_updates_list_grid_columns_update_version %}
-                                                        <p class="sw-plugin-updates-grid__version">
-                                                            {{ $tc('sw-plugin.general.version') }} {{ item.version }}
-                                                        </p>
-                                                    {% endblock %}
-                                                </div>
-                                            {% endblock %}
-                                        </sw-grid-column>
-                                    {% endblock %}
-                                </template>
-                            {% endblock %}
-                        </sw-grid>
+                                        {% block sw_plugin_updates_list_grid_columns_update_version %}
+                                            <span class="sw-plugin-updates-grid__version">
+                                                {{ $tc('sw-plugin.general.version') }} {{ item.version }}
+                                            </span>
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+                            </template>
+                        </sw-data-grid>
                     </template>
                 {% endblock %}
 
                 {% block sw_plugin_updates_list_empty_state %}
-                    <sw-empty-state v-if="!isLoading && !total"
-                                    :title="$tc('sw-plugin.updates.messageEmpty')"></sw-empty-state>
+                    <sw-empty-state v-if="noUpdates"
+                                    :title="$tc('sw-plugin.updates.messageEmpty')">
+                    </sw-empty-state>
                 {% endblock %}
 
                 {% block sw_plugin_updates_list_login_modal %}
-                    <sw-plugin-store-login v-if="showLoginModal"
-                                           @login-abort="loginAbort"
-                                           @login-success="loginSuccess">
-                    </sw-plugin-store-login>
+                    <sw-plugin-store-login v-if="showLoginModal" @close-modal="closeModal"></sw-plugin-store-login>
                 {% endblock %}
             </sw-card>
         {% endblock %}

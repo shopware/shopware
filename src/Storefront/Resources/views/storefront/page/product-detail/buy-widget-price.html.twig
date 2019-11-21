@@ -14,7 +14,7 @@
                                         <th scope="col" class="product-block-prices-cell">
                                             {{ "detail.dataColumnPrice"|trans|sw_sanitize }}
                                         </th>
-                                        {% if page.product.purchaseUnit %}
+                                        {% if page.product.calculatedPrice.referencePrice %}
                                             <th scope="col" class="product-block-prices-cell">
                                                 {{ "detail.dataColumnReferencePrice"|trans|sw_sanitize }}
                                             </th>

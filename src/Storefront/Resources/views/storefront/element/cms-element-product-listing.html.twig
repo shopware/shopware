@@ -87,7 +87,7 @@
                         </div>
                     {% endblock %}
 
-                    {% if searchResult.total > 0 %}
+                    {% if searchResult.total > searchResult.limit %}
                         {% block element_product_listing_pagination_nav_bottom %}
                             {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
                                 entities: searchResult,

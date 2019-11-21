@@ -1,4 +1,4 @@
-const { join } = require('path');
+const { join, isAbsolute } = require('path');
 const fs = require('fs');
 const { addPath } = require('app-module-path');
 const merge = require('webpack-merge');
@@ -14,6 +14,10 @@ const projectRoot = process.env.PROJECT_ROOT || '';
  * @returns {String}
  */
 function resolveFromRootPath(directory) {
+    if (isAbsolute(directory)) {
+        return directory;
+    }
+
     return join(projectRoot, directory);
 }
 
@@ -173,7 +177,7 @@ class WebpackPluginInjector {
      * @return {Object}
      */
     static getPluginConfig(pluginName, pluginDefinition, section) {
-        const basePath = pluginDefinition.basePath;
+        const basePath = resolveFromRootPath(pluginDefinition.basePath);
         const hasCustomWebpackConfig = (pluginDefinition[section].webpack !== null);
         const hasCustomStyleFiles = Object.prototype.hasOwnProperty.call(pluginDefinition[section], 'styleFiles')
             ? pluginDefinition[section].styleFiles.length > 0

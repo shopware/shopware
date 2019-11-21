@@ -136,12 +136,14 @@ class SyncControllerTest extends TestCase
 
     public function testDuplicateProductNumberInsertKeyChanged(): void
     {
+        $this->connection->rollBack();
         $this->connection->executeQuery('
             ALTER TABLE `product` DROP INDEX `uniq.product.product_number__version_id`
         ');
         $this->connection->executeQuery('
             ALTER TABLE `product` ADD CONSTRAINT `uniq.product.product_number__version_idTEST` UNIQUE (`product_number`, `version_id`)
         ');
+        $this->connection->beginTransaction();
 
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
@@ -184,6 +186,13 @@ class SyncControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         $this->getBrowser()->setServerParameter('HTTP_fail-on-error', 'true');
 
+        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertStringNotContainsString('Product with number \u0022' . $productNumber . '\u0022 already exists.', $response->getContent());
+
+        $this->getBrowser()->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id1);
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $this->connection->rollBack();
         $this->connection->executeQuery('
             ALTER TABLE `product` DROP INDEX `uniq.product.product_number__version_idTEST`
         ');
@@ -191,12 +200,7 @@ class SyncControllerTest extends TestCase
         $this->connection->executeQuery('
             ALTER TABLE `product` ADD CONSTRAINT `uniq.product.product_number__version_id` UNIQUE (`product_number`, `version_id`)
         ');
-
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
-        static::assertStringNotContainsString('Product with number \u0022' . $productNumber . '\u0022 already exists.', $response->getContent());
-
-        $this->getBrowser()->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id1);
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
+        $this->connection->beginTransaction();
     }
 
     public function testInsertAndUpdateSameEntity(): void

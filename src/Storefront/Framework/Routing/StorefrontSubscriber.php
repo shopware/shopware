@@ -5,16 +5,20 @@ namespace Shopware\Storefront\Framework\Routing;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
+use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\ErrorController;
+use Shopware\Storefront\Controller\MaintenanceController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -47,17 +51,25 @@ class StorefrontSubscriber implements EventSubscriberInterface
      */
     private $kernelDebug;
 
+    /**
+     * @var MaintenanceController
+     */
+    private $maintenanceController;
+
     public function __construct(
         RequestStack $requestStack,
         RouterInterface $router,
         ErrorController $errorController,
         SalesChannelContextServiceInterface $contextService,
+        MaintenanceController $maintenanceController,
         bool $kernelDebug
-    ) {
+    )
+    {
         $this->requestStack = $requestStack;
         $this->router = $router;
         $this->errorController = $errorController;
         $this->contextService = $contextService;
+        $this->maintenanceController = $maintenanceController;
         $this->kernelDebug = $kernelDebug;
     }
 
@@ -66,13 +78,14 @@ class StorefrontSubscriber implements EventSubscriberInterface
         return [
             KernelEvents::REQUEST => [
                 ['startSession', 40],
+                ['maintenanceResolver'],
             ],
             KernelEvents::EXCEPTION => [
                 ['showHtmlExceptionResponse', -100],
                 ['customerNotLoggedInHandler'],
             ],
             KernelEvents::CONTROLLER => [
-                ['preventPageLoadingFromXmlHttpRequest', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE],
+                ['preventPageLoadingFromXmlHttpRequest', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE]
             ],
             KernelEvents::RESPONSE => [
                 ['setCanonicalUrl'],
@@ -81,6 +94,28 @@ class StorefrontSubscriber implements EventSubscriberInterface
                 'updateSession',
             ],
         ];
+    }
+
+    public function maintenanceResolver(RequestEvent $event): void
+    {
+        //ToDo: impressum durchlassen
+        return;
+        $request = $event->getRequest();
+        if ($request->isXmlHttpRequest()) {
+            return;
+        }
+
+        // ToDo: errors & IP Whitelist
+        $this->setSalesChannelContextForRequestEvent($event);
+        $salesChannelContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+
+        try {
+            $response = $this->maintenanceController->renderMaintenancePage($event->getRequest(), $salesChannelContext);
+        } catch (PageNotFoundException $e) {
+            // ToDo
+        }
+
+        $event->setResponse($response);
     }
 
     public function startSession(): void
@@ -149,7 +184,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
         if (!$event->getRequest()->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {
             //When no saleschannel context is resolved, we need to resolve it now.
-            $this->setSalesChannelContext($event);
+            $this->setSalesChannelContextForExceptionEvent($event);
         }
 
         if ($event->getRequest()->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {
@@ -223,7 +258,20 @@ class StorefrontSubscriber implements EventSubscriberInterface
         }
     }
 
-    private function setSalesChannelContext(ExceptionEvent $event): void
+    private function setSalesChannelContextForExceptionEvent(ExceptionEvent $event): void
+    {
+        $contextToken = $event->getRequest()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        $salesChannelId = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+
+        $context = $this->contextService->get(
+            $salesChannelId,
+            $contextToken,
+            $event->getRequest()->headers->get(PlatformRequest::HEADER_LANGUAGE_ID)
+        );
+        $event->getRequest()->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+    }
+
+    private function setSalesChannelContextForRequestEvent(RequestEvent $event): void
     {
         $request = $event->getRequest();
 
@@ -237,5 +285,19 @@ class StorefrontSubscriber implements EventSubscriberInterface
         );
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+    }
+
+    private function getSalesChannelContext(RequestEvent $event): SalesChannelContext
+    {
+        $contextToken = $event->getRequest()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        $salesChannelId = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+
+        $context = $this->contextService->get(
+            $salesChannelId,
+            $contextToken,
+            $event->getRequest()->headers->get(PlatformRequest::HEADER_LANGUAGE_ID)
+        );
+
+        return $context;
     }
 }

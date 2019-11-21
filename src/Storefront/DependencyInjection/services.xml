@@ -84,6 +84,7 @@
             <argument type="service" id="router"/>
             <argument type="service" id="Shopware\Storefront\Controller\ErrorController"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
+            <argument type="service" id="Shopware\Storefront\Controller\MaintenanceController"/>
             <argument>%kernel.debug%</argument>
 
             <tag name="kernel.event_subscriber"/>
@@ -125,6 +126,12 @@
         </service>
 
         <service id="Shopware\Storefront\Page\Navigation\Error\ErrorPageLoader">
+            <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Storefront\Page\Maintenance\MaintenancePageLoader">
             <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>

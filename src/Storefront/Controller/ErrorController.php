@@ -45,7 +45,8 @@ class ErrorController extends StorefrontController
         HeaderPageletLoader $headerPageletLoader,
         SystemConfigService $systemConfigService,
         ErrorPageLoader $errorPageLoader
-    ) {
+    )
+    {
         $this->errorTemplateResolver = $errorTemplateResolver;
         $this->flashBag = $flashBag;
         $this->headerPageletLoader = $headerPageletLoader;
@@ -61,11 +62,14 @@ class ErrorController extends StorefrontController
             }
 
             $salesChannelId = $context->getSalesChannel()->getId();
-            $cmsErrorLayoutId = $this->systemConfigService->get('core.basicInformation.404Page', $salesChannelId);
+            $cmsErrorLayoutId = (string)$this->systemConfigService->get('core.basicInformation.404Page', $salesChannelId);
             if ($cmsErrorLayoutId && ($exception instanceof HttpException && $exception->getStatusCode() === 404)) {
                 $errorPage = $this->errorPageLoader->load($cmsErrorLayoutId, $request, $context);
 
-                $response = $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => $errorPage]);
+                $response = $this->renderStorefront(
+                    '@Storefront/storefront/page/content/index.html.twig',
+                    ['page' => $errorPage]
+                );
             } else {
                 $errorTemplate = $this->errorTemplateResolver->resolve($exception, $request);
                 $response = $this->renderStorefront($errorTemplate->getTemplateName(), ['page' => $errorTemplate]);

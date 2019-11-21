@@ -138,8 +138,8 @@
                                     }'
                                    href="#review-tab-pane"
                                    aria-controls="review-tab-pane">
-                                    {{ page.totalReviews}}
-                                    {{ "detail.reviewLinkText"|trans({'%count%': page.totalReviews})|sw_sanitize }}
+                                    {{ page.reviews.totalReviews}}
+                                    {{ "detail.reviewLinkText"|trans({'%count%': page.reviews.totalReviews})|sw_sanitize }}
                                 </a>
                             </p>
                         {% endif %}

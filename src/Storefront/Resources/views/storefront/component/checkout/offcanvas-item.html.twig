@@ -134,7 +134,7 @@
                                                 {{ lineItem.price.totalPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
                                                 {% if lineItem.price.referencePrice is not null %}
                                                     <small class="cart-item-reference-price">
-                                                        <br>{{ lineItem.price.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ lineItem.price.referencePrice.referenceUnit }}&nbsp;{{ lineItem.price.referencePrice.unitName }}
+                                                        {{ lineItem.price.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ lineItem.price.referencePrice.referenceUnit }}&nbsp;{{ lineItem.price.referencePrice.unitName }}
                                                     </small>
                                                 {% endif %}
                                             </div>

@@ -51,7 +51,7 @@
                                                         {{ product.calculatedPrice.unitPrice|currency }}
                                                     {% endif %}
                                                     {% if product.calculatedPrice.referencePrice is not null %}
-                                                        <br><small>({{ product.calculatedPrice.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ product.calculatedPrice.referencePrice.referenceUnit }}&nbsp;{{ product.calculatedPrice.referencePrice.unitName }})</small>
+                                                        <br><small class="search-suggest-product-reference-price">({{ product.calculatedPrice.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ product.calculatedPrice.referencePrice.referenceUnit }}&nbsp;{{ product.calculatedPrice.referencePrice.unitName }})</small>
                                                     {% endif %}
                                                 </div>
                                             {% endblock %}

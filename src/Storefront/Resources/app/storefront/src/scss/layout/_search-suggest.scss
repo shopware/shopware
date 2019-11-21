@@ -58,6 +58,7 @@ Contains styles for the search suggest popover in the shop header.
 
 .search-suggest-product-reference-price {
     color: lighten($sw-text-color, 20);
+    float: right;
 }
 
 .search-suggest-product-image-container {

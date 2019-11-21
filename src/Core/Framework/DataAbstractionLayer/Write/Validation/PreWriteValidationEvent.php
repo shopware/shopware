@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Validation;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Event\ShopwareEvent;
@@ -17,7 +17,7 @@ class PreWriteValidationEvent extends Event implements ShopwareEvent
     private $writeContext;
 
     /**
-     * @var WriteCommandInterface[]
+     * @var WriteCommand[]
      */
     private $commands;
 
@@ -38,7 +38,7 @@ class PreWriteValidationEvent extends Event implements ShopwareEvent
     }
 
     /**
-     * @return WriteCommandInterface[]
+     * @return WriteCommand[]
      */
     public function getCommands(): array
     {

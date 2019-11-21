@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSet;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 
 /**
@@ -16,32 +17,37 @@ class EntityWriteResult
     /**
      * @var array|string
      */
-    private $primaryKey;
+    protected $primaryKey;
 
     /**
      * @var array
      */
-    private $payload;
+    protected $payload;
 
     /**
      * @var EntityExistence|null
      */
-    private $existence;
+    protected $existence;
 
     /**
      * @var string
      */
-    private $entityName;
+    protected $entityName;
 
     /**
      * @var string
      */
-    private $operation;
+    protected $operation;
+
+    /**
+     * @var ChangeSet|null
+     */
+    protected $changeSet;
 
     /**
      * @param array|string $primaryKey
      */
-    public function __construct($primaryKey, array $payload, string $entityName, string $operation, ?EntityExistence $existence = null)
+    public function __construct($primaryKey, array $payload, string $entityName, string $operation, ?EntityExistence $existence = null, ?ChangeSet $changeSet = null)
     {
         $this->primaryKey = $primaryKey;
         $this->payload = $payload;
@@ -53,6 +59,7 @@ class EntityWriteResult
         if (!in_array($this->operation, [self::OPERATION_DELETE, self::OPERATION_INSERT, self::OPERATION_UPDATE], true)) {
             throw new \RuntimeException(sprintf('Unexpected write result operation %s', $operation));
         }
+        $this->changeSet = $changeSet;
     }
 
     /**
@@ -81,5 +88,10 @@ class EntityWriteResult
     public function getOperation(): string
     {
         return $this->operation;
+    }
+
+    public function getChangeSet(): ?ChangeSet
+    {
+        return $this->changeSet;
     }
 }

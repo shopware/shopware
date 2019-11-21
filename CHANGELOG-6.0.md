@@ -290,6 +290,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
         * use the command with the option "--all" to remove both of them.
         * with the option "--days" it is possible to remove the data which is same old and older than the given number of days
     * Updated Symfony dependencies to version `4.4.0`.    
+    * We removed the `\Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface`, use `\Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand` instead
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain

@@ -1,15 +1,14 @@
 import template from './sw-tax-rule-card.html.twig';
 import './sw-tax-rule-card.scss';
 
-const { Component } = Shopware;
+const { Component, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-tax-rule-card', {
     template,
 
     inject: [
-        'repositoryFactory',
-        'apiContext'
+        'repositoryFactory'
     ],
 
     props: {
@@ -105,7 +104,7 @@ Component.register('sw-tax-rule-card', {
         getList() {
             this.taxRulesLoading = true;
 
-            return this.taxRuleRepository.search(this.taxRuleCriteria, this.apiContext).then((response) => {
+            return this.taxRuleRepository.search(this.taxRuleCriteria, Context.api).then((response) => {
                 this.total = response.total;
                 this.taxRules = response;
                 this.taxRulesLoading = false;
@@ -140,7 +139,7 @@ Component.register('sw-tax-rule-card', {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.taxRuleRepository.delete(id, this.apiContext).then(() => {
+            return this.taxRuleRepository.delete(id, Context.api).then(() => {
                 this.getList();
             });
         },

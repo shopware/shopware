@@ -1,12 +1,12 @@
 import template from './sw-settings-tax-rule-type-individual-states-cell.html.twig';
 
-const { Component } = Shopware;
+const { Component, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-settings-tax-rule-type-individual-states-cell', {
     template,
 
-    inject: ['repositoryFactory', 'apiContext'],
+    inject: ['repositoryFactory'],
 
     props: {
         taxRule: {
@@ -52,7 +52,7 @@ Component.register('sw-settings-tax-rule-type-individual-states-cell', {
             const criteria = new Criteria();
             criteria.setIds(this.taxRule.data.states);
 
-            this.stateRepository.search(criteria, this.apiContext).then(states => {
+            this.stateRepository.search(criteria, Context.api).then(states => {
                 this.individualStates = states.map(state => state.name);
             });
         }

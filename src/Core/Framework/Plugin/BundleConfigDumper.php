@@ -65,6 +65,8 @@ class BundleConfigDumper implements EventSubscriberInterface
 
         $kernelBundles = array_merge($this->kernel->getBundles(), $additionalBundles);
 
+        $projectDir = $this->kernel->getContainer()->getParameter('kernel.project_dir');
+
         $bundles = [];
         foreach ($kernelBundles as $bundle) {
             // only include shopware bundles
@@ -77,8 +79,14 @@ class BundleConfigDumper implements EventSubscriberInterface
                 continue;
             }
 
+            $path = $bundle->getPath();
+            if (mb_strpos($bundle->getPath(), $projectDir) === 0) {
+                // make relative
+                $path = ltrim(mb_substr($path, mb_strlen($projectDir)), '/');
+            }
+
             $bundles[$bundle->getName()] = [
-                'basePath' => $bundle->getPath() . '/',
+                'basePath' => $path . '/',
                 'views' => ['Resources/views'],
                 'administration' => [
                     'path' => 'Resources/app/administration/src',

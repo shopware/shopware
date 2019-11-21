@@ -5,13 +5,18 @@ export default {
 
     state() {
         return {
-            category: null
+            category: null,
+            customFieldSets: []
         };
     },
 
     mutations: {
         setActiveCategory(state, { category }) {
             state.category = category;
+        },
+
+        setCustomFieldSets(state, newCustomFieldSets) {
+            state.customFieldSets = newCustomFieldSets;
         }
     },
 

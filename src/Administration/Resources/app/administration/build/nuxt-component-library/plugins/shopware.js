@@ -19,6 +19,7 @@ require('src/app/mixin/index').default();
 require('src/app/directive/index').default();
 require('src/app/filter/index').default();
 require('src/app/init/component-helper.init').default();
+require('src/app/init-pre/state.init').default();
 
 // Vue plugins
 Vue.use(VueI18n);

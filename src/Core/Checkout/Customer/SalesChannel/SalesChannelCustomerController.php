@@ -199,15 +199,15 @@ class SalesChannelCustomerController extends AbstractController
     }
 
     /**
-     * @Route("/sales-channel-api/v{version}/customer/address", name="sales-channel-api.customer.address.create", methods={"POST"})
+     * @Route("/sales-channel-api/v{version}/customer/address", name="sales-channel-api.customer.address.create", methods={"POST", "PATCH"})
      *
      * @throws AddressNotFoundException
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException
      */
-    public function createAddress(RequestDataBag $requestData, SalesChannelContext $context): JsonResponse
+    public function upsertAddress(RequestDataBag $requestData, SalesChannelContext $context): JsonResponse
     {
-        $addressId = $this->addressService->create($requestData, $context);
+        $addressId = $this->addressService->upsert($requestData, $context);
 
         return new JsonResponse($this->serialize($addressId));
     }

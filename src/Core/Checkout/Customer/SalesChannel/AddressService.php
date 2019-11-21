@@ -106,19 +106,21 @@ class AddressService
      * @throws InvalidUuidException
      * @throws ConstraintViolationException
      */
-    public function create(DataBag $data, SalesChannelContext $context): string
+    public function upsert(DataBag $data, SalesChannelContext $context): string
     {
         $this->validateCustomerIsLoggedIn($context);
 
-        $accountType = $data->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
-        $definition = $this->getCreateValidationDefinition($accountType, $context->getContext());
-        $this->validator->validate($data->all(), $definition);
-
         if ($id = $data->get('id')) {
             $this->validateAddressId((string) $id, $context)->getId();
+            $isCreate = false;
         } else {
             $id = Uuid::randomHex();
+            $isCreate = true;
         }
+
+        $accountType = $data->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
+        $definition = $this->getValidationDefinition($accountType, $isCreate, $context->getContext());
+        $this->validator->validate(array_merge(['id' => $id], $data->all()), $definition);
 
         $addressData = [
             'salutationId' => $data->get('salutationId'),
@@ -206,9 +208,13 @@ class AddressService
         return $address;
     }
 
-    private function getCreateValidationDefinition(string $accountType, Context $context): DataValidationDefinition
+    private function getValidationDefinition(string $accountType, bool $isCreate, Context $context): DataValidationDefinition
     {
-        $validation = $this->addressValidationService->buildCreateValidation($context);
+        if ($isCreate) {
+            $validation = $this->addressValidationService->buildCreateValidation($context);
+        } else {
+            $validation = $this->addressValidationService->buildUpdateValidation($context);
+        }
 
         if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection')) {
             $validation->add('company', new NotBlank());

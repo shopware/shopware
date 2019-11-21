@@ -75,7 +75,12 @@ PHP analysis:
         - php dev-ops/analyze/vendor/bin/php-cs-fixer fix --config=vendor/shopware/platform/.php_cs.dist --dry-run --format=junit | tee php-cs-fixer.xml
         - php dev-ops/analyze/phpstan-config-generator.php
         - php dev-ops/analyze/vendor/bin/phpstan analyze --configuration vendor/shopware/platform/phpstan.neon --error-format gitlab | tee phpstan-report.json
-        - php dev-ops/analyze/vendor/bin/psalm --config=vendor/shopware/platform/psalm.xml --threads=2 --show-info=false
+        - >
+            for module in $(ls vendor/shopware/platform/src/); do
+                echo "[PSALM: scan $module]"
+                php dev-ops/analyze/vendor/bin/psalm --config=vendor/shopware/platform/psalm.xml --threads=2 --show-info=false vendor/shopware/platform/src/$module;
+            done
+        - php dev-ops/analyze/vendor/bin/psalm --config=vendor/shopware/platform/psalm.xml --threads=2 --show-info=false src
     artifacts:
         reports:
             junit: development/php-cs-fixer.xml

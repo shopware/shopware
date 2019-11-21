@@ -1,13 +1,13 @@
 import template from './sw-settings-tax-rule-modal.html.twig';
 
-const { Component } = Shopware;
+const { Component, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapApiErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-settings-tax-rule-modal', {
     template,
 
-    inject: ['repositoryFactory', 'apiContext'],
+    inject: ['repositoryFactory'],
 
     props: {
         tax: {
@@ -58,7 +58,7 @@ Component.register('sw-settings-tax-rule-modal', {
 
     methods: {
         changeRuleType(id) {
-            this.taxRuleTypeRepository.get(id, this.apiContext).then((item) => {
+            this.taxRuleTypeRepository.get(id, Context.api).then((item) => {
                 this.currentTaxRuleType = item;
             });
         },
@@ -75,7 +75,7 @@ Component.register('sw-settings-tax-rule-modal', {
         },
 
         onConfirm() {
-            this.taxRuleRepository.save(this.taxRule, this.apiContext).then(() => {
+            this.taxRuleRepository.save(this.taxRule, Context.api).then(() => {
                 this.isSaveSuccessful = true;
 
                 this.$emit('modal-close');

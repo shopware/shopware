@@ -28,6 +28,8 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\Assoc
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendableDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\FkFieldExtension;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\InvalidReferenceExtension;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ReferenceVersionExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ScalarExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ScalarRuntimeExtension;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -81,7 +83,7 @@ class EntityExtensionTest extends TestCase
         $this->getContainer()->get(ProductDefinition::class)->getFields()->remove('myPrices');
         $this->getContainer()->get(ProductDefinition::class)->getFields()->remove('myCategories');
 
-        $this->removeExtension(ScalarExtension::class, ScalarRuntimeExtension::class, AssociationExtension::class);
+        $this->removeExtension(ScalarExtension::class, ScalarRuntimeExtension::class, AssociationExtension::class, ReferenceVersionExtension::class, InvalidReferenceExtension::class);
     }
 
     public function testICanWriteAndReadManyToOneAssociationExtension(): void
@@ -539,7 +541,7 @@ class EntityExtensionTest extends TestCase
     public function testICantAddScalarExtensions(): void
     {
         static::expectException(\Exception::class);
-        static::expectExceptionMessage('Only AssociationFields, fk fields for a ManyToOneAssociationField or fields flagged as Runtime can be added as Extension.');
+        static::expectExceptionMessage('Only AssociationFields, FkFields/ReferenceVersionFields for a ManyToOneAssociationField or fields flagged as Runtime can be added as Extension.');
 
         $this->registerDefinitionWithExtensions(ExtendableDefinition::class, ScalarExtension::class);
 
@@ -567,6 +569,26 @@ class EntityExtensionTest extends TestCase
 
         static::assertTrue($this->getContainer()->get(ExtendableDefinition::class)->getFields()->has('toOne'));
         static::assertTrue($this->getContainer()->get(ExtendableDefinition::class)->getFields()->has('toMany'));
+    }
+
+    public function testICanAddReferenceVersionAsExtensionWithValidManyToOneAssociation(): void
+    {
+        $this->registerDefinition(ExtendedDefinition::class);
+        $this->registerDefinitionWithExtensions(ExtendableDefinition::class, ReferenceVersionExtension::class);
+
+        static::assertTrue($this->getContainer()->get(ExtendableDefinition::class)->getFields()->has('toOne'));
+        static::assertTrue($this->getContainer()->get(ExtendableDefinition::class)->getFields()->has('extendedVersionId'));
+    }
+
+    public function testICantAddReferenceVersionAsExtensionWithOutValidManyToOneAssociation(): void
+    {
+        static::expectException(\Exception::class);
+        static::expectExceptionMessage('ReferenceVersionField has no configured ManyToOneAssociationField in entity ' . ExtendableDefinition::class);
+
+        $this->registerDefinition(ExtendedDefinition::class);
+        $this->registerDefinitionWithExtensions(ExtendableDefinition::class, InvalidReferenceExtension::class);
+
+        $this->getContainer()->get(ExtendableDefinition::class)->getFields()->has('extendedVersionId');
     }
 
     private function getPricesData($id): array

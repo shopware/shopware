@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LockedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
@@ -138,7 +139,28 @@ abstract class EntityDefinition
                 }
 
                 if (!$field instanceof FkField) {
-                    throw new \Exception('Only AssociationFields, fk fields for a ManyToOneAssociationField or fields flagged as Runtime can be added as Extension.');
+                    throw new \Exception('Only AssociationFields, FkFields/ReferenceVersionFields for a ManyToOneAssociationField or fields flagged as Runtime can be added as Extension.');
+                }
+
+                if (($field instanceof ReferenceVersionField)) {
+                    $reference = $field->jsonSerialize()['versionReferenceClass'];
+
+                    $referenceAssociationFound = false;
+                    foreach ($new as $association) {
+                        if (!($association instanceof ManyToOneAssociationField)) {
+                            continue;
+                        }
+
+                        $referenceAssociationFound = $association->jsonSerialize()['referenceClass'] === $reference;
+                    }
+
+                    if (!$referenceAssociationFound) {
+                        throw new \Exception(sprintf('ReferenceVersionField has no configured ManyToOneAssociationField in entity %s', $this->className));
+                    }
+
+                    $fields->add($field);
+
+                    continue;
                 }
 
                 $hasManyToOne = false;

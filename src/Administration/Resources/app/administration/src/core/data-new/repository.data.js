@@ -329,7 +329,7 @@ export default class Repository {
      * @param {String|null} versionName
      * @returns {Promise}
      */
-    createVersion(entityId, context, versionId, versionName) {
+    createVersion(entityId, context, versionId = null, versionName = null) {
         const headers = this.buildHeaders(context);
         const params = {};
 
@@ -340,12 +340,10 @@ export default class Repository {
             params.versionName = versionName;
         }
 
-        const url = `_action/version/${this.entityName}/${entityId}`;
+        const url = `_action/version/${this.entityName.replace(/_/g, '-')}/${entityId}`;
 
         return this.httpClient.post(url, params, { headers }).then((response) => {
             return { ...context, ...{ versionId: response.data.versionId } };
-        }).catch(() => {
-            // TODO handle versioning errors
         });
     }
 
@@ -359,11 +357,9 @@ export default class Repository {
     mergeVersion(versionId, context) {
         const headers = this.buildHeaders(context);
 
-        const url = `_action/version/merge/${this.entityName}/${versionId}`;
+        const url = `_action/version/merge/${this.entityName.replace(/_/g, '-')}/${versionId}`;
 
-        return this.httpClient.post(url, {}, { headers }).catch(() => {
-            // TODO handle versioning errors
-        });
+        return this.httpClient.post(url, {}, { headers });
     }
 
     /**
@@ -376,11 +372,9 @@ export default class Repository {
     deleteVersion(entityId, versionId, context) {
         const headers = this.buildHeaders(context);
 
-        const url = `/_action/version/${versionId}/${this.entityName}/${entityId}`;
+        const url = `/_action/version/${versionId}/${this.entityName.replace(/_/g, '-')}/${entityId}`;
 
-        return this.httpClient.post(url, {}, { headers }).catch(() => {
-            // TODO handle versioning errors
-        });
+        return this.httpClient.post(url, {}, { headers });
     }
 
     /**

@@ -448,6 +448,49 @@ EOF;
         $this->assertEntityNotExists($this->getBrowser(), 'product', $id);
     }
 
+    public function testDeleteVersion(): void
+    {
+        static::markTestSkipped('Deleting the version does not work.');
+
+        $id = Uuid::randomHex();
+        $browser = $this->getBrowser();
+
+        $data = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'name' => $id,
+            'tax' => ['name' => 'test', 'taxRate' => 10],
+            'manufacturer' => ['name' => 'test'],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
+        ];
+
+        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
+        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, $response->headers->get('Location'));
+
+        $this->assertEntityExists($browser, 'product', $id);
+
+        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/version/product/' . $id);
+        $response = json_decode($browser->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
+        static::assertArrayHasKey('versionId', $response);
+        static::assertArrayHasKey('versionName', $response);
+        static::assertArrayHasKey('id', $response);
+        static::assertArrayHasKey('entity', $response);
+        static::assertTrue(Uuid::isValid($response['versionId']));
+
+        $uri = utf8_encode('/api/v' . PlatformRequest::API_VERSION . '/_action/version/' . $response['versionId'] . '/product/' . $id);
+        $browser->request('POST', $uri);
+        $response = json_decode($browser->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
+        static::assertEmpty($response);
+
+        $this->assertEntityNotExists($browser, 'product', $id);
+    }
+
     public function testDeleteWithoutPermission(): void
     {
         skipTestNext3722($this);

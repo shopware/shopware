@@ -26,6 +26,7 @@ module.exports = function createProxyServer(userOptions) {
                 ...client_req.headers,
                 host: originalHost,
                 'hot-reload-mode': true,
+                'accept-encoding': 'identity',
             },
         };
 

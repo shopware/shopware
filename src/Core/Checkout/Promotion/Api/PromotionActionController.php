@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -63,7 +64,7 @@ class PromotionActionController extends AbstractController
     {
         $this->codesRemover->removeIndividualCodes($promotionId, $context);
 
-        return new JsonResponse([]);
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
     /**

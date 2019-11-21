@@ -31,7 +31,7 @@ abstract class Bundle extends SymfonyBundle
 
     public function boot(): void
     {
-        $this->container->get(AssetPackageService::class)->addAssetPackage($this->getName());
+        $this->container->get(AssetPackageService::class)->addAssetPackage($this->getName(), $this->getPath());
 
         parent::boot();
     }

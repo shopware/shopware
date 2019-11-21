@@ -11,7 +11,7 @@ Contains styles for the search suggest popover in the shop header.
     list-style: none;
     touch-action: manipulation;
     background: $white;
-    padding: $spacer-sm;
+    padding: $spacer;
     border: 1px solid $border-color;
     width: 100%;
     z-index: $search-suggest-zindex;
@@ -57,7 +57,7 @@ Contains styles for the search suggest popover in the shop header.
 }
 
 .search-suggest-product-image-container {
-    margin: 0 $spacer-sm;
+    margin: 0 $spacer-sm 0 0;
 }
 
 .search-suggest-product-image {
@@ -75,7 +75,7 @@ Contains styles for the search suggest popover in the shop header.
 
 @include media-breakpoint-up(md) {
     .search-suggest-container {
-        width: 450px;
+        width: 500px;
         left: 50%;
         transform: translateX(-50%);
     }

@@ -32,6 +32,8 @@
         "symfony/security-csrf": "4.3.8",
         "symfony/service-contracts": "1.1.8",
         "symfony/validator": "4.3.8",
+        "symfony/security-core": "4.3.8",
+        "symfony/mime": "4.3.8",
         "twig/extensions": "1.5.4",
         "twig/twig": "2.12.1"
     },

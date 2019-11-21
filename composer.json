@@ -94,6 +94,14 @@
         "symfony/twig-bundle": "4.3.8",
         "symfony/validator": "4.3.8",
         "symfony/yaml": "4.3.8",
+        "symfony/security-core": "4.3.8",
+        "symfony/monolog-bridge": "4.3.8",
+        "symfony/inflector": "4.3.8",
+        "symfony/twig-bridge": "4.3.8",
+        "symfony/process": "4.3.8",
+        "symfony/debug": "4.3.8",
+        "symfony/mime": "4.3.8",
+        "symfony/var-exporter": "4.3.8",
         "true/punycode": "2.1.1",
         "twig/extensions": "1.5.4",
         "twig/twig": "2.12.1",
@@ -115,7 +123,8 @@
         "symfony/phpunit-bridge": "4.3.8",
         "symfony/stopwatch": "4.3.8",
         "symfony/var-dumper": "4.3.8",
-        "symfony/web-profiler-bundle": "4.3.8"
+        "symfony/web-profiler-bundle": "4.3.8",
+        "symfony/dom-crawler": "4.3.8"
     },
     "conflict": {
         "symfony/symfony": "*"

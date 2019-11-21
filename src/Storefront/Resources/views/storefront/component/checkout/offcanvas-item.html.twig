@@ -132,6 +132,12 @@
                                         {% block component_offcanvas_product_total_price %}
                                             <div class="cart-item-price">
                                                 {{ lineItem.price.totalPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+
+                                                {% if lineItem.price.referencePrice is not null %}
+                                                    <small class="cart-item-price-basic">
+                                                        {{ lineItem.price.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ lineItem.price.referencePrice.referenceUnit }} {{ lineItem.price.referencePrice.unitName }}
+                                                    </small>
+                                                {% endif %}
                                             </div>
                                         {% endblock %}
                                     </div>

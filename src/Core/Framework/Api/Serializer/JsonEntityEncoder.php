@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Serializer;
 
-use Shopware\Core\Framework\Api\Converter\ConverterService;
+use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -23,14 +23,14 @@ class JsonEntityEncoder
     private $serializer;
 
     /**
-     * @var ConverterService
+     * @var ApiVersionConverter
      */
-    private $converterService;
+    private $apiVersionConverter;
 
-    public function __construct(Serializer $serializer, ConverterService $converterService)
+    public function __construct(Serializer $serializer, ApiVersionConverter $apiVersionConverter)
     {
         $this->serializer = $serializer;
-        $this->converterService = $converterService;
+        $this->apiVersionConverter = $apiVersionConverter;
     }
 
     /**
@@ -78,7 +78,7 @@ class JsonEntityEncoder
                 continue;
             }
 
-            if (!$this->converterService->isAllowed($definition->getEntityName(), $key, $apiVersion)) {
+            if (!$this->apiVersionConverter->isAllowed($definition->getEntityName(), $key, $apiVersion)) {
                 unset($decoded[$key]);
 
                 continue;

@@ -99,7 +99,7 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ConverterService"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
             <argument>%shopware.api.max_limit%</argument>
             <argument>%shopware.api.allowed_limits%</argument>
         </service>
@@ -114,7 +114,7 @@
         <service id="Shopware\Core\System\SalesChannel\Entity\SalesChannelApiController" public="true">
             <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ConverterService"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
         </service>
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityReader" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface">
@@ -621,7 +621,7 @@
         <service id="Shopware\Core\Framework\Api\Sync\SyncService" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ConverterService"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerRegistry">

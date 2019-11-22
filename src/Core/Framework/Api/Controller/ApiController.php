@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Acl\Resource\AclResourceDefinition;
-use Shopware\Core\Framework\Api\Converter\ConverterService;
+use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionException;
 use Shopware\Core\Framework\Api\Exception\InvalidVersionNameException;
 use Shopware\Core\Framework\Api\Exception\NoEntityClonedException;
@@ -80,22 +80,22 @@ class ApiController extends AbstractController
     private $compositeEntitySearcher;
 
     /**
-     * @var ConverterService
+     * @var ApiVersionConverter
      */
-    private $converterService;
+    private $apiVersionConverter;
 
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         Serializer $serializer,
         RequestCriteriaBuilder $searchCriteriaBuilder,
         CompositeEntitySearcher $compositeEntitySearcher,
-        ConverterService $converterService
+        ApiVersionConverter $apiVersionConverter
     ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->serializer = $serializer;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->compositeEntitySearcher = $compositeEntitySearcher;
-        $this->converterService = $converterService;
+        $this->apiVersionConverter = $apiVersionConverter;
     }
 
     /**
@@ -169,7 +169,7 @@ class ApiController extends AbstractController
             $entityCollection = $result['entities'];
             $entities = [];
             foreach ($entityCollection->getElements() as $key => $entity) {
-                $entities[$key] = $this->converterService->convertEntity($definition, $entity, $version);
+                $entities[$key] = $this->apiVersionConverter->convertEntity($definition, $entity, $version);
             }
             $result['entities'] = $entities;
         }
@@ -817,7 +817,7 @@ class ApiController extends AbstractController
         $repository = $this->definitionRegistry->getRepository($entity->getEntityName());
 
         $conversionException = new ApiConversionException();
-        $payload = $this->converterService->convertPayload($entity, $payload, $apiVersion, $conversionException);
+        $payload = $this->apiVersionConverter->convertPayload($entity, $payload, $apiVersion, $conversionException);
         $conversionException->tryToThrow();
 
         if ($type === self::WRITE_CREATE) {
@@ -927,7 +927,7 @@ class ApiController extends AbstractController
             ];
         }
 
-        $this->converterService->validateEntityPath($entities, $apiVersion);
+        $this->apiVersionConverter->validateEntityPath($entities, $apiVersion);
 
         return $entities;
     }
@@ -1032,7 +1032,7 @@ class ApiController extends AbstractController
 
     private function checkIfRouteAvailableInApiVersion(string $entity, int $version): void
     {
-        if (!$this->converterService->isAllowed($entity, null, $version)) {
+        if (!$this->apiVersionConverter->isAllowed($entity, null, $version)) {
             throw new NotFoundHttpException();
         }
     }

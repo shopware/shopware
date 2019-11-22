@@ -150,6 +150,8 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginDefinition"/>
         </service>
 
         <!-- Helper -->

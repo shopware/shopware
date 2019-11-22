@@ -5,7 +5,7 @@ namespace Shopware\Core\System\SalesChannel\Entity;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Acl\Role\AclUserRoleDefinition;
-use Shopware\Core\Framework\Api\Converter\ConverterService;
+use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context\SalesChannelApiSource;
@@ -57,18 +57,18 @@ class SalesChannelApiController
     private $criteriaBuilder;
 
     /**
-     * @var ConverterService
+     * @var ApiVersionConverter
      */
-    private $converterService;
+    private $apiVersionConverter;
 
     public function __construct(
         SalesChannelDefinitionInstanceRegistry $registry,
         RequestCriteriaBuilder $criteriaBuilder,
-        ConverterService $converterService
+        ApiVersionConverter $apiVersionConverter
     ) {
         $this->registry = $registry;
         $this->criteriaBuilder = $criteriaBuilder;
-        $this->converterService = $converterService;
+        $this->apiVersionConverter = $apiVersionConverter;
     }
 
     public function searchIds(Request $request, SalesChannelContext $context, string $entity): Response
@@ -213,7 +213,7 @@ class SalesChannelApiController
 
     private function checkIfRouteAvailableInApiVersion(string $entity, int $version): void
     {
-        if (!$this->converterService->isAllowed($entity, null, $version)) {
+        if (!$this->apiVersionConverter->isAllowed($entity, null, $version)) {
             throw new NotFoundHttpException();
         }
     }

@@ -48,7 +48,7 @@ class LineItemsInCartCountRule extends Rule
             case self::OPERATOR_GTE:
                 return $this->count <= $count;
             default:
-                throw new UnsupportedOperatorException($this->operator, __CLASS__);
+                throw new UnsupportedOperatorException($this->operator, self::class);
         }
     }
 

@@ -60,7 +60,7 @@ abstract class EntityDefinition
 
     final public function __construct()
     {
-        $this->className = get_class($this);
+        $this->className = static::class;
     }
 
     final public function getClass(): string

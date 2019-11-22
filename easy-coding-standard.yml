@@ -43,5 +43,3 @@ parameters:
         PhpCsFixer\Fixer\Phpdoc\PhpdocSummaryFixer: ~
         PhpCsFixer\Fixer\StringNotation\ExplicitStringVariableFixer: ~
         PHP_CodeSniffer\Standards\Generic\Sniffs\CodeAnalysis\AssignmentInConditionSniff: ~
-        # following should be fixed
-        SlevomatCodingStandard\Sniffs\Classes\ModernClassNameReferenceSniff: ~

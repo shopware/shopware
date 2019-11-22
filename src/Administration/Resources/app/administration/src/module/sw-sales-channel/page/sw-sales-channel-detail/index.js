@@ -51,7 +51,7 @@ Component.register('sw-sales-channel-detail', {
                 return this.newProductExport;
             }
 
-            this.newProductExport = this.productExportRepository.create(this.context);
+            this.newProductExport = this.productExportRepository.create(Shopware.Context.api);
             this.newProductExport.interval = 0;
             this.newProductExport.generateByCronjob = false;
 
@@ -131,18 +131,9 @@ Component.register('sw-sales-channel-detail', {
         },
 
         loadSalesChannel() {
-            const criteria = new Criteria();
-
-            criteria.addAssociation('paymentMethods');
-            criteria.addAssociation('shippingMethods');
-            criteria.addAssociation('countries');
-            criteria.addAssociation('currencies');
-            criteria.addAssociation('languages');
-            criteria.addAssociation('domains');
-
             this.isLoading = true;
             this.salesChannelRepository
-                .get(this.$route.params.id, Shopware.Context.api, criteria)
+                .get(this.$route.params.id, Shopware.Context.api, this.getLoadSalesChannelCriteria())
                 .then((entity) => {
                     this.salesChannel = entity;
                     if (this.isProductComparison) {
@@ -174,7 +165,7 @@ Component.register('sw-sales-channel-detail', {
 
             this.isLoading = true;
             this.salesChannelRepository
-                .search(criteria, this.context)
+                .search(criteria, Shopware.Context.api)
                 .then((searchResult) => {
                     this.storefrontSalesChannels = searchResult;
                     this.isLoading = false;

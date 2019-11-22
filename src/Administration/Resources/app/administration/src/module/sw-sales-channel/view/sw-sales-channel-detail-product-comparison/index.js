@@ -15,7 +15,6 @@ Component.register('sw-sales-channel-detail-product-comparison', {
     inject: [
         'salesChannelService',
         'repositoryFactory',
-        'context',
         'productExportService',
         'entityMappingService'
     ],

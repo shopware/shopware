@@ -361,7 +361,7 @@ Component.register('sw-sales-channel-detail-base', {
 
         onStorefrontSelectionChange(storefrontSalesChannelId) {
             this.salesChannelRepository
-                .get(storefrontSalesChannelId, this.context)
+                .get(storefrontSalesChannelId, Shopware.Context.api)
                 .then((entity) => {
                     this.salesChannel.languageId = entity.languageId;
                     this.salesChannel.currencyId = entity.currencyId;
@@ -376,7 +376,7 @@ Component.register('sw-sales-channel-detail-base', {
 
         onStorefrontDomainSelectionChange(storefrontSalesChannelDomainId) {
             this.globalDomainRepository
-                .get(storefrontSalesChannelDomainId, this.context)
+                .get(storefrontSalesChannelDomainId, Shopware.Context.api)
                 .then((entity) => {
                     this.productExport.salesChannelDomain = entity;
                     this.$emit('domain-changed');
@@ -390,7 +390,7 @@ Component.register('sw-sales-channel-detail-base', {
 
             this.isLoading = true;
             this.salesChannelRepository
-                .search(criteria, this.context)
+                .search(criteria, Shopware.Context.api)
                 .then((searchResult) => {
                     this.storefrontSalesChannels = searchResult;
                     this.isLoading = false;
@@ -403,7 +403,7 @@ Component.register('sw-sales-channel-detail-base', {
             criteria.addFilter(Criteria.equals('salesChannelId', storefrontSalesChannelId));
 
             this.globalDomainRepository
-                .search(criteria, this.context)
+                .search(criteria, Shopware.Context.api)
                 .then((searchResult) => {
                     this.storefrontDomains = searchResult;
                 });
@@ -438,7 +438,7 @@ Component.register('sw-sales-channel-detail-base', {
                 )
             );
 
-            this.productExportRepository.search(criteria, this.context).then(({ total }) => {
+            this.productExportRepository.search(criteria, Shopware.Context.api).then(({ total }) => {
                 this.invalidFileName = total > 0;
                 this.isFileNameChecking = false;
             }).catch(() => {

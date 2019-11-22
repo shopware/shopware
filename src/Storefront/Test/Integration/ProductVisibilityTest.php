@@ -130,7 +130,6 @@ class ProductVisibilityTest extends TestCase
 
         $request = new Request(['search' => 'test']);
 
-        /** @var SearchPage $page */
         $page = $this->searchPageLoader->load($request, $salesChannelContext);
 
         static::assertCount(2, $page->getSearchResult());
@@ -164,13 +163,15 @@ class ProductVisibilityTest extends TestCase
             $request = new Request([], [], ['productId' => $case['productId']]);
 
             $e = null;
+            $page = null;
             try {
                 $page = $this->productPageLoader->load($request, $salesChannelContext);
             } catch (\Exception $e) {
             }
 
             if ($case['visible']) {
-                static::assertTrue($e === null, 'Exception is not be thrown.');
+                static::assertNull($e, 'Exception should not be thrown.');
+                static::assertNotNull($page, 'Page should not be null');
                 static::assertSame($case['productId'], $page->getProduct()->getId());
                 continue;
             }

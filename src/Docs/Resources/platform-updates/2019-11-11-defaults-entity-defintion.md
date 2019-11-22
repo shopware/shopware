@@ -6,7 +6,7 @@ So a check `$existence->exists()` inside your definition is no longer needed.
 If you want to use different defaults for newly created child entities, you could now overwrite `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getChildDefaults`
 Due to this refactoring the parameter `EntityExistence $existence` was removed from `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getDefaults`
  
- ### Entity definition before
+ #### Entity definition before
  ```php
 <?php declare(strict_types=1);
 
@@ -56,7 +56,7 @@ class ProductDefinition extends EntityDefinition
 }
 ```
 
- ### Entity definition after
+ #### Entity definition after
  ```php
 <?php declare(strict_types=1);
 

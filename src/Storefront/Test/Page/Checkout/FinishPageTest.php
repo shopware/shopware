@@ -50,7 +50,6 @@ class FinishPageTest extends TestCase
         $event = null;
         $this->catchEvent(CheckoutFinishPageLoadedEvent::class, $event);
 
-        /** @var CheckoutFinishPage $page */
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(CheckoutFinishPage::class, $page);

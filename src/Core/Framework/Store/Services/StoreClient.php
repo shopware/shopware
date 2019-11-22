@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\PluginCollection;
-use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 use Shopware\Core\Framework\Store\Struct\ShopUserTokenStruct;
@@ -126,7 +125,6 @@ final class StoreClient
         /** @var PluginCollection $pluginCollection */
         $pluginCollection = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
 
-        /** @var PluginEntity $plugin */
         foreach ($pluginCollection as $plugin) {
             $installedPlugins[$plugin->getName()] = $plugin->getVersion();
         }
@@ -169,7 +167,6 @@ final class StoreClient
     {
         $pluginArray = [];
 
-        /** @var PluginEntity $plugin */
         foreach ($pluginCollection as $plugin) {
             $pluginArray[] = [
                 'name' => $plugin->getName(),
@@ -231,7 +228,6 @@ final class StoreClient
     ): array {
         $pluginData = [];
 
-        /** @var PluginEntity $plugin */
         foreach ($plugins as $plugin) {
             $pluginData[] = [
                 'name' => $plugin->getName(),
@@ -277,7 +273,6 @@ final class StoreClient
     {
         $pluginArray = [];
 
-        /** @var PluginEntity $plugin */
         foreach ($pluginCollection as $plugin) {
             $pluginArray[] = [
                 'name' => $plugin->getName(),

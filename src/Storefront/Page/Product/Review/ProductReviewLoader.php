@@ -58,7 +58,6 @@ class ProductReviewLoader
 
         $criteria = $this->createReviewCriteria($request);
 
-        /** @var StorefrontSearchResult $reviews */
         $reviews = $this->getReviews($criteria, $context, $request);
 
         $this->eventDispatcher->dispatch(new ProductReviewsLoadedEvent($reviews, $context, $request));

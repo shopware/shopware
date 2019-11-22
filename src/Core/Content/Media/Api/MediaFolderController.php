@@ -31,6 +31,6 @@ class MediaFolderController extends AbstractController
     {
         $this->dissolveFolderService->dissolve($folderId, $context);
 
-        return new Response();
+        return new Response(null, Response::HTTP_NO_CONTENT);
     }
 }

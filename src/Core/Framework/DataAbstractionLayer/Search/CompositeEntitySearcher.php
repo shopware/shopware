@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
-use Shopware\Core\Framework\Api\Converter\ConverterService;
+use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -20,18 +20,18 @@ class CompositeEntitySearcher
     private $definitions;
 
     /**
-     * @var ConverterService
+     * @var ApiVersionConverter
      */
-    private $converterService;
+    private $apiVersionConverter;
 
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
-        ConverterService $converterService,
+        ApiVersionConverter $apiVersionConverter,
         iterable $definitions
     ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->definitions = $definitions;
-        $this->converterService = $converterService;
+        $this->apiVersionConverter = $apiVersionConverter;
     }
 
     public function search(string $term, int $limit, Context $context, int $apiVersion): array
@@ -43,7 +43,7 @@ class CompositeEntitySearcher
                 continue;
             }
 
-            if (!$this->converterService->isAllowed($definition->getEntityName(), null, $apiVersion)) {
+            if (!$this->apiVersionConverter->isAllowed($definition->getEntityName(), null, $apiVersion)) {
                 continue;
             }
 

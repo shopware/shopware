@@ -77,7 +77,6 @@ class PromotionFixedPriceCalculationTest extends TestCase
         // add a new promotion
         $this->createTestFixtureFixedDiscountPromotion($promotionId, 40, PromotionDiscountEntity::SCOPE_CART, $code, $this->getContainer(), $this->context);
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         // add products to cart
@@ -111,7 +110,6 @@ class PromotionFixedPriceCalculationTest extends TestCase
         // add a new promotion
         $this->createTestFixtureFixedDiscountPromotion($promotionId, 40, PromotionDiscountEntity::SCOPE_CART, null, $this->getContainer(), $context);
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
         // create first product and add to cart
@@ -163,12 +161,10 @@ class PromotionFixedPriceCalculationTest extends TestCase
         // add a new sample product
         $this->createTestFixtureProduct($productId, $productGross, 19, $this->getContainer(), $context);
 
-        /** @var string $discountId */
         $discountId = $this->createTestFixtureFixedDiscountPromotion($promotionId, $fixedPriceValue, PromotionDiscountEntity::SCOPE_CART, $code, $this->getContainer(), $context);
 
         $this->createTestFixtureAdvancedPrice($discountId, Defaults::CURRENCY, $currencyMaxValue, $this->getContainer());
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
         // create product and add to cart
@@ -208,7 +204,6 @@ class PromotionFixedPriceCalculationTest extends TestCase
         // add a new promotion
         $this->createTestFixtureFixedDiscountPromotion($promotionId, 100, PromotionDiscountEntity::SCOPE_CART, $code, $this->getContainer(), $this->context);
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         // create first product and add to cart

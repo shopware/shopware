@@ -25,15 +25,6 @@ class IntFieldSerializer extends AbstractFieldSerializer
             throw new InvalidSerializerFieldException(IntField::class, $field);
         }
 
-        $constraints = [
-            new Type('int'),
-            new NotBlank(),
-        ];
-
-        if ($field->getMinValue() !== null || $field->getMaxValue() !== null) {
-            $constraints[] = new Range(['min' => $field->getMinValue(), 'max' => $field->getMaxValue()]);
-        }
-
         $this->validateIfNeeded($field, $existence, $data, $parameters);
 
         yield $field->getStorageName() => $data->getValue();

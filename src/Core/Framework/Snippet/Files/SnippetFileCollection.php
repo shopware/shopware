@@ -53,7 +53,6 @@ class SnippetFileCollection extends Collection
     {
         $data = [];
         foreach ($this->getListSortedByIso() as $isoFiles) {
-            /** @var SnippetFileInterface $snippetFile */
             foreach ($isoFiles as $snippetFile) {
                 $data[] = [
                     'name' => $snippetFile->getName(),
@@ -68,11 +67,17 @@ class SnippetFileCollection extends Collection
         return $data;
     }
 
+    /**
+     * @return string[]
+     */
     public function getIsoList(): array
     {
         return array_keys($this->getListSortedByIso());
     }
 
+    /**
+     * @return SnippetFileInterface[]
+     */
     public function getSnippetFilesByIso(string $iso): array
     {
         $list = $this->getListSortedByIso();
@@ -80,12 +85,12 @@ class SnippetFileCollection extends Collection
         return $list[$iso] ?? [];
     }
 
+    /**
+     * @throws InvalidSnippetFileException
+     */
     public function getBaseFileByIso(string $iso): SnippetFileInterface
     {
-        $files = $this->getSnippetFilesByIso($iso);
-
-        /** @var SnippetFileInterface $file */
-        foreach ($files as $file) {
+        foreach ($this->getSnippetFilesByIso($iso) as $file) {
             if (!$file->isBase()) {
                 continue;
             }
@@ -101,6 +106,9 @@ class SnippetFileCollection extends Collection
         return SnippetFileInterface::class;
     }
 
+    /**
+     * @return array<string, SnippetFileInterface[]>
+     */
     private function getListSortedByIso(): array
     {
         $list = [];

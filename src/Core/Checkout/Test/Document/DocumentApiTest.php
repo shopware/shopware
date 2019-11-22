@@ -108,7 +108,7 @@ class DocumentApiTest extends TestCase
 
         $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/';
 
-        $answer = $this->getBrowser()->request(
+        $this->getBrowser()->request(
             'POST',
             $baseResource . '_action/order/' . $orderId . '/document/invoice',
             [],
@@ -123,7 +123,7 @@ class DocumentApiTest extends TestCase
         $expectedFileContent = 'simple invoice';
         $expectedContentType = 'text/plain; charset=UTF-8';
 
-        $answer = $this->getBrowser()->request(
+        $this->getBrowser()->request(
             'POST',
             $baseResource . '_action/document/' . $response['documentId'] . '/upload?fileName=' . $filename . '&extension=txt',
             [],

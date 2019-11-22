@@ -28,7 +28,6 @@ class TestBrowser extends KernelBrowser
 
     protected function filterRequest(DomRequest $request): Request
     {
-        /** @var Request $filteredRequest */
         $filteredRequest = parent::filterRequest($request);
 
         return $this->requestTransformer->transform($filteredRequest);

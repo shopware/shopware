@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MaxAg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MinAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\SumAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\Bucket;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\DateHistogramResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
@@ -1053,7 +1052,6 @@ class ElasticsearchProductTest extends TestCase
             )
         );
 
-        /** @var AggregationResultCollection $result */
         $result = $aggregator->aggregate($this->productDefinition, $criteria, $context);
 
         static::assertTrue($result->has('release-histogram'));
@@ -1153,7 +1151,6 @@ class ElasticsearchProductTest extends TestCase
             )
         );
 
-        /** @var AggregationResultCollection $result */
         $result = $aggregator->aggregate($this->productDefinition, $criteria, $context);
 
         static::assertTrue($result->has('release-histogram'));

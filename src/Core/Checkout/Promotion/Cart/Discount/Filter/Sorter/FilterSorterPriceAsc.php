@@ -15,7 +15,6 @@ class FilterSorterPriceAsc implements FilterSorterInterface
 
     public function sort(DiscountPackageCollection $units): DiscountPackageCollection
     {
-        /** @var array $sorted */
         $sorted = $units->getElements();
 
         usort($sorted, function (DiscountPackage $a, DiscountPackage $b) {

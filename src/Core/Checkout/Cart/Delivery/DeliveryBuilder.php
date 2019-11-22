@@ -100,7 +100,6 @@ class DeliveryBuilder
         // this function is only called if the provided collection contains a deliverable line item
         $max = $positions->first()->getDeliveryDate();
 
-        /** @var DeliveryPosition $position */
         foreach ($positions as $position) {
             $date = $position->getDeliveryDate();
 

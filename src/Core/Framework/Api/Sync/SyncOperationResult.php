@@ -44,7 +44,7 @@ class SyncOperationResult extends Struct
 
     public function resetEntities(): void
     {
-        foreach ($this->result as $index => $writeResult) {
+        foreach ($this->result as $index => $_writeResult) {
             $this->result[$index]['entities'] = [];
         }
     }

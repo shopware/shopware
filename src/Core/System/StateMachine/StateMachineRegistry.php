@@ -256,7 +256,6 @@ class StateMachineRegistry
         $stateMachine = $this->getStateMachine($stateMachineName, $context);
 
         $transitions = [];
-        /** @var StateMachineTransitionEntity $transition */
         foreach ($stateMachine->getTransitions() as $transition) {
             if ($transition->getFromStateMachineState()->getId() === $fromStateId) {
                 $transitions[] = $transition;
@@ -275,7 +274,6 @@ class StateMachineRegistry
     {
         $stateMachine = $this->getStateMachine($stateMachineName, $context);
 
-        /** @var StateMachineTransitionEntity $transition */
         foreach ($stateMachine->getTransitions() as $transition) {
             if ($transition->getActionName() === $transitionName && $transition->getFromStateMachineState()->getId() === $fromStateId) {
                 return $transition->getToStateMachineState();

@@ -27,7 +27,8 @@ class ProductExportApiService extends ApiService {
                 encoding: productExport.encoding,
                 file_format: productExport.fileFormat,
                 file_name: productExport.fileName,
-                access_key: productExport.accessKey
+                access_key: productExport.accessKey,
+                currency_id: productExport.currencyId
             },
             {
                 headers: this.getBasicHeaders()
@@ -53,7 +54,8 @@ class ProductExportApiService extends ApiService {
                 encoding: productExport.encoding,
                 file_format: productExport.fileFormat,
                 file_name: productExport.fileName,
-                access_key: productExport.accessKey
+                access_key: productExport.accessKey,
+                currency_id: productExport.currencyId
             },
             {
                 headers: this.getBasicHeaders()

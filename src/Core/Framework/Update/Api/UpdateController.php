@@ -103,7 +103,6 @@ class UpdateController extends AbstractController
      */
     public function checkRequirements(): JsonResponse
     {
-        /** @var Version $update */
         $update = $this->apiClient->checkForUpdates();
 
         return new JsonResponse($this->requirementsValidator->validate($update));
@@ -114,7 +113,6 @@ class UpdateController extends AbstractController
      */
     public function pluginCompatibility(Context $context): JsonResponse
     {
-        /** @var Version $update */
         $update = $this->apiClient->checkForUpdates();
 
         return new JsonResponse($this->pluginCompatibility->getPluginCompatibilities($update, $context));
@@ -125,7 +123,6 @@ class UpdateController extends AbstractController
      */
     public function downloadLatestUpdate(Request $request): JsonResponse
     {
-        /** @var Version $update */
         $update = $this->apiClient->checkForUpdates();
 
         $offset = $request->query->getInt('offset');
@@ -146,7 +143,6 @@ class UpdateController extends AbstractController
      */
     public function unpack(Request $request, Context $context): JsonResponse
     {
-        /** @var Version $update */
         $update = $this->apiClient->checkForUpdates();
 
         $deactivationFilter = $request->query->get('deactivationFilter', PluginCompatibility::PLUGIN_DEACTIVATION_FILTER_NOT_COMPATIBLE);
@@ -208,7 +204,7 @@ class UpdateController extends AbstractController
             return $this->redirectToRoute('administration.index');
         }
 
-        ignore_user_abort(true);
+        $_unusedPreviousSetting = ignore_user_abort(true);
         $this->eventDispatcher->dispatch(new UpdateFinishedEvent($context));
 
         return $this->redirectToRoute('administration.index');

@@ -156,7 +156,6 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                 )
             );
         } else {
-            /** @var Rule $rule */
             $rule = $this->ruleConditionRegistry->getRuleInstance($type);
             // do not validate container
             if (!$rule instanceof Container) {
@@ -239,7 +238,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
             );
         }
 
-        foreach ($payload as $fieldName => $value) {
+        foreach ($payload as $fieldName => $_value) {
             $currentPath = sprintf('%s/%s', $basePath, $fieldName);
 
             if (!array_key_exists($fieldName, $fieldValidations)) {

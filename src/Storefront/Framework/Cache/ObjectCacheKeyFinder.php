@@ -61,7 +61,6 @@ class ObjectCacheKeyFinder
     private function loop($data, SalesChannelContext $context, $skipContext = true): array
     {
         $keys = [];
-        /** @var iterable|array|Collection $data */
         foreach ($data as $item) {
             if (!$item instanceof Struct) {
                 continue;

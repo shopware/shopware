@@ -37,7 +37,6 @@ class LastIdQuery implements IterableQuery
 
     public function fetchCount(): int
     {
-        /** @var QueryBuilder $query */
         $query = clone $this->query;
 
         //get first column for distinct selection

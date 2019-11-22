@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
@@ -77,7 +76,6 @@ class PromotionDiscountCompositionTest extends TestCase
         // add a new promotion
         $this->createTestFixtureAbsolutePromotion($promotionId, $code, 30, $this->getContainer(), PromotionDiscountEntity::SCOPE_CART);
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         // create product and add to cart
@@ -88,7 +86,6 @@ class PromotionDiscountCompositionTest extends TestCase
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
         // get discount line item
-        /** @var LineItem $discountItem */
         $discountItem = $cart->getLineItems()->getFlat()[2];
 
         static::assertTrue($discountItem->hasPayloadValue('composition'), 'composition node is missing');
@@ -127,7 +124,6 @@ class PromotionDiscountCompositionTest extends TestCase
         // add a new promotion
         $this->createTestFixturePercentagePromotion($promotionId, $code, 25, null, $this->getContainer(), PromotionDiscountEntity::SCOPE_CART);
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         // create product and add to cart
@@ -138,7 +134,6 @@ class PromotionDiscountCompositionTest extends TestCase
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
         // get discount line item
-        /** @var LineItem $discountItem */
         $discountItem = $cart->getLineItems()->getFlat()[2];
 
         static::assertTrue($discountItem->hasPayloadValue('composition'), 'composition node is missing');
@@ -178,7 +173,6 @@ class PromotionDiscountCompositionTest extends TestCase
         // add a new promotion
         $this->createTestFixtureFixedUnitDiscountPromotion($promotionId, 10, PromotionDiscountEntity::SCOPE_CART, $code, $this->getContainer(), $this->context);
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         // create product and add to cart
@@ -189,7 +183,6 @@ class PromotionDiscountCompositionTest extends TestCase
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
         // get discount line item
-        /** @var LineItem $discountItem */
         $discountItem = $cart->getLineItems()->getFlat()[2];
 
         static::assertTrue($discountItem->hasPayloadValue('composition'), 'composition node is missing');
@@ -231,7 +224,6 @@ class PromotionDiscountCompositionTest extends TestCase
         // add a new promotion
         $this->createTestFixtureFixedDiscountPromotion($promotionId, 70, PromotionDiscountEntity::SCOPE_CART, $code, $this->getContainer(), $this->context);
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         // create product and add to cart
@@ -242,7 +234,6 @@ class PromotionDiscountCompositionTest extends TestCase
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
         // get discount line item
-        /** @var LineItem $discountItem */
         $discountItem = $cart->getLineItems()->getFlat()[2];
 
         static::assertTrue($discountItem->hasPayloadValue('composition'), 'composition node is missing');

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\CustomField\Api;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -34,7 +33,6 @@ class CustomFieldSetActionController extends AbstractController
         $definitions = $this->definitionRegistry->getDefinitions();
 
         $entityNames = [];
-        /** @var EntityDefinition $definition */
         foreach ($definitions as $definition) {
             if (count($definition->getFields()->filterInstance(CustomFields::class)) === 0) {
                 continue;

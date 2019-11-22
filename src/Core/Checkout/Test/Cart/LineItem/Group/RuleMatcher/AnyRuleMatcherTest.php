@@ -79,7 +79,6 @@ class AnyRuleMatcherTest extends TestCase
 
         $matcher = new AnyRuleMatcher();
 
-        /** @var LineItemFlatCollection $matchedItems */
         $matchedItems = $matcher->getMatchingItems($group, new LineItemFlatCollection([$productLower50, $product50]), $this->context);
 
         static::assertCount(1, $matchedItems);
@@ -149,7 +148,6 @@ class AnyRuleMatcherTest extends TestCase
 
         $matcher = new AnyRuleMatcher();
 
-        /** @var LineItemFlatCollection $matchedItems */
         $matchedItems = $matcher->getMatchingItems(
             $group,
             new LineItemFlatCollection(

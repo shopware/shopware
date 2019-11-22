@@ -20,7 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
-class ConverterService
+class ApiVersionConverter
 {
     /**
      * @var ConverterRegistry
@@ -148,7 +148,7 @@ class ConverterService
 
     private function validateFields(EntityDefinition $definition, array $payload, int $apiVersion, ApiConversionException $conversionException, string $pointer): array
     {
-        foreach ($payload as $field => $value) {
+        foreach ($payload as $field => $_value) {
             if ($this->isFromFuture($definition->getEntityName(), $field, $apiVersion)) {
                 $conversionException->add(
                     new WriteFutureFieldException($field, $definition->getEntityName(), $apiVersion),
@@ -163,8 +163,6 @@ class ConverterService
                     new WriteRemovedFieldException($field, $definition->getEntityName(), $apiVersion),
                     $pointer . '/' . $field
                 );
-
-                continue;
             }
         }
 
@@ -210,7 +208,7 @@ class ConverterService
 
     private function stripNotAllowedFields(EntityDefinition $definition, $payload, int $apiVersion): array
     {
-        foreach ($payload as $field => $value) {
+        foreach ($payload as $field => $_value) {
             if ($this->isFromFuture($definition->getEntityName(), $field, $apiVersion)) {
                 unset($payload[$field]);
 
@@ -219,8 +217,6 @@ class ConverterService
 
             if ($this->isDeprecated($definition->getEntityName(), $field, $apiVersion)) {
                 unset($payload[$field]);
-
-                continue;
             }
         }
 
@@ -251,7 +247,7 @@ class ConverterService
         /** @var OneToManyAssociationField|ManyToManyAssociationField $field */
         foreach ($toManyFields as $field) {
             if (array_key_exists($field->getPropertyName(), $payload) && is_array($payload[$field->getPropertyName()])) {
-                foreach ($payload[$field->getPropertyName()] as $key => $entityPayload) {
+                foreach ($payload[$field->getPropertyName()] as $entityPayload) {
                     $payload[$field->getPropertyName()] = $this->stripNotAllowedFields(
                         $field instanceof ManyToManyAssociationField ? $field->getToManyReferenceDefinition() : $field->getReferenceDefinition(),
                         $entityPayload,

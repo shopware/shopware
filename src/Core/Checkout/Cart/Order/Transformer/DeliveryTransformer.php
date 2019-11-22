@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Cart\Order\Transformer;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Defaults;
@@ -59,7 +58,6 @@ class DeliveryTransformer
             return $item !== null;
         });
 
-        /** @var DeliveryPosition $position */
         foreach ($delivery->getPositions() as $position) {
             $deliveryData['positions'][] = [
                 'price' => $position->getPrice(),

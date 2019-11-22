@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Newsletter;
+namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
+use Shopware\Core\Content\Newsletter\NewsletterSubscriptionServiceInterface;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;

@@ -7,6 +7,7 @@ use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -57,10 +58,13 @@ class MediaFolderRepositoryDecoratorTest extends TestCase
         ], $this->context);
 
         $folderRepository = $this->folderRepository;
+        /** @var EntitySearchResult|null $media */
+        $media = null;
         $this->context->scope(Context::USER_SCOPE, function (Context $context) use (&$media, $folderId, $folderRepository): void {
             $media = $folderRepository->search(new Criteria([$folderId]), $context);
         });
 
+        static::assertNotNull($media);
         static::assertEquals(0, $media->count());
     }
 

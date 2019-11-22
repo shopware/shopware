@@ -52,7 +52,6 @@ class RequestTransformerTest extends TestCase
     {
         $this->createSalesChannels($salesChannels);
 
-        /** @var ExpectedRequest $expectedRequest */
         foreach ($requests as $expectedRequest) {
             if ($expectedRequest->exception) {
                 static::expectException($expectedRequest->exception);

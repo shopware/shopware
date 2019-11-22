@@ -78,7 +78,6 @@ class PromotionPercentageCalculationTest extends TestCase
         // add a new promotion black friday
         $this->createTestFixturePercentagePromotion($promotionId, $code, 100, null, $this->getContainer());
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
         // create product and add to cart
@@ -119,7 +118,6 @@ class PromotionPercentageCalculationTest extends TestCase
         // add a new promotion black friday
         $this->createTestFixturePercentagePromotion($promotionId, $code, 50, null, $this->getContainer());
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
         // create product and add to cart
@@ -157,7 +155,6 @@ class PromotionPercentageCalculationTest extends TestCase
         // our product costs 100 EUR, which should now be 70 EUR due to the threshold
         $this->createTestFixturePercentagePromotion($promotionId, $code, 50, 30.0, $this->getContainer());
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
         // create product and add to cart
@@ -200,12 +197,10 @@ class PromotionPercentageCalculationTest extends TestCase
         // add a new sample product
         $this->createTestFixtureProduct($productId, $productGross, 19, $this->getContainer(), $context);
 
-        /** @var string $discountId */
         $discountId = $this->createTestFixturePercentagePromotion($promotionId, $code, $percentage, $maxValueGlobal, $this->getContainer());
 
         $this->createTestFixtureAdvancedPrice($discountId, Defaults::CURRENCY, $currencyMaxValue, $this->getContainer());
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
         // create product and add to cart
@@ -242,7 +237,6 @@ class PromotionPercentageCalculationTest extends TestCase
         // add a new percentage promotion
         $this->createTestFixturePercentagePromotion($promotionId, $code, 100.0, 100.0, $this->getContainer());
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
         // create product and add to cart

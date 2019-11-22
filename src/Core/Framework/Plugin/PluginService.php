@@ -94,7 +94,6 @@ class PluginService
             }
 
             $pluginVersion = $this->versionSanitizer->sanitizePluginVersion($info->getVersion());
-            /** @var array $extra */
             $extra = $info->getExtra();
 
             $authors = null;

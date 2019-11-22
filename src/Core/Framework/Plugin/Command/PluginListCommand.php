@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Plugin\PluginCollection;
-use Shopware\Core\Framework\Plugin\PluginEntity;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -68,7 +67,6 @@ class PluginListCommand extends Command
         $pluginTable = [];
         $active = $installed = $upgradeable = 0;
 
-        /** @var PluginEntity $plugin */
         foreach ($plugins as $plugin) {
             $pluginActive = $plugin->getActive();
             $pluginInstalled = $plugin->getInstalledAt();

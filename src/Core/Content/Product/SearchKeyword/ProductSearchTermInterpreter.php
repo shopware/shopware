@@ -93,7 +93,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
             'reversed' => [],
         ];
 
-        foreach ($tokens as $index => $token) {
+        foreach ($tokens as $token) {
             $token = (string) $token;
             $slopSize = \mb_strlen($token) > 4 ? 2 : 1;
             $length = \mb_strlen($token);

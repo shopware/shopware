@@ -140,10 +140,9 @@ Component.register('sw-sales-channel-detail', {
         },
 
         loadSalesChannel() {
-            const criteria = this.getLoadSalesChannelCriteria();
             this.isLoading = true;
             this.salesChannelRepository
-                .get(this.$route.params.id, Shopware.Context.api, criteria)
+                .get(this.$route.params.id, Shopware.Context.api, this.getLoadSalesChannelCriteria())
                 .then((entity) => {
                     this.salesChannel = entity;
                     if (this.isProductComparison) {
@@ -210,9 +209,9 @@ Component.register('sw-sales-channel-detail', {
 
             this.isLoading = true;
             this.salesChannelRepository
-                .get(this.$route.params.id, Shopware.Context.api, criteria)
-                .then((entity) => {
-                    this.salesChannel = entity;
+                .search(criteria, Shopware.Context.api)
+                .then((searchResult) => {
+                    this.storefrontSalesChannels = searchResult;
                     this.isLoading = false;
                 });
         },

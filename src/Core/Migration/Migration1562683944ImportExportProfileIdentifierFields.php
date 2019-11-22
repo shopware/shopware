@@ -24,7 +24,7 @@ class Migration1562683944ImportExportProfileIdentifierFields extends MigrationSt
         foreach ($profiles as $profile) {
             $mapping = json_decode($profile['mapping'], true);
 
-            foreach ($mapping as $key => $value) {
+            foreach ($mapping as $key => $_value) {
                 if (isset($identifierByEntity[$profile['source_entity']])) {
                     $identifierField = $identifierByEntity[$profile['source_entity']];
                     $mapping[$key]['isIdentifier'] = $mapping[$key]['entityField'] === $identifierField;

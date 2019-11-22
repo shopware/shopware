@@ -2,15 +2,12 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Calculator;
 
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorInterface;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorResult;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
-use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -39,10 +36,8 @@ class DiscountAbsoluteCalculator implements DiscountCalculatorInterface
             throw new InvalidPriceDefinitionException($discount->getLabel(), $discount->getCode());
         }
 
-        /** @var float $discountValue */
         $discountValue = -abs($definition->getPrice());
 
-        /** @var CalculatedPrice $price */
         $price = $this->priceCalculator->calculate(
             $discountValue,
             $packages->getAffectedPrices(),
@@ -59,19 +54,14 @@ class DiscountAbsoluteCalculator implements DiscountCalculatorInterface
 
     private function getCompositionItems(float $discountValue, DiscountPackageCollection $packages): array
     {
-        /** @var float $totalOriginalSum */
         $totalOriginalSum = $packages->getAffectedPrices()->sum()->getTotalPrice();
 
         $items = [];
 
-        /** @var DiscountPackage $package */
         foreach ($packages as $package) {
-            /** @var LineItem $lineItem */
             foreach ($package->getCartItems() as $lineItem) {
-                /** @var float $itemTotal */
                 $itemTotal = $lineItem->getPrice()->getTotalPrice();
 
-                /** @var float $factor */
                 $factor = $itemTotal / $totalOriginalSum;
 
                 $items[] = new DiscountCompositionItem(

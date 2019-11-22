@@ -7,7 +7,7 @@ class LineItemGroupBuilderResult
     /**
      * @var array
      */
-    private $results;
+    private $results = [];
 
     /**
      * added as additional requirement "on-top"
@@ -15,13 +15,7 @@ class LineItemGroupBuilderResult
      *
      * @var array
      */
-    private $countResults;
-
-    public function __construct()
-    {
-        $this->results = [];
-        $this->countResults = [];
-    }
+    private $countResults = [];
 
     /**
      * Adds a new group to the provided group definition result.
@@ -30,7 +24,6 @@ class LineItemGroupBuilderResult
      */
     public function addGroup(LineItemGroupDefinition $groupDefinition, LineItemGroup $group): void
     {
-        /** @var string $key */
         $key = $groupDefinition->getId();
 
         // prepare root entry
@@ -60,7 +53,6 @@ class LineItemGroupBuilderResult
      */
     public function getGroupTotalResult(LineItemGroupDefinition $groupDefinition): array
     {
-        /** @var string $key */
         $key = $groupDefinition->getId();
 
         if (!array_key_exists($key, $this->results)) {
@@ -78,7 +70,6 @@ class LineItemGroupBuilderResult
      */
     public function getGroupResult(LineItemGroupDefinition $groupDefinition): array
     {
-        /** @var string $key */
         $key = $groupDefinition->getId();
 
         if (!array_key_exists($key, $this->results)) {
@@ -93,12 +84,12 @@ class LineItemGroupBuilderResult
      */
     public function hasFoundItems(): bool
     {
-        if (count($this->results) <= 0) {
+        if (\count($this->results) <= 0) {
             return false;
         }
 
-        foreach (array_values($this->results) as $groupResult) {
-            if (count($groupResult['total']) > 0) {
+        foreach ($this->results as $groupResult) {
+            if (\count($groupResult['total']) > 0) {
                 return true;
             }
         }
@@ -112,7 +103,6 @@ class LineItemGroupBuilderResult
      */
     public function getGroupCount(LineItemGroupDefinition $groupDefinition): int
     {
-        /** @var string $key */
         $key = $groupDefinition->getId();
 
         if (array_key_exists($key, $this->countResults)) {
@@ -142,7 +132,6 @@ class LineItemGroupBuilderResult
         /** @var array $total */
         $total = $this->results[$key]['total'];
 
-        /** @var LineItemQuantity $tuple */
         foreach ($group->getItems() as $tuple) {
             // either create new entries
             // or just increase the quantity of an existing entry in

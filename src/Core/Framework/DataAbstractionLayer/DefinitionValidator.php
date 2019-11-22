@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Doctrine\Common\Inflector\Inflector;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Events;
-use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -153,7 +152,6 @@ class DefinitionValidator
     public function getNotices(): array
     {
         $notices = [];
-        /** @var EntityDefinition $definition */
         foreach ($this->registry->getDefinitions() as $definition) {
             $notices[$definition->getClass()] = [];
         }
@@ -583,7 +581,7 @@ class DefinitionValidator
 
         $associationViolations = $this->validateIsPlural($definition, $association);
 
-        $reverseSide = $reference->getFields()->filter(
+        $reference->getFields()->filter(
             function (Field $field) use ($association, $definition) {
                 if (!$field instanceof ManyToOneAssociationField) {
                     return false;
@@ -709,7 +707,6 @@ class DefinitionValidator
         $violations = [];
         $mappedFieldNames = [];
 
-        /** @var Column $column */
         foreach ($columns as $column) {
             $field = $definition->getFields()->getByStorageName($column->getName());
 

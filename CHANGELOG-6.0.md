@@ -278,7 +278,11 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
         * Added `\Core\Checkout\Order\Api\OrderActionController` to provide endpoints for combine order state changes with sending of mails.  
     * Marked the `\Shopware\Core\Framework\Context::createDefaultContext()` as internal
     * Added relation between `order_line_item` and `product`.
-    * Added validation for `order_line_item` of type `product`. If a line item of type `product` is written and one of the following properties is specified: `productId`, `referencedId`, `payload.productNumber`, the other two properties must also be specified.  
+    * Added validation for `order_line_item` of type `product`. If a line item of type `product` is written and one of the following properties is specified: `productId`, `referencedId`, `payload.productNumber`, the other two properties must also be specified.
+    * Changed the order while loading plugins from the database. They are now sorted ascending by the installation date.
+    * Moved `Shopware\Core\Content\Newsletter\SalesChannelNewsletterController` to `Shopware\Core\Content\Newsletter\SalesChannel\SalesChannelNewsletterController`
+    * The MigrationController and MediaFolderController now return StatusCode 204 without content on successful requests
+    * Renamed `\Shopware\Core\Framework\Api\Converter\ConverterService` to `\Shopware\Core\Framework\Api\Converter\ApiVersionConverter`
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain

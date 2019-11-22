@@ -75,13 +75,11 @@ class LineItemTransformer
         $index = [];
         $root = new LineItemCollection();
 
-        /** @var OrderLineItemEntity $lineItem */
         foreach ($lineItems as $id => $lineItem) {
             if (!array_key_exists($id, $index)) {
                 $index[$id] = new LineItem($lineItem->getIdentifier(), self::LINE_ITEM_PLACEHOLDER);
             }
 
-            /** @var LineItem $currentLineItem */
             $currentLineItem = $index[$id];
 
             self::updateLineItem($currentLineItem, $lineItem, $id);

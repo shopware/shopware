@@ -2054,7 +2054,7 @@ class Migration1536233560BasicData extends MigrationStep
             );
         }
 
-        foreach ($definitionNumberRanges as $typeName => $numberRange) {
+        foreach ($definitionNumberRanges as $numberRange) {
             $connection->insert(
                 'number_range',
                 [
@@ -2915,7 +2915,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
             );
         }
 
-        foreach ($definitionNumberRanges as $typeName => $numberRange) {
+        foreach ($definitionNumberRanges as $numberRange) {
             $connection->insert(
                 'number_range',
                 [

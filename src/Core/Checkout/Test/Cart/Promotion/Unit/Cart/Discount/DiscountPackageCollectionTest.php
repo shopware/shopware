@@ -104,20 +104,13 @@ class DiscountPackageCollectionTest extends TestCase
             ]
         ));
 
-        $collection = new DiscountPackageCollection([$package1, $package2]);
-
-        $splitted = $collection->splitPackages();
+        $splitted = (new DiscountPackageCollection([$package1, $package2]))->splitPackages();
 
         static::assertEquals(3, $splitted->count());
 
-        /** @var DiscountPackage $package1 */
         $package1 = $splitted->getElements()[0];
-
-        /** @var DiscountPackage $package2 */
-        $package2 = $splitted->getElements()[0];
-
-        /** @var DiscountPackage $package3 */
-        $package3 = $splitted->getElements()[0];
+        $package2 = $splitted->getElements()[1];
+        $package3 = $splitted->getElements()[2];
 
         // now test the content of each package. only 1 item has to be in there
         static::assertEquals(1, $package1->getMetaData()->count());

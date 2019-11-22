@@ -46,7 +46,6 @@ class RouteScopeListener implements EventSubscriberInterface
         $this->requestStack = $requestStack;
         $this->eventDispatcher = $eventDispatcher;
 
-        /** @var RouteScopeWhitlistCollectEvent $whitlistCollectorEvent */
         $whitlistCollectorEvent = new RouteScopeWhitlistCollectEvent($this->whitelistedControllers);
         $whitlistCollectorEvent = $eventDispatcher->dispatch(
             $whitlistCollectorEvent,

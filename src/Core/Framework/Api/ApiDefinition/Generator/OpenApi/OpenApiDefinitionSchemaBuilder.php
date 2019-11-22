@@ -163,7 +163,6 @@ class OpenApiDefinitionSchemaBuilder
 
         $attributes = array_merge(['id' => new Property(['type' => 'string', 'property' => 'id', 'format' => 'uuid'])], $attributes);
 
-        /** @var Property $relationship */
         foreach ($relationships as $property => $relationship) {
             $entity = $this->getRelationShipEntity($relationship);
             $attributes[$property] = new Property(['ref' => '#/components/schemas/' . $entity . '_flat', 'property' => $property]);
@@ -171,7 +170,6 @@ class OpenApiDefinitionSchemaBuilder
 
         if (!empty($extensionRelationships)) {
             $attributes['extensions'] = clone $attributes['extensions'];
-            /** @var Property $relationship */
             foreach ($extensionRelationships as $property => $relationship) {
                 $entity = $this->getRelationShipEntity($relationship);
                 $attributes['extensions']->properties[$property] = new Property(['ref' => '#/components/schemas/' . $entity . '_flat', 'property' => $property]);

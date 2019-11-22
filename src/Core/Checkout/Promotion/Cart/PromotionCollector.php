@@ -12,7 +12,6 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
-use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException;
 use Shopware\Core\Checkout\Promotion\Gateway\PromotionGatewayInterface;
 use Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedAutomaticPromotions;
@@ -75,13 +74,11 @@ class PromotionCollector implements CartDataCollectorInterface
             return;
         }
 
-        /** @var array $allCodes */
         $allCodes = $cart
             ->getLineItems()
             ->filterType(PromotionProcessor::LINE_ITEM_TYPE)
             ->getReferenceIds();
 
-        /** @var CartPromotionsDataDefinition $allPromotions */
         $allPromotions = $this->searchPromotionsByCodes($data, $allCodes, $context);
 
         // add auto promotions
@@ -89,7 +86,6 @@ class PromotionCollector implements CartDataCollectorInterface
 
         // check if max allowed redemption of promotion have been reached or not
         // if max redemption has been reached promotion will not be added
-        /** @var CartPromotionsDataDefinition $allPromotions */
         $allPromotions = $this->getEligiblePromotionsWithDiscounts($allPromotions, $context->getCustomer());
 
         $discountLineItems = [];
@@ -98,7 +94,6 @@ class PromotionCollector implements CartDataCollectorInterface
         foreach ($allPromotions->getPromotionCodeTuples() as $tuple) {
             // lets build separate line items for each
             // of the available discounts within the current promotion
-            /** @var array $lineItems */
             $lineItems = $this->buildDiscountLineItems($tuple->getCode(), $tuple->getPromotion(), $cart, $context);
 
             // add to our list of all line items
@@ -206,10 +201,8 @@ class PromotionCollector implements CartDataCollectorInterface
         // make sure to load it and assign it to
         // the code in our cache list.
         if (count($codesToFetch) > 0) {
-            /** @var string $salesChannelId */
             $salesChannelId = $context->getSalesChannel()->getId();
 
-            /** @var string $currentCode */
             foreach ($codesToFetch as $currentCode) {
                 // try to find a global code first because
                 // that search has less data involved
@@ -266,7 +259,6 @@ class PromotionCollector implements CartDataCollectorInterface
         // data struct, which ensures that they will be added later in the enrichment process.
         /** @var PromotionCodeTuple $tuple */
         foreach ($dataDefinition->getPromotionCodeTuples() as $tuple) {
-            /** @var PromotionEntity $promotion */
             $promotion = $tuple->getPromotion();
 
             // if promotion is on exclusions stack it is ignored
@@ -320,7 +312,6 @@ class PromotionCollector implements CartDataCollectorInterface
      */
     private function buildDiscountLineItems(string $code, PromotionEntity $promotion, Cart $cart, SalesChannelContext $context): array
     {
-        /** @var PromotionDiscountCollection|null $collection */
         $collection = $promotion->getDiscounts();
 
         if (!$collection instanceof PromotionDiscountCollection) {
@@ -329,9 +320,7 @@ class PromotionCollector implements CartDataCollectorInterface
 
         $lineItems = [];
 
-        /** @var PromotionDiscountEntity $discount */
         foreach ($collection->getElements() as $discount) {
-            /** @var array $itemIds */
             $itemIds = $this->getAllLineItemIds($cart);
 
             // add a new discount line item for this discount

@@ -180,7 +180,7 @@ class RuleValidator implements EventSubscriberInterface
             );
         }
 
-        foreach ($payload as $fieldName => $value) {
+        foreach ($payload as $fieldName => $_value) {
             if (!array_key_exists($fieldName, $fieldValidations) && $fieldName !== '_name') {
                 $violationList->add(
                     $this->buildViolation(
@@ -238,10 +238,8 @@ class RuleValidator implements EventSubscriberInterface
             $root,
             $propertyPath,
             $invalidValue,
-            $plural = null,
-            $code,
-            $constraint = null,
-            $cause = null
+            null,
+            $code
         );
     }
 }

@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscou
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSalesChannelCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupCollection;
-use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation\PromotionTranslationCollection;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
@@ -536,7 +535,6 @@ class PromotionEntity extends Entity
             if ($this->getPersonaRules() !== null && count($this->getPersonaRules()->getElements()) > 0) {
                 $personaRuleOR = new OrRule();
 
-                /** @var RuleEntity $ruleEntity */
                 foreach ($this->getPersonaRules()->getElements() as $ruleEntity) {
                     $personaRuleOR->addRule($ruleEntity->getPayload());
                 }
@@ -548,7 +546,6 @@ class PromotionEntity extends Entity
         if ($this->getCartRules() !== null && count($this->getCartRules()->getElements()) > 0) {
             $cartOR = new OrRule([]);
 
-            /** @var RuleEntity $ruleEntity */
             foreach ($this->getCartRules()->getElements() as $ruleEntity) {
                 $cartOR->addRule($ruleEntity->getPayload());
             }
@@ -561,7 +558,6 @@ class PromotionEntity extends Entity
         if ($this->isUseSetGroups() !== null && $this->isUseSetGroups() && $this->getSetgroups() !== null && $this->getSetgroups()->count() > 0) {
             $groupsRootRule = new OrRule();
 
-            /** @var PromotionSetGroupEntity $group */
             foreach ($this->getSetgroups() as $group) {
                 $groupRule = new LineItemGroupRule();
                 $groupRule->assign(
@@ -583,7 +579,6 @@ class PromotionEntity extends Entity
         if ($this->getOrderRules() !== null && count($this->getOrderRules()->getElements()) > 0) {
             $orderOR = new OrRule([]);
 
-            /** @var RuleEntity $ruleEntity */
             foreach ($this->getOrderRules()->getElements() as $ruleEntity) {
                 $orderOR->addRule($ruleEntity->getPayload());
             }

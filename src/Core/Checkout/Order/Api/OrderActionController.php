@@ -5,11 +5,11 @@ namespace Shopware\Core\Checkout\Order\Api;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
-use Shopware\Core\Checkout\Document\GeneratedDocument;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Service\MailService;
+use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
+use Shopware\Core\System\StateMachine\StateMachineDefinition;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -56,13 +57,25 @@ class OrderActionController extends AbstractController
      */
     private $documentRepository;
 
+    /**
+     * @var ApiVersionConverter
+     */
+    private $apiVersionConverter;
+
+    /**
+     * @var StateMachineDefinition
+     */
+    private $stateMachineDefinition;
+
     public function __construct(
         StateMachineRegistry $stateMachineRegistry,
         EntityRepositoryInterface $orderRepository,
         EntityRepositoryInterface $mailTemplateRepository,
         EntityRepositoryInterface $documentRepository,
         MailService $mailService,
-        DocumentService $documentService
+        DocumentService $documentService,
+        ApiVersionConverter $apiVersionConverter,
+        StateMachineDefinition $stateMachineDefinition
     ) {
         $this->stateMachineRegistry = $stateMachineRegistry;
         $this->orderRepository = $orderRepository;
@@ -70,6 +83,8 @@ class OrderActionController extends AbstractController
         $this->mailService = $mailService;
         $this->documentService = $documentService;
         $this->documentRepository = $documentRepository;
+        $this->apiVersionConverter = $apiVersionConverter;
+        $this->stateMachineDefinition = $stateMachineDefinition;
     }
 
     /**
@@ -78,6 +93,7 @@ class OrderActionController extends AbstractController
     public function orderStateTransition(
         string $orderId,
         string $transition,
+        int $version,
         Request $request,
         Context $context
     ): JsonResponse {
@@ -136,7 +152,11 @@ class OrderActionController extends AbstractController
             }
         }
 
-        return new JsonResponse($toPlace);
+        return new JsonResponse($this->apiVersionConverter->convertEntity(
+            $this->stateMachineDefinition,
+            $toPlace,
+            $version
+        ));
     }
 
     /**
@@ -145,6 +165,7 @@ class OrderActionController extends AbstractController
     public function orderTransactionStateTransition(
         string $orderTransactionId,
         string $transition,
+        int $version,
         Request $request,
         Context $context
     ): JsonResponse {
@@ -203,7 +224,11 @@ class OrderActionController extends AbstractController
             }
         }
 
-        return new JsonResponse($toPlace);
+        return new JsonResponse($this->apiVersionConverter->convertEntity(
+            $this->stateMachineDefinition,
+            $toPlace,
+            $version
+        ));
     }
 
     /**
@@ -212,6 +237,7 @@ class OrderActionController extends AbstractController
     public function orderDeliveryStateTransition(
         string $orderDeliveryId,
         string $transition,
+        int $version,
         Request $request,
         Context $context
     ): JsonResponse {
@@ -270,7 +296,11 @@ class OrderActionController extends AbstractController
             }
         }
 
-        return new JsonResponse($toPlace);
+        return new JsonResponse($this->apiVersionConverter->convertEntity(
+            $this->stateMachineDefinition,
+            $toPlace,
+            $version
+        ));
     }
 
     private function getOrderCriteria(?string $orderId = null): Criteria
@@ -303,7 +333,6 @@ class OrderActionController extends AbstractController
             throw new InvalidDocumentException($documentId);
         }
 
-        /** @var GeneratedDocument $document */
         $document = $this->documentService->getDocument($documentEntity, $context);
 
         return [

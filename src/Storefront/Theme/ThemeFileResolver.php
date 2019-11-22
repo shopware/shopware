@@ -53,7 +53,7 @@ class ThemeFileResolver
                 $themeConfig,
                 $configurationCollection,
                 $onlySourceFiles,
-                function (StorefrontPluginConfiguration $configuration, bool $onlySourceFiles) {
+                function (StorefrontPluginConfiguration $configuration) {
                     return $configuration->getStyleFiles();
                 }
             ),
@@ -75,7 +75,6 @@ class ThemeFileResolver
 
         $resolvedFiles = new FileCollection();
 
-        /** @var File $file */
         foreach ($files as $file) {
             $filepath = $file->getFilepath();
             if (!$this->isInclude($filepath)) {

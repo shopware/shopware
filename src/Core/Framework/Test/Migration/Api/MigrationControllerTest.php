@@ -56,7 +56,7 @@ class MigrationControllerTest extends TestCase
 
         $client->request('POST', $url, ['identifier' => self::MIGRATION_IDENTIFIER]);
 
-        static::assertSame(json_encode(['message' => 'migrations added to the database']), $client->getResponse()->getContent());
+        static::assertSame(204, $client->getResponse()->getStatusCode());
     }
 
     public function testMigrateActionCall(): void
@@ -69,7 +69,7 @@ class MigrationControllerTest extends TestCase
             ['until' => PHP_INT_MAX]
         );
 
-        static::assertSame(json_encode(['message' => 'Migrations executed']), $client->getResponse()->getContent());
+        static::assertSame(204, $client->getResponse()->getStatusCode());
     }
 
     public function testMigrateDestructiveActionCall(): void
@@ -82,7 +82,7 @@ class MigrationControllerTest extends TestCase
             ['until' => PHP_INT_MAX]
         );
 
-        static::assertSame(json_encode(['message' => 'Migrations executed']), $client->getResponse()->getContent());
+        static::assertSame(204, $client->getResponse()->getStatusCode());
     }
 
     public function testControllerAddMigrations(): void

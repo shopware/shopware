@@ -35,8 +35,6 @@ trait DataAbstractionLayerFieldTestBehaviour
 
     protected function registerDefinitionWithExtensions(string $definitionClass, string ...$extensionsClasses): EntityDefinition
     {
-        $ret = null;
-
         $definition = $this->registerDefinition($definitionClass);
         foreach ($extensionsClasses as $extensionsClass) {
             if ($this->getContainer()->has($extensionsClass)) {

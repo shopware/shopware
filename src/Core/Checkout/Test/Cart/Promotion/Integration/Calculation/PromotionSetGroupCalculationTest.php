@@ -78,8 +78,8 @@ class PromotionSetGroupCalculationTest extends TestCase
         $code = 'BF' . Random::getAlphanumericString(5);
 
         // prepare promotion
-        $this->createTestFixtureProduct($productId1, 65, 19, $this->getContainer());
-        $this->createTestFixtureProduct($productId2, 30, 7, $this->getContainer());
+        $this->createTestFixtureProduct($productId1, 65, 19, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($productId2, 30, 7, $this->getContainer(), $this->context);
 
         // prepare a percentage promotion with 100% OFF
         // with a set group of the 2 cheapest items.
@@ -89,7 +89,6 @@ class PromotionSetGroupCalculationTest extends TestCase
             ->addDiscount(PromotionDiscountEntity::SCOPE_SET, PromotionDiscountEntity::TYPE_PERCENTAGE, 100.0, false, null);
         $promotionBuilder->buildPromotion();
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         // add 3 items to our cart
@@ -132,8 +131,8 @@ class PromotionSetGroupCalculationTest extends TestCase
         $code = 'BF' . Random::getAlphanumericString(5);
 
         // prepare promotion
-        $this->createTestFixtureProduct($productId1, 60, 19, $this->getContainer());
-        $this->createTestFixtureProduct($productId2, 30, 19, $this->getContainer());
+        $this->createTestFixtureProduct($productId1, 60, 19, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($productId2, 30, 19, $this->getContainer(), $this->context);
 
         // prepare a percentage promotion with 100% OFF
         // with a set group of the 2 cheapest items.
@@ -143,7 +142,6 @@ class PromotionSetGroupCalculationTest extends TestCase
             ->addDiscount(PromotionDiscountEntity::SCOPE_SET, PromotionDiscountEntity::TYPE_ABSOLUTE, 50.0, false, null);
         $promotionBuilder->buildPromotion();
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         // add 3 items to our cart
@@ -193,8 +191,8 @@ class PromotionSetGroupCalculationTest extends TestCase
         $code = 'BF' . Random::getAlphanumericString(5);
 
         // prepare promotion
-        $this->createTestFixtureProduct($productId1, 60, 19, $this->getContainer());
-        $this->createTestFixtureProduct($productId2, 30, 19, $this->getContainer());
+        $this->createTestFixtureProduct($productId1, 60, 19, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($productId2, 30, 19, $this->getContainer(), $this->context);
 
         // prepare a percentage promotion with 100% OFF
         // with a set group of the 2 cheapest items.
@@ -204,7 +202,6 @@ class PromotionSetGroupCalculationTest extends TestCase
             ->addDiscount(PromotionDiscountEntity::SCOPE_SET, PromotionDiscountEntity::TYPE_FIXED_UNIT, 20.0, false, null);
         $promotionBuilder->buildPromotion();
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         // add 3 items to our cart
@@ -254,8 +251,8 @@ class PromotionSetGroupCalculationTest extends TestCase
         $code = 'BF' . Random::getAlphanumericString(5);
 
         // prepare promotion
-        $this->createTestFixtureProduct($productId1, 60, 19, $this->getContainer());
-        $this->createTestFixtureProduct($productId2, 30, 19, $this->getContainer());
+        $this->createTestFixtureProduct($productId1, 60, 19, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($productId2, 30, 19, $this->getContainer(), $this->context);
 
         // prepare a percentage promotion with 100% OFF
         // with a set group of the 2 cheapest items.
@@ -265,7 +262,6 @@ class PromotionSetGroupCalculationTest extends TestCase
             ->addDiscount(PromotionDiscountEntity::SCOPE_SET, PromotionDiscountEntity::TYPE_FIXED, 50.0, false, null);
         $promotionBuilder->buildPromotion();
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         // add 3 items to our cart

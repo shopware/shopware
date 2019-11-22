@@ -71,5 +71,6 @@ return Config::create()
         'general_phpdoc_annotation_remove' => [
             'annotations' => ['copyright', 'category'],
         ],
+        'single_line_throw' => false,
     ])
     ->setFinder($finder);

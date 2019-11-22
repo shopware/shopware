@@ -10,4 +10,5 @@
     <import resource="../../Customer/SalesChannel/**/*Controller.php" type="annotation" />
     <import resource="../../Document/**/*Controller.php" type="annotation" />
     <import resource="../../Promotion/**/*Controller.php" type="annotation" />
+    <import resource="../../Order/Api/**/*Controller.php" type="annotation" />
 </routes>

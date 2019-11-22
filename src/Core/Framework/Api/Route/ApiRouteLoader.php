@@ -104,7 +104,6 @@ class ApiRouteLoader extends Loader
             return $a->getEntityName() <=> $b->getEntityName();
         });
 
-        /** @var EntityDefinition $definition */
         foreach ($elements as $definition) {
             $entityName = $definition->getEntityName();
             $resourceName = str_replace('_', '-', $definition->getEntityName());

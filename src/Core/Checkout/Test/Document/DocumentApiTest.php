@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\RuleTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -34,6 +35,7 @@ class DocumentApiTest extends TestCase
     use IntegrationTestBehaviour;
     use RuleTestBehaviour;
     use AdminApiTestBehaviour;
+    use TaxAddToSalesChannelTestBehaviour;
 
     /**
      * @var SalesChannelContext
@@ -106,7 +108,7 @@ class DocumentApiTest extends TestCase
 
         $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/';
 
-        $answer = $this->getBrowser()->request(
+        $this->getBrowser()->request(
             'POST',
             $baseResource . '_action/order/' . $orderId . '/document/invoice',
             [],
@@ -121,7 +123,7 @@ class DocumentApiTest extends TestCase
         $expectedFileContent = 'simple invoice';
         $expectedContentType = 'text/plain; charset=UTF-8';
 
-        $answer = $this->getBrowser()->request(
+        $this->getBrowser()->request(
             'POST',
             $baseResource . '_action/document/' . $response['documentId'] . '/upload?fileName=' . $filename . '&extension=txt',
             [],
@@ -181,6 +183,7 @@ class DocumentApiTest extends TestCase
             ];
 
             $cart->add($factory->create($id));
+            $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
         }
 
         $this->getContainer()->get('product.repository')

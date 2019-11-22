@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait DataAbstractionLayerFieldTestBehaviour
 {
-    abstract public function getContainer(): ContainerInterface;
+    abstract protected function getContainer(): ContainerInterface;
 
     protected function registerDefinition(string ...$definitionClasses): EntityDefinition
     {
@@ -35,8 +35,6 @@ trait DataAbstractionLayerFieldTestBehaviour
 
     protected function registerDefinitionWithExtensions(string $definitionClass, string ...$extensionsClasses): EntityDefinition
     {
-        $ret = null;
-
         $definition = $this->registerDefinition($definitionClass);
         foreach ($extensionsClasses as $extensionsClass) {
             if ($this->getContainer()->has($extensionsClass)) {

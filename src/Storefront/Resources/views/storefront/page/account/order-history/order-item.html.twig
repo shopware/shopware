@@ -1,0 +1,96 @@
+{% block page_account_order_item_overview %}
+    <div class="order-wrapper">
+        <div class="order-item-header">
+            <div class="row">
+                {% block page_account_order_item_date %}
+                    <div class="col-12 col-md order-item order-item-date">
+                        {% block page_account_order_item_date_label %}
+                            <strong class="order-item-label order-item-date-label">{{ "account.orderItemColumnDate"|trans|sw_sanitize }}</strong>
+                        {% endblock %}
+
+                        {% block page_account_order_item_date_value %}
+                            <span class="order-item-value order-item-date-value">
+                                {{ order.orderDateTime|localizeddate('short', 'none', app.request.locale) }}
+                            </span>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block page_account_order_item_number %}
+                    <div class="col-12 col-md order-item order-item-number">
+                        {% block page_account_order_item_number_label %}
+                            <strong class="order-item-label order-item-number-label">{{ "account.orderItemColumnNumber"|trans|sw_sanitize }}</strong>
+                        {% endblock %}
+
+                        {% block page_account_order_item_number_value %}
+                            <span class="order-item-value order-item-number-value">{{ order.orderNumber }}</span>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block page_account_order_item_payment_method %}
+                    <div class="col-12 col-md order-item order-item-payment-method">
+                        {% block page_account_order_item_payment_method_label %}
+                            <strong class="order-item-label order-item-payment-method-label">{{ "account.orderItemColumnPaymentMethod"|trans|sw_sanitize }}</strong>
+                        {% endblock %}
+
+                        {% block page_account_order_item_payment_method_value %}
+                            <span class="order-item-value order-item-payment-method-value">
+                                {% for transaction in order.transactions %}
+                                    {% if not loop.first and loop.index > 1 %}, {% endif %}{{ transaction.paymentMethod.translated.name }}
+                                {% endfor %}
+                            </span>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block page_account_order_item_shipping_method %}
+                    <div class="col-12 col-md order-item order-item-shipping-method">
+                        {% block page_account_order_item_shipping_method_label %}
+                            <strong class="order-item-label order-item-shipping-method-label">{{ "account.orderItemColumnShippingMethod"|trans|sw_sanitize }}</strong>
+                        {% endblock %}
+
+                        {% block page_account_order_item_shipping_method_value %}
+                            <span class="order-item-value order-item-shipping-method-value">
+                                {% for delivery in order.deliveries %}
+                                    {% if not loop.first and loop.index > 1 %}, {% endif %}{{ delivery.shippingMethod.translated.name }}
+                                {% endfor %}
+                            </span>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block page_account_order_item_actions %}
+                    <div class="col-12 col-md order-item order-item-actions">
+                        {% block page_account_order_item_actions_value %}
+                            <form action="{{ path('widgets.account.order.detail', { id: order.id }) }}"
+                                  class="order-detail-form"
+                                  method="get"
+                                  data-form-ajax-submit="true"
+                                  data-form-ajax-submit-options='{
+                                        "replaceSelectors": ".js-order-detail-container-{{ order.id }}",
+                                        "submitOnce": true
+                                  }'>
+                                <button class="btn btn-light btn-sm order-hide-btn collapsed"
+                                        type="submit"
+                                        data-toggle="collapse"
+                                        data-target="#order{{ order.orderNumber }}"
+                                        aria-expanded="false"
+                                        aria-controls="collapseExample">
+                                    {% block page_account_order_item_actions_value_text %}
+                                        <span class="order-hide-btn-text">{{ "account.orderActionHide"|trans|sw_sanitize }}</span>
+                                        <span class="order-view-btn-text">{{ "account.orderActionView"|trans|sw_sanitize }}</span>
+                                    {% endblock %}
+                                </button>
+                            </form>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        </div>
+
+    {% block page_account_order_item_detail %}
+        {% sw_include '@Storefront/storefront/page/account/order-history/order-detail.html.twig' %}
+    {% endblock %}
+    </div>
+{% endblock %}

@@ -11,7 +11,7 @@ The open API of the <strong>&lt;sw-icon&gt; </strong>component has not been chan
 <p><strong>Adding or updating icons</strong></p>
 
 <ul>
-	<li>All SVG icons can now be found in <strong>/platform/src/Administration/Resources/administration/src/app/assets/icons/svg</strong> as separate files.</li>
+	<li>All SVG icons can now be found in <strong>/platform/src/Administration/Resources/app/administration/src/app/assets/icons/svg</strong> as separate files.</li>
 	<li><strong>TLDR: To add a new icon simply add the icon SVG file to the mentioned direcory.</strong></li>
 	<li>All icons have to be prefixed with <strong>icons-.</strong></li>
 	<li>The file names come from the directory structure of our design library. The export via Sketch automatically gives us a file name like <strong>icons-default-action-bookmark</strong>.</li>

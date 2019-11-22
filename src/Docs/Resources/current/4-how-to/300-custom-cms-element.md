@@ -26,7 +26,7 @@ Creating a new element requires you to extend the administration.
 ### Injecting into the administration
     
 The main entry point to customize the administration via plugin is the `main.js` file.
-It has to be placed into a `<plugin root>/src/Resources/administration` directory in order to be automatically found by the Shopware
+It has to be placed into a `<plugin root>/src/Resources/app/administration` directory in order to be automatically found by the Shopware
 platform.
 *Note: This path can be changed by overriding the [getAdministrationEntryPath](./../2-internals/4-plugins/020-plugin-base-class.md#getAdministrationEntryPath) method of your plugin's base class.*
 
@@ -36,8 +36,8 @@ Create this `main.js` file for now, it will be used later.
 
 Your plugin's structure should always match the core's structure. When thinking about creating a new element, you should
 recreate the directory structure of core elements in your plugin.
-Thus, recreate [this structure](https://github.com/shopware/platform/tree/master/src/Administration/Resources/administration/src/module/sw-cms/elements) in your plugin:
-`<plugin root>/src/Resources/administration/module/sw-cms/elements`
+Thus, recreate [this structure](https://github.com/shopware/platform/tree/master/src/Administration/Resources/app/administration/src/module/sw-cms/elements) in your plugin:
+`<plugin root>/src/Resources/app/administration/src/module/sw-cms/elements`
 
 In there you create a directory for each new element you want to create, in this example a directory `youtube` is created.
 
@@ -51,7 +51,7 @@ import './module/sw-cms/elements/youtube';
 ```
 
 Now open up your empty `index.js` file. In order to register a new element to the system, you have to call the method `registerCmsElement`
-of the [cmsService](https://github.com/shopware/platform/blob/master/src/Administration/Resources/administration/src/module/sw-cms/service/cms.service.js).
+of the [cmsService](https://github.com/shopware/platform/blob/master/src/Administration/Resources/app/administration/src/module/sw-cms/service/cms.service.js).
 Since it's available in the Dependency Injection Container, you can fetch it from there.
 
 First of all, access our `Applicaton` wrapper, which will grant you access to the DI container. This `Application` wrapper has access to the DI container, so go ahead and fetch the `cmsService` from it and call the
@@ -87,7 +87,7 @@ Here's what it should look like after having set all of those options:
 ```js
 Shopware.Service('cmsService').registerCmsElement({
     name: 'youtube',
-    label: 'YouTube Video',
+    label: 'sw-cms.elements.customYouTubeElement.label',
     component: 'sw-cms-el-youtube',
     configComponent: 'sw-cms-el-config-youtube',
     previewComponent: 'sw-cms-el-preview-youtube',
@@ -104,7 +104,38 @@ Shopware.Service('cmsService').registerCmsElement({
 });
 ```
 
-The properties `name` and `label` do not require further explanation.
+The property `name` does not require further explanation.
+But you need to create a snippet files in you plugin directory for the `label` property.
+
+To do this, create a folder with the name `snippet` in your `sw-cms` folder. After that create the files for the languages. For example `de-DE.json` and `en-GB.json`.
+
+The content of your snippet file should look something like this:
+
+```json
+{
+  "sw-cms": {
+    "elements": {
+       "customYouTubeElement": {
+        "label": "YouTube Video"
+      }
+    }
+  }
+}
+```
+
+Next, import the snippet files into your `main.js`.
+
+```js
+import './module/sw-cms/elements/youtube';
+import deDE from './module/sw-cms/snippet/de-DE.json';
+import enGB from './module/sw-cms/snippet/en-GB.json';
+
+Shopware.Locale.extend('de-DE', deDE);
+Shopware.Locale.extend('en-GB', enGB);
+```
+
+You've now finished the part for the snippets. For more information about snippets, [click here](https://docs.shopware.com/en/shopware-platform-dev-en/how-to/adding-snippets).
+
 For all three fields `component`, `configComponent` and `previewComponent`, components that do not **yet** exist were applied. Those will be created
 in the next few steps as well.
 The `defaultConfig` defines the default values for the element's configurations. There will be a text field to enter a YouTube video's ID, `videoSrc`, and a
@@ -439,15 +470,15 @@ This is **not** necessary, but it comes with a neat feature: It is capable of de
 Otherwise you'd have to explain to the shop manager, how he finds a video's ID. Using the custom component `swag-youtube-field`, this will be taken
 care of automatically, the shop manager can just copy the full YouTube video's URL and paste it into the configuration.
 
-The source for this custom component can be found [here](https://github.com/shopware/swag-docs-custom-cms-element/tree/master/src/Resources/administration/app/component/form/swag-youtube-field).
+The source for this custom component can be found [here](https://github.com/shopware/swag-docs-custom-cms-element/tree/master/src/Resources/app/administration/src/app/component/form/swag-youtube-field).
 
 ### Storefront implementation
 
-Just like the CMS blocks, each element's storefront representation is always expected in the directory [platform/src/Storefront/Resources/views/element](https://github.com/shopware/platform/tree/master/src/Storefront/Resources/views/element).
+Just like the CMS blocks, each element's storefront representation is always expected in the directory [platform/src/Storefront/Resources/views/storefront/element](https://github.com/shopware/platform/tree/master/src/Storefront/Resources/views/storefront/element).
 In there, a twig template named after your custom element is expected, in this case a file named `cms-element-youtube.html.twig` is expected.
 
 So go ahead and re-create that structure in your plugin:
-`<plugin root>/src/Resources/views/element/`
+`<plugin root>/src/Resources/views/storefront/element/`
 
 In there create a new twig template named after your element, so `cms-element-youtube.html.twig` that is.
 

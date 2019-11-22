@@ -1,0 +1,13 @@
+{
+  "sw-settings-basic-information": {
+    "general": {
+      "mainMenuItemGeneral": "Basic information",
+      "description": "Change basic information here.",
+      "textHeadline": "Basic information",
+      "buttonSave": "Save",
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "The configuration has been saved.",
+      "titleSaveError": "The configuration could not be saved."
+    }
+  }
+}

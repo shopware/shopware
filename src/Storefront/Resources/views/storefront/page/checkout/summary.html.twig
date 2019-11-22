@@ -1,0 +1,93 @@
+{% block page_checkout_summary %}
+    <div class="checkout-aside-summary-container">
+        {% if page.cart %}
+            {% set summary = page.cart %}
+        {% elseif page.order %}
+            {% set summary = page.order %}
+        {% endif %}
+
+        <dl class="row checkout-aside-summary-list">
+            {% block page_checkout_summary_inner %}
+                {% block page_checkout_summary_position %}
+                    {% block page_checkout_summary_position_label %}
+                        <dt class="col-7 checkout-aside-summary-label">
+                            {{ "checkout.summaryPositionPrice"|trans|sw_sanitize }}
+                        </dt>
+                    {% endblock %}
+
+                    {% block page_checkout_summary_position_value %}
+                        <dd class="col-5 checkout-aside-summary-value">
+                            {{ summary.price.positionPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+                        </dd>
+                    {% endblock %}
+                {% endblock %}
+
+                {% block page_checkout_summary_shippings %}
+                    {% for delivery in summary.deliveries %}
+                        {% block page_checkout_summary_shipping %}
+                            {% block page_checkout_summary_shipping_label %}
+                                <dt class="col-7 checkout-aside-summary-label">
+                                    {{ "checkout.summaryShipping"|trans|sw_sanitize }}
+                                </dt>
+                            {% endblock %}
+
+                            {% block page_checkout_summary_shipping_value %}
+                                <dd class="col-5 checkout-aside-summary-value">
+                                    {{ delivery.shippingCosts.totalPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+                                </dd>
+                            {% endblock %}
+                        {% endblock %}
+                    {% endfor %}
+                {% endblock %}
+
+                {% block page_checkout_summary_total %}
+                    {% block page_checkout_summary_total_label %}
+                        <dt class="col-7 checkout-aside-summary-label checkout-aside-summary-total">
+                            {{ "checkout.summaryTotalPrice"|trans|sw_sanitize }}
+                        </dt>
+                    {% endblock %}
+
+                    {% block page_checkout_summary_total_value %}
+                        <dd class="col-5 checkout-aside-summary-value checkout-aside-summary-total">
+                            {{ summary.price.totalPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+                        </dd>
+                    {% endblock %}
+                {% endblock %}
+
+                {% block page_checkout_summary_net %}
+                    {% block page_checkout_summary_net_label %}
+                        <dt class="col-7 checkout-aside-summary-label">
+                            {{ "checkout.summaryNetPrice"|trans|sw_sanitize }}
+                        </dt>
+                    {% endblock %}
+
+                    {% block page_checkout_summary_net_value %}
+                        <dd class="col-5 checkout-aside-summary-value">
+                            {{ summary.price.netPrice|currency }}
+                        </dd>
+                    {% endblock %}
+                {% endblock %}
+
+                {% block page_checkout_summary_taxes %}
+                    {% for taxItem in summary.price.calculatedTaxes %}
+                        {% block page_checkout_summary_tax %}
+                            {% block page_checkout_summary_tax_label %}
+                                <dt class="col-7 checkout-aside-summary-label">
+                                    {{ "checkout.summaryTax"|trans({
+                                        '%rate%': taxItem.taxRate
+                                    })|sw_sanitize }}
+                                </dt>
+                            {% endblock %}
+
+                            {% block page_checkout_summary_tax_value %}
+                                <dd class="col-5 checkout-aside-summary-value">
+                                    {{ taxItem.tax|currency }}
+                                </dd>
+                            {% endblock %}
+                        {% endblock %}
+                    {% endfor %}
+                {% endblock %}
+            {% endblock %}
+        </dl>
+    </div>
+{% endblock %}

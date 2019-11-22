@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Cart\LineItem\Group\Packager;
 
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -23,12 +22,9 @@ class LineItemGroupCountPackager implements LineItemGroupPackagerInterface
     public function buildGroupPackage(float $maxItemsInGroup, LineItemFlatCollection $sortedItems, SalesChannelContext $context): LineItemGroup
     {
         $matchedCount = 0;
-
         $result = new LineItemGroup();
 
-        /** @var LineItem $lineItem */
         foreach ($sortedItems as $lineItem) {
-            /** @var int $quantity */
             $quantity = $lineItem->getQuantity();
 
             // add the item to our result

@@ -1,0 +1,87 @@
+{% block sw_customer_detail %}
+    <sw-page class="sw-customer-detail">
+        {% block sw_customer_detail_header %}
+            <template #smart-bar-header>
+                <h2 v-if="customer && customer.salutation">{{ salutation(customer) }}</h2>
+            </template>
+        {% endblock %}
+
+        {% block sw_customer_detail_actions %}
+            <template #smart-bar-actions>
+                {% block sw_customer_detail_actions_edit %}
+                    <sw-button v-if="!editMode"
+                               class="sw-customer-detail__open-edit-mode-action"
+                               variant="primary"
+                               :disabled="isLoading"
+                               @click.prevent="onActivateCustomerEditMode">
+                        {{ $tc('sw-customer.detail.buttonEdit') }}
+                    </sw-button>
+                {% endblock %}
+
+                <span v-else>
+                    {% block sw_customer_detail_actions_cancel %}
+                        <sw-button :disabled="isLoading" @click="onAbortButtonClick">
+                            {{ $tc('sw-customer.detail.buttonCancel') }}
+                        </sw-button>
+                    {% endblock %}
+
+                    {% block sw_customer_detail_actions_save %}
+                        <sw-button-process
+                                class="sw-customer-detail__save-action"
+                                :isLoading="isLoading"
+                                :processSuccess="isSaveSuccessful"
+                                :disabled="isLoading"
+                                variant="primary"
+                                @process-finish="saveFinish"
+                                @click.prevent="onSave">
+                            {{ $tc('sw-customer.detail.buttonSave') }}
+                        </sw-button-process>
+                    {% endblock %}
+                </span>
+            </template>
+        {% endblock %}
+
+        {% block sw_customer_detail_content %}
+            <template #content>
+                <sw-card-view>
+                    {% block sw_customer_detail_content_tabs %}
+                        <sw-tabs class="sw-customer-detail-page__tabs">
+                            {% block sw_customer_detail_content_tab_general %}
+                                <sw-tabs-item class="sw-customer-detail__tab-general"
+                                              :route="generalRoute"
+                                              :title="$tc('sw-customer.detail.tabGeneral')"
+                                              :hasError="swCustomerDetailBaseError">
+                                    {{ $tc('sw-customer.detail.tabGeneral') }}
+                                </sw-tabs-item>
+                            {% endblock %}
+
+                            {% block sw_customer_detail_content_tab_addresses %}
+                                <sw-tabs-item class="sw-customer-detail__tab-addresses"
+                                              :route="addressesRoute"
+                                              :title="$tc('sw-customer.detail.tabAddresses')">
+                                    {{ $tc('sw-customer.detail.tabAddresses') }}
+                                </sw-tabs-item>
+                            {% endblock %}
+
+                            {% block sw_customer_detail_content_tab_order %}
+                                <sw-tabs-item class="sw-customer-detail__tab-order"
+                                              :route="ordersRoute"
+                                              :title="$tc('sw-customer.detailBase.labelOrderCard')">
+                                    {{ $tc('sw-customer.detailBase.labelOrderCard') }}
+                                </sw-tabs-item>
+                            {% endblock %}
+                        </sw-tabs>
+                    {% endblock %}
+
+                    {% block sw_customer_detail_content_view %}
+                        <router-view v-if="customer"
+                                     :customer="customer"
+                                     :customerEditMode="editMode"
+                                     :isLoading="isLoading">
+                        </router-view>
+                    {% endblock %}
+                </sw-card-view>
+            </template>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

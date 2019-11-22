@@ -1,0 +1,52 @@
+{
+  "sw-review": {
+    "general": {
+      "mainMenuItemList": "Reviews",
+      "mainMenuItemGeneral": "Reviews",
+      "placeholderSearchBar": "Search reviews...",
+      "descriptionTextModule": "Manage reviews here."
+    },
+    "list": {
+      "textReviewOverview": "Reviews",
+      "columnProduct": "Product",
+      "columnPoints": "Stars",
+      "columnUser": "Customer",
+      "columnStatus": "Visible",
+      "columnCreatedAt": "Created at",
+      "columnComment": "Commented on",
+      "columnTitle": "Review title",
+      "placeholderSearchBar": "Search reviews...",
+      "messageEmpty": "No reviews yet"
+    },
+    "detail": {
+      "textHeadline": "Review",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save",
+      "cardTitleReviewInfo": "Review",
+      "cardTitleReviewProperties": "Properties",
+      "labelTitle": "Title",
+      "labelPoints": "Points",
+      "labelUser": "User",
+      "labelSalesChannel": "Sales channel",
+      "labelCreatedAt": "Created at",
+      "labelProduct": "Product",
+      "labelEmail": "E-Mail",
+      "labelLanguage": "Language",
+      "labelPositive": "Positive votes",
+      "labelNegative": "Negative votes",
+      "labelStatus": "Visible",
+      "labelContent": "Content",
+      "labelComment": "Comment",
+      "labelCustomer": "Customer",
+      "titleCardComment": "Comment",
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "The review \"{name}\" has been saved.",
+      "placeholderComment": "Enter comment...",
+      "review1PointRatingText": "Unsatisfactory",
+      "review2PointRatingText": "Acceptable",
+      "review3PointRatingText": "Good",
+      "review4PointRatingText": "Very good",
+      "review5PointRatingText": "Excellent"
+    }
+  }
+}

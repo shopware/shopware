@@ -29,6 +29,5 @@ class Migration1536233520PromotionCartRule extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

@@ -89,12 +89,12 @@ if (module.hot) {
 
 You bound your plugin to the css selector "[data-example-plugin]" so you have to add DOM elements with this attribute on the pages you want your plugin to be active.
 Therefore create an `views/page/content/folder` and create an `index.html.twig` template.
-Inside this template extend from the `@Storefront/page/content/index.html.twig` and overwrite the `base_main_inner` block.
+Inside this template extend from the `@Storefront/storefront/page/content/index.html.twig` and overwrite the `base_main_inner` block.
 After the parent content of the blog add an template tag that has the `data-example-plugin` attribute.
 For more information on how template extension works, take a look [here](./250-extending-storefront-block.md).
 
 ```twig
-{% sw_extends '@Storefront/page/content/index.html.twig' %}
+{% sw_extends '@Storefront/storefront/page/content/index.html.twig' %}
 
 {% block base_main_inner %}
     {{ parent() }}
@@ -137,13 +137,13 @@ export default class ExamplePlugin extends Plugin {
 
 Now you are able to override the text that is prompted to the user from inside your templates.
 Therefore create an `product-detail` folder inside your `views/page` folder and add an `index.html.twig` file inside that folder.
-In your template extend from `@Storefront/page/product-detail/index.html.twig` and override the `page_product_detail_content`.
+In your template extend from `@Storefront/storefront/page/product-detail/index.html.twig` and override the `page_product_detail_content`.
 After the parent content add an template tag with the `data-example-plugin` tag also to activate your plugin on product detail pages.
 Next add an `data-{your-plugin-name-in-kebab-case}-options` (`data-example-plugin-options`) attribute to the DOM element you registered your plugin on (the template tag).
 As the value of this attribute use the options you want to override as a json object.
 
 ```twig
-{% sw_extends '@Storefront/page/product-detail/index.html.twig' %}
+{% sw_extends '@Storefront/storefront/page/product-detail/index.html.twig' %}
 
 {% block page_product_detail_content %}
     {{ parent() }}

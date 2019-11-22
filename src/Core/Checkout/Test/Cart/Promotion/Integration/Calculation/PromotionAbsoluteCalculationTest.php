@@ -76,12 +76,11 @@ class PromotionAbsoluteCalculationTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
         // add a new sample product
-        $this->createTestFixtureProduct($productId, 60, 17, $this->getContainer());
+        $this->createTestFixtureProduct($productId, 60, 17, $this->getContainer(), $context);
 
         // add a new promotion black friday
         $this->createTestFixtureAbsolutePromotion($promotionId, $code, 45, $this->getContainer());
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
         // create product and add to cart
@@ -112,11 +111,10 @@ class PromotionAbsoluteCalculationTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
         // add a new sample product
-        $this->createTestFixtureProduct($productId, 100, 19, $this->getContainer());
+        $this->createTestFixtureProduct($productId, 100, 19, $this->getContainer(), $context);
 
         $this->createAdvancedCurrencyPriceValuePromotion($promotionId, $code, 15, 30);
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
         // create product and add to cart

@@ -10,10 +10,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Seo\MainCategory\MainCategoryCollection;
 use Shopware\Core\Framework\Seo\MainCategory\MainCategoryEntity;
-use Shopware\Core\Framework\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -66,7 +64,6 @@ class MainCategoryExtensionTest extends TestCase
         static::assertEmpty($product->getMainCategories());
 
         // update main category
-        /** @var IdSearchResult $categories */
         $categories = $this->categoryRepository->searchIds(new Criteria([]), Context::createDefaultContext());
 
         $this->productRepository->update([
@@ -85,11 +82,9 @@ class MainCategoryExtensionTest extends TestCase
 
         static::assertNotNull($product->getMainCategories());
         static::assertInstanceOf(MainCategoryCollection::class, $product->getMainCategories());
-        /** @var MainCategoryCollection $mainCategories */
         $mainCategories = $product->getMainCategories();
         static::assertCount(1, $mainCategories);
 
-        /** @var MainCategoryEntity $mainCategory */
         $mainCategory = $mainCategories->filterBySalesChannelId($salesChannelId)->first();
         static::assertInstanceOf(MainCategoryEntity::class, $mainCategory);
         static::assertEquals($salesChannelId, $mainCategory->getSalesChannelId());
@@ -129,19 +124,15 @@ class MainCategoryExtensionTest extends TestCase
         $products = $this->productRepository->search($criteria, $salesChannelContext->getContext());
         static::assertCount(1, $products);
 
-        /** @var ProductEntity $product */
         $product = $products->first();
 
-        /** @var MainCategoryCollection $mainCategories */
         $mainCategories = $product->getMainCategories();
         static::assertNotNull($mainCategories);
         static::assertCount(1, $mainCategories);
 
-        /** @var MainCategoryEntity $mainCategory */
         $mainCategory = $mainCategories->first();
         static::assertEquals($categoryId, $mainCategory->getCategoryId());
 
-        /** @var SeoUrlCollection|null $seoUrls */
         $seoUrls = $product->getSeoUrls();
         static::assertNotNull($seoUrls);
 
@@ -149,6 +140,64 @@ class MainCategoryExtensionTest extends TestCase
         $canonical = $seoUrls->filterByProperty('isCanonical', true)->filterByProperty('salesChannelId', $salesChannelId)->first();
         static::assertNotNull($canonical);
         static::assertEquals('awesome-category/foo-bar', $canonical->getSeoPathInfo());
+    }
+
+    /**
+     * @depends testSeoUrlWithMainCategory
+     */
+    public function testSeoUrlWithMainCategoryChange(): void
+    {
+        static::markTestSkipped('extractIdsToUpdate must be fixed first');
+        $salesChannelId = Uuid::randomHex();
+        $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        $this->createProductUrlTemplate(
+            $salesChannelContext,
+            '{{ product.mainCategory.name }}/{{ product.name }}'
+        );
+
+        $categoryId = Uuid::randomHex();
+        $this->categoryRepository->create([[
+            'id' => $categoryId,
+            'name' => 'awesome category',
+        ]], Context::createDefaultContext());
+
+        $id = $this->createTestProduct([
+            'mainCategories' => [
+                [
+                    'salesChannelId' => $salesChannelId,
+                    'categoryId' => $categoryId,
+                ],
+            ],
+        ]);
+
+        // update existing category
+        $this->categoryRepository->update(
+            [[
+                'id' => $categoryId,
+                'name' => 'super duper cat',
+            ]],
+            Context::createDefaultContext()
+        );
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('seoUrls');
+        $criteria->addAssociation('mainCategories');
+
+        /** @var ProductCollection $products */
+        $products = $this->productRepository->search($criteria, $salesChannelContext->getContext());
+        static::assertCount(1, $products);
+
+        $product = $products->first();
+        static::assertNotNull($product);
+
+        $seoUrls = $product->getSeoUrls();
+        static::assertNotNull($seoUrls);
+
+        /** @var SeoUrlEntity|null $canonical */
+        $canonical = $seoUrls->filterByProperty('isCanonical', true)->filterByProperty('salesChannelId', $salesChannelId)->first();
+        static::assertNotNull($canonical);
+        static::assertEquals('super-duper-cat/foo-bar', $canonical->getSeoPathInfo());
     }
 
     /**
@@ -192,7 +241,7 @@ class MainCategoryExtensionTest extends TestCase
         static::assertEmpty($product->getMainCategories());
     }
 
-    private function createTestProduct(array $additionalPayload = [], ?Context $context = null): string
+    private function createTestProduct(array $additionalPayload = []): string
     {
         $id = Uuid::randomHex();
         $payload = [

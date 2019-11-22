@@ -16,7 +16,7 @@ class ProductNotFoundError extends Error
     {
         $this->id = $id;
 
-        parent::__construct('The product for id %s not found');
+        parent::__construct('The product %s could not be found');
     }
 
     public function getParameters(): array

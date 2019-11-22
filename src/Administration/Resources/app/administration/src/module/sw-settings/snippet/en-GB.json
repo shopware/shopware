@@ -1,0 +1,17 @@
+{
+  "sw-settings": {
+    "general": {
+      "mainMenuItemGeneral": "Settings"
+    },
+    "index": {
+      "title": "Settings",
+      "tabShop": "Shop",
+      "tabSystem": "System",
+      "tabPlugins": "Plugins"
+    },
+    "system-config": {
+      "labelSalesChannelSelect": "Sales Channel",
+      "inherited": "Inherited"
+    }
+  }
+}

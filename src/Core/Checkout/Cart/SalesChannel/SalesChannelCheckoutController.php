@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
+use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -69,6 +70,11 @@ class SalesChannelCheckoutController extends AbstractController
      */
     private $accountService;
 
+    /**
+     * @var ApiVersionConverter
+     */
+    private $apiVersionConverter;
+
     public function __construct(
         PaymentService $paymentService,
         CartService $cartService,
@@ -76,7 +82,8 @@ class SalesChannelCheckoutController extends AbstractController
         Serializer $serializer,
         EntityRepositoryInterface $orderRepository,
         AccountRegistrationService $accountRegistrationService,
-        AccountService $accountService
+        AccountService $accountService,
+        ApiVersionConverter $apiVersionConverter
     ) {
         $this->paymentService = $paymentService;
         $this->cartService = $cartService;
@@ -85,6 +92,7 @@ class SalesChannelCheckoutController extends AbstractController
         $this->serializer = $serializer;
         $this->accountRegistrationService = $accountRegistrationService;
         $this->accountService = $accountService;
+        $this->apiVersionConverter = $apiVersionConverter;
     }
 
     /**
@@ -93,14 +101,18 @@ class SalesChannelCheckoutController extends AbstractController
      * @throws OrderNotFoundException
      * @throws CartTokenNotFoundException
      */
-    public function createOrder(SalesChannelContext $context): JsonResponse
+    public function createOrder(int $version, SalesChannelContext $context): JsonResponse
     {
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
         $orderId = $this->cartService->order($cart, $context);
         $order = $this->getOrderById($orderId, $context);
 
-        return new JsonResponse($this->serialize($order));
+        return new JsonResponse($this->serialize($this->apiVersionConverter->convertEntity(
+            $this->orderRepository->getDefinition(),
+            $order,
+            $version
+        )));
     }
 
     /**
@@ -109,7 +121,7 @@ class SalesChannelCheckoutController extends AbstractController
      * @throws OrderNotFoundException
      * @throws CartTokenNotFoundException
      */
-    public function createGuestOrder(RequestDataBag $data, SalesChannelContext $salesChannelContext): JsonResponse
+    public function createGuestOrder(int $version, RequestDataBag $data, SalesChannelContext $salesChannelContext): JsonResponse
     {
         $customerId = $this->accountRegistrationService->register($data, true, $salesChannelContext);
         $newContextToken = $this->accountService->login($data->get('email'), $salesChannelContext, true);
@@ -123,7 +135,11 @@ class SalesChannelCheckoutController extends AbstractController
         $cart = $this->cartService->getCart($newSalesChannelContext->getToken(), $newSalesChannelContext);
         $orderId = $this->cartService->order($cart, $newSalesChannelContext);
 
-        $responseData = $this->serialize($this->getOrderById($orderId, $newSalesChannelContext));
+        $responseData = $this->serialize($this->apiVersionConverter->convertEntity(
+            $this->orderRepository->getDefinition(),
+            $this->getOrderById($orderId, $newSalesChannelContext),
+            $version
+        ));
         $responseData[PlatformRequest::HEADER_CONTEXT_TOKEN] = $newContextToken;
 
         return new JsonResponse($responseData);
@@ -134,7 +150,7 @@ class SalesChannelCheckoutController extends AbstractController
      *
      * @throws OrderNotFoundException
      */
-    public function getDeepLinkOrder(string $id, Request $request, Context $context): JsonResponse
+    public function getDeepLinkOrder(string $id, int $version, Request $request, Context $context): JsonResponse
     {
         $deepLinkCode = (string) $request->query->get('accessCode');
 
@@ -152,7 +168,11 @@ class SalesChannelCheckoutController extends AbstractController
             throw new OrderNotFoundException($id);
         }
 
-        return new JsonResponse($this->serialize($orders->first()));
+        return new JsonResponse($this->serialize($this->apiVersionConverter->convertEntity(
+            $this->orderRepository->getDefinition(),
+            $orders->first(),
+            $version
+        )));
     }
 
     /**

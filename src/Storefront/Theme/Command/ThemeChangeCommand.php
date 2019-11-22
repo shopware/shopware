@@ -21,6 +21,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ThemeChangeCommand extends Command
 {
+    protected static $defaultName = 'theme:change';
+
     /**
      * @var ThemeService
      */
@@ -63,7 +65,7 @@ class ThemeChangeCommand extends Command
         EntityRepositoryInterface $themeRepository,
         EntityRepositoryInterface $themeSalesChannelRepository
     ) {
-        parent::__construct('theme:change');
+        parent::__construct();
 
         $this->themeService = $themeService;
         $this->pluginRegistry = $pluginRegistry;
@@ -75,7 +77,6 @@ class ThemeChangeCommand extends Command
 
     protected function configure(): void
     {
-        $this->setName('theme:change');
         $this->addArgument('theme-name', InputArgument::OPTIONAL, 'Theme name');
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Set theme for all sales channel');
     }
@@ -138,7 +139,6 @@ class ThemeChangeCommand extends Command
     {
         $choices = [];
 
-        /** @var SalesChannelEntity $salesChannel */
         foreach ($salesChannels as $salesChannel) {
             $choices[] = $salesChannel->getName() . ' | ' . $salesChannel->getId();
         }

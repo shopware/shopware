@@ -12,6 +12,8 @@ use Symfony\Component\Messenger\Worker\StopWhenRestartSignalIsReceived;
 
 class ScheduledTaskRunner extends Command
 {
+    protected static $defaultName = 'scheduled-task:run';
+
     /**
      * @var TaskScheduler
      */
@@ -37,7 +39,7 @@ class ScheduledTaskRunner extends Command
 
     protected function configure(): void
     {
-        $this->setName('scheduled-task:run')
+        $this
             ->addOption('memory-limit', 'm', InputOption::VALUE_REQUIRED, 'The memory limit the worker can consume')
             ->addOption('time-limit', 't', InputOption::VALUE_REQUIRED, 'The time limit in seconds the worker can run')
             ->setDescription('Worker that runs scheduled task.');

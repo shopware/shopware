@@ -25,7 +25,6 @@ class ConnectionFactoryFactory implements ConnectionFactoryFactoryInterface
      * The other array options are treated as default values.
      * Options from DSN overwrite them.
      *
-     *
      * @param string|array $config
      *
      * @throws \InvalidArgumentException if invalid config provided

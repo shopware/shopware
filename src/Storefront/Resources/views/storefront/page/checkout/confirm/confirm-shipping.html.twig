@@ -1,0 +1,183 @@
+{% block page_checkout_confirm_shipping_inner %}
+    <div class="card checkout-card">
+        <div class="card-body">
+            {% set shippingMethodInvalid = true %}
+
+            {% for shipping in page.shippingMethods %}
+                {% if shipping.id is same as(context.shippingMethod.id) %}
+                    {% set shippingMethodInvalid = false %}
+                {% endif %}
+            {% endfor %}
+
+            {% block page_checkout_confirm_shipping_title %}
+                <div class="card-title">
+                    {{ "checkout.confirmShippingMethod"|trans|sw_sanitize }}
+                </div>
+            {% endblock %}
+
+            {% block page_checkout_confirm_shipping_current %}
+                <p class="confirm-shipping-current{% if shippingMethodInvalid %} is-invalid{% endif %}">
+                    {% block page_checkout_confirm_shipping_current_image %}
+                        {% if context.shippingMethod.media %}
+                            {% sw_thumbnails 'confirm-shipping-current-image-thumbnails' with {
+                                media: context.shippingMethod.media,
+                                sizes: {
+                                    'default': '100px'
+                                },
+                                attributes: {
+                                    'class': 'confirm-shipping-method-image',
+                                    'alt': (context.shippingMethod.media.translated.alt ?: context.shippingMethod.translated.name),
+                                    'title': (context.shippingMethod.media.translated.title ?: context.shippingMethod.translated.name)
+                                }
+                            } %}
+                        {% endif %}
+                    {% endblock %}
+
+                    {% block page_checkout_confirm_shipping_current_text %}
+                        <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans|sw_sanitize }}</strong>
+                        {{ context.shippingMethod.translated.name }}
+                    {% endblock %}
+
+                    {% block page_checkout_confirm_shipping_invalid_tooltip %}
+                        {% if shippingMethodInvalid %}
+                            <a data-toggle="tooltip"
+                               data-placement="right"
+                               class="confirm-method-tooltip"
+                               title="{{ "checkout.confirmShippingMethodNotAvailable"|trans|striptags }}">
+                                {% sw_icon 'help' style {
+                                    'color': 'danger',
+                                    'size': 'xs'
+                                } %}
+                            </a>
+                        {% endif %}
+                    {% endblock %}
+                </p>
+            {% endblock %}
+
+            {% block page_checkout_confirm_shipping_modal_toggle %}
+                <button type="button"
+                        class="btn btn-light"
+                        data-toggle="modal"
+                        data-backdrop="static"
+                        data-target="#confirmShippingModal">
+                    {{ "checkout.confirmChangeShipping"|trans|sw_sanitize }}
+                </button>
+            {% endblock %}
+
+            {% block page_checkout_confirm_shipping_modal %}
+                <div class="modal fade confirm-shipping-modal"
+                     id="confirmShippingModal"
+                     tabindex="-1"
+                     role="dialog">
+                    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered"
+                         role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <div class="modal-title h5">
+                                    {{ "checkout.confirmChangeShipping"|trans|sw_sanitize }}
+                                </div>
+                                <button type="button"
+                                        class="modal-close close"
+                                        data-dismiss="modal"
+                                        aria-label="Close">
+                                    <span aria-hidden="true">
+                                        {% sw_icon 'x' style { 'size': 'sm' } %}
+                                    </span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                {% block page_checkout_confirm_shipping_form %}
+                                    <form id="confirmShippingForm"
+                                          name="confirmShippingForm"
+                                          action="{{ path('frontend.checkout.configure') }}"
+                                          data-form-csrf-handler="true"
+                                          method="post">
+
+                                        {% block page_checkout_confirm_shipping_form_csrf %}
+                                            {{ sw_csrf('frontend.checkout.configure') }}
+                                        {% endblock %}
+
+                                        {% block page_checkout_confirm_shipping_form_redirect %}
+                                            <input type="hidden" name="redirectTo" value="frontend.checkout.confirm.page">
+                                        {% endblock %}
+
+                                        {% block page_checkout_confirm_shipping_form_fields %}
+                                            <div class="confirm-shipping-fields">
+                                                {% for shipping in page.shippingMethods %}
+                                                    <div class="confirm-shipping-method">
+                                                        {% block page_checkout_confirm_shipping_form_field %}
+                                                            <div class="form-group checkout-config-form-group">
+                                                                {% block page_checkout_confirm_shipping_form_control %}
+                                                                    <div class="custom-control custom-radio confirm-shipping-method-radio">
+                                                                        {% block page_checkout_confirm_shipping_form_input %}
+                                                                            <input type="radio"
+                                                                                   id="shippingMethod{{ loop.index }}"
+                                                                                   name="shippingMethodId"
+                                                                                   value="{{ shipping.id }}"
+                                                                                   {% if shipping.id is same as(context.shippingMethod.id) %}checked="checked"{% endif %}
+                                                                                   class="custom-control-input shipping-method-input">
+                                                                        {% endblock %}
+
+                                                                        {% block page_checkout_confirm_shipping_form_label %}
+                                                                            <label class="custom-control-label shipping-method-label"
+                                                                                   for="shippingMethod{{ loop.index }}">
+
+                                                                                {% block page_checkout_confirm_shipping_form_image %}
+                                                                                    {% if shipping.media %}
+                                                                                        {% sw_thumbnails 'confirm-shipping-image-thumbnails' with {
+                                                                                            media: shipping.media,
+                                                                                            sizes: {
+                                                                                                'default': '100px'
+                                                                                            },
+                                                                                            attributes: {
+                                                                                                'class': 'confirm-shipping-method-image',
+                                                                                                'alt': (shipping.media.translated.alt ?: shipping.translated.name),
+                                                                                                'title': (shipping.media.translated.title ?: shipping.translated.name)
+                                                                                            }
+                                                                                        } %}
+                                                                                    {% endif %}
+                                                                                {% endblock %}
+
+                                                                                {% block page_checkout_confirm_shipping_form_description %}
+                                                                                    <div class="shipping-method-description">
+                                                                                        <strong>{{ shipping.translated.name }}</strong>
+                                                                                        {% if shipping.translated.description %}
+                                                                                            <p>{{ shipping.translated.description|raw }}</p>
+                                                                                        {% endif %}
+                                                                                    </div>
+                                                                                {% endblock %}
+                                                                            </label>
+                                                                        {% endblock %}
+                                                                    </div>
+                                                                {% endblock %}
+                                                            </div>
+                                                        {% endblock %}
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        {% endblock %}
+
+                                        {% block page_checkout_confirm_shipping_form_submit %}
+                                            <button class="btn btn-primary" type="submit">
+                                                {{ "checkout.confirmChangePaymentShippingSave"|trans|sw_sanitize }}
+                                            </button>
+                                        {% endblock %}
+
+                                        {% block page_checkout_confirm_shipping_cancel %}
+                                            <button class="btn btn-light"
+                                                    type="button"
+                                                    data-dismiss="modal"
+                                                    aria-label="Close">
+                                                {{ "checkout.confirmChangePaymentShippingCancel"|trans|sw_sanitize }}
+                                            </button>
+                                        {% endblock %}
+                                    </form>
+                                {% endblock %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}

@@ -42,6 +42,7 @@
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -49,6 +50,7 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
             <argument type="tagged" tag="shopware.composite_search.definition"/>
         </service>
 
@@ -68,8 +70,9 @@
         </service>
 
         <service id="Shopware\Core\Framework\Api\Command\DumpSchemaCommand">
-            <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
+
+            <tag name="console.command"/>
         </service>
 
         <!-- Serializer -->
@@ -94,10 +97,13 @@
             <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder" />
+        <service id="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder">
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
+        </service>
 
         <service id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder">
             <argument type="service" id="serializer"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Response\Type\Api\JsonType">
@@ -108,6 +114,22 @@
             <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>
         </service>
 
+        <!-- Converter -->
+        <service id="Shopware\Core\Framework\Api\Converter\ConverterRegistry">
+            <argument type="tagged" tag="shopware.api.converter"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter">
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ConverterRegistry"/>
+        </service>
+
+        <!-- Api version -->
+        <service id="Shopware\Core\Framework\Api\ApiVersion\ApiVersionSubscriber">
+            <argument>%kernel.supported_api_versions%</argument>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <!-- API Docs -->
         <service id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
@@ -116,7 +138,24 @@
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder">
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuilder">
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder">
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader">
+            <argument>%kernel.project_dir%</argument>
+        </service>
+
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator">
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator">

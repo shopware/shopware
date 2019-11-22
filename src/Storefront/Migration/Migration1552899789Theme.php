@@ -92,6 +92,5 @@ class Migration1552899789Theme extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

@@ -29,6 +29,5 @@ class Migration1536233250MessageQueueStats extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

@@ -214,7 +214,6 @@ class EntityRepository implements EntityRepositoryInterface
 
     private function read(Criteria $criteria, Context $context): EntityCollection
     {
-        /** @var EntityCollection $entities */
         $entities = $this->reader->read($this->definition, $criteria, $context);
 
         $event = new EntityLoadedEvent($this->definition, $entities->getElements(), $context);

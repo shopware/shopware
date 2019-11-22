@@ -1,0 +1,59 @@
+{% set filterItemId = 'filter-' ~ name ~ '-' ~ random() %}
+
+{% if pluginSelector is not defined %}
+    {% set pluginSelector = 'filter-multi-select' %}
+{% endif %}
+
+{% block component_filter_multi_select %}
+    <div class="filter-multi-select filter-multi-select-{{ name }} filter-panel-item{% if not sidebar %} dropdown{% endif %}"
+         data-{{ pluginSelector }}="true"
+         data-{{ pluginSelector }}-options='{ "name": "{{ name }}" }'>
+
+        {% block component_filter_multi_select_toggle %}
+            <button class="filter-panel-item-toggle btn{% if sidebar %} btn-block{% endif %}"
+                    aria-expanded="false"
+                    {% if sidebar %}
+                    data-toggle="collapse"
+                    data-target="#{{ filterItemId }}"
+                    {% else %}
+                    data-toggle="dropdown"
+                    data-offset="0,8"
+                    aria-haspopup="true"
+                    {% endif %}>
+
+                {% block component_filter_multi_select_display_name %}
+                    {{ displayName }}
+                {% endblock %}
+
+                {% block component_filter_multi_select_count %}
+                    <span class="filter-multi-select-count"></span>
+                {% endblock %}
+
+                {% block component_filter_multi_select_toggle_icon %}
+                    {% sw_icon 'arrow-medium-down' style {
+                        'pack': 'solid', 'size': 'xs', 'class': 'filter-panel-item-toggle'
+                    } %}
+                {% endblock %}
+            </button>
+        {% endblock %}
+
+        {% block component_filter_multi_select_dropdown %}
+            <div class="filter-multi-select-dropdown filter-panel-item-dropdown{% if sidebar %} collapse{% else %} dropdown-menu{% endif %}"
+                 id="{{ filterItemId }}">
+                {% block component_filter_multi_select_list %}
+                    <ul class="filter-multi-select-list">
+                        {% for element in elements %}
+                            {% block component_filter_multi_select_list_item %}
+                                <li class="filter-multi-select-list-item">
+                                    {% block component_filter_multi_select_list_item_inner %}
+                                        {% sw_include '@Storefront/storefront/component/listing/filter/filter-multi-select-list-item.html.twig' %}
+                                    {% endblock %}
+                                </li>
+                            {% endblock %}
+                        {% endfor %}
+                    </ul>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

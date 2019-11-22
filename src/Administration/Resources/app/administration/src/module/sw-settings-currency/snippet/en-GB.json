@@ -1,0 +1,48 @@
+{
+  "sw-settings-currency": {
+    "general": {
+      "mainMenuItemGeneral": "Currencies",
+      "placeholderSearchBar": "Search all currencies..."
+    },
+    "list": {
+      "textHeadline": "Currencies",
+      "textDeleteConfirm": "Are you sure you want to delete the currency \"{name}\"?",
+      "columnName": "Name",
+      "columnIsoCode": "ISO code",
+      "columnShortName": "Short name",
+      "columnSymbol": "Symbol",
+      "columnFactor": "Factor",
+      "columnDecimalPrecision": "Decimal place",
+      "buttonAddCurrency": "Add currency",
+      "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Delete",
+      "modalTitleDelete": "Delete currency",
+      "titleDeleteSuccess": "Currency",
+      "messageDeleteSuccess": "Currency \"{name}\" has been deleted.",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete"
+    },
+    "detail": {
+      "textHeadline": "New currency",
+      "labelPrecision": "Decimals",
+      "placeholderPrecision": "Enter number of decimals to be displayed...",
+      "titleCard": "Settings",
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "Currency \"{name}\" has been saved.",
+      "labelName": "Name",
+      "labelIsoCode": "ISO code",
+      "labelShortName": "Short name",
+      "labelSymbol": "Symbol",
+      "labelFactor": "Conversion factor",
+      "placeholderName": "Enter name...",
+      "placeholderIsoCode": "Enter ISO code...",
+      "placeholderShortName": "Enter short name...",
+      "placeholderSymbol": "Enter currency symbol...",
+      "placeholderFactor": "Enter conversion factor...",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save",
+      "notificationErrorTitle": "Error",
+      "notificationErrorMessage": "An error occured while saving your currency."
+    }
+  }
+}

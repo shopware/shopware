@@ -38,7 +38,7 @@ class NavigationController extends StorefrontController
     {
         $page = $this->navigationPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/content/index.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => $page]);
     }
 }
 ```
@@ -133,7 +133,7 @@ class NavigationController extends StorefrontController
     {
         $page = $this->navigationPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/content/index.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => $page]);
     }
 }
 ```

@@ -31,8 +31,14 @@ class MessageFactory
      * @param array $recipients e.g. ['shopware@example.com' => 'Shopware AG', 'symfony@example.com' => 'Symfony']
      * @param array $contents   e.g. ['text/plain' => 'Foo', 'text/html' => '<h1>Bar</h1>']
      */
-    public function createMessage(string $subject, array $sender, array $recipients, array $contents, array $attachments): \Swift_Message
-    {
+    public function createMessage(
+        string $subject,
+        array $sender,
+        array $recipients,
+        array $contents,
+        array $attachments,
+        ?array $binAttachments = null
+    ): \Swift_Message {
         $this->assertValidAddresses(array_keys($recipients));
 
         $message = (new \Swift_Message($subject))
@@ -50,6 +56,17 @@ class MessageFactory
                 $this->filesystem->getMimetype($url)
             );
             $message->attach($attachment);
+        }
+
+        if (isset($binAttachments)) {
+            foreach ($binAttachments as $binAttachment) {
+                $attachment = new \Swift_Attachment(
+                    $binAttachment['content'],
+                    $binAttachment['fileName'],
+                    $binAttachment['mimeType']
+                );
+                $message->attach($attachment);
+            }
         }
 
         return $message;

@@ -49,10 +49,9 @@ class PromotionHandlingTest extends TestCase
         $productId = Uuid::randomHex();
         $code = 'BF19';
 
-        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer());
+        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $this->context);
         $this->createTestFixturePercentagePromotion(Uuid::randomHex(), $code, 100, null, $this->getContainer());
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         // add our promotion to our cart
@@ -73,10 +72,9 @@ class PromotionHandlingTest extends TestCase
         $productId = Uuid::randomHex();
         $code = 'BF19';
 
-        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer());
+        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $this->context);
         $this->createTestFixturePercentagePromotion(Uuid::randomHex(), $code, 100, null, $this->getContainer());
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);

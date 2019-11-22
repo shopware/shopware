@@ -1,0 +1,108 @@
+{% block sw_import_export_profile_detail %}
+    <sw-page class="sw-import-export-profile-detail">
+
+        {% block sw_import_export_profile_detail_header %}
+            <template #smart-bar-header>
+                <h2 v-if="importExportProfile">{{ $tc('sw-import-export-profile.detail.textHeadlineEdit') }}</h2>
+                <h2 v-else class="sw-import-export-profile-detail__empty-title">{{ $tc('sw-import-export-profile.detail.textHeadline') }}</h2>
+            </template>
+        {% endblock %}
+
+        {% block sw_import_export_profile_detail_actions %}
+            <template #smart-bar-actions>
+                {% block sw_import_export_profile_detail_actions_save %}
+                    <sw-button-process
+                            class="sw-import-export-profile-detail__save-action"
+                            :isLoading="isLoading"
+                            :processSuccess="isSaveSuccessful"
+                            :disabled="isLoading"
+                            variant="primary"
+                            @process-finish="saveFinish"
+                            @click="onSave">
+                        {{ $tc('sw-cms.detail.label.buttonSave') }}
+                    </sw-button-process>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_import_export_profile_detail_content %}
+            <template #content>
+                <sw-card-view sidebar>
+                    {% block sw_import_export_profile_detail_content_language_info %}
+                        <sw-language-info
+                                :entityDescription="placeholder(importExportProfile, 'name', $tc('sw-import-export-profile.detail.textHeadline'))">
+                        </sw-language-info>
+                    {% endblock %}
+
+                    {% block sw_import_export_profile_detail_basic_info %}
+                        <sw-card :title="$tc('sw-import-export-profile.detail.basic.titleCard')">
+                            {% block sw_import_export_profile_basic_form_name_field %}
+                                <sw-field type="text"
+                                          :label="$tc('sw-import-export-profile.detail.basic.labelName')"
+                                          :placeholder="$tc('sw-import-export-profile.detail.basic.placeholderName')"
+                                          v-model="importExportProfile.name">
+                                </sw-field>
+                            {% endblock %}
+
+                            {% block sw_import_export_profile_basic_form_source_entity_field %}
+                                <sw-select-field
+                                        v-model="importExportProfile.sourceEntity"
+                                        :label="$tc('sw-import-export-profile.detail.basic.labelSourceEntity')"
+                                        validation="required">
+                                    <option v-for="entity in features.entities" :key="entity" :value="entity">
+                                        {{ translateEntity(entity) }}
+                                    </option>
+                                </sw-select-field>
+                            {% endblock %}
+
+                            {% block sw_import_export_profile_basic_form_file_type_field %}
+                                <sw-select-field
+                                        v-model="importExportProfile.fileType"
+                                        :label="$tc('sw-import-export-profile.detail.basic.labelFileType')"
+                                        validation="required">
+                                    <option v-for="mimeType in features.fileTypes" :key="mimeType" :value="mimeType">
+                                        {{ formatFileType(mimeType) }}
+                                    </option>
+                                </sw-select-field>
+                            {% endblock %}
+
+                            {% block sw_import_export_profile_basic_form_delimiter_field %}
+                                <sw-field type="text"
+                                          v-if="importExportProfile.fileType === 'text/csv'"
+                                          :label="$tc('sw-import-export-profile.detail.basic.labelDelimiter')"
+                                          :placeholder="$tc('sw-import-export-profile.detail.basic.placeholderDelimiter')"
+                                          v-model="importExportProfile.delimiter">
+                                </sw-field>
+                            {% endblock %}
+
+                            {% block sw_import_export_profile_basic_form_enclosure_field %}
+                                <sw-field type="text"
+                                          v-if="importExportProfile.fileType === 'text/csv'"
+                                          :label="$tc('sw-import-export-profile.detail.basic.labelEnclosure')"
+                                          :placeholder="$tc('sw-import-export-profile.detail.basic.placeholderEnclosure')"
+                                          v-model="importExportProfile.enclosure">
+                                </sw-field>
+                            {% endblock %}
+
+                            {% block sw_import_export_profile_csv_mapping_button %}
+                                <sw-button @click="selectedItem=importExportProfile"
+                                           v-if="importExportProfile.fileType === 'text/csv'">
+                                    {{ $tc('sw-import-export-profile.detail.basic.fieldMappingButton') }}
+                                </sw-button>
+                            {% endblock %}
+                        </sw-card>
+                    {% endblock %}
+
+                    {% block sw_import_export_proofile_csv_mapping_modal %}
+                        <sw-import-export-profile-csv-mapping-modal v-if="selectedItem"
+                                                                    @closeMappingModal="selectedItem=null"
+                                                                    @saveMapping="onSave"
+                                                                    :importExportProfile="selectedItem">
+                        </sw-import-export-profile-csv-mapping-modal>
+                    {% endblock %}
+                </sw-card-view>
+            </template>
+
+        {% endblock %}
+    </sw-page>
+{% endblock %}

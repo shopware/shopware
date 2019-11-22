@@ -37,7 +37,7 @@ class SeoUrlTemplateLoader
         $this->routeRegistry = $routeRegistory;
     }
 
-    public function getTemplateGroups(string $routeName, array $salesChannelEntities): array
+    public function getTemplateGroups(string $routeName, array $salesChannelEntities = []): array
     {
         $groups = FetchModeHelper::group(
             $this->connection->executeQuery(
@@ -84,7 +84,7 @@ class SeoUrlTemplateLoader
 
                     return in_array($value->getId(), $salesChannelIds, true);
                 });
-                $templateGroups[] = new TemplateGroup($languageId, $template, $tmpSalesChannelEntities);
+                $templateGroups[] = new TemplateGroup($languageId, $template, $salesChannelIds, $tmpSalesChannelEntities);
             }
 
             $data[$languageId] = $templateGroups;
@@ -93,7 +93,7 @@ class SeoUrlTemplateLoader
         // there needs to be at least one template
         if (!isset($data[Defaults::LANGUAGE_SYSTEM])) {
             $data[Defaults::LANGUAGE_SYSTEM] = [
-                new TemplateGroup(Defaults::LANGUAGE_SYSTEM, $defaultTemplate, [null]),
+                new TemplateGroup(Defaults::LANGUAGE_SYSTEM, $defaultTemplate, [null], [null]),
             ];
         }
 

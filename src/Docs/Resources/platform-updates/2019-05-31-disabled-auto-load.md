@@ -33,6 +33,6 @@ criteria.addAssociationPath('products.prices.rule');
 
 repo = this.repositoryFactory.create('category');
 
-repo.search(criteria, this.context);
+repo.search(criteria, Shopware.Context.api);
 
 ```

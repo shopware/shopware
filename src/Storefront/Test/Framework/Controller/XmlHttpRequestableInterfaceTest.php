@@ -12,7 +12,7 @@ class XmlHttpRequestableInterfaceTest extends TestCase
     public function testPageLoads(): void
     {
         $client = $this->createSalesChannelBrowser(null, true);
-        $client->request('GET', getenv('APP_URL'));
+        $client->request('GET', 'http://localhost/');
 
         static::assertEquals(200, $client->getResponse()->getStatusCode());
     }
@@ -21,7 +21,7 @@ class XmlHttpRequestableInterfaceTest extends TestCase
     {
         $client = $this->createSalesChannelBrowser(null, true);
 
-        $client->xmlHttpRequest('GET', getenv('APP_URL'));
+        $client->xmlHttpRequest('GET', 'http://localhost/');
 
         static::assertEquals(403, $client->getResponse()->getStatusCode());
     }
@@ -30,7 +30,7 @@ class XmlHttpRequestableInterfaceTest extends TestCase
     {
         $client = $this->createSalesChannelBrowser(null, true);
 
-        $client->request('GET', getenv('APP_URL') . '/widgets/checkout/info');
+        $client->request('GET', 'http://localhost/widgets/checkout/info');
 
         static::assertEquals(200, $client->getResponse()->getStatusCode());
     }
@@ -39,7 +39,7 @@ class XmlHttpRequestableInterfaceTest extends TestCase
     {
         $client = $this->createSalesChannelBrowser(null, true);
 
-        $client->xmlHttpRequest('GET', getenv('APP_URL') . '/widgets/checkout/info');
+        $client->xmlHttpRequest('GET', 'http://localhost/widgets/checkout/info');
 
         static::assertEquals(200, $client->getResponse()->getStatusCode());
     }

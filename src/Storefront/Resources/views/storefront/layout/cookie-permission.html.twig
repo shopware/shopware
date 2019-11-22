@@ -1,0 +1,25 @@
+{% block layout_cookie_permission_inner %}
+    <div class="cookie-permission-container"
+         data-cookie-permission="true">
+        <div class="container">
+            <div class="row align-items-center">
+                {% block layout_cookie_permission_inner_content %}
+                    <div class="col cookie-permission-content">
+                        {{ "cookie.message"|trans({
+                            '%url%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.privacyPage })|sw_sanitize
+                        })|raw }}
+                    </div>
+                {% endblock %}
+
+                {% block layout_cookie_permission_inner_button %}
+                    <div class="col-12 col-md-auto cookie-permission-button js-cookie-permission-button">
+                        <button type="submit"
+                                class="btn btn-primary">
+                            {{ "cookie.accept"|trans|sw_sanitize }}
+                        </button>
+                    </div>
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

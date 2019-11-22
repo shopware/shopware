@@ -38,7 +38,12 @@ class JsonType extends JsonFactoryBase
             $headers['Location'] = $this->getEntityBaseUrl($request, $definition) . '/' . $entity->getUniqueIdentifier();
         }
 
-        $decoded = $this->encoder->encode($definition, $entity, $this->getApiBaseUrl($request));
+        $decoded = $this->encoder->encode(
+            $definition,
+            $entity,
+            $this->getApiBaseUrl($request),
+            $request->attributes->getInt('version')
+        );
 
         $response = [
             'data' => $decoded,
@@ -49,7 +54,12 @@ class JsonType extends JsonFactoryBase
 
     public function createListingResponse(EntitySearchResult $searchResult, EntityDefinition $definition, Request $request, Context $context): Response
     {
-        $decoded = $this->encoder->encode($definition, $searchResult->getEntities(), $this->getApiBaseUrl($request));
+        $decoded = $this->encoder->encode(
+            $definition,
+            $searchResult->getEntities(),
+            $this->getApiBaseUrl($request),
+            $request->attributes->getInt('version')
+        );
 
         $response = [
             'total' => $searchResult->getTotal(),

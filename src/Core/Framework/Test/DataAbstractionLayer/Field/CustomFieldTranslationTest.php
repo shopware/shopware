@@ -262,7 +262,6 @@ class CustomFieldTranslationTest extends TestCase
         static::assertArrayNotHasKey('child', $first->getTranslated()['customTranslated']);
         static::assertSame(1, $first->getTranslated()['customTranslated']['int']);
 
-        /** @var array $translated */
         $translated = $first->getTranslated();
         static::assertSame(1.0, $translated['customTranslated']['systemFloat']);
         static::assertArrayNotHasKey('root', $translated['customTranslated']);
@@ -304,7 +303,6 @@ class CustomFieldTranslationTest extends TestCase
         static::assertArrayNotHasKey('child', $first->getTranslated()['customTranslated']);
         static::assertSame(2, $first->getTranslated()['customTranslated']['int']);
 
-        /** @var array $translated */
         $translated = $first->getTranslated();
         static::assertSame(1.0, $translated['customTranslated']['systemFloat']);
         static::assertTrue($translated['customTranslated']['root']);
@@ -346,7 +344,6 @@ class CustomFieldTranslationTest extends TestCase
         static::assertSame((new \DateTime($now))->format(\DateTime::ATOM), $first->get('customTranslated')['child']);
         static::assertSame(3, $first->get('customTranslated')['int']);
 
-        /** @var array $translated */
         $translated = $first->getTranslated();
         static::assertSame(1.0, $translated['customTranslated']['systemFloat']);
         static::assertTrue($translated['customTranslated']['root']);

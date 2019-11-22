@@ -1,0 +1,104 @@
+{% sw_extends '@Storefront/storefront/component/address/address-personal.html.twig' %}
+
+{% block component_address_personal_customer_type %}{% endblock %}
+
+{% block component_address_personal_fields_birthday_selects %}
+    {% block page_account_profile_personal_fields_birthday_selects %}
+        <div class="form-row">
+            {% set birthday = data.birthday|date('d') %}
+            {% set birthmonth = data.birthday|date('m') %}
+            {% set birthyear = data.birthday|date('Y') %}
+
+            {% block page_account_profile_personal_fields_birthday_select_day %}
+                <div class="form-group col-4 col-md-2">
+                    <select id="personalBirthday"
+                            name="birthdayDay"
+                            class="custom-select{% if formViolations.getViolations('/birthdayDay') is not empty %} is-invalid{% endif %}"
+                            required="required">
+                        {% if not birthday %}
+                            <option selected="selected"
+                                    value="">
+                                {{ "account.personalBirthdaySelectDay"|trans|sw_sanitize }}
+                            </option>
+                        {% endif %}
+                        {% for day in range(1, 31) %}
+                            <option value="{{ day }}"
+                                {% if day == birthday %} selected="selected"{% endif %}>
+                                {{ day }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    {% block page_account_profile_personal_fields_birthday_select_day_error %}
+                        {% if formViolations.getViolations('/birthdayDay') is not empty %}
+                            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                violationPath: '/birthdayDay'
+                            } %}
+                        {% endif %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block page_account_profile_personal_fields_birthday_select_month %}
+                <div class="form-group col-4 col-md-2">
+                    <select name="birthdayMonth"
+                            class="custom-select{% if formViolations.getViolations('/birthdayMonth') is not empty %} is-invalid{% endif %}"
+                            required="required">
+                        {% if not birthmonth %}
+                            <option selected="selected"
+                                    value="">
+                                {{ "account.personalBirthdaySelectMonth"|trans|sw_sanitize }}
+                            </option>
+                        {% endif %}
+                        {% for month in range(1, 12) %}
+                            <option value="{{ month }}"
+                                {% if month == birthmonth %} selected="selected"{% endif %}>
+                                {{ month }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    {% block page_account_profile_personal_fields_birthday_select_month_error %}
+                        {% if formViolations.getViolations('/birthdayMonth') is not empty %}
+                            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                violationPath: '/birthdayMonth'
+                            } %}
+                        {% endif %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block page_account_profile_personal_fields_birthday_select_year %}
+                <div class="form-group col-4 col-md-2">
+                    {% set currentYear = "now"|date('Y') %}
+                    {% set startYear = currentYear - 120 %}
+
+                    <select name="birthdayYear"
+                            class="custom-select{% if formViolations.getViolations('/birthdayYear') is not empty %} is-invalid{% endif %}"
+                            required="required">
+                        {% if not birthyear %}
+                            <option selected="selected"
+                                    value="">
+                                {{ "account.personalBirthdaySelectYear"|trans|sw_sanitize }}
+                            </option>
+                        {% endif %}
+                        {% for year in range(currentYear, startYear) %}
+                            <option value="{{ year }}"
+                                {% if year == birthyear %} selected="selected"{% endif %}>
+                                {{ year }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    {% block page_account_profile_personal_fields_birthday_select_year_error %}
+                        {% if formViolations.getViolations('/birthdayYear') is not empty %}
+                            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                violationPath: '/birthdayYear'
+                            } %}
+                        {% endif %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

@@ -1,0 +1,113 @@
+{% block sw_product_stream_detail %}
+    <sw-page class="sw-product-stream-detail">
+        {% block sw_product_stream_detail_header %}
+            <template slot="smart-bar-header">
+                <h2 v-if="productStream">{{ productStream.name }}</h2>
+                <h2 v-else class="sw-product-stream-detail__empty-title">{{ placeholder(productStream, 'name', $tc('sw-product-stream.detail.textHeadline')) }}</h2>
+            </template>
+        {% endblock %}
+
+        {% block sw_product_stream_detail_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_product_stream_detail_actions_abort %}
+                    <sw-button :disabled="isLoading" v-tooltip.bottom="tooltipCancel" @click="onCancel">
+                        {{ $tc('sw-product-stream.detail.buttonCancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_product_stream_detail_actions_save %}
+                <sw-button-process
+                        class="sw-product-stream-detail__save-action"
+                        :isLoading="isLoading"
+                        variant="primary"
+                        v-tooltip.bottom="tooltipSave"
+                        v-model="isSaveSuccessful"
+                        @click.prevent="onSave">
+                    {{ $tc('sw-product-stream.detail.buttonSave') }}
+                </sw-button-process>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_product_stream_detail_language_switch %}
+            <template #language-switch>
+                <sw-language-switch
+                    :saveChangesFunction="saveOnLanguageChange"
+                    :abortChangeFunction="abortOnLanguageChange"
+                    :disabled="!productStreamId"
+                    @on-change="onChangeLanguage">
+                </sw-language-switch>
+            </template>
+        {% endblock %}
+
+        {% block sw_product_stream_detail_content %}
+            <template #content>
+                <sw-card-view>
+                    {% block sw_product_stream_detail_content_language_info %}
+                        <sw-language-info
+                                :entityDescription="placeholder(productStream, 'name', $tc('sw-product-stream.detail.textHeadline'))">
+                        </sw-language-info>
+                    {% endblock %}
+
+                    {% block sw_product_stream_detail_basic_info %}
+                        <sw-card :isLoading="isLoading" :large="true" :title="$tc('sw-product-stream.detail.titleCard')">
+                            {% block sw_product_basic_form_name_field %}
+                                <sw-text-field
+                                    v-if="productStream"
+                                    :label="$tc('sw-product-stream.detail.labelName')"
+                                    :validation="nameRequired"
+                                    :required="isSystemLanguage"
+                                    :placeholder="placeholder(productStream, 'name', $tc('sw-product-stream.detail.placeholderName'))"
+                                    v-model="productStream.name"
+                                    :error="productStreamNameError">
+                                </sw-text-field>
+                            {% endblock %}
+
+                            {% block sw_product_basic_form_description_field %}
+                                <sw-textarea-field
+                                    v-if="productStream"
+                                    :label="$tc('sw-product-stream.detail.labelDescription')"
+                                    :placeholder="placeholder(productStream, 'description', $tc('sw-product-stream.detail.placeholderDescription'))"
+                                    v-model="productStream.description">
+                                </sw-textarea-field>
+                            {% endblock %}
+                        </sw-card>
+                    {% endblock %}
+
+                    {% block sw_product_stream_detail_filter %}
+                        <sw-card :large="true" class="sw-product-stream-detail__condition_container" :title="$tc('sw-product-stream.detail.titleFilter')">
+                            {% block sw_product_stream_detail_filter %}
+                                <sw-condition-tree
+                                    v-if="productStream"
+                                    :initialConditions="productStreamFilters"
+                                    :conditionRepository="productStreamFiltersRepository"
+                                    :conditionDataProviderService="productStreamConditionService"
+                                    childAssociationField="queries"
+                                    associationField="productStreamId"
+                                    :associationValue="productStream.id"
+                                    :rootCondition="null"
+                                    @conditions-changed="updateFilterTree">
+                                </sw-condition-tree>
+                            {% endblock %}
+
+                            {% block sw_product_stream_detail_filter_preview_button %}
+                                <sw-button class="sw-product-stream-detail__open_modal_preview" :disabled="isLoading" @click.prevent="openModalPreview">
+                                    {{ $tc('sw-product-stream.detail.buttonOpenPreview') }}
+                                </sw-button>
+                            {% endblock %}
+                        </sw-card>
+                    {% endblock %}
+
+                    {% block sw_prouct_stream_detail_preview_modal %}
+                        <sw-product-stream-modal-preview
+                            v-if="showModalPreview"
+                            :filters="productStreamFiltersTree"
+                            ref="modalPreview"
+                            @modal-close="closeModalPreview">
+                        </sw-product-stream-modal-preview>
+                    {% endblock %}
+                </sw-card-view>
+            </template>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

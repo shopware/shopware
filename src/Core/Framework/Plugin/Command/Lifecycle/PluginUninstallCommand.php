@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Plugin\Command\Lifecycle;
 use Shopware\Core\Framework\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
-use Shopware\Core\Framework\Plugin\PluginEntity;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -13,6 +12,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 class PluginUninstallCommand extends AbstractPluginLifecycleCommand
 {
     private const LIFECYCLE_METHOD = 'uninstall';
+
+    protected static $defaultName = 'plugin:uninstall';
 
     protected function configure(): void
     {
@@ -38,7 +39,6 @@ class PluginUninstallCommand extends AbstractPluginLifecycleCommand
         $keepUserData = (bool) $input->getOption('keep-user-data');
 
         $uninstalledPluginCount = 0;
-        /** @var PluginEntity $plugin */
         foreach ($plugins as $plugin) {
             if ($plugin->getInstalledAt() === null) {
                 $io->note(sprintf('Plugin "%s" is not installed. Skipping.', $plugin->getName()));

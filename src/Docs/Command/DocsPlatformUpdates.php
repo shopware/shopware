@@ -34,6 +34,8 @@ EOD;
 
 EOD;
 
+    protected static $defaultName = 'docs:dump-platform-updates';
+
     /**
      * @var string
      */
@@ -52,7 +54,6 @@ EOD;
     protected function configure(): void
     {
         $this
-            ->setName('docs:dump-platform-updates')
             ->setDescription('Dumps all Shopware 6 updates into a single file for the sync.');
     }
 
@@ -107,7 +108,6 @@ EOD;
                 \DateTimeImmutable::createFromFormat('Y-m', $month)->format('F Y')
             );
 
-            /** @var PlatformUpdatesDocument $document */
             foreach ($documents as $document) {
                 $rendered[] = sprintf(
                     self::TEMPLATE_HEADLINE,

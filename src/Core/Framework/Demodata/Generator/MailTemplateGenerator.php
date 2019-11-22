@@ -57,7 +57,6 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
         DemodataContext $context,
         $count = 500
     ): void {
-        $mediaFolderId = null;
         $context->getConsole()->progressStart($count);
 
         $criteria = new Criteria();
@@ -66,10 +65,8 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
         $mailTypeIds = $this->mailTemplateTypeRepository->search($criteria, $context->getContext())->getIds();
 
         $payload = [];
-        foreach ($mailTypeIds as $mailTypeId => $id) {
-            $mailTemplate = $this->createSimpleMailTemplate($context, $mailTypeId);
-
-            $payload[] = $mailTemplate;
+        foreach ($mailTypeIds as $mailTypeId => $_id) {
+            $payload[] = $this->createSimpleMailTemplate($context, $mailTypeId);
 
             if (\count($payload) >= 10) {
                 $context->getConsole()->progressAdvance(\count($payload));

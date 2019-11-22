@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinition;
 
 class VersionDefinition extends EntityDefinition
@@ -38,7 +37,7 @@ class VersionDefinition extends EntityDefinition
         return VersionEntity::class;
     }
 
-    public function getDefaults(EntityExistence $existence): array
+    public function getDefaults(): array
     {
         return [
             'name' => sprintf('Draft %s', date(Defaults::STORAGE_DATE_TIME_FORMAT)),

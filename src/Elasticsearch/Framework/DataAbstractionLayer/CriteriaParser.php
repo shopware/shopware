@@ -58,26 +58,24 @@ class CriteriaParser
     {
         $root = $definition->getEntityName();
 
-        $accessor = $fieldName;
-        if (mb_strpos($fieldName, $root . '.') !== false) {
-            $accessor = str_replace($root . '.', '', $fieldName);
+        $parts = explode('.', $fieldName);
+        if ($root === $parts[0]) {
+            array_shift($parts);
         }
 
         $field = $this->helper->getField($fieldName, $definition, $root);
 
         if ($field instanceof TranslatedField) {
-            $parts = explode('.', $accessor);
             array_pop($parts);
             $parts[] = 'translated';
             $parts[] = $field->getPropertyName();
-            $accessor = implode('.', $parts);
         }
 
         if ($field instanceof PriceField) {
-            $accessor .= '.gross';
+            $parts[] = 'gross';
         }
 
-        return $accessor;
+        return implode('.', $parts);
     }
 
     public function parseSorting(FieldSorting $sorting, EntityDefinition $definition, Context $context): FieldSort
@@ -293,12 +291,15 @@ class CriteriaParser
 
     private function parseNotFilter(NotFilter $filter, EntityDefinition $definition, string $root, Context $context): BuilderInterface
     {
-        $nested = $this->parseMultiFilter($filter, $definition, $root, $context);
+        $bool = new BoolQuery();
+        foreach ($filter->getQueries() as $nested) {
+            $bool->add(
+                $this->parseFilter($nested, $definition, $root, $context),
+                BoolQuery::MUST_NOT
+            );
+        }
 
-        $not = new BoolQuery();
-        $not->add($nested, BoolQuery::MUST_NOT);
-
-        return $not;
+        return $bool;
     }
 
     private function parseMultiFilter(MultiFilter $filter, EntityDefinition $definition, string $root, Context $context): BuilderInterface

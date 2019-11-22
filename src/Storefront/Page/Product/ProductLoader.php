@@ -105,7 +105,6 @@ class ProductLoader
             }
         );
 
-        /** @var PropertyGroupEntity $group */
         foreach ($sorted as $group) {
             $group->getOptions()->sort(
                 static function (PropertyGroupOptionEntity $a, PropertyGroupOptionEntity $b) use ($group) {

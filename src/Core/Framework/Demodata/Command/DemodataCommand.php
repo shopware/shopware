@@ -26,6 +26,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class DemodataCommand extends Command
 {
+    protected static $defaultName = 'framework:demodata';
+
     /**
      * @var DemodataService
      */
@@ -45,7 +47,6 @@ class DemodataCommand extends Command
 
     protected function configure(): void
     {
-        $this->setName('framework:demodata');
         $this->addOption('products', 'p', InputOption::VALUE_REQUIRED, 'Product count', 60);
         $this->addOption('categories', 'c', InputOption::VALUE_REQUIRED, 'Category count', 7);
         $this->addOption('orders', 'o', InputOption::VALUE_REQUIRED, 'Order count', 60);

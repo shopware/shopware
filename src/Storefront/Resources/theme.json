@@ -5,23 +5,23 @@
     "en-GB": "Default theme of Shopware 6",
     "de-DE": "Standard Theme von Shopware 6"
   },
-  "previewMedia": "dist/assets/defaultThemePreview.jpg",
+  "previewMedia": "app/storefront/dist/assets/defaultThemePreview.jpg",
   "style": [
     {
-      "src/style/base.scss": {
-        "resolve": {"vendor": "vendor"}}
+      "app/storefront/src/scss/base.scss": {
+        "resolve": {"vendor": "app/storefront/vendor"}}
     },
     "@Plugins"
   ],
   "script": [
-    "dist/js/vendor-node.js",
-    "dist/js/vendor-shared.js",
-    "dist/js/runtime.js",
-    "dist/storefront/js/storefront.js",
+    "app/storefront/dist/js/vendor-node.js",
+    "app/storefront/dist/js/vendor-shared.js",
+    "app/storefront/dist/js/runtime.js",
+    "app/storefront/dist/storefront/js/storefront.js",
     "@Plugins"
   ],
   "asset": [
-    "dist/assets"
+    "app/storefront/dist/assets"
   ],
   "config": {
     "blocks": {
@@ -238,7 +238,7 @@
           "de-DE": "Wird über einem Viewport von 991px angezeigt"
         },
         "type": "media",
-        "value": "dist/assets/logo/demostore-logo.png",
+        "value": "app/storefront/dist/assets/logo/demostore-logo.png",
         "editable": true,
         "block": "media",
         "order": 100
@@ -253,7 +253,7 @@
           "de-DE": "Wird zwischen einem viewport von 767px bis 991px angezeigt"
         },
         "type": "media",
-        "value": "dist/assets/logo/demostore-logo.png",
+        "value": "app/storefront/dist/assets/logo/demostore-logo.png",
         "editable": true,
         "block": "media",
         "order": 200
@@ -268,7 +268,7 @@
           "de-DE": "Wird bis zu einem Viewport von 767px angezeigt"
         },
         "type": "media",
-        "value": "dist/assets/logo/demostore-logo.png",
+        "value": "app/storefront/dist/assets/logo/demostore-logo.png",
         "editable": true,
         "block": "media",
         "order": 300
@@ -290,7 +290,7 @@
           "de-DE": "Favicon"
         },
         "type": "media",
-        "value": "dist/assets/logo/favicon.png",
+        "value": "app/storefront/dist/assets/logo/favicon.png",
         "editable": true,
         "block": "media",
         "order": 500

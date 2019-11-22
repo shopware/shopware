@@ -119,8 +119,7 @@ class SnippetService
         $languageFiles = $this->snippetFileCollection->getSnippetFilesByIso($locale);
         $fileSnippets = $catalog->all('messages');
 
-        /** @var SnippetFileInterface $snippetFile */
-        foreach ($languageFiles as $key => $snippetFile) {
+        foreach ($languageFiles as $snippetFile) {
             $flattenSnippetFileSnippets = $this->flatten(
                 json_decode(file_get_contents($snippetFile->getPath()), true) ?: []
             );
@@ -150,7 +149,7 @@ class SnippetService
 
         $result = [];
         foreach ($snippetFiles as $files) {
-            foreach ($this->getSnippetsFromFiles($files, '') as $namespace => $value) {
+            foreach ($this->getSnippetsFromFiles($files, '') as $namespace => $_value) {
                 $region = explode('.', $namespace)[0];
                 if (in_array($region, $result, true)) {
                     continue;
@@ -248,11 +247,13 @@ class SnippetService
         return $result;
     }
 
+    /**
+     * @param SnippetFileInterface[] $languageFiles
+     */
     private function getSnippetsFromFiles(array $languageFiles, string $setId): array
     {
         $result = [];
-        /** @var SnippetFileInterface $snippetFile */
-        foreach ($languageFiles as $key => $snippetFile) {
+        foreach ($languageFiles as $snippetFile) {
             $flattenSnippetFileSnippets = $this->flatten(
                 json_decode(file_get_contents($snippetFile->getPath()), true) ?: [],
                 '',
@@ -294,18 +295,18 @@ class SnippetService
             throw new \InvalidArgumentException(sprintf('No snippetSet with id "%s" found', $snippetSetId));
         }
 
-        return $locale;
+        return (string) $locale;
     }
 
     private function fillBlankSnippets(array $fileSnippets, array $isoList): array
     {
-        foreach ($isoList as $setId => $iso) {
-            foreach ($isoList as $currentSetId => $currentIso) {
+        foreach ($isoList as $setId => $_iso) {
+            foreach ($isoList as $currentSetId => $_currentIso) {
                 if ($setId === $currentSetId) {
                     continue;
                 }
 
-                foreach ($fileSnippets[$setId]['snippets'] as $index => $snippet) {
+                foreach ($fileSnippets[$setId]['snippets'] as $index => $_snippet) {
                     if (!isset($fileSnippets[$currentSetId]['snippets'][$index])) {
                         $fileSnippets[$currentSetId]['snippets'][$index] = [
                             'value' => '',
@@ -428,7 +429,7 @@ class SnippetService
 
         $result = [$sort['sortBy'] => $mainSet];
         foreach ($snippets as $setId => $set) {
-            foreach ($mainSet['snippets'] as $currentKey => $value) {
+            foreach ($mainSet['snippets'] as $currentKey => $_value) {
                 $result[$setId]['snippets'][$currentKey] = $set['snippets'][$currentKey];
             }
         }

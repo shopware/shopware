@@ -72,6 +72,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
             ],
         ], $this->context);
 
+        /** @var MediaEntity $media */
         $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
 
         $this->getPublicFilesystem()->putStream(
@@ -88,17 +89,17 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $criteria = new Criteria([$media->getId()]);
         $criteria->addAssociation('thumbnails');
 
+        /** @var MediaEntity $media */
         $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
         static::assertEquals(2, $media->getThumbnails()->count());
 
-        /** @var MediaEntity $media */
         foreach ($media->getThumbnails() as $thumbnail) {
             static::assertTrue(
                 ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)
                 || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150)
             );
 
-            $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail->getWidth(), $thumbnail->getHeight());
+            $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
             static::assertTrue(
                 $this->getPublicFilesystem()->has($path),
                 'Thumbnail: ' . $path . ' does not exist'
@@ -119,6 +120,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
             ],
         ], $this->context);
 
+        /** @var MediaEntity $media */
         $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
 
         $this->getPublicFilesystem()->putStream(
@@ -136,17 +138,17 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $criteria->addAssociation('thumbnails');
         $criteria->addAssociation('mediaFolder.configuration.thumbnailSizes');
 
+        /** @var MediaEntity $media */
         $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
         static::assertEquals(2, $media->getThumbnails()->count());
 
-        /** @var MediaEntity $media */
         foreach ($media->getThumbnails() as $thumbnail) {
             static::assertTrue(
                 ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)
                 || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150)
             );
 
-            $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail->getWidth(), $thumbnail->getHeight());
+            $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
             static::assertTrue(
                 $this->getPublicFilesystem()->has($path),
                 'Thumbnail: ' . $path . ' does not exist'

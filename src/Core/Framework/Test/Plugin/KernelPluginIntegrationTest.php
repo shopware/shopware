@@ -66,7 +66,6 @@ class KernelPluginIntegrationTest extends TestCase
         $plugins = $this->kernel->getPluginLoader()->getPluginInstances();
         static::assertNotEmpty($plugins->all());
 
-        /** @var Plugin|null $testPlugin */
         $testPlugin = $plugins->get('SwagTest\\SwagTest');
         static::assertNotNull($testPlugin);
 
@@ -202,7 +201,7 @@ class KernelPluginIntegrationTest extends TestCase
         ];
 
         $actualParameters = [];
-        foreach ($expectedParameters as $key => $_) {
+        foreach ($expectedParameters as $key => $_value) {
             $actualParameters[$key] = $this->kernel->getContainer()->getParameter($key);
         }
 
@@ -221,7 +220,7 @@ class KernelPluginIntegrationTest extends TestCase
         ];
 
         $newActualParameters = [];
-        foreach ($expectedParameters as $key => $_) {
+        foreach ($expectedParameters as $key => $_value) {
             $newActualParameters[$key] = $this->kernel->getContainer()->getParameter($key);
         }
 

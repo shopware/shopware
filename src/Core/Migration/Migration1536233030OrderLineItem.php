@@ -57,6 +57,5 @@ class Migration1536233030OrderLineItem extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

@@ -213,7 +213,6 @@ class SystemConfigService
     {
         $configValues = [];
 
-        /** @var SystemConfigEntity $systemConfig */
         foreach ($systemConfigs as $systemConfig) {
             $keys = explode('.', $systemConfig->getConfigurationKey());
 

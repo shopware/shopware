@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 
 class PropertyGroupOptionTranslationDefinition extends EntityTranslationDefinition
 {
@@ -30,12 +29,11 @@ class PropertyGroupOptionTranslationDefinition extends EntityTranslationDefiniti
         return PropertyGroupOptionTranslationEntity::class;
     }
 
-    public function getDefaults(EntityExistence $existence): array
+    public function getDefaults(): array
     {
-        $defaults = parent::getDefaults($existence);
-        $defaults['position'] = 1;
-
-        return $defaults;
+        return [
+            'position' => 1,
+        ];
     }
 
     protected function getParentDefinitionClass(): string

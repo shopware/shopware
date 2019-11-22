@@ -27,7 +27,12 @@ class InfoControllerTest extends TestCase
         $client = $this->getBrowser();
         $client->request('GET', $url);
 
+        static::assertJson($client->getResponse()->getContent());
+
+        $decodedResponse = json_decode($client->getResponse()->getContent(), true);
+
         static::assertSame(200, $client->getResponse()->getStatusCode());
-        static::assertSame(json_encode($expected), $client->getResponse()->getContent(), print_r($client->getResponse()->getContent(), true));
+        static::assertSame(array_keys($expected), array_keys($decodedResponse));
+        static::assertStringStartsWith(mb_substr(json_encode($expected), 0, -3), $client->getResponse()->getContent());
     }
 }

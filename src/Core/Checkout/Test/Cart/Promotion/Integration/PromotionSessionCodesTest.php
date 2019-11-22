@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
@@ -74,12 +73,11 @@ class PromotionSessionCodesTest extends TestCase
         $promotionCode = 'BF19';
 
         // add a new sample product
-        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer());
+        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $this->context);
 
         // add a new promotion black friday
         $this->createTestFixturePercentagePromotion($promotionId, $promotionCode, 100, null, $this->getContainer());
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         // add product to cart
@@ -109,12 +107,11 @@ class PromotionSessionCodesTest extends TestCase
         $promotionCode = 'BF19';
 
         // add a new sample product
-        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer());
+        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $this->context);
 
         // add a new promotion black friday
         $this->createTestFixturePercentagePromotion($promotionId, $promotionCode, 100, null, $this->getContainer());
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         // add product to cart
@@ -152,15 +149,14 @@ class PromotionSessionCodesTest extends TestCase
         $promotionCode = 'BF19';
 
         // add a new sample product
-        $this->createTestFixtureProduct($productId, 100, 19, $this->getContainer());
+        $this->createTestFixtureProduct($productId, 100, 19, $this->getContainer(), $this->context);
 
         // add a new sample product
-        $this->createTestFixtureProduct($productTwoId, 100, 7, $this->getContainer());
+        $this->createTestFixtureProduct($productTwoId, 100, 7, $this->getContainer(), $this->context);
 
         // add a new promotion black friday
         $this->createTestFixtureFixedDiscountPromotion($promotionId, 30, PromotionDiscountEntity::SCOPE_CART, $promotionCode, $this->getContainer(), $this->context);
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         // add product to cart
@@ -172,7 +168,6 @@ class PromotionSessionCodesTest extends TestCase
         // add promotion to cart
         $cart = $this->addPromotionCode($promotionCode, $cart, $this->cartService, $this->context);
 
-        /** @var LineItemCollection $promotionItems */
         $promotionItems = $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE);
 
         /** @var string $discountId */
@@ -202,13 +197,12 @@ class PromotionSessionCodesTest extends TestCase
         $promotionCode = 'BF19';
 
         // add a new sample product
-        $this->createTestFixtureProduct($productId, 30, 19, $this->getContainer());
+        $this->createTestFixtureProduct($productId, 30, 19, $this->getContainer(), $this->context);
 
         // add a new promotion with a
         // minimum line item quantity discount rule of 2
         $this->createTestFixturePercentagePromotion($promotionId, $promotionCode, 50, null, $this->getContainer());
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         // add product to cart with

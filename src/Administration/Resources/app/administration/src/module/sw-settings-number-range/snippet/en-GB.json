@@ -1,0 +1,59 @@
+{
+  "sw-settings-number-range": {
+    "general": {
+      "mainMenuItemGeneral": "Number ranges",
+      "placeholderSearchBar": "Search number ranges"
+    },
+    "list": {
+      "textHeadline": "Number ranges",
+      "textDeleteConfirm": "Are you sure you want to delete the number range \"{name}\"?",
+      "columnName": "Name",
+      "columnUsedIn": "Type",
+      "columnAssignment": "Assignment",
+      "buttonAddNumberRange": "Add number range",
+      "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Delete",
+      "modalTitleDelete": "Delete number range",
+      "titleDeleteSuccess": "Success",
+      "messageDeleteSuccess": "Number range \"{name}\" has been deleted.",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete",
+      "global": "Global"
+    },
+    "detail": {
+      "textHeadline": "New number range",
+      "configCard": "Settings",
+      "assignmentCard": "Assignment",
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "Number range \"{name}\" has been saved.",
+      "titleSaveError": "Error",
+      "messageSaveError": "Number range \"{name}\" has not been saved.",
+      "labelName": "Name",
+      "labelDescription": "Description",
+      "labelPrefix": "Prefix",
+      "labelSuffix": "Suffix",
+      "labelPattern": "Pattern",
+      "labelStart": "Start number",
+      "labelCurrentNumber": "Current number",
+      "labelPreview": "Preview",
+      "labelAdvanced": "Advanced mode",
+      "labelType": "Type",
+      "labelSalesChannel": "Sales Channel",
+      "placeholderName": "Enter name...",
+      "placeholderDescription": "Enter description...",
+      "placeholderPrefix": "Enter prefix...",
+      "placeholderSuffix": "Enter suffix...",
+      "placeholderPattern": "Enter pattern... \"prefix_{n}_suffix\"",
+      "placeholderStart": "Enter start number",
+      "placeholderPleaseSelect": "Please select...",
+      "placeholderSimpleModeImpossible": "Advanced mode active",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save",
+      "helpTextAdvancedField": "Advanced pattern definition: <br/>&#x007B;prefix&#x007D;_&#x007B;n&#x007D;_&#x007B;suffix&#x007B;<br/>'n' is the defined start number<br/>('_' is an arbitrarily chosen separator)<br/><br/>Use e.g. the PHP parameter 'date': <br/>&#x007B;date&#x007D;:<br/>international date format (YYYY-MM-DD)<br/>&#x007B;date_dmy&#x007D;:<br/>user defined date format (DD-MM-YY)<br/><br/>",
+      "errorSalesChannelNeededTitle": "No sales channel selected!",
+      "errorSalesChannelNeededMessage": "Please select at least one sales channel.",
+      "errorPatternNeededTitle": "No pattern defined!",
+      "errorPatternNeededMessage": "Please define at least a start value."
+    }
+  }
+}

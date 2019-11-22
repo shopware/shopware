@@ -9,7 +9,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -244,14 +243,11 @@ class StorefrontRoutingTest extends TestCase
         /** @var EntityRepositoryInterface $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
-        /** @var EntityWrittenContainerEvent $event */
         $event = $salesChannelRepository->create($salesChannels, Context::createDefaultContext());
 
         $id = $event->getEventByEntityName($salesChannelRepository->getDefinition()->getEntityName())->getIds()[0];
 
-        $factory = $this->getContainer()->get(SalesChannelContextFactory::class);
-
-        $context = $factory->create(Uuid::randomHex(), $id, []);
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), $id);
 
         $ruleLoader = $this->getContainer()->get(CartRuleLoader::class);
         $rulesProperty = ReflectionHelper::getProperty(CartRuleLoader::class, 'rules');

@@ -31,7 +31,7 @@ class ReadProtected extends Flag
 
     public function isBaseUrlAllowed(string $baseUrl): bool
     {
-        foreach ($this->protectedSources as $source => $url) {
+        foreach ($this->protectedSources as $url) {
             if (mb_strpos($baseUrl, $url) !== false) {
                 return false;
             }

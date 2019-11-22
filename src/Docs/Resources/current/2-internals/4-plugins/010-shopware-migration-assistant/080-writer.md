@@ -33,5 +33,5 @@ class ProductWriter extends AbstractWriter
 In case you need more control over the writing, you can implement the `WriterInterface` by yourself and the class will receive the data in the `writeData` method.
 Received data is an array of converted values. The amount depends on the limit of the request.
 Error handling is already done in the overlying `MigrationDataWriter` class.
-If the writing of all entries fails with a `WriteException` from the DAL, it will try to exclude the reported failures and try again.
-If any other exception occures, it will retry them one by one to minimize data loss.
+If writing the entries fails with a `WriteException` from the DAL, it will try to exclude the reported failures and try again.
+If any other exception occurs, it will retry them one by one to minimize data loss.

@@ -1,0 +1,63 @@
+@import "~scss/variables";
+
+.sw-sales-channel-modal-detail {
+    .sw-sales-channel-modal-detail__header {
+        margin-bottom: 30px;
+    }
+
+    .sw-sales-channel-modal-detail__header-icon {
+        background: $color-gray-100;
+        width: 64px;
+        height: 64px;
+        border-radius: 8px;
+
+        .sw-icon {
+            color: $color-gray-900;
+            height: 24px;
+            width: 24px;
+            margin: 20px;
+        }
+    }
+
+    .sw-sales-channel-modal-detail__screenshots {
+        margin-bottom: 30px;
+    }
+
+    .sw-sales-channel-modal-detail__header-name {
+        font-size: 18px;
+        color: $color-darkgray-200;
+        font-weight: 600;
+        margin: 6px 0;
+    }
+
+    .sw-sales-channel-modal-detail__header-manufacturer {
+        font-size: $font-size-small;
+        color: lighten($color-darkgray-200, 25%);
+    }
+
+    .sw-sales-channel-modal-detail__description {
+        margin-bottom: 20px;
+    }
+
+    .sw-sales-channel-modal-detail__description-title {
+        margin-bottom: 20px;
+        font-weight: 600;
+        color: $color-darkgray-200;
+    }
+
+    .sw-sales-channel-modal-detail__description-text {
+        color: $color-darkgray-200;
+    }
+
+    .sw-sales-channel-modal-detail__screenshot {
+        display: inline-block;
+
+        img {
+            width: 200px;
+        }
+
+        &:not(:first-child) {
+            margin-left: 20px;
+        }
+    }
+}

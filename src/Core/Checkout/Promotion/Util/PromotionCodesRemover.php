@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\Promotion
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 
@@ -40,7 +39,6 @@ class PromotionCodesRemover
             )
         );
 
-        /** @var EntitySearchResult $result */
         $result = $this->individualCodeRepository->search($criteria, $context);
 
         if ($result->count() <= 0) {

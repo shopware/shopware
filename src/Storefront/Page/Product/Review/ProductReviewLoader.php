@@ -58,23 +58,23 @@ class ProductReviewLoader
 
         $criteria = $this->createReviewCriteria($request);
 
-        /** @var StorefrontSearchResult $reviews */
         $reviews = $this->getReviews($criteria, $context, $request);
 
         $this->eventDispatcher->dispatch(new ProductReviewsLoadedEvent($reviews, $context, $request));
 
+        $reviewResult = ReviewLoaderResult::createFrom($reviews);
+        $reviewResult->setProductId($productId);
         $aggregation = $reviews->getAggregations()->get('ratingMatrix');
         $matrix = new RatingMatrix([]);
 
         if ($aggregation instanceof TermsResult) {
             $matrix = new RatingMatrix($aggregation->getBuckets());
         }
+        $reviewResult->setMatrix($matrix);
+        $reviewResult->setCustomerReview($this->loadProductCustomerReview($request, $context));
+        $reviewResult->setTotalReviews($this->getUnfilteredReviewCount($request, $context));
 
-        $customerReview = $this->loadProductCustomerReview($request, $context);
-
-        $totalVisibleReviews = $this->getUnfilteredReviewCount($request, $context);
-
-        return new ReviewLoaderResult($reviews, $matrix, $customerReview, $totalVisibleReviews);
+        return $reviewResult;
     }
 
     /**

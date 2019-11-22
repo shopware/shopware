@@ -87,6 +87,7 @@ class PasswordFieldTest extends TestCase
         $kvPair = new KeyValuePair('password', null, true);
 
         $exception = null;
+        $array = null;
         try {
             $handler = $this->getContainer()->get(PasswordFieldSerializer::class);
 
@@ -98,10 +99,11 @@ class PasswordFieldTest extends TestCase
             );
 
             $x = $handler->encode($field, $existence, $kvPair, $parameters);
-            iterator_to_array($x);
+            $array = iterator_to_array($x);
         } catch (WriteConstraintViolationException $exception) {
         }
 
+        static::assertIsNotArray($array);
         static::assertInstanceOf(WriteConstraintViolationException::class, $exception);
         static::assertNotNull($exception->getViolations()->findByCodes(NotBlank::IS_BLANK_ERROR));
     }
@@ -115,6 +117,7 @@ class PasswordFieldTest extends TestCase
         $kvPair = new KeyValuePair('password', null, true);
 
         $exception = null;
+        $array = null;
         try {
             $handler = $this->getContainer()->get(PasswordFieldSerializer::class);
 
@@ -124,10 +127,11 @@ class PasswordFieldTest extends TestCase
                 '',
                 new WriteCommandQueue()
             ));
-            iterator_to_array($x);
+            $array = iterator_to_array($x);
         } catch (WriteConstraintViolationException $exception) {
         }
 
+        static::assertIsNotArray($array);
         static::assertInstanceOf(WriteConstraintViolationException::class, $exception);
         static::assertNotNull($exception->getViolations()->findByCodes(NotBlank::IS_BLANK_ERROR));
     }

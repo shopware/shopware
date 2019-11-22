@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -95,7 +96,7 @@ class MediaUploadController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/media/provide-name", name="api.action.media.provide-name", methods={"GET"})
      */
-    public function provideName(Request $request, Context $context): Response
+    public function provideName(Request $request, Context $context): JsonResponse
     {
         $fileName = $request->query->get('fileName');
         $fileExtension = $request->query->get('extension');
@@ -110,6 +111,6 @@ class MediaUploadController extends AbstractController
 
         $name = $this->fileNameProvider->provide($fileName, $fileExtension, $mediaId, $context);
 
-        return new Response(json_encode(['fileName' => $name]));
+        return new JsonResponse(['fileName' => $name]);
     }
 }

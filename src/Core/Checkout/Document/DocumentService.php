@@ -178,12 +178,12 @@ class DocumentService
             $generatedDocument->setContentType($fileGenerator->getContentType());
             $this->generateDocument($document, $context, $generatedDocument, $config, $fileGenerator);
         } else {
-            $generatedDocument->setFilename($document->getDocumentMediaFile()->getFileName());
+            $generatedDocument->setFilename($document->getDocumentMediaFile()->getFileName() . '.' . $document->getDocumentMediaFile()->getFileExtension());
             $generatedDocument->setContentType($document->getDocumentMediaFile()->getMimeType());
 
             $fileBlob = '';
             $mediaService = $this->mediaService;
-            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaService, $document, &$fileBlob): void {
+            $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($mediaService, $document, &$fileBlob): void {
                 $fileBlob = $mediaService->loadFile($document->getDocumentMediaFileId(), $context);
             });
             $generatedDocument->setFileBlob($fileBlob);

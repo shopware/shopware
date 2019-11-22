@@ -1,0 +1,128 @@
+@import "~scss/variables";
+
+.sw-cms-sidebar {
+    .sw-sidebar-item {
+        .sw-sidebar-item__headline {
+            border-bottom: 1px solid $color-gray-300;
+            padding: 25px 25px 0;
+            margin: 0;
+        }
+    }
+
+    .sw-cms-sidebar__navigator-section {
+        padding: 12px 24px;
+        border-bottom: 1px solid $color-gray-300;
+
+        .sw-cms-sidebar__navigator-section-header {
+            font-weight: 600;
+            font-size: 16px;
+            color: $color-darkgray-200;
+            margin: 12px 0;
+            display: grid;
+            grid-template-columns: 1fr 34px;
+        }
+    }
+
+    .sw-sidebar-collapse__title {
+        font-size: 18px;
+    }
+
+    .sw-cms-sidebar__settings {
+        padding: 8px 24px;
+    }
+
+    .sw-media-compact-upload {
+        margin-bottom: 22px;
+    }
+
+    .sw-cms-sidebar__block-overview {
+        display: grid;
+        grid-template-rows: 105px auto;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .sw-cms-sidebar__block-category {
+        padding: 12px 24px;
+        border-bottom: 1px solid $color-gray-300;
+
+        .sw-field {
+            margin: 0;
+        }
+    }
+
+    .sw-cms-sidebar__block-selection {
+        padding: 25px;
+        overflow: auto;
+    }
+
+    .sw-cms-sidebar__navigator-section-spacer {
+        height: 1px;
+        background: $color-gray-300;
+        margin: 20px 0;
+    }
+
+    .sw-cms-sidebar__navigator-empty-element {
+        border: 1px dashed $color-gray-300;
+        background-color: #fff;
+        color: $color-gray-500;
+        padding: 8px 4px 8px 14px;
+        text-align: center;
+        border-radius: 4px;
+    }
+}
+
+.sw-cms-sidebar__block-preview {
+    margin: 0 0 7px 0;
+    background: $color-white;
+    border: 1px solid #d1d9e0;
+    border-radius: 5px;
+    background-clip: padding-box;
+    cursor: grab;
+    user-select: none;
+
+    &.has--no-label {
+        margin-bottom: 20px;
+    }
+
+    &.is--dragging {
+        box-shadow: none;
+        border: 1px dashed $color-gray-300;
+        background-color: $color-iron;
+    }
+
+    &.is--drag-element,
+    &.is--drag-element.is--valid-drag {
+        border: 1px solid $color-shopware-blue;
+        box-shadow: 0 0 4px 0 rgba($color-shopware-blue, 0.4);
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-size: 16px;
+        line-height: 18px;
+        margin: 0 0 6px 0;
+    }
+
+    p {
+        font-size: 12px;
+        line-height: 14px;
+    }
+
+    hr {
+        max-width: 100px;
+        margin: 0 auto 10px auto;
+        border: 2px solid $color-gray-300;
+    }
+
+    img {
+        margin: 0;
+        display: block;
+        max-width: 100%;
+    }
+}
+
+.sw-cms-sidebar__block-label {
+    display: block;
+    text-align: center;
+    margin-bottom: 32px;
+}

@@ -30,7 +30,7 @@ class Profiling extends Bundle
 
     private function buildConfig(ContainerBuilder $container, $environment): void
     {
-        $locator = new FileLocator($this->getConfigPath());
+        $locator = new FileLocator('Resources/config');
 
         $resolver = new LoaderResolver([
             new YamlFileLoader($container, $locator),
@@ -39,7 +39,7 @@ class Profiling extends Bundle
 
         $configLoader = new DelegatingLoader($resolver);
 
-        $confDir = $this->getPath() . '/' . $this->getConfigPath();
+        $confDir = $this->getPath() . '/Resources/config';
 
         $configLoader->load($confDir . '/{packages}/*' . Kernel::CONFIG_EXTS, 'glob');
         $configLoader->load($confDir . '/{packages}/' . $environment . '/*' . Kernel::CONFIG_EXTS, 'glob');

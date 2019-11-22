@@ -1,0 +1,39 @@
+{% sw_extends '@Storefront/storefront/layout/header/header.html.twig' %}
+
+{% block layout_header %}
+    <header class="header-minimal fixed-top">
+        {% block layout_header_minimal_inner %}
+            <div class="container">
+                {% block layout_header_minimal_row %}
+                    <div class="row header-row header-minimal-row">
+                        {% block layout_header_minimal_logo %}
+                            <div class="col-6 col-md-4 header-minimal-logo">
+                                {% sw_include '@Storefront/storefront/layout/header/logo.html.twig' %}
+                            </div>
+                        {% endblock %}
+
+                        {% block layout_header_minimal_contact %}
+                            <div class="col-md-4 header-minimal-contact">
+                                {{ "header.supportInfo"|trans|sw_sanitize }}
+                            </div>
+                        {% endblock %}
+
+                        {% block layout_header_minimal_switch %}
+                            <div class="col-6 col-md-4 header-minimal-home">
+                                <a class="btn btn-link btn-sm header-minimal-home-btn"
+                                   href="{{ path('frontend.home.page') }}"
+                                   title="{{ "header.logoLink"|trans|striptags }}">
+                                    {% sw_icon 'arrow-medium-left' style {
+                                        'size': 'sm',
+                                        'pack': 'solid'
+                                    } %}
+                                    {{ "header.logoLink"|trans|sw_sanitize }}
+                                </a>
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </header>
+{% endblock %}

@@ -37,6 +37,5 @@ class Migration1554203706AddImportExportLog extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

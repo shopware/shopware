@@ -1,0 +1,15 @@
+{% block sw_condition_value_content %}
+    <div class="sw-condition-billing-street sw-condition__condition-value">
+        {% block sw_condition_billing_street_field_operator %}
+            <sw-condition-operator-select v-bind="{ condition, operators }"></sw-condition-operator-select>
+        {% endblock %}
+
+        {% block sw_condition_billing_street_field_street_name %}
+            <sw-text-field
+                class="sw-condition-billing-street__input"
+                size="medium"
+                v-model="streetName">
+            </sw-text-field>
+        {% endblock %}
+    </div>
+{% endblock %}

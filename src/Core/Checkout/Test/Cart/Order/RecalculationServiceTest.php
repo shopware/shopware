@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -39,6 +38,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ExtensionHelper;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -52,6 +52,7 @@ class RecalculationServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
+    use TaxAddToSalesChannelTestBehaviour;
 
     /**
      * @var SalesChannelContext
@@ -149,13 +150,11 @@ class RecalculationServiceTest extends TestCase
 
         // remove delivery information from line items
 
-        /** @var Delivery $delivery */
         foreach ($cart->getDeliveries() as $delivery) {
             // remove address from ShippingLocation
             $property = ReflectionHelper::getProperty(ShippingLocation::class, 'address');
             $property->setValue($delivery->getLocation(), null);
 
-            /** @var DeliveryPosition $position */
             foreach ($delivery->getPositions() as $position) {
                 $position->getLineItem()->setDeliveryInformation(null);
                 $position->getLineItem()->setQuantityInformation(null);
@@ -169,7 +168,6 @@ class RecalculationServiceTest extends TestCase
             $delivery->getShippingMethod()->setPrices(new ShippingMethodPriceCollection());
         }
 
-        /** @var LineItem $lineItem */
         foreach ($cart->getLineItems()->getFlat() as $lineItem) {
             $lineItem->setDeliveryInformation(null);
             $lineItem->setQuantityInformation(null);
@@ -840,7 +838,7 @@ class RecalculationServiceTest extends TestCase
         $cart = $this->addProduct($cart, Uuid::randomHex());
 
         $cart = $this->addProduct($cart, Uuid::randomHex(), [
-            'tax' => ['taxRate' => 5, 'name' => 'test'],
+            'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 5, 'name' => 'test'],
         ]);
 
         return $cart;
@@ -856,7 +854,7 @@ class RecalculationServiceTest extends TestCase
             ],
             'name' => 'test',
             'manufacturer' => ['name' => 'test'],
-            'tax' => ['taxRate' => 19, 'name' => 'test'],
+            'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'test'],
             'stock' => 10,
             'active' => true,
             'visibilities' => [
@@ -868,6 +866,8 @@ class RecalculationServiceTest extends TestCase
 
         $this->getContainer()->get('product.repository')
             ->create([$product], Context::createDefaultContext());
+
+        $this->addTaxDataToSalesChannel($this->salesChannelContext, $product['tax']);
 
         $lineItem = $this->getContainer()->get(ProductLineItemFactory::class)
             ->create($id);

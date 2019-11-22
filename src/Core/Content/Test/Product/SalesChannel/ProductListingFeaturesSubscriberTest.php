@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\Product\SalesChannel;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
+use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 class ProductListingFeaturesSubscriberTest extends TestCase
@@ -21,7 +23,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var \Symfony\Component\EventDispatcher\EventDispatcher
+     * @var EventDispatcher
      */
     private $eventDispatcher;
 
@@ -135,9 +137,9 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     }
 
     /**
-     * @dataProvider sortingProvider
+     * @dataProvider listSortingProvider
      */
-    public function testSorting(array $expectedFields, Request $request): void
+    public function testListSorting(array $expectedFields, Request $request): void
     {
         $criteria = new Criteria();
         $event = new ProductListingCriteriaEvent($request, $criteria, Generator::createSalesChannelContext());
@@ -152,7 +154,55 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         }
     }
 
-    public function sortingProvider(): array
+    /**
+     * @dataProvider searchSortingProvider
+     */
+    public function testSearchSorting(array $expectedFields, Request $request): void
+    {
+        $criteria = new Criteria();
+        $event = new ProductSearchCriteriaEvent($request, $criteria, Generator::createSalesChannelContext());
+        $this->eventDispatcher->dispatch($event);
+
+        $sortings = $criteria->getSorting();
+        static::assertCount(count($expectedFields), $sortings);
+
+        foreach ($sortings as $sorting) {
+            static::assertArrayHasKey($sorting->getField(), $expectedFields);
+            static::assertSame($sorting->getDirection(), $expectedFields[$sorting->getField()]);
+        }
+    }
+
+    public function searchSortingProvider(): array
+    {
+        return [
+            [
+                [],
+                new Request(),
+            ],
+            [
+                ['product.name' => FieldSorting::ASCENDING],
+                new Request(['sort' => 'name-asc']),
+            ],
+            [
+                [],
+                new Request(['sort' => 'unknown']),
+            ],
+            [
+                ['product.name' => FieldSorting::DESCENDING],
+                new Request(['sort' => 'name-desc']),
+            ],
+            [
+                ['product.listingPrices' => FieldSorting::ASCENDING],
+                new Request(['sort' => 'price-asc']),
+            ],
+            [
+                ['product.listingPrices' => FieldSorting::DESCENDING],
+                new Request(['sort' => 'price-desc']),
+            ],
+        ];
+    }
+
+    public function listSortingProvider(): array
     {
         return [
             [
@@ -281,7 +331,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
         $filters = $criteria->getPostFilters();
 
-        static::assertCount(count($properties), $filters, $message);
+        static::assertCount(\count($properties), $filters, $message);
 
         $filtered = [];
 
@@ -311,7 +361,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
         static::assertNotEmpty($filtered, $message);
 
-        foreach ($properties as $group => $ids) {
+        foreach ($properties as $ids) {
             foreach ($ids as $id) {
                 static::assertContains($id, $filtered, $message);
             }

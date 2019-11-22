@@ -1,0 +1,37 @@
+.product-detail-headline {
+    margin-bottom: $spacer-xl;
+}
+
+.product-detail-content {
+    margin-bottom: $spacer-lg;
+
+    .product-breadcrumb {
+        padding: 0;
+        margin: $spacer 0;
+    }
+}
+
+.product-detail-buy {
+    margin-bottom: $spacer;
+}
+
+.product-detail-price {
+    @include font-size(28);
+}
+
+.product-detail-price-unit,
+.product-detail-tax {
+    font-size: $font-size-sm;
+}
+
+.product-detail-delivery-information {
+    margin-bottom: $spacer-lg;
+}
+
+.product-detail-form-container {
+    margin-bottom: $spacer;
+}
+
+.product-detail-ordernumber-container {
+    margin-bottom: $spacer;
+}

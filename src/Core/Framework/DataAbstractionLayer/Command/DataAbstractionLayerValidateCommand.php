@@ -11,6 +11,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class DataAbstractionLayerValidateCommand extends Command
 {
+    protected static $defaultName = 'dal:validate';
+
     /**
      * @var DefinitionValidator
      */
@@ -20,11 +22,6 @@ class DataAbstractionLayerValidateCommand extends Command
     {
         parent::__construct();
         $this->validator = $validator;
-    }
-
-    protected function configure(): void
-    {
-        $this->setName('dal:validate');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

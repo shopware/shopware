@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer\Rule;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
 class IsNewCustomerRule extends Rule
@@ -45,7 +46,7 @@ class IsNewCustomerRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'isNew' => [new Type('bool')],
+            'isNew' => [new NotNull(), new Type('bool')],
         ];
     }
 

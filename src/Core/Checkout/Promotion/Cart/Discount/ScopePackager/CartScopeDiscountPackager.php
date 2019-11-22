@@ -41,19 +41,15 @@ class CartScopeDiscountPackager
      */
     public function getMatchingItems(DiscountLineItem $discount, Cart $cart, SalesChannelContext $context): DiscountPackageCollection
     {
-        /** @var LineItemCollection $allItems */
         $allItems = $cart->getLineItems()->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE);
 
-        /** @var LineItemFlatCollection $singleItems */
         $singleItems = $this->splitQuantities($allItems, $context);
 
-        /** @var PriceDefinitionInterface $priceDefinition */
         $priceDefinition = $discount->getPriceDefinition();
 
         /** @var array $foundItems */
         $foundItems = [];
 
-        /** @var LineItem $cartLineItem */
         foreach ($singleItems as $cartLineItem) {
             if ($this->isRulesFilterValid($cartLineItem, $priceDefinition, $context)) {
                 $item = new LineItemQuantity(
@@ -106,10 +102,8 @@ class CartScopeDiscountPackager
     {
         $items = [];
 
-        /** @var LineItem $item */
         foreach ($cartItems as $item) {
             for ($i = 1; $i <= $item->getQuantity(); ++$i) {
-                /** @var LineItem $tmpItem */
                 $tmpItem = $this->lineItemQuantitySplitter->split($item, 1, $context);
 
                 $items[] = $tmpItem;

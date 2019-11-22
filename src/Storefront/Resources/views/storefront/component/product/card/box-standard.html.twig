@@ -1,0 +1,101 @@
+{% block component_product_box %}
+    {% if product %}
+        <div class="card product-box box-{{ layout }}">
+            {% block component_product_box_content %}
+                <div class="card-body">
+                    {% block component_product_box_badges %}
+                        {% sw_include '@Storefront/storefront/component/product/card/badges.html.twig' %}
+                    {% endblock %}
+
+                    {% block component_product_box_rich_snippets %}
+                        {% sw_include '@Storefront/storefront/component/product/card/meta.html.twig' %}
+                    {% endblock %}
+
+                    {% block component_product_box_image %}
+                        <div class="product-image-wrapper">
+                            {# fallback if display mode is not set #}
+                            {% set displayMode = displayMode ?: 'standard' %}
+
+                            {# set display mode 'cover' for box-image with standard display mode #}
+                            {% if layout == 'image' and displayMode == 'standard' %}
+                                {% set displayMode = 'cover' %}
+                            {% endif %}
+
+                            <a href="{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}"
+                               title="{{ product.translated.name }}"
+                               class="product-image-link is-{{ displayMode }}">
+                                {% if product.cover.media.url %}
+                                    {% set attributes = {
+                                        'class': 'product-image is-'~displayMode,
+                                        'alt': (product.cover.media.translated.alt ?: ''),
+                                        'title': (product.cover.media.translated.title ?: '')
+                                    } %}
+
+                                    {% if displayMode == 'cover' or displayMode == 'contain' %}
+                                        {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
+                                    {% endif %}
+
+                                    {% sw_thumbnails 'product-image-thumbnails' with {
+                                        media: product.cover.media,
+                                        sizes: {
+                                            'xs': '501px',
+                                            'sm': '315px',
+                                            'md': '427px',
+                                            'lg': '333px',
+                                            'xl': '284px'
+                                        }
+                                    } %}
+                                {% else %}
+                                    <div class="product-image-placeholder">
+                                        {% sw_icon 'placeholder' style {
+                                            'size': 'fluid'
+                                        } %}
+                                    </div>
+                                {% endif %}
+                            </a>
+                        </div>
+                    {% endblock %}
+
+                    {% block component_product_box_info %}
+                        <div class="product-info">
+                            {% block component_product_box_rating %}
+                                {% if shopware.config.detail.showReviews %}
+                                    <div class="product-rating">
+                                        {% if product.ratingAverage %}
+                                            {% sw_include '@Storefront/storefront/component/review/rating.html.twig' with {
+                                                points: product.ratingAverage,
+                                                style: 'text-primary'
+                                            } %}
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endblock %}
+
+                            {% block component_product_box_name %}
+                                <a href="{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}"
+                                   class="product-name"
+                                   title="{{ product.translated.name }}">
+                                    {{ product.translated.name }}
+                                </a>
+                            {% endblock %}
+
+                            {% block component_product_box_description %}
+                                <div class="product-description">
+                                    {{ product.translated.description|striptags }}
+                                </div>
+                            {% endblock %}
+
+                            {% block component_product_box_price %}
+                                {% sw_include '@Storefront/storefront/component/product/card/price-unit.html.twig' %}
+                            {% endblock %}
+
+                            {% block component_product_box_action %}
+                                {% sw_include '@Storefront/storefront/component/product/card/action.html.twig' %}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </div>
+    {% endif %}
+{% endblock %}

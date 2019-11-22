@@ -149,7 +149,6 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
 
     private function read(Criteria $criteria, SalesChannelContext $salesChannelContext): EntityCollection
     {
-        /** @var EntityCollection $entities */
         $entities = $this->reader->read($this->definition, $criteria, $salesChannelContext->getContext());
 
         $event = new EntityLoadedEvent($this->definition, $entities->getElements(), $salesChannelContext->getContext());

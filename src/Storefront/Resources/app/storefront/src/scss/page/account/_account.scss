@@ -1,0 +1,27 @@
+.account-content {
+    @extend .row;
+
+    .account-content-aside {
+        @extend .col-lg-3;
+        @extend .col-xl-2;
+    }
+
+    .account-content-main {
+        @extend .col-lg-9;
+        @extend .offset-xl-1;
+        @extend .col-xl-7;
+    }
+}
+
+.account-recover-password-info {
+    margin-bottom: $spacer;
+}
+
+.account-welcome {
+    padding-top: $spacer;
+    margin-bottom: $spacer-lg;
+}
+
+.account-breadcrumb {
+    margin-bottom: $spacer-lg;
+}

@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
@@ -99,9 +100,39 @@ class CustomerEntity extends Entity
     protected $title;
 
     /**
+     * @var string|null
+     */
+    protected $affiliateCode;
+
+    /**
+     * @var string|null
+     */
+    protected $campaignCode;
+
+    /**
      * @var bool
      */
     protected $active;
+
+    /**
+     * @var bool
+     */
+    protected $doubleOptInRegistration;
+
+    /**
+     * @var \DateTimeInterface|null
+     */
+    protected $doubleOptInEmailSentDate;
+
+    /**
+     * @var \DateTimeInterface|null
+     */
+    protected $doubleOptInConfirmDate;
+
+    /**
+     * @var string|null
+     */
+    protected $hash;
 
     /**
      * @var bool
@@ -232,6 +263,11 @@ class CustomerEntity extends Entity
      * @var PromotionCollection|null
      */
     protected $promotions;
+
+    /**
+     * @var CustomerRecoveryEntity|null
+     */
+    protected $recoveryCustomer;
 
     /**
      * @var array|null
@@ -406,6 +442,46 @@ class CustomerEntity extends Entity
     public function setActive(bool $active): void
     {
         $this->active = $active;
+    }
+
+    public function getDoubleOptInRegistration(): bool
+    {
+        return $this->doubleOptInRegistration;
+    }
+
+    public function setDoubleOptInRegistration(bool $doubleOptInRegistration): void
+    {
+        $this->doubleOptInRegistration = $doubleOptInRegistration;
+    }
+
+    public function getDoubleOptInEmailSentDate(): ?\DateTimeInterface
+    {
+        return $this->doubleOptInEmailSentDate;
+    }
+
+    public function setDoubleOptInEmailSentDate(\DateTimeInterface $doubleOptInEmailSentDate): void
+    {
+        $this->doubleOptInEmailSentDate = $doubleOptInEmailSentDate;
+    }
+
+    public function getDoubleOptInConfirmDate(): ?\DateTimeInterface
+    {
+        return $this->doubleOptInConfirmDate;
+    }
+
+    public function setDoubleOptInConfirmDate(\DateTimeInterface $doubleOptInConfirmDate): void
+    {
+        $this->doubleOptInConfirmDate = $doubleOptInConfirmDate;
+    }
+
+    public function getHash(): ?string
+    {
+        return $this->hash;
+    }
+
+    public function setHash(string $hash): void
+    {
+        $this->hash = $hash;
     }
 
     public function getGuest(): bool
@@ -687,5 +763,35 @@ class CustomerEntity extends Entity
     public function setProductReviews(?ProductReviewCollection $productReviews): void
     {
         $this->productReviews = $productReviews;
+    }
+
+    public function getRecoveryCustomer(): ?CustomerRecoveryEntity
+    {
+        return $this->recoveryCustomer;
+    }
+
+    public function setRecoveryCustomer(?CustomerRecoveryEntity $recoveryCustomer): void
+    {
+        $this->recoveryCustomer = $recoveryCustomer;
+    }
+
+    public function getAffiliateCode(): ?string
+    {
+        return $this->affiliateCode;
+    }
+
+    public function setAffiliateCode(?string $affiliateCode): void
+    {
+        $this->affiliateCode = $affiliateCode;
+    }
+
+    public function getCampaignCode(): ?string
+    {
+        return $this->campaignCode;
+    }
+
+    public function setCampaignCode(?string $campaignCode): void
+    {
+        $this->campaignCode = $campaignCode;
     }
 }

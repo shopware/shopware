@@ -1,10 +1,13 @@
 <?php declare(strict_types=1);
 
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter;
 
-class UrlEncodingTwigFilterTest extends \PHPUnit\Framework\TestCase
+class UrlEncodingTwigFilterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
@@ -79,11 +82,12 @@ class UrlEncodingTwigFilterTest extends \PHPUnit\Framework\TestCase
     public function testItEncodesTheUrl(): void
     {
         $filter = new UrlEncodingTwigFilter();
-        $urlGenerator = $this->getContainer()->get('Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface');
+        $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $uploadTime = new \DateTime();
         $utc = $uploadTime->getTimestamp();
 
         $media = new MediaEntity();
+        $media->setId(Uuid::randomHex());
         $media->setMimeType('image/png');
         $media->setFileExtension('png');
         $media->setUploadedAt($uploadTime);

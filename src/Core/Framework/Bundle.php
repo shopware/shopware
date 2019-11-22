@@ -31,91 +31,14 @@ abstract class Bundle extends SymfonyBundle
 
     public function boot(): void
     {
-        $this->container->get(AssetPackageService::class)->addAssetPackage($this->getName());
+        $this->container->get(AssetPackageService::class)->addAssetPackage($this->getName(), $this->getPath());
 
         parent::boot();
-    }
-
-    public function getClassName(): string
-    {
-        return get_class($this);
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getViewPaths(): array
-    {
-        return [
-            'Resources/views',
-        ];
-    }
-
-    public function getAdministrationEntryPath(): string
-    {
-        return 'Resources/administration';
-    }
-
-    public function getStorefrontEntryPath(): string
-    {
-        return 'Resources/storefront';
-    }
-
-    public function getConfigPath(): string
-    {
-        return 'Resources/config';
-    }
-
-    public function getStorefrontScriptPath(): string
-    {
-        return 'Resources/dist/storefront/js';
-    }
-
-    public function getStorefrontStylePath(): string
-    {
-        return 'Resources/storefront/style';
     }
 
     public function getMigrationNamespace(): string
     {
         return $this->getNamespace() . '\Migration';
-    }
-
-    public function getAdministrationStyles(): array
-    {
-        $bundleName = str_replace('_', '-', $this->getContainerPrefix());
-        $filename = $bundleName . '.css';
-
-        if (!file_exists($this->getPath() . '/Resources/public/administration/css/' . $filename)) {
-            return [];
-        }
-
-        return [$filename];
-    }
-
-    public function getAdministrationScripts(): array
-    {
-        $bundleName = str_replace('_', '-', $this->getContainerPrefix());
-        $filename = $bundleName . '.js';
-
-        if (!file_exists($this->getPath() . '/Resources/public/administration/js/' . $filename)) {
-            return [];
-        }
-
-        return [$filename];
-    }
-
-    public function configureRoutes(RouteCollectionBuilder $routes, string $environment): void
-    {
-        $fileSystem = new Filesystem();
-        $confDir = $this->getPath() . '/' . ltrim($this->getRoutesPath(), '/');
-
-        if ($fileSystem->exists($confDir)) {
-            $routes->import($confDir . '/{routes}/*' . Kernel::CONFIG_EXTS, '/', 'glob');
-            $routes->import($confDir . '/{routes}/' . $environment . '/**/*' . Kernel::CONFIG_EXTS, '/', 'glob');
-            $routes->import($confDir . '/{routes}' . Kernel::CONFIG_EXTS, '/', 'glob');
-            $routes->import($confDir . '/{routes}_' . $environment . Kernel::CONFIG_EXTS, '/', 'glob');
-        }
     }
 
     public function getMigrationPath(): string
@@ -129,36 +52,27 @@ abstract class Bundle extends SymfonyBundle
         return $this->getPath() . str_replace('\\', '/', $migrationSuffix);
     }
 
-    protected function getRoutesPath(): string
-    {
-        return 'Resources/config';
-    }
-
-    protected function getServicesFilePath(): string
-    {
-        return 'Resources/config/services.xml';
-    }
-
-    protected function registerFilesystem(ContainerBuilder $container, string $key): void
-    {
-        $containerPrefix = $this->getContainerPrefix();
-        $parameterKey = sprintf('shopware.filesystem.%s', $key);
-        $serviceId = sprintf('%s.filesystem.%s', $containerPrefix, $key);
-
-        $filesystem = new Definition(
-            PrefixFilesystem::class,
-            [
-                new Reference($parameterKey),
-                'plugins/' . $containerPrefix,
-            ]
-        );
-
-        $container->setDefinition($serviceId, $filesystem);
-    }
-
-    protected function getContainerPrefix(): string
+    final public function getContainerPrefix(): string
     {
         return (new CamelCaseToSnakeCaseNameConverter())->normalize($this->getName());
+    }
+
+    public function configureRoutes(RouteCollectionBuilder $routes, string $environment): void
+    {
+        $fileSystem = new Filesystem();
+        $confDir = $this->getPath() . '/Resources/config';
+
+        if ($fileSystem->exists($confDir)) {
+            $routes->import($confDir . '/{routes}/*' . Kernel::CONFIG_EXTS, '/', 'glob');
+            $routes->import($confDir . '/{routes}/' . $environment . '/**/*' . Kernel::CONFIG_EXTS, '/', 'glob');
+            $routes->import($confDir . '/{routes}' . Kernel::CONFIG_EXTS, '/', 'glob');
+            $routes->import($confDir . '/{routes}_' . $environment . Kernel::CONFIG_EXTS, '/', 'glob');
+        }
+    }
+
+    protected function getActionEvents(): array
+    {
+        return [];
     }
 
     protected function registerMigrationPath(ContainerBuilder $container): void
@@ -175,21 +89,33 @@ abstract class Bundle extends SymfonyBundle
         $container->setParameter('migration.directories', $directories);
     }
 
-    protected function registerEvents(ContainerBuilder $container): void
+    private function registerFilesystem(ContainerBuilder $container, string $key): void
+    {
+        $containerPrefix = $this->getContainerPrefix();
+        $parameterKey = sprintf('shopware.filesystem.%s', $key);
+        $serviceId = sprintf('%s.filesystem.%s', $containerPrefix, $key);
+
+        $filesystem = new Definition(
+            PrefixFilesystem::class,
+            [
+                new Reference($parameterKey),
+                'plugins/' . $containerPrefix,
+            ]
+        );
+
+        $container->setDefinition($serviceId, $filesystem);
+    }
+
+    private function registerEvents(ContainerBuilder $container): void
     {
         $definition = $container->getDefinition(BusinessEventRegistry::class);
         $definition->addMethodCall('addMultiple', [$this->getActionEvents()]);
     }
 
-    protected function getActionEvents(): array
-    {
-        return [];
-    }
-
-    protected function registerContainerFile(ContainerBuilder $container): void
+    private function registerContainerFile(ContainerBuilder $container): void
     {
         $fileSystem = new Filesystem();
-        $containerFilePath = ltrim($this->getServicesFilePath(), '/');
+        $containerFilePath = 'Resources/config/services.xml';
         if (!$fileSystem->exists($this->getPath() . '/' . $containerFilePath)) {
             return;
         }

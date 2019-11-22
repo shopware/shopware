@@ -121,7 +121,7 @@ class Record implements \JsonSerializable
         $vars = get_object_vars($this);
 
         unset($vars['extensions']);
-        foreach ($vars['relationships'] as $i => $x) {
+        foreach ($vars['relationships'] as $i => $_x) {
             unset($vars['relationships'][$i]['tmp']);
         }
 
@@ -149,7 +149,7 @@ class Record implements \JsonSerializable
 
         $data = $entity->jsonSerialize();
 
-        foreach ($this->attributes as $key => $relationship) {
+        foreach ($this->attributes as $key => $_relationship) {
             $this->attributes[$key] = $data[$key] ?? null;
         }
 

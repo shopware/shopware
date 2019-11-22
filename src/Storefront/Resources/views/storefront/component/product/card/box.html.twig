@@ -1,0 +1,10 @@
+{% block component_product_box_include %}
+    {# Includes a custom product-box template defined by the layout variable.
+       The standard template is used if no custom layout is set. #}
+
+    {% if layout is empty %}
+        {% set layout = 'standard' %}
+    {% endif %}
+
+    {% sw_include "@Storefront/storefront/component/product/card/box-" ~ layout ~ ".html.twig" ignore missing %}
+{% endblock %}

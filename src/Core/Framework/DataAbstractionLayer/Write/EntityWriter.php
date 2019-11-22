@@ -222,7 +222,6 @@ class EntityWriter implements EntityWriterInterface
     {
         $identifiers = [];
 
-        /** @var WriteCommandInterface[] $commands */
         foreach ($queue->getCommands() as $commands) {
             if (\count($commands) === 0) {
                 continue;
@@ -242,7 +241,6 @@ class EntityWriter implements EntityWriterInterface
 
             foreach ($commands as $command) {
                 $primaryKey = $this->getCommandPrimaryKey($command, $primaryKeys);
-                /** @var string $uniqueId */
                 $uniqueId = \is_array($primaryKey) ? implode('-', $primaryKey) : $primaryKey;
 
                 if ($command instanceof JsonUpdateCommand) {
@@ -282,7 +280,7 @@ class EntityWriter implements EntityWriterInterface
                     $field,
                     json_encode($command->getPayload(), JSON_PRESERVE_ZERO_FRACTION)
                 );
-                $mergedPayload = array_merge($payload, [$command->getStorageName() => $decodedPayload]);
+                $mergedPayload = array_merge($payload, [$field->getPropertyName() => $decodedPayload]);
 
                 $writeResults[$uniqueId] = new EntityWriteResult(
                     $this->getCommandPrimaryKey($command, $primaryKeys),

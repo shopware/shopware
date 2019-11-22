@@ -1,0 +1,186 @@
+{% block sw_settings_country_detail %}
+    <sw-page class="sw-settings-country-detail">
+
+        {% block sw_settings_country_detail_header %}
+            <template slot="smart-bar-header">
+                <h2>{{ placeholder(country, 'name', $tc('sw-settings-country.detail.textHeadline')) }}</h2>
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_country_detail_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_settings_country_detail_actions_abort %}
+                    <sw-button :disabled="country.isLoading" :routerLink="{ name: 'sw.settings.country.index' }">
+                        {{ $tc('sw-settings-country.detail.buttonCancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_settings_country_detail_actions_save %}
+                <sw-button-process
+                        class="sw-settings-country-detail__save-action"
+                        :isLoading="isLoading"
+                        :processSuccess="isSaveSuccessful"
+                        :disabled="country.isLoading"
+                        variant="primary"
+                        @process-finish="saveFinish"
+                        @click.prevent="onSave">
+                    {{ $tc('sw-settings-country.detail.buttonSave') }}
+                </sw-button-process>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_country_detail_language_switch %}
+            <sw-language-switch slot="language-switch"
+                                @on-change="onChangeLanguage"
+                                :saveChangesFunction="saveOnLanguageChange"
+                                :abortChangeFunction="abortOnLanguageChange">
+            </sw-language-switch>
+        {% endblock %}
+
+        {% block sw_settings_country_detail_content %}
+            <sw-card-view slot="content">
+
+                {% block sw_settings_country_detail_content_language_info %}
+                    <sw-language-info
+                            :entityDescription="placeholder(country, 'name', $tc('sw-settings-country.detail.textHeadline'))">
+                    </sw-language-info>
+                {% endblock %}
+
+                {% block sw_settings_country_detail_content_card %}
+                    <sw-card :title="$tc('sw-settings-country.detail.titleCard')">
+                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
+
+                            {% block sw_settings_country_detail_content_field_name %}
+                                <sw-field type="text"
+                                          required
+                                          :label="$tc('sw-settings-country.detail.labelName')"
+                                          :placeholder="placeholder(country, 'name', $tc('sw-settings-country.detail.placeholderName'))"
+                                          v-model="country.name">
+                                </sw-field>
+                            {% endblock %}
+
+                            {% block sw_settings_country_detail_content_field_position %}
+                                <sw-field type="number"
+                                          numberType="int"
+                                          :label="$tc('sw-settings-country.detail.labelPosition')"
+                                          :placeholder="placeholder(country, 'position', $tc('sw-settings-country.detail.placeholderPosition'))"
+                                          v-model="country.position">
+                                </sw-field>
+                            {% endblock %}
+
+                            {% block sw_settings_country_detail_content_field_iso %}
+                                <sw-field type="text"
+                                          :label="$tc('sw-settings-country.detail.labelIso')"
+                                          :placeholder="placeholder(country, 'iso', $tc('sw-settings-country.detail.placeholderIso'))"
+                                          v-model="country.iso">
+                                </sw-field>
+                            {% endblock %}
+
+                            {% block sw_settings_country_detail_content_field_iso3 %}
+                                <sw-field type="text"
+                                          :label="$tc('sw-settings-country.detail.labelIso3')"
+                                          :placeholder="placeholder(country, 'iso3', $tc('sw-settings-country.detail.placeholderIso3'))"
+                                          v-model="country.iso3">
+                                </sw-field>
+                            {% endblock %}
+
+                            {% block sw_settings_country_detail_content_field_active %}
+                                <sw-field type="switch"
+                                          bordered
+                                          :label="$tc('sw-settings-country.detail.labelActive')"
+                                          v-model="country.active">
+                                </sw-field>
+                            {% endblock %}
+
+                            {% block sw_settings_country_detail_content_field_shipping_available %}
+                                <sw-field type="switch"
+                                          bordered
+                                          :label="$tc('sw-settings-country.detail.labelShippingAvailable')"
+                                          v-model="country.shippingAvailable">
+                                </sw-field>
+                            {% endblock %}
+
+                            {% block sw_settings_country_detail_content_field_tax_free %}
+                                <sw-field type="switch"
+                                          bordered
+                                          :label="$tc('sw-settings-country.detail.labelTaxFree')"
+                                          v-model="country.taxFree">
+                                </sw-field>
+                            {% endblock %}
+                        </sw-container>
+                    </sw-card>
+                {% endblock %}
+                {% block sw_settings_country_detail_state_list_card %}
+                    <sw-card v-if="!isLoading">
+                        <template #toolbar>
+                            <sw-container columns="1fr 32px minmax(100px, 200px)" gap="0 10px">
+                                {% block sw_attribute_list_toolbar_searchfield %}
+                                    <sw-simple-search-field
+                                            size="small"
+                                            variant="form"
+                                            @search-term-change="onSearchCountryState"
+                                            v-model="term">
+                                    </sw-simple-search-field>
+                                {% endblock %}
+
+                                {% block sw_country_state_list_toolbar_delete %}
+                                <sw-button
+                                        :disabled="deleteButtonDisabled"
+                                        @click="onDeleteCountryStates"
+                                        square
+                                        size="small"
+                                        class="sw-country-state-list__delete-button">
+                                    <sw-icon name="default-action-trash" small />
+                                </sw-button>
+                                {% endblock %}
+
+                                {% block sw_country_state_list_toolbar_add %}
+                                    <sw-button
+                                            @click="onAddCountryState"
+                                            size="x-small"
+                                            variant="primary"
+                                            class="sw-settings-country-detail__add-country-state-button">
+                                        {{ $tc('sw-settings-country.detail.buttonAddCountryState') }}
+                                    </sw-button>
+                                {% endblock %}
+                            </sw-container>
+                        </template>
+
+                        <template #grid>
+                            <sw-one-to-many-grid
+                                    :isLoading="countryStateLoading"
+                                    ref="countryStateGrid"
+                                    :collection="country.states"
+                                    :fullPage="false"
+                                    :localMode="country.isNew()"
+                                    @selection-change="countryStateSelectionChanged"
+                                    :columns="stateColumns">
+                                <template #column-name="{ item }">
+                                    <a class="sw-settings-country-detail__link"
+                                       @click="onClickCountryState(item)">
+                                        {{ item.name }}
+                                    </a>
+                                </template>
+                                <template #more-actions="{ item }">
+                                    <sw-context-menu-item @click="onClickCountryState(item)">
+                                        {{ $tc('sw-settings-country.detail.editAction') }}
+                                    </sw-context-menu-item>
+                                </template>
+                            </sw-one-to-many-grid>
+                        </template>
+                    </sw-card>
+                {% endblock %}
+
+                {% block sw_settings_country_detail_state_detail %}
+                    <sw-country-state-detail
+                            v-if="currentCountryState"
+                            :countryState="currentCountryState"
+                            @attribute-edit-save="onSaveCountryState"
+                            @attribute-edit-cancel="onCancelCountryState">
+                    </sw-country-state-detail>
+                {% endblock %}
+            </sw-card-view>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

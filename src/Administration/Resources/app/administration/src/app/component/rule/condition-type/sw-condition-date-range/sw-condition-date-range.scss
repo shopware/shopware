@@ -1,0 +1,7 @@
+.sw-condition .sw-condition-date-range.sw-condition__condition-value {
+    grid-template-columns: auto 1fr 1fr;
+
+    .sw-field--datepicker .sw-field__addition {
+        display: none;
+    }
+}

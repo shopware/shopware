@@ -1,0 +1,48 @@
+{
+  "sw-settings-language": {
+    "general": {
+      "mainMenuItemGeneral": "Sprachen",
+      "placeholderSearchBar": "Durchsuche alle Sprachen ..."
+    },
+    "list": {
+      "textHeadline": "Sprachen",
+      "textDeleteConfirm": "Bist Du sicher, dass Du die Sprache \"{name}\" löschen möchtest?",
+      "columnName": "Name",
+      "columnLocaleName": "Lokalisierung",
+      "columnIsoCode": "ISO-Code ",
+      "columnInherit": "Erbt von",
+      "columnDefault": "Standard",
+      "buttonAddLanguage": "Sprache anlegen",
+      "contextMenuEdit": "Bearbeiten",
+      "modalTitleDelete": "Sprache löschen",
+      "titleDeleteSuccess": "Erfolg",
+      "messageDeleteSuccess": "Die Sprache \"{name}\" wurde erfolgreich gelöscht.",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen",
+      "titleSidebarFilter": "Filter",
+      "titleSidebarQuickFilter": "Quick Filter",
+      "textFilterRootLanguages": "Zeige nur \"Root\"-Sprachen",
+      "textFilterInheritedLanguages": "Zeige nur vererbte Sprachen"
+    },
+    "detail": {
+      "textHeadline": "Neue Sprache",
+      "titleCard": "Einstellungen",
+      "titleSaveSuccess": "Erfolg",
+      "messageSaveSuccess": "Die Sprache \"{name}\" wurde erfolgreich gespeichert.",
+      "labelName": "Name",
+      "labelLocale": "Lokalisierung",
+      "labelParent": "Erben von",
+      "labelIsoCode": "ISO Code",
+      "placeholderName": "Namen eingeben ...",
+      "placeholderPleaseSelect": "Bitte wählen ...",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern",
+      "tooltipLanguageNotChoosable": "Es kann nur von einer Sprache geerbt werden, die nicht bereits selbst erbt.",
+      "tooltipIsoCodeNotChoosable": "Es können nur bisher ungenutzte Sprachcodes verwendet werden.",
+      "textAlertChangeParent": "Ein Wechsel der geerbten Sprache kann gegebenenfalls zu inkonsistenten Übersetzungen führen.",
+      "titleAlertChangeParent": "Achtung",
+      "textIsoCodeIsInUse": "Dieser ISO-Code wird bereits verwendet.",
+      "textLanguageHasParent": "Diese Sprache erbt bereits von einer anderen Sprache."
+    }
+  }
+}

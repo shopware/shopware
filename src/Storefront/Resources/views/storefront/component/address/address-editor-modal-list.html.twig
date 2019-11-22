@@ -1,0 +1,149 @@
+{% block component_address_address_editor_modal_list %}
+    <div id="address-list"
+         class="collapse {% if not address %} show{% endif %}"
+         data-parent="#addressEditorAccordion">
+        {% block component_address_address_editor_modal_list_wrapper %}
+            <div class="address-editor-list-wrapper">
+                {# @var addresses \Shopware\Core\Framework\DataAbstractionLayer\EntityCollection #}
+                {% if addresses.count > 0 %}
+                    {% block component_address_address_editor_modal_list_card %}
+                        <div class="card">
+                            {% block component_address_address_editor_modal_list_card_body %}
+                                <div class="card-body">
+                                    {% block component_address_address_editor_modal_list_card_title %}
+                                        <div class="card-title">
+                                            {% block component_address_address_editor_modal_list_card_title_text %}
+                                                {{ "account.availableAddresses"|trans|sw_sanitize }}
+                                            {% endblock %}
+                                        </div>
+                                    {% endblock %}
+
+                                    {% block component_address_address_editor_modal_list_addresses %}
+                                        {% for address in addresses %}
+                                            {% if (address.id != defaultShippingAddress and changeShipping) or (address.id != defaultBillingAddress and changeBilling) %}
+                                                {% block component_address_address_editor_modal_list_address %}
+                                                    <div class="card address-editor-card">
+                                                        {% block component_address_address_editor_modal_list_address_body %}
+                                                            <div class="card-body">
+                                                                {% block component_address_address_editor_modal_list_address_include %}
+                                                                    {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {'address': address} %}
+                                                                {% endblock %}
+                                                            </div>
+                                                        {% endblock %}
+
+                                                        {% block component_address_address_editor_modal_list_address_actions %}
+                                                            <div class="card-actions">
+                                                                {% block component_address_address_editor_modal_list_address_actions_row %}
+                                                                    <div class="row">
+                                                                        {% block component_address_address_editor_modal_list_address_action_billing %}
+                                                                            {% if changeBilling %}
+                                                                                <div class="col-sm-6">
+                                                                                    {% block component_address_address_editor_modal_list_address_action_billing_form %}
+                                                                                        <form action="{{ path('frontend.account.addressbook') }}"
+                                                                                              class="js-close-address-editor"
+                                                                                              method="post"
+                                                                                              data-form-ajax-submit="true"
+                                                                                              data-form-ajax-submit-options='{
+                                                                                                  "replaceSelectors": ".js-address-editor"
+                                                                                              }'>
+
+                                                                                            {% block component_address_address_editor_modal_list_address_action_billing_form_csrf %}
+                                                                                                {{ sw_csrf('frontend.account.addressbook') }}
+                                                                                            {% endblock %}
+
+                                                                                            {% block component_address_address_editor_modal_list_address_action_billing_form_hidden_inputs %}
+                                                                                                <input type="hidden"
+                                                                                                       name="changeableAddresses[changeBilling]"
+                                                                                                       value="{{ changeBilling }}">
+                                                                                                <input type="hidden"
+                                                                                                       name="changeableAddresses[changeShipping]"
+                                                                                                       value="{{ changeShipping }}">
+                                                                                                <input type="hidden"
+                                                                                                       name="selectAddress[type]"
+                                                                                                       value="billing">
+                                                                                                <input type="hidden"
+                                                                                                       name="selectAddress[id]"
+                                                                                                       value="{{ address.id }}">
+                                                                                            {% endblock %}
+
+                                                                                            {% block component_address_address_editor_modal_list_address_action_billing_form_button %}
+                                                                                                <button type="submit"
+                                                                                                        title="{{ "account.addressesSetAsDefaultBillingAction"|trans|striptags }}"
+                                                                                                        class="btn btn-block btn-light btn-sm">
+                                                                                                    {% block component_address_address_editor_modal_list_address_action_billing_form_button_text %}
+                                                                                                        {{ "account.addressesSetAsDefaultBillingAction"|trans|sw_sanitize }}
+                                                                                                    {% endblock %}
+                                                                                                </button>
+                                                                                            {% endblock %}
+
+                                                                                        </form>
+                                                                                    {% endblock %}
+
+                                                                                </div>
+                                                                            {% endif %}
+                                                                        {% endblock %}
+
+                                                                        {% block component_address_address_editor_modal_list_address_action_shipping %}
+                                                                            {% if changeShipping %}
+                                                                                <div class="col-6">
+                                                                                    {% block component_address_address_editor_modal_list_address_action_shipping_form %}
+                                                                                        <form action="{{ path('frontend.account.addressbook') }}"
+                                                                                              class="js-close-address-editor"
+                                                                                              method="post"
+                                                                                              data-form-ajax-submit="true"
+                                                                                              data-form-ajax-submit-options='{
+                                                                                                  "replaceSelectors": ".js-address-editor"
+                                                                                              }'>
+
+                                                                                            {% block component_address_address_editor_modal_list_address_action_shipping_form_csrf %}
+                                                                                                {{ sw_csrf('frontend.account.addressbook') }}
+                                                                                            {% endblock %}
+
+                                                                                            {% block component_address_address_editor_modal_list_address_action_shipping_form_hidden_inputs %}
+                                                                                                <input type="hidden"
+                                                                                                       name="changeableAddresses[changeBilling]"
+                                                                                                       value="{{ changeBilling }}">
+                                                                                                <input type="hidden"
+                                                                                                       name="changeableAddresses[changeShipping]"
+                                                                                                       value="{{ changeShipping }}">
+                                                                                                <input type="hidden"
+                                                                                                       name="selectAddress[type]"
+                                                                                                       value="shipping">
+                                                                                                <input type="hidden"
+                                                                                                       name="selectAddress[id]"
+                                                                                                       value="{{ address.id }}">
+                                                                                            {% endblock %}
+
+                                                                                            {% block component_address_address_editor_modal_list_address_action_shipping_form_button %}
+                                                                                                <button type="submit"
+                                                                                                        title="{{ "account.addressesSetAsDefaultShippingAction"|trans|striptags }}"
+                                                                                                        class="btn btn-block btn-light btn-sm">
+                                                                                                    {% block component_address_address_editor_modal_list_address_action_shipping_form_text %}
+                                                                                                        {{ "account.addressesSetAsDefaultShippingAction"|trans|sw_sanitize }}
+                                                                                                    {% endblock %}
+                                                                                                </button>
+                                                                                            {% endblock %}
+
+                                                                                        </form>
+                                                                                    {% endblock %}
+                                                                                </div>
+                                                                            {% endif %}
+                                                                        {% endblock %}
+                                                                    </div>
+                                                                {% endblock %}
+                                                            </div>
+                                                        {% endblock %}
+                                                    </div>
+                                                {% endblock %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                {% endif %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

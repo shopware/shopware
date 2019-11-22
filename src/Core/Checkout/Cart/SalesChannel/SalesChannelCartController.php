@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
+use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
@@ -88,6 +89,49 @@ class SalesChannelCartController extends AbstractController
     }
 
     /**
+     * @OA\Post(
+     *      path="/checkout/cart",
+     *      description="Create a new Cart",
+     *      operationId="createCart",
+     *      tags={"Sales Channel Api"},
+     *      @OA\Parameter(
+     *          parameter="token",
+     *          name="token",
+     *          in="query",
+     *          description="the cart token",
+     *          @OA\Schema(type="string", format="uuid"),
+     *      ),
+     *      @OA\Parameter(
+     *          parameter="name",
+     *          name="name",
+     *          in="query",
+     *          description="the carts name",
+     *          @OA\Schema(type="string"),
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="The cart identified by given token",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="sw-context-token",
+     *                  type="string",
+     *                  format="uuid",
+     *                  description="The token of the newly created cart",
+     *              )
+     *          ),
+     *          @OA\Header(
+     *              header="sw-context-token",
+     *              description="The token of the newly created cart",
+     *              @OA\Schema(type="string", format="uuid")
+     *          ),
+     *     ),
+     *     @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/404"
+     *     ),
+     * )
+     *
      * @Route("/sales-channel-api/v{version}/checkout/cart", name="sales-channel-api.checkout.cart.create", methods={"POST"})
      *
      * @throws CartTokenNotFoundException
@@ -140,13 +184,10 @@ class SalesChannelCartController extends AbstractController
      */
     public function addCode(string $code, Request $request, SalesChannelContext $context): JsonResponse
     {
-        /** @var string $token */
         $token = $request->request->getAlnum('token', $context->getToken());
 
-        /** @var LineItem $lineItem */
         $lineItem = $this->promotionItemBuilder->buildPlaceholderItem($code, $context->getContext()->getCurrencyPrecision());
 
-        /** @var Cart $cart */
         $cart = $this->cartService->add($this->cartService->getCart($token, $context), $lineItem, $context);
 
         return new JsonResponse($this->serialize($cart));

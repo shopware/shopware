@@ -3,8 +3,6 @@
 namespace Shopware\Core\Checkout\Promotion\Validator;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\ResultStatement;
-use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
@@ -61,7 +59,6 @@ class PromotionValidator implements EventSubscriberInterface
      * and its aggregation. It does only check for business relevant rules and logic.
      * All primitive "required" constraints are done inside the definition of the entity.
      *
-     *
      * @throws WriteConstraintViolationException
      */
     public function preValidate(PreWriteValidationEvent $event): void
@@ -71,7 +68,6 @@ class PromotionValidator implements EventSubscriberInterface
         $violationList = new ConstraintViolationList();
         $writeCommands = $event->getCommands();
 
-        /** @var WriteCommandInterface $command */
         foreach ($writeCommands as $index => $command) {
             if (!$command instanceof InsertCommand && !$command instanceof UpdateCommand) {
                 continue;
@@ -159,7 +155,6 @@ class PromotionValidator implements EventSubscriberInterface
         // the database. all private getters should only access the local in-memory list
         // to avoid additional database queries.
 
-        /** @var ResultStatement $promotionQuery */
         $promotionQuery = $this->connection->executeQuery(
             'SELECT * FROM `promotion` WHERE `id` IN (:ids)',
             ['ids' => $promotionIds],
@@ -427,7 +422,6 @@ class PromotionValidator implements EventSubscriberInterface
      */
     private function isCodePatternAlreadyUsed(string $pattern, ?string $promotionId): bool
     {
-        /** @var QueryBuilder $qb */
         $qb = $this->connection->createQueryBuilder();
 
         $query = $qb
@@ -436,7 +430,6 @@ class PromotionValidator implements EventSubscriberInterface
             ->where($qb->expr()->eq('individual_code_pattern', ':pattern'))
             ->setParameter(':pattern', $pattern);
 
-        /** @var array $promotions */
         $promotions = $query->execute()->fetchAll();
 
         /** @var array $p */
@@ -457,7 +450,6 @@ class PromotionValidator implements EventSubscriberInterface
      */
     private function isCodeAlreadyUsed(string $code, ?string $promotionId): bool
     {
-        /** @var QueryBuilder $qb */
         $qb = $this->connection->createQueryBuilder();
 
         // check if individual code.
@@ -475,14 +467,12 @@ class PromotionValidator implements EventSubscriberInterface
                 ->setParameter(':promotion_id', $promotionId);
         }
 
-        /** @var bool $existingIndividual */
         $existingIndividual = (count($query->execute()->fetchAll()) > 0);
 
         if ($existingIndividual) {
             return true;
         }
 
-        /** @var QueryBuilder $qb */
         $qb = $this->connection->createQueryBuilder();
 
         // check if it is a global promotion code.

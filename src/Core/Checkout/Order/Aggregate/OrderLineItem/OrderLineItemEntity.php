@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
@@ -28,6 +29,11 @@ class OrderLineItemEntity extends Entity
      * @var string|null
      */
     protected $referencedId;
+
+    /**
+     * @var string|null
+     */
+    protected $productId;
 
     /**
      * @var int
@@ -125,6 +131,11 @@ class OrderLineItemEntity extends Entity
      * @internal
      */
     protected $children;
+
+    /**
+     * @var ProductEntity|null
+     */
+    protected $product;
 
     public function getOrderId(): string
     {
@@ -344,5 +355,25 @@ class OrderLineItemEntity extends Entity
     public function setChildren(?OrderLineItemCollection $children): void
     {
         $this->children = $children;
+    }
+
+    public function getProductId(): ?string
+    {
+        return $this->productId;
+    }
+
+    public function setProductId(?string $productId): void
+    {
+        $this->productId = $productId;
+    }
+
+    public function getProduct(): ?ProductEntity
+    {
+        return $this->product;
+    }
+
+    public function setProduct(?ProductEntity $product): void
+    {
+        $this->product = $product;
     }
 }

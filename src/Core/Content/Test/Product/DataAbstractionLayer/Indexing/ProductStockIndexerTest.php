@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Test\Product\DataAbstractionLayer\Indexing;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -23,6 +23,7 @@ use Shopware\Core\System\StateMachine\Transition;
 class ProductStockIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use TaxAddToSalesChannelTestBehaviour;
 
     /**
      * @var EntityRepositoryInterface
@@ -71,12 +72,13 @@ class ProductStockIndexerTest extends TestCase
             'name' => 'Test',
             'isCloseout' => true,
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
-            'tax' => ['name' => 'test', 'taxRate' => 19],
+            'tax' => ['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 19],
             'manufacturer' => ['name' => 'test'],
         ];
 
         $context = Context::createDefaultContext();
         $this->repository->create([$product], $context);
+        $this->addTaxDataToSalesChannel($this->context, $product['tax']);
 
         /** @var ProductEntity $product */
         $product = $this->repository->search(new Criteria([$id]), $context)->get($id);
@@ -96,12 +98,13 @@ class ProductStockIndexerTest extends TestCase
             'isCloseout' => true,
             'name' => 'Test',
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
-            'tax' => ['name' => 'test', 'taxRate' => 19],
+            'tax' => ['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 19],
             'manufacturer' => ['name' => 'test'],
         ];
 
         $context = Context::createDefaultContext();
         $this->repository->create([$product], $context);
+        $this->addTaxDataToSalesChannel($this->context, $product['tax']);
 
         /** @var ProductEntity $product */
         $product = $this->repository->search(new Criteria([$id]), $context)->get($id);
@@ -122,12 +125,13 @@ class ProductStockIndexerTest extends TestCase
             'name' => 'Test',
             'isCloseout' => true,
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
-            'tax' => ['name' => 'test', 'taxRate' => 19],
+            'tax' => ['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 19],
             'manufacturer' => ['name' => 'test'],
         ];
 
         $context = Context::createDefaultContext();
         $this->repository->create([$product], $context);
+        $this->addTaxDataToSalesChannel($this->context, $product['tax']);
 
         /** @var ProductEntity $product */
         $product = $this->repository->search(new Criteria([$id]), $context)->get($id);
@@ -278,7 +282,7 @@ class ProductStockIndexerTest extends TestCase
             'name' => 'Test',
             'isCloseout' => true,
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
-            'tax' => ['name' => 'test', 'taxRate' => 19],
+            'tax' => ['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 19],
             'manufacturer' => ['name' => 'test'],
             'visibilities' => [
                 [
@@ -291,6 +295,7 @@ class ProductStockIndexerTest extends TestCase
         $product = array_replace_recursive($product, $config);
 
         $this->repository->create([$product], Context::createDefaultContext());
+        $this->addTaxDataToSalesChannel($this->context, $product['tax']);
 
         return $id;
     }
@@ -311,16 +316,8 @@ class ProductStockIndexerTest extends TestCase
     private function transitionOrder(string $orderId, string $transition): void
     {
         $registry = $this->getContainer()->get(StateMachineRegistry::class);
+        $transitionObject = new Transition('order', $orderId, $transition, 'stateId');
 
-        /* @var OrderEntity $order */
-        $registry->transition(
-            new Transition(
-                'order',
-                $orderId,
-                $transition,
-                'stateId'
-            ),
-            Context::createDefaultContext()
-        );
+        $registry->transition($transitionObject, Context::createDefaultContext());
     }
 }

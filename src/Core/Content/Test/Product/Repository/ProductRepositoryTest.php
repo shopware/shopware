@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordEntity;
+use Shopware\Core\Content\Product\Exception\DuplicateProductNumberException;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
@@ -18,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Pricing\ListingPrice;
@@ -801,7 +801,6 @@ class ProductRepositoryTest extends TestCase
         $criteria->addSorting(new FieldSorting('product.prices.price', FieldSorting::DESCENDING));
         $criteria->addFilter(new EqualsFilter('product.ean', $filterId));
 
-        /** @var IdSearchResult $products */
         $products = $this->repository->searchIds($criteria, $context);
 
         static::assertSame(
@@ -2373,6 +2372,38 @@ class ProductRepositoryTest extends TestCase
         $count = $this->connection->fetchAll('SELECT * FROM category');
 
         static::assertCount(1, $count, print_r($count, true));
+    }
+
+    public function testDuplicateProductNumber(): void
+    {
+        $productNumber = Uuid::randomHex();
+
+        $data = [
+            'id' => Uuid::randomHex(),
+            'productNumber' => $productNumber,
+            'name' => 'product',
+            'stock' => 10,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
+            'manufacturer' => ['name' => 'manufacturer'],
+            'tax' => ['name' => 'tax', 'taxRate' => 15],
+        ];
+
+        $this->repository->create([$data], Context::createDefaultContext());
+
+        $data = [
+            'id' => Uuid::randomHex(),
+            'productNumber' => $productNumber,
+            'name' => 'product',
+            'stock' => 10,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
+            'manufacturer' => ['name' => 'manufacturer'],
+            'tax' => ['name' => 'tax', 'taxRate' => 15],
+        ];
+
+        $this->expectException(DuplicateProductNumberException::class);
+        $this->expectExceptionMessage('Product with number "' . $productNumber . '" already exists.');
+
+        $this->repository->create([$data], Context::createDefaultContext());
     }
 
     private function formatPrice(

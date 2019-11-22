@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Promotion\Subscriber;
 
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
-use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeEntity;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
@@ -39,7 +38,6 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
      */
     public function onOrderPlaced(CheckoutOrderPlacedEvent $event): void
     {
-        /** @var OrderLineItemEntity $item */
         foreach ($event->getOrder()->getLineItems() as $item) {
             // only update promotions in here
             if ($item->getType() !== PromotionProcessor::LINE_ITEM_TYPE) {

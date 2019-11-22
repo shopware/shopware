@@ -43,10 +43,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ExampleCommand extends Command
 {
-    protected function configure(): void
-    {
-        $this->setName('plugin-commands:example');
-    }
+    protected static $defaultName = 'plugin-commands:example';
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {

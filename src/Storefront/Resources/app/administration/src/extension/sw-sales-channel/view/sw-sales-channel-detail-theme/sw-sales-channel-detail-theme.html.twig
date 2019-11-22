@@ -1,0 +1,105 @@
+{% block sw_sales_channel_detail_theme %}
+    <sw-card :title="$tc('sales-channel-theme.title')" :isLoading="isLoading">
+        <div class="sw-sales-channel-detail-theme">
+
+            {% block sw_sales_channel_detail_theme_preview %}
+                <div class="sw-sales-channel-detail-theme__preview">
+                    {% block sw_sales_channel_detail_theme_preview_item %}
+                        <div @click="openThemeModal">
+                            <sw-theme-list-item :theme="theme" :active="!!theme"></sw-theme-list-item>
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_detail_theme_modal %}
+                        <sw-theme-modal
+                            v-if="showThemeSelectionModal"
+                            @modal-theme-select="onChangeTheme"
+                            @modal-close="closeThemeModal">
+                        </sw-theme-modal>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block sw_sales_channel_detail_theme_info %}
+                <div class="sw-sales-channel-detail-theme__info">
+
+                    {% block sw_sales_channel_detail_theme_info_content %}
+                        <div class="sw-sales-channel-detail-theme__info-content">
+
+                            {% block sw_sales_channel_detail_theme_info_name %}
+                                <div class="sw-sales-channel-detail-theme__info-name" :class="{ 'is--empty': !theme }">
+                                    {{ theme ? theme.name : $tc('sales-channel-theme.defaultTitle') }}
+                                </div>
+                            {% endblock %}
+
+                            {% block sw_sales_channel_detail_theme_info_author %}
+                                <div v-if="theme" class="sw-sales-channel-detail-theme__info-author">
+                                    {{ theme.author }}
+                                </div>
+                            {% endblock %}
+
+                            {% block sw_sales_channel_detail_theme_info_description %}
+                                <div v-if="theme && theme.description" class="sw-sales-channel-detail-theme__info-description">
+                                    <p class="sw-sales-channel-detail-theme__info-description-title">
+                                        {{ $tc('sw-theme-manager.detail.description') }}:
+                                    </p>
+                                    <p>{{ theme.description |truncate(140) }}</p>
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_detail_theme_info_actions %}
+                        <div class="sw-sales-channel-detail-theme__info-actions">
+
+                            {% block sw_sales_channel_detail_theme_info_actions_theme %}
+                                <sw-button size="small" @click="openThemeModal">
+                                    {{ theme ? $tc('sales-channel-theme.changeTheme') : $tc('sales-channel-theme.changeThemeEmpty') }}
+                                </sw-button>
+                            {% endblock %}
+
+                            {% block sw_sales_channel_detail_theme_info_actions_manager %}
+                                <sw-button size="small" @click="openInThemeManager">
+                                    {{ theme ? $tc('sales-channel-theme.editContent'): $tc('sales-channel-theme.createTheme') }}
+                                </sw-button>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block sw_sales_channel_detail_theme_change_modal %}
+                <sw-modal v-if="showChangeModal"
+                          @modal-close="onCloseChangeModal"
+                          :title="$tc('sales-channel-theme.modal.modalTitleChange')"
+                          variant="small">
+
+                    {% block sw_sales_channel_detail_theme_change_modal_info %}
+                        <p class="sw-sales-channel-detail-theme__confirm-change-text">
+                            {{ $tc('sales-channel-theme.modal.textChangeTheme') }}
+                        </p>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_detail_theme_change_modal_footer %}
+                        <template slot="modal-footer">
+                            {% block sw_sales_channel_detail_theme_change_modal_cancel %}
+                                <sw-button @click="onCloseChangeModal"
+                                           size="small">
+                                    {{ $tc('sales-channel-theme.modal.buttonCancel') }}
+                                </sw-button>
+                            {% endblock %}
+
+                            {% block sw_sales_channel_detail_theme_change_modal_confirm %}
+                                <sw-button @click="onConfirmChange"
+                                           variant="primary"
+                                           size="small">
+                                    {{ $tc('sales-channel-theme.modal.buttonChange') }}
+                                </sw-button>
+                            {% endblock %}
+                        </template>
+                    {% endblock %}
+                </sw-modal>
+            {% endblock %}
+        </div>
+    </sw-card>
+{% endblock %}

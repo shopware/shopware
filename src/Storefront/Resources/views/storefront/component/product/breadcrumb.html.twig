@@ -1,0 +1,31 @@
+{% block component_product_breadcrumb %}
+    {% for item in navigationTree %}
+        {% if item.category.id == product.categoryTree|last %}
+            {% set breadcrumb = item.category.getPlainBreadcrumb(item.category.id)|slice(1) %}
+            {% for key, item in breadcrumb %}
+                {% block component_product_breadcrumb_category %}
+                    <a class="{% if key is same as(product.categoryTree|last) %} is-active{% endif %}"
+                       href="{{ seoUrl('frontend.navigation.page', { navigationId: key }) }}">
+                        {% block component_product_breadcrumb_link_name %}
+                            {{ item }}
+                        {% endblock %}
+                    </a>
+                {% endblock %}
+                {% block component_product_breadcrumb_placeholder %}
+                    {% if item != breadcrumb|last %}
+                        <div class="breadcrumb-placeholder">
+                            {% sw_icon 'arrow-medium-right' style { 'size': 'fluid', 'pack': 'solid'} %}
+                        </div>
+                    {% endif %}
+                {% endblock %}
+            {% endfor %}
+        {% else %}
+            {% if item.children|length %}
+                {% sw_include '@Storefront/storefront/component/product/breadcrumb.html.twig' with {
+                    navigationTree: item.children,
+                    product: product
+                } only %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+{% endblock %}

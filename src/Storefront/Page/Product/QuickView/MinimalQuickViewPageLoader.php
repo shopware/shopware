@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Page\Product\QuickView;
 
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Product\ProductLoader;
@@ -37,7 +36,6 @@ class MinimalQuickViewPageLoader
             throw new MissingRequestParameterException('productId', '/productId');
         }
 
-        /** @var SalesChannelProductEntity $product */
         $product = $this->productLoader->load($productId, $salesChannelContext);
 
         $page = new MinimalQuickViewPage($product);

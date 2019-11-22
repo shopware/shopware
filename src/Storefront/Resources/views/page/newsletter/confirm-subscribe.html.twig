@@ -1,8 +1,0 @@
-{% sw_extends '@Storefront/base.html.twig' %}
-
-{% block base_content %}
-    {% sw_include '@Storefront/utilities/alert.html.twig' with {
-        type: "success",
-        content: "newsletter.subscriptionCompleted"|trans
-    } %}
-{% endblock %}

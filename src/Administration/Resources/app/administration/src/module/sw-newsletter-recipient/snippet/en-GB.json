@@ -1,0 +1,43 @@
+{
+  "sw-newsletter-recipient": {
+    "general": {
+      "description": "Manage newsletter recipients here.",
+      "information": "Information",
+      "language": "Language",
+      "salutation": "Salutation",
+      "salesChannel": "Sales channel",
+      "buttonSave": "Save",
+      "mainMenuItemGeneral": "Newsletter recipients",
+      "placeholderSearchBarSnippets": "Search all newsletter recipients...",
+      "tags": "Tags"
+    },
+    "detail": {
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "Data for \"{key}\" has been saved.",
+      "titleSaveError": "Error",
+      "messageSaveError": "Data for \"{key}\" could not be saved."
+    },
+    "list": {
+      "titleSidebarItemRefresh": "Refresh",
+      "titleSidebarItemFilter": "Filters",
+      "status": "Status",
+      "textHeadline": "Newsletter recipients",
+      "email": "Email address",
+      "name": "Name",
+      "title": "Title",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "salesChannel": "Sales Channel",
+      "zipCode": "Zip code",
+      "city": "City",
+      "street": "Street",
+      "notSet": "Awaiting activation",
+      "createdAt": "Created at",
+      "updatedAt": "Updated at",
+      "optIn": "Active",
+      "optOut": "Awaiting deletion",
+      "direct": "Instantly active",
+      "messageEmpty": "No newsletter recipients yet"
+    }
+  }
+}

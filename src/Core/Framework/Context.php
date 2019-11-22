@@ -103,6 +103,9 @@ class Context extends Struct
         $this->taxState = $taxState;
     }
 
+    /**
+     * @internal
+     */
     public static function createDefaultContext(?ContextSource $source = null): self
     {
         $source = $source ?? new SystemSource();
@@ -158,6 +161,7 @@ class Context extends Struct
             $this->considerInheritance,
             $this->taxState
         );
+        $context->scope = $this->scope;
 
         foreach ($this->getExtensions() as $key => $extension) {
             $context->addExtension($key, $extension);

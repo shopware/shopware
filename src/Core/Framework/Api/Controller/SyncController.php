@@ -46,7 +46,7 @@ class SyncController extends AbstractController
      *
      * @throws \Throwable
      */
-    public function sync(Request $request, Context $context): JsonResponse
+    public function sync(Request $request, Context $context, int $version): JsonResponse
     {
         // depending on the request header setting, we either
         // fail immediately or add any unexpected errors to our exception list
@@ -59,11 +59,15 @@ class SyncController extends AbstractController
 
         $operations = [];
         foreach ($payload as $key => $operation) {
-            $operations[] = new SyncOperation((string) $key, $operation['entity'], $operation['action'], $operation['payload']);
+            $operations[] = new SyncOperation((string) $key, $operation['entity'], $operation['action'], $operation['payload'], $version);
         }
 
         $result = $this->syncService->sync($operations, $context, $behavior);
 
-        return new JsonResponse($result);
+        if ($failOnError === true && !$result->isSuccess()) {
+            return new JsonResponse($result, 400);
+        }
+
+        return new JsonResponse($result, 200);
     }
 }

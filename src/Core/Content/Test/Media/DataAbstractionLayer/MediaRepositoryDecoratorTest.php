@@ -10,12 +10,14 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\OrderStates;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -74,10 +76,13 @@ class MediaRepositoryDecoratorTest extends TestCase
             $this->context
         );
         $mediaRepository = $this->mediaRepository;
-        $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($mediaId, &$media, $mediaRepository): void {
+        /** @var EntitySearchResult|null $media */
+        $media = null;
+        $this->context->scope(Context::USER_SCOPE, function () use ($mediaId, &$media, $mediaRepository): void {
             $media = $mediaRepository->search(new Criteria([$mediaId]), $this->context);
         });
 
+        static::assertNotNull($media);
         static::assertEquals(0, $media->count());
     }
 
@@ -134,6 +139,8 @@ class MediaRepositoryDecoratorTest extends TestCase
             $this->context
         );
         $mediaRepository = $this->mediaRepository;
+        /** @var EntitySearchResult|null $media */
+        $media = null;
         $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($mediaId, &$media, $mediaRepository): void {
             $media = $mediaRepository->search(new Criteria([$mediaId]), $context);
         });
@@ -141,11 +148,14 @@ class MediaRepositoryDecoratorTest extends TestCase
         static::assertEquals(0, $media->count());
 
         $documentRepository = $this->documentRepository;
+        /** @var EntitySearchResult|null $document */
+        $document = null;
         $this->context->scope(Context::USER_SCOPE, function (Context $context) use (&$document, $documentId, $documentRepository): void {
             $criteria = new Criteria([$documentId]);
             $criteria->addAssociation('documentMediaFile');
             $document = $documentRepository->search($criteria, $context);
         });
+        static::assertNotNull($document);
         static::assertEquals(1, $document->count());
         static::assertEquals($mediaId, $document->get($documentId)->getDocumentMediaFile()->getId());
         static::assertEquals('', $document->get($documentId)->getDocumentMediaFile()->getUrl());
@@ -233,7 +243,7 @@ class MediaRepositoryDecoratorTest extends TestCase
 
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $mediaPath = $urlGenerator->getRelativeMediaUrl($media);
-        $thumbnailPath = $urlGenerator->getRelativeThumbnailUrl($media, 100, 200, true);
+        $thumbnailPath = $urlGenerator->getRelativeThumbnailUrl($media, (new MediaThumbnailEntity())->assign(['width' => 100, 'height' => 200]));
 
         $this->getPublicFilesystem()->putStream($mediaPath, fopen(self::FIXTURE_FILE, 'rb'));
         $this->getPublicFilesystem()->putStream($thumbnailPath, fopen(self::FIXTURE_FILE, 'rb'));

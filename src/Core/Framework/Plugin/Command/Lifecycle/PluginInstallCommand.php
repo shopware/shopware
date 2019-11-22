@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Plugin\Command\Lifecycle;
 use Shopware\Core\Framework\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
-use Shopware\Core\Framework\Plugin\PluginEntity;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -13,6 +12,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 class PluginInstallCommand extends AbstractPluginLifecycleCommand
 {
     private const LIFECYCLE_METHOD = 'install';
+
+    protected static $defaultName = 'plugin:install';
 
     protected function configure(): void
     {
@@ -39,7 +40,6 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
         $activatePlugins = $input->getOption('activate');
 
         $installedPluginCount = 0;
-        /** @var PluginEntity $plugin */
         foreach ($plugins as $plugin) {
             if ($input->getOption('reinstall') && $plugin->getInstalledAt()) {
                 $this->pluginLifecycleService->uninstallPlugin($plugin, $context);

@@ -14,6 +14,8 @@ class ElasticsearchIndexingCommand extends Command implements EventSubscriberInt
 {
     use ConsoleProgressTrait;
 
+    protected static $defaultName = 'es:index';
+
     /**
      * @var EntityIndexer
      */
@@ -31,7 +33,6 @@ class ElasticsearchIndexingCommand extends Command implements EventSubscriberInt
     protected function configure(): void
     {
         $this
-            ->setName('es:index')
             ->setDescription('Reindex all entities to elasticsearch');
     }
 

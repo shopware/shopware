@@ -18,6 +18,10 @@
             <tag name="shopware.entity.definition" entity="customer_address"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryDefinition">
+            <tag name="shopware.entity.definition" entity="customer_recovery"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition">
             <tag name="shopware.entity.definition" entity="customer_group"/>
         </service>
@@ -29,6 +33,7 @@
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService">
             <argument type="service" id="customer_address.repository"/>
             <argument type="service" id="customer.repository"/>
+            <argument type="service" id="customer_recovery.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
@@ -36,6 +41,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier"/>
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="router"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\SalesChannelCustomerController" public="true">
@@ -45,6 +51,8 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\CustomerDefinition"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -58,6 +66,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationService"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="sales_channel_domain.repository"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService">
@@ -84,11 +93,13 @@
 
         <service id="Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUniqueValidator">
             <argument type="service" id="customer.repository"/>
+
             <tag name="validator.constraint_validator"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatchesValidator">
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
+
             <tag name="validator.constraint_validator"/>
         </service>
 
@@ -107,6 +118,7 @@
         <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerMetaFieldSubscriber">
             <argument type="service" id="order.repository"/>
             <argument type="service" id="customer.repository"/>
+
             <tag name="kernel.event_subscriber"/>
         </service>
     </services>

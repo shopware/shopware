@@ -111,7 +111,7 @@ class MediaUploadControllerTest extends TestCase
         $target = $this->getContainer()->getParameter('kernel.project_dir') . '/public/shopware-logo.png';
         copy(__DIR__ . '/../fixtures/shopware-logo.png', $target);
 
-        $baseUrl = getenv('APP_URL');
+        $baseUrl = $_SERVER['APP_URL'] ?? '';
 
         $url = sprintf(
             '/api/v%s/_action/media/%s/upload',

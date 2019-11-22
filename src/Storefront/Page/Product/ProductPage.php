@@ -3,13 +3,10 @@
 namespace Shopware\Storefront\Page\Product;
 
 use Shopware\Core\Content\Cms\CmsPageEntity;
-use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
-use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Shopware\Storefront\Page\Page;
-use Shopware\Storefront\Page\Product\Review\RatingMatrix;
 use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
 
 class ProductPage extends Page
@@ -69,34 +66,14 @@ class ProductPage extends Page
         $this->configuratorSettings = $configuratorSettings;
     }
 
-    public function getReviewLoaderResult(): ReviewLoaderResult
+    public function getReviews(): ReviewLoaderResult
     {
         return $this->reviewLoaderResult;
     }
 
-    public function setReviewLoaderResult(ReviewLoaderResult $result): void
+    public function setReviews(ReviewLoaderResult $result): void
     {
         $this->reviewLoaderResult = $result;
-    }
-
-    public function getReviews(): StorefrontSearchResult
-    {
-        return $this->reviewLoaderResult->getReviews();
-    }
-
-    public function getCustomerReview(): ?ProductReviewEntity
-    {
-        return $this->reviewLoaderResult->getCustomerReview();
-    }
-
-    public function getRatingMatrix(): RatingMatrix
-    {
-        return $this->reviewLoaderResult->getMatrix();
-    }
-
-    public function getTotalReviews(): int
-    {
-        return $this->reviewLoaderResult->getTotalReviews();
     }
 
     public function getSelectedOptions(): PropertyGroupOptionCollection

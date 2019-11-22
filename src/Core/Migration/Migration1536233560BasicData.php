@@ -88,7 +88,6 @@ class Migration1536233560BasicData extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 
     private function getDeDeLanguageId(): string
@@ -216,7 +215,7 @@ class Migration1536233560BasicData extends MigrationStep
             ];
         };
 
-        $languageEN = function (string $countryId, string $name) {
+        $languageEN = static function (string $countryId, string $name) {
             return [
                 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
                 'name' => $name,
@@ -1017,7 +1016,7 @@ class Migration1536233560BasicData extends MigrationStep
     private function getMediaFolderName(string $entity): string
     {
         $capitalizedEntityParts = array_map(
-            function ($part) {
+            static function ($part) {
                 return ucfirst($part);
             },
             explode('_', $entity)
@@ -1534,7 +1533,7 @@ class Migration1536233560BasicData extends MigrationStep
         );
     }
 
-    private function getRegisterTemplate_HTML_EN()
+    private function getRegisterTemplate_HTML_EN(): string
     {
         return '<h3>Hello {{ firstName }} {{ lastName }}</h3>
                 <p>thank you very much for your registration.</p>
@@ -1542,7 +1541,7 @@ class Migration1536233560BasicData extends MigrationStep
         ';
     }
 
-    private function getRegisterTemplate_PLAIN_EN()
+    private function getRegisterTemplate_PLAIN_EN(): string
     {
         return 'Hello {{ firstName }} {{ lastName }}
             
@@ -1552,7 +1551,7 @@ class Migration1536233560BasicData extends MigrationStep
         ';
     }
 
-    private function getRegisterTemplate_HTML_DE()
+    private function getRegisterTemplate_HTML_DE(): string
     {
         return '<h3>Hallo {{ firstName }} {{ lastName }}</h3>
                 <p>vielen Dank für Ihre Anmeldung.</p>
@@ -1560,7 +1559,7 @@ class Migration1536233560BasicData extends MigrationStep
         ';
     }
 
-    private function getRegisterTemplate_PLAIN_DE()
+    private function getRegisterTemplate_PLAIN_DE(): string
     {
         return 'Hallo {{ firstName }} {{ lastName }}
             
@@ -1570,7 +1569,7 @@ class Migration1536233560BasicData extends MigrationStep
         ';
     }
 
-    private function getOptInTemplate_HTML_EN()
+    private function getOptInTemplate_HTML_EN(): string
     {
         return '<h3>Hello {{ firstName }} {{ lastName }}</h3>
                 <p>Thank you for your interest in our newsletter!</p>
@@ -1579,7 +1578,7 @@ class Migration1536233560BasicData extends MigrationStep
         ';
     }
 
-    private function getOptInTemplate_PLAIN_EN()
+    private function getOptInTemplate_PLAIN_EN(): string
     {
         return 'Hello {{ firstName }} {{ lastName }}
         
@@ -1591,7 +1590,7 @@ class Migration1536233560BasicData extends MigrationStep
         ';
     }
 
-    private function getOptInTemplate_HTML_DE()
+    private function getOptInTemplate_HTML_DE(): string
     {
         return '<h3>Hallo {{ firstName }} {{ lastName }}</h3>
                 <p>Schön, dass Sie sich für unseren Newsletter interessieren!</p>
@@ -1600,7 +1599,7 @@ class Migration1536233560BasicData extends MigrationStep
         ';
     }
 
-    private function getOptInTemplate_PLAIN_DE()
+    private function getOptInTemplate_PLAIN_DE(): string
     {
         return 'Hallo {{ firstName }} {{ lastName }}
         
@@ -1672,7 +1671,7 @@ class Migration1536233560BasicData extends MigrationStep
                 'nameDe' => 'Lagerbestandshinweis',
                 'availableEntities' => ['product' => 'product', 'salesChannel' => 'sales_channel'],
             ],
-            MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_RETURNED_PARTIALLY => [
+            'state_enter.order_delivery.state.returned_partially' => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter order state: Open',
                 'nameDe' => 'Eintritt Bestellstatus: Offen',
@@ -1683,7 +1682,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'salesChannel' => 'sales_channel',
                 ],
             ],
-            MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_SHIPPED_PARTIALLY => [
+            'state_enter.order_delivery.state.shipped_partially' => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter order state: Shipped (partially)',
                 'nameDe' => 'Eintritt Bestellstatus: Teilweise versandt',
@@ -1694,7 +1693,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'salesChannel' => 'sales_channel',
                 ],
             ],
-            MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_RETURNED => [
+            'state_enter.order_delivery.state.returned' => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter order state: Returned',
                 'nameDe' => 'Eintritt Bestellstatus: Retour',
@@ -1705,7 +1704,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'salesChannel' => 'sales_channel',
                 ],
             ],
-            MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_SHIPPED => [
+            'state_enter.order_delivery.state.shipped' => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter order state: Shipped',
                 'nameDe' => 'Eintritt Bestellstatus: Versandt',
@@ -1716,7 +1715,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'salesChannel' => 'sales_channel',
                 ],
             ],
-            MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_CANCELLED => [
+            'state_enter.order_delivery.state.cancelled' => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter order state: Cancelled',
                 'nameDe' => 'Eintritt Bestellstatus: Abgebrochen',
@@ -1727,7 +1726,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'salesChannel' => 'sales_channel',
                 ],
             ],
-            MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REMINDED => [
+            'state_enter.order_transaction.state.reminded' => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter payment state: Reminded',
                 'nameDe' => 'Eintritt Zahlungsstatus: Erinnert',
@@ -1738,7 +1737,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'salesChannel' => 'sales_channel',
                 ],
             ],
-            MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REFUNDED_PARTIALLY => [
+            'state_enter.order_transaction.state.refunded_partially' => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter payment state: Refunded (partially)',
                 'nameDe' => 'Eintritt Zahlungsstatus: Teilweise erstattet',
@@ -1749,7 +1748,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'salesChannel' => 'sales_channel',
                 ],
             ],
-            MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_CANCELLED => [
+            'state_enter.order_transaction.state.cancelled' => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter payment state: Cancelled',
                 'nameDe' => 'Eintritt Zahlungsstatus: Abgebrochen',
@@ -1760,7 +1759,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'salesChannel' => 'sales_channel',
                 ],
             ],
-            MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_PAID => [
+            'state_enter.order_transaction.state.paid' => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter payment state: Paid',
                 'nameDe' => 'Eintritt Zahlungsstatus: Bezahlt',
@@ -1771,7 +1770,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'salesChannel' => 'sales_channel',
                 ],
             ],
-            MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REFUNDED => [
+            'state_enter.order_transaction.state.refunded' => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter payment state: Refunded',
                 'nameDe' => 'Eintritt Zahlungsstatus: Erstattet',
@@ -1782,7 +1781,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'salesChannel' => 'sales_channel',
                 ],
             ],
-            MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_PAID_PARTIALLY => [
+            'state_enter.order_transaction.state.paid_partially' => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter payment state: Paid (partially)',
                 'nameDe' => 'Eintritt Zahlungsstatus: Teilweise bezahlt',
@@ -1793,7 +1792,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'salesChannel' => 'sales_channel',
                 ],
             ],
-            MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_OPEN => [
+            'state_enter.order_transaction.state.open' => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter payment state: Open',
                 'nameDe' => 'Eintritt Zahlungsstatus: Offen',
@@ -1804,7 +1803,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'salesChannel' => 'sales_channel',
                 ],
             ],
-            MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_STATE_OPEN => [
+            'state_enter.order.state.open' => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter order state: Open',
                 'nameDe' => 'Eintritt Bestellstatus: Offen',
@@ -1815,7 +1814,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'salesChannel' => 'sales_channel',
                 ],
             ],
-            MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_STATE_IN_PROGRESS => [
+            'state_enter.order.state.in_progress' => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter order state: In progress',
                 'nameDe' => 'Eintritt Bestellstatus: In Bearbeitung',
@@ -1826,7 +1825,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'salesChannel' => 'sales_channel',
                 ],
             ],
-            MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_STATE_CANCELLED => [
+            'state_enter.order.state.cancelled' => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter order state: Cancelled',
                 'nameDe' => 'Eintritt Bestellstatus: Abgebrochen',
@@ -1837,7 +1836,7 @@ class Migration1536233560BasicData extends MigrationStep
                     'salesChannel' => 'sales_channel',
                 ],
             ],
-            MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_STATE_COMPLETED => [
+            'state_enter.order.state.completed' => [
                 'id' => Uuid::randomHex(),
                 'name' => 'Enter order state: Done',
                 'nameDe' => 'Eintritt Bestellstatus: Abgeschlossen',
@@ -2055,7 +2054,7 @@ class Migration1536233560BasicData extends MigrationStep
             );
         }
 
-        foreach ($definitionNumberRanges as $typeName => $numberRange) {
+        foreach ($definitionNumberRanges as $numberRange) {
             $connection->insert(
                 'number_range',
                 [
@@ -2916,7 +2915,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
             );
         }
 
-        foreach ($definitionNumberRanges as $typeName => $numberRange) {
+        foreach ($definitionNumberRanges as $numberRange) {
             $connection->insert(
                 'number_range',
                 [

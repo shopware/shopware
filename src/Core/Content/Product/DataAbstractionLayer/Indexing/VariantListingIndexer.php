@@ -194,7 +194,7 @@ class VariantListingIndexer implements IndexerInterface
 
             $fields = [];
             $params = ['parentId' => $parentId];
-            foreach ($groups as $index => $groupId) {
+            foreach ($groups as $groupId) {
                 $mappingAlias = 'mapping' . $groupId;
                 $optionAlias = 'option' . $groupId;
 

@@ -1,0 +1,26 @@
+@import "~scss/variables";
+
+$sw-customer-list-color-error: $color-crimson;
+$sw-customer-list-color-success: $color-emerald;
+
+.sw-customer-list {
+    .sw-customer-list__content {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+    }
+
+    .is--inactive {
+        color: $sw-customer-list-color-error;
+    }
+
+    .is--active {
+        color: $sw-customer-list-color-success;
+    }
+}
+
+.sw-customer-list__sidebar {
+    .sw-sidebar-item__scrollable-container {
+        padding: 0 25px;
+    }
+}

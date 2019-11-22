@@ -1,0 +1,32 @@
+{% block page_account_address_item_content %}
+    <div class="col-lg-6 card-col address-card">
+        <div class="card {% if defaultBillingAddress is same as(address.id) %}billing-address{% elseif defaultShippingAddress is same as(address.id) %}shipping-address{% else %}other-address{% endif %}">
+            {% block page_account_address_item_content_body %}
+                <div class="card-body">
+                    {% block page_account_address_item_content_title %}
+                        {% if defaultBillingAddress is same as(address.id) or defaultShippingAddress is same as(address.id) %}
+                            <div class="card-title address-card-title">
+                                {% if defaultShippingAddress is same as(address.id) %}
+                                    <div>{{ "account.addressesTitleDefaultShippingAddress"|trans|sw_sanitize }}</div>
+                                {% endif %}
+                                {% if defaultBillingAddress is same as(address.id) %}
+                                    <div>{{ "account.addressesTitleDefaultBillingAddress"|trans|sw_sanitize }}</div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endblock %}
+
+                    {% block page_account_address_item_content_inner %}
+                        {% sw_include '@Storefront/storefront/component/address/address.html.twig' %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block page_account_address_item_content_actions %}
+                <div class="card-actions">
+                    {% sw_include '@Storefront/storefront/component/address/address-actions.html.twig' %}
+                </div>
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}

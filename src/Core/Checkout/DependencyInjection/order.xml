@@ -66,5 +66,31 @@
         <service id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler">
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
         </service>
+
+        <!-- controller -->
+        <service id="Shopware\Core\Checkout\Order\Api\OrderActionController" public="true">
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="mail_template.repository"/>
+            <argument type="service" id="document.repository"/>
+            <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineDefinition"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <!-- events -->
+        <service id="Shopware\Core\Checkout\Order\Listener\OrderStateChangeEventListener">
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="order_transaction.repository"/>
+            <argument type="service" id="order_delivery.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <tag name="kernel.event_listener" event="state_machine.order.state_changed" method="onOrderStateChange"/>
+            <tag name="kernel.event_listener" event="state_machine.order_delivery.state_changed" method="onOrderDeliveryStateChange"/>
+            <tag name="kernel.event_listener" event="state_machine.order_transaction.state_changed" method="onOrderTransactionStateChange"/>
+        </service>
     </services>
 </container>

@@ -95,8 +95,7 @@ class ThumbnailServiceTest extends TestCase
         foreach ($thumbnails as $thumbnail) {
             $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl(
                 $media,
-                $thumbnail->getWidth(),
-                $thumbnail->getHeight()
+                $thumbnail
             );
             $filtered = $updatedMedia->getMediaFolder()
                 ->getConfiguration()
@@ -201,8 +200,7 @@ class ThumbnailServiceTest extends TestCase
         foreach ($media->getThumbnails() as $thumbnail) {
             $thumbnailUrl = $this->urlGenerator->getRelativeThumbnailUrl(
                 $media,
-                $thumbnail->getWidth(),
-                $thumbnail->getHeight()
+                $thumbnail
             );
             $this->getPublicFilesystem()->put($thumbnailUrl, 'test content');
             $thumbnailUrls[] = $thumbnailUrl;
@@ -307,7 +305,7 @@ class ThumbnailServiceTest extends TestCase
 
         /** @var MediaThumbnailEntity $thumbnail */
         foreach ($filteredThumbnails as $thumbnail) {
-            $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail->getWidth(), $thumbnail->getHeight());
+            $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
             static::assertTrue(
                 $this->getPublicFilesystem()->has($path),
                 'Thumbnail: ' . $path . ' does not exist'

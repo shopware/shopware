@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyFormatter;
@@ -38,6 +39,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class InvoiceServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use TaxAddToSalesChannelTestBehaviour;
 
     /**
      * @var SalesChannelContext
@@ -186,6 +188,7 @@ class InvoiceServiceTest extends TestCase
             ];
 
             $cart->add($factory->create($id));
+            $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
         }
 
         $this->getContainer()->get('product.repository')

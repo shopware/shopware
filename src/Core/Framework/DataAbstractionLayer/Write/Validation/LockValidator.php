@@ -47,7 +47,7 @@ class LockValidator implements EventSubscriberInterface
 
         $message = 'The %s entity is locked and can neither be modified nor deleted.';
 
-        foreach ($lockedEntities as $entity => $isLocked) {
+        foreach ($lockedEntities as $entity => $_isLocked) {
             $violations->add(new ConstraintViolation(
                 sprintf($message, $entity),
                 sprintf($message, '{{ entity }}'),
@@ -71,7 +71,7 @@ class LockValidator implements EventSubscriberInterface
         $ids = [];
         $locked = [];
 
-        foreach ($writeCommands as $index => $command) {
+        foreach ($writeCommands as $command) {
             if ($command instanceof InsertCommand) {
                 continue;
             }

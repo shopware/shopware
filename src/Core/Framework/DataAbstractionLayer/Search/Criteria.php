@@ -258,7 +258,6 @@ class Criteria extends Struct
      *
      * $criteria->addAssociation('categories.media.thumbnails')
      *
-     *
      * @throws InconsistentCriteriaIdsException
      *
      * @return Criteria
@@ -289,7 +288,6 @@ class Criteria extends Struct
      *      'cover.media',
      *      'categories.cover.media'
      * ]);
-     *
      *
      * @throws InconsistentCriteriaIdsException
      *
@@ -391,6 +389,18 @@ class Criteria extends Struct
         ]);
     }
 
+    public function getAllFields(): array
+    {
+        return $this->collectFields([
+            $this->filters,
+            $this->postFilters,
+            $this->sorting,
+            $this->queries,
+            $this->groupFields,
+            $this->aggregations,
+        ]);
+    }
+
     public function setIds(array $ids): self
     {
         $this->ids = $ids;
@@ -425,7 +435,14 @@ class Criteria extends Struct
     public function cloneForRead(array $ids = []): Criteria
     {
         $self = new self($ids);
-        $self->associations = $this->associations;
+
+        $associations = [];
+
+        foreach ($this->associations as $name => $association) {
+            $associations[$name] = clone $association;
+        }
+
+        $self->associations = $associations;
 
         return $self;
     }

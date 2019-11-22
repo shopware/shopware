@@ -78,6 +78,5 @@ SQL;
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

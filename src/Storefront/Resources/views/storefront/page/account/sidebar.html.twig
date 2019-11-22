@@ -1,0 +1,90 @@
+{% block page_account_sidebar_inner %}
+    <div class="{% if not headerWidget %}account-aside{% else %}header-account-menu{% endif %}">
+        <div class="card account-menu-inner">
+            {% block page_account_sidebar_header %}
+                {% if not headerWidget %}
+                    <div class="card-header account-aside-header">
+                        {{ "account.greetings"|trans|sw_sanitize }}
+                        {{ context.customer.title }}
+                        {{ context.customer.firstName }}
+                        {{ context.customer.lastName }}
+                    </div>
+                {% endif %}
+            {% endblock %}
+
+            {% block page_account_sidebar_menu %}
+                {% if not context.customer.guest %}
+                    <div class="list-group list-group-flush account-aside-list-group">
+                        {% block page_account_sidebar_menu_inner %}
+                            {% block page_account_sidebar_link_home %}
+                                <a href="{{ path('frontend.account.home.page') }}"
+                                   title="{{ "account.overviewLink"|trans|striptags }}"
+                                   class="list-group-item list-group-item-action account-aside-item{% if controllerName is same as('AccountProfile') and controllerAction is same as('index') %} is-active{% endif %}">
+                                    {{ "account.overviewLink"|trans|sw_sanitize }}
+                                </a>
+                            {% endblock %}
+
+                            {% block page_account_sidebar_link_profile %}
+                                <a href="{{ path('frontend.account.profile.page') }}"
+                                   title="{{ "account.profileLink"|trans|striptags }}"
+                                   class="list-group-item list-group-item-action account-aside-item{% if controllerName is same as('AccountProfile') and controllerAction is same as('profileOverview') %} is-active{% endif %}">
+                                    {{ "account.profileLink"|trans|sw_sanitize }}
+                                </a>
+                            {% endblock %}
+
+                            {% block page_account_sidebar_link_address %}
+                                <a href="{{ path('frontend.account.address.page') }}"
+                                   title="{{ "account.addressLink"|trans|striptags }}"
+                                   class="list-group-item list-group-item-action account-aside-item{% if controllerName is same as('Address') and controllerAction is same as('accountAddressOverview') %} is-active{% endif %}">
+                                    {{ "account.addressLink"|trans|sw_sanitize }}
+                                </a>
+                            {% endblock %}
+
+                            {% block page_account_sidebar_link_payment %}
+                                <a href="{{ path('frontend.account.payment.page') }}"
+                                   title="{{ "account.paymentLink"|trans|striptags }}"
+                                   class="list-group-item list-group-item-action account-aside-item{% if controllerName is same as('AccountPayment') and controllerAction is same as('paymentOverview') %} is-active{% endif %}">
+                                    {{ "account.paymentLink"|trans|sw_sanitize }}
+                                </a>
+                            {% endblock %}
+
+                            {% block page_account_sidebar_link_orders %}
+                                <a href="{{ path('frontend.account.order.page') }}"
+                                   title="{{ "account.ordersLink"|trans|striptags }}"
+                                   class="list-group-item list-group-item-action account-aside-item{% if controllerName is same as('AccountOrder') and controllerAction is same as('orderOverview') %} is-active{% endif %}">
+                                    {{ "account.ordersLink"|trans|sw_sanitize }}
+                                </a>
+                            {% endblock %}
+                        {% endblock %}
+                    </div>
+                {% endif %}
+            {% endblock %}
+
+            {% block page_account_sidebar_footer %}
+                {% if context.customer %}
+                    {% if not context.customer.guest %}
+                        <div class="card-footer account-aside-footer">
+                            {% block page_account_sidebar_logout %}
+                                <a href="{{ path('frontend.account.logout.page') }}"
+                                   class="btn btn-link account-aside-btn">
+                                    {% sw_icon 'log-out' %}
+                                    {{ "account.logout"|trans|sw_sanitize }}
+                                </a>
+                            {% endblock %}
+                        </div>
+                    {% else %}
+                        <div class="card-footer account-aside-footer account-guest-abort">
+                            {% block page_account_sidebar_guest_abort %}
+                                <a href="{{ path('frontend.account.logout.page') }}"
+                                   class="btn btn-link account-aside-btn">
+                                    {% sw_icon 'log-out' %}
+                                    {{ "account.guestAbort"|trans|sw_sanitize }}
+                                </a>
+                            {% endblock %}
+                        </div>
+                    {% endif %}
+                {% endif %}
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}

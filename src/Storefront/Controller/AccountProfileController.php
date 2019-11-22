@@ -4,7 +4,10 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -48,6 +51,9 @@ class AccountProfileController extends StorefrontController
      * @Route("/account", name="frontend.account.home.page", methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
+     * @throws CategoryNotFoundException
+     * @throws InconsistentCriteriaIdsException
+     * @throws MissingRequestParameterException
      */
     public function index(Request $request, SalesChannelContext $context): Response
     {
@@ -55,13 +61,16 @@ class AccountProfileController extends StorefrontController
 
         $page = $this->overviewPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/account/index.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/storefront/page/account/index.html.twig', ['page' => $page]);
     }
 
     /**
      * @Route("/account/profile", name="frontend.account.profile.page", methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
+     * @throws CategoryNotFoundException
+     * @throws InconsistentCriteriaIdsException
+     * @throws MissingRequestParameterException
      */
     public function profileOverview(Request $request, SalesChannelContext $context): Response
     {
@@ -69,7 +78,7 @@ class AccountProfileController extends StorefrontController
 
         $page = $this->profilePageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/account/profile/index.html.twig', [
+        return $this->renderStorefront('@Storefront/storefront/page/account/profile/index.html.twig', [
             'page' => $page,
             'passwordFormViolation' => $request->get('passwordFormViolation'),
             'emailFormViolation' => $request->get('emailFormViolation'),

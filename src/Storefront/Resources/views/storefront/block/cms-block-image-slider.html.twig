@@ -1,0 +1,10 @@
+{% block block_image_slider %}
+    {% set element = block.slots.getSlot('imageSlider') %}
+    {% set columns = 1 %}
+    
+    <div class="col-12" data-cms-element-id="{{ element.id }}">
+        {% block block_image_slider_inner %}
+            {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
+        {% endblock %}
+    </div>
+{% endblock %}

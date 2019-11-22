@@ -1,0 +1,50 @@
+{% block sw_cms_element_product_box_config %}
+    <div class="sw-cms-el-config-product-box">
+        {% block sw_cms_element_product_box_config_product_select %}
+            <sw-entity-single-select
+               ref="cmsProductSelection"
+               :label="$tc('sw-cms.elements.productBox.config.label.selection')"
+               :placeholder="$tc('sw-cms.elements.productBox.config.placeholder.selection')"
+               entity="product"
+               :context="productSelectContext"
+               @change="onProductChange"
+               v-model="element.config.product.value">
+                <template #result-label-property="{ item, index, labelProperty, searchTerm, getKey }">
+                    <sw-highlight-text
+                            :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                            :searchTerm="searchTerm">
+                    </sw-highlight-text>
+                    <span class="sw-cms-el-config-product-box__select-product-number">{{ item.productNumber }}</span>
+                </template>
+            </sw-entity-single-select>
+        {% endblock %}
+
+        {% block sw_cms_element_product_box_config_layout_select %}
+            <sw-select-field :label="$tc('sw-cms.elements.productBox.config.label.layoutType')"
+                             v-model="element.config.boxLayout.value">
+                <option value="standard">{{ $tc('sw-cms.elements.productBox.config.label.layoutTypeStandard') }}</option>
+                <option value="image">{{ $tc('sw-cms.elements.productBox.config.label.layoutTypeImage') }}</option>
+                <option value="minimal">{{ $tc('sw-cms.elements.productBox.config.label.layoutTypeMinimal') }}</option>
+            </sw-select-field>
+        {% endblock %}
+
+        {% block sw_cms_element_product_box_config_displaymode_select %}
+            <sw-select-field :label="$tc('sw-cms.elements.general.config.label.displayMode')"
+                             v-model="element.config.displayMode.value">
+                <option value="standard">{{ $tc('sw-cms.elements.general.config.label.displayModeStandard') }}</option>
+                <option value="cover">{{ $tc('sw-cms.elements.general.config.label.displayModeCover') }}</option>
+                <option value="contain">{{ $tc('sw-cms.elements.general.config.label.displayModeContain') }}</option>
+            </sw-select-field>
+        {% endblock %}
+
+        {% block sw_cms_element_product_box_config_settings_vertical_align %}
+            <sw-select-field :label="$tc('sw-cms.elements.general.config.label.verticalAlign')"
+                             v-model="element.config.verticalAlign.value"
+                             :placeholder="$tc('sw-cms.elements.general.config.label.verticalAlign')">
+                <option value="flex-start">{{ $tc('sw-cms.elements.general.config.label.verticalAlignTop') }}</option>
+                <option value="center">{{ $tc('sw-cms.elements.general.config.label.verticalAlignCenter') }}</option>
+                <option value="flex-end">{{ $tc('sw-cms.elements.general.config.label.verticalAlignBottom') }}</option>
+            </sw-select-field>
+        {% endblock %}
+    </div>
+{% endblock %}

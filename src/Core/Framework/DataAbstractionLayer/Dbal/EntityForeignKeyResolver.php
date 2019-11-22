@@ -57,7 +57,6 @@ class EntityForeignKeyResolver
      *      ]
      *  ]
      *
-     *
      * @throws \RuntimeException
      */
     public function getAffectedDeleteRestrictions(EntityDefinition $definition, array $ids, Context $context): array
@@ -79,7 +78,6 @@ class EntityForeignKeyResolver
      *          ]
      *      ]
      *  ]
-     *
      *
      * @throws \RuntimeException
      */

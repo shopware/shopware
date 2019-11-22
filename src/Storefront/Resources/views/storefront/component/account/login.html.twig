@@ -1,0 +1,120 @@
+{% block component_account_login %}
+    <div class="card login-card">
+        <div class="card-body">
+            {% block component_account_login_header %}
+                {% if cardTitle %}
+                    <div class="card-title">
+                        {{ cardTitle }}
+                    </div>
+                {% endif %}
+            {% endblock %}
+
+            {% block component_account_login_form %}
+                <form class="login-form"
+                      action="{{ path('frontend.account.login') }}"
+                      method="post"
+                      data-form-csrf-handler="true"
+                      data-form-validation="true">
+
+                    {% block component_account_login_form_csrf %}
+                        {{ sw_csrf('frontend.account.login') }}
+                    {% endblock %}
+
+                    {% block component_account_login_form_redirect %}
+                        <input type="hidden"
+                               name="redirectTo"
+                               value="{{ redirectTo }}">
+
+                        <input type="hidden"
+                               name="redirectParameters"
+                               value="{{ redirectParameters }}">
+                    {% endblock %}
+
+                    {% block component_account_login_form_description %}
+                        <p class="login-form-description">
+                            {{ "account.loginFormDescription"|trans|sw_sanitize }}
+                        </p>
+                    {% endblock %}
+
+                    {% block component_account_login_form_error %}
+                        {% if loginError %}
+                            {% if errorSnippet != null %}
+                                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                                    type: "danger",
+                                    content: errorSnippet|trans|sw_sanitize
+                                } %}
+                            {% else %}
+                                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                                    type: "danger",
+                                    content: "account.loginBadCredentials"|trans|sw_sanitize
+                                } %}
+                            {% endif %}
+                        {% endif %}
+                    {% endblock %}
+
+                    {% block component_account_login_form_fields %}
+                        <div class="form-row">
+                            {% block component_account_login_form_mail %}
+                                <div class="form-group col-md-6">
+                                    {% block component_account_login_form_mail_label %}
+                                        <label class="form-label"
+                                               for="loginMail">
+                                            {{ "account.loginMailLabel"|trans|sw_sanitize }}
+                                        </label>
+                                    {% endblock %}
+
+                                    {% block component_account_login_form_mail_input %}
+                                        <input type="email"
+                                               class="form-control{% if loginError %} is-invalid{% endif %}"
+                                               id="loginMail"
+                                               placeholder="{{ "account.loginMailPlaceholder"|trans|striptags }}"
+                                               name="username"
+                                               required="required">
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+
+                            {% block component_account_login_form_password %}
+                                <div class="form-group col-md-6">
+                                    {% block component_account_login_form_password_label %}
+                                        <label class="form-label"
+                                               for="loginPassword">
+                                            {{ "account.loginPasswordLabel"|trans|sw_sanitize }}
+                                        </label>
+                                    {% endblock %}
+                                    {% block component_account_login_form_password_input %}
+                                        <input type="password"
+                                               class="form-control{% if loginError %} is-invalid{% endif %}"
+                                               id="loginPassword"
+                                               placeholder="{{ "account.loginPasswordPlaceholder"|trans|striptags }}"
+                                               name="password"
+                                               required="required">
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block component_account_login_password_recover %}
+                        <div class="login-password-recover">
+                            {% block component_account_login_password_recover_link %}
+                                <a href="{{ seoUrl('frontend.account.recover.page') }}">
+                                    {{ 'account.loginPasswordRecover'|trans }}
+                                </a>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block component_account_login_submit %}
+                        <div class="login-submit">
+                            <button type="submit"
+                                    class="btn btn-primary">
+                                {{ "account.loginSubmit"|trans|sw_sanitize }}
+                            </button>
+                        </div>
+                    {% endblock %}
+                </form>
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}

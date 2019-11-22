@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
-use Symfony\Component\Cache\CacheItem;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class CachedEntityReader implements EntityReaderInterface
 {
@@ -62,7 +62,7 @@ class CachedEntityReader implements EntityReaderInterface
             return $this->decorated->read($definition, $criteria, $context);
         }
 
-        if (in_array($definition->getClass(), CachedEntitySearcher::BLACKLIST, true)) {
+        if (\in_array($definition->getClass(), CachedEntitySearcher::BLACKLIST, true)) {
             return $this->decorated->read($definition, $criteria, $context);
         }
 
@@ -85,7 +85,7 @@ class CachedEntityReader implements EntityReaderInterface
         }
 
         // load full result from storage
-        $collection = $this->decorated->read($definition, $criteria, $context);
+        $collection = $this->decorated->read($definition, clone $criteria, $context);
 
         // cache the full result
         $this->cacheCollection($definition, $criteria, $context, $collection);
@@ -176,7 +176,8 @@ class CachedEntityReader implements EntityReaderInterface
             $context,
             $criteria
         );
-        /** @var CacheItem $item */
+
+        /** @var ItemInterface $item */
         $item = $this->cache->getItem($key);
         $item->set($entity);
         $item->tag($key);
@@ -201,9 +202,9 @@ class CachedEntityReader implements EntityReaderInterface
             $definition,
             $context
         );
-        /** @var CacheItem $item */
-        $item = $this->cache->getItem($key);
 
+        /** @var ItemInterface $item */
+        $item = $this->cache->getItem($key);
         $item->set($id);
         $entityTag = $definition->getEntityName() . '.id';
         $item->tag([$key, $entityTag]);
@@ -218,7 +219,7 @@ class CachedEntityReader implements EntityReaderInterface
     {
         $key = $this->cacheKeyGenerator->getReadCriteriaCacheKey($definition, $criteria, $context);
 
-        /** @var CacheItem $item */
+        /** @var ItemInterface $item */
         $item = $this->cache->getItem($key);
         $item->set($entityCollection);
         $item->tag($key);

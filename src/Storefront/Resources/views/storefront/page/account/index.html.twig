@@ -1,0 +1,186 @@
+{% sw_extends '@Storefront/storefront/page/account/_page.html.twig' %}
+
+{% block page_account_main_content %}
+    {% block page_account_overview %}
+        <div class="account-overview">
+            {% block page_account_overview_welcome %}
+                <div class="account-welcome">
+                    <h1>{{ "account.overviewTitle"|trans|sw_sanitize }}</h1>
+                    {% block page_account_overview_welcome_intro %}
+                        <p>{{ "account.overviewInfo"|trans|sw_sanitize }}</p>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block page_account_overview_main %}
+                <div class="row">
+                    {% block page_account_overview_profile %}
+                        <div class="col-lg-6 card-col account-overview-card account-overview-profile">
+                            {% block page_account_overview_profile_card %}
+                                <div class="card">
+                                    <div class="card-body">
+                                        {% block page_account_overview_profile_title %}
+                                            <h2 class="card-title">
+                                                {{ "account.overviewProfileHeader"|trans|sw_sanitize }}
+                                            </h2>
+                                        {% endblock %}
+
+                                        {% block page_account_overview_profile_content %}
+                                            <p>
+                                                {% if context.customer.salutation.salutationKey != 'not_specified' %}
+                                                    {{ context.customer.salutation.translated.displayName }}
+                                                {% endif %}
+                                                {% if context.customer.title %}
+                                                    {{ context.customer.title }}<br/>
+                                                {% endif %}
+                                                {{ context.customer.firstName }} {{ context.customer.lastName }}
+                                            </p>
+                                        {% endblock %}
+
+                                        {% block page_account_overview_profile_email %}
+                                            <p>
+                                                {{ context.customer.email }}
+                                            </p>
+                                        {% endblock %}
+
+                                        {% block page_account_overview_profile_actions %}
+                                            <div class="card-actions">
+                                                <a href="{{ path('frontend.account.profile.page') }}"
+                                                   title="{{ "account.overviewChangeProfile"|trans|striptags }}"
+                                                   class="btn btn-light">
+                                                    {{ "account.overviewChangeProfile"|trans|sw_sanitize }}
+                                                </a>
+                                            </div>
+                                        {% endblock %}
+                                    </div>
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block page_account_overview_payment %}
+                        <div class="col-lg-6 card-col account-overview-card account-overview-payment">
+                            {% block page_account_overview_payment_card %}
+                                <div class="card">
+                                    <div class="card-body">
+                                        {% block page_account_overview_payment_title %}
+                                            <h2 class="card-title">
+                                                {{ "account.overviewPaymentHeader"|trans|sw_sanitize }}
+                                            </h2>
+                                        {% endblock %}
+
+                                        {% block page_account_overview_payment_content %}
+                                            <strong>{{ context.customer.defaultPaymentMethod.translated.name }}</strong>
+                                            <p>{{ context.customer.defaultPaymentMethod.description }}</p>
+                                        {% endblock %}
+
+                                        {% block page_account_overview_payment_actions %}
+                                            <div class="card-actions">
+                                                <a href="{{ path('frontend.account.payment.page') }}"
+                                                   title="{{ "account.overviewChangePayment"|trans|striptags }}"
+                                                   class="btn btn-light">
+                                                    {{ "account.overviewChangePayment"|trans|sw_sanitize }}
+                                                </a>
+                                            </div>
+                                        {% endblock %}
+                                    </div>
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block page_account_overview_newsletter %}
+                <div class="account-overview-card account-overview-newsletter">
+                    <div class="card">
+                        <div class="card-body">
+                            {% block page_account_overview_newsletter_title %}
+                                <h2 class="card-title">
+                                    {{ "account.newsletterTitle"|trans|sw_sanitize }}
+                                </h2>
+                            {% endblock %}
+
+                            {% block page_account_overview_newsletter_content %}
+                                <div class="js-newsletter-wrapper">
+                                    {% sw_include "@Storefront/storefront/page/account/newsletter.html.twig" with { "customer": context.customer } %}
+                                </div>
+                            {% endblock %}
+                        </div>
+                    </div>
+                </div>
+            {% endblock %}
+
+            {% block page_account_overview_addresses_include %}
+                {% sw_include "@Storefront/storefront/page/account/address.html.twig" %}
+            {% endblock %}
+
+            {% block page_account_overview_newest_order %}
+                {% if page.newestOrder %}
+                    <div class="account-overview-card account-overview-newest-order">
+                        <div class="card">
+                            <div class="card-body">
+                                {% block page_account_overview_newest_order_title %}
+                                    <h2 class="card-title">
+                                        {{ "account.overviewNewestOrderHeader"|trans|sw_sanitize }}
+                                    </h2>
+                                {% endblock %}
+
+                                {% block page_account_overview_newest_order_content %}
+                                    <div class="account-orders-overview">
+                                        <div class="table order-table">
+                                            {% block page_account_overview_newest_order_table_header %}
+                                                <div class="order-table-header">
+                                                    <div class="row">
+                                                        {% block page_account_overview_newest_order_table_header_date %}
+                                                            <div class="col order-header-date">
+                                                                {{ "account.orderItemColumnDate"|trans|sw_sanitize }}
+                                                            </div>
+                                                        {% endblock %}
+
+                                                        {% block page_account_overview_newest_order_table_header_number %}
+                                                            <div class="col order-header-number">
+                                                                {{ "account.orderItemColumnNumber"|trans|sw_sanitize }}
+                                                            </div>
+                                                        {% endblock %}
+
+                                                        {% block page_account_overview_newest_order_table_header_payment_method %}
+                                                            <div class="col order-header-payment-method">
+                                                                {{ "account.orderItemColumnPaymentMethod"|trans|sw_sanitize }}
+                                                            </div>
+                                                        {% endblock %}
+
+                                                        {% block page_account_overview_newest_order_table_header_shipping_method %}
+                                                            <div class="col order-header-shipping-method">
+                                                                {{ "account.orderItemColumnShippingMethod"|trans|sw_sanitize }}
+                                                            </div>
+                                                        {% endblock %}
+
+                                                        {% block page_account_overview_newest_order_table_header_actions %}
+                                                            <div class="col order-header-actions">
+                                                                {{ "account.orderItemColumnActions"|trans|sw_sanitize }}
+                                                            </div>
+                                                        {% endblock %}
+                                                    </div>
+                                                </div>
+                                            {% endblock %}
+
+                                            {% block page_account_overview_newest_order_table_body %}
+                                                <div class="order-table-body"
+                                                     data-order-detail-loader="true">
+                                                    {% sw_include '@Storefront/storefront/page/account/order-history/order-item.html.twig' with {
+                                                        order: page.newestOrder
+                                                    } %}
+                                                </div>
+                                            {% endblock %}
+                                        </div>
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

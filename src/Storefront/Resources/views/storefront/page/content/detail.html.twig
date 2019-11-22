@@ -1,0 +1,27 @@
+{% block page_content_sections_inner %}
+    <div class="cms-sections">
+        {% for section in cmsPage.sections %}
+            {% set sectionBgColor = section.backgroundColor %}
+            {% set sectionBgImg = section.backgroundMedia|sw_encode_media_url %}
+            {% set sectionBgImgMode = section.backgroundMediaMode %}
+
+            {% set sectionClasses = [section.cssClass, 'pos-' ~ section.position, 'cms-section-' ~ section.type] %}
+
+            {% if sectionBgImg %}
+                {% set sectionClasses = ['bg-image']|merge(sectionClasses) %}
+            {% endif %}
+
+            {% if sectionBgColor %}
+                {% set sectionClasses = ['bg-color']|merge(sectionClasses) %}
+            {% endif %}
+
+            {% block page_content_section %}
+                <div class="cms-section {{ sectionClasses|join(' ') }}"
+                     style="{% if sectionBgColor %}background-color: {{ sectionBgColor }};{% endif %}{% if sectionBgImg %}background-image: url({{ sectionBgImg }});background-size: {{ section.backgroundMediaMode }};{% endif %}">
+
+                    {% sw_include "@Storefront/storefront/section/cms-section-" ~ section.type ~ ".html.twig" %}
+                </div>
+            {% endblock %}
+        {% endfor %}
+    </div>
+{% endblock %}

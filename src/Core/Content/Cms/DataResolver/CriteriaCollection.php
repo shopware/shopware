@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 class CriteriaCollection implements \IteratorAggregate
 {
     /**
-     * @var Criteria[][]
+     * @var array<string, array<string, Criteria>>
      */
     private $elements = [];
 

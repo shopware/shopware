@@ -1,0 +1,59 @@
+{% block sw_condition_base %}
+    {% block sw_product_stream_filter %}
+        <div class="sw-product-stream-filter" :class="conditionClasses">
+            {% block sw_product_stream_filter_container %}
+                <div class="sw-product-stream-filter__container">
+                    {% block sw_product_stream_filter_selects %}
+                        <div class="sw-product-stream-filter__selects">
+                            {% block sw_product_stream_filter_fields %}
+                                <template v-for="(definition, index) in fieldDefinitions">
+                                    {% block sw_product_stream_filter_field_select %}
+                                        <sw-product-stream-field-select
+                                            v-bind="{ field: fields[index], definition, index }"
+                                            @field-changed="updateFields">
+                                        </sw-product-stream-field-select>
+                                    {% endblock %}
+                                </template>
+                            {% endblock %}
+
+                            {% block sw_product_stream_filter_value %}
+                                <sw-product-stream-value
+                                    v-bind="{ condition, ...lastField }"
+                                    @type-change="changeType">
+                                </sw-product-stream-value>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+
+                    {% block sw_product_stream_filter_field_actions %}
+                        <sw-context-button class="sw-product-stream-filter__context-button">
+                            {% block sw_product_stream_filter_field_create_before_action %}
+                                <sw-context-menu-item class="sw-product-stream-filter__create-before-action" @click="onCreateBefore">
+                                    {{ $tc('global.sw-condition.condition.createBefore') }}
+                                </sw-context-menu-item>
+                            {% endblock %}
+
+                            {% block sw_product_stream_filter_field_create_after_action %}
+                                <sw-context-menu-item class="sw-product-stream-filter__create-after-action" @click="onCreateAfter">
+                                    {{ $tc('global.sw-condition.condition.createAfter') }}
+                                </sw-context-menu-item>
+                            {% endblock %}
+
+                            {% block sw_product_stream_filter_field_delete_action %}
+                                <sw-context-menu-item @click="onDeleteCondition"
+                                                      variant="danger">
+                                    {{ $tc('global.default.delete') }}
+                                </sw-context-menu-item>
+                            {% endblock %}
+                        </sw-context-button>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block sw_product_stream_filter_error %}
+                <sw-field-error :error="currentError"></sw-field-error>
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

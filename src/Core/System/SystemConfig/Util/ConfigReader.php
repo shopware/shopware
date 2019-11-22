@@ -21,9 +21,9 @@ class ConfigReader extends XmlReader
     public function getConfigFromBundle(Bundle $bundle, ?string $bundleConfigName = null): array
     {
         if ($bundleConfigName === null) {
-            $bundleConfigName = $bundle->getConfigPath() . '/config.xml';
+            $bundleConfigName = 'Resources/config/config.xml';
         } else {
-            $bundleConfigName = $bundle->getConfigPath() . '/' . preg_replace('/\\.xml$/i', '', $bundleConfigName) . '.xml';
+            $bundleConfigName = 'Resources/config/' . preg_replace('/\\.xml$/i', '', $bundleConfigName) . '.xml';
         }
         $configPath = $bundle->getPath() . '/' . ltrim($bundleConfigName, '/');
 
@@ -46,7 +46,6 @@ class ConfigReader extends XmlReader
     {
         $cardDefinitions = [];
 
-        /** @var \DOMElement $element */
         foreach ($xml->getElementsByTagName('card') as $element) {
             $cardDefinitions[] = [
                 'title' => $this->getCardTitles($element),
@@ -61,7 +60,6 @@ class ConfigReader extends XmlReader
     private function getCardTitles(\DOMElement $element): array
     {
         $titles = [];
-        /** @var \DOMElement $title */
         foreach ($element->getElementsByTagName('title') as $title) {
             $titles[$this->getLocaleCodeFromElement($title)] = $title->nodeValue;
         }
@@ -89,7 +87,6 @@ class ConfigReader extends XmlReader
 
     private function getCardName(\DOMElement $element): ?string
     {
-        /** @var \DOMElement $name */
         foreach ($element->getElementsByTagName('name') as $name) {
             if ($name->parentNode->nodeName !== 'card') {
                 return null;
@@ -154,7 +151,6 @@ class ConfigReader extends XmlReader
     {
         $options = [];
 
-        /** @var \DOMElement $option */
         foreach ($element->getElementsByTagName('option') as $option) {
             $options[] = [
                 'id' => $option->getElementsByTagName('id')->item(0)->nodeValue,
@@ -169,7 +165,6 @@ class ConfigReader extends XmlReader
     {
         $optionLabels = [];
 
-        /** @var \DOMElement $label */
         foreach ($option->getElementsByTagName('name') as $label) {
             $optionLabels[$this->getLocaleCodeFromElement($label)] = $label->nodeValue;
         }

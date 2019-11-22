@@ -14,7 +14,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use function sprintf;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class SitemapGenerateTaskHandler extends ScheduledTaskHandler

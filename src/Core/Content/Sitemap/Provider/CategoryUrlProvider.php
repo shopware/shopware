@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Sitemap\Provider;
 
-use function count;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
@@ -72,7 +71,7 @@ class CategoryUrlProvider implements UrlProviderInterface
             $urls[] = $newUrl;
         }
 
-        if (count($urls) < $limit) { // last run
+        if (\count($urls) < $limit) { // last run
             $nextOffset = null;
         } elseif ($offset === null) { // first run
             $nextOffset = $limit;

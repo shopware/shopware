@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Sitemap\Provider;
 
-use function in_array;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
@@ -54,6 +53,6 @@ class CustomUrlProvider implements UrlProviderInterface
 
     private function isAvailableForSalesChannel(array $url, ?string $salesChannelId): bool
     {
-        return in_array($url['salesChannelId'], [$salesChannelId, null], true);
+        return \in_array($url['salesChannelId'], [$salesChannelId, null], true);
     }
 }

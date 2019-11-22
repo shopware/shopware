@@ -34,8 +34,6 @@ services:
     PhpCsFixerCustomFixers\Fixer\OperatorLinebreakFixer: ~
     PhpCsFixerCustomFixers\Fixer\PhpdocNoIncorrectVarAnnotationFixer: ~
     PhpCsFixerCustomFixers\Fixer\SingleSpaceAfterStatementFixer: ~
-    # following should be removed
-    PhpCsFixer\Fixer\Import\OrderedImportsFixer: ~
 
 parameters:
     skip:

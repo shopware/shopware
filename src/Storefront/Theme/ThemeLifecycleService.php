@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Theme;
 
-use function GuzzleHttp\Psr7\mimetype_from_filename;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Framework\Context;
@@ -12,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
+use function GuzzleHttp\Psr7\mimetype_from_filename;
 
 class ThemeLifecycleService
 {

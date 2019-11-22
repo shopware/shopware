@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Migration;
 
-use function date;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -34,7 +33,7 @@ class Migration1562228335SetConfigDefaults extends MigrationStep
             'id' => Uuid::randomBytes(),
             'configKey' => 'core.listing.allowBuyInListing',
             'configValue' => '{"_value": true}',
-            'createdAt' => date(Defaults::STORAGE_DATE_FORMAT),
+            'createdAt' => \date(Defaults::STORAGE_DATE_FORMAT),
         ]);
     }
 

@@ -2,18 +2,10 @@
 
 namespace Shopware\Core\Content\Sitemap\Service;
 
-use function file_exists;
-use function file_get_contents;
-use function gzclose;
-use function gzopen;
-use function gzwrite;
 use League\Flysystem\FilesystemInterface;
-use function rtrim;
 use Shopware\Core\Content\ImportExport\Exception\FileNotReadableException;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use function sys_get_temp_dir;
-use function unlink;
 
 class SitemapWriter implements SitemapWriterInterface
 {

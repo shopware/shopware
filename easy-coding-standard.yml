@@ -1,0 +1,50 @@
+imports:
+    - { resource: '%vendor_dir%/symplify/easy-coding-standard/config/set/psr12.yaml' }
+    - { resource: '%vendor_dir%/symplify/easy-coding-standard/config/set/symfony.yaml' }
+    - { resource: '%vendor_dir%/symplify/easy-coding-standard/config/set/common/array.yaml' }
+    - { resource: '%vendor_dir%/symplify/easy-coding-standard/config/set/common/control-structures.yaml' }
+    - { resource: '%vendor_dir%/symplify/easy-coding-standard/config/set/common/strict.yaml' }
+
+services:
+    PhpCsFixer\Fixer\Alias\MbStrFunctionsFixer: ~
+    PhpCsFixer\Fixer\CastNotation\ModernizeTypesCastingFixer: ~
+    PhpCsFixer\Fixer\ClassNotation\ClassAttributesSeparationFixer:
+        elements: ['property', 'method']
+    PhpCsFixer\Fixer\FunctionNotation\VoidReturnFixer: ~
+    PhpCsFixer\Fixer\Operator\ConcatSpaceFixer:
+        spacing: 'one'
+    PhpCsFixer\Fixer\Phpdoc\GeneralPhpdocAnnotationRemoveFixer:
+        annotations: ['copyright', 'category']
+    PhpCsFixer\Fixer\Phpdoc\NoSuperfluousPhpdocTagsFixer: ~
+    PhpCsFixer\Fixer\Phpdoc\PhpdocOrderFixer: ~
+    PhpCsFixer\Fixer\PhpUnit\PhpUnitConstructFixer: ~
+    PhpCsFixer\Fixer\PhpUnit\PhpUnitDedicateAssertFixer:
+        target: 'newest'
+    PhpCsFixer\Fixer\PhpUnit\PhpUnitDedicateAssertInternalTypeFixer: ~
+    PhpCsFixer\Fixer\PhpUnit\PhpUnitMockFixer: ~
+    PhpCsFixer\Fixer\PhpUnit\PhpUnitMockShortWillReturnFixer: ~
+    PhpCsFixer\Fixer\PhpUnit\PhpUnitTestCaseStaticMethodCallsFixer: ~
+    PhpCsFixer\Fixer\ReturnNotation\NoUselessReturnFixer: ~
+    PhpCsFixer\Fixer\Strict\DeclareStrictTypesFixer: ~
+    PhpCsFixer\Fixer\Whitespace\CompactNullableTypehintFixer: ~
+    PhpCsFixerCustomFixers\Fixer\NoImportFromGlobalNamespaceFixer: ~
+    PhpCsFixerCustomFixers\Fixer\NoUnneededConcatenationFixer: ~
+    PhpCsFixerCustomFixers\Fixer\NoUselessCommentFixer: ~
+    PhpCsFixerCustomFixers\Fixer\NullableParamStyleFixer: ~
+    PhpCsFixerCustomFixers\Fixer\OperatorLinebreakFixer: ~
+    PhpCsFixerCustomFixers\Fixer\PhpdocNoIncorrectVarAnnotationFixer: ~
+    PhpCsFixerCustomFixers\Fixer\SingleSpaceAfterStatementFixer: ~
+    # following should be removed
+    PhpCsFixer\Fixer\Import\OrderedImportsFixer: ~
+
+parameters:
+    skip:
+        PhpCsFixer\Fixer\ClassNotation\SelfAccessorFixer: ~
+        PhpCsFixer\Fixer\LanguageConstruct\ExplicitIndirectVariableFixer: ~
+        PhpCsFixer\Fixer\PhpTag\BlankLineAfterOpeningTagFixer: ~
+        PhpCsFixer\Fixer\Phpdoc\PhpdocSummaryFixer: ~
+        PhpCsFixer\Fixer\StringNotation\ExplicitStringVariableFixer: ~
+        PHP_CodeSniffer\Standards\Generic\Sniffs\CodeAnalysis\AssignmentInConditionSniff: ~
+        # following should be fixed
+        PhpCsFixer\Fixer\Whitespace\BlankLineBeforeStatementFixer: ~
+        SlevomatCodingStandard\Sniffs\Classes\ModernClassNameReferenceSniff: ~

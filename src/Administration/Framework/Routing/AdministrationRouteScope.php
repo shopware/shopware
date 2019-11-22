@@ -7,6 +7,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AdministrationRouteScope extends AbstractRouteScope
 {
+    public const ID = 'administration';
+
     /**
      * @var string[]
      */
@@ -19,6 +21,6 @@ class AdministrationRouteScope extends AbstractRouteScope
 
     public function getId(): string
     {
-        return 'administration';
+        return self::ID;
     }
 }

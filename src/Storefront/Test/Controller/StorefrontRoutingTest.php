@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Framework\Routing\Exception\InvalidRouteScopeException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Framework\Twig\ErrorTemplateStruct;
 use Shopware\Storefront\Page\Navigation\NavigationPage;
@@ -39,8 +38,8 @@ class StorefrontRoutingTest extends TestCase
             'POST',
             'newsletter',
             $this->tokenize('frontend.newsletter.register.handle', [
-                'forwardTo' => 'sales-channel-api.category.detail',
-                'forwardParameters' => json_encode(['version' => 1, 'id' => Uuid::randomHex()]),
+                'forwardTo' => 'api.action.user.user-recovery.hash',
+                'forwardParameters' => json_encode(['version' => 1]),
             ])
         );
 

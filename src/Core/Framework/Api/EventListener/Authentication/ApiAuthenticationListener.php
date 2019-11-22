@@ -9,6 +9,9 @@ use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use League\OAuth2\Server\ResourceServer;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
@@ -21,11 +24,6 @@ class ApiAuthenticationListener implements EventSubscriberInterface
      * @var ResourceServer
      */
     private $resourceServer;
-
-    /**
-     * @var string
-     */
-    private static $routePrefix = '/api/';
 
     /**
      * @var AuthorizationServer
@@ -68,7 +66,7 @@ class ApiAuthenticationListener implements EventSubscriberInterface
                 ['setupOAuth', 128],
             ],
             KernelEvents::CONTROLLER => [
-                ['validateRequest', 32],
+                ['validateRequest', Defaults::KERNEL_CONTROLLER_EVENT_PRIORITY_AUTH_VALIDATE],
             ],
         ];
     }
@@ -101,8 +99,9 @@ class ApiAuthenticationListener implements EventSubscriberInterface
             return;
         }
 
-        $path = '/' . ltrim($request->getPathInfo(), '/');
-        if (mb_stripos($path, self::$routePrefix) !== 0) {
+        /** @var RouteScope|null $routeScope */
+        $routeScope = $request->attributes->get('_routeScope');
+        if ($routeScope === null || !$routeScope->hasScope(ApiRouteScope::ID)) {
             return;
         }
 

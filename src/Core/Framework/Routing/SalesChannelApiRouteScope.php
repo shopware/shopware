@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class SalesChannelApiRouteScope extends AbstractRouteScope
 {
+    public const ID = 'sales-channel-api';
+
     /**
      * @var string[]
      */
@@ -29,6 +31,6 @@ class SalesChannelApiRouteScope extends AbstractRouteScope
 
     public function getId(): string
     {
-        return 'sales-channel-api';
+        return self::ID;
     }
 }

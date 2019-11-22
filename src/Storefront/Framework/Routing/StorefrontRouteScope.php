@@ -8,6 +8,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class StorefrontRouteScope extends AbstractRouteScope
 {
+    public const ID = 'storefront';
+
     /**
      * @var string[]
      */
@@ -22,6 +24,6 @@ class StorefrontRouteScope extends AbstractRouteScope
 
     public function getId(): string
     {
-        return 'storefront';
+        return self::ID;
     }
 }

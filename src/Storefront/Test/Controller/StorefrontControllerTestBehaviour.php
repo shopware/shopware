@@ -12,7 +12,7 @@ trait StorefrontControllerTestBehaviour
     public function request(string $method, string $path, array $data): Response
     {
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
-        $browser->request($method, 'http://localhost:8000/' . $path, $data);
+        $browser->request($method, getenv('APP_URL') . '/' . $path, $data);
 
         return $browser->getResponse();
     }
@@ -23,6 +23,7 @@ trait StorefrontControllerTestBehaviour
             ->get('security.csrf.token_manager')
             ->getToken($route)
             ->getValue();
+
         $data['_csrf_token'] = $token;
 
         return $data;

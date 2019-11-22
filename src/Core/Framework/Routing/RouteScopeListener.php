@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Routing;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope as RouteScopeAnnotation;
 use Shopware\Core\Framework\Routing\Exception\InvalidRouteScopeException;
 use Shopware\Core\PlatformRequest;
@@ -42,7 +43,7 @@ class RouteScopeListener implements EventSubscriberInterface
     {
         return [
             KernelEvents::CONTROLLER => [
-                ['checkScope', -15],
+                ['checkScope', Defaults::KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE],
             ],
         ];
     }

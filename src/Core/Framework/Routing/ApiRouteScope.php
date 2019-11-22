@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ApiRouteScope extends AbstractRouteScope
 {
+    public const ID = 'api';
+
     /**
      * @var string[]
      */
@@ -31,6 +33,6 @@ class ApiRouteScope extends AbstractRouteScope
 
     public function getId(): string
     {
-        return 'api';
+        return self::ID;
     }
 }

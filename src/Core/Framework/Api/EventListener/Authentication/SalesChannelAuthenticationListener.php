@@ -3,8 +3,11 @@
 namespace Shopware\Core\Framework\Api\EventListener\Authentication;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
+use Shopware\Core\Framework\Routing\SalesChannelApiRouteScope;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -14,11 +17,6 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class SalesChannelAuthenticationListener implements EventSubscriberInterface
 {
-    /**
-     * @var string
-     */
-    private static $routePrefix = '/sales-channel-api/';
-
     /**
      * @var Connection
      */
@@ -32,7 +30,7 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::CONTROLLER => ['validateRequest', 32],
+            KernelEvents::CONTROLLER => ['validateRequest', Defaults::KERNEL_CONTROLLER_EVENT_PRIORITY_AUTH_VALIDATE],
         ];
     }
 
@@ -44,7 +42,9 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
             return;
         }
 
-        if (mb_stripos($request->getPathInfo(), self::$routePrefix) !== 0) {
+        /** @var RouteScope|null $routeScope */
+        $routeScope = $request->attributes->get('_routeScope');
+        if ($routeScope === null || !$routeScope->hasScope(SalesChannelApiRouteScope::ID)) {
             return;
         }
 

@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Routing;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -71,7 +72,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
                 ['customerNotLoggedInHandler'],
             ],
             KernelEvents::CONTROLLER => [
-                ['preventPageLoadingFromXmlHttpRequest'],
+                ['preventPageLoadingFromXmlHttpRequest', Defaults::KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE],
             ],
             KernelEvents::RESPONSE => [
                 ['setCanonicalUrl'],

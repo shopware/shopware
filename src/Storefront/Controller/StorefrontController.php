@@ -101,6 +101,7 @@ abstract class StorefrontController extends AbstractController
 
         $attributes = array_merge(
             $this->get(RequestTransformerInterface::class)->extractInheritableAttributes($request),
+            $route,
             $attributes
         );
 

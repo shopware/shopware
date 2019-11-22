@@ -32,7 +32,6 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
     public function resolve(Request $request): void
     {
-        //sub requests can not use context of master
         if ($request->attributes->has(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT)) {
             return;
         }

@@ -7,12 +7,15 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 class SalesChannelRequestContextResolver implements RequestContextResolverInterface
 {
+    use RouteScopeCheckTrait;
+
     /**
      * @var RequestContextResolverInterface
      */
@@ -48,6 +51,10 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID)) {
             $this->decorated->resolve($request);
 
+            return;
+        }
+
+        if (!$this->isRequestScoped($request, SalesChannelApiRouteScope::ID, StorefrontRouteScope::ID)) {
             return;
         }
 

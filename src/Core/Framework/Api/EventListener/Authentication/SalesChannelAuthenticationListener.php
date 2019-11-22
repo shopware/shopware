@@ -5,8 +5,8 @@ namespace Shopware\Core\Framework\Api\EventListener\Authentication;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
+use Shopware\Core\Framework\Routing\RouteScopeCheckTrait;
 use Shopware\Core\Framework\Routing\SalesChannelApiRouteScope;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -17,6 +17,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class SalesChannelAuthenticationListener implements EventSubscriberInterface
 {
+    use RouteScopeCheckTrait;
+
     /**
      * @var Connection
      */
@@ -42,9 +44,7 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
             return;
         }
 
-        /** @var RouteScope|null $routeScope */
-        $routeScope = $request->attributes->get('_routeScope');
-        if ($routeScope === null || !$routeScope->hasScope(SalesChannelApiRouteScope::ID)) {
+        if (!$this->isRequestScoped($request, SalesChannelApiRouteScope::ID)) {
             return;
         }
 

@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\Routing;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
+use function Flag\next3722;
+use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
@@ -16,10 +18,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpFoundation\Request;
-use function Flag\next3722;
 
 class ApiRequestContextResolver implements RequestContextResolverInterface
 {
+    use RouteScopeCheckTrait;
+
     /**
      * @var Connection
      */
@@ -33,6 +36,10 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     public function resolve(Request $request): void
     {
         if ($request->attributes->has(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT)) {
+            return;
+        }
+
+        if (!$this->isRequestScoped($request, AdministrationRouteScope::ID, ApiRouteScope::ID)) {
             return;
         }
 

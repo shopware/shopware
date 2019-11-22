@@ -9,9 +9,10 @@ use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use League\OAuth2\Server\ResourceServer;
+use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\Framework\Routing\RouteScopeCheckTrait;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
@@ -20,6 +21,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class ApiAuthenticationListener implements EventSubscriberInterface
 {
+    use RouteScopeCheckTrait;
+
     /**
      * @var ResourceServer
      */
@@ -99,9 +102,7 @@ class ApiAuthenticationListener implements EventSubscriberInterface
             return;
         }
 
-        /** @var RouteScope|null $routeScope */
-        $routeScope = $request->attributes->get('_routeScope');
-        if ($routeScope === null || !$routeScope->hasScope(ApiRouteScope::ID)) {
+        if (!$this->isRequestScoped($request, ApiRouteScope::ID, AdministrationRouteScope::ID)) {
             return;
         }
 

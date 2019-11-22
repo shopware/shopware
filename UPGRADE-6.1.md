@@ -4,6 +4,7 @@ UPGRADE FROM 6.0 to 6.1
 Core
 ----
 
+* Changed the `\Symfony\Component\HttpKernel\KernelEvents::CONTROLLER` Event-Subscriber priorities. Now all Shopware Listeners are handled after the core symfony event handlers. 
 * Removed the `Shopware\Core\Framework\Routing\Event\RouteScopeWhitlistCollectEvent` in favor of a taggable interface named `Shopware\Core\Framework\Routing\RouteScopeWhitelistInterface`.
 * Requests can no longer be forwarded across different request scopes.
 * If you have implemented a custom FieldResolver, you need to implement the `getJoinBuilder` method.

@@ -189,6 +189,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
       * The event emits two values: the actual selection and the selection count of the `sw-data-grid`.
       * `change-selection` should be preferred over `select-item` if you are interested in the selection itself and not in a specific item that was selected.
     * Added custom fields to categories 
+    * `v-popover` directive accepts a config object now which allows to activate / deactivate the directive on the fly, define the target element and if the popover element should be resized to the size of the origin element 
     * Updated Symfony Dependencies to version `4.4.0`.    
     * Added cms block `form`
 * Core

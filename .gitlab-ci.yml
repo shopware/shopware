@@ -295,11 +295,11 @@ General (Storefront):
     script: *storefront_definition
     needs: [Storefront (Jest)]
 
-Shopping experiences (Mixed):
+Content (Mixed):
     <<: *e2e_definition
     script: *mixed_definition
     variables:
-        TEST_DIRECTORY: e2e-Administration/cypress/integration/shopping-experiences/**/*
+        TEST_DIRECTORY: e2e-Administration/cypress/integration/content/**/*
 
 Catalogues  (Mixed):
     <<: *e2e_definition

@@ -107,6 +107,7 @@ class JsonApiEncoder
                 foreach ($relationData as $sub) {
                     $this->serializeEntity($sub, $relationship['tmp']['definition'], $result, true);
                 }
+
                 continue;
             }
 
@@ -235,6 +236,7 @@ class JsonApiEncoder
         foreach ($serialized->getExtensions() as $property => $value) {
             if ($value === null) {
                 $extension->setAttribute($property, $entity->getExtension($property));
+
                 continue;
             }
 

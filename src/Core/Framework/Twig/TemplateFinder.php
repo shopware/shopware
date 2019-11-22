@@ -130,6 +130,7 @@ class TemplateFinder
         if ($ignoreMissing === true) {
             return $templatePath;
         }
+
         throw new LoaderError(sprintf('Unable to load template "%s". (Looked into: %s)', $templatePath, implode(', ', array_values($queue))));
     }
 

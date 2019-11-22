@@ -99,6 +99,7 @@ class OrderPersisterTest extends TestCase
         $processedCart = $this->cartProcessor->process($cart, $context, new CartBehavior());
 
         $exception = null;
+
         try {
             $this->orderPersister->persist($processedCart, $context);
         } catch (InvalidCartException $exception) {

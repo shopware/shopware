@@ -87,6 +87,7 @@ class EntityExtensionTest extends TestCase
     public function testICanWriteAndReadManyToOneAssociationExtension(): void
     {
         $this->connection->rollBack();
+
         try {
             $this->connection->executeUpdate('ALTER TABLE `product` ADD COLUMN my_tax_id binary(16) NULL');
         } catch (DBALException $e) {

@@ -127,11 +127,13 @@ abstract class EntityDefinition
 
                 if ($field instanceof AssociationField) {
                     $fields->add($field);
+
                     continue;
                 }
 
                 if ($field->is(Runtime::class)) {
                     $fields->add($field);
+
                     continue;
                 }
 
@@ -147,6 +149,7 @@ abstract class EntityDefinition
 
                     if ($association->getStorageName() === $field->getStorageName()) {
                         $hasManyToOne = true;
+
                         break;
                     }
                 }
@@ -169,6 +172,7 @@ abstract class EntityDefinition
                 $fields->add(
                     (new JsonField('translated', 'translated'))->addFlags(new Computed(), new Runtime())
                 );
+
                 break;
             }
         }

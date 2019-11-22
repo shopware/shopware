@@ -170,6 +170,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
         foreach ($rules as $id => $rule) {
             $invalid = false;
             $serialized = null;
+
             try {
                 $nested = $this->buildNested($rule, null);
 

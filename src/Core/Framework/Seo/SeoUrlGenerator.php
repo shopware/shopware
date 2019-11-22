@@ -271,6 +271,7 @@ class SeoUrlGenerator
                     } else {
                         $currentDefinition = $this->definitionRegistry->getByEntityName($replacement->getMappedEntityName());
                     }
+
                     continue;
                 }
 

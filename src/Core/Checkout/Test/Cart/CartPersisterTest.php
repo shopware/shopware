@@ -65,6 +65,7 @@ class CartPersisterTest extends TestCase
         $persister = new CartPersister($connection, $this->serializer);
 
         $e = null;
+
         try {
             $persister->load('not_existing_token', Generator::createSalesChannelContext());
         } catch (\Exception $e) {

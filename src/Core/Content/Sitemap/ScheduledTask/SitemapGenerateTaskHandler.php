@@ -163,6 +163,7 @@ class SitemapGenerateTaskHandler extends ScheduledTaskHandler
             if (\count($salesChannel->getDomains()) === 0) {
                 // last language is only language of sales channel
                 $useNextChannel = true;
+
                 continue;
             }
 

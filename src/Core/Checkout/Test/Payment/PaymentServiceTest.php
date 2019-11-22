@@ -206,6 +206,7 @@ class PaymentServiceTest extends TestCase
         $token = $this->tokenFactory->generateToken($transaction, 'testFinishUrl');
         $request = new Request();
         $request->query->set('cancel', true);
+
         try {
             $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
             static::fail('exception should be thrown');

@@ -384,10 +384,12 @@ json
         foreach ($result['data']['foo.bar'] as $snippetSetData) {
             if ($snippetSetData['setId'] === Uuid::fromBytesToHex($fooId)) {
                 static::assertSame('foo_bar', $snippetSetData['value']);
+
                 continue;
             }
             if ($snippetSetData['setId'] === Uuid::fromBytesToHex($barId)) {
                 static::assertSame('bar_baz', $snippetSetData['value']);
+
                 continue;
             }
 

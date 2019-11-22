@@ -20,21 +20,27 @@ class ProductStreamFilterService implements ProductStreamFilterServiceInterface
         switch ($type) {
             case 'contains':
                 $typeClass = ContainsFilter::class;
+
                 break;
             case 'equalsAny':
                 $typeClass = EqualsAnyFilter::class;
+
                 break;
             case 'equals':
                 $typeClass = EqualsFilter::class;
+
                 break;
             case 'multi':
                 $typeClass = MultiFilter::class;
+
                 break;
             case 'not':
                 $typeClass = NotFilter::class;
+
                 break;
             case 'range':
                 $typeClass = RangeFilter::class;
+
                 break;
         }
 

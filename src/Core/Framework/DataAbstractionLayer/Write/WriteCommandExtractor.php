@@ -367,6 +367,7 @@ class WriteCommandExtractor
 
             if (!$field->is(PrimaryKey::class)) {
                 $main[] = $field;
+
                 continue;
             }
 

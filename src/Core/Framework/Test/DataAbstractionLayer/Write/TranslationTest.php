@@ -620,6 +620,7 @@ class TranslationTest extends TestCase
         ];
         /* @var WriteException|null $exception */
         $exception = null;
+
         try {
             $categoryRepository->create([$cat], $this->context);
         } catch (WriteException $e) {

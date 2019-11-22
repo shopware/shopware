@@ -103,6 +103,7 @@ class LineItemGroupBuilder
             if (isset($removeLineItemIds[$itemToRemove->getLineItemId()])) {
                 $quantity = $removeLineItemIds[$itemToRemove->getLineItemId()];
                 $removeLineItemIds[$itemToRemove->getLineItemId()]->setQuantity($quantity->getQuantity() + $itemToRemove->getQuantity());
+
                 continue;
             }
             $removeLineItemIds[$itemToRemove->getLineItemId()] = $itemToRemove;

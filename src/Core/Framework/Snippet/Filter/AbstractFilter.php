@@ -29,6 +29,7 @@ abstract class AbstractFilter
                             'id' => null,
                             'setId' => $setId,
                         ];
+
                         continue;
                     }
 

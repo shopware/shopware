@@ -109,6 +109,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
                 $pathInfo = $this->removePrefix($generated, $basePath);
 
                 $rewrite = $schemaAuthority . rtrim($basePath, '/') . rtrim($salesChannelBaseUrl, '/') . $pathInfo;
+
                 break;
 
             case self::RELATIVE_PATH:
@@ -121,6 +122,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
                 // url contains the base path and the base url
                     // base url /shopware/public/de
                 $rewrite = ltrim($salesChannelBaseUrl, '/') . $generated;
+
                 break;
 
             case self::ABSOLUTE_PATH:
@@ -131,6 +133,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
                 );
 
                 $rewrite = $basePath . rtrim($salesChannelBaseUrl, '/') . $generated;
+
                 break;
         }
 

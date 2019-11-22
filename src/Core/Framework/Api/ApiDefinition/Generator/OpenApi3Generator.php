@@ -150,6 +150,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
                     if (!$field instanceof AssociationField) {
                         $extensions[$propertyName] = $extension;
+
                         continue;
                     }
 

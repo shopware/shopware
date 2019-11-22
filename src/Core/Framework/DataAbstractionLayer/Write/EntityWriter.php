@@ -113,16 +113,19 @@ class EntityWriter implements EntityWriterInterface
 
                 if (\array_key_exists($field->getPropertyName(), $raw)) {
                     $mapped[$field->getStorageName()] = $raw[$field->getPropertyName()];
+
                     continue;
                 }
 
                 if ($field instanceof ReferenceVersionField) {
                     $mapped[$field->getStorageName()] = $writeContext->getContext()->getVersionId();
+
                     continue;
                 }
 
                 if ($field instanceof VersionField) {
                     $mapped[$field->getStorageName()] = $writeContext->getContext()->getVersionId();
+
                     continue;
                 }
 
@@ -198,6 +201,7 @@ class EntityWriter implements EntityWriterInterface
                     EntityWriteResult::OPERATION_DELETE,
                     $existence
                 );
+
                 continue;
             }
 
@@ -245,6 +249,7 @@ class EntityWriter implements EntityWriterInterface
 
                 if ($command instanceof JsonUpdateCommand) {
                     $jsonUpdateCommands[$uniqueId] = $command;
+
                     continue;
                 }
 

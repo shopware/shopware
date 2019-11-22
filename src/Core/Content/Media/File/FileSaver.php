@@ -250,6 +250,7 @@ class FileSaver
         }
 
         $oldMediaFilePath = $this->urlGenerator->getRelativeMediaUrl($media);
+
         try {
             $this->getFileSystem($media)->delete($oldMediaFilePath);
         } catch (FileNotFoundException $e) {
@@ -263,6 +264,7 @@ class FileSaver
     {
         $stream = fopen($mediaFile->getFileName(), 'rb');
         $path = $this->urlGenerator->getRelativeMediaUrl($media);
+
         try {
             $this->getFileSystem($media)->putStream($path, $stream);
         } finally {

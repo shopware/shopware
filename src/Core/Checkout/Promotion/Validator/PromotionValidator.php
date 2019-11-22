@@ -92,6 +92,7 @@ class PromotionValidator implements EventSubscriberInterface
                         $violationList,
                         $index
                     );
+
                     break;
 
                 case PromotionDiscountDefinition::class:
@@ -112,6 +113,7 @@ class PromotionValidator implements EventSubscriberInterface
                         $violationList,
                         $index
                     );
+
                     break;
             }
         }
@@ -142,10 +144,12 @@ class PromotionValidator implements EventSubscriberInterface
             switch (get_class($command->getDefinition())) {
                 case PromotionDefinition::class:
                     $promotionIds[] = $command->getPrimaryKey()['id'];
+
                     break;
 
                 case PromotionDiscountDefinition::class:
                     $discountIds[] = $command->getPrimaryKey()['id'];
+
                     break;
             }
         }
@@ -323,6 +327,7 @@ class PromotionValidator implements EventSubscriberInterface
                         $index
                     ));
                 }
+
                 break;
         }
     }

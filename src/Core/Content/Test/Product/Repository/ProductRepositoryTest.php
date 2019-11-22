@@ -210,6 +210,7 @@ class ProductRepositoryTest extends TestCase
         ];
 
         $e = null;
+
         try {
             $this->repository->create([$data], $this->context);
         } catch (WriteException $e) {
@@ -979,6 +980,7 @@ class ProductRepositoryTest extends TestCase
 
         /** @var WriteException|null $e */
         $e = null;
+
         try {
             $this->repository->upsert($data, Context::createDefaultContext());
         } catch (\Exception $e) {
@@ -1074,6 +1076,7 @@ class ProductRepositoryTest extends TestCase
 
         /** @var WriteException|null $e */
         $e = null;
+
         try {
             $this->repository->upsert($data, Context::createDefaultContext());
         } catch (\Exception $e) {

@@ -51,6 +51,7 @@ class OpenSSLVerifier
         }
         while ($errors[] = openssl_error_string()) {
         }
+
         throw new StoreSignatureValidationException(sprintf("Error during private key read: \n%s", implode("\n", $errors)));
     }
 
@@ -67,6 +68,7 @@ class OpenSSLVerifier
         if ($this->keyResource === false) {
             while ($errors[] = openssl_error_string()) {
             }
+
             throw new StoreSignatureValidationException(sprintf("Error during public key read: \n%s", implode("\n", $errors)));
         }
 

@@ -131,6 +131,7 @@ class MediaFolderConfigIndexer implements IndexerInterface
                 }
 
                 $this->updateSelfAndChildren($update['id'], $parent->getConfigurationId(), $event->getContext());
+
                 continue;
             }
 

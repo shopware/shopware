@@ -52,6 +52,7 @@ class PluginExtractor
             if ($backupFile !== '') {
                 $this->filesystem->rename($backupFile, $oldFile);
             }
+
             throw $e;
         }
 

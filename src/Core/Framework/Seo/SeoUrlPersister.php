@@ -116,6 +116,7 @@ class SeoUrlPersister
         }
 
         $this->connection->beginTransaction();
+
         try {
             $this->obsoleteIds($obsoleted, $dateTime);
             $insertQuery->execute();
@@ -176,6 +177,7 @@ class SeoUrlPersister
             $row['isModified'] = (bool) $row['isModified'];
             if (!isset($canonicals[$row['foreignKey']])) {
                 $canonicals[$row['foreignKey']] = [$row['salesChannelId'] => $row];
+
                 continue;
             }
             $canonicals[$row['foreignKey']][$row['salesChannelId']] = $row;

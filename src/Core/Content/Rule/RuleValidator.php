@@ -79,11 +79,13 @@ class RuleValidator implements EventSubscriberInterface
 
             if ($command instanceof InsertCommand) {
                 $this->validateCondition(null, $command, $writeException);
+
                 continue;
             }
 
             if ($command instanceof UpdateCommand) {
                 $updateQueue[] = $command;
+
                 continue;
             }
 

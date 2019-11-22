@@ -104,6 +104,7 @@ EOF;
         ];
 
         $ex = null;
+
         try {
             $this->getWriter()->insert($definition, [$data], $context);
         } catch (WriteException $ex) {
@@ -171,6 +172,7 @@ EOF;
         ];
 
         $ex = null;
+
         try {
             $this->getWriter()->insert($definition, [$data], $context);
         } catch (WriteException $ex) {
@@ -223,6 +225,7 @@ EOF;
         ];
 
         $ex = null;
+
         try {
             $this->getWriter()->insert($definition, [$data], $context);
         } catch (WriteException $ex) {
@@ -278,6 +281,7 @@ EOF;
         ];
 
         $ex = null;
+
         try {
             $this->getWriter()->insert($definition, [$data], $context);
         } catch (WriteException $ex) {
@@ -329,6 +333,7 @@ EOF;
         ];
 
         $ex = null;
+
         try {
             $this->getWriter()->insert($definition, [$data], $context);
         } catch (WriteException $ex) {

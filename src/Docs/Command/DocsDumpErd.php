@@ -85,12 +85,14 @@ class DocsDumpErd extends Command
             if ($definition->isMapping()) {
                 $descriptionsLong->set($definition->toClassName(), '');
                 $descriptionsShort->set($definition->toClassName(), 'M:N Mapping');
+
                 continue;
             }
 
             if ($definition->isTranslation()) {
                 $descriptionsLong->set($definition->toClassName(), '');
                 $descriptionsShort->set($definition->toClassName(), 'Translations');
+
                 continue;
             }
 

@@ -144,6 +144,7 @@ class JsonFieldSerializerTest extends TestCase
 
         /** @var WriteConstraintViolationException|null $exception */
         $exception = null;
+
         try {
             $this->serializer->encode($field, $this->existence, $kvPair, $this->parameters)->current();
         } catch (\Throwable $e) {

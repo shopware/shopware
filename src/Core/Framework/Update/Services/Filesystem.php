@@ -51,6 +51,7 @@ class Filesystem
                 if (!$fileInfo->isWritable()) {
                     $errors[] = $fileInfo->getPathname();
                 }
+
                 continue;
             }
             // skip VCS dirs
@@ -62,6 +63,7 @@ class Filesystem
             }
             if (!$fileInfo->isWritable()) {
                 $errors[] = $fileInfo->getPathname();
+
                 continue;
             }
             $errors = array_merge($errors, $this->checkDirectoryPermissions($fileInfo->getPathname(), $fixPermission));

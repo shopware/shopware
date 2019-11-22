@@ -80,6 +80,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
     public function execute(array $commands, WriteContext $context): void
     {
         $this->connection->beginTransaction();
+
         try {
             // throws exception on violation and then aborts/rollbacks this transaction
             $event = new PreWriteValidationEvent($context, $commands);
@@ -96,11 +97,13 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                             EntityDefinitionQueryHelper::escape($table),
                             $command->getPrimaryKey()
                         );
+
                         continue;
                     }
 
                     if ($command instanceof JsonUpdateCommand) {
                         $this->executeJsonUpdate($command);
+
                         continue;
                     }
 
@@ -108,6 +111,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                         $queue = new MultiInsertQueryQueue($this->connection, 1, false, true);
                         $queue->addInsert($definition->getEntityName(), $command->getPayload());
                         $queue->execute();
+
                         continue;
                     }
 
@@ -120,6 +124,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                             $this->escapeColumnKeys($command->getPayload()),
                             $command->getPrimaryKey()
                         );
+
                         continue;
                     }
 
@@ -128,6 +133,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                             EntityDefinitionQueryHelper::escape($table),
                             $this->escapeColumnKeys($command->getPayload())
                         );
+
                         continue;
                     }
 
@@ -138,6 +144,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                         $e = $innerException;
                     }
                     $context->getExceptions()->add($e);
+
                     throw $e;
                 }
             }
@@ -155,6 +162,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             }
         } catch (\Throwable $e) {
             $this->connection->rollBack();
+
             throw $e;
         }
     }
@@ -286,6 +294,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             if ($command instanceof DeleteCommand) {
                 $state = [];
                 $useDatabase = false;
+
                 continue;
             }
 

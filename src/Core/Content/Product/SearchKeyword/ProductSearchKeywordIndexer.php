@@ -249,6 +249,7 @@ class ProductSearchKeywordIndexer implements IndexerInterface
         }
 
         $this->connection->beginTransaction();
+
         try {
             $bytes = array_map(function ($id) {
                 return Uuid::fromHexToBytes($id);
@@ -263,6 +264,7 @@ class ProductSearchKeywordIndexer implements IndexerInterface
             $insert->execute();
         } catch (\Exception $e) {
             $this->connection->rollBack();
+
             throw $e;
         }
         // Only commit if transaction not marked as rollback

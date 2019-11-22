@@ -105,6 +105,7 @@ class AccountServiceEventTest extends TestCase
             switch ($eventClass) {
                 case CustomerBeforeLoginEvent::class:
                     $listenerClosure = $this->getEmailListenerClosure($eventDidRun, $this);
+
                     break;
                 case CustomerLoginEvent::class:
                 default:

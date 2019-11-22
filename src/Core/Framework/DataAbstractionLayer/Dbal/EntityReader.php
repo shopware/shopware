@@ -181,6 +181,7 @@ class EntityReader implements EntityReaderInterface
             //translated fields are handled after loop all together
             if ($field instanceof TranslatedField) {
                 $this->queryHelper->resolveField($field, $definition, $root, $query, $context);
+
                 continue;
             }
 
@@ -219,6 +220,7 @@ class EntityReader implements EntityReaderInterface
                 //requested a paginated, filtered or sorted list
 
                 $this->addManyToManySelect($definition, $root, $field, $query, $context);
+
                 continue;
             }
 
@@ -470,6 +472,7 @@ class EntityReader implements EntityReaderInterface
 
             if ($association->is(Extension::class)) {
                 $entity->addExtension($association->getPropertyName(), $structData);
+
                 continue;
             }
             $entity->assign([$association->getPropertyName() => $structData]);
@@ -616,6 +619,7 @@ class EntityReader implements EntityReaderInterface
             }
 
             $reference = $field;
+
             break;
         }
 

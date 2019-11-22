@@ -158,6 +158,7 @@ class Download
         if (sha1_file($partFile->getPathname()) !== $hash) {
             // try to delete invalid file so a valid one can be downloaded
             @unlink($partFile->getPathname());
+
             throw new UpdateFailedException('Hash mismatch');
         }
 

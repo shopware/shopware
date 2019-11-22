@@ -86,6 +86,7 @@ class LineItemTransformer
 
             if ($lineItem->getParentId() === null) {
                 $root->add($currentLineItem);
+
                 continue;
             }
 

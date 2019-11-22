@@ -57,6 +57,7 @@ class OpenApiDefinitionSchemaBuilder
 
             if ($field->is(Extension::class)) {
                 $extensions[] = $field;
+
                 continue;
             }
 
@@ -66,11 +67,13 @@ class OpenApiDefinitionSchemaBuilder
 
             if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
                 $relationships[$field->getPropertyName()] = $this->createToOneLinkage($field, $detailPath);
+
                 continue;
             }
 
             if ($field instanceof AssociationField) {
                 $relationships[$field->getPropertyName()] = $this->createToManyLinkage($field, $detailPath);
+
                 continue;
             }
 
@@ -80,6 +83,7 @@ class OpenApiDefinitionSchemaBuilder
 
             if ($field instanceof JsonField) {
                 $attributes[$field->getPropertyName()] = $this->resolveJsonField($field);
+
                 continue;
             }
 
@@ -367,6 +371,7 @@ class OpenApiDefinitionSchemaBuilder
         foreach ($jsonField->getPropertyMapping() as $field) {
             if ($field instanceof JsonField) {
                 $definition->properties[$field->getPropertyName()] = $this->resolveJsonField($field);
+
                 continue;
             }
 

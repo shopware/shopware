@@ -119,6 +119,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
     {
         if ($input->getOption('clearCache')) {
             $io->note('Clearing Cache');
+
             try {
                 $this->cacheClearer->clear();
             } catch (\Exception $e) {

@@ -453,6 +453,7 @@ class SnippetService
                         'resetTo' => $value,
                         'translationKey' => $newIndex,
                     ], $additionalParameters);
+
                     continue;
                 }
 

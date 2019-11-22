@@ -44,5 +44,4 @@ parameters:
         PhpCsFixer\Fixer\StringNotation\ExplicitStringVariableFixer: ~
         PHP_CodeSniffer\Standards\Generic\Sniffs\CodeAnalysis\AssignmentInConditionSniff: ~
         # following should be fixed
-        PhpCsFixer\Fixer\Whitespace\BlankLineBeforeStatementFixer: ~
         SlevomatCodingStandard\Sniffs\Classes\ModernClassNameReferenceSniff: ~

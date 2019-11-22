@@ -61,6 +61,7 @@ import FilterBooleanPlugin from 'src/plugin/listing/filter-boolean.plugin';
 import FilterRangePlugin from 'src/plugin/listing/filter-range.plugin';
 import FilterRatingPlugin from 'src/plugin/listing/filter-rating.plugin';
 import ListingPlugin from 'src/plugin/listing/listing.plugin';
+import OffCanvasFilterPlugin from 'src/plugin/offcanvas-filter/offcanvas-filter.plugin';
 import RatingSystemPlugin from 'src/plugin/rating-system/rating-system.plugin';
 import ListingPaginationPlugin from 'src/plugin/listing/listing-pagination.plugin';
 import ListingSortingPlugin from 'src/plugin/listing/listing-sorting.plugin';
@@ -113,6 +114,7 @@ PluginManager.register('AddressEditor', AddressEditorPlugin, '[data-address-edit
 PluginManager.register('SetBrowserClass', SetBrowserClassPlugin, 'html');
 PluginManager.register('RatingSystem', RatingSystemPlugin, '[data-rating-system]');
 PluginManager.register('Listing', ListingPlugin, '[data-listing]');
+PluginManager.register('OffCanvasFilter', OffCanvasFilterPlugin, '[data-offcanvas-filter]');
 PluginManager.register('FilterBoolean', FilterBooleanPlugin, '[data-filter-boolean]');
 PluginManager.register('FilterRange', FilterRangePlugin, '[data-filter-range]');
 PluginManager.register('FilterMultiSelect', FilterMultiSelectPlugin, '[data-filter-multi-select]');

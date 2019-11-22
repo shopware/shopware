@@ -4,6 +4,10 @@
     {% block component_filter_panel_element %}
         <div class="filter-panel{% if sidebar %} is--sidebar{% endif %}">
 
+            {% block component_filter_panel_headline %}
+                <h3>{{ "listing.filterTitleText"|trans }}</h3>
+            {% endblock %}
+
             {% block component_filter_panel_items_container %}
                 <div class="filter-panel-items-container">
 

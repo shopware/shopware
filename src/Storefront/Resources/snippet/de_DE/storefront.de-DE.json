@@ -323,6 +323,8 @@
         "promotion-discount-added": "Der Rabatt \"%name%\" wurde dem Warenkorb hinzugefügt"
     },
     "listing": {
+        "filterTitleText": "Filter",
+        "showResults": "Ergebnisse anzeigen",
         "boxUnitLabel": "Inhalt:",
         "boxLabelTopseller": "Tipp!",
         "boxLabelNew": "Neu",

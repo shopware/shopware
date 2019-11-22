@@ -19,6 +19,10 @@ This file contains the generic styling for all filter items.
     }
 }
 
+.filter-panel h3 {
+    display: none;
+}
+
 .filter-panel-items-container {
     display: flex;
     flex-wrap: wrap;
@@ -179,5 +183,35 @@ This file contains the generic styling for all filter items.
     .filter-panel-submit {
         pointer-events: none;
         opacity: 0.6;
+    }
+}
+
+.btn.filter-panel-wrapper-toggle {
+    display: none;
+    width: 100%;
+    border: 1px solid #399;
+    padding: 6px;
+
+    &:hover {
+        background-color: $gray-200;
+    }
+}
+
+@include media-breakpoint-down(md) {
+    .btn.filter-panel-wrapper-toggle {
+        display: block;
+    }
+
+    .filter-panel-wrapper {
+        display: none;
+    }
+
+    .offcanvas {
+        padding: 25px;
+
+        h3 {
+            display: block;
+            margin-bottom: 25px;
+        }
     }
 }

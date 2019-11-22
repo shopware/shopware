@@ -2,15 +2,19 @@
 
 $sw-select-result-list-transition: all ease-in-out 0.2s;
 
-.sw-select-result-list__content {
+.sw-select-result-list {
     position: absolute;
     top: calc(100% + 4px);
+    left: 0;
+    z-index: $z-index-select-results;
+    width: 100%;
+}
+
+.sw-select-result-list__content {
     width: 100%;
     max-height: 315px;
     overflow-x: hidden;
     overflow-y: auto;
-    left: 0;
-    z-index: $z-index-select-results;
     border: 1px solid $color-gray-100;
     box-shadow: 0 3px 6px 0 $color-gray-300;
     background-color: $color-white;

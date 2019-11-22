@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Cart\LineItem\Group\Packager;
 
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -30,7 +29,6 @@ class LineItemGroupUnitPriceGrossPackager implements LineItemGroupPackagerInterf
 
         $currentPackageSum = 0.0;
 
-        /** @var LineItem $lineItem */
         foreach ($sortedItems as $lineItem) {
             if ($lineItem->getPrice() === null) {
                 continue;
@@ -48,7 +46,6 @@ class LineItemGroupUnitPriceGrossPackager implements LineItemGroupPackagerInterf
             /** @var CalculatedPrice $price */
             $price = $lineItem->getPrice();
 
-            /** @var float $grossPrice */
             $grossPrice = $price->getUnitPrice();
 
             $currentPackageSum += $lineItem->getQuantity() * $grossPrice;

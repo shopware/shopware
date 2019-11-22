@@ -28,9 +28,14 @@ abstract class Container extends Rule implements ContainerInterface
     public function __construct(array $rules = [])
     {
         parent::__construct();
-        array_map([$this, 'addRule'], $rules);
+        foreach ($rules as $rule) {
+            $this->addRule($rule);
+        }
     }
 
+    /**
+     * @param Rule[] $rules
+     */
     public function setRules(array $rules): void
     {
         $this->rules = $rules;
@@ -41,6 +46,9 @@ abstract class Container extends Rule implements ContainerInterface
         $this->rules[] = $rule;
     }
 
+    /**
+     * @return Rule[]
+     */
     public function getRules(): array
     {
         return $this->rules;

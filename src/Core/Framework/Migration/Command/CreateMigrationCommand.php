@@ -92,7 +92,6 @@ class CreateMigrationCommand extends Command
                 );
             }
 
-            /** @var Plugin $pluginBundle */
             $pluginBundle = array_values($pluginBundles)[0];
 
             $directory = $pluginBundle->getMigrationPath();

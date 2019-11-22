@@ -14,8 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\Seo\MainCategory\MainCategoryCollection;
-use Shopware\Core\Framework\Seo\MainCategory\MainCategoryEntity;
 use Shopware\Core\Framework\Seo\SeoUrlRoute\SeoUrlExtractIdResult;
 use Shopware\Core\Framework\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Framework\Seo\SeoUrlRoute\SeoUrlRouteConfig;
@@ -148,13 +146,9 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
 
     private function extractMainCategory(ProductEntity $product, ?SalesChannelEntity $salesChannel): ?CategoryEntity
     {
-        /** @var CategoryEntity|null $mainCategory */
         $mainCategory = null;
         if ($salesChannel !== null) {
-            /** @var MainCategoryCollection $mainCategories */
-            $mainCategories = $product->getMainCategories();
-            /** @var MainCategoryEntity|null $mainCategoryEntity */
-            $mainCategoryEntity = $mainCategories->filterBySalesChannelId($salesChannel->getId())->first();
+            $mainCategoryEntity = $product->getMainCategories()->filterBySalesChannelId($salesChannel->getId())->first();
             $mainCategory = $mainCategoryEntity !== null ? $mainCategoryEntity->getCategory() : null;
         }
 

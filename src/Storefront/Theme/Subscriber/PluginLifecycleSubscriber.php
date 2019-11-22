@@ -176,7 +176,6 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
 
         $childThemeSalesChannel = [];
         if ($childThemes && $childThemes->count() > 0) {
-            /** @var ThemeEntity $childTheme */
             foreach ($childThemes as $childTheme) {
                 if (!$childTheme->getSalesChannels() || $childTheme->getSalesChannels()->count() === 0) {
                     continue;

@@ -77,7 +77,6 @@ class PromotionCartEventTest extends TestCase
         $addListener->expects(static::exactly(1 + \count($codes)))->method('__invoke');
         $dispatcher->addListener(LineItemAddedEvent::class, $addListener);
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         // add all our prepared test fixtures
@@ -112,7 +111,6 @@ class PromotionCartEventTest extends TestCase
         $removeListener->expects(static::once())->method('__invoke');
         $dispatcher->addListener(LineItemRemovedEvent::class, $removeListener);
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         /** @var int $code */

@@ -95,7 +95,7 @@ class MigrationCommand extends Command
         $migratedCounter = 0;
 
         try {
-            foreach ($this->getMigrationGenerator($until, $limit) as $key => $return) {
+            foreach ($this->getMigrationGenerator($until, $limit) as $_return) {
                 $this->io->progressAdvance();
                 ++$migratedCounter;
             }

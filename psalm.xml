@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <psalm
     ensureArrayStringOffsetsExist="true"
+    findUnusedVariablesAndParams="true"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
@@ -14,6 +15,21 @@
 
     <issueHandlers>
         <!-- Shopware related issues which are ignored -->
+        <UnusedMethodCall>
+            <errorLevel type="info">
+                <referencedMethod name="Symfony\Component\Config\Definition\Builder\NodeBuilder::end"/>
+            </errorLevel>
+        </UnusedMethodCall>
+        <UnusedVariable>
+            <errorLevel type="info">
+                <file name="vendor/shopware/platform/src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php"/>
+            </errorLevel>
+        </UnusedVariable>
+        <UnusedFunctionCall>
+            <errorLevel type="info">
+                <referencedFunction name="iterator_to_array"/>
+            </errorLevel>
+        </UnusedFunctionCall>
         <UndefinedDocblockClass>
             <errorLevel type="suppress">
                 <referencedClass name="Symfony\Component\DependencyInjection\ContainerAwareTrait"/> <!-- Issue with loading traits in Docblocks -->

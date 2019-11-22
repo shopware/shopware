@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Test\Product\DataAbstractionLayer\Indexing;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -317,16 +316,8 @@ class ProductStockIndexerTest extends TestCase
     private function transitionOrder(string $orderId, string $transition): void
     {
         $registry = $this->getContainer()->get(StateMachineRegistry::class);
+        $transitionObject = new Transition('order', $orderId, $transition, 'stateId');
 
-        /* @var OrderEntity $order */
-        $registry->transition(
-            new Transition(
-                'order',
-                $orderId,
-                $transition,
-                'stateId'
-            ),
-            Context::createDefaultContext()
-        );
+        $registry->transition($transitionObject, Context::createDefaultContext());
     }
 }

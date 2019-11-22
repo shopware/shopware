@@ -11,12 +11,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceCollection;
-use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceEntity;
-use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupEntity;
 use Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
-use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
 
@@ -67,7 +64,6 @@ class PromotionItemBuilder
     public function buildDiscountLineItem(string $code, PromotionEntity $promotion, PromotionDiscountEntity $discount, int $currencyPrecision, string $currencyId): LineItem
     {
         //get the rules collection of discount
-        /** @var RuleCollection|null $discountRuleCollection */
         $discountRuleCollection = $discount->getDiscountRules();
 
         // this is our target Filter that may be null if discount has no filters
@@ -78,7 +74,6 @@ class PromotionItemBuilder
         if ($discountRuleCollection instanceof RuleCollection && $discount->isConsiderAdvancedRules() && $discountRuleCollection->count() > 0) {
             $targetFilter = new OrRule();
 
-            /** @var RuleEntity $discountRule */
             foreach ($discountRuleCollection as $discountRule) {
                 /** @var Rule|string|null $rule */
                 $rule = $discountRule->getPayload();
@@ -229,7 +224,6 @@ class PromotionItemBuilder
         $payload['setGroups'] = [];
 
         if ($promotion->getSetgroups() !== null) {
-            /** @var PromotionSetGroupEntity $group */
             foreach ($promotion->getSetgroups() as $group) {
                 $payload['setGroups'][] = [
                     'groupId' => $group->getId(),
@@ -264,7 +258,6 @@ class PromotionItemBuilder
      */
     private function getCurrencySpecificValue(PromotionDiscountEntity $discount, float $default, string $currencyId): float
     {
-        /** @var PromotionDiscountPriceCollection|null $currencyPrices */
         $currencyPrices = $discount->getPromotionDiscountPrices();
 
         // if there is no special defined price return default value
@@ -276,7 +269,6 @@ class PromotionItemBuilder
         // if there is one we want to return this otherwise we return standard value
         $discountValue = $default;
 
-        /** @var PromotionDiscountPriceEntity $currencyPrice */
         foreach ($currencyPrices as $currencyPrice) {
             if ($currencyPrice->getCurrencyId() === $currencyId) {
                 // we have found a defined price, we overwrite standard value and break loop

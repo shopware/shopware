@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Promotion\Util;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class PromotionCodesLoader
@@ -23,7 +22,6 @@ class PromotionCodesLoader
      */
     public function loadIndividualCodes(string $promotionId): array
     {
-        /** @var QueryBuilder $qb */
         $qb = $this->connection->createQueryBuilder();
 
         $qb->select('code');

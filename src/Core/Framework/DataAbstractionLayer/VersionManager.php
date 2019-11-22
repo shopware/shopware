@@ -346,7 +346,6 @@ class VersionManager
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($writtenEvents, $liveContext->getContext(), []);
         $this->eventDispatcher->dispatch($event);
 
-        /** @var DeleteResult[] $deletedEvents */
         foreach ($deletedEvents as $deletedEvent) {
             $event = EntityWrittenContainerEvent::createWithDeletedEvents($deletedEvent->getDeleted(), $liveContext->getContext(), $deletedEvent->getNotFound());
             $this->eventDispatcher->dispatch($event);
@@ -550,7 +549,6 @@ class VersionManager
                 continue;
             }
 
-            /** @var EntityDefinition $definition */
             $definition = $this->registry->getByEntityName($items[0]->getEntityName());
             $entityName = $definition->getEntityName();
 
@@ -613,7 +611,6 @@ class VersionManager
             return $field instanceof VersionField || $field instanceof ReferenceVersionField;
         });
 
-        /** @var FieldCollection $fields */
         foreach ($fields as $field) {
             $payload[$field->getPropertyName()] = $versionId;
         }

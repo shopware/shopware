@@ -8,8 +8,6 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNo
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
-use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilderResult;
-use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupSorterInterface;
@@ -141,7 +139,6 @@ class LineItemGroupBuilderTest extends TestCase
     {
         $cart = $this->buildCart(1);
 
-        /** @var LineItemGroupDefinition $group */
         $group = $this->buildGroup('FAKE-PACKAGER', 2, 'FAKE-SORTER', new RuleCollection());
 
         $this->integrationTestBuilder->findGroupPackages([$group], $cart, $this->context);
@@ -169,7 +166,6 @@ class LineItemGroupBuilderTest extends TestCase
     {
         $cart = $this->buildCart(1);
 
-        /** @var LineItemGroupDefinition $group */
         $group = $this->buildGroup('FAKE-PACKAGER', 2, 'FAKE-SORTER', new RuleCollection());
 
         $this->integrationTestBuilder->findGroupPackages([$group], $cart, $this->context);
@@ -197,7 +193,6 @@ class LineItemGroupBuilderTest extends TestCase
     {
         $cart = $this->buildCart(1);
 
-        /** @var LineItemGroupDefinition $group */
         $group = $this->buildGroup('FAKE-PACKAGER', 2, 'FAKE-SORTER', new RuleCollection());
 
         $this->integrationTestBuilder->findGroupPackages([$group], $cart, $this->context);
@@ -227,10 +222,8 @@ class LineItemGroupBuilderTest extends TestCase
     {
         $cart = $this->buildCart(3);
 
-        /** @var LineItemGroupDefinition $groupDefinition */
         $groupDefinition = $this->buildGroup(self::KEY_PACKAGER_COUNT, 2, self::KEY_SORTER_PRICE_ASC, new RuleCollection());
 
-        /** @var LineItemGroupBuilderResult $result */
         $result = $this->unitTestBuilder->findGroupPackages([$groupDefinition], $cart, $this->context);
 
         /** @var LineItemQuantity[] $items */
@@ -251,10 +244,8 @@ class LineItemGroupBuilderTest extends TestCase
     {
         $cart = $this->buildCart(7);
 
-        /** @var LineItemGroupDefinition $groupDefinition */
         $groupDefinition = $this->buildGroup(self::KEY_PACKAGER_COUNT, 2, self::KEY_SORTER_PRICE_ASC, new RuleCollection());
 
-        /** @var LineItemGroupBuilderResult $result */
         $result = $this->unitTestBuilder->findGroupPackages([$groupDefinition], $cart, $this->context);
 
         /** @var LineItemQuantity[] $items */
@@ -274,7 +265,6 @@ class LineItemGroupBuilderTest extends TestCase
     {
         $cart = $this->buildCart(3);
 
-        /** @var LineItemGroupDefinition $group */
         $group = $this->buildGroup('UNKNOWN', 2, self::KEY_SORTER_PRICE_ASC, new RuleCollection());
 
         $this->expectException(LineItemGroupPackagerNotFoundException::class);
@@ -293,7 +283,6 @@ class LineItemGroupBuilderTest extends TestCase
     {
         $cart = $this->buildCart(3);
 
-        /** @var LineItemGroupDefinition $group */
         $group = $this->buildGroup(self::KEY_PACKAGER_COUNT, 2, 'UNKNOWN', new RuleCollection());
 
         $this->expectException(LineItemGroupSorterNotFoundException::class);

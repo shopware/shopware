@@ -35,7 +35,6 @@ class CustomFieldService implements EventSubscriberInterface
 
     public function getCustomField(string $attributeName): ?Field
     {
-        /** @var CustomFieldEntity|null $attribute */
         $attribute = $this->getCustomFields()[$attributeName] ?? null;
         if (!$attribute) {
             return null;

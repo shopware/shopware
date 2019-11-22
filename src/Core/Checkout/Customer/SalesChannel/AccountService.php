@@ -175,7 +175,6 @@ class AccountService
 
     public function saveProfile(DataBag $data, SalesChannelContext $context): void
     {
-        /** @var DataValidationDefinition $validation */
         $validation = $this->customerProfileValidationService->buildUpdateValidation($context->getContext());
 
         $this->dispatchValidationEvent($validation, $context->getContext());
@@ -528,7 +527,6 @@ class AccountService
      */
     private function validateResetPassword(DataBag $data, SalesChannelContext $context): void
     {
-        /** @var DataValidationDefinition $definition */
         $definition = new DataValidationDefinition('customer.password.update');
 
         $minPasswordLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength');
@@ -663,7 +661,6 @@ class AccountService
      */
     private function tryValidateEqualtoConstraint(array $data, string $field, DataValidationDefinition $validation): void
     {
-        /** @var array $validations */
         $validations = $validation->getProperties();
 
         if (!array_key_exists($field, $validations)) {
@@ -706,7 +703,6 @@ class AccountService
      */
     private function validatePasswordFields(DataBag $data, SalesChannelContext $context): void
     {
-        /** @var DataValidationDefinition $definition */
         $definition = new DataValidationDefinition('customer.password.update');
 
         $minPasswordLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength');

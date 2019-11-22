@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Component\HttpFoundation\Response;
 
 class PromotionControllerTest extends TestCase
 {
@@ -71,7 +70,6 @@ class PromotionControllerTest extends TestCase
             ]
         );
 
-        /** @var Response $response */
         $response = $this->api->getResponse();
 
         // verify HTTP STATUS CODE
@@ -103,7 +101,6 @@ class PromotionControllerTest extends TestCase
             $this->resourceUri . '/' . $promotionId
         );
 
-        /** @var Response $response */
         $response = $this->api->getResponse();
 
         static::assertSame(200, $response->getStatusCode(), $response->getContent());
@@ -134,7 +131,6 @@ class PromotionControllerTest extends TestCase
             $this->resourceUri
         );
 
-        /** @var Response $response */
         $response = $this->api->getResponse();
 
         static::assertSame(200, $response->getStatusCode(), $response->getContent());
@@ -172,7 +168,6 @@ class PromotionControllerTest extends TestCase
             ]
         );
 
-        /** @var Response $response */
         $response = $this->api->getResponse();
 
         static::assertEquals(204, $response->getStatusCode(), $response->getContent());
@@ -203,7 +198,6 @@ class PromotionControllerTest extends TestCase
             $this->resourceUri . '/' . $promotionId . '/discounts/' . $discountId
         );
 
-        /** @var Response $response */
         $response = $this->api->getResponse();
 
         static::assertEquals(204, $response->getStatusCode(), $response->getContent());
@@ -269,12 +263,10 @@ class PromotionControllerTest extends TestCase
             '/api/v' . PlatformRequest::API_VERSION . '/promotion/' . $promotionId
         );
 
-        /** @var Response $response */
         $response = $this->api->getResponse();
 
         static::assertEquals(204, $response->getStatusCode(), $response->getContent());
 
-        /** @var PromotionEntity|null $promotions */
         $promotions = $this->getPromotionFromDB($promotionId);
 
         static::assertNull($promotions);

@@ -40,7 +40,6 @@ class Filesystem
         if (!empty($errors)) {
             return $errors;
         }
-        /** @var \DirectoryIterator $fileInfo */
         foreach (new \DirectoryIterator($directory) as $fileInfo) {
             if ($fileInfo->isDot()) {
                 continue;

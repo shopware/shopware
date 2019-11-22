@@ -27,7 +27,7 @@ class CustomerValidationService implements ValidationServiceInterface
     {
         $definition = new DataValidationDefinition('customer.create');
 
-        $this->addConstraints($definition, $context);
+        $this->addConstraints($definition);
 
         $profileDefinition = $this->profileValidation->buildCreateValidation($context);
 
@@ -44,12 +44,12 @@ class CustomerValidationService implements ValidationServiceInterface
 
         $this->merge($definition, $profileDefinition);
 
-        $this->addConstraints($definition, $context);
+        $this->addConstraints($definition);
 
         return $definition;
     }
 
-    private function addConstraints(DataValidationDefinition $definition, Context $context): void
+    private function addConstraints(DataValidationDefinition $definition): void
     {
         $definition
             ->add('email', new NotBlank(), new Email())

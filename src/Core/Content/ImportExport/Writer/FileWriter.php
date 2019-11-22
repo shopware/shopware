@@ -43,7 +43,12 @@ abstract class FileWriter
     public function flush(): void
     {
         rewind($this->buffer);
-        stream_copy_to_stream($this->buffer, $this->tempFile);
+
+        $bytesCopied = stream_copy_to_stream($this->buffer, $this->tempFile);
+        if ($bytesCopied === false) {
+            throw new \RuntimeException(sprintf('Could not copy stream to %s', $this->tempPath));
+        }
+
         $this->initBuffer();
     }
 
@@ -57,7 +62,7 @@ abstract class FileWriter
 
     private function initBuffer(): void
     {
-        if (is_resource($this->buffer)) {
+        if (\is_resource($this->buffer)) {
             fclose($this->buffer);
         }
         $this->buffer = fopen('php://memory', 'r+b');

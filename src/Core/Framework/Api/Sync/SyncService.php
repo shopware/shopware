@@ -61,7 +61,7 @@ class SyncService implements SyncServiceInterface
                 $this->connection->beginTransaction();
             }
 
-            $result = $this->execute($operation, $context, $behavior);
+            $result = $this->execute($operation, $context);
 
             $results[$operation->getKey()] = $result;
 
@@ -69,7 +69,6 @@ class SyncService implements SyncServiceInterface
 
             if ($hasError) {
                 if ($behavior->failOnError()) {
-                    /** @var SyncOperationResult $result */
                     foreach ($results as $result) {
                         $result->resetEntities();
                     }
@@ -97,16 +96,16 @@ class SyncService implements SyncServiceInterface
         return new SyncResult($results, $hasError === false);
     }
 
-    private function execute(SyncOperation $operation, Context $context, SyncBehavior $behavior): SyncOperationResult
+    private function execute(SyncOperation $operation, Context $context): SyncOperationResult
     {
         $repository = $this->definitionRegistry->getRepository($operation->getEntity());
 
         switch (mb_strtolower($operation->getAction())) {
             case 'upsert':
-                return $this->upsertRecords($operation, $context, $repository, $behavior);
+                return $this->upsertRecords($operation, $context, $repository);
 
             case 'delete':
-                return $this->deleteRecords($operation, $context, $repository, $behavior);
+                return $this->deleteRecords($operation, $context, $repository);
 
             default:
                 throw new \RuntimeException(
@@ -115,8 +114,11 @@ class SyncService implements SyncServiceInterface
         }
     }
 
-    private function upsertRecords(SyncOperation $operation, Context $context, EntityRepositoryInterface $repository, SyncBehavior $behavior): SyncOperationResult
-    {
+    private function upsertRecords(
+        SyncOperation $operation,
+        Context $context,
+        EntityRepositoryInterface $repository
+    ): SyncOperationResult {
         $results = [];
 
         $records = array_values($operation->getPayload());
@@ -148,8 +150,11 @@ class SyncService implements SyncServiceInterface
         return new SyncOperationResult($results);
     }
 
-    private function deleteRecords(SyncOperation $operation, Context $context, EntityRepositoryInterface $repository, SyncBehavior $behavior): SyncOperationResult
-    {
+    private function deleteRecords(
+        SyncOperation $operation,
+        Context $context,
+        EntityRepositoryInterface $repository
+    ): SyncOperationResult {
         $results = [];
 
         $records = array_values($operation->getPayload());

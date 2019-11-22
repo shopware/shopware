@@ -65,7 +65,6 @@ class LineItemGroupCountPackagerTest extends TestCase
         $items->add($p2);
         $items->add($p3);
 
-        /** @var LineItemGroup $packageItems */
         $packageItems = $this->packager->buildGroupPackage(2, $items, $this->context);
 
         // verify we have only 2 items
@@ -88,7 +87,6 @@ class LineItemGroupCountPackagerTest extends TestCase
         $items = new LineItemFlatCollection();
         $items->add($this->createProductItem(50.0, 0));
 
-        /** @var LineItemGroup $packageItems */
         $packageItems = $this->packager->buildGroupPackage(2, $items, $this->context);
 
         // verify we dont have results, because a
@@ -107,7 +105,6 @@ class LineItemGroupCountPackagerTest extends TestCase
     {
         $items = new LineItemFlatCollection();
 
-        /** @var LineItemGroup $packageItems */
         $packageItems = $this->packager->buildGroupPackage(2, $items, $this->context);
 
         static::assertCount(0, $packageItems->getItems());
@@ -124,7 +121,6 @@ class LineItemGroupCountPackagerTest extends TestCase
     {
         $items = new LineItemFlatCollection();
 
-        /** @var LineItemGroup $packageItems */
         $packageItems = $this->packager->buildGroupPackage(-1, $items, $this->context);
 
         static::assertCount(0, $packageItems->getItems());
@@ -141,7 +137,6 @@ class LineItemGroupCountPackagerTest extends TestCase
     {
         $items = new LineItemFlatCollection();
 
-        /** @var LineItemGroup $packageItems */
         $packageItems = $this->packager->buildGroupPackage(0, $items, $this->context);
 
         static::assertCount(0, $packageItems->getItems());
@@ -165,7 +160,6 @@ class LineItemGroupCountPackagerTest extends TestCase
 
         $items->add($product);
 
-        /** @var LineItemGroup $packageItems */
         $packageItems = $this->packager->buildGroupPackage(2, $items, $this->context);
 
         static::assertCount(1, $packageItems->getItems());

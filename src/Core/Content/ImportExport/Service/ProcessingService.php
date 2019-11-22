@@ -119,7 +119,8 @@ class ProcessingService
             }
             $writer->flush();
 
-            if (++$lastIndex >= $logEntity->getRecords()) {
+            ++$lastIndex;
+            if ($lastIndex >= $logEntity->getRecords()) {
                 $writer->finish();
                 $this->updateState($context, $logEntity->getId(), ImportExportLogEntity::STATE_SUCCEEDED);
             }

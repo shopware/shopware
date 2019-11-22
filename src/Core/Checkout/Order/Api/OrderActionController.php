@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Order\Api;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
-use Shopware\Core\Checkout\Document\GeneratedDocument;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
@@ -303,7 +302,6 @@ class OrderActionController extends AbstractController
             throw new InvalidDocumentException($documentId);
         }
 
-        /** @var GeneratedDocument $document */
         $document = $this->documentService->getDocument($documentEntity, $context);
 
         return [

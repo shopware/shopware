@@ -469,6 +469,7 @@ class SyncControllerTest extends TestCase
             ['id' => [Uuid::fromHexToBytes($product), Uuid::fromHexToBytes($product2)]],
             ['id' => Connection::PARAM_STR_ARRAY]
         );
+        static::assertNotFalse($exists);
 
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(400, $response->getStatusCode());
@@ -508,6 +509,7 @@ class SyncControllerTest extends TestCase
             ['id' => [Uuid::fromHexToBytes($product)]],
             ['id' => Connection::PARAM_STR_ARRAY]
         );
+        static::assertNotFalse($exists);
 
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());

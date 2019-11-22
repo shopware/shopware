@@ -81,7 +81,6 @@ class PromotionMixedCalculationTest extends TestCase
         $this->createTestFixtureAbsolutePromotion($promotionId1, 'sale', 20, $this->getContainer());
         $this->createTestFixturePercentagePromotion($promotionId2, '100off', 100, null, $this->getContainer());
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
         // create product and add to cart
@@ -121,7 +120,6 @@ class PromotionMixedCalculationTest extends TestCase
         // add a new promotion black friday
         $this->createTestFixturePercentagePromotion($promotionId, $code, 100, null, $this->getContainer());
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
         // add product to cart
@@ -170,7 +168,6 @@ class PromotionMixedCalculationTest extends TestCase
         $this->createTestFixtureFixedDiscountPromotion($promotionId, 200, PromotionDiscountEntity::SCOPE_SET, $code, $this->getContainer(), $this->context);
         $this->createSetGroupFixture('COUNT', 5, 'PRICE_ASC', $promotionId, $this->getContainer());
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         // create first product and add to cart

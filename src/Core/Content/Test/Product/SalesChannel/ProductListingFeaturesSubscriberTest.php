@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 class ProductListingFeaturesSubscriberTest extends TestCase
@@ -22,7 +23,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var \Symfony\Component\EventDispatcher\EventDispatcher
+     * @var EventDispatcher
      */
     private $eventDispatcher;
 
@@ -330,7 +331,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
         $filters = $criteria->getPostFilters();
 
-        static::assertCount(count($properties), $filters, $message);
+        static::assertCount(\count($properties), $filters, $message);
 
         $filtered = [];
 
@@ -360,7 +361,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
         static::assertNotEmpty($filtered, $message);
 
-        foreach ($properties as $group => $ids) {
+        foreach ($properties as $ids) {
             foreach ($ids as $id) {
                 static::assertContains($id, $filtered, $message);
             }

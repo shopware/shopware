@@ -108,7 +108,6 @@ EOD;
                 \DateTimeImmutable::createFromFormat('Y-m', $month)->format('F Y')
             );
 
-            /** @var PlatformUpdatesDocument $document */
             foreach ($documents as $document) {
                 $rendered[] = sprintf(
                     self::TEMPLATE_HEADLINE,

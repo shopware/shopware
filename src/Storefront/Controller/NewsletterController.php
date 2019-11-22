@@ -128,7 +128,6 @@ class NewsletterController extends StorefrontController
     {
         $this->denyAccessUnlessLoggedIn();
 
-        /** @var bool $subscribed */
         $subscribed = ($request->get('option', false) === NewsletterSubscriptionService::STATUS_DIRECT);
 
         if (!$subscribed) {

@@ -23,7 +23,6 @@ trait LineItemTestFixtureBehaviour
 
         $taxValue = $netPrice * ($taxRate / 100.0);
 
-        /** @var float $grossPrice */
         $grossPrice = $netPrice + $taxValue;
 
         $calculatedTaxes = new CalculatedTaxCollection();

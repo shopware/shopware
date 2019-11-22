@@ -9,20 +9,20 @@ class KernelPluginCollection
     /**
      * @var Plugin[]
      */
-    private $bundles;
+    private $plugins;
 
     /**
-     * @param Plugin[] $bundles
+     * @param Plugin[] $plugin
      */
-    public function __construct(array $bundles = [])
+    public function __construct(array $plugin = [])
     {
-        $this->bundles = $bundles;
+        $this->plugins = $plugin;
     }
 
-    public function add(Plugin $bundle): void
+    public function add(Plugin $plugin): void
     {
         /** @var string|false $class */
-        $class = \get_class($bundle);
+        $class = \get_class($plugin);
 
         if ($class === false) {
             return;
@@ -32,25 +32,24 @@ class KernelPluginCollection
             return;
         }
 
-        $this->bundles[$class] = $bundle;
+        $this->plugins[$class] = $plugin;
     }
 
-    /**
-     * @param Plugin[] $bundle
-     */
-    public function addList(array $bundle): void
+    public function addList(array $plugins): void
     {
-        array_map([$this, 'add'], $bundle);
+        foreach ($plugins as $plugin) {
+            $this->add($plugin);
+        }
     }
 
-    public function has($name): bool
+    public function has(string $name): bool
     {
-        return array_key_exists($name, $this->bundles);
+        return array_key_exists($name, $this->plugins);
     }
 
-    public function get($name): ?Plugin
+    public function get(string $name): ?Plugin
     {
-        return $this->has($name) ? $this->bundles[$name] : null;
+        return $this->has($name) ? $this->plugins[$name] : null;
     }
 
     /**
@@ -58,7 +57,7 @@ class KernelPluginCollection
      */
     public function all(): array
     {
-        return $this->bundles;
+        return $this->plugins;
     }
 
     /**
@@ -66,13 +65,13 @@ class KernelPluginCollection
      */
     public function getActives(): array
     {
-        return array_filter($this->bundles, function (Plugin $plugin) {
+        return array_filter($this->plugins, function (Plugin $plugin) {
             return $plugin->isActive();
         });
     }
 
-    public function filter(\Closure $closure)
+    public function filter(\Closure $closure): KernelPluginCollection
     {
-        return new static(array_filter($this->bundles, $closure));
+        return new static(array_filter($this->plugins, $closure));
     }
 }

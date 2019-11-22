@@ -168,7 +168,7 @@ class CmsSlotsDataResolver
             $searches[$definition] = [];
 
             /** @var Criteria $criteria */
-            foreach ($criteriaObjects as $key => $criteria) {
+            foreach ($criteriaObjects as $criteria) {
                 if ($this->canBeMerged($criteria)) {
                     $directReads[$definition][] = $criteria->getIds();
                 } else {
@@ -269,13 +269,15 @@ class CmsSlotsDataResolver
             return;
         }
 
-        foreach ($criteriaObjects[$slot->getUniqueIdentifier()] as $definition => $criterias) {
+        foreach ($criteriaObjects[$slot->getUniqueIdentifier()] as $criterias) {
             foreach ($criterias as $key => $criteria) {
                 if (!$criteria->hasExtension('criteriaHash')) {
                     continue;
                 }
 
-                $hash = $criteria->getExtension('criteriaHash')->get('hash');
+                /** @var ArrayEntity $hashArrayEntity */
+                $hashArrayEntity = $criteria->getExtension('criteriaHash');
+                $hash = $hashArrayEntity->get('hash');
                 if (!isset($searchResults[$hash])) {
                     continue;
                 }

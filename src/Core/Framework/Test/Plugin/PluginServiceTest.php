@@ -151,7 +151,6 @@ class PluginServiceTest extends TestCase
     {
         $this->createPlugin($this->pluginRepo, $this->context);
 
-        /** @var PluginEntity $plugin */
         $plugin = $this->pluginService->getPluginByName('SwagTest', $this->context);
 
         $this->performDefaultTests($plugin);

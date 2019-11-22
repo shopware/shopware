@@ -205,8 +205,12 @@ class ProductStreamIndexer implements IndexerInterface
                 continue;
             }
 
-            if ($this->isJsonString($entity['parameters'])) {
-                $entity['parameters'] = json_decode($entity['parameters'], true);
+            $parameters = $entity['parameters'];
+            if ($parameters && \is_string($parameters)) {
+                $decodedParameters = json_decode($entity['parameters'], true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $entity['parameters'] = $decodedParameters;
+                }
             }
 
             if ($this->isMultiFilter($entity['type'])) {
@@ -219,19 +223,8 @@ class ProductStreamIndexer implements IndexerInterface
         return $nested;
     }
 
-    private function isJsonString($string): bool
-    {
-        if (!$string || !is_string($string)) {
-            return false;
-        }
-
-        json_decode($string);
-
-        return json_last_error() === JSON_ERROR_NONE;
-    }
-
     private function isMultiFilter(string $type): bool
     {
-        return in_array($type, ['multi', 'not'], true);
+        return \in_array($type, ['multi', 'not'], true);
     }
 }

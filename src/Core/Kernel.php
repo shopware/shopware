@@ -226,7 +226,7 @@ class Kernel extends HttpKernel
 
         $activePluginMeta = [];
 
-        foreach ($this->pluginLoader->getPluginInstances()->getActives() as $namespace => $plugin) {
+        foreach ($this->pluginLoader->getPluginInstances()->getActives() as $plugin) {
             $class = get_class($plugin);
             $activePluginMeta[$class] = [
                 'name' => $plugin->getName(),
@@ -277,7 +277,6 @@ class Kernel extends HttpKernel
 
     private function initializeDatabaseConnectionVariables(): void
     {
-        /** @var Connection $connection */
         $connection = self::getConnection();
 
         $nonDestructiveMigrations = $connection->executeQuery('

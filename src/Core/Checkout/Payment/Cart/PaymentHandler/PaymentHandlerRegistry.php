@@ -11,11 +11,11 @@ class PaymentHandlerRegistry
 
     public function __construct(iterable $syncHandlers, iterable $asyncHandlers)
     {
-        foreach ($syncHandlers as $key => $handler) {
+        foreach ($syncHandlers as $handler) {
             $this->addHandler($handler);
         }
 
-        foreach ($asyncHandlers as $key => $handler) {
+        foreach ($asyncHandlers as $handler) {
             $this->addHandler($handler);
         }
     }

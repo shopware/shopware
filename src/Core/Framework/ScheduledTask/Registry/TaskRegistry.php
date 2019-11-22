@@ -82,7 +82,6 @@ class TaskRegistry
     {
         $deletionPayload = [];
 
-        /** @var ScheduledTaskEntity $registeredTask */
         foreach ($alreadyRegisteredTasks as $registeredTask) {
             if ($this->taskClassStillAvailable($registeredTask)) {
                 continue;

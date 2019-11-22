@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Calculator;
 
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorResult;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
-use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -39,15 +36,12 @@ class DiscountFixedPriceCalculator
             throw new InvalidPriceDefinitionException($discount->getLabel(), $discount->getCode());
         }
 
-        /** @var float $fixedTotalPrice */
         $fixedTotalPrice = (float) abs($priceDefinition->getPrice());
 
-        /** @var float $discountDiff */
         $discountDiff = $this->getTotalDiscountDiffSum($fixedTotalPrice, $packages);
 
         // now calculate the correct price
         // from our collected total discount price
-        /** @var CalculatedPrice $discountPrice */
         $discountPrice = $this->absolutePriceCalculator->calculate(
             -abs($discountDiff),
             $packages->getAffectedPrices(),
@@ -66,27 +60,19 @@ class DiscountFixedPriceCalculator
     {
         $totalProductPrices = $packages->getAffectedPrices()->sum()->getTotalPrice();
 
-        /** @var float $discountDiff */
-        $discountDiff = $totalProductPrices - ($fixedPackagePrice * $packages->count());
-
-        return $discountDiff;
+        return $totalProductPrices - ($fixedPackagePrice * $packages->count());
     }
 
     private function getCompositionItems(float $discountValue, DiscountPackageCollection $packages): array
     {
-        /** @var float $totalOriginalSum */
         $totalOriginalSum = $packages->getAffectedPrices()->sum()->getTotalPrice();
 
         $items = [];
 
-        /** @var DiscountPackage $package */
         foreach ($packages as $package) {
-            /** @var LineItem $lineItem */
             foreach ($package->getCartItems() as $lineItem) {
-                /** @var float $itemTotal */
                 $itemTotal = $lineItem->getPrice()->getTotalPrice();
 
-                /** @var float $factor */
                 $factor = $itemTotal / $totalOriginalSum;
 
                 $items[] = new DiscountCompositionItem(

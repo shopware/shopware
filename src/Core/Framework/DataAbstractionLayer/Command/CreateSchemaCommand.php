@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 
 use Shopware\Core\Framework\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -48,7 +47,6 @@ class CreateSchemaCommand extends Command
         $entities = $this->registry->getDefinitions();
         $schema = [];
 
-        /** @var EntityDefinition $entity */
         foreach ($entities as $entity) {
             $domain = explode('_', $entity->getEntityName());
             $domain = array_shift($domain);

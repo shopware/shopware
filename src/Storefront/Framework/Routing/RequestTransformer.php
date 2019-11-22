@@ -38,6 +38,9 @@ class RequestTransformer implements RequestTransformerInterface
         SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME,
 
         SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK,
+
+        PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT,
+        PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT,
     ];
 
     /**

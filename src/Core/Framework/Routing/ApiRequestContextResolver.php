@@ -41,7 +41,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         $languageIdChain = $this->getLanguageIdChain($params);
 
         $context = new Context(
-            $this->resolveContextOrigin($request),
+            $this->resolveContextSource($request),
             [],
             $params['currencyId'],
             $languageIdChain,
@@ -91,7 +91,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         return $parameters;
     }
 
-    private function resolveContextOrigin(Request $request): ContextSource
+    private function resolveContextSource(Request $request): ContextSource
     {
         if ($request->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
             return new SalesChannelApiSource(Defaults::SALES_CHANNEL);

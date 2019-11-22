@@ -78,7 +78,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     {
         $basePath = $this->getBasePath();
         if ($referenceType === self::PATH_INFO) {
-            $route = $this->decorated->generate($name);
+            $route = $this->decorated->generate($name, $parameters, self::ABSOLUTE_PATH);
 
             return $this->removePrefix($route, $basePath);
         }

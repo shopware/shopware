@@ -76,13 +76,13 @@ abstract class StorefrontController extends AbstractController
         if ($request->get('forwardTo')) {
             $params = $this->decodeParam($request, 'forwardParameters');
 
-            return $this->forwardToRoute($request->get('forwardTo'), $params);
+            return $this->forwardToRoute($request->get('forwardTo'), [], $params);
         }
 
         return new Response();
     }
 
-    protected function forwardToRoute(string $routeName, array $parameters = [], array $routeParameters = []): Response
+    protected function forwardToRoute(string $routeName, array $attributes = [], array $routeParameters = []): Response
     {
         $router = $this->container->get('router');
 
@@ -99,12 +99,12 @@ abstract class StorefrontController extends AbstractController
 
         $request = $this->container->get('request_stack')->getCurrentRequest();
 
-        $parameters = array_merge(
+        $attributes = array_merge(
             $this->get(RequestTransformerInterface::class)->extractInheritableAttributes($request),
-            $parameters
+            $attributes
         );
 
-        return $this->forward($route['_controller'], $parameters);
+        return $this->forward($route['_controller'], $attributes, $routeParameters);
     }
 
     protected function resolveView(string $view, ?string $activeThemeName, ?string $activeThemeBaseName): string

@@ -6,10 +6,14 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class RequestStackHelper
 {
-    public static function clear(RequestStack $stack): void
+    public static function clear(RequestStack $stack): array
     {
-        do {
-            $stack->pop();
-        } while ($stack->getMasterRequest());
+        $requests = [];
+
+        while ($stack->getMasterRequest()) {
+            $requests[] = $stack->pop();
+        }
+
+        return $requests;
     }
 }

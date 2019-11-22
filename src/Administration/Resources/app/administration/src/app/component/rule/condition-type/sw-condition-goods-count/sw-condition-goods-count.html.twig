@@ -1,0 +1,28 @@
+{% block sw_condition_value_content %}
+    <div class="sw-condition-goods-count">
+        {% block sw_condition_goods_count_field_operator %}
+            <sw-condition-operator-select v-bind="{ operators, condition }"></sw-condition-operator-select>
+        {% endblock %}
+
+        {% block sw_condition_goods_count_field_count %}
+            <sw-number-field size="medium" numberType="int" :step="1" v-model="count"></sw-number-field>
+        {% endblock %}
+
+
+        {% block sw_condition_goods_count_filter_button %}
+            <div class="sw-condition-goods-count__filter">
+                <sw-button @click="showFilterModal = true"
+                           v-tooltip="{ message: $tc('sw-settings-rule.conditionFilter.infoText') }">
+                    <sw-icon name="small-default-stack-filter" small></sw-icon>
+                </sw-button>
+            </div>
+        {% endblock %}
+    </div>
+
+    {% block sw_condition_goods_count_condition_modal %}
+        <sw-condition-modal v-if="showFilterModal"
+                            @modal-close="showFilterModal = false"
+                            v-bind="{ condition, conditionDataProviderService }">>
+        </sw-condition-modal>
+    {% endblock %}
+{% endblock %}

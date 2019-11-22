@@ -1,0 +1,138 @@
+{% block sw_product_list %}
+    <sw-page class="sw-product-list">
+
+        {% block sw_product_list_search_bar %}
+            <template #search-bar>
+                <sw-search-bar initialSearchType="product"
+                               :initialSearch="term"
+                               @search="onSearch">
+                </sw-search-bar>
+            </template>
+        {% endblock %}
+
+        {% block sw_product_list_smart_bar_header %}
+            <template #smart-bar-header>
+                {% block sw_product_list_smart_bar_header_title %}
+                    <h2>
+                        {% block sw_product_list_smart_bar_header_title_text %}
+                            {{ $tc('sw-product.list.textProductOverview') }}
+                        {% endblock %}
+
+                        {% block sw_product_list_smart_bar_header_amount %}
+                            <span v-if="!isLoading" class="sw-page__smart-bar-amount">
+                                ({{ total }})
+                            </span>
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_product_list_smart_bar_actions %}
+            <template #smart-bar-actions>
+                {% block sw_product_list_smart_bar_actions_add %}
+                    <sw-button :routerLink="{ name: 'sw.product.create' }" variant="primary">
+                        {{ $tc('sw-product.list.buttonAddProduct') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_product_list_language_switch %}
+            <template #language-switch>
+                <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
+            </template>
+        {% endblock %}
+
+        <template #content>
+            {% block sw_product_list_content %}
+                <div class="sw-product-list__content">
+
+                    {% block sw_product_list_grid %}
+                        <sw-entity-listing ref="swProductGrid"
+                                           v-if="products"
+                                           class="sw-product-list-grid"
+                                           :items="products"
+                                           :columns="productColumns"
+                                           :repository="productRepository"
+                                           detailRoute="sw.product.detail"
+                                           :showSelection="true"
+                                           :isLoading="isLoading"
+                                           @inline-edit-save="onInlineEditSave"
+                                           @selection-change="updateSelection"
+                                           @update-records="updateTotal">
+                            {% block sw_product_list_grid_columns %}
+                                {% block sw_product_list_grid_columns_name_preview %}
+                                    <template #preview-name="{ item }">
+                                        <sw-media-preview :source="item.cover ? item.cover.media : null"></sw-media-preview>
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_product_list_grid_columns_active %}
+                                    <template #column-active="{ item, isInlineEdit }">
+                                        {% block sw_product_list_grid_columns_active_inline_edit %}
+                                            <template v-if="isInlineEdit">
+                                                <sw-checkbox-field v-model="item.active"></sw-checkbox-field>
+                                            </template>
+                                        {% endblock %}
+
+                                        {% block sw_product_list_grid_columns_active_content %}
+                                            <template v-else>
+                                                <sw-icon v-if="item.active" name="small-default-checkmark-line-medium" small class="is--active"></sw-icon>
+                                                <sw-icon v-else name="small-default-x-line-medium" small class="is--inactive"></sw-icon>
+                                            </template>
+                                        {% endblock %}
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_product_list_grid_columns_price %}
+                                    <template v-for="currency in currencies"
+                                              :slot="`column-price-${currency.isoCode}`"
+                                              slot-scope="{ item }">
+                                        {{ getCurrencyPriceByCurrencyId(item.id, currency.id).gross | currency(currency.isoCode) }}
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_product_list_grid_columns_stock %}
+                                    <template #column-stock="{ item, isInlineEdit, compact }">
+                                        {% block sw_product_list_grid_columns_stock_inline_edit %}
+                                            <template v-if="isInlineEdit">
+                                                <sw-number-field :size="compact ? 'small' : 'default'" v-model="item.stock"></sw-number-field>
+                                            </template>
+                                        {% endblock %}
+
+                                        {% block sw_product_list_grid_columns_stock_content %}
+                                            <template v-else>
+                                                {{ item.stock }}
+                                                <sw-color-badge :variant="item.stock | stockColorVariant"></sw-color-badge>
+                                            </template>
+                                        {% endblock %}
+                                    </template>
+                                {% endblock %}
+                            {% endblock %}
+                        </sw-entity-listing>
+
+                    {% endblock %}
+
+                    {% block sw_product_list_empty_state %}
+                        <sw-empty-state v-if="!isLoading && !total" :title="$tc('sw-product.list.messageEmpty')"></sw-empty-state>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </template>
+
+        {% block sw_product_list_sidebar %}
+            <template #sidebar>
+                <sw-sidebar>
+                    {% block sw_product_list_sidebar_refresh %}
+                        <sw-sidebar-item
+                            icon="default-arrow-360-left"
+                            :title="$tc('sw-product.list.titleSidebarItemRefresh')"
+                            @click="onRefresh">
+                        </sw-sidebar-item>
+                    {% endblock %}
+                </sw-sidebar>
+            </template>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

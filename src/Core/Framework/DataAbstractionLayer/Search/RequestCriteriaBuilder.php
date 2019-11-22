@@ -79,7 +79,7 @@ class RequestCriteriaBuilder
         return $this->allowedLimits;
     }
 
-    private function fromArray(array $payload, Criteria $criteria, EntityDefinition $definition, Context $context, int $apiVerison): Criteria
+    private function fromArray(array $payload, Criteria $criteria, EntityDefinition $definition, Context $context, int $apiVersion): Criteria
     {
         $searchException = new SearchRequestException();
 
@@ -155,11 +155,11 @@ class RequestCriteriaBuilder
 
                 $nested = $criteria->getAssociation($propertyName);
 
-                $this->fromArray($association, $nested, $ref, $context, $apiVerison);
+                $this->fromArray($association, $nested, $ref, $context, $apiVersion);
             }
         }
 
-        $this->converterService->convertCriteria($definition, $criteria, $apiVerison, $searchException);
+        $this->converterService->convertCriteria($definition, $criteria, $apiVersion, $searchException);
 
         $searchException->tryToThrow();
 

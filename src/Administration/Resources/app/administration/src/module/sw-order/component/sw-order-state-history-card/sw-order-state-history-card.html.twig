@@ -1,0 +1,64 @@
+{% block sw_order_state_history_card %}
+    <sw-card :title="title"
+            :isLoading="isLoading || statesLoading"
+            class="sw-order-state-card">
+        {% block sw_order_state_change_card_modal %}
+            <sw-order-state-change-modal
+                v-if="showModal"
+                :order="order"
+                :isLoading="isLoading"
+                @page-leave="onLeaveModalClose"
+                @page-leave-confirm="onLeaveModalConfirm">
+            </sw-order-state-change-modal>
+        {% endblock %}
+        {% block sw_order_state_history_card_container %}
+            <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="30px 30px">
+                {% block sw_order_state_history_card_transaction %}
+                    <sw-order-state-card-entry v-if="transaction"
+                                               class="sw-order-state-history-card__payment-state"
+                                               @state-select="onTransactionStateSelected"
+                                               :history="transactionHistory"
+                                               :transitionOptions="transactionOptions"
+                                               stateMachineName="order_transaction.state"
+                                               :title="$tc('sw-order.stateCard.headlineTransactionState')">
+                    </sw-order-state-card-entry>
+
+                    <template v-else>
+                        <div>
+                            <h2>{{ $tc('sw-order.stateCard.headlineTransactionState') }}</h2>
+                            {{ $tc('sw-order.stateCard.labelNoTransactionState') }}
+                        </div>
+                    </template>
+                {% endblock %}
+
+                {% block sw_order_state_history_card_delivery %}
+                <sw-order-state-card-entry v-if="delivery"
+                                           class="sw-order-state-history-card__delivery-state"
+                                           @state-select="onDeliveryStateSelected"
+                                           :history="deliveryHistory"
+                                           :transitionOptions="deliveryOptions"
+                                           stateMachineName="order_delivery.state"
+                                           :title="$tc('sw-order.stateCard.headlineDeliveryState')">
+                </sw-order-state-card-entry>
+
+                <template v-else>
+                    <div>
+                        <h2>{{ $tc('sw-order.stateCard.headlineDeliveryState') }}</h2>
+                        {{ $tc('sw-order.stateCard.labelNoDeliveryState') }}
+                    </div>
+                </template>
+                {% endblock %}
+
+                {% block sw_order_state_history_card_order%}
+                    <sw-order-state-card-entry  class="sw-order-state-history-card__order-state"
+                                                @state-select="onOrderStateSelected"
+                                                :history="orderHistory"
+                                                :transitionOptions="orderOptions"
+                                                stateMachineName="order.state"
+                                                :title="$tc('sw-order.stateCard.headlineOrderState')">
+                    </sw-order-state-card-entry>
+                {% endblock %}
+            </sw-container>
+        {% endblock %}
+    </sw-card>
+{% endblock %}

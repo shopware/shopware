@@ -1,0 +1,14 @@
+{% sw_extends '@Storefront/storefront/page/checkout/cart/cart-product-header.html.twig' %}
+
+{% block page_checkout_cart_header_unit_price %}
+    {# display tax instead of unit price in confirm header #}
+    {% block page_checkout_cart_header_tax_price %}
+        <div class="col-2 cart-header-tax-price">
+            {% if context.taxState == "gross" %}
+                {{ "checkout.cartHeaderTaxIncludeVat"|trans|sw_sanitize }}
+            {% else %}
+                {{ "checkout.cartHeaderTaxExcludeVat"|trans|sw_sanitize }}
+            {% endif %}
+        </div>
+    {% endblock %}
+{% endblock %}

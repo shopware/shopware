@@ -1,0 +1,169 @@
+{% sw_extends '@Storefront/storefront/page/checkout/_page.html.twig' %}
+
+{% block base_header %}
+    {% sw_include '@Storefront/storefront/layout/header/header-minimal.html.twig' %}
+{% endblock %}
+
+{% block base_navigation %}{% endblock %}
+
+{% block page_checkout_main_content %}
+    {% block page_checkout_confirm %}
+        {% block page_checkout_confirm_header %}
+            <h1 class="confirm-main-header">
+                {{ "checkout.confirmHeader"|trans|sw_sanitize }}
+            </h1>
+        {% endblock %}
+
+        {% block page_checkout_confirm_alerts %}
+            {% block page_checkout_confirm_violations %}
+                {% for violation in formViolations.getViolations() %}
+                    {% set snippetName = "error.#{violation.code}" %}
+                    {% set fieldName = violation.propertyPath|trim('/', 'left') %}
+
+                    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                        type: "danger",
+                        content: snippetName|trans({'%field%': fieldName})|sw_sanitize
+                    } %}
+                {% endfor %}
+            {% endblock %}
+
+            {% block page_checkout_confirm_errors %}
+                {% for error in page.cart.errors %}
+                    {% set snippetName = "error.#{error.messageKey}" %}
+
+                    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                        type: "danger",
+                        content: snippetName|trans({'%name%': error.name})|sw_sanitize
+                    } %}
+                {% endfor %}
+            {% endblock %}
+        {% endblock %}
+
+        {% block page_checkout_confirm_tos %}
+            <div class="confirm-tos">
+                <div class="card checkout-card">
+                    <div class="card-body">
+                        {% block page_checkout_confirm_tos_header %}
+                            <div class="card-title">
+                                {{ "checkout.confirmTermsHeader"|trans|sw_sanitize }}
+                            </div>
+                        {% endblock %}
+
+                        {% block page_checkout_confirm_revocation_notice %}
+                            {% if shopware.config.confirm.revocationNotice %}
+                                <p class="revocation-notice">
+                                    {% block page_checkout_confirm_revocation_notice_link %}
+                                        <a href="{{ path('frontend.cms.page',{ id: shopware.config.core.basicInformation.revocationPage }) }}"
+                                           data-toggle="modal"
+                                           title="{{ "checkout.confirmRevocationNotice"|trans|striptags }}"
+                                           data-url="{{ path('frontend.cms.page',{ id: shopware.config.core.basicInformation.revocationPage }) }}">
+                                            {{ "checkout.confirmRevocationNotice"|trans|sw_sanitize }}
+                                        </a>
+                                    {% endblock %}
+                                </p>
+                            {% endif %}
+                        {% endblock %}
+
+                        {% block page_checkout_confirm_tos_control %}
+                            <div class="custom-control custom-checkbox">
+                                {% block page_checkout_confirm_tos_control_checkbox %}
+                                    <input type="checkbox"
+                                           class="custom-control-input{% if formViolations.getViolations('/tos') is not empty %} is-invalid{% endif %}"
+                                           required="required"
+                                           id="tos"
+                                           form="confirmOrderForm"
+                                           name="tos"/>
+                                {% endblock %}
+
+                                {% block page_checkout_confirm_tos_control_label %}
+                                    <label for="tos"
+                                           class="custom-control-label">
+                                        {{ "checkout.confirmTerms"|trans({
+                                            '%url%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.tosPage })
+                                        })|raw|sw_sanitize }}
+                                    </label>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+        {% endblock %}
+
+        {% block page_checkout_confirm_address %}
+            <div class="confirm-address">
+                {% sw_include '@Storefront/storefront/page/checkout/confirm/confirm-address.html.twig' %}
+            </div>
+        {% endblock %}
+
+        {% block page_checkout_confirm_payment_shipping %}
+            <div class="confirm-payment-shipping">
+                <div class="row">
+                    {% block page_checkout_confirm_payment %}
+                        <div class="col-sm-6 confirm-payment">
+                            {% sw_include '@Storefront/storefront/page/checkout/confirm/confirm-payment.html.twig' %}
+                        </div>
+                    {% endblock %}
+
+                    {% block page_checkout_confirm_shipping %}
+                        <div class="col-sm-6 confirm-shipping">
+                            {% sw_include '@Storefront/storefront/page/checkout/confirm/confirm-shipping.html.twig' %}
+                        </div>
+                    {% endblock %}
+                </div>
+            </div>
+        {% endblock %}
+
+        {% block page_checkout_confirm_product_table %}
+            <div class="confirm-product">
+                {% block page_checkout_confirm_table_container %}
+                    <div class="card">
+                        <div class="card-body">
+                            {% block page_checkout_confirm_table_header %}
+                                {% sw_include '@Storefront/storefront/page/checkout/confirm/confirm-product-header.html.twig' %}
+                            {% endblock %}
+
+                            {% block page_checkout_confirm_table_items %}
+                                {% for lineItem in page.cart.lineItems %}
+                                    {% block page_checkout_confirm_table_item %}
+                                        {% sw_include '@Storefront/storefront/page/checkout/confirm/confirm-item.html.twig' %}
+                                    {% endblock %}
+                                {% endfor %}
+                            {% endblock %}
+                        </div>
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    {% endblock %}
+{% endblock %}
+
+{% block page_checkout_aside_actions %}
+    <div class="checkout-aside-action">
+        <form id="confirmOrderForm"
+              action="{{ path('frontend.checkout.finish.order') }}"
+              data-form-csrf-handler="true"
+              method="post">
+
+            {% block page_checkout_aside_actions_csrf %}
+                {{ sw_csrf('frontend.checkout.finish.order') }}
+            {% endblock %}
+
+            {% block page_checkout_confirm_form_submit %}
+                <button id="confirmFormSubmit"
+                        class="btn btn-primary btn-block btn-lg"
+                        form="confirmOrderForm"
+                    {% if page.cart.errors|length > 0 %}
+                        disabled="disabled"
+                    {% endif %}
+                        type="submit">
+                    {{ "checkout.confirmSubmit"|trans|sw_sanitize }}
+                </button>
+            {% endblock %}
+        </form>
+    </div>
+{% endblock %}
+
+{% block base_footer %}
+    {% sw_include '@Storefront/storefront/layout/footer/footer-minimal.html.twig' %}
+{% endblock %}

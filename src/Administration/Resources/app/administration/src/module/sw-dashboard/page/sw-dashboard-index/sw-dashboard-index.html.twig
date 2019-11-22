@@ -1,0 +1,222 @@
+{% block sw_dashboard_index %}
+    <sw-page class="sw-dashboard-index" :showSmartBar="false">
+        {% block sw_dashboard_index_content %}
+            <sw-card-view slot="content" class="sw-dashboard-index__content">
+
+                {% block sw_dashboard_index_content_intro_card %}
+                    <sw-card>
+                        {% block sw_dashboard_index_content_intro %}
+                            <div class="sw-dashboard-index__intro">
+                                {% block sw_dashboard_index_content_intro_content %}
+                                    <div class="sw-dashboard-index__intro-content">
+                                        {% block sw_dashboard_index_content_intro_content_headline %}
+                                            <h1>{{ $tc('sw-dashboard.introduction.headline') }}</h1>
+                                        {% endblock %}
+
+                                        {% block sw_dashboard_index_content_intro_content_external_link_doc_enduser %}
+                                            <sw-dashboard-external-link :title="$tc('sw-dashboard.introduction.enduserDocumentation')"
+                                                                        :link="$tc('sw-dashboard.introduction.enduserDocumentationLink')">
+                                            </sw-dashboard-external-link>
+                                        {% endblock %}
+
+                                        {% block sw_dashboard_index_content_intro_content_external_link_doc_developer %}
+                                            <sw-dashboard-external-link :title="$tc('sw-dashboard.introduction.developerDocumentation')"
+                                                                        :link="$tc('sw-dashboard.introduction.developerDocumentationLink')">
+                                            </sw-dashboard-external-link>
+                                        {% endblock %}
+
+                                        {% block sw_dashboard_index_content_intro_content_external_link_doc_migration %}
+                                            <sw-dashboard-external-link :title="$tc('sw-dashboard.introduction.migrationDocumentation')"
+                                                                        :link="$tc('sw-dashboard.introduction.migrationDocumentationLink')">
+                                            </sw-dashboard-external-link>
+                                        {% endblock %}
+
+                                        {% block sw_dashboard_index_content_intro_content_external_link_intro_buttons %}
+                                            <sw-container columns="1fr 1fr" gap="16px" justify="start" class="sw-dashboard-index__intro-buttons">
+
+                                                {% block sw_dashboard_index_content_intro_content_external_link_intro_buttons_roadmap %}
+                                                    <sw-button variant="primary"
+                                                               target="_blank"
+                                                               :link="$tc('sw-dashboard.introduction.roadmapLink')">
+                                                        {{ $tc('sw-dashboard.introduction.roadmap') }}
+                                                    </sw-button>
+                                                {% endblock %}
+
+                                                {% block sw_dashboard_index_content_intro_content_external_link_intro_buttons_feedback %}
+                                                    <sw-button variant="ghost"
+                                                               target="_blank"
+                                                               :link="$tc('sw-dashboard.introduction.feedbackLink')">
+                                                        {{ $tc('sw-dashboard.introduction.feedback') }}
+                                                    </sw-button>
+                                                {% endblock %}
+
+                                            </sw-container>
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+
+                                {% block sw_dashboard_index_content_intro_image %}
+                                    <div class="sw-dashboard-index__intro-image">
+                                        <img :src="'administration/static/img/dashboard-logo.svg' | asset">
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </sw-card>
+                {% endblock %}
+
+                <template v-if="hasOrderToday">
+                    {% block sw_dashboard_index_content_intro_stats_headline %}
+                        <div class="sw-dashboard-index__card-headline">
+                            {% block sw_dashboard_index_content_intro_stats_headline_title %}
+                                <h1>{{ $tc('sw-dashboard.todayStats.headline') }}</h1>
+                            {% endblock %}
+
+                            {% block sw_dashboard_index_content_intro_stats_headline_date %}
+                                <span class="sw-dashboard-index__card-headline-timerange">
+                                    {{ today.toUTCString() | date({ minute: undefined, hour: undefined, month: 'short', year: undefined }) }}
+                                </span>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    <sw-card>
+                        {% block sw_dashboard_index_content_intro_stats_today %}
+                            <div class="sw-dashboard-index__intro-stats-today">
+
+                                {% block sw_dashboard_index_content_intro_stats_today_stats %}
+                                    <div class="sw-dashboard-index__intro-stats-today-stats"
+                                         v-if="hasOrderToday">
+
+                                        {% block sw_dashboard_index_content_intro_stats_today_stats_single_count %}
+                                            <div class="sw-dashboard-index__intro-stats-today-single-stat">
+                                                <span class="sw-dashboard-index__intro-stats-today-single-stat-number-type">{{ $tc('sw-dashboard.todayStats.orders') }}</span>
+                                                <span class="sw-dashboard-index__intro-stats-today-single-stat-number-value">{{ orderCountToday }}</span>
+                                            </div>
+                                        {% endblock %}
+
+                                        {% block sw_dashboard_index_content_intro_stats_today_stats_single_sum %}
+                                            <div class="sw-dashboard-index__intro-stats-today-single-stat">
+                                                <span class="sw-dashboard-index__intro-stats-today-single-stat-number-type">{{ $tc('sw-dashboard.todayStats.turnover') }}</span>
+                                                {# price aggregations do not support currencies yet, see NEXT-5069 #}
+                                                <span class="sw-dashboard-index__intro-stats-today-single-stat-number-value">{{ orderSumToday | currency('EUR', 0) }}</span>
+                                            </div>
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+
+                        {% block sw_dashboard_index_content_grid %}
+                        <template slot="grid">
+                            <sw-entity-listing v-if="todayOrderDataLoaded"
+                                               :repository="orderRepository"
+                                               :items="todayOrderData"
+                                               :columns="orderGridColumns()"
+                                               :showSelection="false"
+                                               :allowColumnEdit="false"
+                                               :fullPage="false">
+
+                                {% block sw_dashboard_index_content_grid_created_at %}
+                                    <template slot="column-orderDateTime" slot-scope="{ item }">
+                                        {{ item.orderDateTime | date({
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            year: undefined,
+                                            month: undefined,
+                                            day: undefined
+                                        }) }}
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_dashboard_index_content_grid_first_name %}
+                                    <template slot="column-orderCustomer.firstName" slot-scope="{ item }">
+                                        <router-link :to="{ name: 'sw.order.detail', params: { id: item.id } }" class="sw-data-grid__cell-value">
+                                            {{ item.orderCustomer.firstName }} {{ item.orderCustomer.lastName }}
+                                        </router-link>
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_dashboard_index_content_grid_short_name %}
+                                    <template slot="column-amountTotal" slot-scope="{ item }">
+                                        {{ item.amountTotal | currency(item.currency.shortName) }}
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_dashboard_index_content_grid_state %}
+                                    <template slot="column-stateMachineState.name" slot-scope="{ item }">
+                                        <sw-label :variant="getVariantFromOrderState(item)" appearance="pill">
+                                            {{ item.stateMachineState.translated.name }}
+                                        </sw-label>
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_dashboard_index_content_grid_actions %}
+                                <template slot="actions" slot-scope="{ item }">
+
+                                    {% block sw_dashboard_index_content_grid_actions_view %}
+                                        <sw-context-menu-item class="sw-order-list__order-view-action" :routerLink="{ name: 'sw.order.detail', params: { id: item.id } }">
+                                            {{ $tc('sw-order.list.contextMenuView') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
+
+                                </template>
+                                {% endblock %}
+
+                            </sw-entity-listing>
+
+                            <sw-loader v-else-if="!todayOrderDataLoaded"></sw-loader>
+                        </template>
+                        {% endblock %}
+
+                    </sw-card>
+                </template>
+
+                <template v-if="hasOrderInMonth">
+                    {% block sw_dashboard_index_content_statistics_headline %}
+                        <div class="sw-dashboard-index__card-headline">
+                            {% block sw_dashboard_index_content_statistics_headline_title %}
+                                <h1>{{ $tc('sw-dashboard.monthStats.headline') }}</h1>
+                            {% endblock %}
+
+                            {% block sw_dashboard_index_content_statistics_headline_date %}
+                                <span class="sw-dashboard-index__card-headline-timerange">
+                                    {{ dateAgo.toUTCString() | date({ minute: undefined, hour: undefined, month: 'short', year: undefined }) }}
+                                    -
+                                    {{ today.toUTCString() | date({ minute: undefined, hour: undefined, month: 'short', year: undefined }) }}
+                                </span>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_dashboard_index_content_statistics_count %}
+                        <sw-card>
+                            {% block sw_dashboard_index_content_statistics_count_chart_count %}
+                                <sw-chart type="line"
+                                          :series="orderCountMonthSeries"
+                                          :options="chartOptionsOrderCount"
+                                          fillEmptyDates
+                                          sort>
+                                </sw-chart>
+                            {% endblock %}
+                        </sw-card>
+                    {% endblock %}
+
+                    {% block sw_dashboard_index_content_statistics_sum %}
+                        <sw-card>
+                            {% block sw_dashboard_index_content_statistics_count_chart_sum %}
+                                <sw-chart type="line"
+                                          :series="orderSumMonthSeries"
+                                          :options="chartOptionsOrderSum"
+                                          fillEmptyDates
+                                          sort>
+                                </sw-chart>
+                            {% endblock %}
+                        </sw-card>
+                    {% endblock %}
+                </template>
+
+            </sw-card-view>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

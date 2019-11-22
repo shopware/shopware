@@ -55,6 +55,9 @@ class IsCompanyCustomerRuleTest extends TestCase
                 'id' => $id,
                 'type' => (new IsCompanyRule())->getName(),
                 'ruleId' => $ruleId,
+                'value' => [
+                    'isCompany' => true,
+                ],
             ],
         ], $this->context);
 

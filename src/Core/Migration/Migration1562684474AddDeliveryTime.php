@@ -27,6 +27,5 @@ class Migration1562684474AddDeliveryTime extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

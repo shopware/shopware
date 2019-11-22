@@ -1,0 +1,134 @@
+{% block sw_settings_list %}
+    {% block sw_settings_tax_index %}
+        <sw-page class="sw-settings-tax-list">
+            {% block sw_settings_tax_list_search_bar %}
+                <template slot="search-bar">
+                    <sw-search-bar initialSearchType="tax"
+                                   :placeholder="$tc('sw-settings-tax.general.placeholderSearchBar')"
+                                   :initialSearch="term"
+                                   @search="onSearch">
+                    </sw-search-bar>
+                </template>
+            {% endblock %}
+
+            {% block sw_settings_tax_list_smart_bar_header %}
+                <template slot="smart-bar-header">
+                    {% block sw_settings_tax_list_smart_bar_header_title %}
+                        <h2>
+                            {% block sw_settings_tax_list_smart_bar_header_title_text %}
+                                {{ $tc('sw-settings.index.title') }} <sw-icon name="small-arrow-medium-right" small></sw-icon> {{ $tc('sw-settings-tax.list.textHeadline') }}
+                            {% endblock %}
+
+                            {% block sw_settings_tax_list_smart_bar_header_amount %}
+                                <span v-if="!isLoading" class="sw-page__smart-bar-amount">
+                                    ({{ total }})
+                                </span>
+                            {% endblock %}
+                        </h2>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+
+            {% block sw_settings_tax_list_smart_bar_actions %}
+                <template slot="smart-bar-actions">
+                    {% block sw_settings_tax_list_smart_bar_actions_add %}
+                        <sw-button :routerLink="{ name: 'sw.settings.tax.create' }" variant="primary">
+                            {{ $tc('sw-settings-tax.list.buttonAddTax') }}
+                        </sw-button>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+
+            {% block sw_settings_tax_list_content %}
+                <sw-card-view slot="content">
+                    {% block sw_settings_tax_list_content_card %}
+                        <sw-card v-if="tax" :isLoading="isLoading">
+                            <template #grid>
+                                {% block sw_settings_tax_list_grid %}
+                                    <sw-entity-listing ref="swSettingsTaxGrid"
+                                                       class="sw-settings-tax-list-grid"
+                                                       :items="tax"
+                                                       :columns="getTaxColumns()"
+                                                       :repository="taxRepository"
+                                                       :fullPage="false"
+                                                       detailRoute="sw.settings.tax.detail"
+                                                       :showSelection="false"
+                                                       :isLoading="isLoading"
+                                                       @inline-edit-save="onInlineEditSave">
+                                        {% block sw_settings_tax_list_grid_column_default_tax_rate %}
+                                            <template #column-defaultTaxRate="{ item, isInlineEdit, compact }">
+                                                <template v-if="isInlineEdit">
+                                                    <sw-number-field :size="compact ? 'small' : 'default'" v-model="item.taxRate">
+                                                        <template #suffix>
+                                                           <span>
+                                                                <span v-html="$sanitize($tc('sw-settings-tax.general.taxRateSymbol'))"></span>
+                                                           </span>
+                                                        </template>
+                                                    </sw-number-field>
+                                                </template>
+                                                <template v-else>
+                                                    {{ item.taxRate }}%
+                                                </template>
+                                            </template>
+                                        {% endblock %}
+
+                                        {% block sw_settings_tax_list_grid_columns_actions %}
+                                            <template #actions="{ item }">
+                                                {% block sw_settings_tax_list_grid_columns_actions_edit %}
+                                                    <sw-context-menu-item
+                                                        :routerLink="{ name: 'sw.settings.tax.detail', params: { id: item.id, edit: 'edit' }}"
+                                                        class="sw-tax-list__edit-action">
+                                                        {{ $tc('sw-settings-tax.list.contextMenuEdit') }}
+                                                    </sw-context-menu-item>
+                                                {% endblock %}
+
+                                                {% block sw_settings_tax_list_grid_columns_actions_delete %}
+                                                    <sw-context-menu-item variant="danger" @click="onDelete(item.id)">
+                                                        {{ $tc('sw-settings-tax.list.contextMenuDelete') }}
+                                                    </sw-context-menu-item>
+                                                {% endblock %}
+                                            </template>
+                                        {% endblock %}
+
+                                        {% block sw_settings_tax_list_grid_action_modals %}
+                                            <template #action-modals="{ item }">
+                                                {% block sw_settings_tax_list_delete_modal %}
+                                                    <sw-modal v-if="showDeleteModal === item.id"
+                                                              @modal-close="onCloseDeleteModal"
+                                                              :title="$tc('sw-settings-tax.list.modalTitleDelete')"
+                                                              variant="small">
+                                                        {% block sw_settings_tax_list_delete_modal_confirm_delete_text %}
+                                                            <p class="sw-settings-tax-list__confirm-delete-text">
+                                                                {{ $tc('sw-settings-tax.list.textDeleteConfirm', 0, { name: item.name }) }}
+                                                            </p>
+                                                        {% endblock %}
+
+                                                        {% block sw_settings_tax_list_delete_modal_footer %}
+                                                            <template #modal-footer>
+                                                                {% block sw_settings_tax_list_delete_modal_cancel %}
+                                                                    <sw-button @click="onCloseDeleteModal" size="small">
+                                                                        {{ $tc('sw-settings-tax.list.buttonCancel') }}
+                                                                    </sw-button>
+                                                                {% endblock %}
+
+                                                                {% block sw_settings_tax_list_delete_modal_confirm %}
+                                                                    <sw-button @click="onConfirmDelete(item.id)" variant="primary" size="small">
+                                                                        {{ $tc('sw-settings-tax.list.buttonDelete') }}
+                                                                    </sw-button>
+                                                                {% endblock %}
+                                                            </template>
+                                                        {% endblock %}
+                                                    </sw-modal>
+                                                {% endblock %}
+                                            </template>
+                                        {% endblock %}
+                                    </sw-entity-listing>
+                                {% endblock %}
+                            </template>
+                        </sw-card>
+                    {% endblock %}
+                </sw-card-view>
+            {% endblock %}
+        </sw-page>
+    {% endblock %}
+{% endblock %}

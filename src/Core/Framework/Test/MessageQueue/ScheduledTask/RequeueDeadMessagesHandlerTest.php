@@ -14,6 +14,7 @@ class RequeueDeadMessagesHandlerTest extends TestCase
 
     public function testGetHandledMessages(): void
     {
+        /** @var array $handledMessages */
         $handledMessages = RequeueDeadMessagesHandler::getHandledMessages();
         static::assertCount(1, $handledMessages);
         static::assertEquals(RequeueDeadMessagesTask::class, $handledMessages[0]);

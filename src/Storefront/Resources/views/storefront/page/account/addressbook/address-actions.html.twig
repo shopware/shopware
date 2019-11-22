@@ -1,0 +1,79 @@
+{% block page_account_address_actions %}
+    {% block page_account_address_actions_set_default %}
+        <div class="address-actions-defaults">
+            {% block page_account_address_actions_set_default_shipping %}
+                {% if defaultShippingAddress.id != address.id %}
+                    <form action="{{ path('frontend.account.address.set-default-address', {'type': 'shipping', 'addressId': address.id}) }}"
+                          data-form-csrf-handler="true"
+                          method="post">
+
+                        {% block page_account_address_actions_set_default_shipping_csrf %}
+                            {{ sw_csrf('frontend.account.address.set-default-address') }}
+                        {% endblock %}
+
+                        <button type="submit"
+                                title="{{ "account.addressesSetAsDefaultShippingAction"|trans|striptags }}"
+                                class="btn btn-link address-action-set-default">
+                            {{ "account.addressesSetAsDefaultShippingAction"|trans|sw_sanitize }}
+                        </button>
+                    </form>
+                {% endif %}
+            {% endblock %}
+
+            {% block page_account_address_actions_set_default_billing %}
+                {% if defaultBillingAddress.id != address.id %}
+                    <form action="{{ path('frontend.account.address.set-default-address', {'type': 'billing', 'addressId': address.id}) }}"
+                          data-form-csrf-handler="true"
+                          method="post">
+
+                        {% block page_account_address_actions_set_default_billing_csrf %}
+                            {{ sw_csrf('frontend.account.address.set-default-address') }}
+                        {% endblock %}
+
+                        <button type="submit"
+                                title="{{ "account.addressesSetAsDefaultBillingAction"|trans|striptags }}"
+                                class="btn btn-link address-action-set-default">
+                            {{ "account.addressesSetAsDefaultBillingAction"|trans|sw_sanitize }}
+                        </button>
+                    </form>
+                {% endif %}
+            {% endblock %}
+        </div>
+    {% endblock %}
+
+    {% block page_account_address_actions_buttons %}
+        <div class="row no-gutters address-actions-buttons">
+            {% block page_account_address_actions_update %}
+                <div class="col-auto">
+                    <a href="{{ path('frontend.account.address.edit.page', {'addressId': address.id}) }}"
+                       title="{{ "account.addressesContentItemActionEdit"|trans|striptags }}"
+                       class="btn btn-light btn-sm">
+                        {{ "account.addressesContentItemActionEdit"|trans|sw_sanitize }}
+                    </a>
+                </div>
+            {% endblock %}
+
+            {% block page_account_address_actions_delete %}
+                {% if defaultShippingAddress.id != address.id and defaultBillingAddress.id != address.id %}
+                    <div class="col-auto">
+                        <form action="{{ path('frontend.account.address.delete', {'addressId': address.id}) }}"
+                              data-form-csrf-handler="true"
+                              class="address-action-delete"
+                              method="post">
+
+                            {% block page_account_address_actions_delete_csrf %}
+                                {{ sw_csrf('frontend.account.address.delete') }}
+                            {% endblock %}
+
+                            <button type="submit"
+                                    class="btn btn-light btn-sm"
+                                    title="{{ "account.addressesContentItemActionDelete"|trans|striptags }}">
+                                {{ "account.addressesContentItemActionDelete"|trans|sw_sanitize }}
+                            </button>
+                        </form>
+                    </div>
+                {% endif %}
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

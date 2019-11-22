@@ -68,7 +68,13 @@ class WriteCommandExtractor
             $existence = $this->entityExistenceGateway->getExistence($definition, $pkData, $rawData, $parameters->getCommandQueue());
         }
 
-        $rawData = $this->integrateDefaults($definition, $rawData, $existence);
+        if (!$existence->exists()) {
+            if ($existence->isChild()) {
+                $rawData = $this->integrateChildDefaults($definition, $rawData);
+            } else {
+                $rawData = $this->integrateDefaults($definition, $rawData);
+            }
+        }
 
         $mainFields = $this->getMainFields($fields);
 
@@ -78,7 +84,7 @@ class WriteCommandExtractor
         $this->updateCommandQueue($definition, $parameters, $existence, $pkData, $data);
 
         // call map with child associations only
-        $children = array_filter($fields, function (Field $field) {
+        $children = array_filter($fields, static function (Field $field) {
             return $field instanceof ChildrenAssociationField;
         });
 
@@ -154,12 +160,24 @@ class WriteCommandExtractor
         return $stack->getResultAsArray();
     }
 
-    private function integrateDefaults(EntityDefinition $definition, array $rawData, EntityExistence $existence): array
+    private function integrateDefaults(EntityDefinition $definition, array $rawData): array
     {
-        $defaults = $definition->getDefaults($existence);
+        $defaults = $definition->getDefaults();
 
+        return $this->fillRawDataWithDefaults($rawData, $defaults);
+    }
+
+    private function integrateChildDefaults(EntityDefinition $definition, array $rawData): array
+    {
+        $defaults = $definition->getChildDefaults();
+
+        return $this->fillRawDataWithDefaults($rawData, $defaults);
+    }
+
+    private function fillRawDataWithDefaults(array $rawData, array $defaults): array
+    {
         foreach ($defaults as $key => $value) {
-            if (array_key_exists($key, $rawData)) {
+            if (\array_key_exists($key, $rawData)) {
                 continue;
             }
 
@@ -169,8 +187,13 @@ class WriteCommandExtractor
         return $rawData;
     }
 
-    private function updateCommandQueue(EntityDefinition $definition, WriteParameterBag $parameterBag, EntityExistence $existence, array $pkData, array $data): void
-    {
+    private function updateCommandQueue(
+        EntityDefinition $definition,
+        WriteParameterBag $parameterBag,
+        EntityExistence $existence,
+        array $pkData,
+        array $data
+    ): void {
         $queue = $parameterBag->getCommandQueue();
 
         /* @var EntityDefinition $definition */
@@ -222,7 +245,7 @@ class WriteCommandExtractor
         krsort($filtered, SORT_NUMERIC);
 
         $sorted = [];
-        foreach ($filtered as $prio => $fields) {
+        foreach ($filtered as $fields) {
             foreach ($fields as $field) {
                 $sorted[] = $field;
             }
@@ -242,8 +265,8 @@ class WriteCommandExtractor
         //run data extraction for only this fields
         $mapped = $this->map($mappingFields, $rawData, $existence, $parameters);
 
-        //after all fields extracted, filter fields to only primary key flaged fields
-        $primaryKeys = array_filter($mappingFields, function (Field $field) {
+        //after all fields extracted, filter fields to only primary key flagged fields
+        $primaryKeys = array_filter($mappingFields, static function (Field $field) {
             return $field->is(PrimaryKey::class);
         });
 
@@ -252,7 +275,7 @@ class WriteCommandExtractor
         /** @var StorageAware|Field $field */
         foreach ($primaryKeys as $field) {
             //build new primary key data array which contains only the primary key data
-            if (array_key_exists($field->getStorageName(), $mapped)) {
+            if (\array_key_exists($field->getStorageName(), $mapped)) {
                 $primaryKey[$field->getStorageName()] = $mapped[$field->getStorageName()];
             }
         }
@@ -285,11 +308,11 @@ class WriteCommandExtractor
      */
     private function getFieldsForPrimaryKeyMapping(array $fields): array
     {
-        $primaryKeys = array_filter($fields, function (Field $field) {
+        $primaryKeys = array_filter($fields, static function (Field $field) {
             return $field->is(PrimaryKey::class);
         });
 
-        $references = array_filter($fields, function (Field $field) {
+        $references = array_filter($fields, static function (Field $field) {
             return $field instanceof ManyToOneAssociationField;
         });
 
@@ -304,7 +327,7 @@ class WriteCommandExtractor
             }
         }
 
-        usort($primaryKeys, function (Field $a, Field $b) {
+        usort($primaryKeys, static function (Field $a, Field $b) {
             return $b->getExtractPriority() <=> $a->getExtractPriority();
         });
 

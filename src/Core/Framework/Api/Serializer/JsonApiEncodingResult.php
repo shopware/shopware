@@ -93,6 +93,20 @@ class JsonApiEncodingResult implements \JsonSerializable
         return isset($this->keyCollection[$key]);
     }
 
+    public function containsInIncluded(string $id, string $type): bool
+    {
+        $key = $id . '-' . $type;
+
+        return isset($this->included[$key]);
+    }
+
+    public function containsInData(string $id, string $type): bool
+    {
+        $key = $id . '-' . $type;
+
+        return isset($this->data[$key]);
+    }
+
     public function jsonSerialize()
     {
         $output = [

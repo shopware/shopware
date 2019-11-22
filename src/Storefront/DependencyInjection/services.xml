@@ -77,7 +77,10 @@
             <argument type="service" id="request_stack"/>
             <argument type="service" id="router"/>
             <argument type="service" id="Shopware\Storefront\Controller\ErrorController"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument>%kernel.debug%</argument>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Csrf\CsrfRouteListener">

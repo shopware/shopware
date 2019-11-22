@@ -59,7 +59,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     {
         return [
             ProductListingCriteriaEvent::class => [
-                ['handleRequest', 100],
+                ['handleListingRequest', 100],
                 ['switchFilter', -100],
             ],
             ProductSuggestCriteriaEvent::class => [
@@ -67,27 +67,11 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
                 ['switchFilter', -100],
             ],
             ProductSearchCriteriaEvent::class => [
-                ['handleRequest', 100],
+                ['handleSearchRequest', 100],
                 ['switchFilter', -100],
             ],
             ProductListingResultEvent::class => 'handleResult',
         ];
-    }
-
-    public function handleSuggestRequest(ProductListingCriteriaEvent $event): void
-    {
-        $criteria = $event->getCriteria();
-
-        // suggestion request supports no aggregations or filters
-        $criteria->addAssociation('cover.media');
-
-        $criteria->addGroupField(new FieldGrouping('displayGroup'));
-        $criteria->addFilter(
-            new NotFilter(
-                NotFilter::CONNECTION_AND,
-                [new EqualsFilter('displayGroup', null)]
-            )
-        );
     }
 
     public function switchFilter(ProductListingCriteriaEvent $event): void
@@ -120,12 +104,11 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         }
     }
 
-    public function handleRequest(ProductListingCriteriaEvent $event): void
+    public function handleSuggestRequest(ProductSuggestCriteriaEvent $event): void
     {
-        $request = $event->getRequest();
-
         $criteria = $event->getCriteria();
 
+        // suggestion request supports no aggregations or filters
         $criteria->addAssociation('cover.media');
 
         $criteria->addGroupField(new FieldGrouping('displayGroup'));
@@ -135,20 +118,30 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
                 [new EqualsFilter('displayGroup', null)]
             )
         );
+    }
+
+    public function handleListingRequest(ProductListingCriteriaEvent $event): void
+    {
+        $request = $event->getRequest();
+        $criteria = $event->getCriteria();
+
+        $criteria->addAssociation('cover.media');
 
         $this->handlePagination($request, $criteria);
-
-        $this->handleManufacturerFilter($request, $criteria);
-
-        $this->handlePropertyFilter($request, $criteria);
-
-        $this->handlePriceFilter($request, $criteria);
-
-        $this->handleShippingFreeFilter($request, $criteria);
-
-        $this->handleRatingFilter($request, $criteria);
-
+        $this->handleFilters($request, $criteria);
         $this->handleSorting($request, $criteria);
+    }
+
+    public function handleSearchRequest(ProductSearchCriteriaEvent $event): void
+    {
+        $request = $event->getRequest();
+        $criteria = $event->getCriteria();
+
+        $criteria->addAssociation('cover.media');
+
+        $this->handlePagination($request, $criteria);
+        $this->handleFilters($request, $criteria);
+        $this->handleSorting($request, $criteria, null);
     }
 
     public function handleResult(ProductListingResultEvent $event): void
@@ -180,6 +173,27 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
                 return (int) $a->getKey() <=> (int) $b->getKey();
             }
         );
+    }
+
+    private function handleFilters(Request $request, Criteria $criteria): void
+    {
+        $criteria->addGroupField(new FieldGrouping('displayGroup'));
+        $criteria->addFilter(
+            new NotFilter(
+                NotFilter::CONNECTION_AND,
+                [new EqualsFilter('displayGroup', null)]
+            )
+        );
+
+        $this->handleManufacturerFilter($request, $criteria);
+
+        $this->handlePropertyFilter($request, $criteria);
+
+        $this->handlePriceFilter($request, $criteria);
+
+        $this->handleShippingFreeFilter($request, $criteria);
+
+        $this->handleRatingFilter($request, $criteria);
     }
 
     private function handlePagination(Request $request, Criteria $criteria): void
@@ -304,10 +318,16 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $criteria->addPostFilter(new EqualsFilter('product.shippingFree', true));
     }
 
-    private function handleSorting(Request $request, Criteria $criteria): void
+    private function handleSorting(Request $request, Criteria $criteria, ?string $defaultSorting = self::DEFAULT_SORT): void
     {
+        $currentSorting = $this->getCurrentSorting($request, $defaultSorting);
+
+        if (!$currentSorting) {
+            return;
+        }
+
         $sorting = $this->sortingRegistry->get(
-            $this->getCurrentSorting($request)
+            $currentSorting
         );
 
         if (!$sorting) {
@@ -375,15 +395,19 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         ]);
     }
 
-    private function getCurrentSorting(Request $request): string
+    private function getCurrentSorting(Request $request, ?string $default = self::DEFAULT_SORT): ?string
     {
-        $key = $request->get('sort', self::DEFAULT_SORT);
+        $key = $request->get('sort', $default);
 
-        if ($this->sortingRegistry->get($key)) {
+        if (!$key) {
+            return null;
+        }
+
+        if ($this->sortingRegistry->has($key)) {
             return $key;
         }
 
-        return self::DEFAULT_SORT;
+        return $default;
     }
 
     private function getManufacturerIds(Request $request): array

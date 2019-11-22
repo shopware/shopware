@@ -1,9 +1,0 @@
-{% set config = { sorting: current } %}
-
-<div class="sorting" data-listing-sorting="true" data-listing-sorting-options='{{ config|json_encode }}'>
-    <select class="sorting custom-select">
-        {% for sorting in sortings %}
-            <option value="{{ sorting.key }}"{% if sorting.key == current %} selected{% endif %}>{{ sorting.snippet|trans }}</option>
-        {% endfor %}
-    </select>
-</div>

@@ -1,4 +1,4 @@
-[titleEn]: <>(Seo Url FAQ)
+[titleEn]: <>(SEO URL FAQ)
 
 This document was created for Shopware 6.0.0 EA2
 

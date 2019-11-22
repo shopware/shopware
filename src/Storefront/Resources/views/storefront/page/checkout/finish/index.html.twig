@@ -1,0 +1,37 @@
+{% sw_extends '@Storefront/storefront/page/checkout/_page.html.twig' %}
+
+{% block base_header %}
+    {% sw_include '@Storefront/storefront/layout/header/header-minimal.html.twig' %}
+{% endblock %}
+
+{% block base_navigation %}{% endblock %}
+
+{% block page_checkout_main_content %}
+    {% block page_checkout_finish %}
+        {% block page_checkout_finish_details %}
+            {% sw_include '@Storefront/storefront/page/checkout/finish/finish-details.html.twig' %}
+        {% endblock %}
+
+        {% block page_checkout_finish_product_table %}
+            <div class="card checkout-product-table">
+                <div class="card-body">
+                    {% block page_checkout_finish_table_header %}
+                        {% sw_include '@Storefront/storefront/page/checkout/confirm/confirm-product-header.html.twig' %}
+                    {% endblock %}
+
+                    {% block page_checkout_finish_items %}
+                        {% for lineItem in page.order.nestedLineItems %}
+                            {% block page_checkout_finish_item %}
+                                {% sw_include '@Storefront/storefront/page/checkout/finish/finish-item.html.twig' %}
+                            {% endblock %}
+                        {% endfor %}
+                    {% endblock %}
+                </div>
+            </div>
+        {% endblock %}
+    {% endblock %}
+{% endblock %}
+
+{% block base_footer %}
+    {% sw_include '@Storefront/storefront/layout/footer/footer-minimal.html.twig' %}
+{% endblock %}

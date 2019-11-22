@@ -6,7 +6,7 @@ The main color variables are now available in several gradations from light to d
 For example the gray color now has those gradations:
 
 ```
-// platform/src/Administration/Resources/administration/src/app/assets/scss/variables.scss
+// platform/src/Administration/Resources/app/administration/src/app/assets/scss/variables.scss
 
 $color-gray-50: #F9FAFB; // Light
 $color-gray-100: #F0F2F5;

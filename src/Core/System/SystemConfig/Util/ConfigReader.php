@@ -21,9 +21,9 @@ class ConfigReader extends XmlReader
     public function getConfigFromBundle(Bundle $bundle, ?string $bundleConfigName = null): array
     {
         if ($bundleConfigName === null) {
-            $bundleConfigName = $bundle->getConfigPath() . '/config.xml';
+            $bundleConfigName = 'Resources/config/config.xml';
         } else {
-            $bundleConfigName = $bundle->getConfigPath() . '/' . preg_replace('/\\.xml$/i', '', $bundleConfigName) . '.xml';
+            $bundleConfigName = 'Resources/config/' . preg_replace('/\\.xml$/i', '', $bundleConfigName) . '.xml';
         }
         $configPath = $bundle->getPath() . '/' . ltrim($bundleConfigName, '/');
 

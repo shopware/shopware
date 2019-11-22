@@ -13,8 +13,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
+use Shopware\Core\System\StateMachine\Event\StateMachineStateChangeEvent;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineInvalidEntityIdException;
@@ -135,7 +137,7 @@ class StateMachineRegistry
         string $entityId,
         string $stateFieldName,
         Context $context
-    ) {
+    ): array {
         $stateMachineName = $this->getStateField($stateFieldName, $entityName)->getStateMachineName();
         $repository = $this->definitionRegistry->getRepository($entityName);
         $fromPlace = $this->getFromPlace($entityName, $entityId, $stateFieldName, $context, $repository);
@@ -151,7 +153,7 @@ class StateMachineRegistry
      * @throws StateMachineInvalidEntityIdException
      * @throws DefinitionNotFoundException
      */
-    public function transition(Transition $transition, Context $context): StateMachineStateEntity
+    public function transition(Transition $transition, Context $context): StateMachineStateCollection
     {
         $stateField = $this->getStateField($transition->getStateFieldName(), $transition->getEntityName());
 
@@ -209,7 +211,40 @@ class StateMachineRegistry
             )
         );
 
-        return $toPlace;
+        $leaveEvent = new StateMachineStateChangeEvent(
+            $context,
+            StateMachineStateChangeEvent::STATE_MACHINE_TRANSITION_SIDE_LEAVE,
+            $transition,
+            $stateMachine,
+            $fromPlace,
+            $toPlace
+        );
+
+        $this->eventDispatcher->dispatch(
+            $leaveEvent,
+            $leaveEvent->getName()
+        );
+
+        $enterEvent = new StateMachineStateChangeEvent(
+            $context,
+            StateMachineStateChangeEvent::STATE_MACHINE_TRANSITION_SIDE_ENTER,
+            $transition,
+            $stateMachine,
+            $fromPlace,
+            $toPlace
+        );
+
+        $this->eventDispatcher->dispatch(
+            $enterEvent,
+            $enterEvent->getName()
+        );
+
+        $stateMachineStateCollection = new StateMachineStateCollection();
+
+        $stateMachineStateCollection->set('fromPlace', $fromPlace);
+        $stateMachineStateCollection->set('toPlace', $toPlace);
+
+        return $stateMachineStateCollection;
     }
 
     /**

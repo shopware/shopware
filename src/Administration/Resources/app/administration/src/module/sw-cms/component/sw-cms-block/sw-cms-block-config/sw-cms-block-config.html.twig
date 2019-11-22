@@ -1,0 +1,68 @@
+{% block sw_cms_block_config %}
+    <div class="sw-cms-block-config">
+
+        {% block sw_cms_block_config__quickactions %}
+            <ul class="sw-cms-block-config__quickactions-list" :class="quickactionClasses">
+                {% block sw_cms_block_config__quickaction_duplicate %}
+                    <li class="sw-cms-block-config__quickaction" @click="onBlockDuplicate">
+                        <sw-icon name="default-action-duplicate" size="16"></sw-icon>
+                        {{ $tc('sw-cms.sidebar.contentMenu.duplicate') }}
+                    </li>
+                {% endblock %}
+
+                {% block sw_cms_block_config__quickaction_delete %}
+                    <li class="sw-cms-block-config__quickaction is--danger" @click="onBlockDelete">
+                        <sw-icon name="default-action-trash" size="16"></sw-icon>
+                        {{ $tc('sw-cms.general.buttonDelete') }}
+                    </li>
+                {% endblock %}
+            </ul>
+        {% endblock %}
+
+        {% block sw_cms_block_config__settings %}
+            <div class="sw-cms-section-config__settings">
+
+                {% block sw_cms_block_config_name_field %}
+                    <sw-text-field :label="$tc('sw-cms.detail.label.blockNameField')"
+                                   :helpText="$tc('sw-cms.detail.tooltip.blockNameField')"
+                                   v-model="block.name">
+                    </sw-text-field>
+                {% endblock %}
+
+                {% block sw_cms_block_config_background_color_field %}
+                    <sw-colorpicker v-model="block.backgroundColor"
+                                    :label="$tc('sw-cms.detail.label.backgroundColorLabel')"
+                                    :placeholder="$tc('sw-cms.detail.labelBackgroundColorField')">
+                    </sw-colorpicker>
+                {% endblock %}
+
+                {% block sw_cms_block_config_background_image_field %}
+                    <sw-media-compact-upload
+                        :source="block && block.backgroundMedia && block.backgroundMedia.id ? block.backgroundMedia : null"
+                        :uploadTag="uploadTag"
+                        :label="$tc('sw-cms.detail.label.backgroundMediaLabel')"
+                        :defaultFolder="cmsPageState.pageEntityName"
+                        :allowMultiSelect="false"
+                        @media-upload-remove-image="removeMedia"
+                        @selection-change="onSetBackgroundMedia">
+                    </sw-media-compact-upload>
+                    <sw-upload-store-listener
+                        :uploadTag="uploadTag"
+                        autoUpload
+                        @media-upload-finish="successfulUpload">
+                    </sw-upload-store-listener>
+
+                    {% block sw_cms_block_config_background_image_position_field %}
+                        <sw-select-field :label="$tc('sw-cms.detail.label.backgroundMediaMode')"
+                                         v-model="block.backgroundMediaMode"
+                                         :disabled="!block.backgroundMediaId">
+                            <option value="auto">{{ $tc('sw-cms.detail.label.backgroundMediaModeAuto') }}</option>
+                            <option value="contain">{{ $tc('sw-cms.detail.label.backgroundMediaModeContain') }}</option>
+                            <option value="cover">{{ $tc('sw-cms.detail.label.backgroundMediaModeCover') }}</option>
+                        </sw-select-field>
+                    {% endblock %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

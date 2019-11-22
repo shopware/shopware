@@ -35,6 +35,5 @@ class Migration1536233410PromotionSalesChannel extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

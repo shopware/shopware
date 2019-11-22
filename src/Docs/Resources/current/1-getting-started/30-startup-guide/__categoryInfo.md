@@ -76,7 +76,7 @@ Now that you have a idea how to execute the various Shopware 6 stacks, we will b
 | Storefront  | `platform/src/Storefront`
 | Storefront template  | `platform/src/Storefront/Resources`
 | Administration | `platform/src/Administration/`
-| Administration application | `platform/src/Administration/Resources/administration`
+| Administration application | `platform/src/Administration/Resources/app/administration`
 
 ## Default Login Credentials
 

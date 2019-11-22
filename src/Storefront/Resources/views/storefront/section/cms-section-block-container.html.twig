@@ -1,0 +1,48 @@
+{% block section_content_block %}
+
+    {% set top = block.marginTop ? block.marginTop : 0 %}
+    {% set right = block.marginRight ? block.marginRight : 0 %}
+    {% set bottom = block.marginBottom ? block.marginBottom : 0 %}
+    {% set left = block.marginLeft ? block.marginLeft : 0 %}
+
+    {% if top or right or bottom or left %}
+        {% set padding = top ~ " " ~ right ~ " " ~ bottom ~ " " ~ left %}
+    {% endif %}
+
+    {% set blockBgColor = block.backgroundColor %}
+    {% set blockBgImg = block.backgroundMedia|sw_encode_media_url %}
+
+    {% set blockClasses = [block.cssClass, 'pos-' ~ block.position, 'cms-block-' ~ block.type] %}
+
+    {% if blockBgImg %}
+        {% set blockClasses = ['bg-image']|merge(blockClasses) %}
+    {% endif %}
+
+    {% if blockBgColor %}
+        {% set blockClasses = ['bg-color']|merge(blockClasses) %}
+    {% endif %}
+
+    {% set columns = 3 %}
+    {% set isInSidebar = block.sectionPosition == 'sidebar' %}
+    {% set sidebarClasses = '' %}
+
+    {% if isInSidebar == true %}
+        {% set sidebarClasses = 'has--sidebar' %}
+    {% endif %}
+
+    <div class="cms-block {{ blockClasses|join(' ') }}"
+         style="{% if blockBgColor %} background-color: {{ blockBgColor }};{% endif %}{% if blockBgImg %}background-image: url({{ blockBgImg }}); background-size: {{ block.backgroundMediaMode }};{% endif %}">
+
+        {% block section_content_block_container %}
+            <div class="cms-block-container"
+                 style="{% if padding %}padding: {{ padding }};{% endif %}">
+
+                {% block section_content_block_row %}
+                    <div class="cms-block-container-row row cms-row {{ sidebarClasses }}">
+                        {% sw_include "@Storefront/storefront/block/cms-block-" ~ block.type ~ ".html.twig" ignore missing %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

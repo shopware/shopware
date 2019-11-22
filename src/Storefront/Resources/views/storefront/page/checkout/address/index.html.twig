@@ -1,0 +1,74 @@
+{% sw_extends '@Storefront/storefront/page/checkout/_page.html.twig' %}
+
+{% block base_header %}
+    {% sw_include '@Storefront/storefront/layout/header/header-minimal.html.twig' %}
+{% endblock %}
+
+{% block base_navigation %}{% endblock %}
+
+{% block page_checkout_main_content %}
+    {% block page_checkout_address %}
+        {% block page_checkout_address_header %}
+            <h1 class="address-main-header">
+                {{ "checkout.addressHeader"|trans|sw_sanitize }}
+            </h1>
+        {% endblock %}
+
+        {% block page_checkout_address_login_toggle %}
+            <div class="register-login-collapse-toogle">
+                {% sw_icon 'avatar' %}
+                <a href="#loginCollapse"
+                   class="login-collapse-toggle"
+                   data-toggle="collapse"
+                   aria-expanded="false">
+                    <strong>{{ "checkout.addressLoginToggle"|trans|sw_sanitize }}</strong> </a>
+            </div>
+        {% endblock %}
+
+        {% block page_checkout_address_login %}
+            <div class="collapse" id="loginCollapse">
+                {% block page_checkout_address_login_card %}
+                    {% sw_include '@Storefront/storefront/component/account/login.html.twig' %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block page_checkout_address_register %}
+            {% block page_checkout_address_register_card %}
+                {% sw_include '@Storefront/storefront/page/checkout/address/register.html.twig' with {
+                    'cardTitle': "checkout.addressRegisterCardTitle"|trans|sw_sanitize
+                } %}
+            {% endblock %}
+        {% endblock %}
+    {% endblock %}
+{% endblock %}
+
+{% block page_checkout_aside_summary %}
+    {{ parent() }}
+
+    {% block page_checkout_address_products %}
+        <div class="checkout-aside-products">
+            {% block page_checkout_address_products_header %}
+                <h2 class="checkout-aside-product-header">
+                    {{ "checkout.cartHeader"|trans|sw_sanitize }}
+                </h2>
+            {% endblock %}
+
+            {% block page_checkout_address_products_list %}
+                <div class="checkout-aside-product-list">
+                    {% block page_checkout_address_product_list_container %}
+                        {% for lineItem in page.cart.lineItems %}
+                            {% block page_checkout_address_product_summary_item %}
+                                {% sw_include '@Storefront/storefront/page/checkout/checkout-aside-item.html.twig' %}
+                            {% endblock %}
+                        {% endfor %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}
+
+{% block base_footer %}
+    {% sw_include '@Storefront/storefront/layout/footer/footer-minimal.html.twig' %}
+{% endblock %}

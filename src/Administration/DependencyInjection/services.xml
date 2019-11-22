@@ -7,6 +7,7 @@
     <services>
         <service id="Shopware\Administration\Command\AdministrationDumpFeaturesCommand">
             <argument type="service" id="kernel"/>
+
             <tag name="console.command"/>
         </service>
 

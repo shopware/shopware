@@ -43,10 +43,7 @@ const { Criteria } = Shopware.Data;
 Component.register('foobar-list', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'context'
-    ],
+    inject: ['repositoryFactory'],
 
     data() {
         return {
@@ -69,7 +66,7 @@ Component.register('foobar-list', {
         getList() {
             this.isLoading = true;
 
-            return this.customEntityRepository.search(new Criteria(), this.context).then((searchResult) => {
+            return this.customEntityRepository.search(new Criteria(), Shopware.Context.api).then((searchResult) => {
                 this.items = searchResult;
                 this.isLoading = false;
             })
@@ -105,10 +102,7 @@ const { Component } = Shopware;
 Component.register('foobar-detail', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'context'
-    ],
+    inject: ['repositoryFactory'],
 
     data() {
         return {
@@ -132,7 +126,7 @@ Component.register('foobar-detail', {
         },
 
         loadItem() {
-            return this.customEntityRepository.get(this.$route.params.id, this.context).then((entity) => {
+            return this.customEntityRepository.get(this.$route.params.id, Shopware.Context.api).then((entity) => {
                 this.item = entity;
             });
         }
@@ -157,10 +151,7 @@ const { Component } = Shopware;
 Component.register('foobar-detail', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'context'
-    ],
+    inject: ['repositoryFactory'],
 
     data() {
         return {
@@ -184,7 +175,7 @@ Component.register('foobar-detail', {
         },
 
         loadItem() {
-            return this.customEntityRepository.get(this.$route.params.id, this.context).then((entity) => {
+            return this.customEntityRepository.get(this.$route.params.id, Shopware.Context.api).then((entity) => {
                 this.item = entity
             });
         },
@@ -194,7 +185,7 @@ Component.register('foobar-detail', {
         },
 
         saveOnLanguageChange() {
-            return this.customEntityRepository.save(this.item, this.context);
+            return this.customEntityRepository.save(this.item, Shopware.Context.api);
         }
     }
 });

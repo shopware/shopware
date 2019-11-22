@@ -1,0 +1,305 @@
+{# Provides customer type, salutation, title, firstname, lastname and birthday fields for address forms (e.g. registering a user, creating or updating an address) #}
+{% block component_address_personal_fields %}
+    {% block component_address_personal_account_type %}
+        {% if shopware.config.core.loginRegistration.showAccountTypeSelection and not hideCustomerTypeSelect %}
+            <div class="form-row">
+                <div class="form-group col-md-3 col-sm-6 contact-type">
+                    {% block component_address_personal_account_type_label %}
+                        <label class="form-label"
+                               for="{{ prefix }}accountType">
+                            {{ "account.personalTypeLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                        </label>
+                    {% endblock %}
+
+                    {% block component_address_personal_account_type_select %}
+                        <select name="{% if prefix %}{{ prefix }}[accountType]{% else %}accountType{% endif %}"
+                                id="{{ prefix }}accountType"
+                                required="required"
+                                class="custom-select contact-select{% if formViolations.getViolations('/typeId') %} is-invalid{% endif %}"
+                                data-form-field-toggle="true"
+                                data-form-field-toggle-target=".js-field-toggle-contact-type-company"
+                                data-form-field-toggle-value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}">
+                            {% if page.address.company %}
+                                <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_PRIVATE') }}">
+                                    {{ "account.personalTypePrivate"|trans|sw_sanitize }}
+                                </option>
+                                <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}"
+                                        selected="selected">
+                                    {{ "account.personalTypeBusiness"|trans|sw_sanitize }}
+                                </option>
+                            {% elseif prefix == "address" and not page.address.company %}
+                                <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_PRIVATE') }}"
+                                        selected="selected">
+                                    {{ "account.personalTypePrivate"|trans|sw_sanitize }}
+                                </option>
+                                <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}">
+                                    {{ "account.personalTypeBusiness"|trans|sw_sanitize }}
+                                </option>
+                            {% else %}
+                                <option disabled="disabled"
+                                        selected="selected"
+                                        value="">
+                                    {{ "account.personalTypeLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                                </option>
+                                <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_PRIVATE') }}">
+                                    {{ "account.personalTypePrivate"|trans|sw_sanitize }}
+                                </option>
+                                <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}">
+                                    {{ "account.personalTypeBusiness"|trans|sw_sanitize }}
+                                </option>
+                            {% endif %}
+                        </select>
+                    {% endblock %}
+
+                    {% block component_address_personal_account_type_error %}
+                        {% if formViolations.getViolations('/company') is not empty %}
+                            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                violationPath: '/company'
+                            } %}
+                        {% endif %}
+                    {% endblock %}
+                </div>
+            </div>
+        {% else %}
+            <input type="hidden" name="accountType">
+        {% endif %}
+    {% endblock %}
+
+    {% block component_address_personal_fields_salutation_title %}
+        <div class="form-row">
+            {% block component_address_personal_fields_salutation %}
+                <div class="form-group col-md-3 col-sm-6">
+                    {% block component_address_personal_fields_salutation_label %}
+                        <label class="form-label"
+                               for="{{ prefix }}personalSalutation">
+                            {{ "account.personalSalutationLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                        </label>
+                    {% endblock %}
+
+                    {% block component_address_form_salutation_select %}
+                        <select id="{{ prefix }}personalSalutation"
+                                class="custom-select{% if formViolations.getViolations('/salutationId') is not empty %} is-invalid{% endif %}"
+                                name="{% if prefix %}{{ prefix }}[salutationId]{% else %}salutationId{% endif %}"
+                                required="required">
+                            {% if not data.get('salutationId') %}
+                                <option disabled="disabled"
+                                        selected="selected"
+                                        value="">
+                                    {{ "account.personalSalutationPlaceholder"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                                </option>
+                            {% endif %}
+                            {% for salutation in page.salutations %}
+                                <option {% if salutation.id == data.get('salutationId') %}
+                                    selected="selected"
+                                {% endif %}
+                                        value="{{ salutation.id }}">
+                                    {{ salutation.displayName }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    {% endblock %}
+
+                    {% block component_address_form_salutation_select_error %}
+                        {% if formViolations.getViolations('/salutationId') is not empty %}
+                            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                violationPath: '/salutationId'
+                            } %}
+                        {% endif %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block component_address_personal_fields_title %}
+                {% if shopware.config.core.loginRegistration.showTitleField %}
+                    <div class="form-group col-md-3 col-sm-6">
+                        {% block component_address_personal_fields_title_label %}
+                            <label class="form-label"
+                                   for="{{ prefix }}personalTitle">
+                                {{ "account.personalTitleLabel"|trans|sw_sanitize }}
+                            </label>
+                        {% endblock %}
+
+                        {% block component_address_personal_fields_title_input %}
+                            <input type="text"
+                                   class="form-control"
+                                   autocomplete="section-personal title"
+                                   id="{{ prefix }}personalTitle"
+                                   placeholder="{{ "account.personalTitlePlaceholder"|trans|striptags }}"
+                                   name="{% if prefix %}{{ prefix }}[title]{% else %}title{% endif %}"
+                                   value="{{ data.get('title') }}">
+                        {% endblock %}
+                    </div>
+                {% endif %}
+            {% endblock %}
+        </div>
+    {% endblock %}
+
+    {% block component_address_personal_fields_name %}
+        <div class="form-row">
+            {% block component_address_personal_fields_first_name %}
+                <div class="form-group col-sm-6">
+                    {% block component_address_personal_fields_first_name_label %}
+                        <label class="form-label"
+                               for="{{ prefix }}personalFirstName">
+                            {{ "account.personalFirstNameLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                        </label>
+                    {% endblock %}
+
+                    {% block component_address_personal_fields_first_name_input %}
+                        <input type="text"
+                               class="form-control{% if formViolations.getViolations('/firstName') is not empty %} is-invalid{% endif %}"
+                               autocomplete="section-personal given-name"
+                               id="{{ prefix }}personalFirstName"
+                               placeholder="{{ "account.personalFirstNamePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                               name="{% if prefix %}{{ prefix }}[firstName]{% else %}firstName{% endif %}"
+                               value="{{ data.get('firstName') }}"
+                               required="required">
+                    {% endblock %}
+
+                    {% block component_address_personal_fields_first_name_input_error %}
+                        {% if formViolations.getViolations('/firstName') is not empty %}
+                            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                violationPath: '/firstName'
+                            } %}
+                        {% endif %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block component_address_personal_fields_last_name %}
+                <div class="form-group col-sm-6">
+                    {% block component_address_personal_fields_last_name_label %}
+                        <label class="form-label"
+                               for="{{ prefix }}personalLastName">
+                            {{ "account.personalLastNameLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                        </label>
+                    {% endblock %}
+
+                    {% block component_address_personal_fields_last_name_input %}
+                        <input type="text"
+                               class="form-control{% if formViolations.getViolations('/lastName') is not empty %} is-invalid{% endif %}"
+                               autocomplete="section-personal family-name"
+                               id="{{ prefix }}personalLastName"
+                               placeholder="{{ "account.personalLastNamePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                               name="{% if prefix %}{{ prefix }}[lastName]{% else %}lastName{% endif %}"
+                               value="{{ data.get('lastName') }}"
+                               required="required">
+                    {% endblock %}
+
+                    {% block component_address_personal_fields_last_name_input_error %}
+                        {% if formViolations.getViolations('/lastName') is not empty %}
+                            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                violationPath: '/lastName'
+                            } %}
+                        {% endif %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+
+    {% block component_address_personal_fields_birthday %}
+        {% if showBirthdayField %}
+            {% block component_address_personal_fields_birthday_label %}
+                <label for="{{ prefix }}personalBirthday">
+                    {{ "account.personalBirthdayLabel"|trans|sw_sanitize }}{{ shopware.config.core.loginRegistration.birthdayFieldRequired ? "general.required"|trans|sw_sanitize }}
+                </label>
+            {% endblock %}
+
+            {% block component_address_personal_fields_birthday_selects %}
+                <div class="form-row">
+                    {% block component_address_personal_fields_birthday_select_day %}
+                        <div class="form-group col-md-2 col-4">
+                            <select id="{{ prefix }}personalBirthday"
+                                    name="{% if prefix %}{{ prefix }}[birthdayDay]{% else %}birthdayDay{% endif %}"
+                                    class="custom-select{% if formViolations.getViolations('/birthdayDay') is not empty %} is-invalid{% endif %}"
+                                    {{ shopware.config.core.loginRegistration.birthdayFieldRequired ? 'required="required"' }}>
+                                {% if not data.get('birthdayDay') %}
+                                    <option selected="selected"
+                                            value="">
+                                        {{ "account.personalBirthdaySelectDay"|trans|sw_sanitize }}
+                                    </option>
+                                {% endif %}
+                                {% for day in range(1, 31) %}
+                                    <option value="{{ day }}"
+                                            {% if day == data.get('birthdayDay') %} selected="selected"{% endif %}>
+                                        {{ day }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+
+                            {% block component_address_personal_fields_birthday_select_day_error %}
+                                {% if formViolations.getViolations('/birthdayDay') is not empty %}
+                                    {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                        violationPath: '/birthdayDay'
+                                    } %}
+                                {% endif %}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block component_address_personal_fields_birthday_select_month %}
+                        <div class="form-group col-md-2 col-4">
+                            <select name="{% if prefix %}{{ prefix }}[birthdayMonth]{% else %}birthdayMonth{% endif %}"
+                                    class="custom-select{% if formViolations.getViolations('/birthdayMonth') is not empty %} is-invalid{% endif %}"
+                                    {{ shopware.config.core.loginRegistration.birthdayFieldRequired ? 'required="required"' }}>
+                                {% if not data.get('birthdayMonth') %}
+                                    <option selected="selected"
+                                            value="">
+                                        {{ "account.personalBirthdaySelectMonth"|trans|sw_sanitize }}
+                                    </option>
+                                {% endif %}
+                                {% for month in range(1, 12) %}
+                                    <option value="{{ month }}"
+                                            {% if month == data.get('birthdayMonth') %} selected="selected"{% endif %}>
+                                        {{ month }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+
+                            {% block component_address_personal_fields_birthday_select_month_error %}
+                                {% if formViolations.getViolations('/birthdayMonth') is not empty %}
+                                    {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                        violationPath: '/birthdayMonth'
+                                    } %}
+                                {% endif %}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block component_address_personal_fields_birthday_select_year %}
+                        <div class="form-group col-md-2 col-4">
+                            {% set currentYear = "now"|date('Y') %}
+                            {% set startYear = currentYear - 120 %}
+
+                            <select name="{% if prefix %}{{ prefix }}[birthdayYear]{% else %}birthdayYear{% endif %}"
+                                    class="custom-select{% if formViolations.getViolations('/birthdayYear') is not empty %} is-invalid{% endif %}"
+                                    {{ shopware.config.core.loginRegistration.birthdayFieldRequired ? 'required="required"' }}>
+                                {% if not data.get('birthdayYear') %}
+                                    <option selected="selected"
+                                            value="">
+                                        {{ "account.personalBirthdaySelectYear"|trans|sw_sanitize }}
+                                    </option>
+                                {% endif %}
+                                {% for year in range(currentYear, startYear) %}
+                                    <option value="{{ year }}"
+                                            {% if year == data.get('birthdayYear') %} selected="selected"{% endif %}>
+                                        {{ year }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+
+                            {% block component_address_personal_fields_birthday_select_year_error %}
+                                {% if formViolations.getViolations('/birthdayYear') is not empty %}
+                                    {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                        violationPath: '/birthdayYear'
+                                    } %}
+                                {% endif %}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        {% endif %}
+    {% endblock %}
+{% endblock %}

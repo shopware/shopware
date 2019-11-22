@@ -1,0 +1,94 @@
+{% block page_checkout_confirm_address_inner %}
+    {% set billingAddress = context.customer.activeBillingAddress %}
+    {% set shippingAddress = context.customer.activeShippingAddress %}
+
+    {% block page_checkout_confirm_address %}
+        <div class="row js-confirm-overview-addresses">
+            {% block page_checkout_confirm_address_billing %}
+                <div class="col-sm-6 card-col confirm-billing-address">
+                    <div class="card checkout-card">
+                        <div class="card-body">
+                            {% block page_checkout_confirm_address_billing_title %}
+                                <div class="card-title">
+                                    {{ "checkout.billingAddressHeader"|trans|sw_sanitize }}
+                                </div>
+                            {% endblock %}
+
+                            {% block page_checkout_confirm_address_billing_data %}
+                                <div class="confirm-address-billing">
+                                    {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {
+                                        'address': billingAddress
+                                    } %}
+                                </div>
+                            {% endblock %}
+
+                            {% block  page_checkout_confirm_address_billing_actions %}
+                                <div class="card-actions">
+                                    {% block  page_checkout_confirm_address_billing_actions_link %}
+                                        <a href="{{ path('frontend.account.address.edit.page', {'addressId': billingAddress.id}) }}"
+                                           title="{{ "account.overviewChangeBilling"|trans|striptags }}"
+                                           class="btn btn-light"
+                                           data-address-editor="true"
+                                           data-address-editor-options='{
+                                                "changeBilling": true,
+                                                "csrfToken": "{{ sw_csrf("frontend.account.addressbook", {"mode": "token"}) }}"
+                                            }'>
+                                            {{ "account.overviewChangeBilling"|trans|sw_sanitize }}
+                                        </a>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+                        </div>
+                    </div>
+                </div>
+            {% endblock %}
+
+            {% block page_checkout_confirm_address_shipping %}
+                <div class="col-sm-6 card-col confirm-shipping-address">
+                    <div class="card checkout-card">
+                        <div class="card-body">
+                            {% block page_checkout_confirm_address_shipping_title %}
+                                <div class="card-title">
+                                    {{ "checkout.shippingAddressHeader"|trans|sw_sanitize }}
+                                </div>
+                            {% endblock %}
+
+                            {% block page_checkout_confirm_address_shipping_data %}
+                                <div class="confirm-address-shipping">
+                                    {% if billingAddress.id is same as(shippingAddress.id) %}
+                                        {% block page_checkout_confirm_address_shipping_data_equal %}
+                                            <p>
+                                                {{ "checkout.addressEqualText"|trans|sw_sanitize }}
+                                            </p>
+                                        {% endblock %}
+                                    {% else %}
+                                        {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {
+                                            'address': shippingAddress
+                                        } %}
+                                    {% endif %}
+                                </div>
+                            {% endblock %}
+
+                            {% block  page_checkout_confirm_address_shipping_actions %}
+                                <div class="card-actions">
+                                    {% block  page_checkout_confirm_address_shipping_actions_link %}
+                                        <a href="{{ path('frontend.account.address.edit.page', {'addressId': shippingAddress.id}) }}"
+                                           title="{{ "account.overviewChangeShipping"|trans|striptags }}"
+                                           class="btn btn-light"
+                                           data-address-editor="true"
+                                           data-address-editor-options='{
+                                                "changeShipping": true,
+                                                "csrfToken": "{{ sw_csrf("frontend.account.addressbook", {"mode": "token"}) }}"
+                                            }'>
+                                            {{ "account.overviewChangeShipping"|trans|sw_sanitize }}
+                                        </a>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+                        </div>
+                    </div>
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

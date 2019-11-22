@@ -1,0 +1,25 @@
+{% block sw_cms_detail_toolbar_language_switch %}
+    <sw-language-switch slot="language-switch" disabled></sw-language-switch>
+{% endblock %}
+
+{% block sw_cms_detail_toolbar_actions_sales_channel %}
+{% endblock %}
+
+{% block sw_cms_detail_toolbar_actions_save %}
+    <sw-button-process
+        class="sw-cms-detail__save-action"
+        :isLoading="isLoading"
+        :processSuccess="isSaveSuccessful"
+        :disabled="true"
+        variant="primary"
+        v-tooltip.bottom="tooltipSave">
+        {{ $tc('sw-cms.detail.label.buttonSave') }}
+    </sw-button-process>
+{% endblock %}
+
+{% block sw_cms_detail_stage_container %}
+    <sw-cms-create-wizard :page="page"
+        @on-section-select="onAddSection($event, 0)"
+        @wizard-complete="onWizardComplete">
+    </sw-cms-create-wizard>
+{% endblock %}

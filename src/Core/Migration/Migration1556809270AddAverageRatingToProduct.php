@@ -20,6 +20,5 @@ class Migration1556809270AddAverageRatingToProduct extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

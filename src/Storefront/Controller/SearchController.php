@@ -45,7 +45,7 @@ class SearchController extends StorefrontController
             return $this->forwardToRoute('frontend.home.page');
         }
 
-        return $this->renderStorefront('@Storefront/page/search/index.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/storefront/page/search/index.html.twig', ['page' => $page]);
     }
 
     /**
@@ -56,6 +56,6 @@ class SearchController extends StorefrontController
     {
         $page = $this->suggestPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/layout/header/search-suggest.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/storefront/layout/header/search-suggest.html.twig', ['page' => $page]);
     }
 }

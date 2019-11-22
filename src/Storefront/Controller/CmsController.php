@@ -57,6 +57,7 @@ class CmsController extends StorefrontController
      * @HttpCache()
      * @Route("/widgets/cms/{id}", name="frontend.cms.page", methods={"GET", "POST"}, defaults={"id"=null, "XmlHttpRequest"=true})
      *
+     * @throws InconsistentCriteriaIdsException
      * @throws MissingRequestParameterException
      * @throws PageNotFoundException
      */
@@ -68,7 +69,7 @@ class CmsController extends StorefrontController
 
         $cmsPage = $this->load($id, $request, $salesChannelContext);
 
-        return $this->renderStorefront('@Storefront/page/content/detail.html.twig', ['cmsPage' => $cmsPage]);
+        return $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $cmsPage]);
     }
 
     /**
@@ -103,7 +104,7 @@ class CmsController extends StorefrontController
 
         $cmsPage = $this->load($category->getCmsPageId(), $request, $salesChannelContext, $category->getSlotConfig());
 
-        return $this->renderStorefront('@Storefront/page/content/detail.html.twig', ['cmsPage' => $cmsPage]);
+        return $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $cmsPage]);
     }
 
     /**

@@ -2,27 +2,17 @@
 
 namespace Shopware\Core\Content\Media\Pathname\PathnameStrategy;
 
-class PlainPathnameStrategy implements PathnameStrategyInterface
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
+use Shopware\Core\Content\Media\MediaEntity;
+
+class PlainPathnameStrategy extends AbstractPathNameStrategy
 {
-    public function decode(string $path): string
-    {
-        return basename($path);
-    }
-
     /**
      * {@inheritdoc}
      */
-    public function encode(string $filename): string
+    public function generatePathHash(MediaEntity $media, ?MediaThumbnailEntity $thumbnail = null): ?string
     {
-        return ltrim($filename, '/');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isEncoded(string $path): bool
-    {
-        return (bool) preg_match('/((media\/(?:archive|image|music|pdf|temp|unknown|video)(?:\/thumbnail)?).*\/((.+)\.(.+)))/', $path);
+        return null;
     }
 
     /**

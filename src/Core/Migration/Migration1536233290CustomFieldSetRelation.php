@@ -32,6 +32,5 @@ class Migration1536233290CustomFieldSetRelation extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

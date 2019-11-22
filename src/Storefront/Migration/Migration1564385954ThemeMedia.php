@@ -29,6 +29,5 @@ class Migration1564385954ThemeMedia extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

@@ -55,6 +55,5 @@ class Migration1561370284AddImportExportProductProfile extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

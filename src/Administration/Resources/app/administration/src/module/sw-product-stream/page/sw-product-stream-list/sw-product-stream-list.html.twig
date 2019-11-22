@@ -1,0 +1,106 @@
+{% block sw_product_stream_list %}
+    <sw-page class="sw-product-stream-list">
+
+        {% block sw_product_stream_list_search_bar %}
+            <template slot="search-bar">
+                <sw-search-bar initialSearchType="product_stream"
+                               :placeholder="$tc('sw-product-stream.general.placeholderSearchBar')"
+                               :initialSearch="term"
+                               @search="onSearch">
+                </sw-search-bar>
+            </template>
+        {% endblock %}
+
+        {% block sw_product_stream_list_smart_bar_header %}
+            <template slot="smart-bar-header">
+                {% block sw_product_stream_list_smart_bar_header_title %}
+                    <h2>
+                        {% block sw_product_stream_list_smart_bar_header_title_text %}
+                            {{ $tc('sw-product-stream.list.textProductStreamOverview') }}
+                        {% endblock %}
+
+                        {% block sw_product_stream_list_smart_bar_header_amount %}
+                            <span v-if="!isLoading" class="sw-page__smart-bar-amount">
+                                ({{ total }})
+                            </span>
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_product_stream_list_smart_bar_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_product_stream_list_smart_bar_actions_add %}
+                    <sw-button class="sw-product-stream-list__create-action" :routerLink="{ name: 'sw.product.stream.create' }" variant="primary">
+                        {{ $tc('sw-product-stream.list.buttonAddProductStream') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_manufacturer_list_language_switch %}
+            <sw-language-switch slot="language-switch" @on-change="onChangeLanguage"></sw-language-switch>
+        {% endblock %}
+
+        <template slot="content">
+            {% block sw_product_stream_list_content %}
+                <div class="sw-product-stream-list__content">
+                    {% block sw_product_stream_list_grid %}
+                        <sw-entity-listing ref="swProductStreamGrid"
+                            v-if="productStreams"
+                            class="sw-product-stream-list-grid"
+                            :items="productStreams"
+                            :columns="getProductStreamColumns()"
+                            :repository="productStreamRepository"
+                            detailRoute="sw.product.stream.detail"
+                            :showSelection="true"
+                            :isLoading="isLoading"
+                            @inline-edit-save="onInlineEditSave"
+                            @items-delete-finish="getList">
+
+                            <template #column-invalid="{item}">
+                                <template v-if="item.invalid">
+                                    {{ $tc('sw-product-stream.list.status.invalid') }}
+                                </template>
+                                <template v-else>
+                                    {{ $tc('sw-product-stream.list.status.valid') }}
+                                </template>
+                            </template>
+
+                            <template #column-updatedAt="{item}">
+                                <template v-if="item.updatedAt">
+                                    {{ item.updatedAt|date }}
+                                </template>
+                                <template v-else>
+                                    {{ item.createdAt|date }}
+                                </template>
+                            </template>
+                        </sw-entity-listing>
+                    {% endblock %}
+
+                    {% block sw_product_stream_list_empty_state %}
+                        <sw-empty-state v-else-if="!isLoading && !total" :title="$tc('sw-product-stream.list.messageEmpty')"></sw-empty-state>
+                    {% endblock %}
+
+                    {% block sw_product_list_grid_loader %}
+                        <sw-loader v-if="isLoading"></sw-loader>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </template>
+
+        {% block sw_product_stream_list_sidebar %}
+            <sw-sidebar slot="sidebar">
+                {% block sw_product_stream_list_sidebar_refresh %}
+                    <sw-sidebar-item
+                            icon="default-arrow-360-left"
+                            :title="$tc('sw-product-stream.list.titleSidebarItemRefresh')"
+                            @click="onRefresh">
+                    </sw-sidebar-item>
+                {% endblock %}
+            </sw-sidebar>
+        {% endblock %}
+
+    </sw-page>
+{% endblock %}

@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Asset;
 
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\Asset\PathPackage;
-use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 
 class AssetPackageService
 {
@@ -18,11 +17,11 @@ class AssetPackageService
         $this->packages = $packages;
     }
 
-    public function addAssetPackage(string $bundleName): void
+    public function addAssetPackage(string $bundleName, string $bundlePath): void
     {
         $this->packages->addPackage(
             '@' . $bundleName,
-            new PathPackage('/bundles/' . mb_strtolower($bundleName), new EmptyVersionStrategy())
+            new PathPackage('/bundles/' . mb_strtolower($bundleName), new LastModifiedVersionStrategy($bundlePath))
         );
     }
 }

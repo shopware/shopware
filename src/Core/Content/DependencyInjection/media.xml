@@ -166,11 +166,13 @@
         <service id="Shopware\Core\Content\Media\Commands\GenerateMediaTypesCommand">
             <argument type="service" id="Shopware\Core\Content\Media\TypeDetector\TypeDetector"/>
             <argument type="service" id="media.repository"/>
+
             <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Commands\DeleteNotUsedMediaCommand">
             <argument type="service" id="Shopware\Core\Content\Media\DeleteNotUsedMediaService"/>
+
             <tag name="console.command"/>
         </service>
 
@@ -190,11 +192,19 @@
             <argument>%shopware.cdn.strategy%</argument>
         </service>
 
-        <service id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\Md5PathnameStrategy">
+        <service id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\FilenamePathnameStrategy">
+            <argument type="service" id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PlainPathnameStrategy"/>
+
             <tag name="shopware.pathname.strategy"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PlainPathnameStrategy">
+            <tag name="shopware.pathname.strategy"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\IdPathnameStrategy">
+            <argument type="service" id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PlainPathnameStrategy"/>
+
             <tag name="shopware.pathname.strategy"/>
         </service>
 

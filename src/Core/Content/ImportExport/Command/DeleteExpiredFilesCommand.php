@@ -11,6 +11,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class DeleteExpiredFilesCommand extends Command
 {
+    protected static $defaultName = 'import-export:delete-expired';
+
     /**
      * @var DeleteExpiredFilesService
      */
@@ -24,7 +26,7 @@ class DeleteExpiredFilesCommand extends Command
 
     protected function configure(): void
     {
-        $this->setName('import-export:delete-expired')
+        $this
             ->setDescription('Deletes all expired import/export files');
     }
 

@@ -66,7 +66,7 @@ class PromotionCartEventTest extends TestCase
     {
         $productId = Uuid::randomHex();
 
-        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer());
+        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $this->context);
 
         $codes = [100, 1, 42, 13, 19];
         $this->createBulkPromotions($codes);
@@ -101,7 +101,7 @@ class PromotionCartEventTest extends TestCase
     {
         $productId = Uuid::randomHex();
 
-        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer());
+        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $this->context);
 
         $codes = [100, 1, 42, 13, 19];
         $this->createBulkPromotions($codes);

@@ -21,13 +21,13 @@ That's already all the setup you need.
 ### Injecting custom javascript
 
 The main entry point to customize the administration via plugin is the `main.js` file.
-It has to be placed into a `<plugin root>/src/Resources/administration` directory in order to be found by Shopware 6.
+It has to be placed into a `<plugin root>/src/Resources/app/administration` directory in order to be found by Shopware 6.
 *Note: This path can be changed by overriding the [getAdministrationEntryPath](./../2-internals/4-plugins/020-plugin-base-class.md#getAdministrationEntryPath) method of your plugin's base class.*
 
 ### Creating a new tab
 
 Your very first goal is to actually create a new tab on the product detail page.
-So let's have a look at the twig code of the product detail page, which can be found [here](https://github.com/shopware/platform/blob/master/src/Administration/Resources/administration/src/module/sw-product/page/sw-product-detail/sw-product-detail.html.twig).
+So let's have a look at the twig code of the product detail page, which can be found [here](https://github.com/shopware/platform/blob/master/src/Administration/Resources/app/administration/src/module/sw-product/page/sw-product-detail/sw-product-detail.html.twig).
 
 Having a look at the template, you might find the block `sw_product_detail_content_tabs`, which seems to contain all available tabs.
 It starts by creating a new `<sw-tabs>` element to contain all the tabs available.
@@ -37,7 +37,7 @@ Instead you can choose the last available block inside the element, which is `sw
 
 Knowing the block you have to override in your plugin, you can now start doing exactly this.
 First of all, re-create the directory structure from the core code in your plugin.
-In this case, you'll have to create a directory structure like the following: `<plugin root>/src/Resources/administration/page/sw-product-detail`
+In this case, you'll have to create a directory structure like the following: `<plugin root>/src/Resources/app/administration/src/page/sw-product-detail`
 
 In there you create a new file `index.js`, which then contains the following code:
 

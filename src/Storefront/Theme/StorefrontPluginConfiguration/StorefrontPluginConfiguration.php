@@ -197,15 +197,12 @@ class StorefrontPluginConfiguration
         $config->setTechnicalName($bundle->getName());
         $config->setStorefrontEntryFilepath(self::getEntryFile($bundle));
         $config->setBasePath($bundle->getPath());
-        if ($bundle->getStorefrontStylePath()) {
-            $path = $bundle->getPath() . DIRECTORY_SEPARATOR . ltrim($bundle->getStorefrontStylePath(), DIRECTORY_SEPARATOR);
-            $config->setStyleFiles(FileCollection::createFromArray(self::getFilesInDir($path)));
-        }
 
-        if ($bundle->getStorefrontScriptPath()) {
-            $path = $bundle->getPath() . DIRECTORY_SEPARATOR . ltrim($bundle->getStorefrontScriptPath(), DIRECTORY_SEPARATOR);
-            $config->setScriptFiles(FileCollection::createFromArray(self::getFilesInDir($path)));
-        }
+        $path = $bundle->getPath() . DIRECTORY_SEPARATOR . 'Resources/app/storefront/src/scss';
+        $config->setStyleFiles(FileCollection::createFromArray(self::getFilesInDir($path)));
+
+        $path = $bundle->getPath() . DIRECTORY_SEPARATOR . 'Resources/app/storefront/dist/storefront/js';
+        $config->setScriptFiles(FileCollection::createFromArray(self::getFilesInDir($path)));
 
         return $config;
     }
@@ -215,7 +212,7 @@ class StorefrontPluginConfiguration
         if (!($bundle instanceof ThemeInterface)) {
             throw new InvalidThemeBundleException($bundle->getName());
         }
-        $pathname = $bundle->getPath() . DIRECTORY_SEPARATOR . ltrim($bundle->getThemeConfigPath(), DIRECTORY_SEPARATOR);
+        $pathname = $bundle->getPath() . DIRECTORY_SEPARATOR . 'Resources/theme.json';
 
         if (!file_exists($pathname)) {
             throw new InvalidThemeBundleException($bundle->getName());
@@ -297,7 +294,7 @@ class StorefrontPluginConfiguration
 
     private static function getEntryFile(Bundle $bundle): ?string
     {
-        $path = rtrim($bundle->getPath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $bundle->getStorefrontEntryPath();
+        $path = rtrim($bundle->getPath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'Resources/app/storefront/src';
 
         if (file_exists($path . DIRECTORY_SEPARATOR . 'main.ts')) {
             return $path . DIRECTORY_SEPARATOR . 'main.ts';

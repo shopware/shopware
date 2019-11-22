@@ -1,0 +1,36 @@
+{% block sw_condition_and_container %}
+    <div class="sw-condition-or-container" :class="containerRowClass">
+        {% block sw_condition_or_container_children %}
+            <template v-for="(child, index) in condition[this.childAssociationField]">
+                <div v-if="index > 0"class="condition-content__spacer--or">
+                    {{ $tc('global.sw-condition.condition.or') }}
+                </div>
+
+                <sw-condition-tree-node
+                    :key="`condition-or-container-child--${index}`"
+                    :parentCondition="condition"
+                    :condition="child"
+                    :level="level + 1">
+                </sw-condition-tree-node>
+            </template>
+        {% endblock %}
+
+        {% block sw_condition_or_container_actions %}
+            <div class="sw-condition-or-container__actions">
+                <sw-button class="sw-condition-or-container__actions--or" @click="onAddPlaceholder">
+                    {{ $tc('global.sw-condition.condition.or') }}
+                </sw-button>
+
+                <sw-button v-if="level !== 0" class="sw-condition-or-container__actions--sub" @click="onAddAndContainer">
+                    {{ $tc('global.sw-condition.condition.subCondition') }}
+                </sw-button>
+
+                <sw-button class="sw-condition-or-container__actions--delete"
+                           @click="onDeleteAll">
+                    <span v-if="level !== 0">{{ $tc('global.sw-condition.condition.deleteConditions') }}</span>
+                    <span v-else>{{ $tc('global.sw-condition.condition.deleteAllConditions') }}</span>
+                </sw-button>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

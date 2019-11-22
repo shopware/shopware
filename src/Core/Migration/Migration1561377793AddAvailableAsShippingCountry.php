@@ -19,6 +19,5 @@ class Migration1561377793AddAvailableAsShippingCountry extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

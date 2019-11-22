@@ -11,6 +11,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class AdministrationDumpFeaturesCommand extends Command
 {
+    protected static $defaultName = 'administration:dump:features';
+
     /**
      * @var Kernel
      */
@@ -28,7 +30,6 @@ class AdministrationDumpFeaturesCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setName('administration:dump:features')
             ->setDescription('Creating json file with feature config for administration testing and hot reloading capabilities.');
     }
 

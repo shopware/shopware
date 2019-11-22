@@ -55,6 +55,5 @@ class Migration1565079228AddAclStructure extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

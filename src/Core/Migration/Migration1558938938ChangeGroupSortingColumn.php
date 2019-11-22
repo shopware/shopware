@@ -21,6 +21,5 @@ class Migration1558938938ChangeGroupSortingColumn extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

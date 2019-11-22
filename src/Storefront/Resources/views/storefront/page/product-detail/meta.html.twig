@@ -1,0 +1,41 @@
+{% sw_extends '@Storefront/storefront/layout/meta.html.twig' %}
+
+{% block layout_head_meta_tags_opengraph %}
+    <meta property="og:type"
+          content="product"/>
+    <meta property="og:site_name"
+          content="{{ shopware.config.core.basicInformation.shopName }}"/>
+    <meta property="og:url"
+          content="{{ seoUrl('frontend.detail.page', { productId: page.product.id }) }}"/>
+    <meta property="og:title"
+          content="{{ metaTitle }}"/>
+
+    <meta property="og:description"
+          content="{{ metaDescription }}"/>
+    <meta property="og:image"
+          content="{{ asset(page.product.cover.media.url, '@Storefront') }}"/>
+
+    {% if page.product.manufacturer %}
+        <meta property="product:brand"
+              content="{{ page.product.manufacturer.translated.name }}"/>
+    {% endif %}
+    <meta property="product:price"
+          content="{{ page.product.calculatedPrice.unitPrice|currency }}"/>
+    <meta property="product:product_link"
+          content="{{ seoUrl('frontend.detail.page', { productId: page.product.id }) }}"/>
+
+    <meta name="twitter:card"
+          content="product"/>
+    <meta name="twitter:site"
+          content="{{ shopware.config.core.basicInformation.shopName }}"/>
+    <meta name="twitter:title"
+          content="{{ metaTitle }}"/>
+    <meta name="twitter:description"
+          content="{{ metaDescription }}"/>
+    <meta name="twitter:image"
+          content="{{ asset(page.product.cover.media.url, '@Storefront') }}"/>
+{% endblock %}
+
+{% block layout_head_canonical %}
+    <link rel="canonical" href="{{ seoUrl('frontend.detail.page', { productId: page.product.id }) }}" />
+{% endblock %}

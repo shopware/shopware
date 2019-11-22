@@ -80,7 +80,6 @@ class PluginService
 
         $plugins = [];
         foreach ($pluginsFromFileSystem as $pluginFromFileSystem) {
-            $pluginName = $pluginFromFileSystem->getName();
             $baseClass = $pluginFromFileSystem->getBaseClass();
             $pluginPath = $pluginFromFileSystem->getPath();
             $info = $pluginFromFileSystem->getComposerPackage();
@@ -108,7 +107,7 @@ class PluginService
             $pluginIconPath = $extra['plugin-icon'] ?? 'src/Resources/config/plugin.png';
 
             $pluginData = [
-                'name' => $pluginName,
+                'name' => $pluginFromFileSystem->getName(),
                 'baseClass' => $baseClass,
                 'composerName' => $info->getName(),
                 'path' => str_replace($this->projectDir . '/', '', $pluginPath),
@@ -121,10 +120,18 @@ class PluginService
                 'managedByComposer' => $pluginFromFileSystem->getManagedByComposer(),
             ];
 
-            $pluginData = $this->getTranslation($extra, $pluginData, 'label', 'label', $shopwareContext);
-            $pluginData = $this->getTranslation($extra, $pluginData, 'description', 'description', $shopwareContext);
-            $pluginData = $this->getTranslation($extra, $pluginData, 'manufacturerLink', 'manufacturerLink', $shopwareContext);
-            $pluginData = $this->getTranslation($extra, $pluginData, 'supportLink', 'supportLink', $shopwareContext);
+            $translatableExtraKeys = ['label', 'description', 'manufacturerLink', 'supportLink'];
+            foreach ($extra as $extraKey => $extraItem) {
+                if (\in_array($extraKey, $translatableExtraKeys, true)) {
+                    foreach ($extraItem as $locale => $translation) {
+                        $languageId = $this->getLanguageIdForLocale($locale, $shopwareContext);
+                        if ($languageId === '') {
+                            continue;
+                        }
+                        $pluginData['translations'][$languageId][$extraKey] = $translation;
+                    }
+                }
+            }
 
             if ($changelogFiles = $this->changelogService->getChangelogFiles($pluginPath)) {
                 foreach ($changelogFiles as $file) {
@@ -204,25 +211,6 @@ class PluginService
     private function hasPluginUpdate(string $updateVersion, string $currentVersion): bool
     {
         return version_compare($updateVersion, $currentVersion, '>');
-    }
-
-    private function getTranslation(
-        array $composerExtra,
-        array $pluginData,
-        string $composerProperty,
-        string $pluginField,
-        Context $shopwareContext
-    ): array {
-        foreach ($composerExtra[$composerProperty] ?? [] as $locale => $labelTranslation) {
-            $languageId = $this->getLanguageIdForLocale($locale, $shopwareContext);
-            if ($languageId === '') {
-                continue;
-            }
-
-            $pluginData['translations'][$languageId][$pluginField] = $labelTranslation;
-        }
-
-        return $pluginData;
     }
 
     private function getLanguageIdForLocale(string $locale, Context $context): string

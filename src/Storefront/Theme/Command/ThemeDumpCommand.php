@@ -17,6 +17,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ThemeDumpCommand extends Command
 {
+    protected static $defaultName = 'theme:dump';
+
     /**
      * @var StorefrontPluginRegistry
      */
@@ -60,11 +62,6 @@ class ThemeDumpCommand extends Command
         $this->themeRepository = $themeRepository;
         $this->cacheDir = $cacheDir;
         $this->context = Context::createDefaultContext();
-    }
-
-    protected function configure(): void
-    {
-        $this->setName('theme:dump');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

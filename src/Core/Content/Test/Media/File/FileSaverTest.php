@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Media\File;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Exception\CouldNotRenameFileException;
 use Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException;
 use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
@@ -391,7 +392,7 @@ class FileSaverTest extends TestCase
             ],
         ]], $context);
         $oldMediaPath = $this->urlGenerator->getRelativeMediaUrl($png);
-        $oldThumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl($png, 100, 100);
+        $oldThumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl($png, (new MediaThumbnailEntity())->assign(['width' => 100, 'height' => 100]));
 
         $this->getPublicFilesystem()->put($oldMediaPath, 'test file content');
         $this->getPublicFilesystem()->put($oldThumbnailPath, 'test file content');
@@ -402,7 +403,7 @@ class FileSaverTest extends TestCase
         static::assertTrue($this->getPublicFilesystem()->has($this->urlGenerator->getRelativeMediaUrl($updatedMedia)));
 
         static::assertFalse($this->getPublicFilesystem()->has($oldThumbnailPath));
-        static::assertTrue($this->getPublicFilesystem()->has($this->urlGenerator->getRelativeThumbnailUrl($updatedMedia, 100, 100)));
+        static::assertTrue($this->getPublicFilesystem()->has($this->urlGenerator->getRelativeThumbnailUrl($updatedMedia, (new MediaThumbnailEntity())->assign(['width' => 100, 'height' => 100]))));
     }
 
     public function testRenameMediaMakesRollbackOnFailure(): void

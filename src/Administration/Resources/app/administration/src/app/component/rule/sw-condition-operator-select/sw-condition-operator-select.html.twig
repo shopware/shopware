@@ -1,0 +1,15 @@
+{% block sw_condition_type_select %}
+<sw-arrow-field class="sw-condition-operator-select">
+    <sw-single-select
+            class="sw-condition-operator-select__select"
+            size="medium"
+            labelValue="label"
+            valueProperty="identifier"
+            :options="translatedOperators"
+            :placeholder="$tc('global.sw-condition.condition.placeholder')"
+            :value="operator"
+            @input="changeOperator"
+            required>
+    </sw-single-select>
+</sw-arrow-field>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% block component_product_box_price_info %}
+    <div class="product-price-info">
+        {% block component_product_box_price_unit %}
+            <p class="product-price-unit">
+                {# Price is based on the purchase unit #}
+                {% block component_product_box_price_purchase_unit %}
+                    {% if product.purchaseUnit and product.purchaseUnit != 0 %}
+                        <span class="product-unit-label">
+                            {{ "listing.boxUnitLabel"|trans|sw_sanitize }}
+                        </span>
+                        <span class="price-unit-content">
+                            {{ product.purchaseUnit }} {{ product.unit.name }}
+                        </span>
+                    {% endif %}
+                {% endblock %}
+
+                {# Unit price is based on a reference unit #}
+                {% block component_product_box_price_reference_unit %}
+                    {% if product.calculatedPrice.referencePrice is not null %}
+                        <span class="price-unit-reference">
+                            {% if product.priceRange %}
+                                ({{ "listing.listingTextFrom"|trans|sw_sanitize }} {{ product.calculatedListingPrice.from.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ product.calculatedListingPrice.from.referencePrice.referenceUnit }} {{ product.calculatedListingPrice.from.referencePrice.unitName }})
+                            {% else %}
+                                ({{ product.calculatedPrice.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ product.calculatedPrice.referencePrice.referenceUnit }} {{ product.calculatedPrice.referencePrice.unitName }})
+                            {% endif %}
+                        </span>
+                    {% endif %}
+                {% endblock %}
+            </p>
+        {% endblock %}
+
+        {% block component_product_box_price %}
+            <p class="product-price">
+                {% if product.priceRange %}
+                    {{ product.calculatedListingPrice.from.unitPrice|currency }}
+                    -
+                    {{ product.calculatedListingPrice.to.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+                {% elseif product.calculatedPrices|length == 1 %}
+                    {{ product.calculatedPrices.first.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+                {% else %}
+                    {{ product.calculatedPrice.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+                {% endif %}
+            </p>
+        {% endblock %}
+    </div>
+{% endblock %}

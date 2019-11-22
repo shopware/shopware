@@ -1,0 +1,188 @@
+{% block layout_footer_inner_container %}
+    {% block layout_footer_navigation %}
+        <div id="footerColumns"
+             class="row footer-columns"
+             data-collapse-footer="true">
+            {% block layout_footer_navigation_hotline %}
+                <div class="col-md-4 footer-column js-footer-column">
+                    {% block layout_footer_navigation_hotline_headline %}
+                        <div class="footer-column-headline footer-headline js-footer-column-headline js-collapse-footer-column-trigger"
+                            data-target="#collapseFooterHotline"
+                            aria-expanded="true"
+                            aria-controls="collapseFooterHotline">
+                            {{ 'footer.serviceHotlineHeadline'|trans|sw_sanitize }}
+                            {% block layout_footer_navigation_hotline_icons %}
+                                <div class="footer-column-toggle">
+                                    <span class="footer-plus-icon">
+                                        {% sw_icon 'plus' %}
+                                    </span>
+                                    <span class="footer-minus-icon">
+                                        {% sw_icon 'minus' %}
+                                    </span>
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block layout_footer_navigation_hotline_content %}
+                        <div id="collapseFooterHotline"
+                             class="footer-column-content collapse js-footer-column-content footer-contact"
+                             aria-labelledby="headingOne">
+                            <div class="footer-column-content-inner">
+                                <p class="footer-contact-hotline">
+                                    {{ 'footer.serviceHotline'|trans|sw_sanitize }}
+                                </p>
+                                <div class="footer-contact-form">
+                                    {{ 'footer.serviceContactLink'|trans({'%link%': path('frontend.page.contact') })|sw_sanitize }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block layout_footer_navigation_columns %}
+                {% for root in page.footer.navigation.tree %}
+                    {% block layout_footer_navigation_column %}
+                        <div class="col-md-4 footer-column js-footer-column">
+                            {% block layout_footer_navigation_information_headline %}
+                                <div class="footer-column-headline footer-headline js-collapse-footer-column-trigger"
+                                     data-target="#collapseFooter{{ loop.index }}"
+                                     aria-expanded="true"
+                                     aria-controls="collapseFooter{{ loop.index }}">
+
+                                    {{ root.category.translated.name }}
+                                    {% block layout_footer_navigation_information_icons %}
+                                        <div class="footer-column-toggle">
+                                            <span class="footer-plus-icon">
+                                                {% sw_icon 'plus' %}
+                                            </span>
+                                            <span class="footer-minus-icon">
+                                                {% sw_icon 'minus' %}
+                                            </span>
+                                        </div>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+
+                            {% block layout_footer_navigation_information_content %}
+                                <div id="collapseFooter{{ loop.index }}"
+                                     class="footer-column-content collapse js-footer-column-content"
+                                     aria-labelledby="headingThree">
+                                    <div class="footer-column-content-inner">
+                                        {% block layout_footer_navigation_information_links %}
+                                            <ul class="list-unstyled">
+                                                {% for treeItem in root.children %}
+                                                    {% block layout_footer_navigation_information_link_item %}
+                                                        <li class="footer-link-item">
+                                                            {% block layout_footer_navigation_information_link %}
+                                                                <a class="footer-link"
+                                                                   href="{{ seoUrl('frontend.navigation.page', { navigationId: treeItem.category.id }) }}"
+                                                                   title="{{ treeItem.category.translated.name }}">
+                                                                    {{ treeItem.category.translated.name }}
+                                                                </a>
+                                                            {% endblock %}
+                                                        </li>
+                                                    {% endblock %}
+                                                {% endfor %}
+                                            </ul>
+                                        {% endblock %}
+                                    </div>
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                {% endfor %}
+            {% endblock %}
+        </div>
+    {% endblock %}
+
+    {% block layout_footer_payment_shipping_logos %}
+        <div class="footer-logos">
+            {% block layout_footer_payment_logos %}
+                {% for paymentMethod in page.salesChannelPaymentMethods %}
+                    {% block layout_footer_payment_logo %}
+                        {% if paymentMethod.media %}
+                            <div class="footer-logo is-payment">
+                                {% sw_thumbnails 'footer-payment-image-thumbnails' with {
+                                    media: paymentMethod.media,
+                                    sizes: {
+                                        'default': '100px'
+                                    },
+                                    attributes: {
+                                        'class': 'img-fluid footer-logo-image',
+                                        'alt': (paymentMethod.media.translated.alt ?: paymentMethod.translated.name),
+                                        'title': (paymentMethod.media.translated.title ?: paymentMethod.translated.name)
+                                    }
+                                } %}
+                            </div>
+                        {% endif %}
+                    {% endblock %}
+                {% endfor %}
+            {% endblock %}
+
+            {% block layout_footer_shipping_logos %}
+                {% for shippingMethod in page.salesChannelShippingMethods %}
+                    {% block layout_footer_shipping_logo %}
+                        {% if shippingMethod.media %}
+                            <div class="footer-logo is-shipping">
+                                {% sw_thumbnails 'footer-shipping-image-thumbnails' with {
+                                    media: shippingMethod.media,
+                                    sizes: {
+                                        'default': '100px'
+                                    },
+                                    attributes: {
+                                        'class': 'img-fluid footer-logo-image',
+                                        'alt': (shippingMethod.media.translated.alt ?: shippingMethod.translated.name),
+                                        'title': (shippingMethod.media.translated.title ?: shippingMethod.translated.name)
+                                    }
+                                } %}
+                            </div>
+                        {% endif %}
+                    {% endblock %}
+                {% endfor %}
+            {% endblock %}
+        </div>
+    {% endblock %}
+
+    {% block layout_footer_bottom %}
+        <div class="footer-bottom">
+            {% block layout_footer_vat %}
+                <div class="footer-vat">
+                    {% if context.taxState == "gross" %}
+                        <p>{{ "footer.includeVat"|trans|sw_sanitize }}</p>
+                    {% else %}
+                        <p>{{ "footer.excludeVat"|trans|sw_sanitize }}</p>
+                    {% endif %}
+                </div>
+            {% endblock %}
+
+            {% block layout_footer_service_menu %}
+                <div class="container">
+                    {% block layout_footer_service_menu_content %}
+                        <ul class="footer-service-menu-list list-unstyled">
+                            {% for serviceMenuItem in page.header.serviceMenu %}
+                                {% block layout_footer_service_menu_item %}
+                                    <li class="footer-service-menu-item">
+                                        <a class="footer-service-menu-link"
+                                           href="{{ seoUrl('frontend.navigation.page', { navigationId: serviceMenuItem.id }) }}"
+                                           title="{{ serviceMenuItem.translated.name }}">
+                                            {{ serviceMenuItem.translated.name }}
+                                        </a>
+                                    </li>
+                                {% endblock %}
+                            {% endfor %}
+                        </ul>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block layout_footer_copyright %}
+                <div class="footer-copyright">
+                    {% sw_icon 'shopware' style {'size':'xs'} %}
+                    {{ "footer.copyrightInfo"|trans|sw_sanitize }}
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

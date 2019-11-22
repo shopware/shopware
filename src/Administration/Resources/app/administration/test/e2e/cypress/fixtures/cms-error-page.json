@@ -1,0 +1,28 @@
+{
+  "name": "404 Layout",
+  "type": "page",
+  "sections": [
+    {
+      "type": "default",
+      "position": 0,
+      "blocks": [
+        {
+          "type": "text",
+          "position": 0,
+          "slots": [
+            {
+              "type": "text",
+              "slot": "content",
+              "config": {
+                "content": {
+                  "source": "static",
+                  "value": "404 - Not Found"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

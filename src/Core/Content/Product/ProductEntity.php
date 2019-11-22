@@ -3,8 +3,7 @@
 namespace Shopware\Core\Content\Product;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
@@ -381,6 +380,11 @@ class ProductEntity extends Entity
      * @var SeoUrlCollection|null
      */
     protected $seoUrls;
+
+    /**
+     * @var OrderLineItemCollection|null
+     */
+    protected $orderLineItems;
 
     public function __construct()
     {
@@ -761,13 +765,6 @@ class ProductEntity extends Entity
         $this->restockTime = $restockTime;
     }
 
-    public function getTaxRuleCollection(): TaxRuleCollection
-    {
-        return new TaxRuleCollection([
-            new TaxRule($this->getTax()->getTaxRate(), 100),
-        ]);
-    }
-
     public function getDeliveryDate(): DeliveryDate
     {
         return new DeliveryDate(
@@ -1133,5 +1130,15 @@ class ProductEntity extends Entity
     public function setSeoUrls(?SeoUrlCollection $seoUrls): void
     {
         $this->seoUrls = $seoUrls;
+    }
+
+    public function getOrderLineItems(): ?OrderLineItemCollection
+    {
+        return $this->orderLineItems;
+    }
+
+    public function setOrderLineItems(?OrderLineItemCollection $orderLineItems): void
+    {
+        $this->orderLineItems = $orderLineItems;
     }
 }

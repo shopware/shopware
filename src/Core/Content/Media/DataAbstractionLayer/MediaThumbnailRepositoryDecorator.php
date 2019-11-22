@@ -145,8 +145,7 @@ class MediaThumbnailRepositoryDecorator implements EntityRepositoryInterface
 
             $thumbnailPaths[] = $this->urlGenerator->getRelativeThumbnailUrl(
                 $thumbnail->getMedia(),
-                $thumbnail->getWidth(),
-                $thumbnail->getHeight()
+                $thumbnail
             );
         }
 

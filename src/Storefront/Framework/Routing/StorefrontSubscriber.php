@@ -36,7 +36,12 @@ class StorefrontSubscriber implements EventSubscriberInterface
     private $errorController;
 
     /**
-     * @var boolean
+     * @var SalesChannelContextServiceInterface
+     */
+    private $contextService;
+
+    /**
+     * @var bool
      */
     private $kernelDebug;
 
@@ -44,12 +49,14 @@ class StorefrontSubscriber implements EventSubscriberInterface
         RequestStack $requestStack,
         RouterInterface $router,
         ErrorController $errorController,
+        SalesChannelContextServiceInterface $contextService,
         bool $kernelDebug
     ) {
         $this->requestStack = $requestStack;
         $this->router = $router;
         $this->errorController = $errorController;
-        $this->kernelDebug     = $kernelDebug;
+        $this->contextService = $contextService;
+        $this->kernelDebug = $kernelDebug;
     }
 
     public static function getSubscribedEvents(): array
@@ -133,7 +140,14 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     public function showHtmlExceptionResponse(ExceptionEvent $event): void
     {
-        if (!$this->kernelDebug && $event->getRequest()->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {
+        if ($this->kernelDebug) {
+            return;
+        }
+        if (!$event->getRequest()->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {
+            //When no saleschannel context is resolved, we need to resolve it now.
+            $this->setSalesChannelContext($event);
+        }
+        if ($event->getRequest()->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {
             $event->stopPropagation();
             $content = $this->errorController->error(
                 $event->getException(),

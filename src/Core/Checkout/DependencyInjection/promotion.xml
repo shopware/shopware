@@ -72,6 +72,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition"/>
             <argument type="service" id="promotion.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+
             <tag name="shopware.dal_indexing.indexer" priority="500"/>
         </service>
 
@@ -82,6 +83,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\PromotionDefinition"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+
             <tag name="shopware.dal_indexing.indexer"/>
         </service>
 
@@ -100,11 +102,13 @@
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor">
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionCalculator"/>
+
             <tag name="shopware.cart.processor" priority="4900"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionDeliveryProcessor">
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionDeliveryCalculator"/>
+
             <tag name="shopware.cart.processor" priority="-5100"/>
         </service>
 
@@ -130,6 +134,7 @@
 
         <service id="Shopware\Core\Checkout\Promotion\Subscriber\Storefront\StorefrontCartSubscriber">
             <argument type="service" id="session"/>
+
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -176,6 +181,7 @@
 
         <service id="Shopware\Core\Checkout\Promotion\Subscriber\PromotionIndividualCodeRedeemer">
             <argument type="service" id="promotion_individual_code.repository"/>
+
             <tag name="kernel.event_subscriber"/>
         </service>
 

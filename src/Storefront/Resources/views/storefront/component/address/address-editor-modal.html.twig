@@ -1,0 +1,131 @@
+{% set defaultBillingAddress = context.customer.defaultBillingAddressId %}
+{% set defaultShippingAddress = context.customer.defaultShippingAddressId %}
+
+{% set AvailableAddressCount = 0 %}
+{% for address in page.addresses %}
+    {% if (address.id != defaultShippingAddress and changeShipping) or (address.id != defaultBillingAddress and changeBilling) %}
+        {% set AvailableAddressCount = AvailableAddressCount + 1 %}
+    {% endif %}
+{% endfor %}
+
+{% block component_address_address_editor_modal %}
+    <div class="js-address-editor">
+        {% block component_address_address_editor_modal_inner %}
+
+            {% block component_address_address_editor_modal_accordion_overview %}
+                {% if not page.address %}
+
+                    {% block component_address_address_editor_modal_accordion_overview_billing %}
+                        {% if changeBilling %}
+                            {% block component_address_address_editor_modal_accordion_overview_billing_card %}
+                                <div class="card">
+                                    {% block component_address_address_editor_modal_accordion_overview_billing_card_body %}
+                                        <div class="card-body">
+                                            {% block component_address_address_editor_modal_accordion_overview_billing_card_title %}
+                                                <div class="card-title">
+                                                    {% block component_address_address_editor_modal_accordion_overview_billing_card_title_text %}
+                                                        {{ "account.addressesTitleCurrentBillingAddress"|trans|sw_sanitize }}
+                                                    {% endblock %}
+                                                </div>
+                                            {% endblock %}
+
+                                            {% block component_address_address_editor_modal_accordion_overview_billing_card_address %}
+                                                {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {
+                                                    'address': context.customer.defaultBillingAddress
+                                                } %}
+                                            {% endblock %}
+                                        </div>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+                        {% endif %}
+                    {% endblock %}
+
+                    {% block component_address_address_editor_modal_accordion_overview_shipping %}
+                        {% if changeShipping %}
+                            {% block component_address_address_editor_modal_accordion_overview_shipping_card %}
+                                <div class="card">
+                                    {% block component_address_address_editor_modal_accordion_overview_shipping_card_body %}
+                                        <div class="card-body">
+                                            {% block component_address_address_editor_modal_accordion_overview_shipping_card_title %}
+                                                <div class="card-title">
+                                                    {% block component_address_address_editor_modal_accordion_overview_shipping_card_title_text %}
+                                                        {{ "account.addressesTitleCurrentShippingAddress"|trans|sw_sanitize }}
+                                                    {% endblock %}
+                                                </div>
+                                            {% endblock %}
+
+                                            {% block component_address_address_editor_modal_accordion_overview_shipping_card_address %}
+                                                {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {
+                                                    'address': context.customer.defaultShippingAddress
+                                                } %}
+                                            {% endblock %}
+                                        </div>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+                        {% endif %}
+                    {% endblock %}
+                {% endif %}
+            {% endblock %}
+
+            {% block component_address_address_editor_modal_accordion_actions %}
+                {% if not page.address %}
+                    <div class="row">
+
+                        {% block component_address_address_editor_modal_accordion_action_list %}
+                            {% if AvailableAddressCount > 0 %}
+                                <div class="col-12 col-md-6">
+                                    <div class="btn btn-outline-primary btn-block address-editor-select"
+                                         data-toggle="collapse"
+                                         data-target="#address-list">
+                                        {{ "account.selectAddress"|trans|sw_sanitize }}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endblock %}
+
+                        {% block component_address_address_editor_modal_accordion_action_create %}
+                            <div class="col-12 col-md-6">
+                                <div class="btn btn-outline-primary btn-block address-editor-create collapsed"
+                                     data-toggle="collapse"
+                                     data-target="#address-create-new">
+                                    {{ "account.addressCreateBtn"|trans|sw_sanitize }}
+                                </div>
+                            </div>
+                        {% endblock %}
+
+                    </div>
+                {% endif %}
+            {% endblock %}
+
+            {% block component_address_address_editor_modal_accordion %}
+                <div id="addressEditorAccordion">
+                    {% block component_address_address_editor_modal_accordion_inner %}
+
+                        {% block component_address_address_editor_modal_accordion_list_include %}
+                            {% if not page.address and AvailableAddressCount > 0 %}
+                                {% sw_include '@Storefront/storefront/component/address/address-editor-modal-list.html.twig' with {
+                                    'address': page.address,
+                                    'addresses': page.addresses,
+                                    'defaultBillingAddress': defaultBillingAddress,
+                                    'defaultShippingAddress': defaultShippingAddress,
+                                    'changeShipping': changeShipping,
+                                    'changeBilling': changeBilling
+                                } %}
+                            {% endif %}
+                        {% endblock %}
+
+                        {% block component_address_address_editor_modal_accordion_create_include %}
+                            {% sw_include '@Storefront/storefront/component/address/address-editor-modal-create-address.html.twig' with {
+                                'address': page.address,
+                                'addresses': page.addresses
+                            } %}
+                        {% endblock %}
+
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -1,0 +1,179 @@
+{% block page_product_detail_review_widget %}
+	<div class="sticky-top product-detail-review-widget">
+		{% block page_product_detail_review_info_container %}
+			{% block page_product_detail_review_info %}
+				<div class="product-detail-review-info js-review-info">
+					{% block page_product_detail_review_title %}
+						<p class="product-detail-review-title h5">
+                            {{ "detail.reviewTitle"|trans({'%count%': reviews.total, '%total%':reviews.totalReviews })|sw_sanitize }}
+						</p>
+					{% endblock %}
+
+					{% block page_product_detail_review_overview %}
+						<div class="product-detail-review-rating"
+							 itemprop="aggregateRating"
+							 itemscope
+							 itemtype="https://schema.org/AggregateRating">
+							<meta itemprop="ratingValue" content="{{ productAvgRating }}">
+							<meta itemprop="bestRating" content="5">
+							<meta itemprop="ratingCount" content="{{ productReviewCount }}">
+							<p>
+								{% sw_include '@Storefront/storefront/component/review/rating.html.twig' with {
+									points: productAvgRating,
+									style: 'text-primary'
+								} %}
+							</p>
+							{% if productReviewCount > 0 %}
+								<p class="h6">
+									{{ productAvgRating|round(1) }} {{ "detail.reviewAvgRate"|trans|sw_sanitize }} {{ reviews.matrix.maxPoints }} {{ "detail.reviewAvgRateElements"|trans }}
+								</p>
+							{% endif %}
+						</div>
+					{% endblock %}
+				</div>
+			{% endblock %}
+
+			{% if productReviewCount > 0 %}
+				<hr>
+			{% endif %}
+
+			{% block page_product_detail_review_filter %}
+                {% if productReviewCount > 0 %}
+                    <div class="js-review-filter">
+                        <form class="review-filter-form"
+						  action="{{ path('frontend.product.reviews', { productId: reviews.productId }) }}"
+						  method="post"
+						  data-form-ajax-submit="true"
+						  data-form-ajax-submit-options='{
+							  "replaceSelectors": [
+							    ".js-review-info",
+							    ".js-review-teaser",
+							    ".js-review-content"
+							  ],
+							  "submitOnChange": true
+						  }'>
+
+                            {% block page_product_detail_review_filter_csrf %}
+                                {{ sw_csrf('frontend.product.reviews') }}
+                            {% endblock %}
+
+						{% if app.request.get('limit') %}
+							<input type="hidden" name="limit" value="{{ app.request.get('limit') }}">
+						{% endif %}
+
+						{% if app.request.get('language') %}
+							<input type="hidden" name="language" value="{{ app.request.get('language') }}">
+						{% endif %}
+
+						{% if app.request.get('sort') %}
+							<input type="hidden" name="sort" value="{{ app.request.get('sort') }}">
+						{% endif %}
+
+						{% for matrix in reviews.matrix.matrix %}
+							{% block page_product_detail_review_filter_box %}
+								<div class="row product-detail-review-filter">
+									{% block page_product_detail_review_filter_checkbox %}
+										<div class="col-md-8 col-lg-5 product-detail-review-checkbox">
+											<div class="custom-control custom-checkbox">
+												{% block page_product_detail_review_filter_checkbox_input %}
+													<input type="checkbox"
+														   class="custom-control-input"
+														   id="reviewRating{{ matrix.points }}"
+														   name="points[]"
+															{% if app.request.get('points') %}
+																{% for points in app.request.get('points') %}
+																	{% if points == matrix.points %}
+																		checked="checked"
+																	{% endif %}
+																{% endfor %}
+															{% endif %}
+														   value="{{ matrix.points }}"
+														   {%  if matrix.count < 1 %}disabled{% endif %}>
+												{% endblock %}
+
+												{% block page_product_detail_review_filter_checkbox_label %}
+													<label class="custom-control-label text-nowrap"
+														   for="reviewRating{{ matrix.points }}">
+														<small>{{ "detail.review#{matrix.points}PointRatingText"|trans|sw_sanitize }} ({{ matrix.count }})</small>
+													</label>
+												{% endblock %}
+											</div>
+										</div>
+									{% endblock %}
+
+									{% block page_product_detail_review_filter_progressbar %}
+										<div class="col d-none d-lg-block product-detail-review-progressbar-col">
+											<div class="progress product-detail-review-progressbar-container">
+												<div class="progress-bar product-detail-review-progressbar-bar"
+													 role="progressbar"
+													 style="width: {{ matrix.percent }}%;"
+													 aria-valuenow="{{ matrix.percent }}"
+													 aria-valuemin="0"
+													 aria-valuemax="100"></div>
+											</div>
+										</div>
+									{% endblock %}
+
+									{% block page_product_detail_review_filter_share %}
+										<div class="col-12 col-md-3 product-detail-review-share">
+											<p><small>{{ matrix.percent|round }}%</small></p>
+										</div>
+									{% endblock %}
+								</div>
+							{% endblock %}
+						{% endfor %}
+					</form>
+                    </div>
+
+                    {% block page_product_detail_review_filter_divider %}
+						<hr/>
+                    {% endblock %}
+				{% endif %}
+			{% endblock %}
+		{% endblock %}
+
+		{% block page_product_detail_review_form_teaser %}
+			<div class="product-detail-review-teaser js-review-teaser">
+                {% block page_product_detail_review_form_teaser_header %}
+					<p class="h4">
+                        {% if not reviews.customerReview %}
+							{{ "detail.reviewTeaserTitle"|trans|sw_sanitize }}
+						{% else %}
+                            {{ "detail.reviewExistsTeaserTitle"|trans|sw_sanitize }}
+						{% endif %}
+					</p>
+                {% endblock %}
+
+                {% block page_product_detail_review_form_teaser_text %}
+					<p>
+                        {% if not page.customerReview %}
+                            {{ "detail.reviewTeaserText"|trans|sw_sanitize }}
+                        {% else %}
+                            {{ "detail.reviewExistsTeaserText"|trans|sw_sanitize }}
+                        {% endif %}
+					</p>
+                {% endblock %}
+
+                {% block page_product_detail_review_form_teaser_button %}
+					<button class="btn btn-primary product-detail-review-teaser-btn"
+							type="button"
+							data-toggle="collapse"
+							data-target=".multi-collapse"
+							aria-expanded="false"
+							aria-controls="review-form review-list">
+                        <span class="product-detail-review-teaser-show">
+							{% if not reviews.customerReview %}
+								{{ "detail.reviewTeaserButton"|trans|sw_sanitize }}
+							{% else %}
+								{{ "detail.reviewExistsTeaserButton"|trans|sw_sanitize }}
+							{% endif %}
+						</span>
+						<span class="product-detail-review-teaser-hide">
+							{{ "detail.reviewTeaserButtonHide"|trans|sw_sanitize }}
+						</span>
+					</button>
+                {% endblock %}
+			</div>
+		{% endblock %}
+	</div>
+{% endblock %}

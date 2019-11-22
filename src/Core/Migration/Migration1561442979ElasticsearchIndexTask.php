@@ -28,6 +28,5 @@ CREATE TABLE `elasticsearch_index_task` (
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

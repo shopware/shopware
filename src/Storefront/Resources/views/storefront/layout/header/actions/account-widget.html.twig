@@ -1,0 +1,23 @@
+{% block layout_header_actions_account_widget %}
+    <div class="dropdown">
+        {% block layout_header_actions_account_widget_dropdown_button %}
+            <button class="btn account-menu-btn header-actions-btn"
+                    type="button"
+                    id="accountWidget"
+                    data-offcanvas-account-menu="true"
+                    data-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                    aria-label="{{ "account.myAccount"|trans|striptags }}">
+                {% sw_icon 'avatar' %}
+            </button>
+        {% endblock %}
+
+        {% block layout_header_actions_account_widget_dropdown_menu %}
+            <div class="dropdown-menu dropdown-menu-right account-menu-dropdown js-account-menu-dropdown"
+                 aria-labelledby="accountWidget">
+                {% sw_include '@Storefront/storefront/layout/header/account-menu.html.twig' %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

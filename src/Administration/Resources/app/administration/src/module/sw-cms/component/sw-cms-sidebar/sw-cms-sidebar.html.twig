@@ -1,0 +1,333 @@
+{% block sw_cms_sidebar %}
+    <sw-sidebar class="sw-cms-sidebar">
+
+        {% block sw_cms_sidebar_page_settings %}
+            <sw-sidebar-item icon="default-action-settings"
+                             :title="$tc('sw-cms.detail.sidebar.titlePageSettings')"
+                             ref="pageConfigSidebar">
+
+                {% block sw_cms_sidebar_page_settings_content %}
+                    <sw-sidebar-collapse :expandOnLoading="true">
+
+                        {% block sw_cms_sidebar_page_settings_header %}
+                            <span slot="header">{{ $tc('sw-cms.detail.sidebar.headerPageSettings') }}</span>
+                        {% endblock %}
+
+                        {% block sw_cms_sidebar_page_settings_form %}
+                            <div class="sw-cms-sidebar__settings" slot="content">
+                                {% block sw_cms_sidebar_page_settings_name_field %}
+                                    <sw-field type="text"
+                                              :label="$tc('sw-cms.detail.label.pageName')"
+                                              :placeholder="placeholder(page, 'name')"
+                                              v-model="page.name">
+                                    </sw-field>
+                                {% endblock %}
+
+                                {% block sw_cms_sidebar_page_settings_type_field %}
+                                    <sw-select-field
+                                        :label="$tc('sw-cms.detail.label.pageType')"
+                                        :disabled="!isSystemDefaultLanguage"
+                                        v-model="page.type"
+                                        @change="onPageTypeChange">
+                                            {% block sw_cms_sidebar_page_settings_type_field_options %}
+                                                <option value="page">
+                                                    {{ $tc('sw-cms.detail.label.pageTypeShopPage') }}
+                                                </option>
+                                                <option value="landingpage">
+                                                    {{ $tc('sw-cms.detail.label.pageTypeLandingpage') }}
+                                                </option>
+                                                <option value="product_list">
+                                                    {{ $tc('sw-cms.detail.label.pageTypeCategory') }}
+                                                </option>
+                                                <option value="product_detail" disabled>
+                                                    {{ $tc('sw-cms.detail.label.pageTypeProduct') }}
+                                                </option>
+                                            {% endblock %}
+                                    </sw-select-field>
+                                {% endblock %}
+
+                                {% block sw_cms_sidebar_page_settings_demo_field %}
+                                    <sw-entity-single-select
+                                        v-if="demoEntity !== null"
+                                        ref="cmsDemoSelection"
+                                        :label="$tc('sw-cms.detail.label.demoEntity')"
+                                        :placeholder="$tc('sw-cms.detail.placeholder.demoEntity')"
+                                        :entity="demoEntity"
+                                        @input="onDemoEntityChange"
+                                        v-model="demoEntityId">
+                                    </sw-entity-single-select>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </sw-sidebar-collapse>
+                {% endblock %}
+            </sw-sidebar-item>
+        {% endblock %}
+
+        {% block sw_cms_sidebar_block_overview %}
+            <sw-sidebar-item icon="default-basic-plus-circle"
+                             :title="addBlockTitle"
+                             :disabled="currentDeviceView === 'form' || !isSystemDefaultLanguage"
+                             ref="blockSelectionSidebar">
+                {% block sw_cms_sidebar_block_overview_content %}
+                    <div class="sw-cms-sidebar__block-overview">
+
+                        {% block sw_cms_sidebar_block_overview_category %}
+                            <div class="sw-cms-sidebar__block-category">
+                                <sw-select-field :label="$tc('sw-cms.detail.label.blockCategorySelection')"
+                                                 v-model="currentBlockCategory">
+                                    <option value="text">{{ $tc('sw-cms.detail.label.blockCategoryText') }}</option>
+                                    <option value="image">{{ $tc('sw-cms.detail.label.blockCategoryImage') }}</option>
+                                    <option value="video">{{ $tc('sw-cms.detail.label.blockCategoryVideo') }}</option>
+                                    <option value="text-image">{{ $tc('sw-cms.detail.label.blockCategoryTextImage') }}</option>
+                                    <option value="commerce">{{ $tc('sw-cms.detail.label.blockCategoryCommerce') }}</option>
+                                    <option value="sidebar">{{ $tc('sw-cms.detail.label.blockCategorySidebar') }}</option>
+                                </sw-select-field>
+                            </div>
+                        {% endblock %}
+
+                        {% block sw_cms_sidebar_block_overview_preview %}
+                            <div class="sw-cms-sidebar__block-selection">
+                                <div v-for="block in cmsBlocks"
+                                     :key="block.name"
+                                     v-if="block.category === currentBlockCategory && block.hidden !== true">
+
+                                     <div class="sw-cms-sidebar__block-preview"
+                                          :class="{ 'has--no-label': !block.label }"
+                                          v-draggable="{ dragGroup: 'cms-stage', data: { block }, onDrop: onBlockStageDrop }">
+
+                                        {% block sw_cms_sidebar_block_overview_preview_component %}
+                                            <component :is="block.previewComponent"></component>
+                                        {% endblock %}
+                                    </div>
+
+                                    {% block sw_cms_sidebar_block_overview_preview_label %}
+                                        <span v-if="block.label"
+                                              class="sw-cms-sidebar__block-label">
+                                              {{ $tc(block.label) }}
+                                        </span>
+                                    {% endblock %}
+                                </div>
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </sw-sidebar-item>
+        {% endblock %}
+
+        {% block sw_cms_sidebar_block_and_section_settings %}
+            <sw-sidebar-item icon="default-documentation-paper-pencil"
+                         :title="sidebarItemSettings"
+                         ref="itemConfigSidebar"
+                         :disabled="selectedBlock === null && selectedSection === null"
+                         @close-content="onCloseBlockConfig">
+
+                {% block sw_cms_sidebar_block_settings %}
+                    <div class="sw-cms-sidebar__block-settings">
+                        <template v-if="selectedBlock !== null">
+
+                            {% block sw_cms_sidebar_block_settings_content %}
+                                <sw-sidebar-collapse :expandOnLoading="true">
+
+                                    {% block sw_cms_sidebar_block_settings_header %}
+                                        <span slot="header">
+                                            {{ $tc('sw-cms.sidebar.contentMenu.generalSettings') }}
+                                        </span>
+                                    {% endblock %}
+
+                                    {% block sw_cms_sidebar_block_settings_form %}
+                                        <sw-cms-block-config
+                                            slot="content"
+                                            :block="selectedBlock"
+                                            @block-delete="onBlockDelete"
+                                            @block-duplicate="onBlockDuplicate">
+                                        </sw-cms-block-config>
+                                    {% endblock %}
+                                </sw-sidebar-collapse>
+                            {% endblock %}
+
+                            {% block sw_cms_sidebar_block_layout_settings_content %}
+                                <sw-sidebar-collapse :expandOnLoading="false">
+
+                                    {% block sw_cms_sidebar_block_layout_settings_header %}
+                                        <span slot="header"> {{ $tc('sw-cms.sidebar.contentMenu.layoutSettings') }}</span>
+                                    {% endblock %}
+
+                                    {% block sw_cms_sidebar_block_layout_settings_form %}
+                                        <sw-cms-block-layout-config slot="content" :block="selectedBlock"></sw-cms-block-layout-config>
+                                    {% endblock %}
+                                </sw-sidebar-collapse>
+                            {% endblock %}
+                        </template>
+                    </div>
+                {% endblock %}
+
+                {% block sw_cms_sidebar_section_settings %}
+                    <div class="sw-cms-sidebar__section-settings">
+                        <template v-if="selectedSection !== null">
+
+                            {% block sw_cms_sidebar_section_settings_content %}
+                                <sw-sidebar-collapse :expandOnLoading="true">
+
+                                    {% block sw_cms_sidebar_section_settings_header %}
+                                        <span slot="header">
+                                            {{ $tc('sw-cms.sidebar.contentMenu.generalSettings') }}
+                                        </span>
+                                    {% endblock %}
+
+                                    {% block sw_cms_sidebar_section_settings_form %}
+                                        <sw-cms-section-config
+                                            slot="content"
+                                            :section="selectedSection"
+                                            @section-duplicate="onSectionDuplicate"
+                                            @section-delete="onSectionDelete">
+                                        </sw-cms-section-config>
+                                    {% endblock %}
+                                </sw-sidebar-collapse>
+                            {% endblock %}
+                        </template>
+                    </div>
+                {% endblock %}
+            </sw-sidebar-item>
+        {% endblock %}
+
+        {% block sw_cms_sidebar_navigator %}
+            <sw-sidebar-item icon="default-os-layers"
+                             :title="$tc('sw-cms.detail.sidebar.titleNavigator')"
+                             :disabled="!page.sections.length === 0 || currentDeviceView === 'form'"
+                             ref="blockNavigator">
+                {% block sw_cms_sidebar_navigator_content %}
+                    <div class="sw-cms-sidebar__navigator">
+
+                        {% block sw_cms_sidebar_navigator_section %}
+                            <div class="sw-cms-sidebar__navigator-section"
+                                 v-for="(section, sectionIndex) in page.sections"
+                                 :key="section.id">
+
+                                {% block sw_cms_sidebar_navigator_section_header %}
+                                    <div class="sw-cms-sidebar__navigator-section-header">
+                                        <template v-if="section.name">
+                                            {{ $tc('sw-cms.section.layoutSection') }} - {{ section.name }}
+                                        </template>
+
+                                        <template v-else-if="section.type === 'sidebar'">
+                                            {{ $tc('sw-cms.section.isSidebar') }}
+                                        </template>
+
+                                        <template v-else>
+                                            {{ $tc('sw-cms.section.isDefault') }}
+                                        </template>
+
+                                        {% block sw_cms_sidebar_navigator_section_menu %}
+                                            <sw-context-button :key="section.position">
+
+                                                {% block sw_cms_sidebar_navigator_section_menu_move_up %}
+                                                    <sw-context-menu-item
+                                                        @click="moveSectionUp(section)"
+                                                        :disabled="section.position === 0">
+                                                        {{ $tc('sw-cms.sidebar.contentMenu.moveUp') }}
+                                                    </sw-context-menu-item>
+                                                {% endblock %}
+
+                                                {% block sw_cms_sidebar_navigator_section_menu_move_down %}
+                                                    <sw-context-menu-item
+                                                        @click="moveSectionDown(section)"
+                                                        :disabled="section.position === page.sections.length - 1">
+                                                        {{ $tc('sw-cms.sidebar.contentMenu.moveDown') }}
+                                                    </sw-context-menu-item>
+                                                {% endblock %}
+
+                                                {% block sw_cms_sidebar_navigator_section_menu_settings %}
+                                                    <sw-context-menu-item @click="openSectionSettings(sectionIndex)">
+                                                        {{ $tc('sw-cms.sidebar.contentMenu.settings') }}
+                                                    </sw-context-menu-item>
+                                                {% endblock %}
+
+                                                {% block sw_cms_sidebar_navigator_section_menu_duplicate %}
+                                                    <sw-context-menu-item @click="onSectionDuplicate(section)">
+                                                        {{ $tc('sw-cms.sidebar.contentMenu.duplicate') }}
+                                                    </sw-context-menu-item>
+                                                {% endblock %}
+
+                                                {% block sw_cms_sidebar_navigator_section_menu_delete %}
+                                                    <sw-context-menu-item variant="danger"
+                                                                          @click="onSectionDelete(section.id)">
+                                                        {{ $tc('sw-cms.general.buttonDelete') }}
+                                                    </sw-context-menu-item>
+                                                {% endblock %}
+                                            </sw-context-button>
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+
+                                {% block sw_cms_sidebar_navigator_main_elements %}
+                                    <template v-if="getMainContentBlocks(section.blocks).length > 0">
+                                        {% block sw_cms_sidebar_navigator_main_element %}
+                                            <template v-for="block in getMainContentBlocks(section.blocks)">
+                                                <sw-cms-sidebar-nav-element
+                                                    :block="block"
+                                                    class="sw-cms-sidebar__navigator-block"
+                                                    :removable="blockIsRemovable(block)"
+                                                    :key="block.id"
+                                                    @block-delete="onBlockDelete($event, section)"
+                                                    @block-duplicate="onBlockDuplicate($event, section)"
+                                                    :class="{ 'is--dragging': block.isDragging }"
+                                                    v-draggable="getDragData(block, sectionIndex)"
+                                                    v-droppable="getDropData(block, sectionIndex)">
+                                                </sw-cms-sidebar-nav-element>
+                                            </template>
+                                        {% endblock %}
+                                    </template>
+
+                                    <template v-else>
+                                        {% block sw_cms_sidebar_navigator_main_empty %}
+                                            <div class="sw-cms-sidebar__navigator-empty-element"
+                                                 :key="section.id + '_main'"
+                                                 v-droppable="getDropData({ position: 0, sectionPosition: 'main' }, sectionIndex)">
+                                            {{ $tc('sw-cms.detail.label.addBlocks') }}
+                                            </div>
+                                        {% endblock %}
+                                    </template>
+                                {% endblock %}
+
+                                <template v-if="section.type === 'sidebar'">
+                                    <div class="sw-cms-sidebar__navigator-section-spacer"></div>
+
+                                    {% block sw_cms_sidebar_navigator_sidebar_elements %}
+                                        <template v-if="getSidebarContentBlocks(section.blocks).length > 0">
+                                            {% block sw_cms_sidebar_navigator_sidebar_element %}
+                                                <template v-for="block in getSidebarContentBlocks(section.blocks)">
+                                                    <sw-cms-sidebar-nav-element
+                                                        :block="block"
+                                                        :removable="blockIsRemovable(block)"
+                                                        :key="block.id"
+                                                        class="sw-cms-sidebar__navigator-block is--sidebar"
+                                                        @block-delete="onBlockDelete($event, section)"
+                                                        @block-duplicate="onBlockDuplicate($event, section)"
+                                                        :class="{ 'is--dragging': block.isDragging }"
+                                                        v-draggable="getDragData(block, sectionIndex)"
+                                                        v-droppable="getDropData(block, sectionIndex)">
+                                                    </sw-cms-sidebar-nav-element>
+                                                </template>
+                                            {% endblock %}
+                                        </template>
+
+                                        <template v-else>
+                                            {% block sw_cms_sidebar_navigator_sidebar_empty %}
+                                                <div class="sw-cms-sidebar__navigator-empty-element"
+                                                     :key="section.id + '_sidebar'"
+                                                     v-droppable="getDropData({ position: 0, sectionPosition: 'sidebar' }, sectionIndex)">
+                                                    {{ $tc('sw-cms.detail.label.addBlocks') }}
+                                                </div>
+                                            {% endblock %}
+                                        </template>
+                                    {% endblock %}
+                                </template>
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </sw-sidebar-item>
+        {% endblock %}
+    </sw-sidebar>
+{% endblock %}

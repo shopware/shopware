@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
@@ -28,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ObjectField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
@@ -73,6 +73,7 @@ class EntityMapper
                 ];
             case $field instanceof ManyToOneAssociationField:
             case $field instanceof OneToManyAssociationField:
+            case $field instanceof OneToOneAssociationField:
                 return [
                     'type' => 'nested',
                     'properties' => $this->mapFields($field->getReferenceDefinition(), $context),
@@ -159,9 +160,6 @@ class EntityMapper
     public function mapFields(EntityDefinition $definition, Context $context): array
     {
         $properties = [];
-
-        $extensions = [];
-
         $translated = [];
 
         $fields = $definition->getFields()->filter(function (Field $field) {
@@ -173,10 +171,6 @@ class EntityMapper
             $fieldMapping = $this->mapField($definition, $field, $context);
 
             if ($fieldMapping === null) {
-                continue;
-            }
-            if ($field->is(Extension::class)) {
-                $extensions[$field->getPropertyName()] = $fieldMapping;
                 continue;
             }
 
@@ -191,13 +185,6 @@ class EntityMapper
             $properties['translated'] = [
                 'type' => 'object',
                 'properties' => $translated,
-            ];
-        }
-
-        if (!empty($properties)) {
-            $properties['extensions'] = [
-                'type' => 'nested',
-                'properties' => $extensions,
             ];
         }
 

@@ -1,0 +1,11 @@
+{% block sw_condition_value_content %}
+    <div class="sw-condition-weight-of-cart sw-condition__condition-value">
+        {% block sw_condition_weight_of_cart_field_operator %}
+            <sw-condition-operator-select v-bind="{ operators, condition}"></sw-condition-operator-select>
+        {% endblock %}
+
+        {% block sw_condition_weight_of_cart_field_weight %}
+            <sw-number-field size="medium" :step="0.01" v-model="weight"></sw-number-field>
+        {% endblock %}
+    </div>
+{% endblock %}

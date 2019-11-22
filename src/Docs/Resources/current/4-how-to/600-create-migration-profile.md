@@ -190,7 +190,7 @@ have to register the new gateway in the `service.xml` and tag it with `shopware.
 
 If you would like to try your current progress in the administration, you could select the profile and gateway in the migration wizard already.
 If you try to go to the next page, there will be an error message, because no credentials page was found. To create
-a new credentials page, you have to add an `index.js` for your new component into `Resources/administration/src/own-profile/profile`:
+a new credentials page, you have to add an `index.js` for your new component into `Resources/app/administration/src/own-profile/profile`:
 
 ```js
 import { Component } from 'src/core/shopware';
@@ -435,6 +435,7 @@ class ProductDataSelection implements DataSelectionInterface
         return new DataSelectionStruct(
             self::IDENTIFIER,
             $this->getEntityNames(),
+            $this->getEntityNamesRequiredForCount(),
             /*
              * Snippet of the original ProductDataSelection, if you
              * want to use your own title, you have to create a new snippet
@@ -454,6 +455,12 @@ class ProductDataSelection implements DataSelectionInterface
         return [
             ProductDataSet::getEntity()
         ];
+    }
+
+
+    public function getEntityNamesRequiredForCount(): array
+    {
+        return $this->getEntityNames();
     }
 }
 ```
@@ -665,11 +672,9 @@ By using the gateway reader, you fetch all products, but don't use this data yet
 
 namespace SwagMigrationOwnProfileExample\Profile\OwnProfile\Converter;
 
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use SwagMigrationAssistant\Migration\Converter\ConvertStruct;
 use SwagMigrationAssistant\Migration\DataSelection\DefaultEntities;
-use SwagMigrationAssistant\Migration\Mapping\MappingServiceInterface;
 use SwagMigrationAssistant\Migration\MigrationContextInterface;
 use SwagMigrationAssistant\Profile\Shopware\Converter\ShopwareConverter;
 use SwagMigrationOwnProfileExample\Profile\OwnProfile\DataSelection\DataSet\ProductDataSet;
@@ -677,11 +682,6 @@ use SwagMigrationOwnProfileExample\Profile\OwnProfile\OwnProfile;
 
 class ProductConverter extends ShopwareConverter
 {
-    /**
-     * @var MappingServiceInterface
-     */
-    private $mappingService;
-
     /**
      * @var string
      */
@@ -692,10 +692,9 @@ class ProductConverter extends ShopwareConverter
      */
     private $context;
 
-    public function __construct(
-        MappingServiceInterface $mappingService
-    ) {
-        $this->mappingService = $mappingService;
+    public function getSourceIdentifier(array $data): string
+    {
+        return $data['id'];
     }
 
     /**
@@ -717,19 +716,22 @@ class ProductConverter extends ShopwareConverter
 
     public function convert(array $data, Context $context, MigrationContextInterface $migrationContext): ConvertStruct
     {
+        $this->generateChecksum($data);
         $this->connectionId = $migrationContext->getConnection()->getId();
         $this->context = $context;
 
         /**
          * Gets the product uuid out of the mapping table or creates a new one
          */
-        $converted['id'] = $this->mappingService->createNewUuid(
+        $this->mainMapping = $this->mappingService->getOrCreateMapping(
             $migrationContext->getConnection()->getId(),
             ProductDataSet::getEntity(),
             $data['id'],
-            $context
+            $context,
+            $this->checksum
         );
 
+        $converted['id'] = $this->mainMapping['entityUuid'];
         $this->convertValue($converted, 'productNumber', $data, 'product_number');
         $this->convertValue($converted, 'name', $data, 'product_name');
         $this->convertValue($converted, 'stock', $data, 'stock', self::TYPE_INTEGER);
@@ -751,8 +753,9 @@ class ProductConverter extends ShopwareConverter
         if (empty($data)) {
             $data = null;
         }
+        $this->updateMainMapping($migrationContext, $context);
 
-        return new ConvertStruct($converted, $data);
+        return new ConvertStruct($converted, $data, $this->mainMapping['id']);
     }
 
     private function getTax(array $data): array
@@ -767,13 +770,13 @@ class ProductConverter extends ShopwareConverter
         /**
          * If no tax rate is found, create a new one
          */
-        if (empty($taxUuid)) {
-            $taxUuid = $this->mappingService->createNewUuid(
+        if ($taxUuid === null) {
+            $mapping = $this->mappingService->createMapping(
                 $this->connectionId,
                 DefaultEntities::TAX,
-                $data['id'],
-                $this->context
+                $data['id']
             );
+            $taxUuid = $mapping['entityUuid'];
         }
 
         return [
@@ -818,6 +821,7 @@ To use this converter, you must register it in the `services.xml`:
 ```xml
 <service id="SwagMigrationOwnProfileExample\Profile\OwnProfile\Converter\ProductConverter">
     <argument type="service" id="SwagMigrationAssistant\Migration\Mapping\MappingService"/>
+    <argument type="service" id="SwagMigrationAssistant\Migration\Logging\LoggingService"/>
     <tag name="shopware.migration.converter"/>
 </service>
 ```

@@ -45,7 +45,7 @@ import template from &#39;./sw-show-case-list.html.twig&#39;;
 
 Component.register(&#39;sw-show-case-list&#39;, {
     template,
-    inject: [&#39;repositoryFactory&#39;, &#39;context&#39;],
+    inject: [&#39;repositoryFactory&#39;],
     
     data() {
         return {
@@ -70,7 +70,7 @@ Component.register(&#39;sw-show-case-list&#39;, {
                 .create(&#39;product&#39;, &#39;/product&#39;);
         
             return this.repository
-                .search(new Criteria(), this.context)
+                .search(new Criteria(), Shopware.Context.api)
                 .then((result) =&gt; {
                     this.products = result;
                 });

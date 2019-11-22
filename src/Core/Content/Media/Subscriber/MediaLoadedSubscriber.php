@@ -68,14 +68,10 @@ class MediaLoadedSubscriber implements EventSubscriberInterface
 
     private function addThumbnailUrl(MediaThumbnailEntity $thumbnail, MediaEntity $media): void
     {
-        if ($media->isPrivate()) {
-            return;
-        }
         $thumbnail->setUrl(
             $this->urlGenerator->getAbsoluteThumbnailUrl(
                 $media,
-                $thumbnail->getWidth(),
-                $thumbnail->getHeight()
+                $thumbnail
             )
         );
     }

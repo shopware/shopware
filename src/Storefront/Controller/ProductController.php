@@ -13,6 +13,7 @@ use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader;
+use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -48,18 +49,25 @@ class ProductController extends StorefrontController
      */
     private $seoUrlPlaceholderHandler;
 
+    /**
+     * @var ProductReviewLoader
+     */
+    private $reviewPageletLoader;
+
     public function __construct(
         ProductPageLoader $productPageLoader,
         ProductCombinationFinder $combinationFinder,
         MinimalQuickViewPageLoader $minimalQuickViewPageLoader,
         ProductReviewService $productReviewService,
-        SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler
+        SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
+        ProductReviewLoader $reviewPageletLoader
     ) {
         $this->productPageLoader = $productPageLoader;
         $this->combinationFinder = $combinationFinder;
         $this->minimalQuickViewPageLoader = $minimalQuickViewPageLoader;
         $this->productReviewService = $productReviewService;
         $this->seoUrlPlaceholderHandler = $seoUrlPlaceholderHandler;
+        $this->reviewPageletLoader = $reviewPageletLoader;
     }
 
     /**
@@ -72,7 +80,7 @@ class ProductController extends StorefrontController
 
         $ratingSuccess = $request->get('success');
 
-        return $this->renderStorefront('@Storefront/page/product-detail/index.html.twig', ['page' => $page, 'ratingSuccess' => $ratingSuccess]);
+        return $this->renderStorefront('@Storefront/storefront/page/product-detail/index.html.twig', ['page' => $page, 'ratingSuccess' => $ratingSuccess]);
     }
 
     /**
@@ -109,7 +117,7 @@ class ProductController extends StorefrontController
     {
         $page = $this->minimalQuickViewPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/component/product/quickview/minimal.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/storefront/component/product/quickview/minimal.html.twig', ['page' => $page]);
     }
 
     /**
@@ -148,10 +156,10 @@ class ProductController extends StorefrontController
      */
     public function loadReviews(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
-        $page = $this->productPageLoader->load($request, $context);
+        $reviews = $this->reviewPageletLoader->load($request, $context);
 
         return $this->renderStorefront('page/product-detail/review/review.html.twig', [
-            'page' => $page,
+            'reviews' => $reviews,
             'ratingSuccess' => $request->get('success'),
         ]);
     }

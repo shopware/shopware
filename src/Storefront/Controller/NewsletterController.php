@@ -69,7 +69,7 @@ class NewsletterController extends StorefrontController
     {
         $page = $this->newsletterRegisterPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/newsletter/index.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/storefront/page/newsletter/index.html.twig', ['page' => $page]);
     }
 
     /**
@@ -118,7 +118,7 @@ class NewsletterController extends StorefrontController
 
         $page = $this->newsletterConfirmRegisterPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/newsletter/confirm-subscribe.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/storefront/page/newsletter/confirm-subscribe.html.twig', ['page' => $page]);
     }
 
     /**
@@ -151,7 +151,7 @@ class NewsletterController extends StorefrontController
                 $messages[] = ['type' => 'danger', 'text' => $this->trans('newsletter.subscriptionConfirmationFailed')];
             }
 
-            return $this->renderStorefront('@Storefront/page/account/newsletter.html.twig', [
+            return $this->renderStorefront('@Storefront/storefront/page/account/newsletter.html.twig', [
                 'customer' => $context->getCustomer(),
                 'messages' => $messages,
                 'success' => $success,
@@ -169,7 +169,7 @@ class NewsletterController extends StorefrontController
             $messages[] = ['type' => 'danger', 'text' => $this->trans('error.message-default')];
         }
 
-        return $this->renderStorefront('@Storefront/page/account/newsletter.html.twig', [
+        return $this->renderStorefront('@Storefront/storefront/page/account/newsletter.html.twig', [
             'customer' => $context->getCustomer(),
             'messages' => $messages,
             'success' => $success,

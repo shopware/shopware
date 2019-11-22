@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\Entities\v3\BundleDefinition;
 
 class BundlePriceDefinition extends EntityDefinition
@@ -23,7 +22,7 @@ class BundlePriceDefinition extends EntityDefinition
         return self::ENTITY_NAME;
     }
 
-    public function getDefaults(EntityExistence $existence): array
+    public function getDefaults(): array
     {
         return [
             'pseudoPrice' => 0.0,

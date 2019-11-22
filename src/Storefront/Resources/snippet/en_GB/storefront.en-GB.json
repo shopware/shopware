@@ -58,6 +58,9 @@
         "message-403": "Your session has expired. Please return to the last page and try again."
     },
     "account": {
+        "confirmationIsAlreadyDone": "The confirmation is already done or the url is invalid.",
+        "doubleOptInMailConfirmationSuccessfully": "Thank you for your email confirmation! You can now complete your order.",
+        "doubleOptInRegistrationSuccessfully": "Thank you for signing up! Your account has been successfully unlocked.",
         "myAccount": "My account",
         "registerTitle": "Registration",
         "loginHeader": "I'm a customer already",
@@ -66,6 +69,7 @@
         "loginMailPlaceholder": "Email address",
         "loginPasswordLabel": "Your password",
         "loginPasswordPlaceholder": "Password",
+        "loginPasswordRecover": "I forgot my password.",
         "loginSubmit": "Login",
         "loginBadCredentials": "There is no account matching the given credentials.",
         "registerAdvantagesHeader": "Login advantages:",
@@ -150,8 +154,14 @@
         "emailChangeNoSuccess": "Email address could not be changed.",
         "passwordChangeSuccess": "Your password has been updated.",
         "passwordChangeNoSuccess": "Password could not be changed.",
+        "passwordHashNotFound": "The password reset link seems to be invalid.",
+        "passwordHashExpired": "The password reset link is no longer valid. Please request another password reset.",
+        "recoveryMailSend": "We sent you a confirmation email, if the provided email address is registered.",
         "profilePasswordCreateNew": "New password",
         "profilePasswordCurrent": "Current password",
+        "profileRecoverPasswordTitle": "Password recovery",
+        "profileRecoverPasswordInfo": "We will send you a confirmation email. Click the link in that email in order to change your password.",
+        "profileRecoverPasswordSubmit": "Send email",
         "profileSaveChanges": "Save changes",
         "addressWelcome": "Addresses",
         "addressText": "Address overview",
@@ -175,6 +185,10 @@
         "addressDefaultChanged": "Default address has been changed.",
         "addressDefaultNotChanged": "Default address could not be changed.",
         "addressSaved": "Address has been saved.",
+        "inactiveAccountAlert": "Your customer account has not been activated yet. We have sent you an activation link. Please check your mailbox to complete the registration!",
+        "optInGuestAlert": "Thank you for your interest! You will receive a confirmation email shortly. Click on the link in it to confirm your email address.",
+        "optInRegistrationAlert": "Thank you for signing up! You will receive a confirmation email shortly. Click on the link in it to complete the registration.",
+        "optInSuccessAlert": "We just sent you a confirmation email.",
         "ordersWelcome": "Here you can find your orders sorted by date.",
         "ordersInfoEmpty": "You have not ordered yet.",
         "orderItemColumnDate": "Date",
@@ -208,8 +222,7 @@
         "newsletterSettings": "Yes, I would like to subscribe to the free %shopname% newsletter. I may unsubscribe at any time.",
         "passwordResetTitle": "Did you forget your password?",
         "passwordResetInfo": "If you have forgotten your password, you may enter a new one here. The moment you hit save, your old password will be invalidated.",
-        "passwordOptInInfo": "We will send you a confirmation email. Click on the included link to change your password.",
-        "optInSuccessAlert": "We just sent you a confirmation email."
+        "passwordOptInInfo": "We will send you a confirmation email. Click on the included link to change your password."
     },
     "address": {
         "streetLabel": "Street address",

@@ -1,0 +1,40 @@
+{% block component_review_rating %}
+    {% set full = points|round(0, 'floor')   %}
+    {% set left = points - full  %}
+
+    {% if left >= 0.25 and left<0.75 %}
+        {% set half = 1 %}
+    {% endif %}
+
+    {% if left >=0.75 %}
+        {% set full = full + 1 %}
+    {% endif %}
+
+    {% set blank = 5 - full - half  %}
+
+    {% block component_review_rating_output %}
+        <span class="product-review-rating">
+            {% if full > 0 %}
+                {% for star in range(1,full) %}
+                    {% sw_include '@Storefront/storefront/component/review/point.html.twig' with {
+                        type: 'full'
+                    } %}
+                {% endfor %}
+            {% endif %}
+
+            {% if half %}
+                {% sw_include '@Storefront/storefront/component/review/point.html.twig' with {
+                    type: 'half'
+                } %}
+            {% endif %}
+
+            {% if blank > 0 %}
+                {% for star in range(1,blank) %}
+                    {% sw_include '@Storefront/storefront/component/review/point.html.twig' with {
+                        type: 'blank'
+                    } %}
+                {% endfor %}
+            {% endif %}
+        </span>
+    {% endblock %}
+{% endblock %}

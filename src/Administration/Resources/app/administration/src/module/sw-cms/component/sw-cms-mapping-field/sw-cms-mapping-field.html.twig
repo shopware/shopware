@@ -1,0 +1,73 @@
+{% block sw_cms_mapping_field %}
+    <div class="sw-cms-mapping-field">
+
+        {% block sw_cms_mapping_field_info %}
+            <div class="sw-cms-mapping-field__info">
+
+                {% block sw_cms_mapping_field_label %}
+                    <div class="sw-cms-mapping-field__label">{{ label }}</div>
+                {% endblock %}
+
+                {% block sw_cms_mapping_field_mapping %}
+                    <template v-if="allowedMappingTypes.length">
+                        {% block sw_cms_mapping_field_mapping_selection %}
+                            <sw-context-button class="sw-cms-mapping-field__selection" :menuWidth="340" v-if="!isMapped">
+                                {% block sw_cms_mapping_field_mapping_selection_action %}
+                                    <div class="sw-cms-mapping-field__action" slot="button">
+                                        <sw-icon name="default-action-external" size="16"></sw-icon>
+                                        <span class="sw-cms-mapping-field__action-label">
+                                            {{ $tc('sw-cms.detail.label.buttonMappingAction') }}
+                                        </span>
+                                    </div>
+                                {% endblock %}
+
+                                {% block sw_cms_mapping_field_mapping_selection_options %}
+                                    <div class="sw-cms-mapping-field__options">
+                                        <sw-context-menu-item v-for="(prop, index) in allowedMappingTypes"
+                                                              @click="onMappingSelect(prop)"
+                                                              :key="index">
+                                            {{ prop }}
+                                        </sw-context-menu-item>
+                                    </div>
+                                {% endblock %}
+                            </sw-context-button>
+                        {% endblock %}
+
+                        {% block sw_cms_mapping_field_mapping_remove_action %}
+                            <div class="sw-cms-mapping-field__action-remove" @click="onMappingRemove" v-else>
+                                <sw-icon name="default-basic-x-line" size="14"></sw-icon>
+                                <span class="sw-cms-mapping-field__action-label">
+                                    {{ $tc('sw-cms.detail.label.buttonMappingRemoveAction') }}
+                                </span>
+                            </div>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_cms_mapping_field_content %}
+            <div class="sw-cms-mapping-field__form-field" v-if="!isMapped">
+                <slot>{% block sw_cms_mapping_field_slot_default %}{% endblock %}</slot>
+            </div>
+        {% endblock %}
+
+        <template v-else>
+            {% block sw_cms_mapping_field_mapping_value %}
+                <div class="sw-cms-mapping-field__mapping-value">
+                    {{ $tc('sw-cms.detail.label.mappingPreview') }} <b>{{ config.value }}</b>
+                </div>
+            {% endblock %}
+
+            {% block sw_cms_mapping_field_preview %}
+                <div class="sw-cms-mapping-field__preview" v-if="hasPreview">
+                    <slot name="preview" :demoValue="demoValue" v-if="demoValue !== null"></slot>
+
+                    <sw-alert variant="info" class="sw-cms-mapping-field__empty-demo" v-else>
+                        {{ $tc('sw-cms.detail.label.mappingEmptyPreview') }}
+                    </sw-alert>
+                </div>
+            {% endblock %}
+        </template>
+    </div>
+{% endblock %}

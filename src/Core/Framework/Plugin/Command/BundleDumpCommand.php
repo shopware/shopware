@@ -10,6 +10,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class BundleDumpCommand extends Command
 {
+    protected static $defaultName = 'bundle:dump';
+
     /**
      * @var BundleConfigDumper
      */
@@ -28,7 +30,6 @@ class BundleDumpCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setName('bundle:dump')
             ->setAliases(['administration:dump:plugins', 'administration:dump:bundles'])
             ->setDescription('Creates a json file with the configuration for each active Shopware bundle.');
     }

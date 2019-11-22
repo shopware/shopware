@@ -1,0 +1,22 @@
+{% block sw_order_state_change_modal %}
+    <sw-modal :title="$tc('sw-order.stateModal.modalTitle')"
+        @modal-close="onCancel"
+        class="sw-order-state-change-modal">
+        {% block sw_order_state_change_document_grid %}
+            <sw-order-document-card class="sw-order-detail-base__document-grid"
+                                    :order="order"
+                                    attachView="true"
+                                    :isLoading="isLoading"
+                                    ref="attachDocuments">
+            </sw-order-document-card>
+        {% endblock %}
+        {% block sw_order_state_change_button %}
+            <sw-button class="sw-order-state-change-modal__btn"
+                       variant="ghost"
+                       size="small"
+                       @click="onConfirm">
+               {{ $tc('sw-order.stateCard.labelSelectStateButton') }}
+            </sw-button>
+        {% endblock %}
+    </sw-modal>
+{% endblock %}

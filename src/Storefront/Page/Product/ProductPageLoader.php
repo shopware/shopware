@@ -115,7 +115,7 @@ class ProductPageLoader
         $page->setProduct($product);
 
         $reviews = $this->productReviewLoader->load($request, $salesChannelContext);
-        $page->setReviewLoaderResult($reviews);
+        $page->setReviews($reviews);
 
         $page->setConfiguratorSettings(
             $this->configuratorLoader->load($product, $salesChannelContext)

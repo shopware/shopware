@@ -1,4 +1,3 @@
-
 UPGRADE FROM 6.0 to 6.1
 =======================
 
@@ -151,6 +150,9 @@ Core
 * Removed `shopware.api.api_browser.public` config value, use `shopware.api.api_browser.auth_required = true` instead, to limit access to the open api routes
 * Replace `product/category.extensions.seoUrls` with `product/category.seoUrls`
 * Dropped `additionalText` column of product entity, use `metaDescription` instead
+* If your entity definition overwrites the `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getDefaults` method, you will have to remove the parameter, as it is not needed anymore. Remove the check `$existence->exists()` as this is done before by the Core now. If you want to define different defaults for child entities, overwrite `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getChildDefaults`
+* 
+* If you depend on `\Shopware\Core\Framework\Context::createDefaultContext()` outside of tests, pass the context as a parameter to your method instead
 
 Administration
 --------------
@@ -442,19 +444,28 @@ To migrate your existing data run `bin/console database:migrate --all Shopware\\
   
     After:
     ```js
-      Shopware.Context.App // or
-      Shopware.Context.Api
+      Shopware.Context.app // or
+      Shopware.Context.api
     ```
   
     Before:
     ```js
       inject: ['context'],
-    ```
-        
-    After:
+      ...
+      this.repository.search(criteria, context)
+    ```  
+    or
     ```js
       inject: ['apiContext'],
-    ```  
+      ...
+      this.repository.search(criteria, apiContext)
+    ```
+  
+    After:  
+    Now you do not need to inject the context and can use the context directly.
+    ```
+      this.repository.search(criteria, Shopware.Context.api)
+    ```
   
 * State was replaced by Vuex state. The old state was renamed to `StateDeprecated`
 
@@ -661,6 +672,7 @@ SHOPWARE_HTTP_DEFAULT_TTL=7200
 
     $response = $kernel->handle($request);
     ```
+* We moved the administration sources from Resources/administration to Resources/app/administration. This also applies to the expected plugin admin extensions. 
 
 * CSRF implementation
     * Every `POST` method needs to append a CSRF token now
@@ -685,4 +697,43 @@ SHOPWARE_HTTP_DEFAULT_TTL=7200
 Elasticsearch
 -------------
 
-*No changes yet*
+**Changes**
+
+* The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.
+* If you used one of the elastic search parameter in your services.xml you have to change it as follow:
+    Before:
+    ```
+      <service ....>
+         <argument>%shopware.ses.enabled%</argument>
+         <argument>%shopware.ses.indexing.enabled%</argument>
+         <argument>%shopware.ses.index_prefix%</argument>
+      </service>       
+    ```
+
+    After:
+    ```
+      <service ....>
+         <argument>%elasticsearch.enabled%</argument>
+         <argument>%elasticsearch.indexing_enabled%</argument>
+         <argument>%elasticsearch.index_prefix%</argument>
+      </service>    
+    ```
+* The extensions are now saved at the top level of the entities.
+    * Now you have to change the ElasticsearchDefinition::getMapping for external resources.
+   
+        Before:
+        ```
+            'extensions' => [
+                'type' => 'nested
+                'properties' => [
+                    'extensionsField' => $this->mapper->mapField($definition, $definition->getField('extensionsField'), $context)
+                ]
+            ]
+        ```
+      
+       After:
+      ```
+            'extensionsField' => $this->mapper->mapField($definition, $definition->getField('extensionsField'), $context)
+      ```     
+    * And you have to reindex.
+

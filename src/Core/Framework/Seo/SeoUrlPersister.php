@@ -123,7 +123,11 @@ class SeoUrlPersister
             $deletedIds = array_diff($foreignKeys, $updatedFks);
             $this->markAsDeleted($deletedIds, $dateTime);
 
-            $this->connection->commit();
+            if (!$this->connection->isRollbackOnly()) {
+                $this->connection->commit();
+            } else {
+                $this->connection->rollBack();
+            }
         } catch (\Throwable $e) {
             $this->connection->rollBack();
         }

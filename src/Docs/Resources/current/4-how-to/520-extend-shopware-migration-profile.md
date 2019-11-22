@@ -84,6 +84,7 @@ use SwagMigrationAssistant\Migration\DataSelection\DataSelectionInterface;
 use SwagMigrationAssistant\Migration\DataSelection\DataSelectionStruct;
 use SwagMigrationAssistant\Migration\MigrationContextInterface;
 use SwagMigrationBundleExample\Profile\Shopware\DataSelection\DataSet\BundleDataSet;
+use SwagMigrationOwnProfileExample\Profile\OwnProfile\DataSelection\DataSet\ProductDataSet;
 
 class ProductDataSelection implements DataSelectionInterface
 {
@@ -110,9 +111,11 @@ class ProductDataSelection implements DataSelectionInterface
         return new DataSelectionStruct(
             $dataSelection->getId(),
             $this->getEntityNames(),
+            $this->getEntityNamesRequiredForCount(),
             $dataSelection->getSnippet(),
             $dataSelection->getPosition(),
-            $dataSelection->getProcessMediaFiles()
+            $dataSelection->getProcessMediaFiles(),
+            DataSelectionStruct::PLUGIN_DATA_TYPE
         );
     }
 
@@ -125,6 +128,13 @@ class ProductDataSelection implements DataSelectionInterface
         $entities[] = BundleDataSet::getEntity(); // Add the BundleDataSet entity to the entities array
 
         return $entities;
+    }
+
+    public function getEntityNamesRequiredForCount(): array
+    {
+        return [
+            ProductDataSet::getEntity(),
+        ];
     }
 }
 ```
@@ -171,12 +181,18 @@ First of all you create a new snippet file e.g. `en-GB.json`:
 All count entity descriptions are located in the `swag-migration.index.selectDataCard.entities` namespace, so you have to
 create a new entry with the entity name of the new bundle entity.
 
-At last you have to create the `main.js` in the `Resources/administration` directory like this:
+At last you have to create the `main.js` in the `Resources/app/administration` directory like this:
 
 ```javascript
 import enGBSnippets from './snippet/en-GB.json';
 
-Shopware.Locale.extend('en-GB', enGBSnippets);
+const { Application } = Shopware;
+
+Application.addInitializerDecorator('locale', (localeFactory) => {
+    localeFactory.extend('en-GB', enGBSnippets);
+
+    return localeFactory;
+});
 ```
 
 As you see in the code above, you register your snippet file for the `en-GB` locale. Now the count entity description
@@ -289,7 +305,6 @@ namespace SwagMigrationBundleExample\Profile\Shopware\Converter;
 use Shopware\Core\Framework\Context;
 use SwagMigrationAssistant\Migration\Converter\ConvertStruct;
 use SwagMigrationAssistant\Migration\DataSelection\DefaultEntities;
-use SwagMigrationAssistant\Migration\Mapping\MappingServiceInterface;
 use SwagMigrationAssistant\Migration\MigrationContextInterface;
 use SwagMigrationAssistant\Profile\Shopware\Converter\ShopwareConverter;
 use SwagMigrationAssistant\Profile\Shopware\ShopwareProfileInterface;
@@ -297,31 +312,32 @@ use SwagMigrationBundleExample\Profile\Shopware\DataSelection\DataSet\BundleData
 
 class BundleConverter extends ShopwareConverter
 {
-    /**
-     * @var MappingServiceInterface
-     */
-    private $mappingService;
-
-    public function __construct(MappingServiceInterface $mappingService) {
-        $this->mappingService = $mappingService;
-    }
-
     public function supports(MigrationContextInterface $migrationContext): bool
     {
         // Take care that you specify the supports function the same way that you have in your reader
         return $migrationContext->getProfile() instanceof ShopwareProfileInterface
             && $migrationContext->getDataSet()::getEntity() === BundleDataSet::getEntity();
     }
+    
+    public function getSourceIdentifier(array $data): string
+    {
+        return $data['id'];
+    }
 
     public function convert(array $data, Context $context, MigrationContextInterface $migrationContext): ConvertStruct
     {
+        // Generate a checksum for the data to allow faster migrations in the future
+        $this->generateChecksum($data);
+
         // Get uuid for bundle entity out of mapping table or create a new one
-        $converted['id'] = $this->mappingService->createNewUuid(
+        $this->mainMapping = $this->mappingService->getOrCreateMapping(
             $migrationContext->getConnection()->getId(),
             BundleDataSet::getEntity(),
             $data['id'],
-            $context
+            $context,
+            $this->checksum
         );
+        $converted['id'] = $this->mainMapping['entityUuid'];
         
         // This method checks if key is available in data array and set value in converted array
         $this->convertValue($converted, 'name', $data, 'name');
@@ -345,8 +361,13 @@ class BundleConverter extends ShopwareConverter
             $data['name'],
             $data['products']
         );
+        
+        if (empty($data)) {
+            $data = null;
+        }
+        $this->updateMainMapping($migrationContext, $context);
 
-        return new ConvertStruct($converted, $data);
+        return new ConvertStruct($converted, $data, $this->mainMapping['id']);
     }
 
     /** 
@@ -358,13 +379,19 @@ class BundleConverter extends ShopwareConverter
         $products = [];
         foreach ($data['products'] as $product) {
             // Get associated uuid of product out of mapping table
-            $productUuid = $this->mappingService->getUuid($connectionId, DefaultEntities::PRODUCT . '_mainProduct', $product, $context);
+            $mapping = $this->mappingService->getMapping(
+                $connectionId,
+                DefaultEntities::PRODUCT . '_mainProduct',
+                $product,
+                $context
+            );
 
             // Log missing association of product
-            if ($productUuid === null) {
+            if ($mapping === null) {
                 continue;
             }
 
+            $productUuid = $mapping['entityUuid'];
             $newProduct['id'] = $productUuid;
             $products[] = $newProduct;
         }
@@ -441,13 +468,16 @@ of the field.) In the end of this step, you have to register your new converter 
 ```xml
 <service id="SwagMigrationBundleExample\Profile\Shopware\Converter\BundleConverter">
     <argument type="service" id="SwagMigrationAssistant\Migration\Mapping\MappingService"/>
+    <argument type="service" id="SwagMigrationAssistant\Migration\Logging\LoggingService"/>
     <tag name="shopware.migration.converter"/>
 </service>
 ```
 
+If you need more information on the converter and mapping in general, take a look at [converter, mapping and deltas concept](./../2-internals/4-plugins/010-shopware-migration-assistant/070-converter-and-mapping.md).
+
 ## Adding a writer
 
-After adding a reader and converter, you get bundle data from your source system and convert it, but the final step is
+After adding a reader and converter, you will receive the product bundle data from your source system and convert it, but the final step is
 to write the converted data into Shopware 6. To finish this tutorial, you have to create a new writer, register and
 tag it with `shopware.migration.writer` in the `migration_assistant_extension.xml`:
 
@@ -482,7 +512,7 @@ The logic to write the data is defined in the `AbstractWriter` class and should 
 Take a look at [writer concept](./../2-internals/4-plugins/010-shopware-migration-assistant/080-writer.md) for more information.
 
 And that's it, you're done and have already implemented your first plugin migration.
-Install your plugin, clear the cache and build the administration to see the migration of your bundle entities.
+Install your plugin, clear the cache and build the administration anew to see the migration of your bundle entities.
 
 ## Source
 

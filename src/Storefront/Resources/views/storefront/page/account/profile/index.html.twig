@@ -1,0 +1,414 @@
+{% sw_extends '@Storefront/storefront/page/account/_page.html.twig' %}
+
+{% block page_account_main_content %}
+    {% block page_account_profile %}
+        <div class="account-profile">
+            {% block page_account_profile_main %}
+                {% block page_account_profile_personal_welcome %}
+                    <div class="account-welcome">
+                        {% block page_account_profile_personal_welcome_headline %}
+                            <h1>{{ "account.profileTitle"|trans|sw_sanitize }}</h1>
+                        {% endblock %}
+
+                        {% block page_account_profile_personal_welcome_intro %}
+                            <p>{{ "account.profileText"|trans|sw_sanitize }}</p>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block page_account_profile_personal %}
+                    <div class="card account-profile-personal">
+                        <div class="card-body">
+                            {% block page_account_profile_personal_header %}
+                                <div class="card-title">
+                                    {{ "account.profilePersonalTitle"|trans|sw_sanitize }}
+                                </div>
+                            {% endblock %}
+
+                            {% block page_account_profile_personal_form %}
+                                <form id="profilePersonalForm"
+                                      method="post"
+                                      data-form-csrf-handler="true"
+                                      action="{{ path('frontend.account.profile.save') }}"
+                                      data-form-validation="true">
+
+                                    {% block page_account_profile_personal_form_csrf %}
+                                        {{ sw_csrf('frontend.account.profile.save') }}
+                                    {% endblock %}
+
+                                    {% block page_account_profile_personal_fields %}
+                                        {% sw_include '@Storefront/storefront/page/account/profile/personal.html.twig' with {
+                                            'showBirthdayField': shopware.config.core.loginRegistration.birthdayFieldRequired,
+                                            'data': context.customer
+                                        } %}
+                                    {% endblock %}
+
+                                    {% block page_account_profile_personal_required %}
+                                        <p class="account-profile-required-info required-fields">
+                                            {{ "general.requiredFields"|trans|sw_sanitize }}
+                                        </p>
+                                    {% endblock %}
+
+                                    {% block page_account_profile_personal_action_buttons %}
+                                        <div class="card-actions">
+                                            {% block page_account_profile_personal_action_button_send %}
+                                                <button type="submit"
+                                                        class="profile-form-submit btn btn-light btn-sm"
+                                                        title="{{ "account.profileSaveChanges"|trans|striptags }}">
+                                                    {{ "account.profileSaveChanges"|trans|sw_sanitize }}
+                                                </button>
+                                            {% endblock %}
+                                        </div>
+                                    {% endblock %}
+                                </form>
+                            {% endblock %}
+                        </div>
+                    </div>
+                {% endblock %}
+
+                {% block page_account_profile_credentials %}
+                    <div class="card account-profile-credentials">
+                        <div class="card-body">
+                            {% block page_account_profile_credentials_header %}
+                                <div class="card-title">
+                                    {{ "account.profileCredentialsTitle"|trans|sw_sanitize }}
+                                </div>
+                            {% endblock %}
+
+                            {% block page_account_profile_credentials_container %}
+                                <div class="row align-items-center">
+                                    {% block page_account_profile_credentials_current_mail %}
+                                        <div class="col-6">
+                                            {% block page_account_profile_credentials_current_mail_label %}
+                                                <span class="account-profile-mail-label">{{ "account.profileCurrentMail"|trans|sw_sanitize }}</span>
+                                                <span class="account-profile-mail">{{ context.customer.email }}</span>
+                                            {% endblock %}
+                                        </div>
+                                    {% endblock %}
+
+                                    {% block page_account_profile_credentials_change_mail %}
+                                        <div class="col-3">
+                                            <a class="account-profile-change{% if not emailFormViolation %} collapsed{% endif %}"
+                                               data-toggle="collapse"
+                                               href="#profile-email-form"
+                                               role="button"
+                                               aria-expanded="{% if emailFormViolation %}true{% else %}false{% endif %}"
+                                               aria-controls="profile-email-form">
+                                                {{ "account.profileChangeEmail"|trans|sw_sanitize }}
+                                            </a>
+                                        </div>
+                                    {% endblock %}
+
+                                    {% block page_account_profile_credentials_change_password %}
+                                        <div class="col-3">
+                                            <a class="account-profile-change{% if not passwordFormViolation %} collapsed{% endif %}"
+                                               data-toggle="collapse"
+                                               href="#profile-password-form"
+                                               role="button"
+                                               aria-expanded="{% if passwordFormViolation %}true{% else %}false{% endif %}"
+                                               aria-controls="profile-password-form">
+                                                {{ "account.profileChangePassword"|trans|sw_sanitize }}
+                                            </a>
+                                        </div>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+                        </div>
+                    </div>
+                {% endblock %}
+
+                {% block page_account_profile_mail_and_password %}
+                    <div class="profile-content accordion">
+                        {% block page_account_profile_mail_collapse %}
+                            <div class="collapse{% if emailFormViolation and formViolations %} show{% endif %}" id="profile-email-form" data-parent=".profile-content">
+                                <div class="card account-email">
+                                    {% block page_account_profile_mail_form %}
+                                        <form id="profileMailForm"
+                                              class="card-body"
+                                              method="post"
+                                              action="{{ path('frontend.account.profile.email.save') }}"
+                                              data-form-csrf-handler="true"
+                                              data-form-validation="true">
+
+                                            {% block page_account_profile_mail_form_csrf %}
+                                                {{ sw_csrf('frontend.account.profile.email.save') }}
+                                            {% endblock %}
+
+                                            {% block page_account_profile_mail_title %}
+                                                <div class="card-title">
+                                                    {{ "account.profileMailTitle"|trans|sw_sanitize }}
+                                                </div>
+                                            {% endblock %}
+
+                                            {% block page_account_profile_mail_container %}
+                                                <div class="form-row">
+                                                    {% block page_account_profile_mail %}
+                                                        <div class="col form-group">
+                                                            {% block page_account_profile_mail_label %}
+                                                                <label class="form-label"
+                                                                       for="personalMail">
+                                                                    {{ "account.personalMailLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                                                                </label>
+                                                            {% endblock %}
+
+                                                            {% block page_account_profile_mail_input %}
+                                                                <input type="email"
+                                                                       class="form-control{% if formViolations.getViolations('/email') is not empty %} is-invalid{% endif %}"
+                                                                       autocomplete="section-personal email"
+                                                                       id="personalMail"
+                                                                       placeholder="{{ "account.personalMailPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                                                                       name="email[email]"
+                                                                       data-form-validation-equal="personalMail"
+                                                                       required="required">
+                                                            {% endblock %}
+
+                                                            {% block page_account_profile_mail_input_error %}
+                                                                {% if formViolations.getViolations('/email') is not empty %}
+                                                                    {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                                                        violationPath: '/email'
+                                                                    } %}
+                                                                {% endif %}
+                                                            {% endblock %}
+                                                        </div>
+                                                    {% endblock %}
+
+                                                    {% block page_account_profile_mail_confirmation %}
+                                                        <div class="form-group col">
+                                                            {% block page_account_profile_personal_mail_confirmation_label %}
+                                                                <label class="form-label"
+                                                                       for="personalMailConfirmation">
+                                                                    {{ "account.personalMailConfirmationLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                                                                </label>
+                                                            {% endblock %}
+
+                                                            {% block page_account_profile_mail_confirmation_input %}
+                                                                <input type="email"
+                                                                       class="form-control{% if formViolations.getViolations('/email') is not empty %} is-invalid{% endif %}"
+                                                                       autocomplete="section-personal email"
+                                                                       id="personalMailConfirmation"
+                                                                       placeholder="{{ "account.personalMailConfirmationPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                                                                       name="email[emailConfirmation]"
+                                                                       required="required"
+                                                                       data-form-validation-equal="personalMail"
+                                                                       data-form-validation-equal-message="{{ "account.personalMailConfirmationInvalidMessage"|trans|striptags }}">
+                                                            {% endblock %}
+
+                                                            {% block page_account_profile_mail_confirmation_input_error %}
+                                                                {% if formViolations.getViolations('/email') is not empty %}
+                                                                    {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                                                        violationPath: '/email'
+                                                                    } %}
+                                                                {% endif %}
+                                                            {% endblock %}
+                                                        </div>
+                                                    {% endblock %}
+                                                </div>
+
+                                                <p class="text-muted">{{ "account.profileConfirmPassword"|trans|sw_sanitize }}</p>
+                                            {% endblock %}
+
+                                            {% block page_account_profile_mail_password %}
+                                                <div class="form-row">
+                                                    <div class="form-group col-6">
+                                                        {% block page_account_profile_mail_password_label %}
+                                                            <label class="form-label"
+                                                                   for="personalMailPasswordCurrent">
+                                                                {{ "account.personalPasswordLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                                                            </label>
+                                                        {% endblock %}
+
+                                                        {% block page_account_profile_mail_password_input %}
+                                                            <input type="password"
+                                                                   class="form-control{% if formViolations.getViolations('/password') is not empty and emailFormViolation %} is-invalid{% endif %}"
+                                                                   autocomplete="new-password"
+                                                                   id="personalMailPasswordCurrent"
+                                                                   placeholder="{{ "account.profilePasswordCurrent"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                                                                   name="email[password]"
+                                                                   required="required">
+                                                        {% endblock %}
+
+                                                        {% block page_account_profile_mail_password_input_error %}
+                                                            {% if formViolations.getViolations('/password') is not empty and emailFormViolation %}
+                                                                {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                                                    violationPath: '/password'
+                                                                } %}
+                                                            {% endif %}
+                                                        {% endblock %}
+                                                    </div>
+                                                </div>
+                                            {% endblock %}
+
+                                            {% block page_account_profile_mail_required %}
+                                                <p class="account-profile-required-info required-fields">
+                                                    {{ "general.requiredFields"|trans|sw_sanitize }}
+                                                </p>
+                                            {% endblock %}
+
+                                            {% block page_account_profile_mail_action_buttons %}
+                                                <div class="card-actions">
+                                                    {% block page_account_profile_mail_action_button_send %}
+                                                        <button type="submit"
+                                                                class="profile-form-submit btn btn-light btn-sm"
+                                                                title="{{ "account.profileSaveChanges"|trans|striptags }}">
+                                                            {{ "account.profileSaveChanges"|trans|sw_sanitize }}
+                                                        </button>
+                                                    {% endblock %}
+                                                </div>
+                                            {% endblock %}
+                                        </form>
+                                    {% endblock %}
+                                </div>
+                            </div>
+                        {% endblock %}
+
+                        {% block page_account_profile_password %}
+                            <div class="collapse{% if passwordFormViolation and formViolations %} show{% endif %}" id="profile-password-form" data-parent=".profile-content">
+                                <div class="card account-password">
+                                    {% block page_account_profile_password_form %}
+                                        <form id="profilePasswordForm"
+                                              class="card-body"
+                                              method="post"
+                                              data-form-csrf-handler="true"
+                                              action="{{ path('frontend.account.profile.password.save') }}"
+                                              data-form-validation="true">
+
+                                            {% block page_account_profile_password_form_csrf %}
+                                                {{ sw_csrf('frontend.account.profile.password.save') }}
+                                            {% endblock %}
+
+                                            {% block page_account_profile_password_title %}
+                                                <div class="card-title">
+                                                    {{ "account.profilePasswordTitle"|trans|sw_sanitize }}
+                                                </div>
+                                            {% endblock %}
+
+                                            {% block page_account_profile_password_container %}
+                                                <div class="form-row">
+                                                    {% block page_account_profile_new_password %}
+                                                        <div class="col form-group">
+                                                            {% block page_account_profile_new_password_label %}
+                                                                <label class="form-label"
+                                                                       for="newPassword">
+                                                                    {{ "account.profilePasswordCreateNew"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                                                                </label>
+                                                            {% endblock %}
+
+                                                            {% block page_account_profile_new_password_input %}
+                                                                <input type="password"
+                                                                       class="form-control{% if formViolations.getViolations('/newPassword') is not empty %} is-invalid{% endif %}"
+                                                                       autocomplete="new-password"
+                                                                       id="newPassword"
+                                                                       placeholder="{{ "account.profilePasswordCreateNew"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                                                                       name="password[newPassword]"
+                                                                       data-form-validation-equal="newPassword"
+                                                                       data-form-validation-length="{{ shopware.config.core.loginRegistration.passwordMinLength }}"
+                                                                       data-form-validation-length-message=" {{ "account.personalPasswordDescription"|trans({
+                                                                           '%minLength%': shopware.config.core.loginRegistration.passwordMinLength
+                                                                       })|sw_sanitize }}"
+                                                                       required="required">
+                                                            {% endblock %}
+
+                                                            {% block page_account_profile_new_password_input_error %}
+                                                                {% if formViolations.getViolations('/newPassword') is not empty %}
+                                                                    {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                                                        violationPath: '/newPassword'
+                                                                    } %}
+                                                                {% endif %}
+                                                            {% endblock %}
+                                                        </div>
+                                                    {% endblock %}
+
+                                                    {% block page_account_profile_new_password_confirmation %}
+                                                        <div class="col form-group">
+                                                            {% block page_account_profile_new_password_confirmation_label %}
+                                                                <label class="form-label"
+                                                                       for="passwordConfirmation">
+                                                                    {{ "account.personalPasswordConfirmationLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                                                                </label>
+                                                            {% endblock %}
+
+                                                            {% block page_account_profile_new_password_confirmation_input %}
+                                                                <input type="password"
+                                                                       class="form-control{% if formViolations.getViolations('/newPassword') is not empty %} is-invalid{% endif %}"
+                                                                       autocomplete="new-password"
+                                                                       id="passwordConfirmation"
+                                                                       placeholder="{{ "account.personalPasswordConfirmationLabel"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                                                                       name="password[newPasswordConfirm]"
+                                                                       required="required"
+                                                                       data-form-validation-equal="newPassword"
+                                                                       data-form-validation-equal-message="{{ "account.personalPasswordConfirmationInvalidMessage"|trans|striptags }}">
+                                                            {% endblock %}
+
+                                                            {% block page_account_profile_new_password_confirmation_error %}
+                                                                {% if formViolations.getViolations('/newPassword') is not empty %}
+                                                                    {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                                                        violationPath: '/newPassword'
+                                                                    } %}
+                                                                {% endif %}
+                                                            {% endblock %}
+                                                        </div>
+                                                    {% endblock %}
+                                                </div>
+
+                                                <p class="text-muted">{{ "account.profileConfirmPassword"|trans|sw_sanitize }}</p>
+                                            {% endblock %}
+
+                                            {% block page_account_profile_current_password %}
+                                                <div class="form-row">
+                                                    <div class="col-6 form-group">
+                                                        {% block page_account_profile_current_password_label %}
+                                                            <label class="form-label"
+                                                                   for="personalPasswordCurrent">
+                                                                {{ "account.profilePasswordCurrent"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                                                            </label>
+                                                        {% endblock %}
+
+                                                        {% block page_account_profile_current_password_input %}
+                                                            <input type="password"
+                                                                   class="form-control{% if formViolations.getViolations('/password') is not empty and passwordFormViolation %} is-invalid{% endif %}"
+                                                                   autocomplete="new-password"
+                                                                   id="password"
+                                                                   placeholder="{{ "account.profilePasswordCurrent"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                                                                   name="password[password]"
+                                                                   required="required">
+                                                        {% endblock %}
+
+                                                        {% block page_account_profile_current_password_input_error %}
+                                                            {% if formViolations.getViolations('/password') is not empty and passwordFormViolation %}
+                                                                {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                                                    violationPath: '/password'
+                                                                } %}
+                                                            {% endif %}
+                                                        {% endblock %}
+                                                    </div>
+                                                </div>
+                                            {% endblock %}
+
+                                            {% block page_account_profile_password_required %}
+                                                <p class="account-profile-required-info required-fields">
+                                                    {{ "general.requiredFields"|trans|sw_sanitize }}
+                                                </p>
+                                            {% endblock %}
+
+                                            {% block page_account_profile_password_action_buttons %}
+                                                <div class="card-actions">
+                                                    {% block page_account_profile_password_action_button_send %}
+                                                        <button type="submit"
+                                                                class="profile-form-submit btn btn-light btn-sm"
+                                                                title="{{ "account.profileSaveChanges"|trans|striptags }}">
+                                                            {{ "account.profileSaveChanges"|trans|sw_sanitize }}
+                                                        </button>
+                                                    {% endblock %}
+                                                </div>
+                                            {% endblock %}
+                                        </form>
+                                    {% endblock %}
+                                </div>
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

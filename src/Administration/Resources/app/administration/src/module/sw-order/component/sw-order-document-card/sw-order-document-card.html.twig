@@ -1,0 +1,128 @@
+{% block sw_order_document_card %}
+    <sw-card :title="$tc('sw-order.documentCard.cardTitle')"
+             :class="documentCardStyles"
+             :isLoading="isLoading || documentsLoading || cardLoading">
+
+        <template slot="grid">
+
+        {% block sw_order_document_card_header %}
+            <sw-card-section divider="bottom" secondary slim>
+
+                {% block sw_order_document_card_header_filter %}
+                    <sw-card-filter :placeholder="$tc('sw-order.documentCard.searchBarPlaceholder')"
+                                    @sw-card-filter-term-change="onSearchTermChange">
+
+                        <template slot="filter">
+                            {% block sw_order_document_card_header_create_document_context_button %}
+                                <sw-context-button v-if="!attachView">
+
+                                    {% block sw_order_document_card_header_create_document_button %}
+                                        <sw-button slot="button"
+                                                   size="small"
+                                                   class="sw-order-document-grid-button">
+
+                                            {% block sw_order_document_card_header_create_document_button_label %}
+                                                {{ $tc('sw-order.documentCard.labelCreateNew') }}
+                                            {% endblock %}
+
+                                        </sw-button>
+                                    {% endblock %}
+
+                                    {% block sw_order_document_card_header_create_document_options %}
+                                        <template v-for="documentType in documentTypes">
+                                            <sw-context-menu-item class="sw-order-list_order-view-action"
+                                                                  :disabled="!documentTypeAvailable(documentType)"
+                                                                  @click="onPrepareDocument(documentType)">
+
+                                                {% block sw_order_document_card_header_create_document_option_label %}
+                                                    {{ placeholder(documentType, 'name') }}
+                                                {% endblock %}
+
+                                            </sw-context-menu-item>
+                                        </template>
+                                    {% endblock %}
+
+                                </sw-context-button>
+                            {% endblock %}
+
+                        </template>
+                    </sw-card-filter>
+                {% endblock %}
+
+            </sw-card-section>
+        {% endblock %}
+
+        {% block sw_order_document_card_grid %}
+            <sw-data-grid v-if="!documentsEmpty"
+                          :dataSource="documents"
+                          :columns="getDocumentColumns"
+                          :fullPage="false"
+                          :showSettings="false"
+                          :showSelection="false"
+                          :showActions="!attachView"
+                          :isLoading="isLoading"
+                          :allowColumnEdit="false"
+                          :allowInlineEdit="false"
+                          identifier="sw-order-document-grid">
+
+                {% block sw_order_document_card_grid_column_date %}
+                    <template slot="column-createdAt" slot-scope="{ item }">
+                        {% block sw_order_document_card_grid_column_date_label %}
+                            {{ item.createdAt | date({hour: '2-digit', minute: '2-digit'}) }}
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+
+                {% block sw_order_document_card_grid_column_sent %}
+                    <template slot="column-sent" slot-scope="{ item }">
+                        {% block sw_order_document_card_grid_column_sent_label %}
+                            <sw-data-grid-column-boolean v-model="item.sent" :isInlineEdit="false" />
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+
+                {% block sw_order_document_card_grid_column_attach %}
+                    <template slot="column-attach" slot-scope="{ item }" v-if="attachView">
+                        {% block sw_order_document_card_grid_column_attach_label %}
+                            <sw-data-grid-column-boolean v-model="item.attach" :isInlineEdit="true" />
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+
+                {% block sw_order_document_card_grid_actions %}
+                    <template #actions="{ item }" v-if="!attachView">
+                        {% block sw_order_document_card_grid_action_download %}
+                            <sw-context-menu-item @click="onDownload(item.id, item.deepLinkCode)">
+                                {% block sw_order_document_card_grid_action_download_label %}
+                                    {{ $tc('sw-order.documentCard.labelDownloadPdf') }}
+                                {% endblock %}
+                            </sw-context-menu-item>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+
+            </sw-data-grid>
+        {% endblock %}
+
+        </template>
+
+        {% block sw_order_document_card_grid_column_modal %}
+            <component v-if="showModal"
+                       :is="documentModal"
+                       :currentDocumentType="currentDocumentType"
+                       :order="order"
+                       @page-leave="onCancelCreation"
+                       @document-create="onCreateDocument"
+                       @preview-show="onPreview">
+            </component>
+        {% endblock %}
+
+        {% block sw_order_document_card_empty_state %}
+            <sw-empty-state v-if="documentsEmpty"
+                    :title="$tc('sw-order.documentCard.messageEmptyTitle')"
+                    icon="default-documentation-file"
+                    :subline="$tc('sw-order.documentCard.messageEmptySubline')">
+            </sw-empty-state>
+        {% endblock %}
+    </sw-card>
+{% endblock %}

@@ -61,6 +61,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTranslationDefinition;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateTranslationDefinition;
 use Shopware\Core\System\StateMachine\StateMachineTranslationDefinition;
+use Shopware\Core\System\Tax\Aggregate\TaxRuleTypeTranslation\TaxRuleTypeTranslationDefinition;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition;
 
 class LanguageDefinition extends EntityDefinition
@@ -141,8 +142,9 @@ class LanguageDefinition extends EntityDefinition
             (new OneToManyAssociationField('mailTemplateTypeTranslations', MailTemplateTypeTranslationDefinition::class, 'language_id'))->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('promotionTranslations', PromotionTranslationDefinition::class, 'language_id'))->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('numberRangeTranslations', NumberRangeTranslationDefinition::class, 'language_id'))->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
-            (new OneToManyAssociationField('productReviews', ProductReviewDefinition::class, 'language_id'))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('seoUrlTranslations', SeoUrlDefinition::class, 'language_id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('productReviews', ProductReviewDefinition::class, 'language_id'))->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
+            (new OneToManyAssociationField('seoUrlTranslations', SeoUrlDefinition::class, 'language_id'))->addFlags(new RestrictDelete(), new ReadProtected(SalesChannelApiSource::class)),
+            (new OneToManyAssociationField('taxRuleTypeTranslations', TaxRuleTypeTranslationDefinition::class, 'language_id'))->addFlags(new RestrictDelete(), new ReadProtected(SalesChannelApiSource::class)),
         ]);
     }
 }

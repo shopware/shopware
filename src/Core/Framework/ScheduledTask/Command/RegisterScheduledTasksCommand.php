@@ -9,6 +9,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class RegisterScheduledTasksCommand extends Command
 {
+    protected static $defaultName = 'scheduled-task:register';
+
     /**
      * @var TaskRegistry
      */
@@ -23,7 +25,7 @@ class RegisterScheduledTasksCommand extends Command
 
     protected function configure(): void
     {
-        $this->setName('scheduled-task:register')
+        $this
             ->setDescription('Registers all available scheduled tasks.');
     }
 

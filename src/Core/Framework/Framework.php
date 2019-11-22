@@ -92,14 +92,9 @@ class Framework extends Bundle
         $container->setParameter('migration.directories', $directories);
     }
 
-    protected function registerFilesystem(ContainerBuilder $container, string $key): void
-    {
-        // empty body intended to prevent circular filesystem references
-    }
-
     private function buildConfig(ContainerBuilder $container, $environment): void
     {
-        $locator = new FileLocator($this->getConfigPath());
+        $locator = new FileLocator('Resources/config');
 
         $resolver = new LoaderResolver([
             new XmlFileLoader($container, $locator),
@@ -113,7 +108,7 @@ class Framework extends Bundle
 
         $configLoader = new DelegatingLoader($resolver);
 
-        $confDir = $this->getPath() . '/' . $this->getConfigPath();
+        $confDir = $this->getPath() . '/Resources/config';
 
         $configLoader->load($confDir . '/{packages}/*' . Kernel::CONFIG_EXTS, 'glob');
         $configLoader->load($confDir . '/{packages}/' . $environment . '/*' . Kernel::CONFIG_EXTS, 'glob');

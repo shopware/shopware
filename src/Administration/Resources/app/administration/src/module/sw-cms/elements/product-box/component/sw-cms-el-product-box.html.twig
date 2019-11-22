@@ -1,0 +1,84 @@
+{% block sw_cms_element_product_box %}
+    <div class="sw-cms-el-product-box" :class="`box-${element.config.boxLayout.value}`" v-if="product">
+
+        {% block sw_cms_element_product_box_content %}
+            <div class="sw-cms-el-product-box__content" :style="verticalAlignStyle">
+
+                {% block sw_cms_element_product_box_badges %}
+                    <div class="sw-cms-el-product-box__badges">
+                        <div class="sw-cms-el-product-box__badge-discount" v-if="product.hasPseudoPrice">&#37;</div>
+                        <div class="sw-cms-el-product-box__badge-topseller" v-if="product.markAsTopseller">
+                            {{ $tc('sw-cms.elements.productBox.component.label.badgeTopseller') }}
+                        </div>
+                        <div class="sw-cms-el-product-box__badge-new" v-if="product.newProduct">
+                            {{ $tc('sw-cms.elements.productBox.component.label.badgeNew') }}
+                        </div>
+                    </div>
+                {% endblock %}
+
+                {% block sw_cms_element_product_box_media %}
+                    <div class="sw-cms-el-product-box__media">
+                        <a href="#"
+                           :title="placeholder(product, 'name')"
+                           class="sw-cms-el-product-box__image-link">
+                            <img class="sw-cms-el-product-box__image"
+                                 :class="displayModeClass"
+                                 :src="mediaUrl"
+                                 :alt="altTag">
+                        </a>
+                    </div>
+                {% endblock %}
+
+                {% block sw_cms_element_product_box_info %}
+                    <div class="sw-cms-el-product-box__info">
+
+                        {% block sw_cms_element_product_box_name %}
+                            <a href="#" class="sw-cms-el-product-box__name" :title="placeholder(product, 'name')">
+                                {{ placeholder(product, 'name', product.name) }}
+                            </a>
+                        {% endblock %}
+
+                        {% block sw_cms_element_product_box_description %}
+                            <div class="sw-cms-el-product-box__description" v-if="element.config.boxLayout.value === 'standard'">
+                                {{ placeholder(product, 'description', product.description) | truncate(200, true, '...') }}
+                            </div>
+                        {% endblock %}
+
+                        {% block sw_cms_element_product_box_price_info %}
+                            <div class="sw-cms-el-product-box__price-info">
+
+                                {% block sw_cms_element_product_box_price_unit %}
+                                    <div class="sw-cms-el-product-box__price-unit"
+                                         v-if="product.purchaseUnit && product.purchaseUnit !== 0">
+                                        <span class="sw-cms-el-product-box__price-unit-label">{{ $tc('sw-cms.elements.productBox.component.label.priceUnitContent') }} </span>
+                                        <span class="sw-cms-el-product-box__price-unit-content">{{ product.purchaseUnit }} {{ product.packUnit }}</span><br>
+
+                                        <span class="sw-cms-el-product-box__price-unit-reference"
+                                              v-if="product.purchaseUnit && product.referenceUnit && product.purchaseUnit !== product.referenceUnit">
+                                            ({{ (product.price[0].gross * product.referenceUnit / product.purchaseUnit) | currency('EUR') }}
+                                            * / {{ product.referenceUnit }} {{ product.packUnit }})
+                                        </span>
+                                    </div>
+                                {% endblock %}
+
+                                {% block sw_cms_element_product_box_price %}
+                                    <div class="sw-cms-el-product-box__price">
+                                        {{ product.price[0].gross | currency('EUR') }}
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+
+                        {% block sw_cms_element_product_box_actions %}
+                            <div class="sw-cms-el-product-box__actions">
+                                <a href="#" class="sw-cms-el-product-box__buy-action">
+                                    {{ $tc('sw-cms.elements.productBox.component.actionBuy') }}
+                                </a>
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -10,7 +10,7 @@ The linter can also be started manually with PSH :
 
 It is also possible to lint every file in the Administration. These commands shouldn't be used
 on daily basis and therefore they are not included in the PSH commands. To run these 
-commands you have to be in this folder `platform/src/Storefront/Resources/` and start the NPM 
+commands you have to be in this folder `platform/src/Storefront/Resources/app/storefront/` and start the NPM 
 commands directly.
 
 - Lint all files: `npm run lint:scss-all`
@@ -20,5 +20,5 @@ commands directly.
 You can show linting errors directly in PhpStorm. When you want to enable the live linting 
 you have to open your Preferences and navigate to:
 `Language & Frameworks` -> `Style Sheets` -> `Stylelint`. Here you have to enable the linting 
-and change the path to your Stylelint Package  (`YOUR_PATH/development/platform/src/Storefront/Resources/node_modules/stylelint`).
+and change the path to your Stylelint Package  (`YOUR_PATH/development/platform/src/Storefront/Resources/app/storefront/node_modules/stylelint`).
 Now you can see directly the errors in your SCSS files.

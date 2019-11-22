@@ -33,16 +33,6 @@ class JsonSalesChannelApiEncoderTest extends TestCase
     use KernelTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
 
-    /**
-     * @var JsonApiEncoder
-     */
-    private $encoder;
-
-    protected function setUp(): void
-    {
-        $this->encoder = $this->getContainer()->get(JsonApiEncoder::class);
-    }
-
     public function emptyInputProvider(): array
     {
         return [
@@ -63,29 +53,32 @@ class JsonSalesChannelApiEncoderTest extends TestCase
     public function testEncodeWithEmptyInput($input): void
     {
         $this->expectException(UnsupportedEncoderInputException::class);
-
-        $this->encoder->encode($this->getContainer()->get(ProductDefinition::class), $input, SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
+        $encoder = $this->getContainer()->get(JsonApiEncoder::class);
+        $encoder->encode($this->getContainer()->get(ProductDefinition::class), $input, SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
     }
 
     public function complexStructsProvider(): array
     {
         return [
-            [$this->getContainer()->get(MediaDefinition::class), new TestBasicStruct()],
-            [$this->getContainer()->get(UserDefinition::class), new TestBasicWithToManyRelationships()],
-            [$this->getContainer()->get(MediaDefinition::class), new TestBasicWithToOneRelationship()],
-            [$this->getContainer()->get(MediaFolderDefinition::class), new TestCollectionWithSelfReference()],
-            [$this->getContainer()->get(MediaDefinition::class), new TestCollectionWithToOneRelationship()],
-            [$this->getContainer()->get(RuleDefinition::class), new TestInternalFieldsAreFiltered()],
-            [$this->getContainer()->get(UserDefinition::class), new TestMainResourceShouldNotBeInIncluded()],
+            [MediaDefinition::class, new TestBasicStruct()],
+            [UserDefinition::class, new TestBasicWithToManyRelationships()],
+            [MediaDefinition::class, new TestBasicWithToOneRelationship()],
+            [MediaFolderDefinition::class, new TestCollectionWithSelfReference()],
+            [MediaDefinition::class, new TestCollectionWithToOneRelationship()],
+            [RuleDefinition::class, new TestInternalFieldsAreFiltered()],
+            [UserDefinition::class, new TestMainResourceShouldNotBeInIncluded()],
         ];
     }
 
     /**
      * @dataProvider complexStructsProvider
      */
-    public function testEncodeComplexStructs(EntityDefinition $definition, SerializationFixture $fixture): void
+    public function testEncodeComplexStructs(string $definitionClass, SerializationFixture $fixture): void
     {
-        $actual = $this->encoder->encode($definition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
+        /** @var EntityDefinition $definition */
+        $definition = $this->getContainer()->get($definitionClass);
+        $encoder = $this->getContainer()->get(JsonApiEncoder::class);
+        $actual = $encoder->encode($definition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
 
         $actual = json_decode($actual, true);
 
@@ -110,7 +103,8 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         $extendableDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
         $fixture = new TestBasicWithExtension();
 
-        $actual = $this->encoder->encode($extendableDefinition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
+        $encoder = $this->getContainer()->get(JsonApiEncoder::class);
+        $actual = $encoder->encode($extendableDefinition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
 
         // check that empty "links" object is an object and not array: https://jsonapi.org/format/#document-links
         static::assertStringNotContainsString('"links":[]', $actual);

@@ -104,7 +104,7 @@ class MailService
         $salesChannelId = $data['salesChannelId'];
         $salesChannel = null;
 
-        if ($salesChannelId !== null) {
+        if ($salesChannelId !== null && !isset($templateData['salesChannel'])) {
             $criteria = new Criteria([$salesChannelId]);
             $criteria->addAssociation('mailHeaderFooter');
             /** @var SalesChannelEntity|null $salesChannel */
@@ -113,6 +113,8 @@ class MailService
             if ($salesChannel === null) {
                 throw new SalesChannelNotFoundException($salesChannelId);
             }
+
+            $templateData['salesChannel'] = $salesChannel;
         }
 
         $senderEmail = $this->systemConfigService->get('core.basicInformation.email', $salesChannelId);
@@ -121,8 +123,6 @@ class MailService
 
             return null;
         }
-
-        $templateData['salesChannel'] = $salesChannel;
 
         $contents = $this->buildContents($data, $salesChannel);
         foreach ($contents as $index => $template) {
@@ -153,14 +153,17 @@ class MailService
             }
         }
 
-        $mediaUrls = $this->getMediaUrls($data['mediaIds'], $context);
+        $mediaUrls = $this->getMediaUrls($data, $context);
+
+        $binAttachments = $data['binAttachments'] ?? null;
 
         $message = $this->messageFactory->createMessage(
             $data['subject'],
             [$senderEmail => $data['senderName']],
             $recipients,
             $contents,
-            $mediaUrls
+            $mediaUrls,
+            $binAttachments
         );
 
         $this->mailSender->send($message);
@@ -207,16 +210,18 @@ class MailService
         return $definition;
     }
 
-    private function getMediaUrls(array $mediaIds, Context $context): array
+    private function getMediaUrls(array $data, Context $context): array
     {
-        if (empty($mediaIds)) {
+        if (!isset($data['mediaIds']) || empty($data['mediaIds'])) {
             return [];
         }
-
-        $criteria = new Criteria($mediaIds);
-
-        /** @var MediaCollection $media */
-        $media = $this->mediaRepository->search($criteria, $context)->getElements();
+        $criteria = new Criteria($data['mediaIds']);
+        $media = null;
+        $mediaRepository = $this->mediaRepository;
+        $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($criteria, $mediaRepository, &$media): void {
+            /** @var MediaCollection $media */
+            $media = $mediaRepository->search($criteria, $context)->getElements();
+        });
 
         $urls = [];
         foreach ($media as $mediaItem) {

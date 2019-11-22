@@ -1,0 +1,133 @@
+{% block sw_cms_section %}
+    <div class="sw-cms-section" :class="[sectionClasses, customSectionClass, sectionTypeClass]">
+
+        {% block sw_cms_section_actions %}
+            <sw-cms-section-actions :section="section"></sw-cms-section-actions>
+        {% endblock %}
+
+        <div class="sw-cms-section__wrapper" :style="sectionStyles">
+            {% block sw_cms_section_sidebar %}
+                <div v-if="isSideBarType" class="sw-cms-section__sidebar" :class="sectionSidebarClasses">
+
+                    <template v-if="sideBarEmpty">
+                        {% block sw_cms_section_sidebar_block_empty %}
+                            <div class="sw-cms-section__empty-stage"
+                                 @click="openBlockBar"
+                                 v-droppable="{ dragGroup: 'cms-stage', data: getDropData(blockCount, 'sidebar') }">
+
+                                <sw-icon name="default-basic-plus-circle" size="24"></sw-icon>
+                                <p>{{ $tc('sw-cms.detail.label.addBlocks') }}</p>
+                            </div>
+                        {% endblock %}
+                    </template>
+
+                    <template v-else>
+
+                        {% block sw_cms_section_sidebar_add_first_block %}
+                            <sw-cms-stage-add-block
+                                :key="0"
+                                v-if="isSystemDefaultLanguage"
+                                v-droppable="{ dragGroup: 'cms-stage', data: getDropData(0, 'sidebar') }"
+                                @stage-block-add="onAddSectionBlock">
+                            </sw-cms-stage-add-block>
+                        {% endblock %}
+
+                        <template v-for="(block, index) in sideBarBlocks">
+                            {% block sw_cms_section_sidebar_block %}
+                                <sw-cms-block class="sw-cms-stage-block"
+                                              :key="block.id"
+                                              :block="block"
+                                              :active="selectedBlock !== null && selectedBlock.id === block.id"
+                                              @block-overlay-click="onBlockSelection(block)">
+
+                                    {% block sw_cms_section_sidebar_block_component %}
+                                        <component :is="`sw-cms-block-${block.type}`">
+                                            {% block sw_cms_section_content_block_slot %}
+                                                <sw-cms-slot v-for="el in block.slots"
+                                                             :slot="el.slot"
+                                                             :key="el.id"
+                                                             :element="el"
+                                                             :active="selectedBlock !== null && selectedBlock.id === block.id">
+                                                </sw-cms-slot>
+                                            {% endblock %}
+                                        </component>
+                                    {% endblock %}
+                                </sw-cms-block>
+                            {% endblock %}
+
+                            {% block sw_cms_section_add_sidebar_block %}
+                                <sw-cms-stage-add-block
+                                    :key="index + 1"
+                                    v-if="isSystemDefaultLanguage"
+                                    v-droppable="{ dragGroup: 'cms-stage', data: getDropData(block.position + 1, 'sidebar') }"
+                                    @stage-block-add="onAddSectionBlock">
+                                </sw-cms-stage-add-block>
+                            {% endblock %}
+                        </template>
+                    </template>
+                </div>
+            {% endblock %}
+
+            {% block sw_cms_section_content %}
+                <div class="sw-cms-section__content" :class="{ 'is--empty': mainContentEmpty }">
+                    <template v-if="mainContentEmpty">
+                        {% block sw_cms_section_content_block_empty %}
+                            <div class="sw-cms-section__empty-stage"
+                                 @click="openBlockBar"
+                                 v-droppable="{ dragGroup: 'cms-stage', data: getDropData(blockCount, 'main') }">
+
+                                <sw-icon name="default-basic-plus-circle" size="24"></sw-icon>
+                                <p>{{ $tc('sw-cms.detail.label.addBlocks') }}</p>
+                            </div>
+                        {% endblock %}
+                    </template>
+
+                    <template v-else>
+
+                        {% block sw_cms_section_content_add_first_block %}
+                            <sw-cms-stage-add-block
+                                :key="0"
+                                v-if="isSystemDefaultLanguage"
+                                v-droppable="{ dragGroup: 'cms-stage', data: getDropData(0) }"
+                                @stage-block-add="onAddSectionBlock">
+                            </sw-cms-stage-add-block>
+                        {% endblock %}
+
+                        <template v-for="(block, index) in mainContentBlocks">
+                            {% block sw_cms_section_content_block %}
+                                <sw-cms-block class="sw-cms-stage-block"
+                                              :key="block.id"
+                                              :block="block"
+                                              :active="selectedBlock !== null && selectedBlock.id === block.id"
+                                              @block-overlay-click="onBlockSelection(block)">
+
+                                    {% block sw_cms_section_content_block_component %}
+                                        <component :is="`sw-cms-block-${block.type}`">
+                                            {% block sw_cms_section_content_block_slot %}
+                                                <sw-cms-slot v-for="el in block.slots"
+                                                             :slot="el.slot"
+                                                             :key="el.id"
+                                                             :element="el"
+                                                             :active="selectedBlock !== null && selectedBlock.id === block.id">
+                                                </sw-cms-slot>
+                                            {% endblock %}
+                                        </component>
+                                    {% endblock %}
+                                </sw-cms-block>
+                            {% endblock %}
+
+                            {% block sw_cms_section_add_content_block %}
+                                <sw-cms-stage-add-block
+                                    :key="index + 1"
+                                    v-if="isSystemDefaultLanguage"
+                                    v-droppable="{ dragGroup: 'cms-stage', data: getDropData(block.position + 1) }"
+                                    @stage-block-add="onAddSectionBlock">
+                                </sw-cms-stage-add-block>
+                            {% endblock %}
+                        </template>
+                    </template>
+                </div>
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}

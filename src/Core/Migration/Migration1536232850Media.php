@@ -66,6 +66,5 @@ class Migration1536232850Media extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

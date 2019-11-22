@@ -27,6 +27,8 @@ default:
         - git clone http://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/development.git
         - unzip -q platform.zip -d development/platform/
         - cd development
+        - git -C platform checkout master
+        - git -C platform checkout $CI_COMMIT_SHA
         - >
             if [ "$(git ls-remote origin $CI_DEV_BRANCH | wc -l)" == 1 ]; then
               echo "Development Branch: $CI_DEV_BRANCH (explicit)";
@@ -55,11 +57,11 @@ Javascript analysis:
         - cd src/Administration/Resources
         - npm clean-install
         - npm run lerna -- bootstrap
-        - cd administration
+        - cd app/administration
         - PROJECT_ROOT=$(pwd) node_modules/.bin/eslint --ext .js,.vue --format junit src test > eslint.junit.xml
     artifacts:
         reports:
-            junit: src/Administration/Resources/administration/eslint.junit.xml
+            junit: src/Administration/Resources/app/administration/eslint.junit.xml
 
 PHP analysis:
     stage: Static analysis
@@ -68,11 +70,17 @@ PHP analysis:
             alias: mysql
     script:
         - ./psh.phar init
+        - if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
         - php dev-ops/analyze/generate-composer.php
         - php dev-ops/analyze/vendor/bin/php-cs-fixer fix --config=vendor/shopware/platform/.php_cs.dist --dry-run --format=junit | tee php-cs-fixer.xml
         - php dev-ops/analyze/phpstan-config-generator.php
         - php dev-ops/analyze/vendor/bin/phpstan analyze --configuration vendor/shopware/platform/phpstan.neon --error-format gitlab | tee phpstan-report.json
-        - php dev-ops/analyze/vendor/bin/psalm --config=vendor/shopware/platform/psalm.xml --threads=2 --show-info=false
+        - >
+            for module in $(ls vendor/shopware/platform/src/); do
+                echo "[PSALM: scan $module]"
+                php dev-ops/analyze/vendor/bin/psalm --config=vendor/shopware/platform/psalm.xml --threads=2 --show-info=false vendor/shopware/platform/src/$module;
+            done
+        - php dev-ops/analyze/vendor/bin/psalm --config=vendor/shopware/platform/psalm.xml --threads=2 --show-info=false src
     artifacts:
         reports:
             junit: development/php-cs-fixer.xml
@@ -89,16 +97,31 @@ PHP analysis:
         -   name: elastic/elasticsearch:7.1.1
             alias: elasticsearch
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+    variables:
+        TEST_SUITES: "administration storefront checkout content framework migration system elasticsearch docs"
     script:
         - ./psh.phar init
-        - php
-            vendor/bin/phpunit
-            --configuration vendor/shopware/platform/phpunit.xml.dist
-            --log-junit build/artifacts/phpunit.junit.xml
-            --colors=never
+        - if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
+        - mkdir -p build/artifacts/
+        - echo -e
+            "<?xml version="1.0" encoding="UTF-8"?>
+            <testsuites>
+            " > build/artifacts/phpunit.junit.xml
+        - >
+            for TEST_SUITE in $TEST_SUITES; do
+                log_unit_file=build/artifacts/$TEST_SUITE.junit.xml
+                set -x
+                php vendor/bin/phpunit --configuration vendor/shopware/platform/phpunit.xml.dist --log-junit "$log_unit_file" --colors=never --testsuite "$TEST_SUITE"
+                set +x
+                tail -n +3 "$log_unit_file" | head -n -1 >> build/artifacts/phpunit.junit.xml
+            done
+        - echo -e "</testsuites>" >> "build/artifacts/phpunit.junit.xml"
+
 
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
     artifacts:
+        paths:
+            - development/build/artifacts/
         reports:
             junit: development/build/artifacts/phpunit.junit.xml
 
@@ -206,7 +229,7 @@ Storefront (Jest):
     script:
         - ./psh.phar init
         - ./psh.phar storefront:install-dependencies
-        - npm --prefix vendor/shopware/platform/src/Storefront/Resources/ run unit
+        - npm --prefix vendor/shopware/platform/src/Storefront/Resources/app/storefront/ run unit
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
     artifacts:
         reports:
@@ -236,9 +259,9 @@ Storefront (Jest):
         - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
         - ./psh.phar e2e:dump-db --APP_ENV="prod"
         - chown -R 1000:1000 .
-        - docker run --name cypress -d -t --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/vendor/shopware/platform/src/Storefront/Resources/e2e:/e2e-Storefront -v $(pwd):/app cypress/browsers:node10.11.0-chrome75
+        - docker run --name cypress -d -t --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/vendor/shopware/platform/src/Storefront/Resources/app/storefront/test/e2e:/e2e-Storefront -v $(pwd):/app cypress/browsers:node10.11.0-chrome75
         - docker exec cypress npm clean-install --prefix /e2e-Storefront
-        - forever start vendor/shopware/platform/src/Storefront/Resources/e2e/routes/cypress.js
+        - forever start vendor/shopware/platform/src/Storefront/Resources/app/storefront/test/e2e/routes/cypress.js
         - docker exec cypress npx cypress run --project /e2e-Storefront --browser chrome --config baseUrl=http://docker.vm:8000
         - docker rm -f cypress
 
@@ -248,9 +271,9 @@ Storefront (Jest):
         - ./psh.phar administration:init --APP_ENV="prod"
         - ./psh.phar e2e:dump-db --APP_ENV="prod"
         - chown -R 1000:1000 .
-        - docker run --name cypress -d -t --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/vendor/shopware/platform/src/Administration/Resources/e2e:/e2e-Administration -v $(pwd):/app cypress/browsers:node10.11.0-chrome75
+        - docker run --name cypress -d -t --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e:/e2e-Administration -v $(pwd):/app cypress/browsers:node10.11.0-chrome75
         - docker exec cypress npm clean-install --prefix /e2e-Administration
-        - forever start vendor/shopware/platform/src/Administration/Resources/e2e/routes/cypress.js
+        - forever start vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e/routes/cypress.js
         - docker exec cypress npx cypress run --project /e2e-Administration --browser chrome --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0 --spec $TEST_DIRECTORY
         - docker rm -f cypress
 
@@ -261,9 +284,9 @@ Storefront (Jest):
         - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
         - ./psh.phar e2e:dump-db --APP_ENV="prod"
         - chown -R 1000:1000 .
-        - docker run --name cypress -d -t --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/vendor/shopware/platform/src/Administration/Resources/e2e:/e2e-Administration -v $(pwd):/app cypress/browsers:node10.11.0-chrome75
+        - docker run --name cypress -d -t --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e:/e2e-Administration -v $(pwd):/app cypress/browsers:node10.11.0-chrome75
         - docker exec cypress npm clean-install --prefix /e2e-Administration
-        - forever start vendor/shopware/platform/src/Administration/Resources/e2e/routes/cypress.js
+        - forever start vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e/routes/cypress.js
         - docker exec cypress npx cypress run --project /e2e-Administration --browser chrome --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0 --spec $TEST_DIRECTORY
         - docker rm -f cypress
 
@@ -336,8 +359,8 @@ Component Library:
     script:
         - npm install --prefix src/Administration/Resources/
         - npm run --prefix src/Administration/Resources lerna -- bootstrap
-        - npm install --prefix src/Administration/Resources/administration/build/nuxt-component-library/
-        - npm run --prefix src/Administration/Resources/administration/build/nuxt-component-library/ generate
+        - npm install --prefix src/Administration/Resources/app/administration/build/nuxt-component-library/
+        - npm run --prefix src/Administration/Resources/app/administration/build/nuxt-component-library/ generate
         - "[[ -d build/artifacts/component-library/ ]] && (ls -1qA build/artifacts/component-library/ | grep -q .)"
     artifacts:
         paths:

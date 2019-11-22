@@ -68,6 +68,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoader"/>
+            <argument type="service" id="order.repository"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -105,6 +106,8 @@
             <argument type="service" id="Shopware\Storefront\Framework\Twig\ErrorTemplateResolver"/>
             <argument type="service" id="session.flash_bag"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Storefront\Page\Navigation\Error\ErrorPageLoader"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -135,6 +138,7 @@
             <argument type="service" id="Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductReviewService"/>
             <argument type="service" id="Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface"/>
+            <argument type="service" id="Shopware\Storefront\Page\Product\Review\ProductReviewLoader"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -148,6 +152,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="customer.repository"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

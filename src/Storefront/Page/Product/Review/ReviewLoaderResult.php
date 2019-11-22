@@ -3,11 +3,15 @@
 namespace Shopware\Storefront\Page\Product\Review;
 
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
-use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 
-class ReviewLoaderResult extends Struct
+class ReviewLoaderResult extends StorefrontSearchResult
 {
+    /**
+     * @var string
+     */
+    protected $productId;
+
     /**
      * @var StorefrontSearchResult
      */
@@ -28,12 +32,14 @@ class ReviewLoaderResult extends Struct
      */
     protected $totalReviews;
 
-    public function __construct(StorefrontSearchResult $storefrontSearchResult, RatingMatrix $matrix, ?ProductReviewEntity $customerReview, int $totalReviews)
+    public function getProductId(): string
     {
-        $this->reviews = $storefrontSearchResult;
-        $this->matrix = $matrix;
-        $this->customerReview = $customerReview;
-        $this->totalReviews = $totalReviews;
+        return $this->productId;
+    }
+
+    public function setProductId(string $productId): void
+    {
+        $this->productId = $productId;
     }
 
     public function getReviews(): StorefrontSearchResult
@@ -46,13 +52,28 @@ class ReviewLoaderResult extends Struct
         return $this->matrix;
     }
 
+    public function setMatrix(RatingMatrix $matrix): void
+    {
+        $this->matrix = $matrix;
+    }
+
     public function getCustomerReview(): ?ProductReviewEntity
     {
         return $this->customerReview;
     }
 
+    public function setCustomerReview(?ProductReviewEntity $customerReview): void
+    {
+        $this->customerReview = $customerReview;
+    }
+
     public function getTotalReviews(): int
     {
         return $this->totalReviews;
+    }
+
+    public function setTotalReviews(int $totalReviews): void
+    {
+        $this->totalReviews = $totalReviews;
     }
 }

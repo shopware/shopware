@@ -1,0 +1,47 @@
+{% block page_account_overview_newsletter_content_inner %}
+    {% block page_account_overview_newsletter_content_success %}
+        {% if success is not null %}
+            <div class="newsletter-alerts">
+                {% for message in messages %}
+                    {% sw_include "@Storefront/storefront/utilities/alert.html.twig" with { 'type': message.type, 'content': message.text} %}
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endblock %}
+
+    {% block page_account_overview_newsletter_content_form %}
+        <form name="newsletterRegister"
+              method="post"
+              action="{{ path("frontend.account.newsletter") }}"
+              data-form-auto-submit="true"
+              data-form-auto-submit-options='{
+                  "useAjax": true,
+                  "ajaxContainerSelector": ".js-newsletter-wrapper"
+              }'>
+
+            {% block page_account_overview_newsletter_content_form_csrf %}
+                {{ sw_csrf('frontend.account.newsletter') }}
+            {% endblock %}
+
+            {% block page_account_overview_newsletter_content_form_check_control %}
+                <div class="custom-control custom-checkbox">
+                    {% block page_account_overview_newsletter_content_form_input %}
+                        <input type="checkbox"
+                               class="custom-control-input"
+                               id="newsletterRegister"
+                               name="option"
+                               value="direct"
+                               {% if customer.newsletter %}checked="checked"{% endif %}>
+                    {% endblock %}
+
+                    {% block page_account_overview_newsletter_content_form_label %}
+                        <label class="form-check-label custom-control-label"
+                               for="newsletterRegister">
+                            {{ "account.newsletterSettings"|trans({'%shopname%': shopware.config.core.basicInformation.shopName})|sw_sanitize }}
+                        </label>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </form>
+    {% endblock %}
+{% endblock %}

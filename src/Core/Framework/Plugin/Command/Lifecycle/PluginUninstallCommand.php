@@ -14,6 +14,8 @@ class PluginUninstallCommand extends AbstractPluginLifecycleCommand
 {
     private const LIFECYCLE_METHOD = 'uninstall';
 
+    protected static $defaultName = 'plugin:uninstall';
+
     protected function configure(): void
     {
         $this->configureCommand(self::LIFECYCLE_METHOD);

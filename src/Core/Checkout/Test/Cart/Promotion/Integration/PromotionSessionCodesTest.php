@@ -74,7 +74,7 @@ class PromotionSessionCodesTest extends TestCase
         $promotionCode = 'BF19';
 
         // add a new sample product
-        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer());
+        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $this->context);
 
         // add a new promotion black friday
         $this->createTestFixturePercentagePromotion($promotionId, $promotionCode, 100, null, $this->getContainer());
@@ -109,7 +109,7 @@ class PromotionSessionCodesTest extends TestCase
         $promotionCode = 'BF19';
 
         // add a new sample product
-        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer());
+        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $this->context);
 
         // add a new promotion black friday
         $this->createTestFixturePercentagePromotion($promotionId, $promotionCode, 100, null, $this->getContainer());
@@ -152,10 +152,10 @@ class PromotionSessionCodesTest extends TestCase
         $promotionCode = 'BF19';
 
         // add a new sample product
-        $this->createTestFixtureProduct($productId, 100, 19, $this->getContainer());
+        $this->createTestFixtureProduct($productId, 100, 19, $this->getContainer(), $this->context);
 
         // add a new sample product
-        $this->createTestFixtureProduct($productTwoId, 100, 7, $this->getContainer());
+        $this->createTestFixtureProduct($productTwoId, 100, 7, $this->getContainer(), $this->context);
 
         // add a new promotion black friday
         $this->createTestFixtureFixedDiscountPromotion($promotionId, 30, PromotionDiscountEntity::SCOPE_CART, $promotionCode, $this->getContainer(), $this->context);
@@ -202,7 +202,7 @@ class PromotionSessionCodesTest extends TestCase
         $promotionCode = 'BF19';
 
         // add a new sample product
-        $this->createTestFixtureProduct($productId, 30, 19, $this->getContainer());
+        $this->createTestFixtureProduct($productId, 30, 19, $this->getContainer(), $this->context);
 
         // add a new promotion with a
         // minimum line item quantity discount rule of 2

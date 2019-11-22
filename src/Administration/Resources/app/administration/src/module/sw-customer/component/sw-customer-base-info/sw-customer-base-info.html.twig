@@ -1,0 +1,183 @@
+{% block sw_customer_base_info %}
+    <sw-container class="sw-customer-base-info" columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 15px">
+        {% block sw_customer_base_info_metadata %}
+            {% block sw_customer_base_info_metadata_left %}
+                <sw-loader v-if="isLoading"></sw-loader>
+
+                <div v-else class="sw-customer-base-info-columns">
+                    {% block sw_customer_base_metadata_customer_group %}
+                        <sw-description-list>
+                            {% block sw_customer_base_metadata_customer_group_label %}
+                                <dt class="sw-customer-base-info__label">{{ $tc('sw-customer.baseInfo.labelCustomerGroup') }}</dt>
+                            {% endblock %}
+
+                            {% block sw_customer_base_metadata_customer_group_content %}
+                                <dd v-if="!customerEditMode">
+                                    {{ customer.group.translated.name }}
+                                </dd>
+                            {% endblock %}
+
+                            {% block sw_customer_base_metadata_customer_group_editor %}
+                                <dd v-else>
+                                    <sw-entity-single-select entity="customer_group" v-model="customer.groupId" size="small">
+                                    </sw-entity-single-select>
+                                </dd>
+                            {% endblock %}
+                        </sw-description-list>
+                    {% endblock %}
+
+                    {% block sw_customer_base_metadata_default_payment %}
+                        <sw-description-list>
+                            {% block sw_customer_base_metadata_default_payment_label %}
+                                <dt class="sw-customer-base-info__label">{{ $tc('sw-customer.baseInfo.labelDefaultPayment') }}</dt>
+                            {% endblock %}
+
+                            {% block sw_customer_base_metadata_default_payment_content %}
+                                <dd v-if="!customerEditMode" class="sw-customer-base__label-default-payment-method">
+                                   {{ customer.defaultPaymentMethod.translated.name }}
+                                </dd>
+                            {% endblock %}
+
+                            {% block sw_customer_base_metadata_default_payment_editor %}
+                                <dd v-else>
+                                    <sw-entity-single-select entity="payment_method" v-model="customer.defaultPaymentMethodId" size="small">
+                                    </sw-entity-single-select>
+                                </dd>
+                            {% endblock %}
+                        </sw-description-list>
+                    {% endblock %}
+
+                    {% block sw_customer_base_metadata_active %}
+                        <sw-description-list>
+                            {% block sw_customer_base_metadata_active_label %}
+                                <dt class="sw-customer-base-info__label">{{ $tc('sw-customer.baseInfo.labelActive') }}</dt>
+                            {% endblock %}
+
+                            {% block sw_customer_base_metadata_active_content %}
+                                <dd v-if="!customerEditMode" class="sw-customer-base__label-is-active">
+                                    {{ $tc('sw-customer.baseInfo.contentActive', customer.active) }}
+                                </dd>
+                            {% endblock %}
+
+                            {% block sw_customer_base_metadata_active_editor %}
+                                <dd v-else>
+                                    <sw-checkbox-field v-model="customer.active"
+                                                       class="sw-customer-base-info__checkbox-field"
+                                                       :label="$tc('sw-customer.baseInfo.contentActive', customer.active)"
+                                                       size="small">
+                                    </sw-checkbox-field>
+                                </dd>
+                            {% endblock %}
+                        </sw-description-list>
+                    {% endblock %}
+
+                    {% block sw_customer_base_metadata_language %}
+                        <sw-description-list>
+                            {% block sw_customer_base_metadata_language_label %}
+                                <dt class="sw-customer-base-info__label">{{ $tc('sw-customer.baseInfo.labelLanguage') }}</dt>
+                            {% endblock %}
+
+                            {% block sw_customer_base_metadata_language_content %}
+                                <dd v-if="!customerEditMode">
+                                    {{ customerLanguageName }}
+                                </dd>
+                            {% endblock %}
+
+                            {% block sw_customer_base_metadata_language_editor %}
+                                <dd v-else>
+                                    <sw-entity-single-select
+                                        entity="language"
+                                        :criteria="languageCriteria"
+                                        v-model="customer.languageId"
+                                        size="small">
+                                    </sw-entity-single-select>
+                                </dd>
+                            {% endblock %}
+                        </sw-description-list>
+                    {% endblock %}
+
+                    {% block ssw_customer_base_metadata_affiliate %}
+                        <sw-description-list>
+                            <dt>{{ $tc('sw-customer.baseInfo.labelAffiliateCode') }}</dt>
+                            <dd>{{ customer.affiliateCode || '-' }}</dd>
+                        </sw-description-list>
+                    {% endblock %}
+
+                    {% block sw_customer_base_metadata_campaign %}
+                        <sw-description-list>
+                            <dt>{{ $tc('sw-customer.baseInfo.labelCampaignCode') }}</dt>
+                            <dd>{{ customer.campaignCode || '-' }}</dd>
+                        </sw-description-list>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block sw_customer_base_info_metadata_right %}
+                <div class="sw-customer-base-info-columns">
+                    {% block sw_customer_base_metadata_customer_number %}
+                        <sw-description-list>
+                            <dt class="sw-customer-base-info__label">{{ $tc('sw-customer.baseInfo.labelCustomerNumber') }}</dt>
+                            <dd class="sw-customer-base__label-customer-number">
+                                {{ customer.customerNumber }}
+                            </dd>
+                        </sw-description-list>
+                    {% endblock %}
+
+                    {% block sw_customer_base_metadata_last_login %}
+                        <sw-description-list>
+                            <dt class="sw-customer-base-info__label">{{ $tc('sw-customer.baseInfo.labelLastLogin') }}</dt>
+                            <dd>
+                                {{ customer.lastLogin ? customer.lastLogin : $tc('sw-customer.baseInfo.emptyTextLogin') }}
+                            </dd>
+                        </sw-description-list>
+                    {% endblock %}
+
+                    {% block sw_customer_base_metadata_turnover %}
+                        <sw-description-list>
+                            <dt class="sw-customer-base-info__label">{{ $tc('sw-customer.baseInfo.labelTurnover') }}</dt>
+                            {# price aggregations do not support currencies yet, see NEXT-5069 #}
+                            <dd>{{ orderAmount | currency('EUR') }}</dd>
+                        </sw-description-list>
+                    {% endblock %}
+
+                    {% block sw_customer_base_metadata_orders %}
+                        <sw-description-list>
+                            <dt class="sw-customer-base-info__label">{{ $tc('sw-customer.baseInfo.labelOrders') }}</dt>
+                            <dd>{{ orderCount }}</dd>
+                        </sw-description-list>
+                    {% endblock %}
+
+                    {% block sw_customer_base_metadata_birthday %}
+                        <sw-description-list>
+                            {% block sw_customer_base_metadata_birthday_label %}
+                                <dt class="sw-customer-base-info__label">{{ $tc('sw-customer.baseInfo.labelBirthday') }}</dt>
+                            {% endblock %}
+
+                            {% block sw_customer_base_metadata_birthday_content %}
+                                <dd v-if="!customerEditMode">
+                                    <template v-if="customer.birthday">
+                                        {{ customer.birthday | date }}
+                                    </template>
+                                    <template v-else>
+                                        {{ $tc('sw-customer.baseInfo.emptyTextBirthday') }}
+                                    </template>
+                                </dd>
+                            {% endblock %}
+
+                            {% block sw_custoemr_base_metadata_birthday_editor %}
+                                <dd v-else>
+                                    <sw-datepicker
+                                        v-model="customer.birthday"
+                                        slot="inline-edit"
+                                        size="small"
+                                        dateType="date">
+                                    </sw-datepicker>
+                                </dd>
+                            {% endblock %}
+                        </sw-description-list>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        {% endblock %}
+    </sw-container>
+{% endblock %}

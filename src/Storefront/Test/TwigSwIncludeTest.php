@@ -28,7 +28,7 @@ class TwigSwIncludeTest extends TestCase
         $templateFinder->addBundle($bundlePlugin2);
         $twig->addExtension(new InheritanceExtension($templateFinder));
 
-        $template = $twig->loadTemplate('frontend/index.html.twig');
+        $template = $twig->loadTemplate('storefront/frontend/index.html.twig');
         static::assertSame('innerblockplugin2innerblockplugin1innerblock', $template->render([]));
     }
 
@@ -46,7 +46,7 @@ class TwigSwIncludeTest extends TestCase
         $templateFinder->addBundle($bundlePlugin2);
         $twig->addExtension(new InheritanceExtension($templateFinder));
 
-        $template = $twig->loadTemplate('frontend/withvars.html.twig');
+        $template = $twig->loadTemplate('storefront/frontend/withvars.html.twig');
         static::assertSame('innerblockvaluefromindex', $template->render([]));
     }
 
@@ -64,7 +64,7 @@ class TwigSwIncludeTest extends TestCase
         $templateFinder->addBundle($bundlePlugin2);
         $twig->addExtension(new InheritanceExtension($templateFinder));
 
-        $template = $twig->loadTemplate('frontend/withvarsonly.html.twig');
+        $template = $twig->loadTemplate('storefront/frontend/withvarsonly.html.twig');
         static::assertSame('innerblockvaluefromindexnotvisibleinnerblockvaluefromindex', $template->render([]));
     }
 
@@ -82,7 +82,7 @@ class TwigSwIncludeTest extends TestCase
         $templateFinder->addBundle($bundlePlugin2);
         $twig->addExtension(new InheritanceExtension($templateFinder));
         $twig->getExtension(InheritanceExtension::class)->getFinder();
-        $template = $twig->loadTemplate('frontend/templatenameexpression.html.twig');
+        $template = $twig->loadTemplate('storefront/frontend/templatenameexpression.html.twig');
         static::assertSame('innerblockplugin2innerblockplugin1innerblock', $template->render([]));
     }
 
@@ -96,7 +96,7 @@ class TwigSwIncludeTest extends TestCase
         $templateFinder = new TemplateFinder($twig, $loader, $this->getContainer()->get('kernel'));
         $twig->addExtension(new InheritanceExtension($templateFinder));
         $twig->getExtension(InheritanceExtension::class)->getFinder();
-        $template = $twig->loadTemplate('frontend/notemplatefound.html.twig');
+        $template = $twig->loadTemplate('storefront/frontend/notemplatefound.html.twig');
         static::assertSame('nothingelse', $template->render([]));
     }
 
@@ -110,7 +110,7 @@ class TwigSwIncludeTest extends TestCase
         $templateFinder = new TemplateFinder($twig, $loader, $this->getContainer()->get('kernel'));
         $twig->addExtension(new InheritanceExtension($templateFinder));
 
-        $template = $twig->loadTemplate('frontend/dynamic_include.html.twig');
+        $template = $twig->loadTemplate('storefront/frontend/dynamic_include.html.twig');
         static::assertSame('a', $template->render(['child' => 'a']));
         static::assertSame('b', $template->render(['child' => 'b']));
     }
@@ -129,7 +129,7 @@ class TwigSwIncludeTest extends TestCase
         $templateFinder->addBundle($bundlePlugin2);
         $twig->addExtension(new InheritanceExtension($templateFinder));
 
-        $template = $twig->loadTemplate('frontend/dynamic_include.html.twig');
+        $template = $twig->loadTemplate('storefront/frontend/dynamic_include.html.twig');
         static::assertSame('a/TestPlugin1_a/TestPlugin2_a', $template->render(['child' => 'a']));
         static::assertSame('b/TestPlugin1_b/TestPlugin2_b', $template->render(['child' => 'b']));
     }

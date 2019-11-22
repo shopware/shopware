@@ -18,7 +18,7 @@ The `sw-button-process` component looks as stated below:
         variant="primary"
         @process-finish="saveFinish"
         @click="onSave">
-        {{ $tc('sw-cms.detail.labelButtonSave') }}
+        {{ $tc('sw-cms.detail.label.buttonSave') }}
 </sw-button-process>
 ```
 As you can see, you can use the `sw-button-process` component similar as you're used to with `sw-button`. 

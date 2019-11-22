@@ -75,7 +75,6 @@ class Migration1567431050ContactFormTemplate extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 
     private function getContactMailEventConfig(Connection $connection): string

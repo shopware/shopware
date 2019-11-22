@@ -33,6 +33,5 @@ class Migration1565270155PromotionSetGroup extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

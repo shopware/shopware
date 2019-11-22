@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Tax;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
 
 class TaxEntity extends Entity
 {
@@ -29,6 +30,11 @@ class TaxEntity extends Entity
      * @var array|null
      */
     protected $customFields;
+
+    /**
+     * @var TaxRuleCollection|null
+     */
+    protected $rules;
 
     public function getTaxRate(): float
     {
@@ -68,5 +74,15 @@ class TaxEntity extends Entity
     public function setCustomFields(?array $customFields): void
     {
         $this->customFields = $customFields;
+    }
+
+    public function getRules(): ?TaxRuleCollection
+    {
+        return $this->rules;
+    }
+
+    public function setRules(TaxRuleCollection $rules): void
+    {
+        $this->rules = $rules;
     }
 }

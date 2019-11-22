@@ -1,0 +1,265 @@
+{% block sw_order_detail_base_order_overview %}
+    <sw-card class="sw-order-user-card"
+        :title="$tc('sw-order.detailBase.cardTitleDetails')"
+        :isLoading="isLoading">
+
+        {% block sw_order_detail_base_address_modal %}
+            <sw-order-address-modal v-if="addressBeingEdited"
+                                    :countries="countries"
+                                    :address="addressBeingEdited"
+                                    :order="currentOrder"
+                                    :versionContext="versionContext"
+                                    @address-select="onAddressModalAddressSelected"
+                                    @reset="onResetOrder"
+                                    @save="onAddressModalSave"
+                                    @error="$emit('error')">
+            </sw-order-address-modal>
+        {% endblock %}
+
+        <sw-container slot="grid" rows="auto auto">
+
+            {% block sw_order_user_card_row_primary %}
+                <sw-card-section divider="bottom">
+
+                    {% block sw_order_user_card_metadata_container %}
+                        <sw-container columns="80px 1fr max-content"
+                                      gap="0px 30px"
+                                      align="center"
+                                      class="sw-order-user-card__container">
+
+                            {% block sw_order_user_card_avatar %}
+                                <sw-avatar size="80px"
+                                           :color="$route.meta.$module.color"
+                                           :firstName="currentOrder.orderCustomer.firstName"
+                                           :lastName="currentOrder.orderCustomer.lastName">
+                                </sw-avatar>
+                            {% endblock %}
+
+                            {% block sw_order_user_card_metadata %}
+                                <div class="sw-order-user-card__metadata">
+                                    {% block sw_order_user_card_metadata_user_name %}
+                                        <div v-if="currentOrder.orderCustomer" class="sw-order-user-card__metadata-user-name">
+                                            {{ fullName }}
+                                        </div>
+                                    {% endblock %}
+                                    {% block sw_order_user_card_metadata_tags %}
+                                        {# TODO: add versioning after NEXT-3898 and activate it editing mode and disable in non-editing mode #}
+                                        <sw-entity-tag-select v-if="isEditing || hasTags"
+                                                              class="sw-order-user-card__tag-select"
+                                                              :placeholder="$tc('sw-order.detailBase.placeholderTagSelect')"
+                                                              :size="!isEditing ? 'default' : 'medium'"
+                                                              :disabled="!isEditing"
+                                                              :entityCollection="currentOrder.tags"
+                                                              @item-add="onAddTag"
+                                                              @item-remove="onRemoveTag">
+                                        </sw-entity-tag-select>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+
+                            {% block sw_order_detail_base_info_summary %}
+                                <div class="sw-order-user-card__info-summary">
+                                    {% block  sw_order_detail_base_info_summary_entries %}
+                                        <div class="sw-order-user-card__metadata-price">
+                                            {{ currentOrder.amountTotal | currency(currentOrder.currency.translated.shortName) }}
+                                        </div>
+
+                                        <div class="sw-order-user-card__metadata-item">
+                                            {{ orderDate }}
+                                        </div>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+
+                        </sw-container>
+                    {% endblock %}
+
+                    <slot name="additional-actions">
+                        {% block sw_order_user_card_slot_additional_actions%}{% endblock %}
+                    </slot>
+
+                    {% block sw_order_detail_base_order_overview_columns %}
+                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="30px 30px">
+
+                            {% block sw_order_detail_base_order_overview_left_column %}
+                                <sw-description-list columns="1fr" grid="1fr" class="sw-order-user-card__summary-vertical">
+
+                                    {% block sw_order_detail_base_order_overview_email %}
+                                        <dt>{{ $tc('sw-order.detailBase.labelCustomerEmail') }}*</dt>
+                                        <dd>
+                                            <sw-order-inline-field :displayValue="currentOrder.orderCustomer.email? currentOrder.orderCustomer.email : $tc('sw-order.detailBase.labelNoEmail')"
+                                                                   required
+                                                                   :value="currentOrder.orderCustomer.email"
+                                                                   :editable="isEditing"
+                                                                   @input="$emit('order-change')"
+                                                                   v-model="currentOrder.orderCustomer.email">
+                                            </sw-order-inline-field>
+                                        </dd>
+                                    {% endblock %}
+
+                                    {% block sw_order_detail_base_order_overview_billing_address %}
+                                        <dt>
+                                            {{ $tc('sw-order.detailBase.headlineBillingAddress') }}
+                                            <sw-button v-if="isEditing"
+                                                       class="sw-order-user-card__address-edit-button"
+                                                       size="small"
+                                                       @click="onEditBillingAddress">
+                                                {{ $tc('sw-order.detailBase.buttonEditAddress') }}
+                                            </sw-button>
+                                        </dt>
+                                        <dd @click="onEditBillingAddress">
+                                            <sw-address :address="billingAddress" >
+                                            </sw-address>
+                                        </dd>
+                                    {% endblock %}
+
+                                    {% block sw_order_detail_base_order_overview_left_column_slot %}
+                                    {% endblock %}
+
+                                </sw-description-list>
+                            {% endblock %}
+
+                            {% block sw_order_detail_base_order_overview_right_column %}
+                                <sw-description-list columns="1fr" grid="1fr" class="sw-order-user-card__summary-vertical">
+
+                                    {% block sw_order_detail_base_order_overview_phone_number %}
+                                        <dt>{{ $tc('sw-order.detailBase.labelCustomerPhoneNumber') }}</dt>
+                                        <dd>
+                                            <sw-order-inline-field v-model="billingAddress.phoneNumber"
+                                                                   :displayValue="billingAddress.phoneNumber? billingAddress.phoneNumber : $tc('sw-order.detailBase.labelNoPhoneNumber')"
+                                                                   :value="billingAddress.phoneNumber"
+                                                                   :editable="isEditing"
+                                                                   @input="$emit('order-change')"
+                                                                   class="sw-order-inline-field__truncateable">
+                                            </sw-order-inline-field>
+                                        </dd>
+                                    {% endblock %}
+
+                                    {% block sw_order_detail_base_order_overview_shipping_address %}
+                                        <dt>
+                                            {{ $tc('sw-order.detailBase.headlineDeliveryAddress') }}
+                                            <sw-button v-show="hasDifferentBillingAndShippingAddress && isEditing"
+                                                       class="sw-order-user-card__address-edit-button"
+                                                       size="small"
+                                                       @click="onEditDeliveryAddress">
+                                                {{ $tc('sw-order.detailBase.buttonEditAddress') }}
+                                            </sw-button>
+                                        </dt>
+
+                                        <dd v-if="!hasDifferentBillingAndShippingAddress && hasDeliveries">
+                                                <span>
+                                                    {{ $tc('sw-order.detailBase.labelSameDeliveryAndBillingAddress') }}
+                                                </span>
+                                            <sw-button v-show="!hasDifferentBillingAndShippingAddress && isEditing"
+                                                       class="sw-order-user-card__address-add-button"
+                                                       size="small"
+                                                       block
+                                                       @click="onAddNewDeliveryAddress">
+                                                {{ $tc('sw-order.detailBase.buttonAddDeliveryAddress') }}
+                                            </sw-button>
+                                        </dd>
+
+                                        <dd v-else-if="hasDeliveries" @click="$emit('onEditDeliveryAddress',$event)">
+                                            <sw-address :address="delivery.shippingOrderAddress">
+                                            </sw-address>
+                                        </dd>
+
+                                        <dd v-else>
+                                            {{ $tc('sw-order.detailBase.labelNoDeliveriesYet') }}
+                                        </dd>
+                                    {% endblock %}
+
+                                    {% block sw_order_detail_base_order_overview_right_column_slot %}
+                                    {% endblock %}
+
+                                </sw-description-list>
+                            {% endblock %}
+
+                        </sw-container>
+                    {% endblock %}
+
+                </sw-card-section>
+            {% endblock %}
+
+            {% block sw_order_user_card_row_secondary %}
+                <sw-card-section secondary slim>
+
+                    {% block sw_order_detail_base_secondary_info_order_overview %}
+                        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="30px 30px">
+
+                            {% block sw_order_detail_base_secondary_info_order_overview_contents %}
+                                <sw-description-list columns="1fr" grid="1fr" class="sw-order-user-card__summary-vertical">
+
+                                    {% block sw_order_detail_base_secondary_info_order_overview_left_column %}
+
+                                        {% block sw_order_detail_base_secondary_info_sales_channel %}
+                                            <dt>{{ $tc('sw-order.detailBase.labelSalesChannel') }}</dt>
+                                            <dd class="sw-order-base__label-sales-channel">{{ currentOrder.salesChannel.translated.name }}</dd>
+                                        {% endblock %}
+
+                                        {% block sw_order_detail_base_secondary_info_payment %}
+                                            <template v-if="currentOrder.transactions.length > 0">
+                                                <dt>{{ $tc('sw-order.detailBase.labelPaymentMethod') }}</dt>
+                                                <dd>{{ currentOrder.transactions[0].paymentMethod.translated.name}}</dd>
+                                            </template>
+                                        {% endblock %}
+
+                                        {% block sw_order_detail_base_secondary_info_delivery %}
+                                            <dt>{{ $tc('sw-order.detailBase.labelShippingMethod') }}</dt>
+                                            <dd>{{ hasDeliveries ? delivery.shippingMethod.translated.name :$tc('sw-order.detailBase.labelNoDeliveriesYet')  }}</dd>
+                                        {% endblock %}
+
+                                        {% block sw_order_detail_base_secondary_info_affiliate %}
+                                            <dt>{{ $tc('sw-order.detailBase.labelAffiliateCode') }}</dt>
+                                            <dd>{{ currentOrder.affiliateCode || '-' }}</dd>
+                                        {% endblock %}
+
+                                        {% block sw_order_detail_base_secondary_info_order_overview_left_column_slot %}
+                                        {% endblock %}
+
+                                    {% endblock %}
+                                </sw-description-list>
+
+                                <sw-description-list columns="1fr" grid="1fr" class="sw-order-user-card__summary-vertical">
+                                    {%  block sw_order_detail_base_secondary_info_order_overview_right_column %}
+
+                                        {% block sw_order_detail_base_secondary_info_order_language %}
+                                            <dt>{{ $tc('sw-order.detailBase.labelLanguage') }}</dt>
+                                            <dd>{{ currentOrder.language.name }}</dd>
+                                        {% endblock %}
+
+                                        {% block sw_order_detail_base_secondary_info_last_change %}
+                                            <dt>{{ $tc('sw-order.detailBase.labelLastChange') }}</dt>
+                                            <dd>{{ lastChangedDate }}</dd>
+                                        {% endblock %}
+
+                                        {% block sw_order_detail_base_secondary_info_tracking_codes %}
+                                            <dt>{{ $tc('sw-order.detailBase.labelTrackingCodes') }}</dt>
+                                            <dd>{{ hasDeliveryTrackingCode ? delivery.trackingCodes.join(', ') :$tc('sw-order.detailBase.labelNoDeliveryTrackingCodeYet') }}</dd>
+                                        {% endblock %}
+
+                                        {% block sw_order_detail_base_secondary_info_campaign %}
+                                            <template v-if="currentOrder.campaignCode">
+                                                <dt>{{ $tc('sw-order.detailBase.labelCampaignCode') }}</dt>
+                                                <dd>{{ currentOrder.campaignCode || '-' }}</dd>
+                                            </template>
+                                        {% endblock %}
+
+                                        {% block sw_order_detail_base_secondary_info_order_overview_right_column_slot %}
+                                        {% endblock %}
+
+                                    {% endblock %}
+
+                                </sw-description-list>
+                            {% endblock %}
+
+                        </sw-container>
+                    {% endblock %}
+
+                </sw-card-section>
+            {% endblock %}
+
+        </sw-container>
+    </sw-card>
+
+{% endblock %}

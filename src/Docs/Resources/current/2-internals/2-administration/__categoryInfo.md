@@ -1,13 +1,13 @@
 [titleEn]: <>(Administration)
 
-* [Repository Link](https://github.com/shopware/platform/tree/master/src/Adminitration/Resources/administration/source)
+* [Repository Link](https://github.com/shopware/platform/tree/master/src/Adminitration/Resources/app/administration/source)
 * [Component library](https://component-library.shopware.com ) 
 
 The Administration is a Single Page Application that provides a rich user interface on top of REST-API based communication with the core. It is an Interaction-Oriented-System following the example of the Web-Components patterns - albeit through VueJS. 
 
 
 ```
-<platform/src/Administration/Resources/administration/src/>
+<platform/src/Administration/Resources/app/administration/src/>
 └── app
 └── core
 └── flag

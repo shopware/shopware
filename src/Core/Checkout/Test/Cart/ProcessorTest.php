@@ -12,6 +12,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -19,6 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class ProcessorTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use TaxAddToSalesChannelTestBehaviour;
 
     /**
      * @var SalesChannelContextFactory
@@ -47,6 +49,7 @@ class ProcessorTest extends TestCase
         $cart = new Cart('test', 'test');
 
         $id = Uuid::randomHex();
+        $tax = ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'test'];
 
         $product = [
             'id' => $id,
@@ -56,7 +59,7 @@ class ProcessorTest extends TestCase
             ],
             'productNumber' => Uuid::randomHex(),
             'manufacturer' => ['name' => 'test'],
-            'tax' => ['taxRate' => 19, 'name' => 'test'],
+            'tax' => $tax,
             'stock' => 10,
             'active' => true,
             'visibilities' => [
@@ -66,6 +69,8 @@ class ProcessorTest extends TestCase
 
         $this->getContainer()->get('product.repository')
             ->create([$product], Context::createDefaultContext());
+
+        $this->addTaxDataToSalesChannel($this->context, $tax);
 
         $cart->add(
             (new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE, $id, 1))

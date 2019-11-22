@@ -1,0 +1,57 @@
+{% sw_extends '@Storefront/storefront/page/account/_page.html.twig' %}
+
+{% block page_account_main_content %}
+    {% block page_account_payment %}
+        <div class="account-payment">
+            {% block page_account_payment_welcome %}
+                <div class="account-welcome">
+                    {% block page_account_payment_welcome_headline %}
+                        <h1>{{ "account.paymentTitle"|trans|sw_sanitize }}</h1>
+                    {% endblock %}
+
+                    {% block page_account_payment_welcome_intro %}
+                        <p>{{ "account.paymentText"|trans|sw_sanitize }}</p>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block page_account_payment_main %}
+                <div class="account-payment-card card">
+                    <div class="card-body">
+                        {% block page_account_payment_title %}
+                            <h2 class="card-title">
+                                {{ "account.overviewPaymentHeader"|trans|sw_sanitize }}
+                            </h2>
+                        {% endblock %}
+
+                        {% block page_account_payment_form %}
+                            <form action="{{ path('frontend.account.payment.save') }}"
+                                  method="post"
+                                  data-form-csrf-handler="true">
+
+                                {% block page_account_payment_form_csrf %}
+                                    {{ sw_csrf('frontend.account.payment.save') }}
+                                {% endblock %}
+
+                                <input type="hidden" name="redirectTo" value="frontend.account.payment.page">
+                                {% block page_account_payment_fields %}
+                                    {% sw_include '@Storefront/storefront/component/payment/payment-fields.html.twig' with {
+                                        'defaultPaymentMethodId': context.customer.defaultPaymentMethodId,
+                                    } %}
+                                {% endblock %}
+
+                                {% block page_account_payment_actions %}
+                                    <button class="btn btn-primary"
+                                            type="submit"
+                                            title="{{ "account.paymentChangeSubmit"|trans|striptags }}">
+                                        {{ "account.paymentChangeSubmit"|trans|sw_sanitize }}
+                                    </button>
+                                {% endblock %}
+                            </form>
+                        {% endblock %}
+                    </div>
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

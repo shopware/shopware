@@ -65,10 +65,6 @@ Component.register('sw-theme-manager-detail', {
             };
         },
 
-        languageId() {
-            return this.$store.state.adminLocale.languageId;
-        },
-
         mediaStore() {
             return State.getStore('media');
         },
@@ -85,10 +81,6 @@ Component.register('sw-theme-manager-detail', {
     watch: {
         themeId() {
             this.getTheme();
-        },
-
-        languageId() {
-            this.getThemeConfig();
         }
     },
 
@@ -112,9 +104,7 @@ Component.register('sw-theme-manager-detail', {
             this.themeRepository.get(this.themeId, Shopware.Context.api, criteria).then((response) => {
                 this.theme = response;
 
-                if (this.languageId) {
-                    this.getThemeConfig();
-                }
+                this.getThemeConfig();
 
                 if (this.theme.parentThemeId) {
                     this.getParentTheme();
@@ -131,11 +121,11 @@ Component.register('sw-theme-manager-detail', {
                 return;
             }
 
-            this.themeService.getFields(this.themeId, this.languageId).then((fields) => {
+            this.themeService.getFields(this.themeId).then((fields) => {
                 this.themeFields = fields;
             });
 
-            this.themeService.getConfiguration(this.themeId, this.languageId).then((config) => {
+            this.themeService.getConfiguration(this.themeId).then((config) => {
                 this.themeConfig = config.fields;
                 this.baseThemeConfig = cloneDeep(config.fields);
                 this.isLoading = false;

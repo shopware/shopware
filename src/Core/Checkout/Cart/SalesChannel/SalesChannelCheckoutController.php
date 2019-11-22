@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
-use Shopware\Core\Framework\Api\Converter\ConverterService;
+use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -71,9 +71,9 @@ class SalesChannelCheckoutController extends AbstractController
     private $accountService;
 
     /**
-     * @var ConverterService
+     * @var ApiVersionConverter
      */
-    private $converterService;
+    private $apiVersionConverter;
 
     public function __construct(
         PaymentService $paymentService,
@@ -83,7 +83,7 @@ class SalesChannelCheckoutController extends AbstractController
         EntityRepositoryInterface $orderRepository,
         AccountRegistrationService $accountRegistrationService,
         AccountService $accountService,
-        ConverterService $converterService
+        ApiVersionConverter $apiVersionConverter
     ) {
         $this->paymentService = $paymentService;
         $this->cartService = $cartService;
@@ -92,7 +92,7 @@ class SalesChannelCheckoutController extends AbstractController
         $this->serializer = $serializer;
         $this->accountRegistrationService = $accountRegistrationService;
         $this->accountService = $accountService;
-        $this->converterService = $converterService;
+        $this->apiVersionConverter = $apiVersionConverter;
     }
 
     /**
@@ -108,7 +108,7 @@ class SalesChannelCheckoutController extends AbstractController
         $orderId = $this->cartService->order($cart, $context);
         $order = $this->getOrderById($orderId, $context);
 
-        return new JsonResponse($this->serialize($this->converterService->convertEntity(
+        return new JsonResponse($this->serialize($this->apiVersionConverter->convertEntity(
             $this->orderRepository->getDefinition(),
             $order,
             $version
@@ -135,7 +135,7 @@ class SalesChannelCheckoutController extends AbstractController
         $cart = $this->cartService->getCart($newSalesChannelContext->getToken(), $newSalesChannelContext);
         $orderId = $this->cartService->order($cart, $newSalesChannelContext);
 
-        $responseData = $this->serialize($this->converterService->convertEntity(
+        $responseData = $this->serialize($this->apiVersionConverter->convertEntity(
             $this->orderRepository->getDefinition(),
             $this->getOrderById($orderId, $newSalesChannelContext),
             $version
@@ -168,7 +168,7 @@ class SalesChannelCheckoutController extends AbstractController
             throw new OrderNotFoundException($id);
         }
 
-        return new JsonResponse($this->serialize($this->converterService->convertEntity(
+        return new JsonResponse($this->serialize($this->apiVersionConverter->convertEntity(
             $this->orderRepository->getDefinition(),
             $orders->first(),
             $version

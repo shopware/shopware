@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Api\Sync;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Api\Converter\ConverterService;
+use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionException;
 use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionNotAllowedException;
 use Shopware\Core\Framework\Context;
@@ -28,18 +28,18 @@ class SyncService implements SyncServiceInterface
     private $connection;
 
     /**
-     * @var ConverterService
+     * @var ApiVersionConverter
      */
-    private $converterService;
+    private $apiVersionConverter;
 
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         Connection $connection,
-        ConverterService $converterService
+        ApiVersionConverter $apiVersionConverter
     ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->connection = $connection;
-        $this->converterService = $converterService;
+        $this->apiVersionConverter = $apiVersionConverter;
     }
 
     /**
@@ -185,12 +185,12 @@ class SyncService implements SyncServiceInterface
     {
         $exception = new ApiConversionException();
 
-        if (!$this->converterService->isAllowed($definition->getEntityName(), null, $apiVersion)) {
+        if (!$this->apiVersionConverter->isAllowed($definition->getEntityName(), null, $apiVersion)) {
             $exception->add(new ApiConversionNotAllowedException($definition->getEntityName(), $apiVersion), "/${writeIndex}");
             $exception->tryToThrow();
         }
 
-        $converted = $this->converterService->convertPayload($definition, $record, $apiVersion, $exception, "/${writeIndex}");
+        $converted = $this->apiVersionConverter->convertPayload($definition, $record, $apiVersion, $exception, "/${writeIndex}");
         $exception->tryToThrow();
 
         return $converted;

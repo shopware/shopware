@@ -48,7 +48,7 @@
             <argument type="service" id="import_export_profile.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator" />
             <argument type="service" id="Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition" />
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ConverterService" />
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter" />
             <argument>%import_export.http_batch_size%</argument>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

@@ -10,7 +10,7 @@ use Shopware\Core\Content\ImportExport\Service\DownloadService;
 use Shopware\Core\Content\ImportExport\Service\InitiationService;
 use Shopware\Core\Content\ImportExport\Service\ProcessingService;
 use Shopware\Core\Content\ImportExport\Service\SupportedFeaturesService;
-use Shopware\Core\Framework\Api\Converter\ConverterService;
+use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -72,9 +72,9 @@ class ImportExportActionController extends AbstractController
     private $logDefinition;
 
     /**
-     * @var ConverterService
+     * @var ApiVersionConverter
      */
-    private $converterService;
+    private $apiVersionConverter;
 
     public function __construct(
         SupportedFeaturesService $supportedFeaturesService,
@@ -84,7 +84,7 @@ class ImportExportActionController extends AbstractController
         EntityRepositoryInterface $profileRepository,
         DataValidator $dataValidator,
         ImportExportLogDefinition $logDefinition,
-        ConverterService $converterService,
+        ApiVersionConverter $apiVersionConverter,
         int $processingBatchSize
     ) {
         $this->supportedFeaturesService = $supportedFeaturesService;
@@ -95,7 +95,7 @@ class ImportExportActionController extends AbstractController
         $this->dataValidator = $dataValidator;
         $this->processingBatchSize = $processingBatchSize;
         $this->logDefinition = $logDefinition;
-        $this->converterService = $converterService;
+        $this->apiVersionConverter = $apiVersionConverter;
     }
 
     /**
@@ -145,7 +145,7 @@ class ImportExportActionController extends AbstractController
             $log = $this->initiationService->initiate($context, 'export', $profile, $expireDate);
         }
 
-        return new JsonResponse(['log' => $this->converterService->convertEntity($this->logDefinition, $log, $version)]);
+        return new JsonResponse(['log' => $this->apiVersionConverter->convertEntity($this->logDefinition, $log, $version)]);
     }
 
     /**

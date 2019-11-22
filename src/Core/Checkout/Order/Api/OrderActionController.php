@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Service\MailService;
-use Shopware\Core\Framework\Api\Converter\ConverterService;
+use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -59,9 +59,9 @@ class OrderActionController extends AbstractController
     private $documentRepository;
 
     /**
-     * @var ConverterService
+     * @var ApiVersionConverter
      */
-    private $converterService;
+    private $apiVersionConverter;
 
     /**
      * @var StateMachineDefinition
@@ -75,7 +75,7 @@ class OrderActionController extends AbstractController
         EntityRepositoryInterface $documentRepository,
         MailService $mailService,
         DocumentService $documentService,
-        ConverterService $converterService,
+        ApiVersionConverter $apiVersionConverter,
         StateMachineDefinition $stateMachineDefinition
     ) {
         $this->stateMachineRegistry = $stateMachineRegistry;
@@ -84,7 +84,7 @@ class OrderActionController extends AbstractController
         $this->mailService = $mailService;
         $this->documentService = $documentService;
         $this->documentRepository = $documentRepository;
-        $this->converterService = $converterService;
+        $this->apiVersionConverter = $apiVersionConverter;
         $this->stateMachineDefinition = $stateMachineDefinition;
     }
 
@@ -153,7 +153,7 @@ class OrderActionController extends AbstractController
             }
         }
 
-        return new JsonResponse($this->converterService->convertEntity(
+        return new JsonResponse($this->apiVersionConverter->convertEntity(
             $this->stateMachineDefinition,
             $toPlace,
             $version
@@ -225,7 +225,7 @@ class OrderActionController extends AbstractController
             }
         }
 
-        return new JsonResponse($this->converterService->convertEntity(
+        return new JsonResponse($this->apiVersionConverter->convertEntity(
             $this->stateMachineDefinition,
             $toPlace,
             $version
@@ -297,7 +297,7 @@ class OrderActionController extends AbstractController
             }
         }
 
-        return new JsonResponse($this->converterService->convertEntity(
+        return new JsonResponse($this->apiVersionConverter->convertEntity(
             $this->stateMachineDefinition,
             $toPlace,
             $version

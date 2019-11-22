@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Plugin\Api;
 
 use Composer\IO\NullIO;
-use Shopware\Core\Framework\Api\Converter\ConverterService;
+use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\CanNotDeletePluginManagedByComposerException;
 use Shopware\Core\Framework\Plugin\Exception\PluginCannotBeDeletedException;
@@ -42,9 +42,10 @@ class PluginController extends AbstractController
     private $pluginManagementService;
 
     /**
-     * @var ConverterService
+     * @var ApiVersionConverter
      */
-    private $converterService;
+    private $apiVersionConverter;
+
     /**
      * @var PluginDefinition
      */
@@ -54,13 +55,13 @@ class PluginController extends AbstractController
         PluginService $pluginService,
         PluginLifecycleService $pluginLifecycleService,
         PluginManagementService $pluginManagementService,
-        ConverterService $converterService,
+        ApiVersionConverter $apiVersionConverter,
         PluginDefinition $pluginDefinition
     ) {
         $this->pluginService = $pluginService;
         $this->pluginLifecycleService = $pluginLifecycleService;
         $this->pluginManagementService = $pluginManagementService;
-        $this->converterService = $converterService;
+        $this->apiVersionConverter = $apiVersionConverter;
         $this->pluginDefinition = $pluginDefinition;
     }
 
@@ -108,7 +109,7 @@ class PluginController extends AbstractController
 
         $this->pluginService->refreshPlugins($context, new NullIO());
 
-        return new JsonResponse($this->converterService->convertEntity(
+        return new JsonResponse($this->apiVersionConverter->convertEntity(
             $this->pluginDefinition,
             $plugin,
             $version
@@ -135,7 +136,7 @@ class PluginController extends AbstractController
 
         $this->pluginLifecycleService->installPlugin($plugin, $context);
 
-        return new JsonResponse($this->converterService->convertEntity(
+        return new JsonResponse($this->apiVersionConverter->convertEntity(
             $this->pluginDefinition,
             $plugin,
             $version
@@ -152,7 +153,7 @@ class PluginController extends AbstractController
 
         $this->pluginLifecycleService->uninstallPlugin($plugin, $context);
 
-        return new JsonResponse($this->converterService->convertEntity(
+        return new JsonResponse($this->apiVersionConverter->convertEntity(
             $this->pluginDefinition,
             $plugin,
             $version
@@ -169,7 +170,7 @@ class PluginController extends AbstractController
 
         $this->pluginLifecycleService->activatePlugin($plugin, $context);
 
-        return new JsonResponse($this->converterService->convertEntity(
+        return new JsonResponse($this->apiVersionConverter->convertEntity(
             $this->pluginDefinition,
             $plugin,
             $version
@@ -186,7 +187,7 @@ class PluginController extends AbstractController
 
         $this->pluginLifecycleService->deactivatePlugin($plugin, $context);
 
-        return new JsonResponse($this->converterService->convertEntity(
+        return new JsonResponse($this->apiVersionConverter->convertEntity(
             $this->pluginDefinition,
             $plugin,
             $version

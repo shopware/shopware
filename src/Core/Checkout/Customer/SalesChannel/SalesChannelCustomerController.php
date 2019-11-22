@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDef
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Order\OrderCollection;
-use Shopware\Core\Framework\Api\Converter\ConverterService;
+use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -62,9 +62,9 @@ class SalesChannelCustomerController extends AbstractController
     private $customerDefinition;
 
     /**
-     * @var ConverterService
+     * @var ApiVersionConverter
      */
-    private $converterService;
+    private $apiVersionConverter;
 
     /**
      * @var CustomerAddressDefinition
@@ -79,7 +79,7 @@ class SalesChannelCustomerController extends AbstractController
         AddressService $addressService,
         CustomerDefinition $customerDefinition,
         CustomerAddressDefinition $addressDefinition,
-        ConverterService $converterService
+        ApiVersionConverter $apiVersionConverter
     ) {
         $this->serializer = $serializer;
         $this->accountService = $accountService;
@@ -87,7 +87,7 @@ class SalesChannelCustomerController extends AbstractController
         $this->accountRegisterService = $accountRegisterService;
         $this->addressService = $addressService;
         $this->customerDefinition = $customerDefinition;
-        $this->converterService = $converterService;
+        $this->apiVersionConverter = $apiVersionConverter;
         $this->addressDefinition = $addressDefinition;
     }
 
@@ -126,7 +126,7 @@ class SalesChannelCustomerController extends AbstractController
         $orders = $this->loadOrders($page, $limit, $context);
         $convertedOrders = [];
         foreach ($orders as $order) {
-            $convertedOrders[] = $this->converterService->convertEntity(
+            $convertedOrders[] = $this->apiVersionConverter->convertEntity(
                 $this->orderRepository->getDefinition(),
                 $order,
                 $version
@@ -210,7 +210,7 @@ class SalesChannelCustomerController extends AbstractController
         $converted = [];
 
         foreach ($addresses as $address) {
-            $converted[] = $this->converterService->convertEntity($this->addressDefinition, $address, $version);
+            $converted[] = $this->apiVersionConverter->convertEntity($this->addressDefinition, $address, $version);
         }
 
         return new JsonResponse(
@@ -230,7 +230,7 @@ class SalesChannelCustomerController extends AbstractController
         $address = $this->addressService->getById($id, $context);
 
         return new JsonResponse(
-            $this->serialize($this->converterService->convertEntity($this->addressDefinition, $address, $version))
+            $this->serialize($this->apiVersionConverter->convertEntity($this->addressDefinition, $address, $version))
         );
     }
 

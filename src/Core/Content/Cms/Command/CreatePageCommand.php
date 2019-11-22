@@ -69,7 +69,7 @@ class CreatePageCommand extends Command
         $this->addOption('reset', null, InputOption::VALUE_NONE, 'Reset all pages');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if ($input->getOption('reset')) {
             $this->resetPages();
@@ -116,7 +116,7 @@ class CreatePageCommand extends Command
 
         $output->writeln('ID: ' . $page['id']);
 
-        return null;
+        return 0;
     }
 
     private function resetPages(): void

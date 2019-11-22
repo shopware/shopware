@@ -64,7 +64,7 @@ class CleanPersonalDataCommand extends Command
             );
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $type = $input->getArgument('type');
         $all = $input->getOption('all');
@@ -114,6 +114,6 @@ class CleanPersonalDataCommand extends Command
 
         $output->writeln('Personal data for ' . ($all ? implode(' and ', self::VALID_TYPES) : $type) . ' successfully cleaned!');
 
-        return null;
+        return 0;
     }
 }

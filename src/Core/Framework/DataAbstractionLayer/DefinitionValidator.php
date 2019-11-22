@@ -6,6 +6,7 @@ use Doctrine\Common\Inflector\Inflector;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Schema\Table;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -205,7 +206,7 @@ class DefinitionValidator
             }
             try {
                 $this->registry->getByEntityName($table->getName());
-            } catch (Exception\DefinitionNotFoundException $e) {
+            } catch (DefinitionNotFoundException $e) {
                 $violations[] = sprintf(
                     'Table %s has no configured definition',
                     $table->getName()

@@ -3,7 +3,9 @@
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes;
 
 use Doctrine\DBAL\Cache\QueryCacheProfile;
+use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\PDOMySql\Driver;
 use Doctrine\DBAL\Query\QueryBuilder;
 
 class FakeConnection extends Connection
@@ -20,8 +22,8 @@ class FakeConnection extends Connection
             [
                 'url' => 'sqlite:///:memory:',
             ],
-            new \Doctrine\DBAL\Driver\PDOMySql\Driver(),
-            new \Doctrine\DBAL\Configuration(),
+            new Driver(),
+            new Configuration(),
             null
         );
 

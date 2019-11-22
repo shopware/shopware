@@ -33,7 +33,7 @@ class ConvertMarkdownDocsCommand extends Command
             ->setDescription('Converts Markdown to Wiki-HTML');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $inPath = $input->getOption('input');
         $outPath = $input->getOption('output');
@@ -69,7 +69,7 @@ class ConvertMarkdownDocsCommand extends Command
         }
 
         if (!$isSync || !file_exists(self::CREDENTIAL_PATH)) {
-            return null;
+            return 0;
         }
 
         $credentialsContents = file_get_contents(self::CREDENTIAL_PATH);
@@ -81,7 +81,7 @@ class ConvertMarkdownDocsCommand extends Command
         $syncService = new WikiApiService($token, $server, $rootCategory);
         $syncService->syncFilesWithServer($tree);
 
-        return null;
+        return 0;
     }
 
     protected function readAllFiles(array $files): array

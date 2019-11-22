@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -92,7 +93,7 @@ class ProductSearchKeywordIndexer implements IndexerInterface
         /** @var LanguageEntity $language */
         foreach ($languages as $language) {
             $context = new Context(
-                new Context\SystemSource(),
+                new SystemSource(),
                 [],
                 Defaults::CURRENCY,
                 [$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM],
@@ -151,7 +152,7 @@ class ProductSearchKeywordIndexer implements IndexerInterface
 
         $language = $languages[$languageOffset];
         $context = new Context(
-            new Context\SystemSource(),
+            new SystemSource(),
             [],
             Defaults::CURRENCY,
             [$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM],

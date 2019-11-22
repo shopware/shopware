@@ -24,7 +24,7 @@ class ServiceDefinitionTest extends TestCase
 
     public function testEverythingIsInstantiatable(): void
     {
-        $seperateKernel = KernelLifecycleManager::createKernel();
+        $seperateKernel = KernelLifecycleManager::createKernel(TestKernel::class);
         $seperateKernel->boot();
 
         $testContainer = $seperateKernel->getContainer()->get('test.service_container');

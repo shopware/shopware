@@ -19,7 +19,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Tests\Fixtures\DummyOutput;
+use Symfony\Component\Console\Output\BufferedOutput;
 
 class CleanPersonalDataCommandTest extends TestCase
 {
@@ -46,7 +46,7 @@ class CleanPersonalDataCommandTest extends TestCase
     public function testCommandWithoutArguments(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->getCommand()->run($this->getArrayInput(), new DummyOutput());
+        $this->getCommand()->run($this->getArrayInput(), new BufferedOutput());
     }
 
     public function testCommandWithInvalidArguments(): void
@@ -54,7 +54,7 @@ class CleanPersonalDataCommandTest extends TestCase
         $input = new ArrayInput(['type' => 'foo'], $this->createInputDefinition());
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->getCommand()->run($input, new DummyOutput());
+        $this->getCommand()->run($input, new BufferedOutput());
     }
 
     public function testCommandRemovesGuest(): void
@@ -64,7 +64,7 @@ class CleanPersonalDataCommandTest extends TestCase
         static::assertCount(1, $this->fetchAllCustomers());
 
         $input = new ArrayInput(['type' => 'guests'], $this->createInputDefinition());
-        $this->getCommand()->run($input, new DummyOutput());
+        $this->getCommand()->run($input, new BufferedOutput());
 
         static::assertEmpty($this->fetchAllCustomers());
     }
@@ -76,7 +76,7 @@ class CleanPersonalDataCommandTest extends TestCase
         static::assertCount(1, $this->fetchAllCustomers());
 
         $input = new ArrayInput(['type' => 'guests'], $this->createInputDefinition());
-        $this->getCommand()->run($input, new DummyOutput());
+        $this->getCommand()->run($input, new BufferedOutput());
 
         static::assertCount(1, $this->fetchAllCustomers());
     }
@@ -100,12 +100,12 @@ class CleanPersonalDataCommandTest extends TestCase
         );
 
         $input = new ArrayInput(['type' => 'guests', '--days' => 14], $this->createInputDefinition());
-        $this->getCommand()->run($input, new DummyOutput());
+        $this->getCommand()->run($input, new BufferedOutput());
 
         static::assertCount(($numberOfGuests + $numberOfNoGuests - 1), $this->fetchAllCustomers());
 
         $input = new ArrayInput(['type' => 'guests'], $this->createInputDefinition());
-        $this->getCommand()->run($input, new DummyOutput());
+        $this->getCommand()->run($input, new BufferedOutput());
 
         static::assertCount($numberOfNoGuests, $this->fetchAllCustomers());
     }
@@ -118,7 +118,7 @@ class CleanPersonalDataCommandTest extends TestCase
         static::assertCount(1, $this->fetchAllCustomers());
 
         $input = new ArrayInput(['type' => 'guests'], $this->createInputDefinition());
-        $this->getCommand()->run($input, new DummyOutput());
+        $this->getCommand()->run($input, new BufferedOutput());
 
         static::assertCount(1, $this->fetchAllCustomers());
     }
@@ -134,7 +134,7 @@ class CleanPersonalDataCommandTest extends TestCase
         static::assertCount($numberOfGuests, $this->fetchAllCustomers());
 
         $input = new ArrayInput(['type' => 'guests'], $this->createInputDefinition());
-        $this->getCommand()->run($input, new DummyOutput());
+        $this->getCommand()->run($input, new BufferedOutput());
 
         static::assertEmpty($this->fetchAllCustomers());
     }
@@ -146,7 +146,7 @@ class CleanPersonalDataCommandTest extends TestCase
         static::assertCount(1, $this->fetchAllCustomers());
 
         $input = new ArrayInput(['type' => 'guests', '--days' => 5], $this->createInputDefinition());
-        $this->getCommand()->run($input, new DummyOutput());
+        $this->getCommand()->run($input, new BufferedOutput());
 
         static::assertCount(1, $this->fetchAllCustomers());
     }
@@ -160,7 +160,7 @@ class CleanPersonalDataCommandTest extends TestCase
         static::assertCount(1, $this->fetchAllCarts());
 
         $input = new ArrayInput(['--all' => true], $this->createInputDefinition());
-        $this->getCommand()->run($input, new DummyOutput());
+        $this->getCommand()->run($input, new BufferedOutput());
 
         static::assertEmpty($this->fetchAllCustomers());
         static::assertEmpty($this->fetchAllCarts());
@@ -173,7 +173,7 @@ class CleanPersonalDataCommandTest extends TestCase
         static::assertCount(1, $this->fetchAllCarts());
 
         $input = new ArrayInput(['type' => 'carts'], $this->createInputDefinition());
-        $this->getCommand()->run($input, new DummyOutput());
+        $this->getCommand()->run($input, new BufferedOutput());
 
         static::assertCount(0, $this->fetchAllCarts());
     }
@@ -189,7 +189,7 @@ class CleanPersonalDataCommandTest extends TestCase
         static::assertCount($numberOfCarts, $this->fetchAllCarts());
 
         $input = new ArrayInput(['type' => 'carts'], $this->createInputDefinition());
-        $this->getCommand()->run($input, new DummyOutput());
+        $this->getCommand()->run($input, new BufferedOutput());
 
         static::assertCount(0, $this->fetchAllCarts());
     }
@@ -201,7 +201,7 @@ class CleanPersonalDataCommandTest extends TestCase
         static::assertCount(1, $this->fetchAllCarts());
 
         $input = new ArrayInput(['type' => 'carts', '--days' => 5], $this->createInputDefinition());
-        $this->getCommand()->run($input, new DummyOutput());
+        $this->getCommand()->run($input, new BufferedOutput());
 
         static::assertCount(1, $this->fetchAllCarts());
     }
@@ -214,7 +214,7 @@ class CleanPersonalDataCommandTest extends TestCase
         static::assertCount(2, $this->fetchAllCarts());
 
         $input = new ArrayInput(['type' => 'carts', '--days' => 5], $this->createInputDefinition());
-        $this->getCommand()->run($input, new DummyOutput());
+        $this->getCommand()->run($input, new BufferedOutput());
 
         static::assertCount(1, $this->fetchAllCarts());
     }

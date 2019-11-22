@@ -92,11 +92,11 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $session = $master->getSession();
-        if (!$session) {
+        if (!$master->hasSession()) {
             return;
         }
 
+        $session = $master->getSession();
         $applicationId = $master->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID);
 
         if (!$session->isStarted()) {
@@ -126,11 +126,11 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $session = $master->getSession();
-        if (!$session) {
+        if (!$master->hasSession()) {
             return;
         }
 
+        $session = $master->getSession();
         $session->migrate();
         $session->set('sessionId', $session->getId());
 
@@ -151,7 +151,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         if ($event->getRequest()->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {
             $event->stopPropagation();
             $content = $this->errorController->error(
-                $event->getException(),
+                $event->getThrowable(),
                 $this->requestStack->getMasterRequest(),
                 $event->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)
             );
@@ -165,7 +165,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if (!$event->getException() instanceof CustomerNotLoggedInException) {
+        if (!$event->getThrowable() instanceof CustomerNotLoggedInException) {
             return;
         }
 

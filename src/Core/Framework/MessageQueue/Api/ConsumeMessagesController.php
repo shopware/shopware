@@ -2,12 +2,16 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Api;
 
+use Shopware\Core\Framework\MessageQueue\Subscriber\CountHandledMessagesListener;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ServiceLocator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\EventListener\DispatchPcntlSignalListener;
+use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
+use Symfony\Component\Messenger\EventListener\StopWorkerOnSigtermSignalListener;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Worker;
 use Symfony\Component\Routing\Annotation\Route;
@@ -32,11 +36,35 @@ class ConsumeMessagesController extends AbstractController
      */
     private $pollInterval;
 
-    public function __construct(ServiceLocator $receiverLocator, MessageBusInterface $bus, int $pollInterval)
-    {
+    /**
+     * @var StopWorkerOnRestartSignalListener
+     */
+    private $stopWorkerOnRestartSignalListener;
+
+    /**
+     * @var StopWorkerOnSigtermSignalListener
+     */
+    private $stopWorkerOnSigtermSignalListener;
+
+    /**
+     * @var DispatchPcntlSignalListener
+     */
+    private $dispatchPcntlSignalListener;
+
+    public function __construct(
+        ServiceLocator $receiverLocator,
+        MessageBusInterface $bus,
+        int $pollInterval,
+        StopWorkerOnRestartSignalListener $stopWorkerOnRestartSignalListener,
+        StopWorkerOnSigtermSignalListener $stopWorkerOnSigtermSignalListener,
+        DispatchPcntlSignalListener $dispatchPcntlSignalListener
+    ) {
         $this->receiverLocator = $receiverLocator;
         $this->bus = $bus;
         $this->pollInterval = $pollInterval;
+        $this->stopWorkerOnRestartSignalListener = $stopWorkerOnRestartSignalListener;
+        $this->stopWorkerOnSigtermSignalListener = $stopWorkerOnSigtermSignalListener;
+        $this->dispatchPcntlSignalListener = $dispatchPcntlSignalListener;
     }
 
     /**
@@ -52,20 +80,17 @@ class ConsumeMessagesController extends AbstractController
 
         $receiver = $this->receiverLocator->get($receiverName);
 
-        $worker = new Worker([$receiver], $this->bus);
+        $workerDispatcher = new EventDispatcher();
+        $listener = new CountHandledMessagesListener($this->pollInterval);
+        $workerDispatcher->addSubscriber($listener);
+        $workerDispatcher->addSubscriber($this->stopWorkerOnRestartSignalListener);
+        $workerDispatcher->addSubscriber($this->stopWorkerOnSigtermSignalListener);
+        $workerDispatcher->addSubscriber($this->dispatchPcntlSignalListener);
 
-        $handledMessages = 0;
-        $started = (new \DateTimeImmutable())->getTimestamp();
-        $worker->run([], function (?Envelope $envelope) use ($worker, $started, &$handledMessages): void {
-            if ($envelope !== null) {
-                ++$handledMessages;
-            }
+        $worker = new Worker([$receiver], $this->bus, $workerDispatcher);
 
-            if ($started + $this->pollInterval < (new \DateTimeImmutable())->getTimestamp()) {
-                $worker->stop();
-            }
-        });
+        $worker->run();
 
-        return $this->json(['handledMessages' => $handledMessages]);
+        return $this->json(['handledMessages' => $listener->getHandledMessages()]);
     }
 }

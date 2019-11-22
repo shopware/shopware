@@ -32,7 +32,7 @@ class ThemeCreateCommand extends Command
             ->setDescription('Creates a plugin skeleton');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
         $helper = $this->getHelper('question');
@@ -108,7 +108,7 @@ class ThemeCreateCommand extends Command
         touch($directory . '/src/Resources/app/storefront/src/main.js');
         touch($directory . '/src/Resources/app/storefront/dist/storefront/js/' . $snakeCaseName . '.js');
 
-        return null;
+        return 0;
     }
 
     /**

@@ -7,6 +7,8 @@ use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\Exception\BundleNotFoundException;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
+use SwagExampleTest\SwagExampleTest;
+use SwagInvalidTest\SwagInvalidTest;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
 class ConfigurationServiceTest extends TestCase
@@ -31,14 +33,14 @@ class ConfigurationServiceTest extends TestCase
     {
         $this->expectException(BundleConfigNotFoundException::class);
         $this->configurationService->getConfiguration(
-            \SwagInvalidTest\SwagInvalidTest::PLUGIN_NAME
+            SwagInvalidTest::PLUGIN_NAME
         );
     }
 
     public function testGetConfigurationFromBundleWithoutExistingValues(): void
     {
         $actualConfig = $this->configurationService->getConfiguration(
-            \SwagExampleTest\SwagExampleTest::PLUGIN_NAME
+            SwagExampleTest::PLUGIN_NAME
         );
 
         static::assertSame($this->getConfigWithoutValues(), $actualConfig);
@@ -116,8 +118,8 @@ class ConfigurationServiceTest extends TestCase
         require_once __DIR__ . '/_fixtures/SwagInvalidTest/SwagInvalidTest.php';
 
         return [
-            new \SwagExampleTest\SwagExampleTest(true, __DIR__ . '/_fixtures/SwagExampleTest'),
-            new \SwagInvalidTest\SwagInvalidTest(true, __DIR__ . '/_fixtures/SwagInvalidTest/SwagInvalidTest.php'),
+            new SwagExampleTest(true, __DIR__ . '/_fixtures/SwagExampleTest'),
+            new SwagInvalidTest(true, __DIR__ . '/_fixtures/SwagInvalidTest/SwagInvalidTest.php'),
         ];
     }
 }

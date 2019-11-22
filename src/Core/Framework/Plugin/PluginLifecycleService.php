@@ -31,6 +31,7 @@ use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
@@ -38,7 +39,7 @@ use Shopware\Core\Kernel;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Messenger\Worker\StopWhenRestartSignalIsReceived;
+use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
 class PluginLifecycleService
 {
@@ -351,7 +352,7 @@ class PluginLifecycleService
         );
 
         // stop in old cache dir
-        $cacheItem = $this->restartSignalCachePool->getItem(StopWhenRestartSignalIsReceived::RESTART_REQUESTED_TIMESTAMP_KEY);
+        $cacheItem = $this->restartSignalCachePool->getItem(StopWorkerOnRestartSignalListener::RESTART_REQUESTED_TIMESTAMP_KEY);
         $cacheItem->set(microtime(true));
         $this->restartSignalCachePool->save($cacheItem);
 
@@ -401,7 +402,7 @@ class PluginLifecycleService
         );
 
         // signal worker stop in old cache dir
-        $cacheItem = $this->restartSignalCachePool->getItem(StopWhenRestartSignalIsReceived::RESTART_REQUESTED_TIMESTAMP_KEY);
+        $cacheItem = $this->restartSignalCachePool->getItem(StopWorkerOnRestartSignalListener::RESTART_REQUESTED_TIMESTAMP_KEY);
         $cacheItem->set(microtime(true));
         $this->restartSignalCachePool->save($cacheItem);
 
@@ -479,13 +480,15 @@ class PluginLifecycleService
          *
          * All other Requests wont have this plugin active until its updated in the db
          */
-        $tmpStaticPluginLoader = new Plugin\KernelPluginLoader\StaticKernelPluginLoader(
+        $tmpStaticPluginLoader = new StaticKernelPluginLoader(
             $pluginLoader->getClassLoader(),
             $kernel->getContainer()->getParameter('kernel.plugin_dir'),
             $plugins
         );
         $kernel->reboot(null, $tmpStaticPluginLoader);
 
+        // If symfony throws an exception when calling getContainer on an not booted kernel and catch it here
+        /** @var ContainerInterface|null $newContainer */
         $newContainer = $kernel->getContainer();
         if (!$newContainer) {
             throw new \RuntimeException('Failed to reboot the kernel');

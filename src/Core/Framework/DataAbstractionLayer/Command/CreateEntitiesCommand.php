@@ -39,7 +39,7 @@ class CreateEntitiesCommand extends Command
         $this->entityGenerator = $entityGenerator;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);
         $io->title('DAL generate schema');
@@ -75,6 +75,6 @@ class CreateEntitiesCommand extends Command
             }
         }
 
-        return null;
+        return 0;
     }
 }

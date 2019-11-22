@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -306,12 +307,12 @@ class AntiJoinSearchTest extends TestCase
         $ids = $productRepository->searchIds((new Criteria($ids))->addFilter($notGreenFilter), $enGbContext)->getIds();
         static::assertEmpty($ids);
 
-        $rawDeContext = new Context(new Context\SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM]);
+        $rawDeContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM]);
         $ids = $productRepository->searchIds((new Criteria($ids))->addFilter($notGreenFilter), $rawDeContext)->getIds();
         static::assertContains($greenGruenId, $ids);
         static::assertCount(1, $ids);
 
-        $deContext = new Context(new Context\SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM], Defaults::LIVE_VERSION, 1.0, 2, true);
+        $deContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM], Defaults::LIVE_VERSION, 1.0, 2, true);
         $ids = $productRepository->searchIds((new Criteria($ids))->addFilter($notGreenFilter), $deContext)->getIds();
         static::assertContains($greenGruenId, $ids);
         static::assertCount(1, $ids);
@@ -323,11 +324,11 @@ class AntiJoinSearchTest extends TestCase
         static::assertContains($greenGruenId, $ids);
         static::assertCount(1, $ids);
 
-        $rawDeContext = new Context(new Context\SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM]);
+        $rawDeContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM]);
         $ids = $productRepository->searchIds((new Criteria($ids))->addFilter($notGruenFilter), $rawDeContext)->getIds();
         static::assertEmpty($ids);
 
-        $deContext = new Context(new Context\SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM], Defaults::LIVE_VERSION, 1.0, 2, true);
+        $deContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM], Defaults::LIVE_VERSION, 1.0, 2, true);
         $ids = $productRepository->searchIds((new Criteria($ids))->addFilter($notGruenFilter), $deContext)->getIds();
         static::assertContains($onlyGreenId, $ids);
         static::assertCount(1, $ids);

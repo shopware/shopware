@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
@@ -290,7 +291,7 @@ class KernelPluginIntegrationTest extends TestCase
         );
     }
 
-    private function makeKernel(Plugin\KernelPluginLoader\KernelPluginLoader $loader): \Shopware\Core\Kernel
+    private function makeKernel(KernelPluginLoader $loader): \Shopware\Core\Kernel
     {
         $kernelClass = KernelLifecycleManager::getKernelClass();
         $version = 'v' . self::getTestVersion() . '@' . self::getTestRevision();

@@ -17,7 +17,7 @@ class RefreshMigrationCommand extends Command
             ->addArgument('path', InputArgument::REQUIRED, 'Path to migration file');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $path = $input->getArgument('path');
         $filename = basename($path);
@@ -48,7 +48,7 @@ class RefreshMigrationCommand extends Command
 
         rename($path, $newPath);
 
-        return null;
+        return 0;
     }
 
     private function getCurrentTimestamp(string $filename): string

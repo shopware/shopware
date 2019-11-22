@@ -69,7 +69,7 @@ class MigrationCommand extends Command
             ->addOption('limit', 'l', InputOption::VALUE_OPTIONAL, '', '0');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (!$input->getArgument('until') && !$input->getOption('all')) {
             throw new \InvalidArgumentException('missing timestamp cap or --all option');
@@ -110,7 +110,7 @@ class MigrationCommand extends Command
         $this->cache->clear();
         $this->io->writeln('cleared the shopware cache');
 
-        return null;
+        return 0;
     }
 
     private function finishProgress(int $migrated, int $total): void

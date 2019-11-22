@@ -53,7 +53,7 @@ class DocsDumpErd extends Command
             ->setDescription('Dump an entity relationship diagram');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
 
@@ -76,7 +76,7 @@ class DocsDumpErd extends Command
         $this->generateModuleErd($modules, $descriptionsShort, $destPath, $descriptionsLong);
         $this->generateGlobalErd($modules, $descriptionsShort, $destPath, $definitions);
 
-        return null;
+        return 0;
     }
 
     protected function updateTranslations(array $definitions, ArrayWriter $descriptionsLong, ArrayWriter $descriptionsShort, array $modules): void

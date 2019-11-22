@@ -57,7 +57,7 @@ EOD;
             ->setDescription('Dumps all Shopware 6 updates into a single file for the sync.');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
 
@@ -131,6 +131,6 @@ EOD;
 
         $io->success('Done');
 
-        return null;
+        return 0;
     }
 }

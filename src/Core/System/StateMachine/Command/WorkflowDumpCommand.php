@@ -49,7 +49,7 @@ EOF
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $workflowName = $input->getArgument('name');
         $context = Context::createDefaultContext();
@@ -66,6 +66,6 @@ EOF
         ];
         $output->writeln($dumper->dump($stateMachine, $options));
 
-        return null;
+        return 0;
     }
 }

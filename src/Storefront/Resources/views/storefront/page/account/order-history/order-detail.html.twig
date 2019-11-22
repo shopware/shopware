@@ -1,0 +1,146 @@
+{% block page_account_order_item_detail_overview %}
+    <div class="order-item-detail">
+        <div class="collapse"
+             id="order{{ order.orderNumber }}">
+            <div class="order-detail-content">
+                {% block page_account_order_item_detail_table_header %}
+                    <div class="order-detail-content-header">
+                        <div class="row">
+                            {% block page_account_order_item_detail_table_header_name %}
+                                <div class="col-6 order-header-name">
+                                    {{ "account.orderItemColumnName"|trans|sw_sanitize }}
+                                </div>
+                            {% endblock %}
+
+                            {% block page_account_order_item_detail_table_header_quantity %}
+                                <div class="col-2 order-header-quantity">
+                                    {{ "account.orderItemColumnQuantity"|trans|sw_sanitize }}
+                                </div>
+                            {% endblock %}
+
+                            {% block page_account_order_item_detail_table_header_price %}
+                                <div class="col-2 order-header-price">
+                                    {{ "account.orderItemColumnPrice"|trans|sw_sanitize }}
+                                </div>
+                            {% endblock %}
+
+                            {% block page_account_order_item_detail_table_header_total %}
+                                <div class="col-2 order-header-total">
+                                    {{ "account.orderItemColumnTotal"|trans|sw_sanitize }}
+                                </div>
+                            {% endblock %}
+                        </div>
+                    </div>
+                {% endblock %}
+
+                {% block page_account_order_item_detail_table_body %}
+                    <div class="order-detail-content-body js-order-detail-container-{{ order.id }}"></div>
+                {% endblock %}
+
+                {% block page_account_order_item_detail_table_footer %}
+                    <div class="order-detail-content-footer">
+                        {% block page_account_order_item_detail_table_labels_summary %}
+                            <div class="order-item-detail-footer">
+                                <div class="row no-gutters">
+                                    <div class="col-12 col-md-7 col-xl-6">
+                                        <dl class="row no-gutters order-item-detail-labels">
+                                            {% block page_account_order_item_detail_date %}
+                                                {% block page_account_order_item_detail_date_label %}
+                                                    <dt class="col-6 col-md-5">{{ "account.orderItemDate"|trans|sw_sanitize }}</dt>
+                                                {% endblock %}
+
+                                                {% block page_account_order_item_detail_date_value %}
+                                                    <dd class="col-6 col-md-7">{{ order.orderDateTime|localizeddate('short', 'none', app.request.locale) }}</dd>
+                                                {% endblock %}
+                                            {% endblock %}
+
+                                            {% block page_account_order_item_detail_number %}
+                                                {% block page_account_order_item_detail_number_label %}
+                                                    <dt class="col-6 col-md-5">{{ "account.orderItemNumber"|trans|sw_sanitize }}</dt>
+                                                {% endblock %}
+
+                                                {% block page_account_order_item_detail_number_value %}
+                                                    <dd class="col-6 col-md-7">{{ order.orderNumber }}</dd>
+                                                {% endblock %}
+                                            {% endblock %}
+
+                                            {% block page_account_order_item_detail_payment_method %}
+                                                {% if order.transactions|length > 0 %}
+                                                    {% block page_account_order_item_detail_payment_method_label %}
+                                                        <dt class="col-6 col-md-5">{{ "account.orderItemPaymentMethod"|trans|sw_sanitize }}</dt>
+                                                    {% endblock %}
+
+                                                    {% block page_account_order_item_detail_payment_method_value %}
+                                                        <dd class="col-6 col-md-7">
+                                                            {% for transaction in order.transactions %}
+                                                                {% if not loop.first and loop.index > 1 %}, {% endif %}{{ transaction.paymentMethod.translated.name }}
+                                                            {% endfor %}
+                                                        </dd>
+                                                    {% endblock %}
+                                                {% endif %}
+                                            {% endblock %}
+
+                                            {% block page_account_order_item_detail_shipping_method %}
+                                                {% if order.deliveries|length > 0 %}
+                                                    {% block page_account_order_item_detail_shipping_method_label %}
+                                                        <dt class="col-6 col-md-5">{{ "account.orderItemShippingMethod"|trans|sw_sanitize }}</dt>
+                                                    {% endblock %}
+
+                                                    {% block page_account_order_item_detail_shipping_method_value %}
+                                                        <dd class="col-6 col-md-7">
+                                                            {% for delivery in order.deliveries %}
+                                                                {% if not loop.first and loop.index > 1 %}, {% endif %}{{ delivery.shippingMethod.translated.name }}
+                                                            {% endfor %}
+                                                        </dd>
+                                                    {% endblock %}
+                                                {% endif %}
+                                            {% endblock %}
+                                        </dl>
+                                    </div>
+
+                                    <div class="col-12 col-md-5 col-xl-6">
+                                        {% block page_account_order_item_detail_summary %}
+                                            <dl class="row no-gutters order-item-detail-summary">
+                                                {% block page_account_order_item_detail_shipping_costs %}
+                                                    {% block page_account_order_item_detail_shipping_costs_label %}
+                                                        <dt class="col-6 col-md-8">{{ "account.orderItemShippingcosts"|trans|sw_sanitize }}</dt>
+                                                    {% endblock %}
+
+                                                    {% block page_account_order_item_detail_shipping_costs_value %}
+                                                        <dd class="col-6 col-md-4">{{ order.shippingTotal|currency }}</dd>
+                                                    {% endblock %}
+                                                {% endblock %}
+
+                                                {% block page_account_order_item_detail_amount %}
+                                                    {% block page_account_order_item_detail_amount_label %}
+                                                        <dt class="col-6 col-md-8">
+                                                            {% if order.isTaxFree %}
+                                                                {{ "account.orderItemNetTotal"|trans|sw_sanitize }}
+                                                            {% else %}
+                                                                {{ "account.orderItemTotal"|trans|sw_sanitize }}
+                                                            {% endif %}
+                                                        </dt>
+                                                    {% endblock %}
+
+                                                    {% block page_account_order_item_detail_amount_value %}
+                                                        <dd class="col-6 col-md-4">
+                                                            {% if order.isTaxFree %}
+                                                                {{ order.amountNet|currency }}
+                                                            {% else %}
+                                                                {{ order.amountTotal|currency }}
+                                                            {% endif %}
+                                                        </dd>
+                                                    {% endblock %}
+                                                {% endblock %}
+                                            </dl>
+                                        {% endblock %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

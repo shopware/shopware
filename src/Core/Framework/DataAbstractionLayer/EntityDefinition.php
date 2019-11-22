@@ -19,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
 abstract class EntityDefinition
@@ -234,7 +233,12 @@ abstract class EntityDefinition
         return $this->primaryKeys = $fields;
     }
 
-    public function getDefaults(EntityExistence $existence): array
+    public function getDefaults(): array
+    {
+        return [];
+    }
+
+    public function getChildDefaults(): array
     {
         return [];
     }

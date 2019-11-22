@@ -1,0 +1,41 @@
+{% block sw_category_detail_menu %}
+    <sw-card  class="sw-category-detail-base__menu" :title="$tc('sw-category.base.menu.title')" :isLoading="isLoading">
+
+        {% block sw_category_detail_information_visible %}
+            <sw-switch-field
+                borderd
+                :label="$tc('sw-category.base.menu.visible')"
+                v-model="reversedVisibility">
+            </sw-switch-field>
+        {% endblock %}
+
+        {% block sw_category_detail_menu_media %}
+            <sw-upload-store-listener
+                    :uploadTag="category.id"
+                    @media-upload-finish="onSetMediaItem"
+                    autoUpload>
+            </sw-upload-store-listener>
+            <sw-media-upload
+                    :label="$tc('sw-category.base.menu.imageLabel')"
+                    variant="regular"
+                    :source="mediaItem"
+                    :uploadTag="category.id"
+                    :allowMultiSelect="false"
+                    :defaultFolder="category.getEntityName()"
+                    @media-drop="onMediaDropped"
+                    @media-upload-sidebar-open="openMediaSidebar"
+                    @media-upload-remove-image="onRemoveMediaItem">
+            </sw-media-upload>
+        {% endblock %}
+
+        {% block sw_category_detail_menu_description %}
+            <sw-text-editor
+                class="sw-category-detail-base__description"
+                type="textarea"
+                :label="$tc('sw-category.base.menu.descriptionLabel')"
+                :placeholder="$tc('sw-category.base.menu.descriptionPlaceholder')"
+                v-model="category.description">
+            </sw-text-editor>
+        {% endblock %}
+    </sw-card>
+{% endblock %}

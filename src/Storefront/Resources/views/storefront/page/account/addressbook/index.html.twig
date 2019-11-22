@@ -1,0 +1,153 @@
+{% sw_extends '@Storefront/storefront/page/account/_page.html.twig' %}
+
+{% block page_account_main_content %}
+    <div class="account-address">
+        {% block page_account_address_welcome %}
+            <div class="account-welcome">
+                {% block page_account_address_welcome_headline %}
+                    <h1>
+                        {{ "account.addressWelcome"|trans|sw_sanitize }}
+                    </h1>
+                {% endblock %}
+                {% block page_account_address_welcome_intro %}
+                    <p>
+                        {{ "account.addressText"|trans|sw_sanitize }}
+                    </p>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block page_account_address_success_messages %}
+            {% if app.request.get('changedDefaultAddress') == '1' %}
+                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                    type:"success",
+                    content: "account.addressDefaultChanged"|trans|sw_sanitize
+                } %}
+            {% endif %}
+            {% if app.request.get('addressDeleted') == '1' %}
+                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                    type:"success",
+                    content: "account.addressDeleted"|trans|sw_sanitize
+                } %}
+            {% endif %}
+            {% if app.request.get('addressSaved') %}
+                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                    type:"success",
+                    content: "account.addressSaved"|trans|sw_sanitize
+                } %}
+            {% endif %}
+        {% endblock %}
+
+        {% block page_account_address_error_messages %}
+            {% if app.request.get('changedDefaultAddress') == '0' %}
+                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                    type:"danger",
+                    content: "account.addressDefaultNotChanged"|trans|sw_sanitize
+                } %}
+            {% endif %}
+            {% if app.request.get('addressDeleted') == '0' %}
+                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                    type:"danger",
+                    content: "account.addressNotDeleted"|trans|sw_sanitize
+                } %}
+            {% endif %}
+        {% endblock %}
+
+        {% block page_account_address_main %}
+            {% set defaultBillingAddress = context.customer.defaultBillingAddress %}
+            {% set defaultShippingAddress = context.customer.defaultShippingAddress %}
+
+            {% block page_account_address_default %}
+                <div class="row default-address">
+                    {% block page_account_address_billing %}
+                        <div class="col-sm-6 card-col address-card">
+                            <div class="card billing-address">
+                                <div class="card-body">
+                                    {% block page_account_address_billing_body %}
+                                        <div class="address-item-body">
+                                            {% block page_account_address_billing_title %}
+                                                <div class="card-title">
+                                                    <div>{{ "account.addressesTitleDefaultBillingAddress"|trans|sw_sanitize }}</div>
+                                                </div>
+                                            {% endblock %}
+                                            {% block page_account_address_billing_address %}
+                                                {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {
+                                                    'address': defaultBillingAddress
+                                                } %}
+                                            {% endblock %}
+                                        </div>
+                                    {% endblock %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endblock %}
+
+                    {% block page_account_address_shipping %}
+                        <div class="col-sm-6 card-col address-card">
+                            <div class="card shipping-address">
+                                <div class="card-body">
+                                    {% block page_account_address_shipping_body %}
+                                        <div class="address-item-body">
+                                            {% block page_account_address_shipping_title %}
+                                                <div class="card-title">
+                                                    <div>{{ "account.addressesTitleDefaultShippingAddress"|trans|sw_sanitize }}</div>
+                                                </div>
+                                            {% endblock %}
+                                            {% block page_account_address_shipping_address %}
+                                                {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {
+                                                    'address': defaultShippingAddress
+                                                } %}
+                                            {% endblock %}
+                                        </div>
+                                    {% endblock %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block page_account_address_item_content_create %}
+                <div class="address-action-create">
+                    <a href="{{ path('frontend.account.address.create.page') }}"
+                       title="{{ "account.addressCreateBtn"|trans|striptags }}"
+                       class="btn btn-primary">
+                        {{ "account.addressCreateBtn"|trans|sw_sanitize }}
+                    </a>
+                </div>
+            {% endblock %}
+
+            {% block page_account_address_list %}
+                <div class="address-list">
+                    <div class="h3">
+                        {{ "account.addressListHeader"|trans|sw_sanitize }}
+                    </div>
+
+                    <div class="row">
+                        {% for address in page.addresses %}
+                            <div class="col-sm-6 card-col address-card">
+                                <div class="card other-address">
+                                    <div class="card-body">
+                                        {% block page_account_address_overview_body %}
+                                            <div class="address-item-body">
+                                                {% block page_account_address_overview_address %}
+                                                    {% sw_include '@Storefront/storefront/component/address/address.html.twig' %}
+                                                {% endblock %}
+
+                                                {% block page_account_address_overview_actions %}
+                                                    <div class="card-actions">
+                                                        {% sw_include '@Storefront/storefront/page/account/addressbook/address-actions.html.twig' %}
+                                                    </div>
+                                                {% endblock %}
+                                            </div>
+                                        {% endblock %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endblock %}
+        {% endblock %}
+    </div>
+{% endblock %}

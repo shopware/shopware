@@ -19,10 +19,12 @@ use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Language\LanguageEntity;
 use Shopware\Core\Framework\Seo\SeoUrlGenerator;
 use Shopware\Core\Framework\Seo\SeoUrlPersister;
+use Shopware\Core\Framework\Seo\SeoUrlRoute\SeoUrlExtractIdResult;
 use Shopware\Core\Framework\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Framework\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Framework\Seo\SeoUrlTemplate\SeoUrlTemplateLoader;
 use Shopware\Core\Framework\Seo\SeoUrlTemplate\TemplateGroup;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -247,49 +249,141 @@ class SeoUrlIndexer implements IndexerInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
+        $idsPerRoute = [];
+        /** @var SeoUrlRouteInterface $seoUrlRoute */
+        foreach ($this->seoUrlRouteRegistry->getSeoUrlRoutes() as $seoUrlRoute) {
+            $extractResult = $seoUrlRoute->extractIdsToUpdate($event);
+
+            if ($extractResult->mustReindex()) {
+                // if we need to reindex completely, create task for that and finish immediately
+                $message = new IndexerMessage([self::getName()]);
+                $message->setTimestamp(new \DateTime());
+                $this->bus->dispatch($message);
+
+                return;
+            }
+
+            if (empty($extractResult->getIds())) {
+                continue;
+            }
+
+            $idsPerRoute[$seoUrlRoute->getConfig()->getRouteName()] = $extractResult;
+        }
+        $activeTemplateGroupsPerRoute = $this->loadAffectedTemplateGroups($event, array_keys($idsPerRoute));
+        if (empty($activeTemplateGroupsPerRoute)) {
+            return;
+        }
+
         $context = Context::createDefaultContext();
         $languages = $context->disableCache(function (Context $context) {
             return $this->languageRepository->search(new Criteria(), $context);
         });
-
         $languageChains = $this->fetchLanguageChains($languages->getEntities()->getElements());
-        $salesChannels = $this->fetchSalesChannels();
 
-        /** @var bool $mustReindex */
-        $mustReindex = false;
-        /** @var SeoUrlRouteInterface $seoUrlRoute */
-        foreach ($this->seoUrlRouteRegistry->getSeoUrlRoutes() as $seoUrlRoute) {
+        /*
+         * @var SeoUrlExtractIdResult
+         */
+        foreach ($idsPerRoute as $routeName => $extractResult) {
+            $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($routeName);
             $config = $seoUrlRoute->getConfig();
-            $extractResult = $seoUrlRoute->extractIdsToUpdate($event);
-            $mustReindex |= $extractResult->mustReindex();
-            $ids = $extractResult->getIds();
-            if (empty($ids)) {
-                continue;
-            }
 
-            $templateGroups = $this->templateLoader->getTemplateGroups($config->getRouteName(), $salesChannels);
+            $templateLanguageGroups = $activeTemplateGroupsPerRoute[$routeName];
+
             /** @var TemplateGroup[] $groups */
-            foreach ($templateGroups as $languageId => $groups) {
+            foreach ($templateLanguageGroups as $languageId => $groups) {
                 $chain = $languageChains[$languageId];
                 $context = new Context(new Context\SystemSource(), [], Defaults::CURRENCY, $chain);
                 $context->setConsiderInheritance(true);
-                foreach (array_chunk($ids, 250) as $idsChunk) {
+                foreach (array_chunk($extractResult->getIds(), 250) as $idsChunk) {
                     $seoUrls = $this->seoUrlGenerator->generateSeoUrls($context, $seoUrlRoute, $idsChunk, $groups);
                     $this->seoUrlPersister->updateSeoUrls($context, $config->getRouteName(), $idsChunk, $seoUrls);
                 }
             }
-        }
-
-        if ($mustReindex) {
-            $message = new IndexerMessage([self::getName()]);
-            $message->setTimestamp(new \DateTime());
-            $this->bus->dispatch($message);
         }
     }
 
     public static function getName(): string
     {
         return 'Swag.SeoUrlIndexer';
+    }
+
+    /**
+     * Load Template groups affected by the given $event
+     */
+    private function loadAffectedTemplateGroups(EntityWrittenContainerEvent $event, array $routeNames): array
+    {
+        $activeTemplateGroupsPerRoute = [];
+        $affectedSalesChannelIds = [[]];
+        // load all templates per route and check if they are affected by the $event
+        foreach ($routeNames as $routeName) {
+            $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($routeName);
+            $config = $seoUrlRoute->getConfig();
+            $templateLanguageGroups = $this->templateLoader->getTemplateGroups($config->getRouteName(), []);
+            $activeTemplateLanguageGroups = $this->filterAffectedTemplateGroups($templateLanguageGroups, $event, $seoUrlRoute);
+
+            foreach ($activeTemplateLanguageGroups as $language => $templateGroups) {
+                /* @var TemplateGroup $templateGroup */
+                foreach ($templateGroups as $templateGroup) {
+                    $affectedSalesChannelIds[] = $templateGroup->getSalesChannelIds();
+                }
+            }
+
+            $activeTemplateGroupsPerRoute[$routeName] = $activeTemplateLanguageGroups;
+        }
+
+        if (empty($activeTemplateGroupsPerRoute)) {
+            return [];
+        }
+
+        // gather all sales channel ids from the affected templates and the load the sales channel entities
+        $affectedSalesChannelIds = array_merge(...$affectedSalesChannelIds);
+        $salesChannels = $this->fetchSalesChannels($affectedSalesChannelIds);
+
+        // Assign the sales channel entities each TemplateGroup.
+        foreach ($activeTemplateGroupsPerRoute as $routeName => $templateLanguageGroups) {
+            foreach ($templateLanguageGroups as $language => $templateGroups) {
+                /** @var TemplateGroup $templateGroup */
+                foreach ($templateGroups as $templateGroup) {
+                    $activeSalesChannelIdForTemplate = $templateGroup->getSalesChannelIds();
+
+                    $activeSalesChannels = array_filter($salesChannels, function (?SalesChannelEntity $salesChannel) use ($activeSalesChannelIdForTemplate) {
+                        if ($salesChannel === null) {
+                            return in_array(null, $activeSalesChannelIdForTemplate, true);
+                        }
+
+                        return in_array($salesChannel->getId(), $activeSalesChannelIdForTemplate, true);
+                    });
+
+                    $templateGroup->setSalesChannels($activeSalesChannels);
+                }
+            }
+        }
+
+        return $activeTemplateGroupsPerRoute;
+    }
+
+    /**
+     * Filters TemplateGroups which are affected by the given $event. TemplateGroups are only included in the result,
+     * if they contain variables which could change with the given $event.
+     */
+    private function filterAffectedTemplateGroups(array $templateGroups, EntityWrittenContainerEvent $event, SeoUrlRouteInterface $route): array
+    {
+        $activeTemplateGroups = [];
+        $definition = $route->getConfig()->getDefinition();
+        $specialVariables = $route->getSeoVariables();
+        foreach ($templateGroups as $languageId => $groups) {
+            $activeGroups = array_filter($groups, function (TemplateGroup $group) use ($event,$specialVariables, $definition) {
+                return $this->seoUrlGenerator->checkUpdateAffectsTemplate($event, $definition, $specialVariables, $group->getTemplate());
+            });
+
+            if (empty($activeGroups)) {
+                continue;
+            }
+
+            $activeTemplateGroups[$languageId] = $activeGroups;
+        }
+
+        return $activeTemplateGroups;
     }
 
     private function getLanguageIdChain($languageId): array
@@ -311,11 +405,15 @@ class SeoUrlIndexer implements IndexerInterface
         return $result ? (string) $result : null;
     }
 
-    private function fetchSalesChannels(): array
+    private function fetchSalesChannels(array $ids = []): array
     {
+        $ids = array_filter($ids, function ($id) {
+            return $id !== null;
+        });
+
         $context = Context::createDefaultContext();
-        $entities = $context->disableCache(function (Context $context) {
-            return $this->salesChannelRepository->search((new Criteria())->addAssociation('navigationCategory'), $context)->getEntities();
+        $entities = $context->disableCache(function (Context $context) use ($ids) {
+            return $this->salesChannelRepository->search((new Criteria($ids))->addAssociation('navigationCategory'), $context)->getEntities();
         });
 
         $salesChannels = $entities->getElements();

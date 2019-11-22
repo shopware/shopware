@@ -19,6 +19,5 @@ class Migration1563949275AddCompanyToOrderCustomer extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

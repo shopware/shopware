@@ -1,0 +1,53 @@
+{
+  "sw-settings-tax": {
+    "general": {
+      "mainMenuItemGeneral": "Tax",
+      "taxRateSymbol": "&#037;",
+      "placeholderSearchBar": "Search tax rates"
+    },
+    "list": {
+      "textHeadline": "Tax",
+      "textDeleteConfirm": "Are you sure you want to delete the tax \"{name}\"?",
+      "columnName": "Name",
+      "columnDefaultTaxRate": "Default Rate",
+      "buttonAddTax": "Add tax",
+      "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Delete",
+      "modalTitleDelete": "Delete tax",
+      "titleDeleteSuccess": "Success",
+      "messageDeleteSuccess": "Tax \"{name}\" has been deleted.",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete"
+    },
+    "detail": {
+      "textHeadline": "New tax",
+      "titleCard": "Settings",
+      "labelName": "Name",
+      "labelDefaultTaxRate": "Default Rate",
+      "placeholderName": "Enter name...",
+      "placeholderDefaultTaxRate": "Enter default rate...",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save",
+      "notificationErrorTitle": "Error",
+      "notificationErrorMessage": "An error occurred while saving your tax rate."
+    },
+    "taxRuleCard": {
+      "labelTaxRate": "Rate",
+      "labelAppliesOn": "Applies On",
+      "labelCountryName": "Country",
+      "cardTitle": "Countries",
+      "searchBarPlaceholder": "Search Countries",
+      "labelCreateNew": "Add country",
+      "labelCancel": "Cancel",
+      "labelStates": "States",
+      "labelZipCode": "Zip Code",
+      "labelFromZipCode": "From Zip Code",
+      "labelToZipCode": "To Zip Code",
+      "emptyStateDescription": "Add additional tax rates for different countries.",
+      "createStateDescription": "Save the tax rate first to be able to add more countries.",
+      "modalTitleDelete": "Delete Country",
+      "textDeleteConfirm": "Are you sure you want to delete the country \"{name}\"?",
+      "placeholderStates": "Add States"
+    }
+  }
+}

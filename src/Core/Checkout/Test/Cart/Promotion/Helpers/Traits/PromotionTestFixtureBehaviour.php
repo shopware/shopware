@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscou
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -13,6 +14,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait PromotionTestFixtureBehaviour
 {
+    use TaxAddToSalesChannelTestBehaviour;
+
     /**
      * @param $value
      */
@@ -40,12 +43,12 @@ trait PromotionTestFixtureBehaviour
     /**
      * Creates a new product in the database.
      */
-    private function createTestFixtureProduct(string $productId, float $grossPrice, float $taxRate, ContainerInterface $container): void
+    private function createTestFixtureProduct(string $productId, float $grossPrice, float $taxRate, ContainerInterface $container, SalesChannelContext $context): void
     {
         /** @var EntityRepositoryInterface $productRepository */
         $productRepository = $container->get('product.repository');
 
-        $context = $container->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $tax = ['id' => Uuid::randomHex(), 'taxRate' => $taxRate, 'name' => 'with id'];
 
         $productRepository->create(
             [
@@ -63,7 +66,7 @@ trait PromotionTestFixtureBehaviour
                         ],
                     ],
                     'manufacturer' => ['name' => 'test'],
-                    'tax' => ['taxRate' => $taxRate, 'name' => 'with id'],
+                    'tax' => $tax,
                     'visibilities' => [
                         ['salesChannelId' => $context->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                     ],
@@ -74,6 +77,8 @@ trait PromotionTestFixtureBehaviour
             ],
             $context->getContext()
         );
+
+        $this->addTaxDataToSalesChannel($context, $tax);
     }
 
     /**

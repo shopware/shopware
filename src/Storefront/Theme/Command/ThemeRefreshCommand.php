@@ -10,6 +10,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ThemeRefreshCommand extends Command
 {
+    protected static $defaultName = 'theme:refresh';
+
     /**
      * @var ThemeLifecycleService
      */
@@ -22,15 +24,10 @@ class ThemeRefreshCommand extends Command
 
     public function __construct(ThemeLifecycleService $themeLifecycleService)
     {
-        parent::__construct('theme:refresh');
+        parent::__construct();
 
         $this->themeLifecycleService = $themeLifecycleService;
         $this->context = Context::createDefaultContext();
-    }
-
-    protected function configure(): void
-    {
-        $this->setName('theme:refresh');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

@@ -3,11 +3,17 @@
 namespace Shopware\Core\Framework\Api\Sync;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Api\Converter\ConverterService;
+use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionException;
+use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionNotAllowedException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
 class SyncService implements SyncServiceInterface
 {
@@ -21,10 +27,19 @@ class SyncService implements SyncServiceInterface
      */
     private $connection;
 
-    public function __construct(DefinitionInstanceRegistry $definitionRegistry, Connection $connection)
-    {
+    /**
+     * @var ConverterService
+     */
+    private $converterService;
+
+    public function __construct(
+        DefinitionInstanceRegistry $definitionRegistry,
+        Connection $connection,
+        ConverterService $converterService
+    ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->connection = $connection;
+        $this->converterService = $converterService;
     }
 
     /**
@@ -34,26 +49,49 @@ class SyncService implements SyncServiceInterface
      */
     public function sync(array $operations, Context $context, SyncBehavior $behavior): SyncResult
     {
-        $this->connection->beginTransaction();
+        if ($behavior->failOnError()) {
+            $this->connection->beginTransaction();
+        }
 
         $hasError = false;
         $results = [];
         foreach ($operations as $operation) {
+            if (!$behavior->failOnError()) {
+                //begin a new transaction for every operation to provide chunk-safe operations
+                $this->connection->beginTransaction();
+            }
+
             $result = $this->execute($operation, $context, $behavior);
 
             $results[$operation->getKey()] = $result;
 
             $hasError = $result->hasError();
 
-            if ($hasError && $behavior->failOnError()) {
-                break;
+            if ($hasError) {
+                if ($behavior->failOnError()) {
+                    /** @var SyncOperationResult $result */
+                    foreach ($results as $result) {
+                        $result->resetEntities();
+                    }
+                    continue;
+                }
+                $this->connection->rollBack();
+            } elseif (!$behavior->failOnError()) {
+                // Only commit if transaction not already marked as rollback
+                if (!$this->connection->isRollbackOnly()) {
+                    $this->connection->commit();
+                } else {
+                    $this->connection->rollBack();
+                }
             }
         }
-
-        if ($behavior->failOnError() && $hasError) {
-            $this->connection->rollBack();
-        } else {
-            $this->connection->commit();
+        if ($behavior->failOnError()) {
+            // Only commit if transaction not already marked as rollback
+            if ($hasError === false && !$this->connection->isRollbackOnly()) {
+                $this->connection->commit();
+            } else {
+                $this->connection->rollBack();
+            }
         }
 
         return new SyncResult($results, $hasError === false);
@@ -63,54 +101,114 @@ class SyncService implements SyncServiceInterface
     {
         $repository = $this->definitionRegistry->getRepository($operation->getEntity());
 
-        $payload = array_values($operation->getPayload());
+        switch (mb_strtolower($operation->getAction())) {
+            case 'upsert':
+                return $this->upsertRecords($operation, $context, $repository, $behavior);
 
-        $results = [];
+            case 'delete':
+                return $this->deleteRecords($operation, $context, $repository, $behavior);
 
-        $success = true;
-
-        foreach ($payload as $key => $record) {
-            $result = $this->writeRecord($operation, $context, $repository, $record);
-
-            $results[$key] = $result;
-
-            $success = ($result['error'] === null);
-
-            if ($success === false && $behavior->failOnError()) {
-                break;
-            }
+            default:
+                throw new \RuntimeException(
+                    sprintf('provided action %s is not supported. Following actions are supported: delete, upsert', $operation->getAction())
+                );
         }
-
-        return new SyncOperationResult($operation->getKey(), $results, $success);
     }
 
-    private function writeRecord(SyncOperation $operation, Context $context, EntityRepositoryInterface $repository, $record): array
+    private function upsertRecords(SyncOperation $operation, Context $context, EntityRepositoryInterface $repository, SyncBehavior $behavior): SyncOperationResult
     {
-        $error = null;
-        $result = null;
+        $results = [];
 
-        try {
-            switch (mb_strtolower($operation->getAction())) {
-                case SyncOperation::ACTION_DELETE:
-                    $result = $repository->delete([$record], $context);
-                    break;
+        $records = array_values($operation->getPayload());
+        $definition = $repository->getDefinition();
 
-                case SyncOperation::ACTION_UPSERT:
-                    $result = $repository->upsert([$record], $context);
-                    break;
+        foreach ($records as $index => $record) {
+            try {
+                $record = $this->convertToApiVersion($record, $definition, $operation->getApiVersion(), $index);
 
-                default:
-                    throw new \RuntimeException(
-                        sprintf('provided action %s is not supported. Following actions are supported: delete, upsert', $operation->getAction())
-                    );
+                $result = $repository->upsert([$record], $context);
+                $results[$index] = [
+                    'entities' => $this->getWrittenEntities($result),
+                    'errors' => [],
+                ];
+            } catch (\Throwable $exception) {
+                $writeException = $this->getWriteError($exception, $index);
+                $errors = [];
+                foreach ($writeException->getErrors() as $error) {
+                    $errors[] = $error;
+                }
+
+                $results[$index] = [
+                    'entities' => [],
+                    'errors' => $errors,
+                ];
             }
-        } catch (\Throwable $e) {
-            $error = mb_convert_encoding($e->getMessage(), 'UTF-8', 'UTF-8');
         }
 
-        $entities = $this->getWrittenEntities($result);
+        return new SyncOperationResult($results);
+    }
 
-        return ['error' => $error, 'entities' => $entities];
+    private function deleteRecords(SyncOperation $operation, Context $context, EntityRepositoryInterface $repository, SyncBehavior $behavior): SyncOperationResult
+    {
+        $results = [];
+
+        $records = array_values($operation->getPayload());
+        $definition = $repository->getDefinition();
+
+        foreach ($records as $index => $record) {
+            try {
+                $record = $this->convertToApiVersion($record, $definition, $operation->getApiVersion(), $index);
+
+                $result = $repository->delete([$record], $context);
+                $results[$index] = [
+                    'entities' => $this->getWrittenEntities($result),
+                    'errors' => [],
+                ];
+            } catch (\Throwable $exception) {
+                $writeException = $this->getWriteError($exception, $index);
+                $errors = [];
+                foreach ($writeException->getErrors() as $error) {
+                    $errors[] = $error;
+                }
+
+                $results[$index] = [
+                    'entities' => [],
+                    'errors' => $errors,
+                ];
+            }
+        }
+
+        return new SyncOperationResult($results);
+    }
+
+    private function convertToApiVersion(array $record, EntityDefinition $definition, int $apiVersion, int $writeIndex)
+    {
+        $exception = new ApiConversionException();
+
+        if (!$this->converterService->isAllowed($definition->getEntityName(), null, $apiVersion)) {
+            $exception->add(new ApiConversionNotAllowedException($definition->getEntityName(), $apiVersion), "/${writeIndex}");
+            $exception->tryToThrow();
+        }
+
+        $converted = $this->converterService->convertPayload($definition, $record, $apiVersion, $exception, "/${writeIndex}");
+        $exception->tryToThrow();
+
+        return $converted;
+    }
+
+    private function getWriteError(\Throwable $exception, int $writeIndex): WriteException
+    {
+        if ($exception instanceof WriteException) {
+            foreach ($exception->getExceptions() as $innerException) {
+                if ($innerException instanceof WriteConstraintViolationException) {
+                    $innerException->setPath(preg_replace('/^\/0/', "/{$writeIndex}", $innerException->getPath()));
+                }
+            }
+
+            return $exception;
+        }
+
+        return (new WriteException())->add($exception);
     }
 
     private function getWrittenEntities(?EntityWrittenContainerEvent $result): array

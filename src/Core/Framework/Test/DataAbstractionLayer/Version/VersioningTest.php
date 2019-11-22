@@ -45,16 +45,19 @@ use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tax\TaxDefinition;
 
 class VersioningTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use TaxAddToSalesChannelTestBehaviour;
 
     /**
      * @var EntityRepositoryInterface
@@ -1819,7 +1822,7 @@ class VersioningTest extends TestCase
             [$ruleId, $context->getShippingMethod()->getAvailabilityRuleId()]
         );
 
-        $cart = $this->createDemoCart();
+        $cart = $this->createDemoCart($context);
 
         $cart = $this->processor->process($cart, $context, new CartBehavior());
 
@@ -1830,7 +1833,7 @@ class VersioningTest extends TestCase
         static::assertTrue(Uuid::isValid($versionId));
     }
 
-    private function createDemoCart(): Cart
+    private function createDemoCart(SalesChannelContext $salesChannelContext): Cart
     {
         $cart = new Cart('A', 'a-b-c');
 
@@ -1844,7 +1847,7 @@ class VersioningTest extends TestCase
             ],
             'productNumber' => Uuid::randomHex(),
             'manufacturer' => ['name' => 'test'],
-            'tax' => ['taxRate' => 19, 'name' => 'test'],
+            'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'test'],
             'stock' => 10,
             'active' => true,
             'visibilities' => [
@@ -1854,6 +1857,8 @@ class VersioningTest extends TestCase
 
         $this->getContainer()->get('product.repository')
             ->create([$product], Context::createDefaultContext());
+
+        $this->addTaxDataToSalesChannel($salesChannelContext, $product['tax']);
 
         $cart->add(
             (new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE, $id, 1))
@@ -1906,12 +1911,12 @@ class VersioningTest extends TestCase
     private function getCommits(string $entity, string $id, string $versionId): array
     {
         $data = $this->connection->fetchAll(
-            "SELECT d.* 
+            "SELECT d.*
              FROM version_commit_data d
              INNER JOIN version_commit c
                ON c.id = d.version_commit_id
                AND c.version_id = :version
-             WHERE entity_name = :entity 
+             WHERE entity_name = :entity
              AND JSON_EXTRACT(entity_id, '$.id') = :id
              GROUP BY c.id
              ORDER BY auto_increment",
@@ -1935,12 +1940,12 @@ class VersioningTest extends TestCase
     private function getVersionData(string $entity, string $id, string $versionId): array
     {
         $data = $this->connection->fetchAll(
-            "SELECT d.* 
+            "SELECT d.*
              FROM version_commit_data d
              INNER JOIN version_commit c
                ON c.id = d.version_commit_id
                AND c.version_id = :version
-             WHERE entity_name = :entity 
+             WHERE entity_name = :entity
              AND JSON_EXTRACT(entity_id, '$.id') = :id
              ORDER BY auto_increment",
             [
@@ -1975,8 +1980,8 @@ class VersioningTest extends TestCase
     private function getTranslationVersionData(string $entity, string $languageId, string $foreignKeyName, string $foreignKey, string $versionId): array
     {
         $data = $this->connection->fetchAll(
-            "SELECT * 
-             FROM version_commit_data 
+            "SELECT *
+             FROM version_commit_data
              WHERE entity_name = :entity
              AND JSON_EXTRACT(entity_id, '$." . $foreignKeyName . "') = :id
              AND JSON_EXTRACT(entity_id, '$.languageId') = :language

@@ -52,6 +52,9 @@ class IsNewCustomerRuleTest extends TestCase
                 'id' => $id,
                 'type' => (new IsNewCustomerRule())->getName(),
                 'ruleId' => $ruleId,
+                'value' => [
+                    'isNew' => true,
+                ],
             ],
         ], $this->context);
 

@@ -152,6 +152,65 @@ class MainCategoryExtensionTest extends TestCase
     }
 
     /**
+     * @depends testSeoUrlWithMainCategory
+     */
+    public function testSeoUrlWithMainCategoryChange(): void
+    {
+        static::markTestSkipped('extractIdsToUpdate must be fixed first');
+        $salesChannelId = Uuid::randomHex();
+        $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        $this->createProductUrlTemplate(
+            $salesChannelContext,
+            '{{ product.mainCategory.name }}/{{ product.name }}'
+        );
+
+        $categoryId = Uuid::randomHex();
+        $this->categoryRepository->create([[
+            'id' => $categoryId,
+            'name' => 'awesome category',
+        ]], Context::createDefaultContext());
+
+        $id = $this->createTestProduct([
+            'mainCategories' => [
+                [
+                    'salesChannelId' => $salesChannelId,
+                    'categoryId' => $categoryId,
+                ],
+            ],
+        ]);
+
+        // update existing category
+        $this->categoryRepository->update(
+            [[
+                'id' => $categoryId,
+                'name' => 'super duper cat',
+            ]],
+            Context::createDefaultContext()
+        );
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('seoUrls');
+        $criteria->addAssociation('mainCategories');
+
+        /** @var ProductCollection $products */
+        $products = $this->productRepository->search($criteria, $salesChannelContext->getContext());
+        static::assertCount(1, $products);
+
+        /** @var ProductEntity $product */
+        $product = $products->first();
+
+        /** @var SeoUrlCollection|null $seoUrls */
+        $seoUrls = $product->getSeoUrls();
+        static::assertNotNull($seoUrls);
+
+        /** @var SeoUrlEntity|null $canonical */
+        $canonical = $seoUrls->filterByProperty('isCanonical', true)->filterByProperty('salesChannelId', $salesChannelId)->first();
+        static::assertNotNull($canonical);
+        static::assertEquals('super-duper-cat/foo-bar', $canonical->getSeoPathInfo());
+    }
+
+    /**
      * @depends testMainCategoryLoaded
      */
     public function testDeleteCategoryDeletesMainCategory(): void

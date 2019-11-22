@@ -40,7 +40,7 @@ class ContactPageController extends StorefrontController
     {
         $page = $this->contactPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/contact/index.html.twig', [
+        return $this->renderStorefront('@Storefront/storefront/page/contact/index.html.twig', [
             'page' => $page,
             'data' => $data,
         ]);

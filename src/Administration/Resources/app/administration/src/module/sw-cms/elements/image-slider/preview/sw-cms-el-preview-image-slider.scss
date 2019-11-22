@@ -1,0 +1,19 @@
+.sw-cms-el-preview-image-slider {
+    align-items: center;
+    display: grid;
+    grid-template-columns: 10px 1fr 10px;
+    grid-gap: 5px;
+    height: 100%;
+
+    div {
+        margin: 0;
+        display: block;
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    img {
+        width: 100%;
+        height: 100%;
+    }
+}

@@ -1,0 +1,55 @@
+{% sw_extends '@Storefront/storefront/base.html.twig' %}
+
+{% block base_flashbags %}{% endblock %}
+
+{% block base_content %}
+    {% block page_checkout %}
+        <div class="checkout">
+            {% block page_checkout_container %}
+                <div class="checkout-container">
+                    {% block page_checkout_main %}
+                        <div class="checkout-main">
+                            {% block base_flashbags_checkout %}
+                                <div class="flashbags">
+                                    {% for type, messages in app.flashes %}
+                                        {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with { type: type, list: messages } %}
+                                    {% endfor %}
+                                </div>
+                            {% endblock %}
+
+                            {% block page_checkout_main_content %}{% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block page_checkout_aside %}
+                        <div class="checkout-aside">
+                            {% block page_checkout_aside_container %}
+                                <div class="checkout-aside-container">
+                                    {% block page_checkout_aside_summary %}
+                                        <div class="checkout-aside-summary">
+                                            {% block page_checkout_summary_header %}
+                                                <h2 class="checkout-aside-summary-header">
+                                                    {{ "checkout.summaryHeader"|trans|sw_sanitize }}
+                                                </h2>
+                                            {% endblock %}
+
+                                            {% block page_checkout_summary_list %}
+                                                <div class="checkout-aside-summary-list-container">
+                                                    {% block page_checkout_summary_list_container %}
+                                                        {% sw_include '@Storefront/storefront/page/checkout/summary.html.twig' %}
+                                                    {% endblock %}
+                                                </div>
+                                            {% endblock %}
+                                        </div>
+                                    {% endblock %}
+
+                                    {% block page_checkout_aside_actions %}{% endblock %}
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

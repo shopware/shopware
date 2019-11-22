@@ -46,7 +46,7 @@ class AccountOrderController extends StorefrontController
 
         $page = $this->orderPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/account/order-history/index.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/storefront/page/account/order-history/index.html.twig', ['page' => $page]);
     }
 
     /**
@@ -80,6 +80,6 @@ class AccountOrderController extends StorefrontController
         }
         $lineItems = $order->getNestedLineItems();
 
-        return $this->renderStorefront('@Storefront/page/account/order-history/order-detail-list.html.twig', ['orderDetails' => $lineItems, 'orderId' => $orderId]);
+        return $this->renderStorefront('@Storefront/storefront/page/account/order-history/order-detail-list.html.twig', ['orderDetails' => $lineItems, 'orderId' => $orderId]);
     }
 }

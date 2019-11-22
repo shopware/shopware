@@ -1,0 +1,5 @@
+elasticsearch:
+    enabled: "%env(bool:SHOPWARE_ES_ENABLED)%"
+    indexing_enabled: "%env(bool:SHOPWARE_ES_INDEXING_ENABLED)%"
+    hosts: "%env(SHOPWARE_ES_HOSTS)%"
+    index_prefix: "%env(SHOPWARE_ES_INDEX_PREFIX)%"

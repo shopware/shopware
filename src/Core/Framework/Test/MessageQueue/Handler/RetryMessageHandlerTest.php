@@ -44,6 +44,7 @@ class RetryMessageHandlerTest extends TestCase
 
     public function testGetHandledMessages(): void
     {
+        /** @var array $subscribedMessages */
         $subscribedMessages = $this->retryMessageHandler::getHandledMessages();
 
         static::assertCount(1, $subscribedMessages);

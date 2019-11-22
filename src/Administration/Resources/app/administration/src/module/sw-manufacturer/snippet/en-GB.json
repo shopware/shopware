@@ -1,0 +1,33 @@
+{
+  "sw-manufacturer": {
+    "general": {
+      "mainMenuItemList": "Manufacturers",
+      "mainMenuItemGeneral": "Manufacturers",
+      "placeholderSearchBar": "Search manufacturers..."
+    },
+    "list": {
+      "textManufacturerOverview": "Manufacturers",
+      "textTotalManufacturer": "No manufacturers | One manufacturer | {count} manufacturers",
+      "buttonAddManufacturer": "Add manufacturer",
+      "columnName": "Manufacturer",
+      "columnLink": "Website"
+    },
+    "detail": {
+      "textHeadline": "New manufacturer",
+      "textMediaSelection": "Media selection",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save",
+      "cardTitleManufacturerInfo": "Manufacturer information",
+      "labelName": "Name",
+      "labelDescription": "Description",
+      "labelLink": "Website",
+      "placeholderName": "Enter manufacturer name...",
+      "placeholderDescription": "Enter description...",
+      "placeholderLink": "Enter manufacturer website...",
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "Manufacturer \"{name}\" has been saved.",
+      "labelLogo": "Logo",
+      "labelUseAsLogo": "Use as Logo"
+    }
+  }
+}

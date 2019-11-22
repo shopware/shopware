@@ -1,0 +1,100 @@
+{
+  "sw-settings-custom-field": {
+    "general": {
+      "description": "Zusatzfelder",
+      "mainMenuItemGeneral": "Zusatzfelder",
+      "placeholderSearchBar": "Durchsuche alle Zusatzfelder ...",
+      "tooltipTechnicalName": "Der technische Name muss eindeutig sein und kann nach dem Speichern nicht mehr verändert werden"
+    },
+    "set": {
+      "list": {
+        "textHeadline": "Zusatzfelder",
+        "titleModalDelete": "Set löschen",
+        "textDeleteConfirm": "Möchtest Du das Set \"{name}\" wirklich löschen?",
+        "buttonCancel": "Abbrechen",
+        "buttonAdd": "Set anlegen",
+        "columnName": "Label",
+        "contextMenuEdit": "Bearbeiten",
+        "buttonDelete": "Löschen",
+        "titleDeleteSuccess": "Erfolg",
+        "messageDeleteSuccess": "Das Set \"{name}\" wurde erfolgreich gelöscht.",
+        "messageEmpty": "Noch keine Zusatzfelder"
+      },
+      "detail": {
+        "labelTechnicalName": "Technischer Name",
+        "textHeadline": "Zusatzfeld-Set",
+        "buttonCancel": "Abbrechen",
+        "buttonSave": "Speichern",
+        "titleCardInformation": "Set Informationen",
+        "labelName": "Set Name",
+        "placeholderName": "Name eingeben ...",
+        "labelCheckboxTranslated": "In allen Administrationssprachen pflegen",
+        "titleSaveSuccess": "Zusatzfeld-Set",
+        "messageSaveSuccess": "Das Set \"{name}\" wurde erfolgreich gespeichert.",
+        "messageCustomFieldsEmpty": "Noch keine Zusatzfelder.",
+        "addCustomField": "Neues Zusatzfeld",
+        "buttonApply": "Speichern",
+        "labelEntities": "Verwenden für:",
+        "placeholderEntities": "Verwendung hinzufügen ...",
+        "titleNameNotUnique": "Fehler",
+        "messageNameNotUnique": "Der technische Name existiert bereits."
+      }
+    },
+    "customField": {
+      "detail":{
+        "titleNewCustomField": "Neues Zusatzfeld anlegen",
+        "titleEditCustomField": "Zusatzfeld bearbeiten",
+        "buttonSaveApply": "Hinzufügen",
+        "buttonEditApply": "Änderungen übernehmen",
+        "buttonCancel": "Abbrechen",
+        "labelCustomFieldType": "Typ",
+        "labelRequired": "Pflichtfeld",
+        "labelTechnicalName": "Technischer Name",
+        "labelLabel": "Label",
+        "buttonAddOption": "+Option hinzufügen",
+        "labelDeleteOption": "löschen",
+        "labelOption": "Option {count}:",
+        "labelPlaceholder": "Platzhalter",
+        "labelMax": "Maximum",
+        "labelMin": "Minimum",
+        "labelStep": "Schritte",
+        "labelFloat": "Gleitkommazahl",
+        "labelInt": "Ganzzahl",
+        "labelNumberType": "Zahlentyp",
+        "labelDatetime": "Datum/Zeit",
+        "labelDate": "Datum",
+        "labelTime": "Zeit",
+        "labelDateType": "Typ",
+        "labelHelpText": "Hilfetext",
+        "labelTimeForm": "24-Stunden Zeitformat",
+        "labelYes": "Ja",
+        "labelNo": "Nein",
+        "labelCustomFieldPosition": "Position",
+        "labelMultiSelect": "Mehrfachauswahl",
+        "tooltipCustomFieldPosition": "Steuert die Position des Zusatzfeldes auf den Detailseiten.",
+        "tooltipRequired": "Macht dieses Zusatzfeld zu einem Pflichtfeld auf Detailseiten."
+      },
+      "list": {
+        "labelCustomFieldLabel": "Label",
+        "labelCustomFieldType": "Typ",
+        "labelCustomFieldPosition": "Position",
+        "contextMenuCustomFieldResetDelete": "Wiederherstellen",
+        "contextMenuCustomFieldView": "Editieren",
+        "contextMenuCustomFieldDelete": "Löschen"
+      }
+    },
+    "types": {
+      "select": "Auswahl",
+      "text": "Textfeld",
+      "number": "Zahl",
+      "media": "Medium",
+      "date": "Datum / Zeit",
+      "checkbox": "Checkbox",
+      "switch": "Aktiv/Inaktiv Schalter",
+      "textEditor": "Text Editor",
+      "string": "Text",
+      "int": "Zahl",
+      "colorpicker": "Farbauswahl"
+    }
+  }
+}

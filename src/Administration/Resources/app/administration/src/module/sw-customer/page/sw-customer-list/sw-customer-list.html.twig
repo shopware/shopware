@@ -1,0 +1,218 @@
+{% block sw_customer_list %}
+    <sw-page class="sw-customer-list">
+
+        {% block sw_customer_list_search_bar %}
+            <template #search-bar>
+                <sw-search-bar initialSearchType="customer"
+                               :initialSearch="term"
+                               @search="onSearch">
+                </sw-search-bar>
+            </template>
+        {% endblock %}
+
+        {% block sw_customer_list_smart_bar_header %}
+            <template #smart-bar-header>
+                {% block sw_customer_list_smart_bar_header_title %}
+                    <h2>
+                        {% block sw_customer_list_smart_bar_header_title_text %}
+                            {{ $tc('sw-customer.list.textCustomers') }}
+                        {% endblock %}
+
+                        {% block sw_customer_list_smart_bar_header_amount %}
+                            <span v-if="!isLoading" class="sw-page__smart-bar-amount">
+                                ({{ total }})
+                            </span>
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_customer_list_smart_bar_actions %}
+            <template #smart-bar-actions>
+                {% block sw_customer_list_smart_bar_actions_add %}
+                    <sw-button variant="primary" :routerLink="{ name: 'sw.customer.create' }">
+                        {{ $tc('sw-customer.list.buttonAddCustomer') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        <template #content>
+            {% block sw_customer_list_content %}
+                <div class="sw-customer-list__content">
+                    {% block sw_customer_list_grid %}
+
+                        <sw-entity-listing ref="swCustomerGrid"
+                                           v-if="customers"
+                                           class="sw-customer-list-grid"
+                                           :items="customers"
+                                           :columns="customerColumns"
+                                           :repository="customerRepository"
+                                           detailRoute="sw.customer.detail"
+                                           :showSelection="true"
+                                           :isLoading="isLoading"
+                                           @inline-edit-save="onInlineEditSave">
+
+                            {% block sw_customer_list_grid_columns %}
+
+                                {% block sw_product_list_grid_columns_name_preview %}
+                                    <template #preview-firstName="{ item, compact }">
+                                        <sw-avatar
+                                            :size="compact ? '32px' : '48px'"
+                                            :firstName="item.firstName"
+                                            :lastName="item.lastName">
+                                        </sw-avatar>
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_customer_list_grid_columns_name %}
+                                    <template #column-firstName="{ item, compact, isInlineEdit }">
+
+                                        {% block sw_customer_list_grid_inline_edit_name %}
+                                            <template v-if="isInlineEdit">
+                                                {% block sw_customer_list_grid_inline_edit_first_name %}
+                                                    <sw-text-field class="sw-customer-list__inline-edit-first-name"
+                                                                   v-model="item.firstName"
+                                                                   :size="compact ? 'small' : 'default'">
+                                                    </sw-text-field>
+                                                {% endblock %}
+
+                                                {% block sw_customer_list_grid_inline_edit_last_name %}
+                                                    <sw-text-field class="sw-customer-list__inline-edit-last-name"
+                                                                   v-model="item.lastName"
+                                                                   :size="compact ? 'small' : 'default'">
+                                                    </sw-text-field>
+                                                {% endblock %}
+                                            </template>
+                                        {% endblock %}
+
+                                        {% block sw_customer_list_grid_columns_name_link %}
+                                            <router-link v-else :to="{ name: 'sw.customer.detail', params: { id: item.id } }">
+                                                {{ item.firstName }} {{ item.lastName }}
+                                            </router-link>
+                                        {% endblock %}
+                                    </template>
+                                {% endblock %}
+                            {% endblock %}
+
+                            {% block sw_customer_list_grid_columns_actions %}
+                                <template #actions="{ item }">
+                                    {% block sw_customer_list_grid_columns_actions_view %}
+                                        <sw-context-menu-item
+                                            class="sw-customer-list__view-action"
+                                            :routerLink="{ name: 'sw.customer.detail', params: { id: item.id }, query: { edit: false } }">
+                                            {{ $tc('sw-customer.list.contextMenuView') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
+
+                                    {% block sw_customer_list_grid_columns_actions_edit %}
+                                        <sw-context-menu-item :routerLink="{ name: 'sw.customer.detail.base', params: { id: item.id }, query: { edit: true } }">
+                                            {{ $tc('sw-customer.list.contextMenuEdit') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
+
+                                    {% block sw_customer_list_grid_columns_actions_delete %}
+                                        <sw-context-menu-item variant="danger" @click="onDelete(item.id)">
+                                            {{ $tc('sw-customer.list.contextMenuDelete') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
+                                </template>
+                            {% endblock %}
+
+                            {% block sw_customer_list_grid_action_modals %}
+                                <template #action-modals="{ item }">
+                                    {% block sw_customer_list_delete_modal %}
+                                        <sw-modal v-if="showDeleteModal === item.id"
+                                                  @modal-close="onCloseDeleteModal"
+                                                  :title="$tc('sw-customer.list.modalTitleDelete')"
+                                                  variant="small">
+                                            {% block sw_customer_list_delete_modal_confirm_delete_text %}
+                                                <p class="sw-customer-list__confirm-delete-text">
+                                                    {{ $tc('sw-customer.list.textDeleteConfirm', 0, { name: `${item.firstName} ${item.lastName}` }) }}
+                                                </p>
+                                            {% endblock %}
+
+                                            {% block sw_customer_list_delete_modal_footer %}
+                                                <template #modal-footer>
+                                                    {% block sw_customer_list_delete_modal_cancel %}
+                                                        <sw-button @click="onCloseDeleteModal" size="small">
+                                                            {{ $tc('sw-customer.list.buttonCancel') }}
+                                                        </sw-button>
+                                                    {% endblock %}
+
+                                                    {% block sw_customer_list_delete_modal_confirm %}
+                                                        <sw-button @click="onConfirmDelete(item.id)" variant="primary" size="small">
+                                                            {{ $tc('sw-customer.list.buttonDelete') }}
+                                                        </sw-button>
+                                                    {% endblock %}
+                                                </template>
+                                            {% endblock %}
+                                        </sw-modal>
+                                    {% endblock %}
+                                </template>
+                            {% endblock %}
+
+                            <template #pagination>
+                                {% block sw_order_list_grid_pagination %}
+                                    <sw-pagination :page="page"
+                                                   :limit="limit"
+                                                   :total="total"
+                                                   :total-visible="7"
+                                                   @page-change="onPageChange">
+                                    </sw-pagination>
+                                {% endblock %}
+                            </template>
+                        </sw-entity-listing>
+                    {% endblock %}
+
+                    {% block sw_customer_list_empty_state %}
+                        <sw-empty-state v-if="!isLoading && !total" :title="$tc('sw-customer.list.messageEmpty')"></sw-empty-state>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </template>
+
+        {% block sw_customer_list_sidebar %}
+            <template #sidebar>
+                <sw-sidebar class="sw-customer-list__sidebar">
+                    {% block sw_customer_list_sidebar_refresh %}
+                        <sw-sidebar-item
+                                icon="default-arrow-360-left"
+                                :title="$tc('sw-customer.list.titleSidebarItemRefresh')"
+                                @click="onRefresh">
+                        </sw-sidebar-item>
+                    {% endblock %}
+                    {% block sw_customer_list_sidebar_filter %}
+                        <sw-sidebar-item icon="default-action-filter"
+                                         :title="$tc('sw-customer.list.titleSidebarItemFilter')">
+                            {% block sw_customer_list_sidebar_filter_affiliate_code %}
+                                <sw-multi-select
+                                    :label="$tc('sw-customer.list.titleSidebarItemFilterAffiliateCode')"
+                                    :options="availableAffiliateCodes"
+                                    :isLoading="filterLoading"
+                                    valueProperty="key"
+                                    labelProperty="key"
+                                    :value="affiliateCodeFilter"
+                                    @change="onChangeAffiliateCodeFilter">
+                                </sw-multi-select>
+                            {% endblock %}
+
+                            {% block sw_customer_list_sidebar_filter_campaign_code %}
+                                <sw-multi-select
+                                    :label="$tc('sw-customer.list.titleSidebarItemFilterCampaignCode')"
+                                    :options="availableCampaignCodes"
+                                    :isLoading="filterLoading"
+                                    valueProperty="key"
+                                    labelProperty="key"
+                                    @change="onChangeCampaignCodeFilter"
+                                    :value="campaignCodeFilter">
+                                </sw-multi-select>
+                            {% endblock %}
+                        </sw-sidebar-item>
+                    {% endblock %}
+                </sw-sidebar>
+            </template>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

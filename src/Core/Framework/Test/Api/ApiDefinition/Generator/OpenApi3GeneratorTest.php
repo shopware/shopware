@@ -3,6 +3,10 @@
 namespace Shopware\Core\Framework\Test\Api\ApiDefinition\Generator;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuilder;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Test\Api\ApiDefinition\EntityDefinition\SimpleDefinition;
@@ -35,7 +39,13 @@ class OpenApi3GeneratorTest extends TestCase
             ['simple' => SimpleDefinition::class],
             ['simple' => 'simple.repository']
         );
-        $openApiGenerator = new OpenApi3Generator();
+        $openApiGenerator = new OpenApi3Generator(
+            new OpenApiSchemaBuilder(),
+            new OpenApiPathBuilder(),
+            new OpenApiDefinitionSchemaBuilder(),
+            new OpenApiLoader(__DIR__)
+        );
+
         $this->schema = $openApiGenerator->getSchema($definitionRegistry->getDefinitions());
         $this->entityName = 'simple';
     }
@@ -49,7 +59,6 @@ class OpenApi3GeneratorTest extends TestCase
     public function testTypeConversion(): void
     {
         $properties = $this->schema[$this->entityName]['properties'];
-
         $this->silentAssertArraySubset(['type' => 'string', 'format' => 'uuid'], $properties['id']);
         $this->silentAssertArraySubset(['type' => 'string'], $properties['stringField']);
         $this->silentAssertArraySubset(['type' => 'integer', 'format' => 'int64'], $properties['intField']);

@@ -1,0 +1,133 @@
+{% block page_checkout_confirm_payment_inner %}
+    <div class="card checkout-card">
+        <div class="card-body">
+            {% set paymentMethodInvalid = true %}
+
+            {% for payment in page.paymentMethods %}
+                {% if payment.id is same as(context.paymentMethod.id) %}
+                    {% set paymentMethodInvalid = false %}
+                {% endif %}
+            {% endfor %}
+
+            {% block page_checkout_confirm_payment_title %}
+                <div class="card-title">
+                    {{ "checkout.confirmPaymentMethod"|trans|sw_sanitize }}
+                </div>
+            {% endblock %}
+
+            {% block page_checkout_confirm_payment_current %}
+                <p class="confirm-payment-current{% if paymentMethodInvalid %} is-invalid{% endif %}">
+                    {% block page_checkout_confirm_payment_current_image %}
+                        {% if context.paymentMethod.media %}
+                            {% sw_thumbnails 'confirm-payment-current-image-thumbnails' with {
+                                media: context.paymentMethod.media,
+                                sizes: {
+                                    'default': '100px'
+                                },
+                                attributes: {
+                                    'class': 'payment-method-image',
+                                    'alt': (context.paymentMethod.media.translated.alt ?: context.paymentMethod.translated.name),
+                                    'title': (context.paymentMethod.media.translated.title ?: context.paymentMethod.translated.name)
+                                }
+                            } %}
+                        {% endif %}
+                    {% endblock %}
+
+                    {% block page_checkout_confirm_payment_current_text %}
+                        <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans|sw_sanitize }}</strong>
+                        {{ context.paymentMethod.translated.name }}
+                    {% endblock %}
+
+                    {% block page_checkout_confirm_payment_invalid_tooltip %}
+                        {% if paymentMethodInvalid %}
+                            <a data-toggle="tooltip"
+                               data-placement="right"
+                               class="confirm-method-tooltip"
+                               title="{{ "checkout.confirmPaymentMethodNotAvailable"|trans|striptags }}">
+                                {% sw_icon 'help' style {
+                                    'color': 'danger',
+                                    'size': 'xs'
+                                } %}
+                            </a>
+                        {% endif %}
+                    {% endblock %}
+                </p>
+            {% endblock %}
+
+            {% block page_checkout_confirm_payment_modal_toggle %}
+                <button type="button"
+                        class="btn btn-light"
+                        data-toggle="modal"
+                        data-backdrop="static"
+                        data-target="#confirmPaymentModal">
+                    {{ "checkout.confirmChangePayment"|trans|sw_sanitize }}
+                </button>
+            {% endblock %}
+
+            {% block page_checkout_confirm_payment_modal %}
+                <div class="modal fade confirm-payment-modal"
+                     id="confirmPaymentModal"
+                     tabindex="-1"
+                     role="dialog">
+                    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered"
+                         role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <div class="modal-title h5">
+                                    {{ "checkout.confirmChangePayment"|trans|sw_sanitize }}
+                                </div>
+                                <button type="button"
+                                        class="modal-close close"
+                                        data-dismiss="modal"
+                                        aria-label="Close">
+                                    <span aria-hidden="true">
+                                        {% sw_icon 'x' style { 'size': 'sm' } %}
+                                    </span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                {% block page_checkout_confirm_payment_form %}
+                                    <form id="confirmPaymentForm"
+                                          name="confirmPaymentForm"
+                                          action="{{ path('frontend.checkout.configure') }}"
+                                          data-form-csrf-handler="true"
+                                          method="post">
+
+                                        {% block page_checkout_confirm_payment_form_csrf %}
+                                            {{ sw_csrf('frontend.checkout.configure') }}
+                                        {% endblock %}
+
+                                        {% block page_checkout_confirm_payment_form_redirect %}
+                                            <input type="hidden" name="redirectTo" value="{{ 'frontend.checkout.confirm.page' }}">
+                                        {% endblock %}
+
+                                        {% block page_checkout_confirm_payment_form_fields %}
+                                            {% sw_include '@Storefront/storefront/component/payment/payment-fields.html.twig' with {
+                                                'defaultPaymentMethodId': context.paymentMethod.id,
+                                            } %}
+                                        {% endblock %}
+
+                                        {% block page_checkout_confirm_payment_form_submit %}
+                                            <button class="btn btn-primary" type="submit">
+                                                {{ "checkout.confirmChangePaymentShippingSave"|trans|sw_sanitize }}
+                                            </button>
+                                        {% endblock %}
+
+                                        {% block page_checkout_confirm_payment_cancel %}
+                                            <button class="btn btn-light"
+                                                    type="button"
+                                                    data-dismiss="modal"
+                                                    aria-label="Close">
+                                                {{ "checkout.confirmChangePaymentShippingCancel"|trans|sw_sanitize }}
+                                            </button>
+                                        {% endblock %}
+                                    </form>
+                                {% endblock %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}

@@ -2,7 +2,7 @@
 
 To import files to Shopware 6 using the migration, two steps are necessary:
 1. Create a media file object (`MediaDefinition` / `media` table)
-For more Details take a look at the `MediaConverter`
+For more details take a look at the `MediaConverter`
 2. Create an entry in the `SwagMigrationMediaFileDefinition` / `swag_migration_media_file` table.
 
 Every entry in the `swag_migration_media_file` table of the associated migration run will get processed by an implementation
@@ -22,18 +22,21 @@ abstract class MediaConverter extends ShopwareConverter
         Context $context,
         MigrationContextInterface $migrationContext
     ): ConvertStruct {
+        $this->generateChecksum($data);
         $this->context = $context;
         $this->locale = $data['_locale'];
         unset($data['_locale']);
         $this->connectionId = $migrationContext->getConnection()->getId();
 
         $converted = [];
-        $converted['id'] = $this->mappingService->createNewUuid(
+        $this->mainMapping = $this->mappingService->getOrCreateMapping(
             $this->connectionId,
             DefaultEntities::MEDIA,
             $data['id'],
-            $context
+            $context,
+            $this->checksum
         );
+        $converted['id'] = $this->mainMapping['entityUuid'];
 
         if (!isset($data['name'])) {
             $data['name'] = $converted['id'];
@@ -56,15 +59,16 @@ abstract class MediaConverter extends ShopwareConverter
         $this->convertValue($converted, 'title', $data, 'name');
         $this->convertValue($converted, 'alt', $data, 'description');
 
-        $albumUuid = $this->mappingService->getUuid(
-          $this->connectionId,
+        $albumMapping = $this->mappingService->getMapping(
+            $this->connectionId,
             DefaultEntities::MEDIA_FOLDER,
-          $data['albumID'],
-          $this->context
+            $data['albumID'],
+            $this->context
         );
 
-        if ($albumUuid !== null) {
-            $converted['mediaFolderId'] = $albumUuid;
+        if ($albumMapping !== null) {
+            $converted['mediaFolderId'] = $albumMapping['entityUuid'];
+            $this->mappingIds[] = $albumMapping['id'];
         }
 
         unset(
@@ -85,9 +89,10 @@ abstract class MediaConverter extends ShopwareConverter
         if (empty($data)) {
             $data = null;
         }
+        $this->updateMainMapping($migrationContext, $context);
 
         // The MediaWriter will write this Shopware 6 media object
-        return new ConvertStruct($converted, $data);
+        return new ConvertStruct($converted, $data, $this->mainMapping['id']);
     }
         
     /* ... */
@@ -117,16 +122,12 @@ class HttpMediaDownloadService implements MediaFileProcessorInterface
     {
         /* ... */
 
-        //Fetch media files from database
+        //Fetch media from database
+        $media = $this->getMediaFiles($mediaIds, $runId, $context);
+        
         $client = new Client([
             'verify' => false,
         ]);
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('mediaId', $mediaIds));
-        $criteria->addFilter(new EqualsFilter('runId', $runId));
-        $mediaSearchResult = $this->mediaFileRepo->search($criteria, $context);
-        /** @var SwagMigrationMediaFileEntity[] $media */
-        $media = $mediaSearchResult->getElements();
 
         //Do download requests and store the promises
         $promises = $this->doMediaDownloadRequests($media, $fileChunkByteSize, $mappedWorkload, $client);
@@ -144,7 +145,7 @@ class HttpMediaDownloadService implements MediaFileProcessorInterface
     }
 }
 ```
-First, the service fetches all media files associated with given media ids and downloads these media files from the source system.
+First, the service fetches all media files associated with the given media IDs and downloads these media files from the source system.
 After this, it handles the response, saves the media files in a temporary folder and copies them to Shopware 6 filesystem.
-In the end the service sets a `processed` status to these media files, saves all warnings that may have occured and
+In the end the service sets a `processed` status to these media files, saves all warnings that may have occurred and
 returns the status of the processed files.

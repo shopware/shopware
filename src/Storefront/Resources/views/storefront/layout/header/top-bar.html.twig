@@ -1,0 +1,17 @@
+{% block layout_header_top_bar %}
+    <div class="top-bar d-none d-lg-block">
+        <nav class="top-bar-nav">
+            {% block layout_header_top_bar_language %}
+                {% sw_include '@Storefront/storefront/layout/header/actions/language-widget.html.twig' %}
+            {% endblock %}
+
+            {% block layout_header_top_bar_currency %}
+                {% sw_include '@Storefront/storefront/layout/header/actions/currency-widget.html.twig' %}
+            {% endblock %}
+
+            {% block layout_header_top_bar_service %}
+                {% sw_include '@Storefront/storefront/layout/header/actions/service-menu-widget.html.twig' %}
+            {% endblock %}
+        </nav>
+    </div>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% block page_product_detail_review_item %}
+	{# TODO: replace verification badge #}
+	{% set reviewVerifcation = 0 %}
+
+	<div class="product-detail-review-item"
+		 itemprop="review"
+		 itemscope
+		 itemtype="https://schema.org/Review">
+        {% block page_product_detail_review_item_meta_published %}
+			<meta itemprop="datePublished" content="{{ review.createdAt|date }}">
+        {% endblock %}
+
+        {% block page_product_detail_review_item_meta_title %}
+			<meta itemprop="name" content="{{ review.title }}">
+        {% endblock %}
+
+		{% block page_product_detail_review_item_info %}
+			<div class="row product-detail-review-item-info">
+				{% block page_product_detail_review_item_info_date %}
+					<div class="col-12 product-detail-review-item-date">
+						<p><small>{{ review.createdAt|date }}</small></p>
+					</div>
+				{% endblock %}
+
+                {% block page_product_detail_review_item_info_points %}
+					<div class="col-md-auto product-detail-review-item-points">
+						{% sw_include '@Storefront/storefront/component/review/rating.html.twig' with {
+							points: review.points
+						} %}
+					</div>
+                {% endblock %}
+
+				{% block page_product_detail_review_item_title %}
+					<div class="col-md-auto product-detail-review-item-title">
+						<p class="h5">
+							{{ review.title }}
+						</p>
+					</div>
+				{% endblock %}
+
+                {% block page_product_detail_review_item_info_verify %}
+					<div class="col product-detail-review-item-verify">
+						{% if reviewVerifcation == 1 %}
+							<a data-toggle="tooltip"
+							   data-placement="bottom"
+							   title="{{ "detail.reviewVerifiedItemTooltip"|trans|striptags }}">
+                                {% sw_icon 'checkmark-circle' style {
+									'color': 'primary',
+									'size': 'sm'
+								} %}
+							</a>
+						{% endif %}
+					</div>
+                {% endblock %}
+			</div>
+		{% endblock %}
+
+		{% block page_product_detail_review_item_content %}
+			<p class="product-detail-review-item-content" itemprop="description">
+				{{ review.content }}
+			</p>
+		{% endblock %}
+
+		{% block page_product_detail_review_item_comment %}
+			{% if review.comment %}
+				<div class="product-detail-review-item-comment">
+					<blockquote class="blockquote">
+						<footer class="blockquote-footer">
+							{{ "detail.reviewCommentLabel"|trans|sw_sanitize }}{{ review.comment }}
+						</footer>
+					</blockquote>
+				</div>
+			{% endif %}
+		{% endblock %}
+
+
+    </div>
+{% endblock %}

@@ -4,10 +4,12 @@ namespace Shopware\Core\Framework\Acl\Resource;
 
 use Shopware\Core\Framework\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -51,7 +53,8 @@ class AclResourceDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
 
-            new ManyToOneAssociationField('aclRole', 'acl_role_id', AclRoleDefinition::class),
+            (new ManyToOneAssociationField('aclRole', 'acl_role_id', AclRoleDefinition::class))
+                ->addFlags(new ReadProtected(SalesChannelApiSource::class)),
         ]);
     }
 }

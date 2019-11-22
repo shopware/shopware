@@ -9,7 +9,7 @@ Here is an example of how the logging works in the `CustomerConverter`:
 ```php
 <?php declare(strict_types=1);
 
-class CustomerConverter extends Shopware55Converter
+abstract class CustomerConverter extends ShopwareConverter
 {
     /* ... */
     
@@ -19,20 +19,19 @@ class CustomerConverter extends Shopware55Converter
             MigrationContextInterface $migrationContext
         ): ConvertStruct
     {
+        $this->generateChecksum($data);
         $oldData = $data;
         $this->runId = $migrationContext->getRunUuid();
 
         $fields = $this->checkForEmptyRequiredDataFields($data, $this->requiredDataFieldKeys);
 
         if (!empty($fields)) {
-            foreach ($fields as $field) {
-                $this->loggingService->addLogEntry(new EmptyNecessaryFieldRunLog(
-                    $this->runId,
-                    DefaultEntities::CUSTOMER,
-                    $data['id'],
-                    $field
-                ));
-            }
+            $this->loggingService->addLogEntry(new EmptyNecessaryFieldRunLog(
+                $this->runId,
+                DefaultEntities::CUSTOMER,
+                $data['id'],
+                implode(',', $fields)
+            ));
 
             return new ConvertStruct(null, $oldData);
         }
@@ -81,7 +80,7 @@ class EmptyNecessaryFieldRunLog extends BaseRunLogEntry
 
     public function getCode(): string
     {
-        return sprintf('SWAG_MIGRATION_EMPTY_NECESSARY_FIELD_%s', strtoupper($this->getEntity()));
+        return sprintf('SWAG_MIGRATION_EMPTY_NECESSARY_FIELD_%s', mb_strtoupper($this->getEntity()));
     }
 
     public function getLevel(): string
@@ -91,7 +90,7 @@ class EmptyNecessaryFieldRunLog extends BaseRunLogEntry
 
     public function getTitle(): string
     {
-        return sprintf('The %s entity has an empty necessary field', $this->getEntity());
+        return sprintf('The %s entity has one or more empty necessary fields', $this->getEntity());
     }
 
     public function getParameters(): array
@@ -108,7 +107,7 @@ class EmptyNecessaryFieldRunLog extends BaseRunLogEntry
         $args = $this->getParameters();
 
         return sprintf(
-            'The %s entity with the source id %s does not have the necessary data for the field %s',
+            'The %s entity with the source id %s does not have the necessary data for the field(s): %s',
                 $args['entity'],
                 $args['sourceId'],
                 $args['emptyField']

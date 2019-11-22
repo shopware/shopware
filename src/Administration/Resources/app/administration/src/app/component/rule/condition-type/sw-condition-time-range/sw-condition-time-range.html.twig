@@ -1,0 +1,25 @@
+{% block sw_condition_value_content %}
+    <div class="sw-condition-time-range">
+        {% block sw_condition_time_range_field_from_time %}
+            <sw-arrow-field primary="#F9FAFB">
+                <sw-datepicker
+                    size="medium"
+                    dateType="time"
+                    required
+                    :config="datepickerConfig"
+                    v-model="fromTime">
+                </sw-datepicker>
+            </sw-arrow-field>
+        {% endblock %}
+
+        {% block sw_condition_time_range_field_to_time %}
+            <sw-datepicker
+                size="medium"
+                dateType="time"
+                required
+                :config="datepickerConfig"
+                v-model="toTime">
+            </sw-datepicker>
+        {% endblock %}
+    </div>
+{% endblock %}

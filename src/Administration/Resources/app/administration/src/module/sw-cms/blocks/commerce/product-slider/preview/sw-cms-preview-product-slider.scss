@@ -1,0 +1,19 @@
+.sw-cms-preview-product-slider {
+    align-items: center;
+    display: grid;
+    grid-template-columns: 20px 1fr 20px;
+    grid-gap: 5px;
+    padding: 15px;
+
+    img {
+        margin: 0;
+        display: block;
+        max-width: 100%;
+    }
+
+    .sw-cms-preview-product-slider__product-box {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-gap: 0 15px;
+    }
+}

@@ -56,9 +56,12 @@ class SalesChannelRuleTest extends TestCase
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
             $exceptions = iterator_to_array($stackException->getErrors());
-            static::assertCount(1, $exceptions);
+            static::assertCount(2, $exceptions);
             static::assertSame('/0/value/salesChannelIds', $exceptions[0]['source']['pointer']);
             static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[0]['code']);
+
+            static::assertSame('/0/value/operator', $exceptions[1]['source']['pointer']);
+            static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[1]['code']);
         }
     }
 
@@ -71,6 +74,7 @@ class SalesChannelRuleTest extends TestCase
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'salesChannelIds' => [],
+                        'operator' => SalesChannelRule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -92,6 +96,7 @@ class SalesChannelRuleTest extends TestCase
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'salesChannelIds' => '0915d54fbf80423c917c61ad5a391b48',
+                        'operator' => SalesChannelRule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -113,6 +118,7 @@ class SalesChannelRuleTest extends TestCase
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'salesChannelIds' => [true, 3, null, '0915d54fbf80423c917c61ad5a391b48'],
+                        'operator' => SalesChannelRule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);

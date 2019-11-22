@@ -1,0 +1,48 @@
+{
+  "sw-settings-payment": {
+    "general": {
+      "mainMenuItemGeneral": "Zahlungsarten",
+      "placeholderSearchBar": "Durchsuche alle Zahlungsarten ..."
+    },
+    "list": {
+      "textHeadline": "Zahlungsarten",
+      "textDeleteConfirm": "Bist Du sicher, dass Du die Zahlungsart \"{name}\" löschen möchtest?",
+      "columnName": "Name",
+      "columnDescription": "Beschreibung",
+      "columnActive": "Aktiv",
+      "columnPosition": "Position",
+      "buttonAddPaymentMethod": "Zahlungsart anlegen",
+      "contextMenuEdit": "Bearbeiten",
+      "contextMenuDelete": "Löschen",
+      "modalTitleDelete": "Zahlungsart löschen",
+      "titleDeleteSuccess": "Erfolg",
+      "messageDeleteSuccess": "Die Zahlungsart \"{name}\" wurde erfolgreich gelöscht.",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen",
+      "pluginDeleteTitleText": "Zahlungsarten von Plugins können nicht gelöscht werden."
+    },
+    "detail": {
+      "textHeadline": "Neue Zahlungsart",
+      "titleCard": "Zahlungsarten",
+      "titleSaveSuccess": "Erfolg",
+      "messageSaveSuccess": "Die Zahlungsart \"{name}\" wurde erfolgreich gespeichert.",
+      "labelName": "Name",
+      "labelPosition": "Position",
+      "labelActive": "Aktiv",
+      "labelDescription": "Beschreibung",
+      "labelLogoUpload": "Logo",
+      "sidebar": {
+        "labelUseAsLogo": "Als Logo benutzen"
+      },
+      "topRule": "Verfügbarkeitsregel",
+      "placeholderName": "Namen eingeben ...",
+      "placeholderPosition": "Position eingeben ...",
+      "placeholderDescription": "Beschreibung eingeben ...",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern"
+    }
+  },
+  "sw-plugin-box": {
+    "buttonPluginSettings": "Plugin Einstellungen"
+  }
+}

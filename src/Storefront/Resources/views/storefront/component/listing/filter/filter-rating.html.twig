@@ -1,0 +1,89 @@
+{% set filterItemId = 'filter-' ~ name ~ '-' ~ random() %}
+
+{% if maxPoints is not defined %}
+    {% set maxPoints = 5 %}
+{% endif %}
+
+{% if filterRatingActiveLabelStart is not defined %}
+    {% set filterRatingActiveLabelStart = 'listing.filterRatingActiveLabelStart'|trans|sw_sanitize %}
+{% endif %}
+
+{% if filterRatingActiveLabelEnd is not defined %}
+    {% set filterRatingActiveLabelEnd = 'listing.filterRatingActiveLabelEnd'|trans|sw_sanitize %}
+{% endif %}
+
+{% block component_filter_rating %}
+    <div class="filter-rating filter-panel-item{% if not sidebar %} dropdown{% endif %}"
+         data-filter-rating="true"
+         data-filter-rating-options='{
+            "name": "{{ name }}",
+            "maxPoints": "{{ maxPoints }}",
+            "snippets": {
+                "filterRatingActiveLabelStart": "{{ filterRatingActiveLabelStart }}",
+                "filterRatingActiveLabelEnd": "{{ filterRatingActiveLabelEnd }}"
+            }
+         }'>
+
+        {% block component_filter_rating_toggle %}
+            <button class="filter-panel-item-toggle btn{% if sidebar %} btn-block{% endif %}"
+                    aria-expanded="false"
+                    {% if sidebar %}
+                    data-toggle="collapse"
+                    data-target="#{{ filterItemId }}"
+                    {% else %}
+                    data-toggle="dropdown"
+                    data-offset="0,8"
+                    aria-haspopup="true"
+                    {% endif %}>
+
+                {% block component_filter_rating_display_name %}
+                    {{ displayName }}
+                {% endblock %}
+
+                {% block component_filter_rating_count %}
+                    <span class="filter-rating-count"></span>
+                {% endblock %}
+
+                {% block component_filter_rating_toggle_icon %}
+                    {% sw_icon 'arrow-medium-down' style {'pack': 'solid', 'size': 'xs', 'class': 'filter-panel-item-toggle'} %}
+                {% endblock %}
+            </button>
+        {% endblock %}
+
+        {% block component_filter_rating_dropdown %}
+            <div class="filter-rating-dropdown filter-panel-item-dropdown{% if sidebar %} collapse{% else %} dropdown-menu{% endif %}"
+                 id="{{ filterItemId }}">
+
+                {% block component_filter_rating_container %}
+                    <div class="filter-rating-container" data-rating-system="true">
+                        {% for point in 1..maxPoints %}
+
+                            {% block component_filter_rating_point_label %}
+                                <label data-review-form-point="{{ point }}"
+                                       class="filter-rating-star {% if currentPoints >= point %} is-active{% endif %}">
+
+                                    {% block component_filter_rating_point_radio %}
+                                        <input class="product-detail-review-form-radio"
+                                               type="radio"
+                                               name="points"
+                                               value="{{ point }}">
+                                    {% endblock %}
+
+                                    {% block component_filter_rating_point_radio_element %}
+                                        {% sw_include '@Storefront/storefront/component/review/point.html.twig' with {
+                                            type: 'blank'
+                                        } %}
+                                    {% endblock %}
+                                </label>
+                            {% endblock %}
+                        {% endfor %}
+
+                        {% block component_filter_rating_text_placeholder %}
+                            <div data-rating-text="true"></div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

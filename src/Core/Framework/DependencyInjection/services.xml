@@ -86,10 +86,11 @@
         </service>
 
         <service id="Shopware\Core\Framework\Migration\Command\CreateMigrationCommand">
-            <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
             <argument>%kernel.project_dir%</argument>
+
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\Migration\Command\RefreshMigrationCommand">
@@ -97,17 +98,19 @@
         </service>
 
         <service id="Shopware\Core\Framework\Migration\Command\MigrationCommand">
-            <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
             <argument type="service" id="cache.object"/>
+
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\Migration\Command\MigrationDestructiveCommand">
-            <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
             <argument type="service" id="cache.object"/>
+
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\Migration\Api\MigrationController" public="true">
@@ -119,7 +122,6 @@
         </service>
 
         <service id="Shopware\Core\Framework\Migration\IndexerQueuer" public="true">
-
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
@@ -136,6 +138,7 @@
         <service id="Shopware\Core\Framework\Routing\ContextResolverListener">
             <argument type="service" id="request_stack"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\ApiRequestContextResolver"/>
+
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -143,6 +146,7 @@
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="event_dispatcher"/>
+
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -155,12 +159,14 @@
             <argument type="service" id="translator.formatter"/>
             <argument type="service" id="Shopware\Core\Framework\Snippet\SnippetService"/>
             <argument type="service" id="language.repository"/>
+
             <tag name="monolog.logger"/>
         </service>
 
         <service id="Shopware\Core\Framework\Translation\TranslatorCacheInvalidate">
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -308,8 +314,9 @@
         <service id="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator"/>
 
         <service id="Shopware\Core\Framework\FeatureFlag\Command\FeatureFlagCreateCommand">
-            <tag name="console.command" command="feature:add"/>
             <argument type="service" id="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator"/>
+
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\Cache\CacheClearer">

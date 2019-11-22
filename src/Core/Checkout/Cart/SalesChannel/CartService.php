@@ -84,10 +84,9 @@ class CartService
         $this->orderCustomerRepository = $orderCustomerRepository;
     }
 
-    public function setCart(Cart $cart, SalesChannelContext $context): void
+    public function setCart(Cart $cart): void
     {
         $this->cart[$cart->getToken()] = $cart;
-        $this->persister->save($cart, $context);
     }
 
     public function createNew(string $token, string $name = self::SALES_CHANNEL): Cart
@@ -130,7 +129,7 @@ class CartService
 
         $this->eventDispatcher->dispatch(new LineItemAddedEvent($item, $cart, $context));
 
-        return $this->calculate($cart, $context);
+        return $this->calculate($cart, $context, true);
     }
 
     /**
@@ -151,7 +150,7 @@ class CartService
 
         $this->eventDispatcher->dispatch(new LineItemQuantityChangedEvent($lineItem, $cart, $context));
 
-        return $this->calculate($cart, $context);
+        return $this->calculate($cart, $context, true);
     }
 
     /**
@@ -171,7 +170,7 @@ class CartService
 
         $this->eventDispatcher->dispatch(new LineItemRemovedEvent($lineItem, $cart, $context));
 
-        return $this->calculate($cart, $context);
+        return $this->calculate($cart, $context, true);
     }
 
     /**
@@ -221,10 +220,10 @@ class CartService
 
     public function recalculate(Cart $cart, SalesChannelContext $context): Cart
     {
-        return $this->calculate($cart, $context);
+        return $this->calculate($cart, $context, true);
     }
 
-    private function calculate(Cart $cart, SalesChannelContext $context): Cart
+    private function calculate(Cart $cart, SalesChannelContext $context, bool $persist = false): Cart
     {
         $behavior = new CartBehavior();
 
@@ -233,7 +232,9 @@ class CartService
             ->loadByCart($context, $cart, $behavior)
             ->getCart();
 
-        $this->persister->save($cart, $context);
+        if ($persist) {
+            $this->persister->save($cart, $context);
+        }
 
         $this->cart[$cart->getToken()] = $cart;
 

@@ -1,0 +1,82 @@
+{% sw_extends '@Storefront/storefront/page/account/_page.html.twig' %}
+
+{% block page_account_main_content %}
+    {% block page_account_orders %}
+        <div class="account-orders">
+            {% block page_account_orders_welcome %}
+                <div class="account-welcome">
+                    {% block page_account_orders_welcome_headline %}
+                        <h1>{{ "account.ordersTitle"|trans|sw_sanitize }}</h1>
+                        <p>{{ "account.ordersWelcome"|trans|sw_sanitize }}</p>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block page_account_orders_main %}
+                <div class="account-orders-main">
+                    {% if page.orders.total == 0 %}
+                        {% block page_account_orders_info_empty %}
+                            {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                                type: "warning",
+                                content: "account.ordersInfoEmpty"|trans|sw_sanitize
+                            } %}
+                        {% endblock %}
+                    {% else %}
+                        {% block page_account_orders_overview %}
+                            <div class="account-orders-overview">
+                                {% block page_account_orders_table %}
+                                    <div class="table order-table">
+                                        {% block page_account_orders_table_header %}
+                                            <div class="order-table-header">
+                                                <div class="row">
+                                                    {% block page_account_orders_table_header_date %}
+                                                        <div class="col order-header-date">
+                                                            {{ "account.orderItemColumnDate"|trans|sw_sanitize }}
+                                                        </div>
+                                                    {% endblock %}
+
+                                                    {% block page_account_orders_table_header_number %}
+                                                        <div class="col order-header-number">
+                                                            {{ "account.orderItemColumnNumber"|trans|sw_sanitize }}
+                                                        </div>
+                                                    {% endblock %}
+
+                                                    {% block page_account_orders_table_header_payment_method %}
+                                                        <div class="col order-header-payment-method">
+                                                            {{ "account.orderItemColumnPaymentMethod"|trans|sw_sanitize }}
+                                                        </div>
+                                                    {% endblock %}
+
+                                                    {% block page_account_orders_table_header_shipping_method %}
+                                                        <div class="col order-header-shipping-method">
+                                                            {{ "account.orderItemColumnShippingMethod"|trans|sw_sanitize }}
+                                                        </div>
+                                                    {% endblock %}
+
+                                                    {% block page_account_orders_table_header_actions %}
+                                                        <div class="col order-header-actions">
+                                                            {{ "account.orderItemColumnActions"|trans|sw_sanitize }}
+                                                        </div>
+                                                    {% endblock %}
+                                                </div>
+                                            </div>
+                                        {% endblock %}
+
+                                        {% block page_account_orders_table_body %}
+                                            {% for order in page.orders %}
+                                                <div class="order-table-body"
+                                                     data-order-detail-loader="true">
+                                                    {% sw_include '@Storefront/storefront/page/account/order-history/order-item.html.twig' %}
+                                                </div>
+                                            {% endfor %}
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    {% endif %}
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

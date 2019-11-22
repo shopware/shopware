@@ -22,6 +22,5 @@ class Migration1564385960ThemeAddActiveFlag extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

@@ -50,6 +50,5 @@ class Migration1536232620SalesChannelType extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

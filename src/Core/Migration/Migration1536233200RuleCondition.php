@@ -38,6 +38,5 @@ class Migration1536233200RuleCondition extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

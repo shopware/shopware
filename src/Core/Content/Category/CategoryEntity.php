@@ -472,6 +472,11 @@ class CategoryEntity extends Entity
         return array_values($this->getBreadcrumbMapping());
     }
 
+    public function getPlainBreadcrumb(): array
+    {
+        return $this->getBreadcrumbMapping();
+    }
+
     public function setBreadcrumb(?array $breadcrumb): void
     {
         $this->breadcrumb = $breadcrumb;

@@ -1,0 +1,55 @@
+@import "~scss/variables";
+
+.sw-sales-channel-modal-grid {
+    .sw-grid-row {
+        border-bottom: 0;
+    }
+
+    .sw-grid-column .sw-grid__cell-content {
+        padding: 10px 10px;
+    }
+
+    .sw-sales-channel-modal-grid__item-name {
+        font-size: 18px;
+        margin-bottom: 0;
+        color: $color-darkgray-200;
+        font-weight: normal;
+        cursor: pointer;
+
+        &:hover {
+            color: $color-shopware-brand-500;
+        }
+    }
+
+    .sw-sales-channel-modal-grid__item-description {
+        color: $color-darkgray-200;
+        font-size: $font-size-small;
+        margin-top: 5px;
+        cursor: pointer;
+    }
+
+    .sw-sales-channel-modal-grid__icon-column .sw-grid__cell-content {
+        padding: 10px 0;
+        cursor: pointer;
+    }
+
+    .sw-sales-channel-modal-grid__icon {
+        background: $color-gray-100;
+        width: 64px;
+        height: 64px;
+        border-radius: 8px;
+
+        .sw-icon {
+            color: $color-gray-900;
+            height: 24px;
+            width: 24px;
+            margin: 20px;
+        }
+    }
+
+    .sw-sales-channel-modal-grid__actions {
+        .sw-grid__cell-content {
+            grid-gap: 5px;
+        }
+    }
+}

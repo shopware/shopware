@@ -16,6 +16,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class PluginRefreshCommand extends Command
 {
+    protected static $defaultName = 'plugin:refresh';
+
     /**
      * @var PluginService
      */
@@ -33,7 +35,7 @@ class PluginRefreshCommand extends Command
      */
     protected function configure(): void
     {
-        $this->setName('plugin:refresh')
+        $this
             ->setDescription('Refreshes the plugins list in the storage from the file system')
             ->addOption('skipPluginList', 's', InputOption::VALUE_NONE, "Don't display plugin list after refresh");
     }

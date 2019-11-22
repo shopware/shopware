@@ -31,6 +31,5 @@ class Migration1554200141ImportExportFile extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

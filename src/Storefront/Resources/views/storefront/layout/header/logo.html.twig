@@ -1,0 +1,35 @@
+{% block layout_header_logo_inner %}
+    <div class="header-logo-main">
+        {% block layout_header_logo_link %}
+            <a class="header-logo-main-link"
+               href="{{ path('frontend.home.page') }}"
+               title="{{ "header.logoLink"|trans|striptags }}">
+                {% block layout_header_logo_image %}
+                    <picture>
+                        {% block layout_header_logo_image_tablet %}
+                            {% if shopware.theme['sw-logo-tablet'] %}
+                                <source srcset="{{ shopware.theme['sw-logo-tablet'] |sw_encode_url }}"
+                                        media="(min-width: {{ shopware.theme.breakpoint.md }}px) and (max-width: {{ shopware.theme.breakpoint.lg - 1 }}px)">
+                            {% endif %}
+                        {% endblock %}
+
+                        {% block layout_header_logo_image_mobile %}
+                            {% if shopware.theme['sw-logo-mobile'] %}
+                                <source srcset="{{ shopware.theme['sw-logo-mobile'] |sw_encode_url }}"
+                                        media="(max-width: {{ shopware.theme.breakpoint.md - 1 }}px)">
+                            {% endif %}
+                        {% endblock %}
+
+                        {% block layout_header_logo_image_default %}
+                            {% if shopware.theme['sw-logo-desktop'] %}
+                                <img src="{{ shopware.theme['sw-logo-desktop'] |sw_encode_url }}"
+                                     alt="{{ "header.logoLink"|trans|striptags }}"
+                                     class="img-fluid header-logo-main-img"/>
+                            {% endif %}
+                        {% endblock %}
+                    </picture>
+                {% endblock %}
+            </a>
+        {% endblock %}
+    </div>
+{% endblock %}

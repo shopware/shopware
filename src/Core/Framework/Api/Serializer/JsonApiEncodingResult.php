@@ -34,9 +34,15 @@ class JsonApiEncodingResult implements \JsonSerializable
      */
     protected $baseUrl;
 
-    public function __construct(string $baseUrl)
+    /**
+     * @var int
+     */
+    private $apiVersion;
+
+    public function __construct(string $baseUrl, int $apiVersion)
     {
         $this->baseUrl = $baseUrl;
+        $this->apiVersion = $apiVersion;
     }
 
     public function getBaseUrl(): string
@@ -87,6 +93,20 @@ class JsonApiEncodingResult implements \JsonSerializable
         return isset($this->keyCollection[$key]);
     }
 
+    public function containsInIncluded(string $id, string $type): bool
+    {
+        $key = $id . '-' . $type;
+
+        return isset($this->included[$key]);
+    }
+
+    public function containsInData(string $id, string $type): bool
+    {
+        $key = $id . '-' . $type;
+
+        return isset($this->data[$key]);
+    }
+
     public function jsonSerialize()
     {
         $output = [
@@ -119,5 +139,10 @@ class JsonApiEncodingResult implements \JsonSerializable
     public function getMetaData(): array
     {
         return $this->metaData;
+    }
+
+    public function getApiVersion(): int
+    {
+        return $this->apiVersion;
     }
 }

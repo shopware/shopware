@@ -74,6 +74,7 @@ class CartWeightRule extends Rule
         return [
             'weight' => [new NotBlank(), new Type('numeric')],
             'operator' => [
+                new NotBlank(),
                 new Choice(
                     [
                         self::OPERATOR_EQ,

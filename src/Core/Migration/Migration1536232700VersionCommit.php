@@ -32,6 +32,5 @@ class Migration1536232700VersionCommit extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

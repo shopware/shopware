@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory;
 
+use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
@@ -54,7 +56,9 @@ class StateMachineHistoryDefinition extends EntityDefinition
             new StringField('action_name', 'transitionActionName'),
 
             new FkField('user_id', 'userId', UserDefinition::class),
-            new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false),
+
+            (new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false))
+                ->addFlags(new ReadProtected(SalesChannelApiSource::class)),
         ]);
     }
 }

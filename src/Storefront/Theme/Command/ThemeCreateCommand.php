@@ -8,9 +8,12 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 class ThemeCreateCommand extends Command
 {
+    protected static $defaultName = 'theme:create';
+
     /**
      * @var string
      */
@@ -24,7 +27,7 @@ class ThemeCreateCommand extends Command
 
     protected function configure(): void
     {
-        $this->setName('theme:create')
+        $this
             ->addArgument('theme-name', InputArgument::OPTIONAL, 'Theme name')
             ->setDescription('Creates a plugin skeleton');
     }
@@ -35,6 +38,9 @@ class ThemeCreateCommand extends Command
         $helper = $this->getHelper('question');
 
         $name = $input->getArgument('theme-name');
+
+        $snakeCaseName = (new CamelCaseToSnakeCaseNameConverter())->normalize($name);
+        $snakeCaseName = str_replace('_', '-', $snakeCaseName);
 
         if (!$name) {
             $question = new Question('Please enter a theme name:');
@@ -58,10 +64,14 @@ class ThemeCreateCommand extends Command
         $io->writeln('Creating theme structure under ' . $directory);
 
         try {
-            $this->createDirectory($directory . '/src/Resources/storefront/');
-            $this->createDirectory($directory . '/src/Resources/storefront/style');
-            $this->createDirectory($directory . '/src/Resources/storefront/asset');
-            $this->createDirectory($directory . '/src/Resources/storefront/dist/script');
+            $this->createDirectory($directory . '/src/Resources/app/');
+            $this->createDirectory($directory . '/src/Resources/app/storefront/');
+            $this->createDirectory($directory . '/src/Resources/app/storefront/src/');
+            $this->createDirectory($directory . '/src/Resources/app/storefront/src/scss');
+            $this->createDirectory($directory . '/src/Resources/app/storefront/src/assets');
+            $this->createDirectory($directory . '/src/Resources/app/storefront/dist');
+            $this->createDirectory($directory . '/src/Resources/app/storefront/dist/storefront');
+            $this->createDirectory($directory . '/src/Resources/app/storefront/dist/storefront/js');
         } catch (\RuntimeException $e) {
             $io->error($e->getMessage());
 
@@ -70,7 +80,7 @@ class ThemeCreateCommand extends Command
 
         $composerFile = $directory . '/composer.json';
         $bootstrapFile = $directory . '/src/' . $name . '.php';
-        $themeConfigFile = $directory . '/src/theme.json';
+        $themeConfigFile = $directory . '/src/Resources/theme.json';
 
         $composer = str_replace(
             ['#namespace#', '#class#'],
@@ -85,8 +95,8 @@ class ThemeCreateCommand extends Command
         );
 
         $themeConfig = str_replace(
-            ['#name#'],
-            [$name],
+            ['#name#', '#snake-case#'],
+            [$name, $snakeCaseName],
             $this->getThemeConfigTemplate()
         );
 
@@ -94,8 +104,9 @@ class ThemeCreateCommand extends Command
         file_put_contents($bootstrapFile, $bootstrap);
         file_put_contents($themeConfigFile, $themeConfig);
 
-        touch($directory . '/src/Resources/storefront/dist/script/all.js');
-        touch($directory . '/src/Resources/storefront/style/base.scss');
+        touch($directory . '/src/Resources/app/storefront/src/scss/base.scss');
+        touch($directory . '/src/Resources/app/storefront/src/main.js');
+        touch($directory . '/src/Resources/app/storefront/dist/storefront/js/' . $snakeCaseName . '.js');
 
         return null;
     }
@@ -162,14 +173,14 @@ EOL;
   "author": "Shopware AG",
   "style": [
     "@Storefront",
-    "Resources/storefront/style/base.scss"
+    "app/storefront/src/scss/base.scss"
   ],
   "script": [
     "@Storefront",
-    "Resources/storefront/dist/script/all.js"
+    "app/storefront/dist/storefront/js/#snake-case#.js"
   ],
   "asset": [
-    "Resources/storefront/asset"
+    "app/storefront/src/assets"
   ]
 }
 EOL;

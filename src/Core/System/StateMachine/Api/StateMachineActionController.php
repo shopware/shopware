@@ -110,7 +110,7 @@ class StateMachineActionController extends AbstractController
         string $transition
     ): Response {
         $stateFieldName = $request->query->get('stateFieldName', 'stateId');
-        $toPlace = $this->stateMachineRegistry->transition(
+        $stateMachineStateCollection = $this->stateMachineRegistry->transition(
             new Transition(
                 $entityName,
                 $entityId,
@@ -121,7 +121,7 @@ class StateMachineActionController extends AbstractController
         );
 
         return $responseFactory->createDetailResponse(
-            $toPlace,
+            $stateMachineStateCollection->get('toPlace'),
             $this->definitionInstanceRegistry->get(StateMachineStateDefinition::class),
             $request,
             $context

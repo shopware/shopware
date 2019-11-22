@@ -46,6 +46,5 @@ class Migration1562683944ImportExportProfileIdentifierFields extends MigrationSt
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

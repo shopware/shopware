@@ -12,6 +12,8 @@ class PluginUpdateCommand extends AbstractPluginLifecycleCommand
 {
     private const LIFECYCLE_METHOD = 'update';
 
+    protected static $defaultName = 'plugin:update';
+
     protected function configure(): void
     {
         $this->configureCommand(self::LIFECYCLE_METHOD);

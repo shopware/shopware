@@ -31,6 +31,5 @@ class Migration1536233170ProductCategoryTree extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

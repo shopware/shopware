@@ -1,0 +1,43 @@
+{% block sw_sales_channel_modal_detail %}
+    <div class="sw-sales-channel-modal-detail">
+        {% block sw_sales_channel_modal_detail_header %}
+            <sw-container columns="64px 1fr" gap="24px" class="sw-sales-channel-modal-detail__header">
+
+                {% block sw_sales_channel_modal_detail_header_icon %}
+                    <span class="sw-sales-channel-modal-detail__header-icon">
+                                <sw-icon v-if="detailType.iconName" :name="detailType.iconName"></sw-icon>
+                            </span>
+                {% endblock %}
+
+                {% block sw_sales_channel_modal_detail_header_meta %}
+                    <div class="sw-sales-channel-modal-detail__header-meta">
+                        <h4 class="sw-sales-channel-modal-detail__header-name">{{ detailType.translated.name }}</h4>
+                        <div class="sw-sales-channel-modal-detail__header-manufacturer">{{ detailType.translated.manufacturer }}</div>
+                    </div>
+                {% endblock %}
+            </sw-container>
+        {% endblock %}
+
+        {% block sw_sales_channel_modal_detail_description %}
+            <h4 class="sw-sales-channel-modal-detail__description-long-title">
+                {{ $tc('sw-sales-channel.modal.titleDescription') }}
+            </h4>
+            <div class="sw-sales-channel-modal-detail__description-long-text"
+                v-if="detailType.translated.descriptionLong">
+                {{ detailType.translated.descriptionLong }}
+            </div>
+            <div class="sw-sales-channel-modal-detail__description-long-text"
+                 v-else>
+                {{ detailType.translated.description }}
+            </div>
+        {% endblock %}
+
+        {% block sw_sales_channel_modal_detail_screenshots %}
+            <div class="sw-sales-channel-modal-detail__screenshots">
+                <div v-for="url in detailType.screenshotUrls" class="sw-sales-channel-modal-detail__screenshot">
+                    <img :src="url">
+                </div>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

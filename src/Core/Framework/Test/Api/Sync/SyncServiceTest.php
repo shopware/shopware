@@ -4,13 +4,25 @@ namespace Shopware\Core\Framework\Test\Api\Sync;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Converter\ConverterRegistry;
+use Shopware\Core\Framework\Api\Converter\ConverterService;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncOperationResult;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Test\Api\Converter\fixtures\DeprecatedConverter;
+use Shopware\Core\Framework\Test\Api\Converter\fixtures\DeprecatedDefinition;
+use Shopware\Core\Framework\Test\Api\Converter\fixtures\DeprecatedEntityDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 
 class SyncServiceTest extends TestCase
 {
@@ -45,7 +57,8 @@ class SyncServiceTest extends TestCase
             [
                 ['id' => $id1, 'name' => 'first manufacturer'],
                 ['id' => $id2, 'name' => 'second manufacturer'],
-            ]
+            ],
+            PlatformRequest::API_VERSION
         );
 
         $result = $this->service->sync([$operation], Context::createDefaultContext(), new SyncBehavior(false));
@@ -55,19 +68,18 @@ class SyncServiceTest extends TestCase
 
         static::assertInstanceOf(SyncOperationResult::class, $operation);
         static::assertFalse($operation->hasError());
-        static::assertTrue($operation->isSuccess());
 
         static::assertTrue($operation->has(0));
         static::assertTrue($operation->has(1));
 
         $written = $operation->get(0);
-        static::assertNull($written['error']);
+        static::assertEquals([], $written['errors']);
         static::assertArrayHasKey('entities', $written);
         static::assertArrayHasKey('product_manufacturer', $written['entities']);
         static::assertArrayHasKey('product_manufacturer_translation', $written['entities']);
 
         $written = $operation->get(1);
-        static::assertNull($written['error']);
+        static::assertEquals([], $written['errors']);
         static::assertArrayHasKey('entities', $written);
         static::assertArrayHasKey('product_manufacturer', $written['entities']);
         static::assertArrayHasKey('product_manufacturer_translation', $written['entities']);
@@ -85,7 +97,8 @@ class SyncServiceTest extends TestCase
             [
                 ['id' => $id1, 'name' => 'first manufacturer'],
                 ['id' => $id2],
-            ]
+            ],
+            PlatformRequest::API_VERSION
         );
 
         $result = $this->service->sync([$operation], Context::createDefaultContext(), new SyncBehavior(false));
@@ -95,20 +108,19 @@ class SyncServiceTest extends TestCase
 
         static::assertInstanceOf(SyncOperationResult::class, $operation);
         static::assertTrue($operation->hasError());
-        static::assertFalse($operation->isSuccess());
 
         static::assertTrue($operation->has(0));
         static::assertTrue($operation->has(1));
 
         $written = $operation->get(0);
-        static::assertNull($written['error']);
+        static::assertEquals([], $written['errors']);
         static::assertArrayHasKey('entities', $written);
         static::assertArrayHasKey('product_manufacturer', $written['entities']);
         static::assertArrayHasKey('product_manufacturer_translation', $written['entities']);
 
         $written = $operation->get(1);
-        static::assertNotNull($written['error']);
-        static::assertIsString($written['error']);
+        static::assertIsArray($written['errors']);
+        static::assertCount(1, $written['errors']);
         static::assertArrayHasKey('entities', $written);
         static::assertEmpty($written['entities']);
     }
@@ -125,7 +137,8 @@ class SyncServiceTest extends TestCase
             [
                 ['id' => $id1, 'name' => 'first manufacturer'],
                 ['id' => $id2],
-            ]
+            ],
+            PlatformRequest::API_VERSION
         );
 
         $result = $this->service->sync([$operation], Context::createDefaultContext(), new SyncBehavior(false));
@@ -155,10 +168,13 @@ class SyncServiceTest extends TestCase
             [
                 ['id' => $id1, 'name' => 'first manufacturer'],
                 ['id' => $id2],
-            ]
+            ],
+            PlatformRequest::API_VERSION
         );
 
         $result = $this->service->sync([$operation], Context::createDefaultContext(), new SyncBehavior(true));
+
+        $this->connection->beginTransaction();
 
         static::assertFalse($result->isSuccess());
 
@@ -170,7 +186,15 @@ class SyncServiceTest extends TestCase
 
         static::assertCount(0, $written);
 
-        $this->connection->beginTransaction();
+        $operation = $result->get('write');
+
+        $written = $operation->get(0);
+        static::assertEmpty($written['entities']);
+        static::assertEmpty($written['errors']);
+
+        $written = $operation->get(1);
+        static::assertEmpty($written['entities']);
+        static::assertNotEmpty($written['errors']);
     }
 
     public function testFailOnErrorWithMultipleOperations(): void
@@ -184,10 +208,10 @@ class SyncServiceTest extends TestCase
             new SyncOperation('write', 'product_manufacturer', SyncOperation::ACTION_UPSERT, [
                 ['id' => $id1, 'name' => 'first manufacturer'],
                 ['id' => $id2],
-            ]),
+            ], PlatformRequest::API_VERSION),
             new SyncOperation('write2', 'tax', SyncOperation::ACTION_UPSERT, [
                 ['id' => $id1, 'name' => 'first tax'],
-            ]),
+            ], PlatformRequest::API_VERSION),
         ];
 
         $result = $this->service->sync($operations, Context::createDefaultContext(), new SyncBehavior(true));
@@ -207,8 +231,187 @@ class SyncServiceTest extends TestCase
             ['ids' => Uuid::fromHexToBytesList([$id1, $id2])],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
-
         static::assertCount(0, $written);
+
+        $operation = $result->get('write');
+        $step = $operation->get(0);
+        static::assertEmpty($step['entities']);
+        static::assertEmpty($step['errors']);
+
+        $step = $operation->get(1);
+        static::assertEmpty($step['entities']);
+        static::assertNotEmpty($step['errors']);
+
+        $operation = $result->get('write2');
+        $step = $operation->get(0);
+        static::assertEmpty($step['entities']);
+        static::assertNotEmpty($step['errors']);
+
         $this->connection->beginTransaction();
+    }
+
+    public function testWriteDeprecatedFieldLeadsToError(): void
+    {
+        $operations = [
+            new SyncOperation('write', 'deprecated', SyncOperation::ACTION_UPSERT, [
+                ['id' => Uuid::randomHex(), 'price' => 10],
+            ], 2),
+        ];
+
+        $deprecatedDefinition = new DeprecatedDefinition();
+        $deprecatedDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+
+        $repoMock = $this->createMock(EntityRepositoryInterface::class);
+        $repoMock->expects(static::once())
+            ->method('getDefinition')
+            ->willReturn($deprecatedDefinition);
+        $repoMock->expects(static::never())
+            ->method('upsert');
+
+        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionRegistry->expects(static::once())
+            ->method('getRepository')
+            ->with($deprecatedDefinition->getEntityName())
+            ->willReturn($repoMock);
+
+        $converterService = new ConverterService(
+            new ConverterRegistry([
+                new DeprecatedConverter(),
+            ])
+        );
+
+        $syncService = new SyncService(
+            $definitionRegistry,
+            $this->getContainer()->get(Connection::class),
+            $converterService
+        );
+
+        $result = $syncService->sync($operations, Context::createDefaultContext(), new SyncBehavior(true));
+
+        static::assertFalse($result->isSuccess());
+
+        $results = $result->get('write')->getResult();
+        static::assertCount(1, $results);
+
+        $errors = $results[0]['errors'];
+        static::assertCount(1, $errors);
+
+        $error = $errors[0];
+        static::assertEquals('FRAMEWORK__WRITE_REMOVED_FIELD', $error['code']);
+        static::assertEquals('/0/price', $error['source']['pointer']);
+    }
+
+    public function testWriteDeprecatedEntityLeadsToError(): void
+    {
+        $operations = [
+            new SyncOperation('write', 'deprecated_entity', SyncOperation::ACTION_UPSERT, [
+                ['id' => Uuid::randomHex(), 'price' => 10],
+            ], 2),
+        ];
+
+        $deprecatedEntityDefinition = new DeprecatedEntityDefinition();
+        $deprecatedEntityDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+
+        $repositoryMock = $this->createMock(EntityRepositoryInterface::class);
+        $repositoryMock->expects(static::any())
+            ->method('getDefinition')
+            ->willReturn($deprecatedEntityDefinition);
+
+        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionRegistry->expects(static::once())
+            ->method('getRepository')
+            ->with($deprecatedEntityDefinition->getEntityName())
+            ->willReturn($repositoryMock);
+
+        $converterService = new ConverterService(
+            new ConverterRegistry([
+                new DeprecatedConverter(),
+            ])
+        );
+
+        $syncService = new SyncService(
+            $definitionRegistry,
+            $this->getContainer()->get(Connection::class),
+            $converterService
+        );
+        $result = $syncService->sync($operations, Context::createDefaultContext(), new SyncBehavior(true));
+
+        static::assertFalse($result->isSuccess());
+
+        $results = $result->get('write')->getResult();
+        static::assertCount(1, $results);
+
+        $errors = $results[0]['errors'];
+        static::assertCount(1, $errors);
+        $error = $errors[0];
+        static::assertEquals('/0', $error['source']['pointer']);
+        static::assertEquals('You entity deprecated_entity is not available or deprecated in api version 2.', $error['detail']);
+    }
+
+    public function testDeprecatedPayloadIsConverted(): void
+    {
+        $id = Uuid::randomHex();
+
+        $operations = [
+            new SyncOperation('write', 'deprecated', SyncOperation::ACTION_UPSERT, [
+                ['id' => $id, 'price' => 10],
+            ], 1),
+        ];
+
+        $deprecatedDefinition = new DeprecatedDefinition();
+        $deprecatedDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+
+        $repoMock = $this->createMock(EntityRepositoryInterface::class);
+        $repoMock->expects(static::once())
+            ->method('upsert')
+            ->with(
+                [
+                    ['id' => $id, 'prices' => [10]],
+                ],
+                static::isInstanceOf(Context::class)
+            )
+            ->willReturn($this->dummyEntityWrittenEvent($id));
+
+        $repoMock->expects(static::once())
+            ->method('getDefinition')
+            ->willReturn($deprecatedDefinition);
+
+        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionRegistry->expects(static::once())
+            ->method('getRepository')
+            ->with($deprecatedDefinition->getEntityName())
+            ->willReturn($repoMock);
+
+        $converterService = new ConverterService(
+            new ConverterRegistry([
+                new DeprecatedConverter(),
+            ])
+        );
+
+        $syncService = new SyncService(
+            $definitionRegistry,
+            $this->getContainer()->get(Connection::class),
+            $converterService
+        );
+        $result = $syncService->sync($operations, Context::createDefaultContext(), new SyncBehavior(true));
+
+        static::assertTrue($result->isSuccess(), print_r($result, true));
+    }
+
+    private function dummyEntityWrittenEvent(string $id): EntityWrittenContainerEvent
+    {
+        return new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent(
+                    'deprecated',
+                    [
+                        new EntityWriteResult($id, [], 'deprecated', EntityWriteResult::OPERATION_INSERT),
+                    ],
+                    Context::createDefaultContext()
+                ),
+            ]),
+            []
+        );
     }
 }

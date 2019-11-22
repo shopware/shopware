@@ -1,0 +1,53 @@
+@import "~scss/variables";
+
+.sw-condition-type-select {
+    position: relative;
+    width: 256px;
+    height: 100%;
+    background-color: $color-gray-900;
+    border-radius: $border-radius-default 0 0 $border-radius-default;
+
+    &.has--error {
+        background-color: $color-crimson-500;
+    }
+
+    .sw-select.sw-block-field {
+         .sw-block-field__block {
+            background-color: unset;
+            border-radius: $border-radius-default 0 0 $border-radius-default;
+        }
+
+        input {
+            background-color: unset;
+            border-radius: $border-radius-default 0 0 $border-radius-default;
+            color: $color-white;
+        }
+
+        .sw-single-select__selection,
+        .sw-single-select__selection-text.is--placeholder {
+            color: $color-white;
+        }
+    }
+
+    .sw-condition-type-select__select {
+        height: 100%;
+
+        .sw-single-select__inner {
+            border: none;
+            border-radius: 0;
+            background-color: $color-gray-900;
+        }
+
+        .sw-single-select__single-selection {
+            color: $color-white;
+        }
+
+        .sw-single-select__single-selection .sw-single-select__searchPlaceholder {
+            color: $color-white;
+        }
+
+        .sw-single-select__indicators {
+            color: white;
+        }
+    }
+}

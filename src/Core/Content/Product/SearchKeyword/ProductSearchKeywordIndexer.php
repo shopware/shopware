@@ -247,21 +247,29 @@ class ProductSearchKeywordIndexer implements IndexerInterface
             }
         }
 
-        $this->connection->transactional(
-            function () use ($insert, $ids, $languageId): void {
-                $bytes = array_map(function ($id) {
-                    return Uuid::fromHexToBytes($id);
-                }, $ids);
+        $this->connection->beginTransaction();
+        try {
+            $bytes = array_map(function ($id) {
+                return Uuid::fromHexToBytes($id);
+            }, $ids);
 
-                $this->connection->executeUpdate(
-                    'DELETE FROM product_search_keyword WHERE product_id IN (:ids) AND language_id = :language',
-                    ['ids' => $bytes, 'language' => $languageId],
-                    ['ids' => Connection::PARAM_STR_ARRAY]
-                );
+            $this->connection->executeUpdate(
+                'DELETE FROM product_search_keyword WHERE product_id IN (:ids) AND language_id = :language',
+                ['ids' => $bytes, 'language' => $languageId],
+                ['ids' => Connection::PARAM_STR_ARRAY]
+            );
 
-                $insert->execute();
-            }
-        );
+            $insert->execute();
+        } catch (\Exception $e) {
+            $this->connection->rollBack();
+            throw $e;
+        }
+        // Only commit if transaction not marked as rollback
+        if (!$this->connection->isRollbackOnly()) {
+            $this->connection->commit();
+        } else {
+            $this->connection->rollBack();
+        }
     }
 
     public static function getName(): string

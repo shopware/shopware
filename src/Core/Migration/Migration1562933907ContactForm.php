@@ -71,7 +71,6 @@ class Migration1562933907ContactForm extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 
     private function getLanguageIdByLocale(Connection $connection, string $locale): string

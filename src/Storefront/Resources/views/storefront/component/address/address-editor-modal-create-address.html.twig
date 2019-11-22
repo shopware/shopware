@@ -1,0 +1,82 @@
+{% block component_address_address_editor_modal_create_address %}
+    <div id="address-create-new"
+         class="collapse{% if address %} show{% endif %}"
+         data-parent="#addressEditorAccordion">
+        {% block component_address_address_editor_modal_create_address_wrapper %}
+            <div class="card address-editor-create-address-wrapper">
+
+                {% block component_address_address_editor_modal_create_address_title %}
+                    <div class="card-title create-address-title">
+                        {% block component_address_address_editor_modal_create_address_title_text %}
+                            {{ "account.addressCreateWelcome"|trans|sw_sanitize }}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block component_address_address_editor_modal_create_address_card_body %}
+                    <div class="card-body">
+                        {% block component_address_address_editor_modal_create_address_form %}
+                            <form method="post"
+                                  action="{{ path('frontend.account.addressbook') }}"
+                                  data-form-ajax-submit="true"
+                                  data-form-ajax-submit-options='{
+                                      "replaceSelectors": ".js-address-editor"
+                                  }'>
+
+                                {% block component_address_address_editor_modal_create_address_form_csrf %}
+                                    {{ sw_csrf('frontend.account.addressbook') }}
+                                {% endblock %}
+
+                                {% block component_address_address_editor_modal_create_address_form_hidden_inputs %}
+                                    <input type="hidden"
+                                           name="changeableAddresses[changeBilling]"
+                                           value="{{ changeBilling }}">
+                                    <input type="hidden"
+                                           name="addressId"
+                                           value="{{ address.id }}">
+                                    <input type="hidden"
+                                           name="changeableAddresses[changeShipping]"
+                                           value="{{ changeShipping }}">
+                                {% endblock %}
+
+                                {% block component_address_address_editor_modal_create_address_form_fields_include %}
+                                    {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
+                                        'data': address,
+                                        'prefix': 'address'
+                                    } %}
+
+                                    {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
+                                        'data': address,
+                                        'prefix': 'address'
+                                    } %}
+                                {% endblock %}
+
+                                {% block component_address_address_editor_modal_create_address_required_hint %}
+                                    <p class="address-required-info required-fields">
+                                        {% block component_address_address_editor_modal_create_address_required_hint_text %}
+                                            {{ "general.requiredFields"|trans|sw_sanitize }}
+                                        {% endblock %}
+                                    </p>
+                                {% endblock %}
+
+                                {% block component_address_address_editor_modal_create_address_form_actions %}
+                                    <div class="address-form-actions">
+                                        {% block component_address_address_editor_modal_create_address_form_actions_submit %}
+                                            <button type="submit"
+                                                    class="address-form-submit btn btn-primary"
+                                                    title="{{ "account.addressSaveChange"|trans|striptags }}">
+                                                {% block component_address_address_editor_modal_create_address_form_actions_submit_text %}
+                                                    {{ "account.addressSaveChange"|trans|sw_sanitize }}
+                                                {% endblock %}
+                                            </button>
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+                            </form>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

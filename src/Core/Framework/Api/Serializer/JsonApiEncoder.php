@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Serializer;
 
+use Shopware\Core\Framework\Api\Converter\ConverterService;
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -21,18 +22,29 @@ class JsonApiEncoder
     private $caseCache = [];
 
     /**
-     * @var array[string]array[string]Record
+     * @var array[string]Record
      */
     private $serializeCache = [];
+
+    /**
+     * @var ConverterService
+     */
+    private $converterService;
+
+    public function __construct(ConverterService $converterService)
+    {
+        $this->converterService = $converterService;
+    }
 
     /**
      * @param EntityCollection|Entity|null $data
      *
      * @throws UnsupportedEncoderInputException
      */
-    public function encode(EntityDefinition $definition, $data, string $baseUrl, array $metaData = []): string
+    public function encode(EntityDefinition $definition, $data, string $baseUrl, int $apiVersion, array $metaData = []): string
     {
-        $result = new JsonApiEncodingResult($baseUrl);
+        $this->serializeCache = [];
+        $result = new JsonApiEncodingResult($baseUrl, $apiVersion);
 
         if (!$data instanceof EntityCollection && !$data instanceof Entity) {
             throw new UnsupportedEncoderInputException();
@@ -48,8 +60,9 @@ class JsonApiEncoder
 
     protected function serializeEntity(Entity $entity, EntityDefinition $definition, JsonApiEncodingResult $result, bool $isRelationship = false): void
     {
-        $included = $result->contains($entity->getUniqueIdentifier(), $definition->getEntityName());
-        if ($included) {
+        if ($result->containsInData($entity->getUniqueIdentifier(), $definition->getEntityName())
+            || ($isRelationship && $result->containsInIncluded($entity->getUniqueIdentifier(), $definition->getEntityName()))
+        ) {
             return;
         }
 
@@ -133,8 +146,8 @@ class JsonApiEncoder
 
     private function createSerializedEntity(EntityDefinition $definition, JsonApiEncodingResult $result): Record
     {
-        if (isset($this->serializeCache[$definition->getClass()][$result->getBaseUrl()])) {
-            return clone $this->serializeCache[$definition->getClass()][$result->getBaseUrl()];
+        if (isset($this->serializeCache[$definition->getClass()])) {
+            return clone $this->serializeCache[$definition->getClass()];
         }
 
         $serialized = new Record();
@@ -149,6 +162,10 @@ class JsonApiEncoder
             $readProtected = $field->getFlag(ReadProtected::class);
 
             if ($readProtected && !$readProtected->isBaseUrlAllowed($result->getBaseUrl())) {
+                continue;
+            }
+
+            if (!$this->converterService->isAllowed($definition->getEntityName(), $propertyName, $result->getApiVersion())) {
                 continue;
             }
 
@@ -192,7 +209,7 @@ class JsonApiEncoder
             }
         }
 
-        return $this->serializeCache[$definition->getClass()][$result->getBaseUrl()] = $serialized;
+        return $this->serializeCache[$definition->getClass()] = $serialized;
     }
 
     private function formatToJson(JsonApiEncodingResult $result): string

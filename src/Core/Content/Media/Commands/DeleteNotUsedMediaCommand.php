@@ -11,6 +11,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class DeleteNotUsedMediaCommand extends Command
 {
+    protected static $defaultName = 'media:delete-unused';
+
     /**
      * @var DeleteNotUsedMediaService
      */
@@ -29,9 +31,7 @@ class DeleteNotUsedMediaCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setName('media:delete-unused')
-            ->setDescription('Deletes all media files that are never used')
-        ;
+            ->setDescription('Deletes all media files that are never used');
     }
 
     /**

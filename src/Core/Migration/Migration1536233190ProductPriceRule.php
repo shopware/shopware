@@ -43,6 +43,5 @@ class Migration1536233190ProductPriceRule extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

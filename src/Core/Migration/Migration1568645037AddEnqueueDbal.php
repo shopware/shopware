@@ -38,6 +38,5 @@ class Migration1568645037AddEnqueueDbal extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

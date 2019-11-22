@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\DeliveryTime\DeliveryTimeDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
@@ -53,7 +54,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\WhitelistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Seo\MainCategory\MainCategoryDefinition;
 use Shopware\Core\Framework\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
@@ -85,15 +85,8 @@ class ProductDefinition extends EntityDefinition
         return ProductEntity::class;
     }
 
-    public function getDefaults(EntityExistence $existence): array
+    public function getDefaults(): array
     {
-        if ($existence->exists()) {
-            return [];
-        }
-        if ($existence->isChild()) {
-            return [];
-        }
-
         return [
             'isCloseout' => false,
             'minPurchase' => 1,
@@ -233,6 +226,7 @@ class ProductDefinition extends EntityDefinition
             //association for keyword mapping for search algorithm
             (new OneToManyAssociationField('searchKeywords', ProductSearchKeywordDefinition::class, 'product_id'))
                 ->addFlags(new CascadeDelete(), new Inherited(), new ReadProtected(SalesChannelApiSource::class)),
+
             (new OneToManyAssociationField('productReviews', ProductReviewDefinition::class, 'product_id'))
                 ->addFlags(new CascadeDelete()),
 
@@ -240,6 +234,9 @@ class ProductDefinition extends EntityDefinition
                 ->addFlags(new CascadeDelete()),
 
             new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'foreign_key'),
+
+            (new OneToManyAssociationField('orderLineItems', OrderLineItemDefinition::class, 'product_id'))
+                ->addFlags(new ReadProtected(SalesChannelApiSource::class)),
         ]);
     }
 }

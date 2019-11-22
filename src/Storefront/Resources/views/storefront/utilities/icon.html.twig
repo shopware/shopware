@@ -1,0 +1,12 @@
+{% block utilities_icon %}
+    {% set styles = [ size, color, rotation, flip, class ] %}
+
+    {% if pack is not defined %}
+        {% set pack = 'default' %}
+    {% endif %}
+
+    <span
+        class="icon icon-{{ name }}{% for entry in styles %}{% if entry != "" %} icon-{{ entry }}{% endif %}{% endfor %}">
+            {{ source('@Storefront/../app/storefront/dist/assets/icon/'~ pack ~'/'~ name ~'.svg', ignore_missing = true) }}
+    </span>
+{% endblock %}

@@ -21,6 +21,5 @@ class Migration1562579120ProductAvailableFields extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

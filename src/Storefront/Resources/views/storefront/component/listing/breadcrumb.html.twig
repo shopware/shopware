@@ -1,0 +1,24 @@
+{% block component_listing_breadcrumb %}
+    {% set breadcrumb = category.buildSeoBreadcrumb(context.salesChannel.navigationCategoryId) %}
+
+    {% for key, item in breadcrumb %}
+        <div class="breadcrumb-container">
+            {% block component_listing_breadcrumb_category %}
+                <a class="{% if key is same as(category.id) %} is-active{% endif %}"
+                   href="{{ seoUrl('frontend.navigation.page', { navigationId: key }) }}">
+                    {% block component_listing_breadcrumb_link_name %}
+                        {{ item }}
+                    {% endblock %}
+                </a>
+            {% endblock %}
+            {% block component_listing_breadcrumb_placeholder %}
+                {% if item != breadcrumb|last %}
+                    <div class="breadcrumb-placeholder">
+                        {% sw_icon 'arrow-medium-right' style { 'size': 'fluid', 'pack': 'solid'} %}
+                    </div>
+                {% endif %}
+            {% endblock %}
+        </div>
+    {% endfor %}
+{% endblock %}
+

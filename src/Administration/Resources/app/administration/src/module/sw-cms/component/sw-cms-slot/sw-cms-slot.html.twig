@@ -1,0 +1,96 @@
+{% block sw_cms_slot %}
+    <div class="sw-cms-slot">
+
+        {% block sw_cms_slot_component %}
+            <component :is="elementConfig.component" v-model="element"></component>
+        {% endblock %}
+
+        {% block sw_cms_slot_preview_overlay %}
+            <div class="sw-cms-slot__preview-overlay" v-if="!active"></div>
+        {% endblock %}
+
+        {% block sw_cms_slot_overlay %}
+            <div class="sw-cms-slot__overlay" v-if="active">
+                {% block sw_cms_slot_overlay_content %}
+                    <div class="sw-cms-slot__actions">
+                        {% block sw_cms_slot_overlay_action_settings %}
+                            <div class="sw-cms-slot__settings-action" :class="cmsSlotSettingsClasses" @click="onSettingsButtonClick" v-tooltip.bottom="tooltipDisabled">
+                                <sw-icon name="default-action-settings" size="16"></sw-icon>
+                            </div>
+                        {% endblock %}
+
+                        {% block sw_cms_slot_overlay_action_swap %}
+                            <div class="sw-cms-slot__element-action" @click="onElementButtonClick" v-if="elementConfig.removable !== false">
+                                <sw-icon name="default-arrow-switch" size="16"></sw-icon>
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_cms_slot_settings_modal %}
+            <sw-modal class="sw-cms-slot__config-modal"
+                      v-if="showElementSettings"
+                      :title="$tc('sw-cms.detail.title.elementSettingsModal')"
+                      @modal-close="onCloseSettingsModal">
+                {% block sw_cms_slot_settings_modal_component %}
+                    <component :is="elementConfig.configComponent" v-model="element"></component>
+                {% endblock %}
+
+                {% block sw_cms_slot_settings_modal_footer %}
+                    <template slot="modal-footer">
+                        {% block sw_cms_slot_settings_modal_action_confirm %}
+                            <sw-button variant="primary" @click="onCloseSettingsModal">
+                                {{ $tc('sw-cms.detail.label.buttonElementSettingsConfirm') }}
+                            </sw-button>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+            </sw-modal>
+        {% endblock %}
+
+        {% block sw_cms_slot_element_modal %}
+            <sw-modal :title="$tc('sw-cms.detail.title.elementChangeModal')"
+                      v-if="showElementSelection"
+                      @modal-close="onCloseElementModal">
+                {% block sw_cms_slot_element_modal_selection %}
+                    <div class="sw-cms-slot__element-selection">
+                        {% block sw_cms_slot_element_modal_selection_element %}
+                            <div class="element-selection__element-wrapper"
+                                 v-for="element in cmsElements"
+                                 v-if="!element.hidden"
+                                 @click="onSelectElement(element.name)">
+                                 <div class="element-selection__element">
+                                    {% block sw_cms_slot_element_modal_selection_element_component %}
+                                        <component :is="element.previewComponent"
+                                                   class="sw-cms-slot__element-preview">
+                                        </component>
+                                    {% endblock %}
+
+                                    {% block sw_cms_slot_element_modal_selection_element_overlay %}
+                                        <div class="element-selection__overlay">
+                                            <sw-icon name="default-arrow-switch" size="28"></sw-icon>
+                                        </div>
+                                    {% endblock %}
+                                </div>
+                                
+                                {% block sw_cms_slot_element_modal_selection_element_label %}
+                                    <span class="element-selection__label">{{ $tc(element.label) }}</span>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block sw_cms_slot_element_modal_footer %}
+                    <template slot="modal-footer">
+                        {% block sw_cms_slot_element_modal_action_abort %}
+                            <sw-button @click="onCloseElementModal">{{ $tc('sw-cms.detail.label.buttonElementChangeAbort') }}</sw-button>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+            </sw-modal>
+        {% endblock %}
+    </div>
+{% endblock %}

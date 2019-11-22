@@ -245,7 +245,7 @@ class PaymentPlugin extends Plugin
 
         /** @var PluginIdProvider $pluginIdProvider */
         $pluginIdProvider = $this->container->get(PluginIdProvider::class);
-        $pluginId = $pluginIdProvider->getPluginIdByBaseClass($this->getClassName(), $context);
+        $pluginId = $pluginIdProvider->getPluginIdByBaseClass(get_class($this), $context);
 
         $examplePaymentData = [
             // payment handler will be selected by the identifier

@@ -11,7 +11,7 @@ shopware:
 
     cdn:
         url: ~
-        strategy: "md5"
+        strategy: "id"
 
     api:
         max_limit: 500

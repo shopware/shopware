@@ -72,8 +72,8 @@ the custom field name.
 
 ```php
 $criteria = new Criteria();
-$criteria->addFilter(new EqualsFilter('custom_field.swag_backpack_color', 'blue');
-$criteria->addFilter(new RangeFilter('custom_field.swag_backpack_size', [RangeFilter::GT => 12]);
+$criteria->addFilter(new EqualsFilter('customFields.swag_backpack_color', 'blue');
+$criteria->addFilter(new RangeFilter('customFields.swag_backpack_size', [RangeFilter::GT => 12]);
 $productRepository->search($criteria, $context);
 ```
 

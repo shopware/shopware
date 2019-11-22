@@ -51,6 +51,5 @@ class Migration1554900301AddReviewTable extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

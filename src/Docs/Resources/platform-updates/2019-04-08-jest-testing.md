@@ -17,7 +17,7 @@ Documentation links:
 
 The existing tests have been converted to Jest' Matcher API using https://github.com/skovhus/jest-codemods
 
-The test specs can be found in `Administration/Resources/administration/test`
+The test specs can be found in `Administration/Resources/app/administration/test`
 
 ###  Running tests
 ```bash

@@ -106,10 +106,10 @@ A rather special role plays the `Framework` directory which contains the technic
 
 ## Administration
 
-The Administration component looks almost like a stock Symfony bundle, and is just a thin PHP wrapper around the single page application management ui. This application is fairly deep inside of the bundles structure and can be found in `Administration/Resources/administration`.
+The Administration component looks almost like a stock Symfony bundle, and is just a thin PHP wrapper around the single page application management ui. This application is fairly deep inside of the bundles structure and can be found in `Administration/Resources/app/administration`.
 
 ```
-<platform/src/Administration/Resources/administration>
+<platform/src/Administration/Resources/app/administration>
 └── build
 └── config
 └── node_modules
@@ -132,7 +132,7 @@ The Administration component looks almost like a stock Symfony bundle, and is ju
 This one follows the common structure for npm packages. Again most files are configuration, most directories convention. The application itself can be found in the `src` directory. When you open that one you should see this listing: 
 
 ```
-<platform/src/Administration/Resources/administration/src/>
+<platform/src/Administration/Resources/app/administration/src/>
 └── app
 └── core
 └── flag

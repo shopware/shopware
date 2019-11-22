@@ -42,7 +42,7 @@ class SeoUrlFunctionExtension extends AbstractExtension
     }
 
     /**
-     * @deprecated Use seoUrl
+     * @deprecated tag:v6.1.0 Use seoUrl
      */
     public function productUrl(ProductEntity $product): string
     {
@@ -53,7 +53,7 @@ class SeoUrlFunctionExtension extends AbstractExtension
     }
 
     /**
-     * @deprecated Use seoUrl
+     * @deprecated tag:v6.1.0 Use seoUrl
      */
     public function navigationUrl(CategoryEntity $category): string
     {

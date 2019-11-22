@@ -3,6 +3,8 @@
 namespace Shopware\Core\System\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -11,6 +13,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Exception\ContextRulesLockedException;
+use Shopware\Core\System\Tax\Exception\TaxNotFoundException;
 use Shopware\Core\System\Tax\TaxCollection;
 
 class SalesChannelContext extends Struct
@@ -133,6 +136,29 @@ class SalesChannelContext extends Struct
     public function getTaxRules(): TaxCollection
     {
         return $this->taxRules;
+    }
+
+    /**
+     * Get the tax rules depend on the customer billing address
+     * respectively the shippingLocation if there is no customer
+     */
+    public function buildTaxRules(string $taxId): TaxRuleCollection
+    {
+        $tax = $this->taxRules->get($taxId);
+
+        if ($tax === null || $tax->getRules() === null) {
+            throw new TaxNotFoundException($taxId);
+        }
+
+        if ($tax->getRules()->first() !== null) {
+            return new TaxRuleCollection([
+                new TaxRule($tax->getRules()->first()->getTaxRate(), 100),
+            ]);
+        }
+
+        return new TaxRuleCollection([
+            new TaxRule($tax->getTaxRate(), 100),
+        ]);
     }
 
     public function getCustomer(): ?CustomerEntity

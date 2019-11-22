@@ -22,7 +22,7 @@ final class IconTokenParser extends AbstractTokenParser
 
         $icon = $expr->getAttribute('value');
 
-        $expr->setAttribute('value', '@Storefront/utilities/icon.html.twig');
+        $expr->setAttribute('value', '@Storefront/storefront/utilities/icon.html.twig');
 
         $stream = $this->parser->getStream();
 

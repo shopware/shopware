@@ -13,6 +13,8 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
 {
     use ConsoleProgressTrait;
 
+    protected static $defaultName = 'dal:refresh:index';
+
     /**
      * @var IndexerRegistryInterface
      */
@@ -20,7 +22,7 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
 
     public function __construct(IndexerRegistryInterface $indexer)
     {
-        parent::__construct('dal:refresh:index');
+        parent::__construct();
         $this->indexer = $indexer;
     }
 
@@ -30,7 +32,6 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
     protected function configure(): void
     {
         $this
-            ->setName('dal:refresh:index')
             ->setDescription('Refreshes the shop indices');
     }
 

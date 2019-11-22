@@ -1,0 +1,64 @@
+{% block component_delivery_information %}
+    {# @var product \Shopware\Core\Content\Product\ProductEntity #}
+    {% set product = page.product %}
+
+    <div class="product-delivery-information">
+        {% if product.shippingFree %}
+            {% block component_delivery_information_shipping_free %}
+                <p class="delivery-information delivery-shipping-free">
+                    <span class="delivery-status-indicator bg-info"></span>
+                    {{ "general.deliveryShippingFree"|trans|sw_sanitize }}
+                </p>
+            {% endblock %}
+        {% endif %}
+
+        {% if not product.active %}
+            {% block component_delivery_information_not_available %}
+                <link itemprop="availability"
+                      href="http://schema.org/LimitedAvailability"/>
+                <p class="delivery-information">
+                    <span class="delivery-status-indicator bg-danger"></span>
+                    {{ "general.deliveryNotAvailable"|trans|sw_sanitize }}
+                </p>
+            {% endblock %}
+        {% elseif product.releaseDate and product.releaseDate|date('U') > "now"|date('U') %}
+            {% block component_delivery_information_pre_order %}
+                <link itemprop="availability"
+                      href="http://schema.org/PreOrder"/>
+                <p class="delivery-information">
+                    <span class="delivery-status-indicator bg-warning"></span>
+                    {{ "general.deliveryShipping"|trans|sw_sanitize }} {{ product.releaseDate|localizeddate('long', 'none', app.request.locale) }}
+                </p>
+            {% endblock %}
+
+        {% elseif product.availableStock >= product.minPurchase and product.deliveryTime %}
+
+            <link itemprop="availability" href="http://schema.org/InStock"/>
+            <p class="delivery-information">
+                <span class="delivery-status-indicator bg-success"></span>
+
+                {{ "detail.deliveryTimeAvailable"|trans({
+                    '%name%': product.deliveryTime.translation('name')
+                })|sw_sanitize }}
+            </p>
+        {% elseif product.isCloseout and product.availableStock < product.minPurchase %}
+
+            <link itemprop="availability" href="http://schema.org/LimitedAvailability"/>
+            <p class="delivery-information">
+                <span class="delivery-status-indicator bg-danger"></span>
+                {{ "detail.soldOut"|trans|sw_sanitize }}
+            </p>
+
+        {% elseif product.availableStock < product.minPurchase and product.deliveryTime and product.restockTime %}
+
+            <link itemprop="availability" href="http://schema.org/LimitedAvailability"/>
+            <p class="delivery-information">
+                <span class="delivery-status-indicator bg-warning"></span>
+                {{ "detail.deliveryTimeRestock"|trans({
+                    '%restockTime%': product.restockTime,
+                    '%name%': product.deliveryTime.translation('name')
+                })|sw_sanitize }}
+            </p>
+        {% endif %}
+    </div>
+{% endblock %}

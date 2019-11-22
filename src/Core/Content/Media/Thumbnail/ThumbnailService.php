@@ -6,6 +6,7 @@ use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
@@ -172,8 +173,7 @@ class ThumbnailService
 
                 $url = $this->urlGenerator->getRelativeThumbnailUrl(
                     $media,
-                    $size->getWidth(),
-                    $size->getHeight()
+                    (new MediaThumbnailEntity())->assign(['width' => $size->getWidth(), 'height' => $size->getHeight()])
                 );
                 $this->writeThumbnail($thumbnail, $media, $url, $config->getThumbnailQuality());
                 $savedThumbnails[] = [

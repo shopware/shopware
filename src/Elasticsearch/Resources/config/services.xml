@@ -5,14 +5,10 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
-        <parameter key="shopware.ses.hosts">%env(SHOPWARE_SES_HOSTS)%</parameter>
-        <parameter key="shopware.ses.enabled">%env(SHOPWARE_SES_ENABLED)%</parameter>
-        <parameter key="shopware.ses.indexing.enabled">%env(SHOPWARE_SES_INDEXING_ENABLED)%</parameter>
-        <parameter key="shopware.ses.index_prefix">%env(SHOPWARE_SES_INDEX_PREFIX)%</parameter>
-        <parameter key="shopware.ses.index.config" type="collection">
+        <parameter key="elasticsearch.index.config" type="collection">
             <parameter key="settings" type="collection">
                 <parameter key="number_of_shards">3</parameter>
-                <parameter key="number_of_replicas">2</parameter>
+                <parameter key="number_of_replicas">3</parameter>
                 <parameter key="mapping.total_fields.limit">5000</parameter>
                 <parameter key="mapping.nested_fields.limit">500</parameter>
             </parameter>
@@ -26,9 +22,9 @@
 
         <service id="Shopware\Elasticsearch\Framework\ElasticsearchHelper" public="true">
             <argument>%kernel.environment%</argument>
-            <argument>%shopware.ses.enabled%</argument>
-            <argument>%shopware.ses.indexing.enabled%</argument>
-            <argument>%shopware.ses.index_prefix%</argument>
+            <argument>%elasticsearch.enabled%</argument>
+            <argument>%elasticsearch.indexing_enabled%</argument>
+            <argument>%elasticsearch.index_prefix%</argument>
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser"/>
@@ -39,7 +35,7 @@
 
         <service id="Elasticsearch\Client" public="true">
             <factory class="Shopware\Elasticsearch\Framework\ClientFactory" method="createClient" />
-            <argument>%shopware.ses.hosts%</argument>
+            <argument>%elasticsearch.hosts%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\EntityIndexer" public="true">
@@ -55,7 +51,7 @@
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexCreator">
             <argument type="service" id="Elasticsearch\Client"/>
-            <argument>%shopware.ses.index.config%</argument>
+            <argument>%elasticsearch.index.config%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexMessageDispatcher">
@@ -66,12 +62,14 @@
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand">
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\EntityIndexer"/>
+
             <tag name="kernel.event_subscriber"/>
             <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchTestAnalyzerCommand">
             <argument id="Elasticsearch\Client" type="service"/>
+
             <tag name="console.command"/>
         </service>
 
@@ -113,11 +111,12 @@
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexingMessageHandler">
-            <tag name="messenger.message_handler"/>
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="logger"/>
+
+            <tag name="messenger.message_handler"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler" public="true">
@@ -125,6 +124,7 @@
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="logger"/>
+
             <tag name="messenger.message_handler"/>
         </service>
 
@@ -139,11 +139,13 @@
         <service id="Shopware\Elasticsearch\Product\ElasticsearchProductDefinition">
             <argument id="Shopware\Core\Content\Product\ProductDefinition" type="service"/>
             <argument id="Shopware\Elasticsearch\Framework\Indexing\EntityMapper" type="service"/>
+
             <tag name="shopware.es.definition" />
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchCreateAliasCommand">
             <argument id="Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler" type="service"/>
+
             <tag name="console.command"/>
         </service>
     </services>

@@ -1,0 +1,56 @@
+{
+  "sw-settings-rule": {
+    "general": {
+      "mainMenuItemGeneral": "Rule builder",
+      "placeholderSearchBar": "Search all rules...",
+      "descriptionTextModule": "Manage rules here."
+    },
+    "list": {
+      "textHeadline": "Rule builder",
+      "buttonAddRule": "Create rule",
+      "columnName": "Rule",
+      "columnDescription": "Description",
+      "columnDateCreated": "Creation date",
+      "columnPriority": "Priority",
+      "columnStatus": "Status",
+      "contextMenuDuplicate": "Duplicate",
+      "titleSidebarItemRefresh": "Refresh",
+      "valid": "Valid",
+      "invalid": "Invalid",
+      "messageEmpty": "No rules yet"
+    },
+    "detail": {
+      "textHeadline": "New rule",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save",
+      "titleCard": "General",
+      "labelName": "Name",
+      "labelDescription": "Description",
+      "labelPriority": "Priority",
+      "labelType": "Type",
+      "placeholderName": "Set a name for this rule...",
+      "placeholderDescription": "Set a description for this rule...",
+      "placeholderPriority": "Set a priority for this rule...",
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "The rule \"{name}\" has been saved.",
+      "ruleCard": "Condition",
+      "titleSaveError": "Error",
+      "messageSaveError": "An error occurred while saving rule \"{name}\".",
+      "types": {
+        "shipping": "Shipping",
+        "payment": "Payment",
+        "price": "Price"
+      }
+    },
+    "conditionFilter": {
+      "infoText": "Use filters to define which line items have to fulfil this condition."
+    },
+    "conditionModal": {
+      "modalTitle": "Filter",
+      "delete": "Delete",
+      "close": "Close",
+      "titleSaveError": "Error",
+      "messageSaveError": "An error occurred while saving the filter."
+    }
+  }
+}

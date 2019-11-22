@@ -7,21 +7,24 @@
     <services>
         <service id="Shopware\Core\Checkout\Cart\CreditCartProcessor">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator"/>
+
             <tag name="shopware.cart.processor" priority="4000"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\CustomCartProcessor">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
+
             <tag name="shopware.cart.processor"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\CartValueResolver">
-            <tag name="controller.argument_value_resolver" priority="1001"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+
+            <tag name="controller.argument_value_resolver" priority="1001"/>
         </service>
 
-        <!-- price calculation -->
+        <!-- Price calculation -->
         <service id="Shopware\Core\Checkout\Cart\Price\AmountCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceRounding"/>
@@ -75,7 +78,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder"/>
         </service>
 
-        <!-- tax calculation -->
+        <!-- Tax calculation -->
         <service id="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder"/>
 
         <service id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
@@ -117,7 +120,6 @@
             </call>
         </service>
 
-
         <service id="Shopware\Core\Checkout\Cart\PriceActionController" public="true">
             <argument type="service" id="tax.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\NetPriceCalculator"/>
@@ -138,6 +140,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator"/>
             <argument type="service" id="shipping_method.repository"/>
+
             <tag name="shopware.cart.processor" priority="-5000"/>
             <tag name="shopware.cart.collector" priority="-5000"/>
         </service>
@@ -167,12 +170,12 @@
         </service>
 
         <service id="Shopware\Core\Content\Product\Cart\ProductCartProcessor">
-            <tag name="shopware.cart.processor" priority="5000"/>
-            <tag name="shopware.cart.collector" priority="5000"/>
-
             <argument type="service" id="Shopware\Core\Content\Product\Cart\ProductGateway"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface"/>
+
+            <tag name="shopware.cart.processor" priority="5000"/>
+            <tag name="shopware.cart.collector" priority="5000"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor"/>
@@ -213,7 +216,6 @@
             <argument>%shopware.cache.entity_cache.expiration_time%</argument>
         </service>
 
-
         <service id="Shopware\Core\Checkout\Cart\LineItem\LineItemQuantitySplitter">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
         </service>
@@ -252,8 +254,7 @@
             <tag name="lineitem.group.sorter"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AnyRuleMatcher">
-        </service>
+        <service id="Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AnyRuleMatcher"/>
 
     </services>
 </container>

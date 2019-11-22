@@ -1,0 +1,145 @@
+{% block sw_settings_list %}
+    {% block sw_settings_language_index %}
+        <sw-page class="sw-settings-language-list">
+
+            {% block sw_settings_language_list_search_bar %}
+                <template #search-bar>
+                    <sw-search-bar initialSearchType="language"
+                                   :placeholder="$tc('sw-settings-language.general.placeholderSearchBar')"
+                                   :initialSearch="term"
+                                   @search="onSearch">
+                    </sw-search-bar>
+                </template>
+            {% endblock %}
+
+            {% block sw_settings_language_list_smart_bar_header %}
+                <template #smart-bar-header>
+                    {% block sw_settings_language_list_smart_bar_header_title %}
+                        <h2>
+                            {% block sw_settings_language_list_smart_bar_header_title_text %}
+                                {{ $tc('sw-settings.index.title') }}
+                                <sw-icon name="small-arrow-medium-right" small>
+                                </sw-icon> {{ $tc('sw-settings-language.list.textHeadline') }}
+                            {% endblock %}
+
+                            {% block sw_settings_language_list_smart_bar_header_amount %}
+                                <span v-if="!isLoading" class="sw-page__smart-bar-amount">
+                                    ({{ total }})
+                                </span>
+                            {% endblock %}
+                        </h2>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+
+            {% block sw_settings_language_list_smart_bar_actions %}
+                <template #smart-bar-actions>
+                    {% block sw_settings_language_list_smart_bar_actions_add %}
+                        <sw-button :routerLink="{ name: 'sw.settings.language.create' }" variant="primary">
+                            {{ $tc('sw-settings-language.list.buttonAddLanguage') }}
+                        </sw-button>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+
+            {% block sw_settings_language_list_language_switch %}
+                <template #language-switch>
+                    <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
+                </template>
+            {% endblock %}
+
+            {% block sw_settings_language_list_content %}
+                <template #content>
+                    <sw-entity-listing
+                        :isLoading="isLoading"
+                        key="language-listing"
+                        detailRoute="sw.settings.language.detail"
+                        :repository="languageRepository"
+                        :columns="getColumns"
+                        :items="languages"
+                        :sortBy="sortBy"
+                        :sortDirection="sortDirection">
+
+                        <template #column-name="{ item, column, compact, isInlineEdit }">
+                            <sw-field v-if="isInlineEdit" :size="compact ? 'small' : 'default'" v-model="item.name"></sw-field>
+                            <router-link v-else
+                                         :title="$tc('sw-settings-language.list.contextMenuEdit')"
+                                         :to="{ name: 'sw.settings.language.detail', params: { id: item.id } }">
+                                {{ item.name }}
+                            </router-link>
+                        </template>
+
+                        <template #column-locale="{ item, column, compact, isInlineEdit }">
+                            {{ item.locale.translated.name }}, {{ item.locale.translated.territory }}
+                        </template>
+
+                        <template #column-id="{ item, column, compact, isInlineEdit }">
+                            <sw-icon v-if="isDefault(item.id)"
+                                     name="small-default-checkmark-line-medium"
+                                     small
+                                     class="is--default">
+                            </sw-icon>
+                            <div v-else></div>
+                        </template>
+                        <template #column-parent="{ item, column, compact, isInlineEdit }">
+                            {{ getParentName(item) }}
+                        </template>
+
+                        <template #delete-action="{ item, showDelete }">
+                            <sw-context-menu-item @click="showDelete(item.id)" :disabled="isDefault(item.id)" variant="danger">
+                                {{ $tc('global.default.delete') }}
+                            </sw-context-menu-item>
+                        </template>
+                    </sw-entity-listing>
+                </template>
+            {% endblock %}
+
+            {% block sw_settings_language_list_grid_sidebar %}
+                <template #sidebar>
+                    <sw-sidebar :propagateWidth="true">
+                        {% block sw_settings_language_list_grid_sidebar_filter %}
+                            <sw-sidebar-item icon="default-action-filter"
+                                             :title="$tc('sw-settings-language.list.titleSidebarFilter')">
+                                <sw-collapse expandOnLoading>
+                                    <template #header="{ expanded }">
+                                        <div class="sw-settings-language-list__collapse-header">
+                                            <h4 class="sw-settings-language-list__collapse-title">
+                                                {{ $tc('sw-settings-language.list.titleSidebarQuickFilter') }}
+                                            </h4>
+
+                                            <sw-icon v-if="expanded"
+                                                     key="filter-collapse-expanded-indicator"
+                                                     class="sw-media-collapse__button"
+                                                     name="small-arrow-small-down">
+                                            </sw-icon>
+                                            <sw-icon v-else
+                                                     key="filter-collapse-expanded-indicator"
+                                                     class="sw-media-collapse__button"
+                                                     name="small-arrow-small-right">
+                                            </sw-icon>
+                                        </div>
+                                    </template>
+
+                                    <template #content>
+                                        <sw-field
+                                            type="switch"
+                                            class="sw-settings-language-list__filterField"
+                                            :label="$tc('sw-settings-language.list.textFilterRootLanguages')"
+                                            v-model="filterRootLanguages">
+                                        </sw-field>
+                                        <sw-field
+                                            type="switch"
+                                            class="sw-settings-language-list__filterField"
+                                            :label="$tc('sw-settings-language.list.textFilterInheritedLanguages')"
+                                            v-model="filterInheritedLanguages">
+                                        </sw-field>
+                                    </template>
+                                </sw-collapse>
+                            </sw-sidebar-item>
+                        {% endblock %}
+                    </sw-sidebar>
+                </template>
+            {% endblock %}
+        </sw-page>
+    {% endblock %}
+{% endblock %}

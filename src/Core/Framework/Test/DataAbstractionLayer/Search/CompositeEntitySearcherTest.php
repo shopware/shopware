@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 
 class CompositeEntitySearcherTest extends TestCase
 {
@@ -80,7 +81,7 @@ class CompositeEntitySearcherTest extends TestCase
             ['id' => Uuid::randomHex(), 'productNumber' => Uuid::randomHex(), 'stock' => 1, 'name' => 'notmatch', 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]], 'tax' => ['name' => 'notmatch', 'taxRate' => 5], 'manufacturer' => ['name' => 'notmatch']],
         ], $this->context);
 
-        $result = $this->search->search("${filterId}_test ${filterId}_product", 20, $this->context);
+        $result = $this->search->search("${filterId}_test ${filterId}_product", 20, $this->context, PlatformRequest::API_VERSION);
 
         $productResult = current(array_filter($result, function ($item) {
             return $item['entity'] === $this->getContainer()->get(ProductDefinition::class)->getEntityName();

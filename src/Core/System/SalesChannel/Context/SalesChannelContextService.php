@@ -81,7 +81,7 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
 
         $result = $this->ruleLoader->loadByToken($context, $token);
 
-        $this->cartService->setCart($result->getCart(), $context);
+        $this->cartService->setCart($result->getCart());
 
         return $context;
     }

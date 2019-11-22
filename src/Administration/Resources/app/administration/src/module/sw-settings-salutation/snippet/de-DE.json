@@ -1,0 +1,34 @@
+{
+    "global": {
+        "error-codes": {
+            "DUPLICATED_SALUTATION_KEY": "Dieser technische Name wird bereits verwendet. Bitte wähle einen anderen aus."
+        }
+    },
+    "sw-settings-salutation": {
+        "general": {
+            "mainMenuItemGeneral": "Anreden",
+            "buttonCancel": "Abbrechen",
+            "buttonCreate": "Anrede anlegen",
+            "buttonSave": "Speichern",
+            "placeholderSearchBar": "Durchsuche alle Anreden ..."
+        },
+        "list": {
+            "columnSalutationKey": "Technischer Name",
+            "columnDisplayName": "Anrede",
+            "columnLetterName": "Briefanrede"
+        },
+        "detail": {
+            "cardTitle": "Anrede",
+            "fieldDisplayNameLabel": "Anrede",
+            "fieldDisplayNamePlaceholder": "Bitte gib eine Anrede an ...",
+            "fieldLetterNameLabel": "Briefanrede",
+            "fieldLetterNamePlaceholder": "Bitte gib eine Briefanrede an ...",
+            "fieldSalutationKeyTooltip": "Ein eindeutiger, technischer Name, der zur Einbindung der Anreden in z.B. E-Mail-Vorlagen benötigt wird.",
+            "fieldSalutationKeyLabel": "Technischer Name",
+            "fieldSalutationKeyPlaceholder": "Bitte gib einen technischen Namen an ...",
+            "placeholderNewSalutation": "Neue Anrede anlegen",
+            "notificationErrorTitle": "Fehler",
+            "notificationErrorMessage": "Fehler beim Speichern der Anrede."
+        }
+    }
+}

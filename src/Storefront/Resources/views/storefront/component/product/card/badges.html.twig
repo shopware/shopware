@@ -1,0 +1,28 @@
+{% block component_product_badges %}
+    <div class="product-badges">
+        {% block component_product_badges_discount %}
+            {#TODO: NEXT-2675 - adjust if-query and icon#}
+            {% if product.hasPseudoPrice %}
+                <div class="badge badge-danger badge-discount">
+                    <span>&#37;</span>
+                </div>
+            {% endif %}
+        {% endblock %}
+
+        {% block component_product_badges_topseller %}
+            {% if product.markAsTopseller %}
+                <div class="badge badge-warning badge-topseller">
+                    {{ "listing.boxLabelTopseller"|trans|sw_sanitize }}
+                </div>
+            {% endif %}
+        {% endblock %}
+
+        {% block component_product_badges_new %}
+            {% if product.isNew %}
+                <div class="badge badge-success badge-new">
+                    {{ "listing.boxLabelNew"|trans|sw_sanitize }}
+                </div>
+            {% endif %}
+        {% endblock %}
+    </div>
+{% endblock %}

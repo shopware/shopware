@@ -1,0 +1,121 @@
+{% block sw_settings_list %}
+    {% block sw_settings_rule_index %}
+        <sw-page class="sw-settings-rule-list">
+
+            {% block sw_settings_rule_list_search_bar %}
+                <template slot="search-bar">
+                    <sw-search-bar initialSearchType="rule"
+                                   :placeholder="$tc('sw-settings-rule.general.placeholderSearchBar')"
+                                   :initialSearch="term"
+                                   @search="onSearch">
+                    </sw-search-bar>
+                </template>
+            {% endblock %}
+
+            {% block sw_settings_rule_list_smart_bar_header %}
+                <template slot="smart-bar-header">
+                    {% block sw_settings_rule_list_smart_bar_header_title %}
+                        <h2>
+                            {% block sw_settings_rule_list_smart_bar_header_title_text %}
+                                {{ $tc('sw-settings.index.title') }} <sw-icon name="small-arrow-medium-right" small></sw-icon> {{ $tc('sw-settings-rule.list.textHeadline') }}
+                            {% endblock %}
+
+                            {% block sw_settings_rule_list_smart_bar_header_title_amount %}
+                                <span v-if="!isLoading" class="sw-page__smart-bar-amount">
+                                    ({{ total }})
+                                </span>
+                            {% endblock %}
+                        </h2>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+
+            {% block sw_settings_rule_list_smart_bar_actions %}
+                <template slot="smart-bar-actions">
+                    {% block sw_settings_rule_list_smart_bar_actions_add %}
+                        <sw-button :routerLink="{ name: 'sw.settings.rule.create' }"
+                                   variant="primary">
+                            {{ $tc('sw-settings-rule.list.buttonAddRule') }}
+                        </sw-button>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+
+            {% block sw_settings_rule_list_content %}
+                <template slot="content">
+                    {% block sw_settings_rule_list_content_card %}
+                        <div class="sw-settings-rule-list__content">
+                            {% block sw_settings_rule_list_grid %}
+                                <sw-entity-listing ref="swRuleGrid"
+                                    v-if="rules"
+                                    class="sw-rule-list-grid"
+                                    :items="rules"
+                                    :columns="getRuleColumns()"
+                                    :repository="ruleRepository"
+                                    :showSelection="true"
+                                    :isLoading="isLoading"
+                                    :fullPage="true"
+                                    detailRoute="sw.settings.rule.detail"
+                                    @inline-edit-save="onInlineEditSave"
+                                    @items-delete-finish="getList">
+
+                                    <template #column-invalid="{item}">
+                                        <template v-if="item.invalid">
+                                            {{ $tc('sw-settings-rule.list.invalid') }}
+                                        </template>
+                                        <template v-else>
+                                            {{ $tc('sw-settings-rule.list.valid') }}
+                                        </template>
+                                    </template>
+
+                                    <template #column-updatedAt="{item}">
+                                        <template v-if="item.updatedAt">
+                                            {{ item.updatedAt|date }}
+                                        </template>
+                                        <template v-else>
+                                            {{ item.createdAt|date }}
+                                        </template>
+                                    </template>
+
+                                    {% block sw_settings_rule_list_grid_columns_actions %}
+                                        <template #more-actions="{ item }">
+                                            {% block sw_settings_rule_list_grid_columns_actions_duplicate %}
+                                                <sw-context-menu-item @click="onDuplicate(item)">
+                                                    {{ $tc('sw-settings-rule.list.contextMenuDuplicate') }}
+                                                </sw-context-menu-item>
+                                            {% endblock %}
+                                        </template>
+                                    {% endblock %}
+                                </sw-entity-listing>
+                            {% endblock %}
+
+                            {% block sw_settings_rule_list_empty_message %}
+                                <sw-empty-state v-else-if="!isLoading && !total"
+                                                :title="$tc('sw-settings-rule.list.messageEmpty')">
+                                </sw-empty-state>
+                            {% endblock %}
+
+                            {% block sw_settings_rule_list_loader %}
+                                <sw-loader v-if="isLoading"></sw-loader>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </template>
+
+                {% block sw_settings_rule_list_sidebar %}
+                    <template #sidebar>
+                        <sw-sidebar>
+                            {% block sw_settings_rule_list_sidebar_refresh %}
+                                <sw-sidebar-item
+                                    icon="default-arrow-360-left"
+                                    :title="$tc('sw-settings-rule.list.titleSidebarItemRefresh')"
+                                    @click="onRefresh">
+                                </sw-sidebar-item>
+                            {% endblock %}
+                        </sw-sidebar>
+                    </template>
+                {% endblock %}
+            {% endblock %}
+        </sw-page>
+    {% endblock %}
+{% endblock %}

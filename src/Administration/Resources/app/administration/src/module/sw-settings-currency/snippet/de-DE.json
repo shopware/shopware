@@ -1,0 +1,48 @@
+{
+  "sw-settings-currency": {
+    "general": {
+      "mainMenuItemGeneral": "Währungen",
+      "placeholderSearchBar": "Durchsuche alle Währungen ..."
+    },
+    "list": {
+      "textHeadline": "Währungen",
+      "textDeleteConfirm": "Bist Du sicher, dass Du die Währung \"{name}\" löschen möchtest?",
+      "columnName": "Name",
+      "columnIsoCode": "ISO-Code",
+      "columnShortName": "Kurzname",
+      "columnSymbol": "Symbol",
+      "columnFactor": "Faktor",
+      "columnDecimalPrecision": "Nachkommastellen",
+      "buttonAddCurrency": "Währung anlegen",
+      "contextMenuEdit": "Bearbeiten",
+      "contextMenuDelete": "Löschen",
+      "modalTitleDelete": "Währung löschen",
+      "titleDeleteSuccess": "Erfolg",
+      "messageDeleteSuccess": "Die Währung \"{name}\" wurde erfolgreich gelöscht.",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen"
+    },
+    "detail": {
+      "textHeadline": "Neue Währung",
+      "labelPrecision": "Nachkommastellen",
+      "placeholderPrecision": "Nachkommastellen eingeben ...",
+      "titleCard": "Einstellungen",
+      "titleSaveSuccess": "Erfolg",
+      "messageSaveSuccess": "Die Währung \"{name}\" wurde erfolgreich gespeichert.",
+      "labelName": "Name",
+      "labelIsoCode": "ISO-Code",
+      "labelShortName": "Kurzname",
+      "labelSymbol": "Symbol",
+      "labelFactor": "Faktor",
+      "placeholderName": "Namen eingeben ...",
+      "placeholderIsoCode": "ISO-Code eingeben ...",
+      "placeholderShortName": "Kurznamen eingeben ...",
+      "placeholderSymbol": "Symbol eingeben ...",
+      "placeholderFactor": "Faktor eingeben ...",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern",
+      "notificationErrorTitle": "Fehler",
+      "notificationErrorMessage": "Fehler beim Speichern der Währung."
+    }
+  }
+}

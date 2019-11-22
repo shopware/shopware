@@ -70,7 +70,7 @@ class AddressController extends StorefrontController
 
         $page = $this->addressListingPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/account/addressbook/index.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/storefront/page/account/addressbook/index.html.twig', ['page' => $page]);
     }
 
     /**
@@ -84,7 +84,7 @@ class AddressController extends StorefrontController
 
         $page = $this->addressDetailPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/account/addressbook/create.html.twig', [
+        return $this->renderStorefront('@Storefront/storefront/page/account/addressbook/create.html.twig', [
             'page' => $page,
             'data' => $data,
         ]);
@@ -101,7 +101,7 @@ class AddressController extends StorefrontController
 
         $page = $this->addressDetailPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/account/addressbook/edit.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/storefront/page/account/addressbook/edit.html.twig', ['page' => $page]);
     }
 
     /**
@@ -173,7 +173,7 @@ class AddressController extends StorefrontController
         /** @var RequestDataBag $address */
         $address = $data->get('address');
         try {
-            $this->addressService->create($address, $context);
+            $this->addressService->upsert($address, $context);
 
             return new RedirectResponse($this->generateUrl('frontend.account.address.page', ['addressSaved' => true]));
         } catch (ConstraintViolationException $formViolations) {
@@ -210,7 +210,7 @@ class AddressController extends StorefrontController
             return $this->createActionResponse($request);
         }
 
-        return $this->renderStorefront('@Storefront/component/address/address-editor-modal.html.twig', $viewData);
+        return $this->renderStorefront('@Storefront/storefront/component/address/address-editor-modal.html.twig', $viewData);
     }
 
     private function handleAddressCreation(array $viewData, RequestDataBag $dataBag, SalesChannelContext $context): array
@@ -226,7 +226,7 @@ class AddressController extends StorefrontController
         try {
             $addressId = $dataBag->get('id');
 
-            $this->addressService->create($addressData, $context);
+            $this->addressService->upsert($addressData, $context);
 
             $success = true;
             $messages = ['type' => 'success', 'text' => $this->trans('account.addressSaved')];

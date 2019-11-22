@@ -37,7 +37,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Seo\MainCategory\MainCategoryDefinition;
 use Shopware\Core\Framework\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -68,16 +67,12 @@ class CategoryDefinition extends EntityDefinition
         return CategoryEntity::class;
     }
 
-    public function getDefaults(EntityExistence $existence): array
+    public function getDefaults(): array
     {
-        $defaults = parent::getDefaults($existence);
-
-        if (!$existence->exists()) {
-            $defaults['displayNestedProducts'] = true;
-            $defaults['type'] = self::TYPE_PAGE;
-        }
-
-        return $defaults;
+        return [
+            'displayNestedProducts' => true,
+            'type' => self::TYPE_PAGE,
+        ];
     }
 
     protected function defineFields(): FieldCollection

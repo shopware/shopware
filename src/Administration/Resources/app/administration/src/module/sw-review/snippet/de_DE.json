@@ -1,0 +1,52 @@
+{
+  "sw-review": {
+    "general": {
+      "mainMenuItemList": "Bewertungen",
+      "mainMenuItemGeneral": "Bewertungen",
+      "placeholderSearchBar": "Durchsuche alle Bewertungen ...",
+      "descriptionTextModule": "Verwaltung von Bewertungen."
+    },
+    "list": {
+      "textReviewOverview": "Bewertungen",
+      "columnProduct": "Produkt",
+      "columnPoints": "Sterne",
+      "columnUser": "Kunde",
+      "columnStatus": "Sichtbar",
+      "columnCreatedAt": "Erstellt am",
+      "columnComment": "Kommentiert",
+      "columnTitle": "Titel",
+      "placeholderSearchBar": "Durchsuche alle Bewertungen...",
+      "messageEmpty": "Noch keine Bewertungen"
+    },
+    "detail": {
+      "textHeadline": "Bewertung",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern",
+      "cardTitleReviewInfo": "Review",
+      "cardTitleReviewProperties": "Eigenschaften",
+      "labelTitle": "Titel",
+      "labelPoints": "Sterne",
+      "labelUser": "Kunde",
+      "labelSalesChannel": "Verkaufskanal",
+      "labelCreatedAt": "Erstelldatum",
+      "labelProduct": "Produkt",
+      "labelEmail": "E-Mail",
+      "labelLanguage": "Sprache",
+      "labelPositive": "Positive votes",
+      "labelNegative": "Negative votes",
+      "labelStatus": "Sichtbar",
+      "labelContent": "Inhalt",
+      "labelComment": "Kommentar",
+      "labelCustomer": "Kunde",
+      "titleCardComment": "Kommentar",
+      "titleSaveSuccess": "Erfolg",
+      "messageSaveSuccess": "Die Bewertung \"{name}\" wurde erfolgreich gespeichert.",
+      "placeholderComment": "Kommentar",
+      "review1PointRatingText": "Unbefriedigend",
+      "review2PointRatingText": "Akzeptierbar",
+      "review3PointRatingText": "Gut",
+      "review4PointRatingText": "Sehr gut",
+      "review5PointRatingText": "Exzellent"
+    }
+  }
+}

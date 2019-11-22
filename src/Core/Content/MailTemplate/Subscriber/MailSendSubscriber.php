@@ -71,10 +71,23 @@ class MailSendSubscriber implements EventSubscriberInterface
 
         if ($mailEvent->getSalesChannelId()) {
             $criteria->addFilter(new EqualsFilter('mail_template.salesChannels.salesChannel.id', $mailEvent->getSalesChannelId()));
-        }
 
-        /** @var MailTemplateEntity|null $mailTemplate */
-        $mailTemplate = $this->mailTemplateRepository->search($criteria, $event->getContext())->first();
+            /** @var MailTemplateEntity|null $mailTemplate */
+            $mailTemplate = $this->mailTemplateRepository->search($criteria, $event->getContext())->first();
+
+            // Fallback if no template for the saleschannel is found
+            if ($mailTemplate === null) {
+                $criteria = new Criteria();
+                $criteria->addFilter(new EqualsFilter('mailTemplateTypeId', $mailTemplateTypeId));
+                $criteria->setLimit(1);
+
+                /** @var MailTemplateEntity|null $mailTemplate */
+                $mailTemplate = $this->mailTemplateRepository->search($criteria, $event->getContext())->first();
+            }
+        } else {
+            /** @var MailTemplateEntity|null $mailTemplate */
+            $mailTemplate = $this->mailTemplateRepository->search($criteria, $event->getContext())->first();
+        }
 
         if ($mailTemplate === null) {
             return;
@@ -82,12 +95,12 @@ class MailSendSubscriber implements EventSubscriberInterface
 
         $data = new DataBag();
         $data->set('recipients', $mailEvent->getMailStruct()->getRecipients());
-        $data->set('senderName', $mailTemplate->getSenderName());
+        $data->set('senderName', $mailTemplate->getTranslation('senderName'));
         $data->set('salesChannelId', $mailEvent->getSalesChannelId());
 
-        $data->set('contentHtml', $mailTemplate->getContentHtml());
-        $data->set('contentPlain', $mailTemplate->getContentPlain());
-        $data->set('subject', $mailTemplate->getSubject());
+        $data->set('contentHtml', $mailTemplate->getTranslation('contentHtml'));
+        $data->set('contentPlain', $mailTemplate->getTranslation('contentPlain'));
+        $data->set('subject', $mailTemplate->getTranslation('subject'));
         $data->set('mediaIds', []);
 
         $this->mailService->send(

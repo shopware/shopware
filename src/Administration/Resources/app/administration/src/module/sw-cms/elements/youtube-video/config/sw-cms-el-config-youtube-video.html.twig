@@ -1,0 +1,77 @@
+{% block sw_cms_element_youtube_video_config %}
+    <div class="sw-cms-el-config-youtube-video">
+
+        {% block sw_cms_element_youtube_video_config_video_id %}
+            <sw-field v-model="videoID"
+                      type="text" 
+                      :label="$tc('sw-cms.elements.vimeoVideo.config.label.videoId')"
+                      :placeholder="$tc('sw-cms.elements.vimeoVideo.config.placeholder.videoId')">
+            </sw-field>
+        {% endblock %}
+
+        <div class="sw-cms-el-config-youtube-video__switches">
+
+            {% block sw_cms_element_youtube_video_config_autoplay %}
+                <sw-field v-model="element.config.autoPlay.value"
+                          type="switch"
+                          :label="$tc('sw-cms.elements.vimeoVideo.config.label.autoPlay')"
+                          :helpText="$tc('sw-cms.elements.vimeoVideo.config.helpText.autoplay')">
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_cms_element_youtube_video_config_loop %}
+                <sw-field v-model="element.config.loop.value"
+                          type="switch"
+                          :label="$tc('sw-cms.elements.vimeoVideo.config.label.loop')">
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_cms_element_youtube_video_config_show_controls %}
+                <sw-field v-model="element.config.showControls.value"
+                          type="switch"
+                          :label="$tc('sw-cms.elements.vimeoVideo.config.label.showControls')">
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_cms_element_youtube_video_config_advanced_privacy_mode %}
+                <sw-field v-model="element.config.advancedPrivacyMode.value"
+                          type="switch"
+                          :label="$tc('sw-cms.elements.vimeoVideo.config.label.advancedPrivacy')"
+                          :helpText="$tc('sw-cms.elements.vimeoVideo.config.helpText.advancedPrivacy')">
+                </sw-field>
+            {% endblock %}
+
+        </div>
+        <div class="sw-cms-el-config-youtube-video__start-and-end">
+
+            {% block sw_cms_element_youtube_video_config_start %}
+                <sw-field :value="startValue"
+                          @change="setTimeValue($event, 'start')"
+                          type="text"
+                          :label="$tc('sw-cms.elements.vimeoVideo.config.label.start')"
+                          placeholder="0:00">
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_cms_element_youtube_video_config_end %}
+                <sw-field :value="endValue"
+                          @change="setTimeValue($event, 'end')"
+                          type="text"
+                          :label="$tc('sw-cms.elements.vimeoVideo.config.label.end')"
+                          placeholder="0:00">
+                </sw-field>
+            {% endblock %}
+
+        </div>
+
+        {% block sw_cms_element_youtube_video_config_display_mode %}
+            <sw-select-field v-model="element.config.displayMode.value"
+                                :placeholder="$tc('sw-cms.elements.general.config.label.displayMode')"
+                                :label="$tc('sw-cms.elements.general.config.label.displayMode')">
+                <option value="standard">{{ $tc('sw-cms.elements.general.config.label.displayModeStandard') }}</option>
+                <option value="streched">{{ $tc('sw-cms.elements.general.config.label.displayModeStretch') }}</option>
+            </sw-select-field>
+        {% endblock %}
+
+    </div>
+{% endblock %}

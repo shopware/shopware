@@ -1,0 +1,13 @@
+@import "~scss/variables";
+
+.sw-sales-channel-modal {
+    .sw-modal__body {
+        min-height: 150px;
+    }
+
+    .sw-sales-channel-modal__title {
+        margin: 0;
+        font-weight: normal;
+        font-size: 18px;
+    }
+}

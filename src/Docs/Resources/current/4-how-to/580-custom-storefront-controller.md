@@ -150,7 +150,7 @@ Now you need to trigger your custom action somehow.
 Extend the cart page template and add a anchor element that has an href to your route:
 
 ```twig
-{% sw_extends '@Storefront/page/checkout/cart/index.html.twig' %}
+{% sw_extends '@Storefront/storefront/page/checkout/cart/index.html.twig' %}
 
 {% block page_checkout_cart_product_table %}
     {{ parent() }}

@@ -47,6 +47,5 @@ class Migration1536233430NewsletterRecipient extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

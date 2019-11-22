@@ -20,6 +20,7 @@ class EncryptedMessageHandlerTest extends TestCase
         $bus = $this->createMock(MessageBusInterface::class);
         $handler = new EncryptedMessageHandler($bus, $this->getContainer()->get('shopware.private_key'));
 
+        /** @var array $subscribedMessages */
         $subscribedMessages = $handler::getHandledMessages();
 
         static::assertCount(1, $subscribedMessages);

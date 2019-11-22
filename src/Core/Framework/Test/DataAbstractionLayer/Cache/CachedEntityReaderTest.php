@@ -10,7 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityReader;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityReader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxCollection;
@@ -87,104 +88,54 @@ class CachedEntityReaderTest extends TestCase
         static::assertEquals($databaseEntities, $cachedEntities);
     }
 
-    /**
-     * Read two ids without filter, then read same ids with one of them filtered.
-     */
-    public function testCacheHitWithFilters(): void
+    public function testCacheHitWithFilter(): void
     {
         $dbalReader = $this->createMock(EntityReader::class);
 
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
-        $criteria = new Criteria([$id1, $id2]);
-        $criteria->addFilter(new RangeFilter('taxRate', ['gte' => 10.00]));
-
-        $criteria2 = new Criteria([$id1, $id2]);
-        $criteria2->addFilter(new RangeFilter('taxRate', ['gte' => 13.00]));
-        $context = Context::createDefaultContext();
-
-        //read in EntityReader will be only called twice
-        $dbalReader->expects(static::exactly(2))
+        //read in EntityReader will be only called once
+        $dbalReader->expects(static::once())
             ->method('read')
-            ->willReturnMap(
-                [
-                    [
-                        $this->getContainer()->get(TaxDefinition::class),
-                        $criteria,
-                        $context,
-                        new TaxCollection([
-                            (new TaxEntity())->assign([
-                                'id' => $id1,
-                                '_uniqueIdentifier' => $id1,
-                                'taxRate' => 15,
-                                'name' => 'test',
-                                'products' => new ProductCollection([
-                                    (new ProductEntity())->assign([
-                                        'id' => $id1,
-                                        '_uniqueIdentifier' => $id1,
-                                        'tax' => (new TaxEntity())->assign([
-                                            'id' => $id1,
-                                            '_uniqueIdentifier' => $id1,
-                                        ]),
-                                    ]),
-                                ]),
-                            ]),
-                            (new TaxEntity())->assign([
-                                'id' => $id2,
-                                '_uniqueIdentifier' => $id2,
-                                'taxRate' => 12,
-                                'name' => 'test2',
-                            ]),
-                        ]),
-                    ],
-                    [
-                        $this->getContainer()->get(TaxDefinition::class),
-                        $criteria2,
-                        $context,
-                        new TaxCollection([
-                            (new TaxEntity())->assign([
-                                'id' => $id1,
-                                '_uniqueIdentifier' => $id1,
-                                'taxRate' => 15,
-                                'name' => 'test',
-                                'products' => new ProductCollection([
-                                    (new ProductEntity())->assign([
-                                        'id' => $id1,
-                                        '_uniqueIdentifier' => $id1,
-                                        'tax' => (new TaxEntity())->assign([
-                                            'id' => $id1,
-                                            '_uniqueIdentifier' => $id1,
-                                        ]),
-                                    ]),
-                                ]),
-                            ]),
-                        ]),
-                    ],
-                ]
+            ->willReturn(
+                new TaxCollection([
+                    (new TaxEntity())->assign([
+                        'id' => $id1,
+                        '_uniqueIdentifier' => $id1,
+                        'taxRate' => 15,
+                        'name' => 'test',
+                    ]),
+                    (new TaxEntity())->assign([
+                        'id' => $id2,
+                        '_uniqueIdentifier' => $id2,
+                        'taxRate' => 12,
+                        'name' => 'test2',
+                    ]),
+                ])
             );
 
         $generator = $this->getContainer()->get(EntityCacheKeyGenerator::class);
 
         $cachedReader = new CachedEntityReader($this->cache, $dbalReader, $generator, true, 3600);
 
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('id', [$id1, $id2]));
+        $criteria->addFilter(new EqualsFilter('taxRate', 15));
+
+        $context = Context::createDefaultContext();
+
         //first call should not match and the expects of the dbal reader should called
         $databaseEntities = $cachedReader->read($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('id', [$id1, $id2]));
+        $criteria->addFilter(new EqualsFilter('taxRate', 15));
 
         //second call should hit the cache items and the dbal reader shouldn't be called
         $cachedEntities = $cachedReader->read($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
 
         static::assertEquals($databaseEntities, $cachedEntities);
-
-        //call with different Filter should call the dbal reader again
-        $differentEntities = $cachedReader->read($this->getContainer()->get(TaxDefinition::class), $criteria2, $context);
-
-        //second call with different Filter should hit the cache items and the dbal reader shouldn't be called
-        $differentCachedEntities = $cachedReader->read($this->getContainer()->get(TaxDefinition::class), $criteria2, $context);
-
-        static::assertEquals($differentEntities, $differentCachedEntities);
-
-        static::assertNotEquals($databaseEntities, $differentEntities);
     }
 
     public function testDisableCacheOption(): void

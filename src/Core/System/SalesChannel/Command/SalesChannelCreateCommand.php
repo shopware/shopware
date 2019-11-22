@@ -22,6 +22,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SalesChannelCreateCommand extends Command
 {
+    protected static $defaultName = 'sales-channel:create';
+
     /**
      * @var EntityRepositoryInterface
      */
@@ -79,7 +81,7 @@ class SalesChannelCreateCommand extends Command
 
     protected function configure(): void
     {
-        $this->setName('sales-channel:create')
+        $this
             ->addOption('id', null, InputOption::VALUE_REQUIRED, 'Id for the sales channel', Uuid::randomHex())
             ->addOption('name', null, InputOption::VALUE_REQUIRED, 'Name for the application')
             ->addOption('languageId', null, InputOption::VALUE_REQUIRED, 'Default language', Defaults::LANGUAGE_SYSTEM)

@@ -40,6 +40,5 @@ class Migration1562228335SetConfigDefaults extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

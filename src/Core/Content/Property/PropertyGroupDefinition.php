@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 
 class PropertyGroupDefinition extends EntityDefinition
 {
@@ -48,18 +47,12 @@ class PropertyGroupDefinition extends EntityDefinition
         return PropertyGroupEntity::class;
     }
 
-    public function getDefaults(EntityExistence $existence): array
+    public function getDefaults(): array
     {
-        $defaults = parent::getDefaults($existence);
-
-        if ($existence->exists()) {
-            return $defaults;
-        }
-
-        $defaults['displayType'] = self::DISPLAY_TYPE_TEXT;
-        $defaults['sortingType'] = self::SORTING_TYPE_ALPHANUMERIC;
-
-        return $defaults;
+        return [
+            'displayType' => self::DISPLAY_TYPE_TEXT,
+            'sortingType' => self::SORTING_TYPE_ALPHANUMERIC,
+        ];
     }
 
     protected function defineFields(): FieldCollection

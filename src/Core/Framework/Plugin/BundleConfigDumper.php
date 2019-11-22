@@ -65,6 +65,8 @@ class BundleConfigDumper implements EventSubscriberInterface
 
         $kernelBundles = array_merge($this->kernel->getBundles(), $additionalBundles);
 
+        $projectDir = $this->kernel->getContainer()->getParameter('kernel.project_dir');
+
         $bundles = [];
         foreach ($kernelBundles as $bundle) {
             // only include shopware bundles
@@ -77,18 +79,24 @@ class BundleConfigDumper implements EventSubscriberInterface
                 continue;
             }
 
+            $path = $bundle->getPath();
+            if (mb_strpos($bundle->getPath(), $projectDir) === 0) {
+                // make relative
+                $path = ltrim(mb_substr($path, mb_strlen($projectDir)), '/');
+            }
+
             $bundles[$bundle->getName()] = [
-                'basePath' => $bundle->getPath() . '/',
-                'views' => $bundle->getViewPaths(),
+                'basePath' => $path . '/',
+                'views' => ['Resources/views'],
                 'administration' => [
-                    'path' => trim($bundle->getAdministrationEntryPath(), '/'),
-                    'entryFilePath' => $this->getEntryFile($bundle, $bundle->getAdministrationEntryPath()),
-                    'webpack' => $this->getWebpackConfig($bundle, $bundle->getAdministrationEntryPath()),
+                    'path' => 'Resources/app/administration/src',
+                    'entryFilePath' => $this->getEntryFile($bundle, 'Resources/app/administration/src'),
+                    'webpack' => $this->getWebpackConfig($bundle, 'Resources/app/administration'),
                 ],
                 'storefront' => [
-                    'path' => trim($bundle->getStorefrontEntryPath(), '/'),
-                    'entryFilePath' => $this->getEntryFile($bundle, $bundle->getStorefrontEntryPath()),
-                    'webpack' => $this->getWebpackConfig($bundle, $bundle->getStorefrontEntryPath()),
+                    'path' => 'Resources/app/storefront/src',
+                    'entryFilePath' => $this->getEntryFile($bundle, 'Resources/app/storefront/src'),
+                    'webpack' => $this->getWebpackConfig($bundle, 'Resources/app/storefront'),
                     'styleFiles' => $this->getStyleFiles($bundle),
                 ],
             ];
@@ -132,7 +140,7 @@ class BundleConfigDumper implements EventSubscriberInterface
             }
         }
 
-        $path = $bundle->getPath() . DIRECTORY_SEPARATOR . $bundle->getStorefrontStylePath();
+        $path = $bundle->getPath() . DIRECTORY_SEPARATOR . 'Resources/app/storefront/src/scss';
         if (is_dir($path)) {
             $finder = new Finder();
             $finder->in($path)->files()->depth(0);

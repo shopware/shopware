@@ -1,0 +1,48 @@
+{
+  "sw-settings-payment": {
+    "general": {
+      "mainMenuItemGeneral": "Payment",
+      "placeholderSearchBar": "Search all payment methods..."
+    },
+    "list": {
+      "textHeadline": "Payment",
+      "textDeleteConfirm": "Are you sure you want to delete the payment method \"{name}\"?",
+      "columnName": "Name",
+      "columnDescription": "Description",
+      "columnActive": "Active",
+      "columnPosition": "Position",
+      "buttonAddPaymentMethod": "Add payment method",
+      "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Delete",
+      "modalTitleDelete": "Delete payment method",
+      "titleDeleteSuccess": "Success",
+      "messageDeleteSuccess": "Payment method \"{name}\" has been deleted.",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete",
+      "pluginDeleteTitleText": "Plugin payment methods cannot be deleted."
+    },
+    "detail": {
+      "textHeadline": "New payment method",
+      "titleCard": "Payment methods",
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "Payment method \"{name}\" has been saved.",
+      "labelName": "Name",
+      "labelPosition": "Position",
+      "labelActive": "Active",
+      "labelDescription": "Description",
+      "labelLogoUpload": "Logo",
+      "sidebar": {
+        "labelUseAsLogo": "Use as logo"
+      },
+      "topRule": "Availability rule",
+      "placeholderName": "Enter name",
+      "placeholderPosition": "Enter position",
+      "placeholderDescription": "Enter description",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save"
+    }
+  },
+  "sw-plugin-box": {
+    "buttonPluginSettings": "Plugin Settings"
+  }
+}

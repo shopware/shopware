@@ -99,6 +99,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             }
 
             if ($behavior->isRecalculation()) {
+                $definition->setQuantity($lineItem->getQuantity());
                 $lineItem->setPrice($this->calculator->calculate($definition, $context));
                 $toCalculate->add($lineItem);
 
@@ -155,7 +156,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         $product = $data->get($key);
 
         if (!$product instanceof ProductEntity) {
-            $cart->addErrors(new ProductNotFoundError($id));
+            $cart->addErrors(new ProductNotFoundError($lineItem->getLabel() ?: $lineItem->getId()));
             $cart->getLineItems()->remove($lineItem->getId());
 
             return;

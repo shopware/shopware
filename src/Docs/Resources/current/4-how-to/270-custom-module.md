@@ -17,14 +17,14 @@ learn creating a plugin at first.
 ## Injecting into the administration
 
 The main entry point to extend the administration via plugin is the `main.js` file.
-It has to be placed into a `<plugin root>/src/Resources/administration` directory in order to be found by Shopware 6.
+It has to be placed into a `<plugin root>/src/Resources/app/administration` directory in order to be found by Shopware 6.
 *Note: This path can be changed by overriding the [getAdministrationEntryPath](./../2-internals/4-plugins/020-plugin-base-class.md#getAdministrationEntryPath) method of your plugin's base class.*
 
 ## Creating a new module
 
 Every module in the Shopware 6 core can be found in the `module` directory relative to the administration source directory.
 We recommend to copy this structure, so everybody being used to Shopware 6 core code will automatically get the hang of it as well.
-The path in your plugin would be: `<plugin root>/src/Resources/administration/module`
+The path in your plugin would be: `<plugin root>/src/Resources/app/administration/src/module`
 
 Inside of this `module` directory in the core code, you find a list of all available modules. Stick to that and
 create a new directory for each module of your plugin. In this case it is just one, so create a new directory

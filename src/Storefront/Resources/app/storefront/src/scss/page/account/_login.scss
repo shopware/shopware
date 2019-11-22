@@ -1,0 +1,17 @@
+.login-card {
+    margin-bottom: $spacer;
+}
+
+.login-advantages {
+    display: none;
+}
+
+.login-password-recover {
+    margin-bottom: $spacer;
+}
+
+@include media-breakpoint-up(lg) {
+    .login-advantages {
+        display: block;
+    }
+}

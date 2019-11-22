@@ -4,10 +4,12 @@ namespace Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog;
 
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileDefinition;
 use Shopware\Core\Content\ImportExport\ImportExportProfileDefinition;
+use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
@@ -44,7 +46,8 @@ class ImportExportLogDefinition extends EntityDefinition
             (new FkField('file_id', 'fileId', ImportExportFileDefinition::class)),
             (new StringField('username', 'username')),
             (new StringField('profile_name', 'profileName')),
-            (new ManyToOneAssociationField('user', 'user_id', UserDefinition::class)),
+            (new ManyToOneAssociationField('user', 'user_id', UserDefinition::class))
+                ->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new ManyToOneAssociationField('profile', 'profile_id', ImportExportProfileDefinition::class, 'id', true)),
             (new OneToOneAssociationField('file', 'file_id', 'id', ImportExportFileDefinition::class, true)),
             (new CreatedAtField()),

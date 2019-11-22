@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Seo\SeoUrlRoute;
 
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\Context;
@@ -17,11 +18,12 @@ use Shopware\Core\Framework\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Framework\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Storefront\Framework\Seo\SeoTemplateReplacementVariable;
 
 class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
 {
     public const ROUTE_NAME = 'frontend.navigation.page';
-    public const DEFAULT_TEMPLATE = '{% for part in breadcrumb %}{{ part }}/{% endfor %}';
+    public const DEFAULT_TEMPLATE = '{% for part in category.seoBreadcrumb %}{{ part }}/{% endfor %}';
 
     /**
      * @var CategoryDefinition
@@ -61,15 +63,21 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
         }
 
         $breadcrumbs = $category->buildSeoBreadcrumb($salesChannel ? $salesChannel->getNavigationCategoryId() : null);
+        $categoryJson = $category->jsonSerialize();
+        $categoryJson['seoBreadcrumb'] = $breadcrumbs;
 
         return new SeoUrlMapping(
             $category,
             ['navigationId' => $category->getId()],
             [
-                'category' => $category->jsonSerialize(),
-                'breadcrumb' => $breadcrumbs,
+                'category' => $categoryJson,
             ]
         );
+    }
+
+    public function getSeoVariables(): array
+    {
+        return ['seoBreadcrumb' => new SeoTemplateReplacementVariable(CategoryTranslationDefinition::ENTITY_NAME, 'breadcrumb')];
     }
 
     public function extractIdsToUpdate(EntityWrittenContainerEvent $event): SeoUrlExtractIdResult

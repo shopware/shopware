@@ -19,6 +19,5 @@ class Migration1558082916AddBreadcrumb extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

@@ -1,0 +1,136 @@
+{% block sw_category_detail_base %}
+    <div class="sw-category-detail-base">
+        {% block sw_category_detail_information %}
+            <sw-card :title="$tc('sw-category.base.general.headlineInformationCard')" :isLoading="isLoading">
+                <sw-container columns="repeat(auto-fit, minmax(150px, 1fr))" gap="0px 30px">
+                    {% block sw_category_detail_information_name %}
+                        <sw-text-field
+                            required
+                            name="categoryName"
+                            v-model="category.name"
+                            validation="required"
+                            :label="$tc('sw-category.base.general.categoryNameLabel')"
+                            :placeholder="placeholder(category, 'name')"
+                            :error="categoryNameError">
+                        </sw-text-field>
+                    {% endblock %}
+
+                    {% block sw_category_detail_information_active %}
+                        <sw-switch-field
+                            name="categoryActive"
+                            class="sw-category-detail-base__active"
+                            :label="$tc('sw-category.base.general.isCategoryActiveLabel')"
+                            v-model="category.active">
+                        </sw-switch-field>
+                    {% endblock %}
+                </sw-container>
+
+                {% block sw_category_detail_information_type %}
+                    <div class="sw-category-detail-base__type-container">
+                        {% block sw_category_detail_information_type %}
+                            <sw-single-select
+                                :helpText="$tc('sw-category.base.general.types.help')"
+                                :label="$tc('sw-category.base.general.types.title')"
+                                v-model="category.type"
+                                :options="categoryTypes">
+                            </sw-single-select>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block sw_category_detail_information_tags %}
+                    <sw-entity-tag-select
+                        v-if="category && !isLoading"
+                        class="sw-category-detail-base__tags"
+                        :label="$tc('sw-category.base.general.labelCategoryTags')"
+                        v-model="category.tags">
+                    </sw-entity-tag-select>
+                {% endblock %}
+
+            </sw-card>
+        {% endblock %}
+
+        <!-- Type specific settings -->
+
+        {% block sw_category_detail_entry_point %}
+            <sw-category-sales-channel-card
+                v-if="isSalesChannelEntryPoint"
+                v-bind="{ category, isLoading }">
+            </sw-category-sales-channel-card>
+        {% endblock %}
+
+        {% block sw_category_detail_link %}
+            <sw-category-link-settings
+                v-if="category.type === 'link'"
+                v-bind="{ category, isLoading }">
+            </sw-category-link-settings>
+        {% endblock %}
+
+        {% block sw_category_detail_layout %}
+            <sw-category-layout-card
+                v-if="category.type === 'page'"
+                v-bind="{ category, cmsPage, isLoading }">
+            </sw-category-layout-card>
+        {% endblock %}
+
+        <template v-if="category.type !== 'link'">
+            {% block sw_category_detail_menu %}
+                <sw-category-detail-menu v-bind="{ category, isLoading }"></sw-category-detail-menu>
+            {% endblock %}
+
+            {% block sw_category_detail_products %}
+                <sw-many-to-many-assignment-card
+                    class="sw-category-detail-base__products"
+                    :title="$tc('sw-category.base.products.productAssignmentHeadline')"
+                    :entityCollection="category.products"
+                    :columns="productColumns"
+                    :isLoading="isLoading"
+                    :localMode="category.isNew()"
+                    :criteria="productCriteria"
+                    :placeholder="$t('sw-category.base.products.productAssignmentPlaceholder')"
+                    :searchableFields="['product.name', 'product.productNumber', 'product.manufacturer.name']">
+
+                    <template v-slot:[manufacturerColumn]="{ item, column }">
+                        <router-link
+                            v-if="item.manufacturerId"
+                            :to="{ name: column.routerLink, params: { id: item.manufacturerId } }">
+                            {{ item.manufacturer.name || item.manufacturer.translated.name }}
+                        </router-link>
+                        <span v-else></span>
+                    </template>
+
+                    <template #empty-state>
+                        <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+
+                        <p>{{ $tc('sw-category.base.products.productAssignmentEmptyStateDescription') }}</p>
+                    </template>
+                </sw-many-to-many-assignment-card>
+            {% endblock %}
+
+            {% block sw_category_detail_seo %}
+                <sw-card  :title="$tc('sw-category.base.seo.title')"
+                          :isLoading="isLoading">
+                    <sw-category-seo-form :category="category"></sw-category-seo-form>
+                </sw-card>
+            {% endblock %}
+
+            {% block sw_category_detail_seo_card %}
+                <sw-seo-url v-if="category.seoUrls"
+                            :isLoading="isLoading"
+                            :urls="category.seoUrls">
+                </sw-seo-url>
+            {% endblock %}
+
+            {% block sw_category_detail_attribute_sets %}
+                <sw-card :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                         v-if="customFieldSetsArray.length > 0"
+                         :isLoading="isLoading">
+                    <sw-custom-field-set-renderer
+                            :entity="category"
+                            :sets="customFieldSetsArray">
+                    </sw-custom-field-set-renderer>
+                </sw-card>
+            {% endblock %}
+        </template>
+    </div>
+{% endblock %}

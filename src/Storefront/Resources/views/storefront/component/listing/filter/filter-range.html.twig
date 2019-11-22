@@ -1,0 +1,119 @@
+{% set filterItemId = 'filter-' ~ name ~ '-' ~ random() %}
+
+{% if currencySymbol is not defined %}
+    {% set currencySymbol = page.header.activeCurrency.symbol %}
+{% endif %}
+
+{% if filterRangeActiveMinLabel is not defined %}
+    {% set filterRangeActiveMinLabel = 'listing.filterRangeActiveMinLabel'|trans|sw_sanitize %}
+{% endif %}
+
+{% if filterRangeActiveMaxLabel is not defined %}
+    {% set filterRangeActiveMaxLabel = 'listing.filterRangeActiveMaxLabel'|trans|sw_sanitize %}
+{% endif %}
+
+{% if filterRangeErrorMessage is not defined %}
+    {% set filterRangeErrorMessage = 'listing.filterRangeErrorMessage'|trans|sw_sanitize %}
+{% endif %}
+
+{% block component_filter_range %}
+    <div class="filter-range filter-panel-item{% if not sidebar %} dropdown{% endif %}"
+         data-filter-range="true"
+         data-filter-range-options='{
+             "name": "{{ name }}",
+             "minKey": "{{ minKey }}",
+             "maxKey": "{{ maxKey }}",
+             "currencySymbol": "{{ currencySymbol }}",
+             "snippets": {
+                "filterRangeActiveMinLabel": "{{ filterRangeActiveMinLabel }}",
+                "filterRangeActiveMaxLabel": "{{ filterRangeActiveMaxLabel }}",
+                "filterRangeErrorMessage": "{{ filterRangeErrorMessage }}"
+             }
+         }'>
+
+        {% block component_filter_range_toggle %}
+            <button class="filter-panel-item-toggle btn{% if sidebar %} btn-block{% endif %}"
+                    aria-expanded="false"
+                    {% if sidebar %}
+                    data-toggle="collapse"
+                    data-target="#{{ filterItemId }}"
+                    {% else %}
+                    data-toggle="dropdown"
+                    data-offset="0,8"
+                    aria-haspopup="true"
+                    {% endif %}>
+
+                {% block component_filter_range_display_name %}
+                    {{ displayName }}
+                {% endblock %}
+
+                {% block component_filter_range_toggle_icon %}
+                    {% sw_icon 'arrow-medium-down' style {'pack': 'solid', 'size': 'xs', 'class': 'filter-panel-item-toggle'} %}
+                {% endblock %}
+            </button>
+        {% endblock %}
+
+        {% block component_filter_range_dropdown %}
+            <div class="filter-range-dropdown filter-panel-item-dropdown{% if sidebar %} collapse{% else %} dropdown-menu{% endif %}"
+                 id="{{ filterItemId }}">
+
+                {% block component_filter_range_container %}
+                    <div class="filter-range-container">
+
+                        {% block component_filter_range_min %}
+                            <label class="filter-range-min">
+
+                                {% block component_filter_range_min_label %}
+                                    {{ 'listing.filterRangeMinLabel'|trans|sw_sanitize }}
+                                {% endblock %}
+
+                                {% block component_filter_range_min_input %}
+                                    <input class="form-control min-input"
+                                           type="number"
+                                           name="min-price"
+                                           min="0"
+                                           max="{{ price.max }}">
+                                {% endblock %}
+
+                                {% block component_filter_range_min_currency_symbol %}
+                                    <span class="filter-range-currency-symbol">
+                                        {{ currencySymbol }}
+                                    </span>
+                                {% endblock %}
+                            </label>
+                        {% endblock %}
+
+                        {% block component_filter_range_divider %}
+                            <div class="filter-range-divider">
+                                &ndash;
+                            </div>
+                        {% endblock %}
+
+                        {% block component_filter_range_max %}
+                            <label class="filter-range-max">
+
+                                {% block component_filter_range_max_label %}
+                                    {{ 'listing.filterRangeMaxLabel'|trans|sw_sanitize }}
+                                {% endblock %}
+
+                                {% block component_filter_range_max_input %}
+                                    <input class="form-control max-input"
+                                           type="number"
+                                           name="max-price"
+                                           min="0"
+                                           max="{{ price.max }}">
+                                {% endblock %}
+
+                                {% block component_filter_range_max_currency_symbol %}
+                                    <span class="filter-range-currency-symbol">
+                                        {{ currencySymbol }}
+                                    </span>
+                                {% endblock %}
+                            </label>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

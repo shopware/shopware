@@ -36,6 +36,5 @@ class Migration1536233350ProductVisibility extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

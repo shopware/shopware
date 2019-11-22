@@ -1,0 +1,113 @@
+{% block layout_head_inner %}
+    {% set metaDescription = page.metaInformation.metaDescription|striptags|trim|truncate(shopware.config.seo.descriptionMaxLength) %}
+    {% set metaTitle = page.metaInformation.metaTitle|striptags|trim %}
+    {% set metaKeywords = page.metaInformation.metaKeywords|striptags|trim %}
+
+    <head>
+        {% block layout_head_meta_tags %}
+            {% block layout_head_meta_tags_charset %}
+                <meta charset="utf-8">
+            {% endblock %}
+
+            {% block layout_head_meta_tags_viewport %}
+                <meta name="viewport"
+                      content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no">
+            {% endblock %}
+
+            {% block layout_head_meta_tags_general %}
+                <meta name="author"
+                      content="{{ page.metaInformation.author|striptags }}"/>
+                <meta name="robots"
+                      content="{% block layout_head_meta_tags_robots %}{{ page.metaInformation.robots }}{% endblock %}"/>
+                <meta name="revisit-after"
+                      content="{{ page.metaInformation.revisit|striptags }}"/>
+                <meta name="keywords"
+                      content="{% block layout_head_meta_tags_keywords %}{{ metaKeywords }}{% endblock %}"/>
+                <meta name="description"
+                      content="{% block layout_head_meta_tags_description %}{{ metaDescription }}{% endblock %}"/>
+            {% endblock %}
+
+            {% block layout_head_meta_tags_opengraph %}
+                <meta property="og:type"
+                      content="website"/>
+                <meta property="og:site_name"
+                      content="{{ shopware.config.core.basicInformation.shopName }}"/>
+                <meta property="og:title"
+                      content="{{ metaTitle }}"/>
+                <meta property="og:description"
+                      content="{% block layout_head_meta_tags_description_og %}{{ metaDescription }}{% endblock %}"/>
+                <meta property="og:image"
+                      content="{{ shopware.theme['sw-logo-desktop'] }}"/>
+
+                <meta name="twitter:card"
+                      content="website"/>
+                <meta name="twitter:site"
+                      content="{{ shopware.config.core.basicInformation.shopName }}"/>
+                <meta name="twitter:title"
+                      content="{{ metaTitle }}"/>
+                <meta name="twitter:description"
+                      content="{% block layout_head_meta_tags_description_twitter %}{{ metaDescription }}{% endblock %}"/>
+                <meta name="twitter:image"
+                      content="{{ shopware.theme['sw-logo-desktop'] }}"/>
+            {% endblock %}
+
+            {% block layout_head_meta_tags_schema_webpage %}
+                <meta itemprop="copyrightHolder"
+                      content="{{ shopware.config.core.basicInformation.shopName }}"/>
+                <meta itemprop="copyrightYear"
+                      content="{{ page.metaInformation.copyrightYear|striptags }}"/>
+                <meta itemprop="isFamilyFriendly"
+                      content="{% if shopware.config.core.basicInformation.familyFriendly %}true{% else %}false{% endif %}"/>
+                <meta itemprop="image"
+                      content="{{ shopware.theme['sw-logo-desktop'] }}"/>
+            {% endblock %}
+
+            {% block layout_head_meta_tags_hreflangs %}
+                {#TODO: NEXT-1891 - hreflang#}
+            {% endblock %}
+        {% endblock %}
+
+        {% block layout_head_favicon %}
+            <link rel="shortcut icon"
+                  href="{{ shopware.theme['sw-logo-favicon'] }}">
+        {% endblock %}
+
+        {% block layout_head_apple %}
+            <link rel="apple-touch-icon"
+                  sizes="180x180"
+                  href="{{ shopware.theme['sw-logo-share'] }}">
+        {% endblock %}
+
+        {% block layout_head_android %}
+            <link rel="icon"
+                  sizes="192x192"
+                  href="{{ shopware.theme['sw-logo-share'] }}">
+            <meta name="theme-color"
+                  content="{{ shopware.theme['sw-color-brand-primary'] }}"/>
+        {% endblock %}
+
+        {% block layout_head_canonical %}{% endblock %}
+
+        {% block layout_head_title %}
+            <title itemprop="name">
+                {% block layout_head_title_inner %}{% apply spaceless %}
+                    {{ metaTitle }}
+                {% endapply %}{% endblock %}
+            </title>
+        {% endblock %}
+
+        {% block layout_head_stylesheet %}
+            {% if isHMRMode %}
+                {# CSS will be loaded from the JS automatically #}
+            {% else %}
+                {% for file in shopware.theme.assets.css %}
+                    <link rel="stylesheet"
+                      href="{{ asset(file) }}">
+                {% endfor %}
+            {% endif %}
+        {% endblock %}
+
+        {# Block for tracking scripts which are required to include in the `head` section of the document #}
+        {% block layout_head_javascript_tracking %}{% endblock %}
+    </head>
+{% endblock %}

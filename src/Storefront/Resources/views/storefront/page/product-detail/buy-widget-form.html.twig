@@ -1,0 +1,79 @@
+{% block page_product_detail_buy_form_inner %}
+    <form
+        id="productDetailPageBuyProductForm"
+        action="{% block page_product_detail_buy_form_action %}{{ path('frontend.checkout.line-item.add') }}{% endblock %}"
+        method="post"
+        class="buy-widget"
+        data-add-to-cart="true">
+
+        {% block page_product_detail_buy_form_inner_csrf %}
+            {{ sw_csrf('frontend.checkout.line-item.add') }}
+        {% endblock %}
+
+        {% block page_product_detail_buy_container %}
+            {# @var page \Shopware\Storefront\Page\Product\ProductPage #}
+            {% if (not page.product.isCloseout or (page.product.availableStock >= page.product.minPurchase)) and page.product.childCount <= 0 %}
+                <div class="form-row buy-widget-container">
+                    {% block page_product_detail_buy_quantity_container %}
+                        <div class="col-4">
+                            {% block page_product_detail_buy_quantity %}
+                                {% if page.product.maxPurchase %}
+                                    {% if page.product.availableStock < page.product.maxPurchase %}
+                                        {% set maxQuantity = page.product.availableStock %}
+                                    {% else %}
+                                        {% set maxQuantity = page.product.maxPurchase %}
+                                    {% endif %}
+                                {% else %}
+                                    {% set maxQuantity = shopware.config.core.cart.maxQuantity %}
+                                {% endif %}
+
+                                <select name="lineItems[{{ page.product.id }}][quantity]"
+                                        class="custom-select product-detail-quantity-select">
+                                    {% for quantity in range(page.product.minPurchase, maxQuantity, page.product.purchaseSteps) %}
+                                        <option value="{{ quantity }}">
+                                            {{ quantity }}{% if page.product.packUnit %} {{ page.product.packUnit }}{% endif %}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block page_product_detail_buy_redirect_input %}
+                        <input type="hidden"
+                               name="redirectTo"
+                               value="frontend.cart.offcanvas"/>
+                    {% endblock %}
+
+                    {% block page_product_detail_buy_product_buy_info %}
+                        <input type="hidden"
+                               name="lineItems[{{ page.product.id }}][id]"
+                               value="{{ page.product.id }}">
+                        <input type="hidden"
+                               name="lineItems[{{ page.product.id }}][type]"
+                               value="product">
+                        <input type="hidden"
+                               name="lineItems[{{ page.product.id }}][referencedId]"
+                               value="{{ page.product.id }}">
+                        <input type="hidden"
+                               name="lineItems[{{ page.product.id }}][stackable]"
+                               value="1">
+                        <input type="hidden"
+                               name="lineItems[{{ page.product.id }}][removable]"
+                               value="1">
+                    {% endblock %}
+
+                    {% block page_product_detail_buy_button_container %}
+                        <div class="col-8">
+                            {% block page_product_detail_buy_button %}
+                                <button class="btn btn-primary btn-block btn-buy" title="{{ "detail.addProduct"|trans|striptags }}">
+                                    {{ "detail.addProduct"|trans|sw_sanitize }}
+                                </button>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endif %}
+        {% endblock %}
+    </form>
+{% endblock %}

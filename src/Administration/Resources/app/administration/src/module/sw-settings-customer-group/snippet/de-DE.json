@@ -1,0 +1,25 @@
+{
+    "sw-settings-customer-group": {
+        "general": {
+            "mainMenuItemGeneral": "Kundengruppen",
+            "buttonCancel": "Abbrechen",
+            "buttonCreate": "Kundengruppe anlegen",
+            "buttonSave": "Speichern",
+            "placeholderSearchBar": "Durchsuche alle Kundengruppen ..."
+        },
+        "list": {
+            "columnName": "Name",
+            "columnDisplayGross": "Steuerdarstellung"
+        },
+        "detail": {
+            "cardTitle": "Kundengruppe",
+            "fieldNameLabel": "Name",
+            "fieldDisplayGrossLabel": "Steuerdarstellung",
+            "fieldDisplayGrossValues": "Brutto | Netto",
+            "placeholderName": "Bitte gebe einen Namen an",
+            "placeholderNewCustomerGroup": "Neue Kundengruppe",
+            "notificationErrorTitle": "Fehler",
+            "notificationErrorMessage": "Fehler beim Speichern der Kundengruppe."
+        }
+    }
+}

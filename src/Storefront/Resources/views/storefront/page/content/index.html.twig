@@ -1,0 +1,21 @@
+{% sw_extends '@Storefront/storefront/base.html.twig' %}
+
+{% block base_main_inner %}
+    <div class="container-main">
+        {% block page_content %}
+            <div class="breadcrumb cms-breadcrump container">
+                {% block cms_breadcrumb %}
+                    {% sw_include '@Storefront/storefront/component/listing/breadcrumb.html.twig' with {
+                        navigationTree: page.header.navigation.tree,
+                        category: page.header.navigation.active
+                    } only %}
+                {% endblock %}
+            </div>
+            <div class="cms-page">
+                {% block page_content_blocks %}
+                    {% sw_include "@Storefront/storefront/page/content/detail.html.twig" with {'cmsPage': page.cmsPage} %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -1,0 +1,56 @@
+{
+  "sw-settings-rule": {
+    "general": {
+      "mainMenuItemGeneral": "Rule Builder",
+      "placeholderSearchBar": "Durchsuche alle Regeln ...",
+      "descriptionTextModule": "Verwaltung von Regeln."
+    },
+    "list": {
+      "textHeadline": "Rule Builder",
+      "buttonAddRule": "Regel erstellen",
+      "columnName": "Regel",
+      "columnDescription": "Beschreibung",
+      "columnDateCreated": "Erstelldatum",
+      "columnPriority": "Priorität",
+      "columnStatus": "Status",
+      "contextMenuDuplicate": "Duplizieren",
+      "titleSidebarItemRefresh": "Aktualisieren",
+      "valid": "Valide",
+      "invalid": "Invalide",
+      "messageEmpty": "Noch keine Regeln"
+    },
+    "detail": {
+      "textHeadline": "Neue Regel",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern",
+      "titleCard": "Allgemein",
+      "labelName": "Name",
+      "labelDescription": "Beschreibung",
+      "labelPriority": "Priorität",
+      "labelType": "Typ",
+      "placeholderName": "Lege einen Namen für diese Regel fest ...",
+      "placeholderDescription": "Lege eine Beschreibung für diese Regel fest ...",
+      "placeholderPriority": "Lege eine Priorität für diese Regel fest ...",
+      "titleSaveSuccess": "Erfolg",
+      "messageSaveSuccess": "Die Regel \"{name}\" wurde erfolgreich gespeichert.",
+      "ruleCard": "Bedingungen",
+      "titleSaveError": "Fehler",
+      "messageSaveError": "Beim Speichern der Regel \"{name}\" ist ein Fehler aufgetreten.",
+      "types": {
+        "shipping": "Versandart",
+        "payment": "Zahlungart",
+        "price": "Preis"
+      }
+    },
+    "conditionFilter": {
+      "infoText": "Nutze Filter um zu definieren, welche Positionen diese Bedingung erfüllen müssen."
+    },
+    "conditionModal": {
+      "modalTitle": "Filter",
+      "delete": "Löschen",
+      "close": "Schließen",
+      "titleSaveError": "Fehler",
+      "messageSaveError": "Beim Speichern des Filters ist ein Fehler aufgetreten."
+    }
+  }
+}

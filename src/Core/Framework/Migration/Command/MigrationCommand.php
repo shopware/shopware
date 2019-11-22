@@ -16,6 +16,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class MigrationCommand extends Command
 {
+    protected static $defaultName = 'database:migrate';
+
     /**
      * @var MigrationCollectionLoader
      */
@@ -48,11 +50,6 @@ class MigrationCommand extends Command
         $this->cache = $cache;
     }
 
-    protected function getMigrationCommandName(): string
-    {
-        return 'database:migrate';
-    }
-
     protected function getMigrationGenerator(?int $until, ?int $limit): \Generator
     {
         yield from $this->runner->migrate($until, $limit);
@@ -65,7 +62,7 @@ class MigrationCommand extends Command
 
     protected function configure(): void
     {
-        $this->setName($this->getMigrationCommandName())
+        $this
             ->addArgument('identifier', InputArgument::OPTIONAL, 'identifier to determine which migrations to run', MigrationCollectionLoader::SHOPWARE_CORE_MIGRATION_IDENTIFIER)
             ->addArgument('until', InputArgument::OPTIONAL, 'timestamp cap for migrations')
             ->addOption('all', 'all', InputOption::VALUE_NONE, 'no migration timestamp cap')

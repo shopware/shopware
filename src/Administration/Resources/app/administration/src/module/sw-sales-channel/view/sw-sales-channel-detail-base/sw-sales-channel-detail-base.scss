@@ -64,6 +64,12 @@ $sw-sales-channel-detail-color-text-access-key: $color-gutenberg;
         }
     }
 
+    .sw-sales-channel-detail-base__settings-link {
+        display: grid;
+        width: 100%;
+        place-items: stretch end;
+    }
+
     .sw-sales-channel-detail-base_general__last-generation-text {
         margin-bottom: 22px;
     }

@@ -96,6 +96,10 @@
       "columnDomainLanguage": "Sprache",
       "columnDomainSnippetSet": "Snippet Set",
       "columnDomainCurrency": "Währung",
+      "maintenanceModeTitle": "Wartungsmodus",
+      "maintenanceModeDescription": "Der Wartungsmodus setzt den Vertriebskanal für Besucher unsichtbar. Allerdings können Whitelist-/beschriftete IPs weiterhin darauf zugreifen. Auf diese Weise können Sie sicher mit den Daten des Vertriebskanals arbeiten und Besucher mit einem Wartungsmodusbildschirm ausschließen.",
+      "ipAddressWhitleList": "Whitelist für IP-Adressen",
+      "columnDomainCurrency": "Währung",
       "productComparison": {
         "inputHeaderLabel": "Kopfzeile",
         "inputBodyLabel": "Produktzeile",

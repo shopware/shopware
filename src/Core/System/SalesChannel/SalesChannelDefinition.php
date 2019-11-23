@@ -29,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -98,6 +99,8 @@ class SalesChannelDefinition extends EntityDefinition
             (new StringField('access_key', 'accessKey'))->addFlags(new Required()),
             new JsonField('configuration', 'configuration'),
             new BoolField('active', 'active'),
+            new BoolField('maintenance', 'maintenance'),
+            new ListField('maintenance_ip_whitelist', 'maintenanceIpWhitelist'),
             new TranslatedField('customFields'),
             (new TranslationsAssociationField(SalesChannelTranslationDefinition::class, 'sales_channel_id'))->addFlags(new Required()),
             new ManyToManyAssociationField('currencies', CurrencyDefinition::class, SalesChannelCurrencyDefinition::class, 'sales_channel_id', 'currency_id'),

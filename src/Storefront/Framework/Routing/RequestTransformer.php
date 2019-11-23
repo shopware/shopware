@@ -146,7 +146,6 @@ class RequestTransformer implements RequestTransformerInterface
         );
 
         $transformedRequest = $request->duplicate(null, null, null, null, null, $transformedServerVars);
-
         $transformedRequest->attributes->set(self::SALES_CHANNEL_BASE_URL, $baseUrl);
         $transformedRequest->attributes->set(self::SALES_CHANNEL_ABSOLUTE_BASE_URL, rtrim($absoluteBaseUrl, '/'));
         $transformedRequest->attributes->set(self::SALES_CHANNEL_RESOLVED_URI, $resolved['pathInfo']);
@@ -160,6 +159,15 @@ class RequestTransformer implements RequestTransformerInterface
         $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, $salesChannel['themeId']);
         $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, $salesChannel['themeName']);
         $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME, $salesChannel['parentThemeName']);
+
+        $transformedRequest->attributes->set(
+            SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE,
+            (bool)$salesChannel['maintenance']
+        );
+        $transformedRequest->attributes->set(
+            SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST,
+            $salesChannel['maintenanceIpWhitelist']
+        );
 
         if (isset($resolved['canonicalPathInfo'])) {
             $transformedRequest->attributes->set(
@@ -213,6 +221,8 @@ class RequestTransformer implements RequestTransformerInterface
                 'LOWER(HEX(domain.id)) id',
                 'LOWER(HEX(sales_channel.id)) salesChannelId',
                 'LOWER(HEX(sales_channel.type_id)) typeId',
+                'sales_channel.maintenance maintenance',
+                'sales_channel.maintenance_ip_whitelist maintenanceIpWhitelist',
                 'LOWER(HEX(domain.snippet_set_id)) snippetSetId',
                 'LOWER(HEX(domain.currency_id)) currencyId',
                 'LOWER(HEX(domain.language_id)) languageId',

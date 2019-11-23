@@ -11,11 +11,13 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Controller\ErrorController;
 use Shopware\Storefront\Controller\MaintenanceController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -98,24 +100,32 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     public function maintenanceResolver(RequestEvent $event): void
     {
-        //ToDo: impressum durchlassen
-        return;
-        $request = $event->getRequest();
-        if ($request->isXmlHttpRequest()) {
+        $master = $this->requestStack->getMasterRequest();
+        if (!$master || !$master->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
             return;
         }
 
-        // ToDo: errors & IP Whitelist
-        $this->setSalesChannelContextForRequestEvent($event);
-        $salesChannelContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+        //ToDo: Impressum/Datenschutz durchlassen
+        $request = $event->getRequest();
 
-        try {
-            $response = $this->maintenanceController->renderMaintenancePage($event->getRequest(), $salesChannelContext);
-        } catch (PageNotFoundException $e) {
-            // ToDo
+        if ($request->isXmlHttpRequest() || $request->attributes->get('_route') === 'frontend.maintenance.page') {
+            return;
         }
 
-        $event->setResponse($response);
+        // ToDo: errors -> fallback html?
+        $salesChannelMaintenance = $request->attributes
+            ->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE);
+        $maintenanceWhiteList = $request->attributes
+            ->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST);
+        $currentIp = $request->server->get('REMOTE_ADDR');
+
+        // ToDo: IP Whitelist
+        if (!$salesChannelMaintenance) {
+            return;
+        }
+
+        $redirect = new RedirectResponse($this->router->generate('frontend.maintenance.page'));
+        $event->setResponse($redirect);
     }
 
     public function startSession(): void
@@ -285,19 +295,5 @@ class StorefrontSubscriber implements EventSubscriberInterface
         );
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
-    }
-
-    private function getSalesChannelContext(RequestEvent $event): SalesChannelContext
-    {
-        $contextToken = $event->getRequest()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        $salesChannelId = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
-
-        $context = $this->contextService->get(
-            $salesChannelId,
-            $contextToken,
-            $event->getRequest()->headers->get(PlatformRequest::HEADER_LANGUAGE_ID)
-        );
-
-        return $context;
     }
 }

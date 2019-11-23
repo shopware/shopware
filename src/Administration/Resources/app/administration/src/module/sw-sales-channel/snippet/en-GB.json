@@ -91,6 +91,11 @@
       "columnDomainLanguage": "Language",
       "columnDomainSnippetSet": "Snippet set",
       "columnDomainCurrency": "Currency",
+      "maintenanceModeTitle": "Maintenance mode",
+      "maintenanceModeDescription": "Maintenance mode sets the Sales Channel invisible to visitors. However white listed/labelled IPs may still access it. This way you can safely work on the Sales Channel data, while blocking out visitors with a maintenance mode screen.",
+      "ipAddressWhitleList": "IP addresses white list",
+      "basicinformationLink": "Choose maintenance layout here",
+      "columnDomainCurrency": "Currency",
       "productComparison": {
         "inputHeaderLabel": "Header row",
         "inputBodyLabel": "Product row",

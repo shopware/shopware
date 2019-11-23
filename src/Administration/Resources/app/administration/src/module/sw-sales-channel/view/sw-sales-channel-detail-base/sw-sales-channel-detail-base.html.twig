@@ -558,6 +558,40 @@
                         v-model="salesChannel.active">
                     </sw-field>
                 {% endblock %}
+
+                {% block sw_sales_channel_detail_base_options_maintenance_header %}
+                    <h4 class="sw-sales-channel-detail-base__headline-text">
+                        {{ $tc('sw-sales-channel.detail.maintenanceModeTitle') }}
+                    </h4>
+
+                    <div class="sw-sales-channel-detail-base__description-text">
+                        {{ $tc('sw-sales-channel.detail.maintenanceModeDescription') }}
+                    </div>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_settings_link %}
+                <div class="sw-sales-channel-detail-base__settings-link">
+                    <router-link  :to="{ name: 'sw.settings.basic.information.index'}"
+                                  class="sw-card__quick-link">
+                        {{ $tc('sw-sales-channel.detail.basicinformationLink') }} <sw-icon name="default-arrow-simple-right" small></sw-icon>
+                    </router-link>
+                </div>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_maintenance_input_active %}
+                    <sw-field
+                        type="switch"
+                        :label="$tc('sw-sales-channel.detail.labelInputActive')"
+                        v-model="salesChannel.maintenance">
+                    </sw-field>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_maintenance_ipwhitelist %}
+                    <sw-textarea-field
+                        :label="$tc('sw-sales-channel.detail.ipAddressWhitleList')"
+                        v-model="salesChannel.maintenanceIpWhitelist">
+                    </sw-textarea-field>
+                {% endblock %}
             </sw-card>
         {% endblock %}
 

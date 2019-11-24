@@ -52,6 +52,8 @@
       "textOptionHeadline": "Neue Option",
       "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Eigenschaft erfolgreich gespeichert.",
+      "titleSaveError": "Fehler",
+      "messageSaveError": "Eigenschaft konnte nicht gespeichert werden.",
       "messageOptionsEmpty": "Noch keine Optionen",
       "messageOptionsEmptySubline": "Füge hier Optionen hinzu."
     }

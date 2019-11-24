@@ -52,6 +52,8 @@
       "textOptionHeadline": "New option",
       "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Property \"{name}\" has been saved.",
+      "titleSaveError": "Error",
+      "messageSaveError": "Property \"{name}\" could not be saved",
       "messageOptionsEmpty": "No options yet",
       "messageOptionsEmptySubline": "Add options here."
     }

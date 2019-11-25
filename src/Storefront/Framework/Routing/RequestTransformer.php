@@ -7,7 +7,7 @@ use Doctrine\DBAL\Driver\Statement;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
-use Shopware\Core\Framework\Seo\SeoResolver;
+use Shopware\Core\Framework\Seo\SeoResolverInterface;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
@@ -47,10 +47,16 @@ class RequestTransformer implements RequestTransformerInterface
      */
     private $punycode;
 
-    public function __construct(RequestTransformerInterface $decorated, Connection $connection)
+    /**
+     * @var SeoResolverInterface
+     */
+    private $resolver;
+
+    public function __construct(RequestTransformerInterface $decorated, Connection $connection, SeoResolverInterface $resolver)
     {
         $this->connection = $connection;
         $this->decorated = $decorated;
+        $this->resolver = $resolver;
         $this->punycode = new Punycode();
     }
 
@@ -236,8 +242,7 @@ class RequestTransformer implements RequestTransformerInterface
             $seoPathInfo = mb_substr($seoPathInfo, mb_strlen($baseUrl));
         }
 
-        $resolved = (new SeoResolver($this->connection))
-            ->resolveSeoPath($languageId, $salesChannelId, $seoPathInfo);
+        $resolved = $this->resolver->resolveSeoPath($languageId, $salesChannelId, $seoPathInfo);
 
         $resolved['pathInfo'] = '/' . ltrim($resolved['pathInfo'], '/');
 

@@ -56,16 +56,16 @@ The following options are possible in the POST request body:
 
 | Name             | Type   | Notes                                                                                          |
 | ---------------- | ------ | ---------------------------------------------------------------------------------------------- |
-| page             | string | Defines the page from which the results are to be determined.                                  |
-| limit            | string | Defines the number of results to be returned.                                                  |
+| page             | string | Defines the page to be fetched, starting from `1`                                              |
+| limit            | string | Defines the number of results to be returned for each page                                     |
 | total-count-mode | int    | Allows to fetch additional data for the entities                                               |
-| ids              | array  | Allows to fetch additional data for the entities                                               |
+| ids              | array  | Restrict the result to these ids                                                               |
 | term             | string | Allows you to perform a full text search                                                       |
-| filter           | object | Allows to filter the results to certain conditions                                             |
-| query            | object | Allows a granular full text search with specification of the corresponding fields and scorings |
+| filter           | object | Allows to filter the results by certain conditions                                             |
+| query            | object | Allows a granular full text search by fields and scorings |
 | post-filter      | object | Same as filter but does not affect aggregations                                                |
-| sort             | mixed  | Specifies how the results are to be sorted.                                                    |
-| aggregations     | object | Allows aggregated data to be determined for the entire result.                                 |
+| sort             | mixed  | Specifies how the results are to be sorted                                                     |
+| aggregations     | object | Allows aggregated data to be determined for the entire result                                  |
 | associations     | object | Allows to fetch additional data for the entities                                               |
 
 All following examples were executed on the API resource `POST http://localhost/api/v1/search/product`.

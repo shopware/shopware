@@ -83,10 +83,6 @@ Component.register('sw-sales-channel-detail-base', {
     },
 
     computed: {
-        selectedTemplateName() {
-            return this.templateName;
-        },
-
         secretAccessKeyFieldType() {
             return this.showSecretAccessKey ? 'text' : 'password';
         },

@@ -283,6 +283,11 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Moved `Shopware\Core\Content\Newsletter\SalesChannelNewsletterController` to `Shopware\Core\Content\Newsletter\SalesChannel\SalesChannelNewsletterController`
     * The MigrationController and MediaFolderController now return StatusCode 204 without content on successful requests
     * Renamed `\Shopware\Core\Framework\Api\Converter\ConverterService` to `\Shopware\Core\Framework\Api\Converter\ApiVersionConverter`
+    * Added `\Shopware\Core\Framework\PersonalData\CleanPersonalDataCommand` to removing personal data by the cli command: "bin/console database:clean-personal-data"
+        * use the command with the argument "guests" to remove guests without orders
+        * use the command with the argument "carts" to remove canceled carts
+        * use the command with the option "--all" to remove both of them.
+        * with the option "--days" it is possible to remove the data which is same old and older than the given number of days
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain

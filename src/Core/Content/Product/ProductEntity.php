@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
@@ -385,6 +386,11 @@ class ProductEntity extends Entity
      * @var OrderLineItemCollection|null
      */
     protected $orderLineItems;
+
+    /**
+     * @var ProductCrossSellingCollection|null
+     */
+    protected $crossSellings;
 
     public function __construct()
     {
@@ -1140,5 +1146,15 @@ class ProductEntity extends Entity
     public function setOrderLineItems(?OrderLineItemCollection $orderLineItems): void
     {
         $this->orderLineItems = $orderLineItems;
+    }
+
+    public function getCrossSellings(): ?ProductCrossSellingCollection
+    {
+        return $this->crossSellings;
+    }
+
+    public function setCrossSellings(ProductCrossSellingCollection $crossSellings): void
+    {
+        $this->crossSellings = $crossSellings;
     }
 }

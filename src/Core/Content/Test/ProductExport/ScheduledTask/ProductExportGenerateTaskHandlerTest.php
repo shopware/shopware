@@ -151,6 +151,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
                 'salesChannelId' => $this->getSalesChannelId(),
                 'salesChannelDomainId' => $this->getSalesChannelDomainId(),
                 'generateByCronjob' => $generateByCronjob,
+                'currencyId' => Defaults::CURRENCY,
             ],
         ], $this->context);
 

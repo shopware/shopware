@@ -52,8 +52,11 @@ class RequestTransformer implements RequestTransformerInterface
      */
     private $resolver;
 
-    public function __construct(RequestTransformerInterface $decorated, Connection $connection, SeoResolverInterface $resolver)
-    {
+    public function __construct(
+        RequestTransformerInterface $decorated,
+        Connection $connection,
+        SeoResolverInterface $resolver
+    ) {
         $this->connection = $connection;
         $this->decorated = $decorated;
         $this->resolver = $resolver;
@@ -78,7 +81,12 @@ class RequestTransformer implements RequestTransformerInterface
         $absoluteBaseUrl = $this->getSchemeAndHttpHost($request) . $request->getBaseUrl();
         $baseUrl = str_replace($absoluteBaseUrl, '', $salesChannel['url']);
 
-        $resolved = $this->resolveSeoUrl($request, $baseUrl, $salesChannel['languageId'], $salesChannel['salesChannelId']);
+        $resolved = $this->resolveSeoUrl(
+            $request,
+            $baseUrl,
+            $salesChannel['languageId'],
+            $salesChannel['salesChannelId']
+        );
 
         /**
          * - Remove "virtual" suffix of domain mapping shopware.de/de
@@ -134,7 +142,10 @@ class RequestTransformer implements RequestTransformerInterface
         $clone->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME, $salesChannel['parentThemeName']);
 
         if (isset($resolved['canonicalPathInfo'])) {
-            $clone->attributes->set(SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK, $this->getSchemeAndHttpHost($request) . $baseUrl . $resolved['canonicalPathInfo']);
+            $clone->attributes->set(
+                SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK,
+                $this->getSchemeAndHttpHost($request) . $baseUrl . $resolved['canonicalPathInfo']
+            );
         }
 
         $clone->headers->add($request->headers->all());
@@ -176,7 +187,12 @@ class RequestTransformer implements RequestTransformerInterface
             ])->from('sales_channel')
             ->innerJoin('sales_channel', 'sales_channel_domain', 'domain', 'domain.sales_channel_id = sales_channel.id')
             ->innerJoin('domain', 'snippet_set', 'snippet_set', 'snippet_set.id = domain.snippet_set_id')
-            ->leftJoin('sales_channel', 'theme_sales_channel', 'theme_sales_channel', 'sales_channel.id = theme_sales_channel.sales_channel_id')
+            ->leftJoin(
+                'sales_channel',
+                'theme_sales_channel',
+                'theme_sales_channel',
+                'sales_channel.id = theme_sales_channel.sales_channel_id'
+            )
             ->leftJoin('theme_sales_channel', 'theme', 'theme', 'theme_sales_channel.theme_id = theme.id')
             ->leftJoin('theme', 'theme', 'parentTheme', 'theme.parent_theme_id = parentTheme.id')
             ->where('sales_channel.type_id = UNHEX(:typeId)')

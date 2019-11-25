@@ -9,7 +9,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Routing\RequestTransformer as CoreRequestTransformer;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
+use Shopware\Core\Framework\Seo\SeoResolver;
 use Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -54,8 +56,9 @@ class StorefrontRoutingTest extends TestCase
     public function setUp(): void
     {
         $this->requestTransformer = new RequestTransformer(
-            new \Shopware\Core\Framework\Routing\RequestTransformer(),
-            $this->getContainer()->get(Connection::class)
+            new CoreRequestTransformer(),
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get(SeoResolver::class)
         );
 
         $this->seoUrlReplacer = $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class);

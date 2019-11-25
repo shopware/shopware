@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Update\Event;
 use Shopware\Core\Framework\Context;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class UpdateFinishedEvent extends Event
+abstract class UpdateEvent extends Event
 {
     /**
      * @var Context

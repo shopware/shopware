@@ -1,13 +1,13 @@
 [titleEn]: <>(Data Abstraction Layer)
 
-The DataAbstractionLayer (DAL) centrally handles data **retrieval**, **modification** and **search** through am object oriented interface. The following diagram illustrates the generall architecture of the component.
+The DataAbstractionLayer (DAL) centrally handles data **retrieval**, **modification** and **search** through an object oriented interface. The following diagram illustrates the general architecture of the component.
 
 ![Data abstraction layer](./img/dal-structure.png)
 
-The dashed line in the middle represents the differentiation between userland and internal space. The diferent containers mean:
+The dashed line in the middle represents the differentiation between userland and internal space. The different containers mean:
 
 Entity
- : Represents the data of a single row in table in the storage. The Entity may contain related data if you wished to fetch it this way.
+ : Represents the data of a single row in table in the storage. The entity may contain related data if you wished to fetch it this way.
  
 Collection
  : A collection is the result set of a DAL search. It contains convenience methods and metadata related to the search. 
@@ -16,7 +16,7 @@ Definition
  : Configuration file defining the fields, relations and entity- and collection-classes.
 
 Repository
- : The Repository is the main access point for every DAL Request. It houses the basic methods to work with data.
+ : The repository is the main access point for every DAL request. It houses the basic methods to work with data.
 
 Events
  : All DAL requests dispatch events to trigger handling inside of Shopware 6. Be it adding static data, triggering re indexing or handling a file upload.

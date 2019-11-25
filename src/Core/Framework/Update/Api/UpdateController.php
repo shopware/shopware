@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
+use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePostPrepareEvent;
@@ -15,12 +16,16 @@ use Shopware\Core\Framework\Update\Exception\UpdateFailedException;
 use Shopware\Core\Framework\Update\Services\ApiClient;
 use Shopware\Core\Framework\Update\Services\PluginCompatibility;
 use Shopware\Core\Framework\Update\Services\RequirementsValidator;
+use Shopware\Core\Framework\Update\Steps\DeactivatePluginsStep;
 use Shopware\Core\Framework\Update\Steps\DownloadStep;
 use Shopware\Core\Framework\Update\Steps\ErrorResult;
 use Shopware\Core\Framework\Update\Steps\FinishResult;
+use Shopware\Core\Framework\Update\Steps\ReactivatePluginsStep;
 use Shopware\Core\Framework\Update\Steps\UnpackStep;
 use Shopware\Core\Framework\Update\Steps\ValidResult;
 use Shopware\Core\Framework\Update\Struct\Version;
+use Shopware\Core\Framework\Update\VersionFactory;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -71,6 +76,11 @@ class UpdateController extends AbstractController
     private $systemConfig;
 
     /**
+     * @var PluginLifecycleService
+     */
+    private $pluginLifecycleService;
+
+    /**
      * @var string
      */
     private $shopwareVersion;
@@ -82,6 +92,7 @@ class UpdateController extends AbstractController
         PluginCompatibility $pluginCompatibility,
         EventDispatcherInterface $eventDispatcher,
         SystemConfigService $systemConfig,
+        PluginLifecycleService $pluginLifecycleService,
         string $shopwareVersion
     ) {
         $this->rootDir = $rootDir;
@@ -90,6 +101,7 @@ class UpdateController extends AbstractController
         $this->pluginCompatibility = $pluginCompatibility;
         $this->eventDispatcher = $eventDispatcher;
         $this->systemConfig = $systemConfig;
+        $this->pluginLifecycleService = $pluginLifecycleService;
         $this->shopwareVersion = $shopwareVersion;
     }
 
@@ -98,6 +110,12 @@ class UpdateController extends AbstractController
      */
     public function updateApiCheck(): JsonResponse
     {
+        if ($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION) {
+            $version = VersionFactory::createTestVersion();
+
+            return new JsonResponse($version);
+        }
+
         try {
             $updates = $this->apiClient->checkForUpdates();
 
@@ -119,7 +137,7 @@ class UpdateController extends AbstractController
      */
     public function checkRequirements(): JsonResponse
     {
-        $update = $this->apiClient->checkForUpdates();
+        $update = $this->apiClient->checkForUpdates($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION);
 
         return new JsonResponse($this->requirementsValidator->validate($update));
     }
@@ -129,7 +147,7 @@ class UpdateController extends AbstractController
      */
     public function pluginCompatibility(Context $context): JsonResponse
     {
-        $update = $this->apiClient->checkForUpdates();
+        $update = $this->apiClient->checkForUpdates($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION);
 
         return new JsonResponse($this->pluginCompatibility->getPluginCompatibilities($update, $context));
     }
@@ -139,7 +157,7 @@ class UpdateController extends AbstractController
      */
     public function downloadLatestUpdate(Request $request): JsonResponse
     {
-        $update = $this->apiClient->checkForUpdates();
+        $update = $this->apiClient->checkForUpdates($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION);
 
         $offset = $request->query->getInt('offset');
 
@@ -149,7 +167,7 @@ class UpdateController extends AbstractController
             unlink($destination);
         }
 
-        $result = (new DownloadStep($update, $destination))->run($offset);
+        $result = (new DownloadStep($update, $destination, $this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION))->run($offset);
 
         return $this->toJson($result);
     }
@@ -159,7 +177,7 @@ class UpdateController extends AbstractController
      */
     public function unpack(Request $request, Context $context): JsonResponse
     {
-        $update = $this->apiClient->checkForUpdates();
+        $update = $this->apiClient->checkForUpdates($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION);
 
         $source = $this->createDestinationFromVersion($update);
         $offset = $request->query->getInt('offset');
@@ -169,26 +187,23 @@ class UpdateController extends AbstractController
         $updateDir = $this->rootDir . '/files/update/';
         $fileDir = $this->rootDir . '/files/update/files';
 
-        $unpackStep = new UnpackStep($source, $fileDir);
+        $unpackStep = new UnpackStep($source, $fileDir, $this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION);
 
         if ($offset === 0) {
-            // plugins can subscribe to this events, check compatibility and throw exceptions to prevent the update
-            $this->eventDispatcher->dispatch(new UpdatePrePrepareEvent($context, $this->shopwareVersion, $update->version));
-
-            // disable plugins - save active plugins
-            $deactivationFilter = $request->query->get('deactivationFilter', PluginCompatibility::PLUGIN_DEACTIVATION_FILTER_NOT_COMPATIBLE);
-            // TODO: NEXT-5205 - Refactor into DeactivateIncompatiblePluginStep
-            $this->pluginCompatibility->deactivateIncompatiblePlugins($update, $context, $deactivationFilter);
-
-            $containerWithoutPlugins = $this->rebootKernelWithoutPlugins();
-            $eventDispatcher = $containerWithoutPlugins->get('event_dispatcher');
-            // @internal plugins are deactivated
-            $eventDispatcher->dispatch(new UpdatePostPrepareEvent($context, $this->shopwareVersion, $update->version));
-
             $fs->remove($updateDir);
         }
 
         $result = $unpackStep->run($offset);
+
+        // Test Mode
+        if ($result instanceof FinishResult && $this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION) {
+            $updateToken = Uuid::randomHex();
+            $this->systemConfig->set(self::UPDATE_TOKEN_KEY, $updateToken);
+
+            return new JsonResponse([
+                'redirectTo' => $request->getBaseUrl() . '/api/v1/_action/update/finish/' . $this->systemConfig->get(self::UPDATE_TOKEN_KEY),
+            ]);
+        }
 
         if ($result instanceof FinishResult) {
             $fs->rename($fileDir . '/update-assets/', $updateDir . '/update-assets/');
@@ -217,28 +232,101 @@ class UpdateController extends AbstractController
     }
 
     /**
+     * @Route("/api/v{version}/_action/update/deactivate-plugins", name="api.custom.updateapi.deactivate-plugins", methods={"GET"})
+     */
+    public function deactivatePlugins(Request $request, Context $context): JsonResponse
+    {
+        $update = $this->apiClient->checkForUpdates($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION);
+
+        $offset = $request->query->getInt('offset');
+
+        if ($offset === 0) {
+            // plugins can subscribe to this events, check compatibility and throw exceptions to prevent the update
+            $this->eventDispatcher->dispatch(new UpdatePrePrepareEvent($context, $this->shopwareVersion,
+                $update->version));
+        }
+
+        // disable plugins - save active plugins
+        $deactivationFilter = $request->query->get('deactivationFilter', PluginCompatibility::PLUGIN_DEACTIVATION_FILTER_NOT_COMPATIBLE);
+
+        $deactivatePluginStep = new DeactivatePluginsStep(
+            $update,
+            $deactivationFilter,
+            $this->pluginCompatibility,
+            $this->pluginLifecycleService,
+            $this->systemConfig,
+            $context
+        );
+
+        $result = $deactivatePluginStep->run($offset);
+
+        if ($result instanceof FinishResult) {
+            $containerWithoutPlugins = $this->rebootKernelWithoutPlugins();
+
+            /** @var EventDispatcherInterface $eventDispatcher */
+            $eventDispatcher = $containerWithoutPlugins->get('event_dispatcher');
+
+            // @internal plugins are deactivated
+            $eventDispatcher->dispatch(new UpdatePostPrepareEvent($context, $this->shopwareVersion, $update->version));
+        }
+
+        return $this->toJson($result);
+    }
+
+    /**
      * @Route("/api/v{version}/_action/update/finish/{token}", defaults={"auth_required"=false}, name="api.custom.updateapi.finish", methods={"GET"})
      */
-    public function finish(string $token, Context $context): Response
+    public function finish(string $token, int $version, Request $request, Context $context): Response
     {
-        if (!$token) {
+        $offset = $request->query->getInt('offset');
+
+        if ($offset === 0) {
+            if (!$token) {
+                return $this->redirectToRoute('administration.index');
+            }
+
+            $dbUpdateToken = $this->systemConfig->get(self::UPDATE_TOKEN_KEY);
+            if (!$dbUpdateToken || $token !== $dbUpdateToken) {
+                return $this->redirectToRoute('administration.index');
+            }
+            $oldVersion = (string) $this->systemConfig->get(self::UPDATE_PREVIOUS_VERSION_KEY);
+
+            $_unusedPreviousSetting = ignore_user_abort(true);
+
+            $this->eventDispatcher->dispatch(new UpdatePreFinishEvent($context, $oldVersion, $this->shopwareVersion));
+        }
+
+        if ($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION || $_ENV['APP_ENV'] === 'test') {
+            $newVersion = VersionFactory::createTestVersion();
+        } else {
+            $newVersion = VersionFactory::create(['version' => $this->shopwareVersion]);
+        }
+
+        $deactivatePluginStep = new ReactivatePluginsStep(
+            $newVersion,
+            $this->pluginCompatibility,
+            $this->pluginLifecycleService,
+            $this->systemConfig,
+            $context
+        );
+
+        $result = $deactivatePluginStep->run($offset);
+
+        if ($result instanceof FinishResult || $result->getOffset() === $offset) {
+            $oldVersion = (string) $this->systemConfig->get(self::UPDATE_PREVIOUS_VERSION_KEY);
+            // reboot with plugins
+            $container = $this->rebootWithPlugins();
+            $container->get('event_dispatcher')->dispatch(new UpdatePostFinishEvent($context, $oldVersion,
+                $this->shopwareVersion));
+
             return $this->redirectToRoute('administration.index');
         }
 
-        $dbUpdateToken = $this->systemConfig->get(self::UPDATE_TOKEN_KEY);
-        if (!$dbUpdateToken || $token !== $dbUpdateToken) {
-            return $this->redirectToRoute('administration.index');
-        }
-        $oldVersion = (string) $this->systemConfig->get(self::UPDATE_PREVIOUS_VERSION_KEY);
-
-        $_unusedPreviousSetting = ignore_user_abort(true);
-        $this->eventDispatcher->dispatch(new UpdatePreFinishEvent($context, $oldVersion, $this->shopwareVersion));
-
-        // reboot with plugins
-        $container = $this->rebootWithPlugins();
-        $container->get('event_dispatcher')->dispatch(new UpdatePostFinishEvent($context, $oldVersion, $this->shopwareVersion));
-
-        return $this->redirectToRoute('administration.index');
+        return $this->redirectToRoute('api.custom.updateapi.finish', [
+            'token' => $this->systemConfig->get(self::UPDATE_TOKEN_KEY),
+            'offset' => $result->getOffset(),
+            'version' => $version,
+        ]);
     }
 
     private function rebootKernelWithoutPlugins(): ContainerInterface

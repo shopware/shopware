@@ -7,8 +7,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
+use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Update\Api\UpdateController;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePreFinishEvent;
@@ -16,10 +18,14 @@ use Shopware\Core\Framework\Update\Services\ApiClient;
 use Shopware\Core\Framework\Update\Services\PluginCompatibility;
 use Shopware\Core\Framework\Update\Services\RequirementsValidator;
 use Shopware\Core\Kernel;
+use Shopware\Core\PlatformRequest;
+use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class UpdateControllerTest extends TestCase
 {
@@ -43,17 +49,22 @@ class UpdateControllerTest extends TestCase
             $this->getContainer()->get(PluginCompatibility::class),
             $eventDispatcher,
             $systemConfigService,
+            $this->getContainer()->get(PluginLifecycleService::class),
             $this->getContainer()->getParameter('kernel.shopware_version')
         );
         $updateController->setContainer($this->getContainer());
 
         $eventDispatcher->expects(static::never())->method('dispatch');
 
-        $response = $updateController->finish('', $context);
+        $request = new Request();
+        $request->query->set('offset', 0);
+
+        $response = $updateController->finish('', PlatformRequest::API_VERSION, $request, $context);
+
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('/admin', $response->headers->get('location'));
 
-        $response = $updateController->finish('invalid_token', $context);
+        $response = $updateController->finish('invalid token', PlatformRequest::API_VERSION, $request, $context);
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('/admin', $response->headers->get('location'));
     }
@@ -108,6 +119,7 @@ class UpdateControllerTest extends TestCase
             $this->getContainer()->get(PluginCompatibility::class),
             $eventDispatcherWithoutPlugins,
             $systemConfigService,
+            $this->getContainer()->get(PluginLifecycleService::class),
             $version
         );
         $updateController->setContainer($containerWithoutPlugins);
@@ -148,7 +160,20 @@ class UpdateControllerTest extends TestCase
                 return true;
             }));
 
-        $response = $updateController->finish($token, $context);
+        $stack = $this->getContainer()->get(RequestStack::class);
+        $prop = ReflectionHelper::getProperty(RequestStack::class, 'requests');
+        $prop->setValue($stack, []);
+
+        // fake request
+        $request = new Request();
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE, 'en-GB');
+
+        $stack->push($request);
+
+        $request = new Request();
+        $request->query->set('offset', 0);
+
+        $response = $updateController->finish($token, PlatformRequest::API_VERSION, $request, $context);
 
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('/admin', $response->headers->get('location'));

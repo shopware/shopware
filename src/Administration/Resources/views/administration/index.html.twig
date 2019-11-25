@@ -6,20 +6,21 @@
     <title>
         Shopware Administration (c) shopware AG
     </title>
+    {% set baseUrl = app.getRequest().baseUrl %}
 
     {% block administration_favicons %}
-        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('static/img/favicon/apple-touch-icon.png', '@Administration') }}">
-        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('static/img/favicon/favicon-16x16.png', '@Administration') }}">
-        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('static/img/favicon/favicon-32x32.png', '@Administration') }}" id="dynamic-favicon">
-        <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('static/img/favicon/android-chrome-192x192.png', '@Administration') }}">
-        <link rel="icon" type="image/png" sizes="256x256" href="{{ asset('static/img/favicon/android-chrome-256x256.png', '@Administration') }}">
-        <meta name="msapplication-TileImage" content="{{ asset('static/img/favicon/mstile-150x150.png', '@Administration') }}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ baseUrl }}{{ asset('static/img/favicon/apple-touch-icon.png', '@Administration') }}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ baseUrl }}{{ asset('static/img/favicon/favicon-16x16.png', '@Administration') }}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ baseUrl }}{{ asset('static/img/favicon/favicon-32x32.png', '@Administration') }}" id="dynamic-favicon">
+        <link rel="icon" type="image/png" sizes="192x192" href="{{ baseUrl }}{{ asset('static/img/favicon/android-chrome-192x192.png', '@Administration') }}">
+        <link rel="icon" type="image/png" sizes="256x256" href="{{ baseUrl }}{{ asset('static/img/favicon/android-chrome-256x256.png', '@Administration') }}">
+        <meta name="msapplication-TileImage" content="{{ baseUrl }}{{ asset('static/img/favicon/mstile-150x150.png', '@Administration') }}">
         <meta name="msapplication-TileColor" content="#189eff">
         <meta name="theme-color" content="#189eff">
     {% endblock %}
 
-    <link rel="stylesheet" href="{{ asset('static/css/vendors-node.css', '@Administration') }}">
-    <link rel="stylesheet" href="{{ asset('static/css/app.css', '@Administration') }}">
+    <link rel="stylesheet" href="{{ baseUrl }}{{ asset('static/css/vendors-node.css', '@Administration') }}">
+    <link rel="stylesheet" href="{{ baseUrl }}{{ asset('static/css/app.css', '@Administration') }}">
 
 </head>
 <body>
@@ -28,10 +29,10 @@
 
 {% block administration_templates %}{% endblock %}
 
-<script src="{{ asset('static/js/runtime.js', '@Administration') }}"></script>
-<script src="{{ asset('static/js/vendors-node.js', '@Administration') }}"></script>
-<script src="{{ asset('static/js/commons.js', '@Administration') }}"></script>
-<script src="{{ asset('static/js/app.js', '@Administration') }}"></script>
+<script src="{{ baseUrl }}{{ asset('static/js/runtime.js', '@Administration') }}"></script>
+<script src="{{ baseUrl }}{{ asset('static/js/vendors-node.js', '@Administration') }}"></script>
+<script src="{{ baseUrl }}{{ asset('static/js/commons.js', '@Administration') }}"></script>
+<script src="{{ baseUrl }}{{ asset('static/js/app.js', '@Administration') }}"></script>
 
 <script>
     /*

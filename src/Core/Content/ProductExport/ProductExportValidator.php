@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\ProductExport;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
@@ -50,7 +49,6 @@ class ProductExportValidator implements EventSubscriberInterface
                 continue;
             }
 
-            /** @var QueryBuilder $qb */
             $qb = $this->connection->createQueryBuilder();
 
             $query = $qb

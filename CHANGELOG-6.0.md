@@ -305,6 +305,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added new method `\Shopware\Storefront\Controller\RegisterController::confirmRegistration` to confirm double opt in registrations or email addresses
     * Added twig filter `sw_sanitize` to filter unwanted tags and attributes (prevent XSS)
     * Updated Symfony Dependencies to version `4.4.0`.    
+    * Added the `referencePrice` of a product to the `offcanvas cart` and the `ajax-search`
 * Elasticsearch
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.
         * You can set them with a parameter.yml too.

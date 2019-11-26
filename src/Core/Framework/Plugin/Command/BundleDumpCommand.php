@@ -34,13 +34,13 @@ class BundleDumpCommand extends Command
             ->setDescription('Creates a json file with the configuration for each active Shopware bundle.');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->bundleDumper->dump();
 
         $style = new ShopwareStyle($input, $output);
         $style->success('Dumped plugin configuration.');
 
-        return null;
+        return 0;
     }
 }

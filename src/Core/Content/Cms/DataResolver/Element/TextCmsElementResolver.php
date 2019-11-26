@@ -4,12 +4,11 @@ namespace Shopware\Core\Content\Cms\DataResolver\Element;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
-use Shopware\Core\Content\Cms\DataResolver\Element;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\TextStruct;
 
-class TextCmsElementResolver extends Element\AbstractCmsElementResolver
+class TextCmsElementResolver extends AbstractCmsElementResolver
 {
     public function getType(): string
     {

@@ -44,7 +44,7 @@ class UserCreateCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);
 
@@ -77,6 +77,6 @@ class UserCreateCommand extends Command
 
         $io->success(sprintf('User "%s" successfully created.', $username));
 
-        return null;
+        return 0;
     }
 }

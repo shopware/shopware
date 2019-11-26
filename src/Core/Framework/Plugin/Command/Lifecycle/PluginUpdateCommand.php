@@ -21,14 +21,14 @@ class PluginUpdateCommand extends AbstractPluginLifecycleCommand
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);
         $context = Context::createDefaultContext();
         $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input, $context);
 
         if ($plugins === null) {
-            return null;
+            return 0;
         }
 
         $updatedPluginCount = 0;
@@ -45,6 +45,6 @@ class PluginUpdateCommand extends AbstractPluginLifecycleCommand
 
         $this->handleClearCacheOption($input, $io, 'updating');
 
-        return null;
+        return 0;
     }
 }

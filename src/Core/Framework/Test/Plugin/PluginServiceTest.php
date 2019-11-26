@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use SwagTest\SwagTest;
 
 class PluginServiceTest extends TestCase
 {
@@ -97,16 +98,16 @@ class PluginServiceTest extends TestCase
 
     public function testRefreshPluginsExistingWithPluginUpdate(): void
     {
-        $this->createPlugin($this->pluginRepo, $this->context, \SwagTest\SwagTest::PLUGIN_OLD_VERSION);
+        $this->createPlugin($this->pluginRepo, $this->context, SwagTest::PLUGIN_OLD_VERSION);
 
         $this->pluginService->refreshPlugins($this->context, new NullIO());
 
         /** @var PluginEntity $plugin */
         $plugin = $this->pluginRepo->search(new Criteria(), $this->context)->first();
 
-        static::assertSame(\SwagTest\SwagTest::class, $plugin->getBaseClass());
-        static::assertSame(\SwagTest\SwagTest::PLUGIN_LABEL, $plugin->getLabel());
-        static::assertSame(\SwagTest\SwagTest::PLUGIN_VERSION, $plugin->getUpgradeVersion());
+        static::assertSame(SwagTest::class, $plugin->getBaseClass());
+        static::assertSame(SwagTest::PLUGIN_LABEL, $plugin->getLabel());
+        static::assertSame(SwagTest::PLUGIN_VERSION, $plugin->getUpgradeVersion());
     }
 
     public function testRefreshPluginsExistingWithoutPluginUpdate(): void
@@ -167,16 +168,16 @@ class PluginServiceTest extends TestCase
 
     private function performDefaultTests(PluginEntity $plugin): void
     {
-        static::assertSame(\SwagTest\SwagTest::class, $plugin->getBaseClass());
-        static::assertSame(\SwagTest\SwagTest::PLUGIN_LABEL, $plugin->getLabel());
-        static::assertSame(\SwagTest\SwagTest::PLUGIN_VERSION, $plugin->getVersion());
+        static::assertSame(SwagTest::class, $plugin->getBaseClass());
+        static::assertSame(SwagTest::PLUGIN_LABEL, $plugin->getLabel());
+        static::assertSame(SwagTest::PLUGIN_VERSION, $plugin->getVersion());
     }
 
     private function performDefaultGermanTests(PluginEntity $plugin): void
     {
-        static::assertSame(\SwagTest\SwagTest::class, $plugin->getBaseClass());
-        static::assertSame(\SwagTest\SwagTest::PLUGIN_GERMAN_LABEL, $plugin->getLabel());
-        static::assertSame(\SwagTest\SwagTest::PLUGIN_VERSION, $plugin->getVersion());
+        static::assertSame(SwagTest::class, $plugin->getBaseClass());
+        static::assertSame(SwagTest::PLUGIN_GERMAN_LABEL, $plugin->getLabel());
+        static::assertSame(SwagTest::PLUGIN_VERSION, $plugin->getVersion());
     }
 
     private function getValidEnglishChangelog(): array

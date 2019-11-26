@@ -29,12 +29,12 @@ class RegisterScheduledTasksCommand extends Command
             ->setDescription('Registers all available scheduled tasks.');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $output->writeln('Registering scheduled tasks ...');
         $this->taskRegistry->registerTasks();
         $output->writeln('Done!');
 
-        return null;
+        return 0;
     }
 }

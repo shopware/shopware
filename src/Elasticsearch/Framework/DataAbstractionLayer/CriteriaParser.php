@@ -5,8 +5,10 @@ namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
 use ONGR\ElasticsearchDSL\Aggregation\AbstractAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\Bucketing;
+use ONGR\ElasticsearchDSL\Aggregation\Bucketing\CompositeAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\Bucketing\NestedAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\Metric;
+use ONGR\ElasticsearchDSL\Aggregation\Metric\ValueCountAggregation;
 use ONGR\ElasticsearchDSL\BuilderInterface;
 use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
@@ -147,9 +149,9 @@ class CriteriaParser
         return $filter;
     }
 
-    protected function parseTermsAggregation(TermsAggregation $aggregation, string $fieldName, EntityDefinition $definition, Context $context): Bucketing\CompositeAggregation
+    protected function parseTermsAggregation(TermsAggregation $aggregation, string $fieldName, EntityDefinition $definition, Context $context): CompositeAggregation
     {
-        $composite = new Bucketing\CompositeAggregation($aggregation->getName());
+        $composite = new CompositeAggregation($aggregation->getName());
 
         if ($aggregation->getSorting()) {
             $accessor = $this->buildAccessor($definition, $aggregation->getSorting()->getField(), $context);
@@ -175,9 +177,9 @@ class CriteriaParser
         return $composite;
     }
 
-    protected function parseDateHistogramAggregation(DateHistogramAggregation $aggregation, string $fieldName, EntityDefinition $definition, Context $context): Bucketing\CompositeAggregation
+    protected function parseDateHistogramAggregation(DateHistogramAggregation $aggregation, string $fieldName, EntityDefinition $definition, Context $context): CompositeAggregation
     {
-        $composite = new Bucketing\CompositeAggregation($aggregation->getName());
+        $composite = new CompositeAggregation($aggregation->getName());
 
         if ($aggregation->getSorting()) {
             $accessor = $this->buildAccessor($definition, $aggregation->getSorting()->getField(), $context);
@@ -227,7 +229,7 @@ class CriteriaParser
                 return new Metric\SumAggregation($aggregation->getName(), $fieldName);
 
             case $aggregation instanceof CountAggregation:
-                return new Metric\ValueCountAggregation($aggregation->getName(), $fieldName);
+                return new ValueCountAggregation($aggregation->getName(), $fieldName);
 
             case $aggregation instanceof FilterAggregation:
                 return $this->parseFilterAggregation($aggregation, $definition, $context);

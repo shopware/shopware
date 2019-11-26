@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Plugin\Changelog\ChangelogService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
+use SwagTest\SwagTest;
 
 trait PluginTestsHelper
 {
@@ -32,16 +33,16 @@ trait PluginTestsHelper
     protected function createPlugin(
         EntityRepositoryInterface $pluginRepo,
         Context $context,
-        string $version = \SwagTest\SwagTest::PLUGIN_VERSION,
+        string $version = SwagTest::PLUGIN_VERSION,
         ?string $installedAt = null
     ): void {
         $pluginRepo->create(
             [
                 [
-                    'baseClass' => \SwagTest\SwagTest::class,
+                    'baseClass' => SwagTest::class,
                     'name' => 'SwagTest',
                     'version' => $version,
-                    'label' => \SwagTest\SwagTest::PLUGIN_LABEL,
+                    'label' => SwagTest::PLUGIN_LABEL,
                     'installedAt' => $installedAt,
                     'active' => false,
                     'autoload' => [],

@@ -95,7 +95,7 @@ class StorefrontRoutingTest extends TestCase
         $absolutePath = $this->router->generate($case->route, [], Router::ABSOLUTE_PATH);
         $absoluteUrl = $this->router->generate($case->route, [], Router::ABSOLUTE_URL);
         $networkPath = $this->router->generate($case->route, [], Router::NETWORK_PATH);
-        $pathInfo = $this->router->generate($case->route, [], ROUTER::PATH_INFO);
+        $pathInfo = $this->router->generate($case->route, [], Router::PATH_INFO);
 
         static::assertSame($case->getAbsolutePath(), $absolutePath, var_export($case, true));
         static::assertSame($case->getAbsoluteUrl(), $absoluteUrl, var_export($case, true));

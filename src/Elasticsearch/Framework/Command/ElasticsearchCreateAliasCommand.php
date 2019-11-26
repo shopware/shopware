@@ -31,10 +31,10 @@ class ElasticsearchCreateAliasCommand extends Command
             ->setDescription('Dev command to create alias immediately');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->handler->run();
 
-        return null;
+        return 0;
     }
 }

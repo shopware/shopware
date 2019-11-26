@@ -79,10 +79,14 @@ class KernelLifecycleManager
         return static::$kernel;
     }
 
-    public static function createKernel(): KernelInterface
+    public static function createKernel(?string $kernelClass = null): KernelInterface
     {
-        if (static::$class === null) {
-            static::$class = static::getKernelClass();
+        if ($kernelClass === null) {
+            if (static::$class === null) {
+                static::$class = static::getKernelClass();
+            }
+
+            $kernelClass = static::$class;
         }
 
         if (isset($_ENV['APP_ENV'])) {
@@ -112,7 +116,7 @@ class KernelLifecycleManager
         // will fail randomly
         $cacheId = 'h8f3f0ee9c61829627676afd6294bb029';
 
-        return new static::$class($env, $debug, $pluginLoader, $cacheId);
+        return new $kernelClass($env, $debug, $pluginLoader, $cacheId);
     }
 
     /**

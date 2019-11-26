@@ -24,14 +24,14 @@ class PluginActivateCommand extends AbstractPluginLifecycleCommand
      *
      * @throws PluginNotInstalledException
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);
         $context = Context::createDefaultContext();
         $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input, $context);
 
         if ($plugins === null) {
-            return null;
+            return 0;
         }
 
         $activatedPluginCount = 0;
@@ -60,6 +60,6 @@ class PluginActivateCommand extends AbstractPluginLifecycleCommand
 
         $this->handleClearCacheOption($input, $io, 'activating');
 
-        return null;
+        return 0;
     }
 }

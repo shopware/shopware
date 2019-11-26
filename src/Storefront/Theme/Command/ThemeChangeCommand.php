@@ -81,7 +81,7 @@ class ThemeChangeCommand extends Command
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Set theme for all sales channel');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->io = new SymfonyStyle($input, $output);
         $helper = $this->getHelper('question');
@@ -132,7 +132,7 @@ class ThemeChangeCommand extends Command
             $this->themeService->compileTheme($salesChannel->getId(), $theme->getId(), $this->context);
         }
 
-        return null;
+        return 0;
     }
 
     protected function getSalesChannelChoices(SalesChannelCollection $salesChannels): array

@@ -31,7 +31,7 @@ class FeatureFlagCreateCommand extends Command
         $this->addArgument('name', InputArgument::REQUIRED, 'What is the feature gonna be called?');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);
 
@@ -61,6 +61,6 @@ class FeatureFlagCreateCommand extends Command
         $io->success("Created flag: $name");
         $io->note('Please remember to add and commit the files');
 
-        return null;
+        return 0;
     }
 }

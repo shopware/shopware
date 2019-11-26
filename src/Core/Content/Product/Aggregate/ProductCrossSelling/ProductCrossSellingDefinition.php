@@ -5,10 +5,12 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductCrossSelling;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
@@ -73,7 +75,7 @@ class ProductCrossSellingDefinition extends EntityDefinition
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class),
 
             (new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class))->addFlags(new Required()),
-            new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class),
+            (new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
 
             new TranslationsAssociationField(ProductCrossSellingTranslationDefinition::class, 'product_cross_selling_id'),
         ]);

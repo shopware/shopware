@@ -1,54 +1,42 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Page\Product\CrossSelling;
+namespace Shopware\Core\Content\Test\Product\SalesChannel\CrossSelling;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoader;
+use Shopware\Core\PlatformRequest;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
-class CrossSellingLoaderTest extends TestCase
+class SalesChannelCrossSellingControllerTest extends TestCase
 {
+    use SalesChannelApiTestBehaviour;
     use IntegrationTestBehaviour;
-    use TaxAddToSalesChannelTestBehaviour;
 
     /**
-     * @var SalesChannelContext
+     * @var KernelBrowser
      */
-    private $salesChannelContext;
+    private $browser;
 
     /**
      * @var EntityRepositoryInterface
      */
     private $productRepository;
 
-    /**
-     * @var CrossSellingLoader
-     */
-    private $crossSellingLoader;
-
     public function setUp(): void
     {
-        $this->salesChannelContext = Generator::createSalesChannelContext(
-            null,
-            null,
-            null,
-            (new SalesChannelEntity())->assign(['id' => Defaults::SALES_CHANNEL])
-        );
+        $this->browser = $this->getSalesChannelBrowser();
         $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->crossSellingLoader = $this->getContainer()->get(CrossSellingLoader::class);
     }
 
-    public function testLoad(): void
+    public function testGetCrossSelling(): void
     {
         $productId = Uuid::randomHex();
 
@@ -61,24 +49,28 @@ class CrossSellingLoaderTest extends TestCase
             'productStreamId' => $this->createProductStream(),
         ]];
 
-        $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
+        $this->productRepository->create([$productData], Context::createDefaultContext());
 
-        $result = $this->crossSellingLoader->load($productId, $this->salesChannelContext);
+        $this->browser->request('GET', sprintf('/sales-channel-api/v%d/product/%s/cross-selling', PlatformRequest::API_VERSION, $productId));
+        $response = $this->browser->getResponse();
 
-        static::assertEquals(1, $result->count());
+        static::assertEquals(200, $response->getStatusCode());
 
-        $element = $result->first();
-        static::assertEquals(3, $element->getTotal());
-        static::assertEquals('Test Cross Selling', $element->getCrossSelling()->getName());
+        $result = json_decode($response->getContent(), true)['data'];
+        static::assertCount(1, $result);
+
+        $element = $result[0];
+        static::assertEquals(3, $element['total']);
+        static::assertEquals('Test Cross Selling', $element['crossSelling']['name']);
 
         $lastPrice = 0;
-        foreach ($element->getProducts() as $product) {
-            static::assertGreaterThanOrEqual($lastPrice, $product->getCurrencyPrice(Defaults::CURRENCY)->getGross());
-            $lastPrice = $product->getCurrencyPrice(Defaults::CURRENCY)->getGross();
+        foreach ($element['products'] as $product) {
+            static::assertGreaterThanOrEqual($lastPrice, $product['price'][0]['gross']);
+            $lastPrice = $product['price'][0]['gross'];
         }
     }
 
-    public function testLoadMultipleCrossSellingsOrderedByPosition(): void
+    public function testGetCrossSellingMultipleCrossSellingsOrderedByPosition(): void
     {
         $productId = Uuid::randomHex();
 
@@ -101,13 +93,18 @@ class CrossSellingLoaderTest extends TestCase
             'productStreamId' => $this->createProductStream(),
         ]];
 
-        $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
+        $this->productRepository->create([$productData], Context::createDefaultContext());
 
-        $result = $this->crossSellingLoader->load($productId, $this->salesChannelContext);
+        $this->browser->request('GET', sprintf('/sales-channel-api/v%d/product/%s/cross-selling', PlatformRequest::API_VERSION, $productId));
+        $response = $this->browser->getResponse();
 
-        static::assertEquals(2, $result->count());
+        static::assertEquals(200, $response->getStatusCode());
+
+        $result = json_decode($response->getContent(), true)['data'];
+        static::assertCount(2, $result);
+
         foreach ($result as $index => $element) {
-            static::assertEquals($crossSellingIds[$index], $element->getCrossSelling()->getId());
+            static::assertEquals($crossSellingIds[$index], $element['crossSelling']['id']);
         }
     }
 
@@ -130,7 +127,7 @@ class CrossSellingLoaderTest extends TestCase
                 ],
                 'name' => 'testStream',
             ],
-        ], $this->salesChannelContext->getContext());
+        ], Context::createDefaultContext());
 
         return $id;
     }
@@ -145,8 +142,7 @@ class CrossSellingLoaderTest extends TestCase
             $products[] = $this->getProductData(null, $manufacturerId, $taxId);
         }
 
-        $this->productRepository->create($products, $this->salesChannelContext->getContext());
-        $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
+        $this->productRepository->create($products, Context::createDefaultContext());
 
         return $products;
     }
@@ -164,7 +160,7 @@ class CrossSellingLoaderTest extends TestCase
             'manufacturer' => ['id' => $manufacturerId ?? Uuid::randomHex(), 'name' => 'test'],
             'tax' => ['id' => $taxId ?? Uuid::randomHex(), 'taxRate' => 17, 'name' => 'with id'],
             'visibilities' => [
-                ['salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => $this->getSalesChannelApiSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
     }

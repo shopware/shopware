@@ -5,23 +5,18 @@ namespace Shopware\Storefront\Page\Product\CrossSelling;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamService;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class CrossSellingLoader
 {
-    /**
-     * @var ProductStreamService
-     */
-    private $productStreamService;
-
     /**
      * @var EventDispatcherInterface
      */
@@ -32,14 +27,26 @@ class CrossSellingLoader
      */
     private $crossSellingRepository;
 
+    /**
+     * @var ProductStreamBuilder
+     */
+    private $productStreamBuilder;
+
+    /**
+     * @var SalesChannelRepositoryInterface
+     */
+    private $productRepository;
+
     public function __construct(
         EntityRepositoryInterface $crossSellingRepository,
-        ProductStreamService $productStreamService,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        ProductStreamBuilder $productStreamBuilder,
+        SalesChannelRepositoryInterface $productRepository
     ) {
-        $this->productStreamService = $productStreamService;
         $this->eventDispatcher = $eventDispatcher;
         $this->crossSellingRepository = $crossSellingRepository;
+        $this->productStreamBuilder = $productStreamBuilder;
+        $this->productRepository = $productRepository;
     }
 
     public function load(string $productId, SalesChannelContext $context): CrossSellingLoaderResult
@@ -61,8 +68,7 @@ class CrossSellingLoader
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('productId', $productId))
-            ->addSorting(new FieldSorting('position', FieldSorting::ASCENDING))
-            ->addAssociation('productStream.filters.queries');
+            ->addSorting(new FieldSorting('position', FieldSorting::ASCENDING));
 
         /** @var ProductCrossSellingCollection $crossSellings */
         $crossSellings = $this->crossSellingRepository->search($criteria, $context)->getEntities();
@@ -72,15 +78,17 @@ class CrossSellingLoader
 
     private function loadCrossSellingElement(ProductCrossSellingEntity $crossSelling, SalesChannelContext $context): CrossSellingElement
     {
+        $filters = $this->productStreamBuilder->buildFilters(
+            $crossSelling->getProductStreamId(),
+            $context->getContext()
+        );
+
         $criteria = new Criteria();
-        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT)
+        $criteria->addFilter(...$filters)
+            ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT)
             ->addSorting($crossSelling->getSorting());
 
-        $searchResult = $this->productStreamService->getProducts(
-            $crossSelling->getProductStream(),
-            $context,
-            $criteria
-        );
+        $searchResult = $this->productRepository->search($criteria, $context);
 
         /** @var ProductCollection $products */
         $products = $searchResult->getEntities();

@@ -62,7 +62,6 @@ return Config::create()
         'mb_str_functions' => true,
         Fixer\SingleSpaceAfterStatementFixer::name() => true,
         Fixer\NoUselessCommentFixer::name() => true,
-        Fixer\PhpdocNoSuperfluousParamFixer::name() => true,
         Fixer\NoImportFromGlobalNamespaceFixer::name() => true,
         Fixer\OperatorLinebreakFixer::name() => true,
         Fixer\PhpdocNoIncorrectVarAnnotationFixer::name() => true,

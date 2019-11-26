@@ -93,16 +93,19 @@ class PromotionItemBuilder
             case PromotionDiscountEntity::TYPE_ABSOLUTE:
                 $promotionValue = -$this->getCurrencySpecificValue($discount, $discount->getValue(), $currencyId);
                 $promotionDefinition = new AbsolutePriceDefinition($promotionValue, $currencyPrecision, $targetFilter);
+
                 break;
 
             case PromotionDiscountEntity::TYPE_PERCENTAGE:
                 $promotionDefinition = new PercentagePriceDefinition($promotionValue, $currencyPrecision, $targetFilter);
+
                 break;
 
             case PromotionDiscountEntity::TYPE_FIXED:
             case PromotionDiscountEntity::TYPE_FIXED_UNIT:
                 $promotionValue = -abs($this->getCurrencySpecificValue($discount, $discount->getValue(), $currencyId));
                 $promotionDefinition = new AbsolutePriceDefinition($promotionValue, $currencyPrecision, $targetFilter);
+
                 break;
 
             default:
@@ -273,6 +276,7 @@ class PromotionItemBuilder
             if ($currencyPrice->getCurrencyId() === $currencyId) {
                 // we have found a defined price, we overwrite standard value and break loop
                 $discountValue = $currencyPrice->getPrice();
+
                 break;
             }
         }

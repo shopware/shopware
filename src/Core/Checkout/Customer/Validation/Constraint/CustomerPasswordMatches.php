@@ -28,7 +28,7 @@ class CustomerPasswordMatches extends Constraint
         parent::__construct($options);
 
         if (!$this->context instanceof SalesChannelContext) {
-            throw new MissingOptionsException(sprintf('Option "context" must be given for constraint %s', __CLASS__), ['context']);
+            throw new MissingOptionsException(sprintf('Option "context" must be given for constraint %s', self::class), ['context']);
         }
     }
 

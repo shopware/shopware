@@ -13,7 +13,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use function sprintf;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -99,6 +98,7 @@ class SitemapGenerateCommand extends Command
         foreach ($salesChannels as $salesChannel) {
             if ($salesChannel->getType()->getId() === Defaults::SALES_CHANNEL_TYPE_API) {
                 $output->writeln(sprintf('ignored headless sales channel %s (%s)', $salesChannel->getId(), $salesChannel->getName()));
+
                 continue;
             }
 

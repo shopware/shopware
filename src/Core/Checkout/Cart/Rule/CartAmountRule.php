@@ -63,7 +63,7 @@ class CartAmountRule extends Rule
                 return FloatComparator::notEquals($cartAmount, $this->amount);
 
             default:
-                throw new UnsupportedOperatorException($this->operator, __CLASS__);
+                throw new UnsupportedOperatorException($this->operator, self::class);
         }
     }
 

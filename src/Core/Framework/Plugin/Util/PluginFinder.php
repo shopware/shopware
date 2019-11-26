@@ -54,15 +54,18 @@ class PluginFinder
 
         foreach ($filesystemPlugins as $filesystemPlugin) {
             $pluginPath = $filesystemPlugin->getRealPath();
+
             try {
                 $package = $this->packageProvider->getPluginComposerPackage($pluginPath, $composerIO);
             } catch (PluginComposerJsonInvalidException $e) {
                 $errors->add($e);
+
                 continue;
             }
 
             if (!$this->isShopwarePluginType($package) || !$this->isPluginComposerValid($package)) {
                 $this->addError($pluginPath, $errors);
+
                 continue;
             }
 
@@ -117,6 +120,7 @@ class PluginFinder
             $pluginPath = $this->getVendorPluginPath($composerPackage, $composer);
             if (!$this->isPluginComposerValid($composerPackage)) {
                 $this->addError($pluginPath, $errors);
+
                 continue;
             }
 

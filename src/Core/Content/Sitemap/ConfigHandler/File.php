@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Sitemap\ConfigHandler;
 
-use function array_walk;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 
 class File implements ConfigHandlerInterface

@@ -223,11 +223,13 @@ class RequestCriteriaBuilder
 
             if ($field === '') {
                 $searchRequestException->add(new InvalidFilterQueryException(sprintf('The key for filter at position "%s" must not be blank.', $index)), '/filter/' . $index);
+
                 continue;
             }
 
             if ($value === '') {
                 $searchRequestException->add(new InvalidFilterQueryException(sprintf('The value for filter "%s" must not be blank.', $field)), '/filter/' . $field);
+
                 continue;
             }
 

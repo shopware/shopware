@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Content\Sitemap\Provider;
 
-use function array_column;
-use function array_filter;
-use function count;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
@@ -74,7 +71,7 @@ class ProductUrlProvider implements UrlProviderInterface
             $urls[] = $newUrl;
         }
 
-        if (count($urls) < $limit) { // last run
+        if (\count($urls) < $limit) { // last run
             $nextOffset = null;
         } elseif ($offset === null) { // first run
             $nextOffset = $limit;

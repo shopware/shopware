@@ -45,6 +45,7 @@ class UnpackStep
             $source->seek($offset);
         } catch (\Exception $e) {
             @unlink($this->source);
+
             throw new UpdateFailedException(sprintf('Could not open update package:<br>%s', $e->getMessage()), 0, $e);
         }
 

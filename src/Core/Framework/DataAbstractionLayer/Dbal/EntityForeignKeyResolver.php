@@ -146,6 +146,7 @@ class EntityForeignKeyResolver
                     . ')'
                     . ' SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
                 );
+
                 continue;
             }
 
@@ -157,6 +158,7 @@ class EntityForeignKeyResolver
                     . EntityDefinitionQueryHelper::escape($alias) . '.`id`)'
                     . ' SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
                 );
+
                 continue;
             }
 
@@ -170,6 +172,7 @@ class EntityForeignKeyResolver
                     . EntityDefinitionQueryHelper::escape($mappingAlias) . '.' . $cascade->getMappingReferenceColumn()
                     . ') SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
                 );
+
                 continue;
             }
 

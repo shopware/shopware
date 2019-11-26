@@ -127,6 +127,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         foreach ($hits as $hit) {
             if (!isset($hit['inner_hits'])) {
                 $records[] = $hit;
+
                 continue;
             }
 

@@ -60,6 +60,7 @@ class ExtensionHelper
                 if (in_array($property, self::IGNORED_PROPERTIES, true)) {
                     continue;
                 }
+
                 try {
                     $this->removeExtensions($this->propertyAccessor->getValue($object, $property));
                 } catch (\ArgumentCountError $e) {

@@ -182,7 +182,7 @@ class AntiJoinBuilder implements JoinBuilderInterface
             return $inherited;
         }
 
-        throw new \RuntimeException(sprintf('Unexpected field in %s::%s given', __CLASS__, __METHOD__));
+        throw new \RuntimeException(sprintf('Unexpected field in %s::%s given', self::class, __METHOD__));
     }
 
     private function innerJoin(string $joinAlias, string $root, ManyToManyAssociationField $association, EntityDefinition $referenceDefinition, QueryBuilder $builder, Context $context): void

@@ -40,6 +40,7 @@ class EntityWrittenEventSerializationTest extends TestCase
         $bus = $this->getContainer()->get('messenger.bus.shopware');
 
         $failed = false;
+
         try {
             $bus->dispatch($event);
         } catch (\Exception $e) {

@@ -49,6 +49,7 @@ class EntityCompilerPass implements CompilerPassInterface
             $service->setPublic(true);
 
             $repositoryId = $entity . '.repository';
+
             try {
                 $container->getDefinition($repositoryId);
             } catch (ServiceNotFoundException $exception) {

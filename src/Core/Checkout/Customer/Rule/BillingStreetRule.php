@@ -50,7 +50,7 @@ class BillingStreetRule extends Rule
                 return strcasecmp($this->streetName, $street) !== 0;
 
             default:
-                throw new UnsupportedOperatorException($this->operator, __CLASS__);
+                throw new UnsupportedOperatorException($this->operator, self::class);
         }
     }
 

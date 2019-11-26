@@ -114,6 +114,7 @@ class OrderConverter
             if ($delivery->getLocation()->getAddress() !== null || $delivery->hasExtensionOfType(self::ORIGINAL_ID, IdStruct::class)) {
                 continue;
             }
+
             throw new DeliveryWithoutAddressException();
         }
         $data = CartTransformer::transform(

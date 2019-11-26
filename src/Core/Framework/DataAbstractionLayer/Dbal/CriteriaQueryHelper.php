@@ -227,6 +227,7 @@ trait CriteriaQueryHelper
             if ($sorting->getField() === '_score') {
                 $query->addOrderBy('_score', $sorting->getDirection());
                 $query->addState('_score');
+
                 continue;
             }
 
@@ -366,6 +367,7 @@ trait CriteriaQueryHelper
                     || !$this->isAssociationPath($definition, $field)
                 ) {
                     $normalFilters[] = $childFilter;
+
                     continue;
                 }
                 $antiJoinFilters[] = $childFilter;

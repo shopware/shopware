@@ -25,6 +25,7 @@ class MemoryAdapterFactory implements AdapterFactoryInterface
             foreach ($memoryAdapter->listContents() as $content) {
                 if ($content['type'] === 'dir') {
                     $memoryAdapter->deleteDir($content['path']);
+
                     continue;
                 }
 

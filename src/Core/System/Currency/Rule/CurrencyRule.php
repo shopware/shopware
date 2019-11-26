@@ -39,7 +39,7 @@ class CurrencyRule extends Rule
                 return !\in_array($scope->getContext()->getCurrencyId(), $this->currencyIds, true);
 
             default:
-                throw new UnsupportedOperatorException($this->operator, __CLASS__);
+                throw new UnsupportedOperatorException($this->operator, self::class);
         }
     }
 

@@ -98,7 +98,7 @@ class DaysSinceLastOrderRule extends Rule
             case self::OPERATOR_GTE:
                 return $interval->days >= $this->daysPassed;
             default:
-                throw new UnsupportedOperatorException($this->operator, __CLASS__);
+                throw new UnsupportedOperatorException($this->operator, self::class);
         }
     }
 

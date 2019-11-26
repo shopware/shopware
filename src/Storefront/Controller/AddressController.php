@@ -119,6 +119,7 @@ class AddressController extends StorefrontController
         }
 
         $success = true;
+
         try {
             if ($type === 'shipping') {
                 $this->accountService->setDefaultShippingAddress($addressId, $context);
@@ -172,6 +173,7 @@ class AddressController extends StorefrontController
 
         /** @var RequestDataBag $address */
         $address = $data->get('address');
+
         try {
             $this->addressService->upsert($address, $context);
 

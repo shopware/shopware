@@ -51,6 +51,7 @@ class EntityScoreQueryBuilder
                     $queries,
                     $this->buildScoreQueries($term, $field->getToManyReferenceDefinition(), $select, $context, $ranking)
                 );
+
                 continue;
             }
 
@@ -59,6 +60,7 @@ class EntityScoreQueryBuilder
                     $queries,
                     $this->buildScoreQueries($term, $field->getReferenceDefinition(), $select, $context, $ranking)
                 );
+
                 continue;
             }
 

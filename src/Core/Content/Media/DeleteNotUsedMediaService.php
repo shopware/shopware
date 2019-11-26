@@ -74,6 +74,7 @@ class DeleteNotUsedMediaService
                             ]
                         )
                     );
+
                     continue;
                 }
                 foreach ($defaultFolder->getAssociationFields() as $associationField) {

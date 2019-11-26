@@ -58,6 +58,7 @@ class Migration1563180880AddDefaultThumbnailSizes extends MigrationStep
             $id = $stmt->fetchColumn();
             if ($id) {
                 $thumbnailSizes[$i]['id'] = $id;
+
                 continue;
             }
             $id = Uuid::randomBytes();

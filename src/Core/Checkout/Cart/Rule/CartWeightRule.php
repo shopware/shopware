@@ -65,7 +65,7 @@ class CartWeightRule extends Rule
                 return FloatComparator::lessThanOrEquals($cartWeight, $this->weight);
 
             default:
-                throw new UnsupportedOperatorException($this->operator, __CLASS__);
+                throw new UnsupportedOperatorException($this->operator, self::class);
         }
     }
 

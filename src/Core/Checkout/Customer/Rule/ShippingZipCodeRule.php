@@ -48,7 +48,7 @@ class ShippingZipCodeRule extends Rule
                 return !\in_array($location->getZipcode(), $this->zipCodes, true);
 
             default:
-                throw new UnsupportedOperatorException($this->operator, __CLASS__);
+                throw new UnsupportedOperatorException($this->operator, self::class);
         }
     }
 

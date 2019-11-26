@@ -171,6 +171,7 @@ abstract class KernelPluginLoader extends Bundle
                     'Unable to register plugin "%s" in autoload. Required property `autoload` missing.',
                     $plugin['baseClass']
                 );
+
                 throw new KernelPluginLoaderException($pluginName, $reason);
             }
 
@@ -182,6 +183,7 @@ abstract class KernelPluginLoader extends Bundle
                     'Unable to register plugin "%s" in autoload. Required property `psr-4` or `psr-0` missing in property autoload.',
                     $plugin['baseClass']
                 );
+
                 throw new KernelPluginLoaderException($pluginName, $reason);
             }
 
@@ -252,6 +254,7 @@ abstract class KernelPluginLoader extends Bundle
 
             if (!$plugin instanceof Plugin) {
                 $reason = sprintf('Plugin class "%s" must extend "%s"', \get_class($plugin), Plugin::class);
+
                 throw new KernelPluginLoaderException($pluginData['name'], $reason);
             }
 

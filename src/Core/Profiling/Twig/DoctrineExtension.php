@@ -46,21 +46,25 @@ class DoctrineExtension extends AbstractExtension
             case mb_stripos($query, 'SELECT') !== false:
                 $keywords = ['SELECT', 'FROM', 'WHERE', 'HAVING', 'ORDER BY', 'LIMIT'];
                 $required = 2;
+
                 break;
 
             case mb_stripos($query, 'DELETE') !== false:
                 $keywords = ['DELETE', 'FROM', 'WHERE', 'ORDER BY', 'LIMIT'];
                 $required = 2;
+
                 break;
 
             case mb_stripos($query, 'UPDATE') !== false:
                 $keywords = ['UPDATE', 'SET', 'WHERE', 'ORDER BY', 'LIMIT'];
                 $required = 2;
+
                 break;
 
             case mb_stripos($query, 'INSERT') !== false:
                 $keywords = ['INSERT', 'INTO', 'VALUE', 'VALUES'];
                 $required = 2;
+
                 break;
 
             // If there's no match so far just truncate it to the maximum allowed by the interface
@@ -90,10 +94,12 @@ class DoctrineExtension extends AbstractExtension
             // Check if result is non-unicode string using PCRE_UTF8 modifier
             case \is_string($result) && !preg_match('//u', $result):
                 $result = '0x' . mb_strtoupper(bin2hex($result));
+
                 break;
 
             case \is_string($result):
                 $result = "'" . addslashes($result) . "'";
+
                 break;
 
             case \is_array($result):
@@ -102,18 +108,22 @@ class DoctrineExtension extends AbstractExtension
                 }
 
                 $result = implode(', ', $result);
+
                 break;
 
             case \is_object($result):
                 $result = addslashes((string) $result);
+
                 break;
 
             case $result === null:
                 $result = 'NULL';
+
                 break;
 
             case \is_bool($result):
                 $result = $result ? '1' : '0';
+
                 break;
         }
 
@@ -219,6 +229,7 @@ class DoctrineExtension extends AbstractExtension
             foreach ($elements as $key => $element) {
                 if ($element === $lastElement) {
                     $found = true;
+
                     continue;
                 }
 

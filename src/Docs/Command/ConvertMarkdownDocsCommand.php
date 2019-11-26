@@ -115,6 +115,7 @@ class ConvertMarkdownDocsCommand extends Command
                 $blacklistedFile = trim($blacklistedFile);
                 if (mb_strpos($file->getRelativePathname(), $blacklistedFile) === 0) {
                     echo 'Blacklisted ' . $file->getRelativePathname() . "\n";
+
                     continue 2;
                 }
             }

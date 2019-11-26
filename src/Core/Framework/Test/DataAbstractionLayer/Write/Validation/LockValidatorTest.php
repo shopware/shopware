@@ -145,6 +145,7 @@ EOF;
         $this->connection->executeUpdate('UPDATE `_test_lock` SET `locked` = 1 WHERE `id` = :id', ['id' => Uuid::fromHexToBytes($data['id'])]);
 
         $exception = null;
+
         try {
             $data = ['id' => $data['id'], 'description' => 'bar'];
             $this->entityWriter->update($this->testDefinition, [$data], $this->getWriteContext());
@@ -163,6 +164,7 @@ EOF;
         $this->connection->executeUpdate('UPDATE `_test_lock` SET `locked` = 1 WHERE `id` = :id', ['id' => Uuid::fromHexToBytes($data['id'])]);
 
         $exception = null;
+
         try {
             $data = ['id' => $data['id']];
             $this->entityWriter->delete($this->testDefinition, [$data], $this->getWriteContext());
@@ -181,6 +183,7 @@ EOF;
         $this->connection->executeUpdate('UPDATE `_test_lock` SET `locked` = 1 WHERE `id` = :id', ['id' => Uuid::fromHexToBytes($data['id'])]);
 
         $exception = null;
+
         try {
             $data = ['id' => $data['id'], 'name' => 'ware'];
             $this->entityWriter->update($this->testDefinition, [$data], $this->getWriteContext());

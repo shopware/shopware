@@ -116,6 +116,7 @@ class EntityHydrator
 
             if ($typedField instanceof CustomFields) {
                 $this->hydrateCustomFields($root, $field, $typedField, $entity, $row, $context);
+
                 continue;
             }
 

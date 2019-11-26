@@ -2,13 +2,8 @@
 
 namespace Shopware\Core\Content\Test\Sitemap\Service;
 
-use function file_exists;
-use function gzclose;
-use function gzopen;
-use function gzread;
 use League\Flysystem\Directory;
 use PHPUnit\Framework\TestCase;
-use function rewind;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Sitemap\Service\SitemapWriter;
 use Shopware\Core\Content\Sitemap\Struct\Url;
@@ -18,9 +13,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use function sprintf;
-use function stream_get_contents;
-use function tmpfile;
 
 class SitemapWriterTest extends TestCase
 {

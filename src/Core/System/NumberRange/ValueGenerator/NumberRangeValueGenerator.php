@@ -180,10 +180,12 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
         foreach ($parsedPattern as $patternPart) {
             if ($patternPart === '}') {
                 $startPattern = false;
+
                 continue;
             }
             if ($patternPart === '{') {
                 $startPattern = true;
+
                 continue;
             }
             if ($startPattern === true) {
@@ -197,6 +199,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
                     $generated .= $patternPart;
                 }
                 $startPattern = false;
+
                 continue;
             }
             $generated .= $patternPart;

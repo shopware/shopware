@@ -204,6 +204,7 @@ class DefinitionValidator
             if (\in_array($table->getName(), self::TABLES_WITHOUT_DEFINITION, true)) {
                 continue;
             }
+
             try {
                 $this->registry->getByEntityName($table->getName());
             } catch (DefinitionNotFoundException $e) {
@@ -329,6 +330,7 @@ class DefinitionValidator
             foreach ($getterMethods as $getterMethod) {
                 if ($reflection->hasMethod($getterMethod)) {
                     $hasGetter = true;
+
                     break;
                 }
             }
@@ -437,6 +439,7 @@ class DefinitionValidator
 
             if (!$method->hasReturnType()) {
                 $violations[$translationDefinition->getClass()][] = sprintf('No return type is declared in `%s` for method `%s`', $translationDefinition->getClass(), $method->getName());
+
                 continue;
             }
 
@@ -713,6 +716,7 @@ class DefinitionValidator
 
             if ($field) {
                 $mappedFieldNames[] = $field->getPropertyName();
+
                 continue;
             }
 
@@ -721,6 +725,7 @@ class DefinitionValidator
 
             if ($association instanceof AssociationField && $association->is(Inherited::class)) {
                 $mappedFieldNames[] = $association->getPropertyName();
+
                 continue;
             }
 

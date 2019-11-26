@@ -101,6 +101,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
             if (\mb_strlen($token) <= 2) {
                 $slops['normal'][] = $token . '%';
                 $slops['reversed'][] = $token . '%';
+
                 continue;
             }
 
@@ -173,11 +174,13 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
                 $levenshtein = levenshtein($match, (string) $token);
                 if ($levenshtein === 0) {
                     $score += 6;
+
                     continue;
                 }
 
                 if ($levenshtein <= 2) {
                     $score += 3;
+
                     continue;
                 }
 

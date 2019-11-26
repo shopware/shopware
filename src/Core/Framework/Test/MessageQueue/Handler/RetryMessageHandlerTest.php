@@ -90,6 +90,7 @@ class RetryMessageHandlerTest extends TestCase
         $this->insertDeadMessage($deadMessageId, $message, $e);
 
         $catched = null;
+
         try {
             ($this->retryMessageHandler)(new RetryMessage($deadMessageId));
         } catch (MessageFailedException $exception) {

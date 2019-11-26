@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Plugin;
 
 use Doctrine\DBAL\Connection;
-use function Flag\next1797;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -40,6 +39,7 @@ use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
+use function Flag\next1797;
 
 class PluginLifecycleService
 {

@@ -72,7 +72,7 @@ class LineItemWithQuantityRule extends Rule
                     return $quantity !== $this->quantity;
 
                 default:
-                    throw new UnsupportedOperatorException($this->operator, __CLASS__);
+                    throw new UnsupportedOperatorException($this->operator, self::class);
             }
         }
 

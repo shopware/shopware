@@ -180,26 +180,32 @@ EOF;
             case $field instanceof ParentAssociationField:
                 $uses[] = $this->getUsage($definition->getEntityClass());
                 $type = $this->getClassTypeHint($definition->getEntityClass());
+
                 break;
             case $field instanceof ChildrenAssociationField:
                 $uses[] = $this->getUsage($definition->getCollectionClass());
                 $type = $this->getClassTypeHint($definition->getCollectionClass());
+
                 break;
             case $field instanceof ManyToOneAssociationField:
                 $uses[] = $this->getUsage($field->getReferenceDefinition()->getEntityClass());
                 $type = $this->getClassTypeHint($field->getReferenceDefinition()->getEntityClass());
+
                 break;
             case $field instanceof OneToManyAssociationField:
                 $uses[] = $this->getUsage($field->getReferenceDefinition()->getCollectionClass());
                 $type = $this->getClassTypeHint($field->getReferenceDefinition()->getCollectionClass());
+
                 break;
             case $field instanceof ManyToManyAssociationField:
                 $uses[] = $this->getUsage($field->getToManyReferenceDefinition()->getCollectionClass());
                 $type = $this->getClassTypeHint($field->getToManyReferenceDefinition()->getCollectionClass());
+
                 break;
             case $field instanceof OneToOneAssociationField:
                 $uses[] = $this->getUsage($field->getReferenceDefinition()->getEntityClass());
                 $type = $this->getClassTypeHint($field->getReferenceDefinition()->getEntityClass());
+
                 break;
             case $field instanceof VersionField:
                 return null;
@@ -211,59 +217,75 @@ EOF;
             case $field instanceof CartPriceField:
                 $type = 'CartPrice';
                 $uses[] = 'use ' . CartPrice::class;
+
                 break;
             case $field instanceof CalculatedPriceField:
                 $type = 'CalculatedPrice';
                 $uses[] = 'use ' . CalculatedPrice::class;
+
                 break;
             case $field instanceof ReferenceVersionField:
                 return null;
             case $field instanceof PriceDefinitionField:
                 $type = 'QuantityPriceDefinition';
                 $uses[] = 'use ' . QuantityPriceDefinition::class;
+
                 break;
             case $field instanceof PriceField:
                 $type = 'Price';
                 $uses[] = 'use ' . Price::class;
+
                 break;
             case $field instanceof ListingPriceField:
                 $type = 'PriceRuleCollection';
                 $uses[] = 'use ' . PriceRuleCollection::class;
+
                 break;
             case $field instanceof LongTextField:
             case $field instanceof LongTextWithHtmlField:
                 $type = 'string';
+
                 break;
             case $field instanceof PasswordField:
                 $type = 'string';
+
                 break;
             case $field instanceof FloatField:
                 $type = 'float';
+
                 break;
             case $field instanceof IdField:
                 $type = 'string';
+
                 break;
             case $field instanceof IntField:
                 $type = 'int';
+
                 break;
             case $field instanceof JsonField:
                 $type = 'array';
+
                 break;
             case $field instanceof FkField:
                 $type = 'string';
+
                 break;
             case $field instanceof StringField:
                 $type = 'string';
+
                 break;
             case $field instanceof BoolField:
                 $type = 'boolean';
+
                 break;
             case $field instanceof DateTimeField:
             case $field instanceof DateField:
                 $type = "\DateTime";
+
                 break;
             case $field instanceof BlobField:
                 $type = 'object';
+
                 break;
             default:
                 throw new \RuntimeException(sprintf('Unknown field %s', get_class($field)));

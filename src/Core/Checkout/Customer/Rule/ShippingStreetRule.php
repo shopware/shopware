@@ -48,7 +48,7 @@ class ShippingStreetRule extends Rule
                 return strcasecmp($this->streetName, $location->getStreet()) !== 0;
 
             default:
-                throw new UnsupportedOperatorException($this->operator, __CLASS__);
+                throw new UnsupportedOperatorException($this->operator, self::class);
         }
     }
 

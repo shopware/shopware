@@ -75,6 +75,7 @@ class PromotionValidatorTest extends TestCase
         } catch (WriteException $e) {
             static::assertEquals(WriteConstraintViolationException::class, get_class($e->getExceptions()[0]));
             static::assertEquals('/0/code', $e->getExceptions()[0]->getViolations()[0]->getPropertyPath());
+
             throw $e;
         }
     }
@@ -112,6 +113,7 @@ class PromotionValidatorTest extends TestCase
             static::fail('Validation with invalid until was not triggered.');
         } catch (WriteException $e) {
             static::assertEquals(WriteConstraintViolationException::class, get_class($e->getExceptions()[0]));
+
             throw $e;
         }
     }
@@ -190,6 +192,7 @@ class PromotionValidatorTest extends TestCase
             static::fail('Validation with invalid until was not triggered.');
         } catch (WriteException $e) {
             static::assertEquals(WriteConstraintViolationException::class, get_class($e->getExceptions()[0]));
+
             throw $e;
         }
     }

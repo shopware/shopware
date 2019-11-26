@@ -47,15 +47,15 @@ class EntityExists extends Constraint
         parent::__construct($options);
 
         if ($this->entity === null) {
-            throw new MissingOptionsException(sprintf('Option "entity" must be given for constraint %s', __CLASS__), ['entity']);
+            throw new MissingOptionsException(sprintf('Option "entity" must be given for constraint %s', self::class), ['entity']);
         }
 
         if ($this->context === null) {
-            throw new MissingOptionsException(sprintf('Option "context" must be given for constraint %s', __CLASS__), ['context']);
+            throw new MissingOptionsException(sprintf('Option "context" must be given for constraint %s', self::class), ['context']);
         }
 
         if (!($this->criteria instanceof Criteria)) {
-            throw new InvalidOptionsException(sprintf('Option "criteria" must be an instance of Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria for constraint %s', __CLASS__), ['criteria']);
+            throw new InvalidOptionsException(sprintf('Option "criteria" must be an instance of Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria for constraint %s', self::class), ['criteria']);
         }
     }
 

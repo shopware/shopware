@@ -56,7 +56,6 @@ describe('ListingPlugin tests', () => {
     });
 
     test('the init function is not called', () => {
-
         expect(spyInit).not.toHaveBeenCalled();
     });
 

@@ -198,9 +198,9 @@ This file contains the generic styling for all filter items.
 }
 
 .filter-panel--offcanvas-header {
-    position: relative;
+    position: absolute;
     margin-bottom: 2rem;
-    width: 100%;
+    width: calc(100% - 4rem);
 }
 
 .filter-panel-offcanvas-close {
@@ -211,6 +211,16 @@ This file contains the generic styling for all filter items.
 }
 
 @include media-breakpoint-down(md) {
+    .filter-panel {
+        height: calc(90vh - 3rem);
+        max-height: calc(100% - 64px);
+        position: absolute;
+        top: 4rem;
+        left: 0;
+        width: 100%;
+        padding: 1rem 2rem;
+    }
+
     .btn.filter-panel-wrapper-toggle {
         display: block;
     }

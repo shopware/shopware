@@ -56,10 +56,10 @@ class ThemeApiService extends ApiService {
         });
     }
 
-    getConfiguration(themeId, languageId) {
+    getConfiguration(themeId) {
         const apiRoute = `/_action/${this.getApiBasePath()}/${themeId}/configuration`;
 
-        const additionalHeaders = { 'sw-language-id': languageId };
+        const additionalHeaders = {};
 
         return this.httpClient.get(
             apiRoute,
@@ -71,10 +71,10 @@ class ThemeApiService extends ApiService {
         });
     }
 
-    getFields(themeId, languageId) {
+    getFields(themeId) {
         const apiRoute = `/_action/${this.getApiBasePath()}/${themeId}/fields`;
 
-        const additionalHeaders = { 'sw-language-id': languageId };
+        const additionalHeaders = {};
 
         return this.httpClient.get(
             apiRoute,

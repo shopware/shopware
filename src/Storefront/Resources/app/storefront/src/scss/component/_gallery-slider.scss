@@ -44,7 +44,8 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     height: 100%;
     max-width: 100%;
 
-    &.is-cover {
+    &.is-cover,
+    &.is-contain {
         height: 100%;
 
         .gallery-slider-image {
@@ -56,6 +57,18 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
             bottom: 0;
             left: 0;
             margin: 0 auto;
+        }
+    }
+
+    &.is-cover {
+        .gallery-slider-image {
+            object-fit: cover;
+        }
+    }
+
+    &.is-contain {
+        .gallery-slider-image {
+            object-fit: contain;
         }
     }
 }
@@ -168,7 +181,8 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
 @include media-breakpoint-down(xs) {
     // override inline style on mobile devices
     .gallery-slider-item {
-        &.is-cover {
+        &.is-cover,
+        &.is-contain {
             min-height: 225px !important;
         }
     }
@@ -176,7 +190,8 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
 
 @include media-breakpoint-down(sm) {
     .gallery-slider-single-image {
-        &.is-cover {
+        &.is-cover,
+        &.is-contain {
             min-height: 225px !important;
         }
     }

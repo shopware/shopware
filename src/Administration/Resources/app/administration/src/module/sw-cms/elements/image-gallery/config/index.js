@@ -145,7 +145,7 @@ Component.register('sw-cms-el-config-image-gallery', {
         },
 
         onChangeDisplayMode(value) {
-            if (value === 'cover') {
+            if (['cover', 'contain'].includes(value)) {
                 this.element.config.verticalAlign.value = null;
             } else {
                 this.element.config.minHeight.value = '';

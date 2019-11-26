@@ -99,7 +99,6 @@ class RouteScopeListener implements EventSubscriberInterface
 
     private function extractCurrentScopeAnnotation(ControllerEvent $event): RouteScopeAnnotation
     {
-        /** @var Request $currentRequest */
         $currentRequest = $event->getRequest();
 
         $currentRouteScopeAnnotation = $currentRequest->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE);

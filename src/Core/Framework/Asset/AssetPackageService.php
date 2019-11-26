@@ -12,16 +12,22 @@ class AssetPackageService
      */
     private $packages;
 
-    public function __construct(Packages $packages)
+    /**
+     * @var string
+     */
+    private $basePath = '';
+
+    public function __construct(Packages $packages, string $basePath)
     {
         $this->packages = $packages;
+        $this->basePath = $basePath;
     }
 
     public function addAssetPackage(string $bundleName, string $bundlePath): void
     {
         $this->packages->addPackage(
             '@' . $bundleName,
-            new PathPackage('/bundles/' . mb_strtolower($bundleName), new LastModifiedVersionStrategy($bundlePath))
+            new PathPackage(rtrim($this->basePath, '/') . '/bundles/' . mb_strtolower($bundleName), new LastModifiedVersionStrategy($bundlePath))
         );
     }
 }

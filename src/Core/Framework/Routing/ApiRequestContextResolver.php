@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Routing;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use function Flag\next3722;
-use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
@@ -28,9 +27,17 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
      */
     private $connection;
 
-    public function __construct(Connection $connection)
-    {
+    /**
+     * @var RouteScopeRegistry
+     */
+    private $routeScopeRegistry;
+
+    public function __construct(
+        Connection $connection,
+        RouteScopeRegistry $routeScopeRegistry
+    ) {
         $this->connection = $connection;
+        $this->routeScopeRegistry = $routeScopeRegistry;
     }
 
     public function resolve(Request $request): void
@@ -39,7 +46,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             return;
         }
 
-        if (!$this->isRequestScoped($request, AdministrationRouteScope::ID, ApiRouteScope::ID)) {
+        if (!$this->isRequestScoped($request, ApiContextRouteScopeDependant::class)) {
             return;
         }
 
@@ -58,6 +65,11 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         );
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
+    }
+
+    protected function getScopeRegistry(): RouteScopeRegistry
+    {
+        return $this->routeScopeRegistry;
     }
 
     private function getContextParameters(Request $request)

@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
@@ -36,14 +35,21 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
      */
     private $cache = [];
 
+    /**
+     * @var RouteScopeRegistry
+     */
+    private $routeScopeRegistry;
+
     public function __construct(
         RequestContextResolverInterface $decorated,
         SalesChannelContextServiceInterface $contextService,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        RouteScopeRegistry $routeScopeRegistry
     ) {
         $this->decorated = $decorated;
         $this->contextService = $contextService;
         $this->eventDispatcher = $eventDispatcher;
+        $this->routeScopeRegistry = $routeScopeRegistry;
     }
 
     public function resolve(SymfonyRequest $request): void
@@ -54,7 +60,7 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
             return;
         }
 
-        if (!$this->isRequestScoped($request, SalesChannelApiRouteScope::ID, StorefrontRouteScope::ID)) {
+        if (!$this->isRequestScoped($request, SalesChannelContextRouteScopeDependant::class)) {
             return;
         }
 
@@ -95,5 +101,10 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+    }
+
+    protected function getScopeRegistry(): RouteScopeRegistry
+    {
+        return $this->routeScopeRegistry;
     }
 }

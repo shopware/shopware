@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Framework\AffiliateTracking;
 
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
@@ -24,7 +24,7 @@ class AffiliateTrackingListener implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::CONTROLLER => [['checkAffiliateTracking', Defaults::KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE_AFTER]],
+            KernelEvents::CONTROLLER => [['checkAffiliateTracking', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE_POST]],
         ];
     }
 

@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Framework\Csrf;
 
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Storefront\Framework\Csrf\Exception\InvalidCsrfTokenException;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -67,7 +67,7 @@ class CsrfRouteListener implements EventSubscriberInterface
     {
         return [
             KernelEvents::CONTROLLER => [
-                ['csrfCheck', Defaults::KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE],
+                ['csrfCheck', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE],
             ],
         ];
     }

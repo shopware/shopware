@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
-class ApiRouteScope extends AbstractRouteScope
+class ApiRouteScope extends AbstractRouteScope implements ApiContextRouteScopeDependant
 {
     public const ID = 'api';
 

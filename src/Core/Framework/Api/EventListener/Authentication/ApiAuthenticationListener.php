@@ -9,10 +9,10 @@ use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use League\OAuth2\Server\ResourceServer;
-use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
-use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\Framework\Routing\ApiContextRouteScopeDependant;
+use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\RouteScopeCheckTrait;
+use Shopware\Core\Framework\Routing\RouteScopeRegistry;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
@@ -48,18 +48,25 @@ class ApiAuthenticationListener implements EventSubscriberInterface
      */
     private $psrHttpFactory;
 
+    /**
+     * @var RouteScopeRegistry
+     */
+    private $routeScopeRegistry;
+
     public function __construct(
         ResourceServer $resourceServer,
         AuthorizationServer $authorizationServer,
         UserRepositoryInterface $userRepository,
         RefreshTokenRepositoryInterface $refreshTokenRepository,
-        PsrHttpFactory $psrHttpFactory
+        PsrHttpFactory $psrHttpFactory,
+        RouteScopeRegistry $routeScopeRegistry
     ) {
         $this->resourceServer = $resourceServer;
         $this->authorizationServer = $authorizationServer;
         $this->userRepository = $userRepository;
         $this->refreshTokenRepository = $refreshTokenRepository;
         $this->psrHttpFactory = $psrHttpFactory;
+        $this->routeScopeRegistry = $routeScopeRegistry;
     }
 
     public static function getSubscribedEvents(): array
@@ -69,7 +76,7 @@ class ApiAuthenticationListener implements EventSubscriberInterface
                 ['setupOAuth', 128],
             ],
             KernelEvents::CONTROLLER => [
-                ['validateRequest', Defaults::KERNEL_CONTROLLER_EVENT_PRIORITY_AUTH_VALIDATE],
+                ['validateRequest', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_PRIORITY_AUTH_VALIDATE],
             ],
         ];
     }
@@ -102,7 +109,7 @@ class ApiAuthenticationListener implements EventSubscriberInterface
             return;
         }
 
-        if (!$this->isRequestScoped($request, ApiRouteScope::ID, AdministrationRouteScope::ID)) {
+        if (!$this->isRequestScoped($request, ApiContextRouteScopeDependant::class)) {
             return;
         }
 
@@ -110,5 +117,10 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         $psr7Request = $this->resourceServer->validateAuthenticatedRequest($psr7Request);
 
         $request->attributes->add($psr7Request->getAttributes());
+    }
+
+    protected function getScopeRegistry(): RouteScopeRegistry
+    {
+        return $this->routeScopeRegistry;
     }
 }

@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\InvalidRouteScopeException;
 use Shopware\Core\Framework\Routing\RouteScopeListener;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\RequestStackHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,15 +20,6 @@ class RouteScopeListenerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @before
-     * @after
-     */
-    public function clearStack(): void
-    {
-        RequestStackHelper::clear($this->getContainer()->get(RequestStack::class));
-    }
-
     public function testRouteScopeListenerFailsHardWithoutMasterRequest(): void
     {
         $listener = $this->getContainer()->get(RouteScopeListener::class);
@@ -39,6 +29,7 @@ class RouteScopeListenerTest extends TestCase
         $event = $this->createEvent($request);
 
         $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unable to check the request scope without master request');
         $listener->checkScope($event);
     }
 
@@ -122,15 +113,8 @@ class RouteScopeListenerTest extends TestCase
 
     private function createRequest(string $route, string $scopeName, Context\ContextSource $source): Request
     {
-        $request = Request::create(
-            $route,
-            'GET', /*parameters*/
-            [], /*cookies*/
-            [], /*files*/
-            [], /*server*/
-            [], /*content*/
-            null
-        );
+        $request = Request::create($route);
+
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, new RouteScope(['scopes' => [$scopeName]]));
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, Context::createDefaultContext($source));
         $request->attributes->set('_route', 'test.it');

@@ -6,8 +6,8 @@
       "textHeadline": "Basic information",
       "buttonSave": "Save",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "The configuration has been saved.",
-      "titleSaveError": "The configuration could not be saved."
+      "messageSaveSuccess": "Configuration has been saved.",
+      "titleSaveError": "Configuration could not be saved."
     }
   }
 }

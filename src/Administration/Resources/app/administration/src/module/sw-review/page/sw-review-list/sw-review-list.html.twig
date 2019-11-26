@@ -104,7 +104,10 @@
 
                 {% block sw_review_list_empty_state %}
                     <sw-empty-state v-if="!isLoading && !total"
-                                    :title="$tc('sw-review.list.messageEmpty')"></sw-empty-state>
+                                    :title="$tc('sw-review.list.messageEmpty')"
+                                    icon="default-documentation-file"
+                                    :subline="$tc('sw-review.list.messageEmptySubline')">
+                    </sw-empty-state>
                 {% endblock %}
             </template>
         {% endblock %}

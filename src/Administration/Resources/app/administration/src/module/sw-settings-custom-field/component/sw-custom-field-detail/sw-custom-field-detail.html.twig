@@ -8,6 +8,7 @@
                 {% block sw_custom_field_detail_modal_type %}
                     <sw-field
                             :label="$tc('sw-settings-custom-field.customField.detail.labelCustomFieldType')"
+                            :placeholder="$tc('sw-settings-custom-field.customField.detail.placeholderCustomFieldType')"
                             type="select"
                             v-model="currentCustomField.config.customFieldType">
                         <option v-for="(option, key) in fieldTypes" :value="key">

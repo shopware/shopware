@@ -15,7 +15,7 @@
             <sw-field v-model="propertyGroup.description"
                       type="textarea"
                       :label="$tc('sw-property.detail.labelDescription')"
-                      :placeholder="placeholder(propertyGroup, 'description')" />
+                      :placeholder="placeholder(propertyGroup, 'description', $tc('sw-property.detail.placeholderDescription'))" />
         {% endblock %}
 
         {% block sw_property_detail_sorting_display_container %}

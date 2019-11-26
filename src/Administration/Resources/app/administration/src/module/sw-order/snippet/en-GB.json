@@ -125,7 +125,7 @@
       "cancelButton" : "Stay on page"
     },
     "stateCard": {
-      "cardTitle": "Statuses",
+      "cardTitle": "Status",
       "headlineOrderState": "Order status",
       "headlineTransactionState": "Payment status",
       "headlineDeliveryState": "Delivery status",

@@ -3,13 +3,12 @@
 namespace Shopware\Core\Framework\Twig;
 
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\Kernel;
 use Twig\Cache\FilesystemCache;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Loader\FilesystemLoader;
 
-class TemplateFinder
+class TemplateFinder implements TemplateFinderInterface
 {
     /**
      * @var Environment
@@ -22,45 +21,35 @@ class TemplateFinder
     protected $loader;
 
     /**
-     * @var Kernel
-     */
-    protected $kernel;
-
-    /**
      * @var array
      */
-    private $bundles;
+    protected $bundles = [];
 
     /**
      * @var string
      */
-    private $cacheDir;
+    protected $cacheDir;
 
-    public function __construct(Environment $twig, FilesystemLoader $loader, Kernel $kernel)
+    public function __construct(Environment $twig, FilesystemLoader $loader, string $cacheDir)
     {
         $this->twig = $twig;
         $this->loader = $loader;
-        $this->kernel = $kernel;
-        $this->cacheDir = $kernel->getCacheDir() . '/twig';
-        $this->addBundles($kernel);
+        $this->cacheDir = $cacheDir . '/twig';
     }
 
-    public function addBundle(Bundle $bundle): void
+    /**
+     * Called on Kernel::handle to register all active bundles and plugins
+     * This function builds the inheritance for twig templates
+     */
+    public function registerBundles(array $bundles): void
     {
-        $bundlePath = $bundle->getPath();
-        $bundles = $this->bundles;
-
-        $directory = $bundlePath . '/Resources/views';
-
-        if (!file_exists($directory)) {
-            return;
+        foreach ($bundles as $bundle) {
+            if ($bundle instanceof Bundle) {
+                $this->addBundle($bundle);
+            }
         }
 
-        array_unshift($bundles, $bundle->getName());
-        $this->loader->addPath($directory, $bundle->getName());
-        $this->loader->addPath($directory);
-
-        $this->bundles = array_values(array_unique($bundles));
+        $this->defineCache($this->bundles);
     }
 
     public function getTemplateName(string $template): string
@@ -78,24 +67,14 @@ class TemplateFinder
     }
 
     /**
-     * A custom template resolving function is needed to allow multi inheritance of template.
-     * This function will check if any other bundle tries to extend the requested template and
-     * returns the path to the extending template. Otherwise the original path will be returned.
-     *
-     * @param string      $template      Path of the requested template, ideally with @Bundle prefix
-     * @param bool        $ignoreMissing If set to true no error is throw if the template is missing
-     * @param string|null $source        Name of the bundle which triggered the search
-     *
-     * @throws LoaderError
+     * {@inheritdoc}
      */
     public function find(string $template, $ignoreMissing = false, ?string $source = null): string
     {
         $templatePath = $this->getTemplateName($template);
         $originalTemplate = $source ? null : $template;
 
-        $queue = $this->filterBundles($this->bundles);
-
-        $this->defineCache($queue);
+        $queue = $this->bundles;
 
         if ($source) {
             $index = array_search($source, $queue, true);
@@ -134,35 +113,25 @@ class TemplateFinder
         throw new LoaderError(sprintf('Unable to load template "%s". (Looked into: %s)', $templatePath, implode(', ', array_values($queue))));
     }
 
-    protected function filterBundles(array $bundles)
+    private function addBundle(Bundle $bundle): void
     {
-        return $bundles;
-    }
+        $bundlePath = $bundle->getPath();
+        $bundles = $this->bundles;
 
-    protected function addBundles(Kernel $kernel): void
-    {
-        $bundles = [];
+        $directory = $bundlePath . '/Resources/views';
 
-        foreach ($this->loader->getNamespaces() as $namespace) {
-            if ($namespace[0] === '!' || $namespace === '__main__') {
-                continue;
-            }
-
-            $bundles[] = $namespace;
+        if (!file_exists($directory)) {
+            return;
         }
 
-        $this->bundles = $bundles;
+        array_unshift($bundles, $bundle->getName());
+        $this->loader->addPath($directory, $bundle->getName());
+        $this->loader->addPath($directory);
 
-        $kernelBundles = $kernel->getBundles();
-
-        foreach ($kernelBundles as $bundle) {
-            if ($bundle instanceof Bundle) {
-                $this->addBundle($bundle);
-            }
-        }
+        $this->bundles = array_values(array_unique($bundles));
     }
 
-    protected function defineCache(array $queue): void
+    private function defineCache(array $queue): void
     {
         if ($this->twig->getCache(false) instanceof FilesystemCache) {
             $configHash = implode(':', $queue);

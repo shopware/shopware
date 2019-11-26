@@ -126,6 +126,7 @@ class SalesChannelContextFactory
 
         $criteria = new Criteria([$salesChannelId]);
         $criteria->addAssociation('currency');
+        $criteria->addAssociation('domains');
 
         /** @var SalesChannelEntity|null $salesChannel */
         $salesChannel = $this->salesChannelRepository->search($criteria, $context)

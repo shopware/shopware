@@ -5,7 +5,13 @@
         <div class="filter-panel{% if sidebar %} is--sidebar{% endif %}">
 
             {% block component_filter_panel_headline %}
-                <h3>{{ "listing.filterTitleText"|trans }}</h3>
+                <div class="filter-panel--offcanvas-header">
+                    <h3 class="filter-panel--offcanvas-only">{{ "listing.filterTitleText"|trans }}</h3>
+
+                    <div class="filter-panel--offcanvas-only filter-panel-offcanvas-close js-offcanvas-close">
+                        {% sw_icon 'x' style { 'size': 'md' } %}
+                    </div>
+                </div>
             {% endblock %}
 
             {% block component_filter_panel_items_container %}

@@ -75,7 +75,6 @@ class OffCanvasSingleton {
      * Close the offcanvas and its backdrop
      * @param {number} delay
      */
-    // eslint-disable-next-line no-unused-vars
     close(delay) {
         // remove open class to make any css animation effects possible
         const OffCanvasElements = this.getOffCanvas();

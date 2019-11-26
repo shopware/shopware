@@ -19,10 +19,6 @@ This file contains the generic styling for all filter items.
     }
 }
 
-.filter-panel h3 {
-    display: none;
-}
-
 .filter-panel-items-container {
     display: flex;
     flex-wrap: wrap;
@@ -197,6 +193,23 @@ This file contains the generic styling for all filter items.
     }
 }
 
+.filter-panel--offcanvas-only {
+    display: none;
+}
+
+.filter-panel--offcanvas-header {
+    position: relative;
+    margin-bottom: 2rem;
+    width: 100%;
+}
+
+.filter-panel-offcanvas-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+}
+
 @include media-breakpoint-down(md) {
     .btn.filter-panel-wrapper-toggle {
         display: block;
@@ -209,9 +222,8 @@ This file contains the generic styling for all filter items.
     .offcanvas {
         padding: 25px;
 
-        h3 {
-            display: block;
-            margin-bottom: 25px;
+        .filter-panel--offcanvas-only {
+            display: inherit;
         }
     }
 }

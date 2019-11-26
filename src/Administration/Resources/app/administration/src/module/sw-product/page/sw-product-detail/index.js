@@ -125,6 +125,7 @@ Component.register('sw-product-detail', {
 
             criteria
                 .addAssociation('categories')
+                .addAssociation('crossSellings')
                 .addAssociation('visibilities.salesChannel')
                 .addAssociation('options')
                 .addAssociation('configuratorSettings.option')

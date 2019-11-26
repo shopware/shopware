@@ -179,6 +179,7 @@
       "tabAdvancedPrices": "Erweiterte Preise",
       "tabProperties": "Eigenschaften zuweisen",
       "tabVariation": "Varianten generieren",
+      "tabCrossSelling": "Cross Selling",
       "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Das Produkt \"{name}\" wurde erfolgreich gespeichert.",
       "messageUploadSuccess": "{count} von {total} Dateien erfolgreich gespeichert.",
@@ -282,6 +283,31 @@
         "save": "Speichern",
         "useForListing": "Im Listing auffächern"
       }
+    },
+    "crossselling": {
+      "cardTitleCrossSelling": "Cross Selling",
+      "emptyStateNoOptionsTitle": "Keine Optionen vorhanden.",
+      "emptyStateNoOptionsDescription": "Du musst erst Optionen und Eigenschaften erstellen, um diese hier zuordnen zu können.",
+      "buttonAddCrossSelling": "Neues Cross Selling hinzufügen",
+      "buttonDeleteCrossSelling": "Löschen",
+      "inputCrossSellingTitle": "Titel",
+      "inputCrossSellingActive": "Aktiv",
+      "inputCrossSellingPosition": "Position",
+      "inputCrossSellingSorting": "Sortierung",
+      "inputCrossSellingProductStream": "Produktgruppe",
+      "inputCrossSellingTitlePlaceholder": "Wähle einen Titel ...",
+      "inputCrossSellingPositionPlaceholder": "Wähle eine Position ...",
+      "inputCrossSellingProductStreamPlaceholder": "Wähle eine Produktgruppe ...",
+      "popularitySortingType": "Beliebtheit",
+      "priceAscendingSortingType": "Preis, aufsteigend",
+      "priceDescendingSortingType": "Preis, absteigend",
+      "nameSortingType": "Name",
+      "releaseDateSortingType": "Erscheinungsdatum",
+      "deleteConfirmTitle": "Cross Selling löschen",
+      "deleteConfirmText": "Möchtest Du die Cross Selling Gruppe wirklich löschen?",
+      "deleteButtonCancel": "Zurück",
+      "deleteButtonDelete": "Löschen",
+      "emptyStateDescription": "Für dieses Produkt existiert noch keine Cross Selling Konfiguration."
     }
   }
 }

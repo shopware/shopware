@@ -1,0 +1,100 @@
+{% block sw_product_cross_selling_overview %}
+    <div class="product-detail-cross-selling-form">
+        <sw-card :title="crossSelling.name || $tc('sw-product.crossselling.cardTitleCrossSelling')">
+            <div class="sw-product-detail-cross-selling__context-button">
+                <sw-context-button>
+                    {% block sw_product_cross_sellling_context_button_delete %}
+                        <sw-context-menu-item variant="danger"
+                                              class="sw-product-cross_selling-context-item__delete-action"
+                                              @click="onShowDeleteModal">
+                            {{ $tc('sw-product.crossselling.buttonDeleteCrossSelling') }}
+                        </sw-context-menu-item>
+                    {% endblock %}
+                </sw-context-button>
+            </div>
+
+            {% block sw_prduct_cross_selling_form_title_field %}
+                <sw-container>
+                    <sw-text-field
+                        :label="$tc('sw-product.crossselling.inputCrossSellingTitle')"
+                        :placeholder="$tc('sw-product.crossselling.inputCrossSellingTitlePlaceholder')"
+                        v-model="crossSelling.name">
+                    </sw-text-field>
+                </sw-container>
+            {% endblock %}
+
+                <sw-container columns="1fr 1fr" gap="0px 30px">
+                    {% block sw_prduct_cross_selling_form_position_field %}
+                        <sw-number-field
+                            numberType="int"
+                            :label="$tc('sw-product.crossselling.inputCrossSellingPosition')"
+                            :placeholder="$tc('sw-product.crossselling.inputCrossSellingPositionPlaceholder')"
+                            v-model="crossSelling.position">
+                        </sw-number-field>
+                    {% endblock %}
+
+                    {% block sw_prduct_cross_selling_form_sort_field %}
+                        <sw-select-field
+                            :label="$tc('sw-product.crossselling.inputCrossSellingSorting')"
+                            v-model="crossSelling.sortBy">
+                            <option v-for="option in sortingTypes"
+                                    :key="option.value"
+                                    value="option.value">
+                                {{ option.label }}
+                            </option>
+                        </sw-select-field>
+                    {% endblock %}
+                </sw-container>
+
+                {% block sw_prduct_cross_selling_form_product_stream_field %}
+                    <sw-entity-single-select
+                        entity="product_stream"
+                        class="sw-select-product__select_manufacturer"
+                        id="manufacturerId"
+                        :label="$tc('sw-product.crossselling.inputCrossSellingProductStream')"
+                        :placeholder="$tc('sw-product.crossselling.inputCrossSellingProductStreamPlaceholder')"
+                        v-model="crossSelling.productStreamId">
+                    </sw-entity-single-select>
+                {% endblock %}
+
+                {% block sw_prduct_cross_selling_form_active_field %}
+                    <div class="product-basic-form__switches">
+                        <sw-field type="switch"
+                                  :label="$tc('sw-product.crossselling.inputCrossSellingActive')"
+                                  v-model="crossSelling.active">
+                        </sw-field>
+                    </div>
+                {% endblock %}
+        </sw-card>
+
+        {% block sw_product_detail_cross_selling_modal_delete %}
+            <sw-modal v-if="showDeleteModal"
+                      @modal-close="onCloseDeleteModal"
+                      variant="small"
+                      :title="$tc('sw-product.crossselling.deleteConfirmTitle')"
+                      class="sw-promotion-detail-discounts-modal">
+                {% block sw_promotion_detail_discounts_modal_delete_text %}
+                    <p>
+                        {{ $tc('sw-product.crossselling.deleteConfirmText') }}
+                    </p>
+                {% endblock %}
+
+                {% block sw_promotion_detail_discounts_modal_delete_footer %}
+                    <template slot="modal-footer">
+                        {% block sw_promotion_detail_discounts_modal_delete_action_cancel %}
+                            <sw-button @click="onCloseDeleteModal" size="small">
+                                {{ $tc('sw-product.crossselling.deleteButtonCancel') }}
+                            </sw-button>
+                        {% endblock %}
+
+                        {% block sw_promotion_detail_discounts_modal_delete_action_delete %}
+                            <sw-button @click="onConfirmDelete" size="small" variant="danger" class="sw-promotion-discount-delete-button">
+                                {{ $tc('sw-product.crossselling.deleteButtonDelete') }}
+                            </sw-button>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+            </sw-modal>
+        {% endblock %}
+    </div>
+{% endblock %}

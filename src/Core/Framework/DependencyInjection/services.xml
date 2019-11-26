@@ -11,6 +11,8 @@
             <parameter key="lowercase">false</parameter>
         </parameter>
 
+        <parameter key="env(APP_BASE_PATH)"></parameter>
+
         <!-- Migration config -->
         <parameter key="migration.directories" type="collection" />
         <parameter key="migration.active" type="collection"/>
@@ -44,6 +46,7 @@
         <!-- Asset -->
         <service id="Shopware\Core\Framework\Asset\AssetPackageService" public="true">
             <argument type="service" id="assets.packages"/>
+            <argument>%env(APP_BASE_PATH)%</argument>
         </service>
 
         <!-- Database / Doctrine -->

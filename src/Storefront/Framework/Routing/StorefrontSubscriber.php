@@ -5,19 +5,15 @@ namespace Shopware\Storefront\Framework\Routing;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
-use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Controller\ErrorController;
 use Shopware\Storefront\Controller\MaintenanceController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -65,8 +61,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         SalesChannelContextServiceInterface $contextService,
         MaintenanceController $maintenanceController,
         bool $kernelDebug
-    )
-    {
+    ) {
         $this->requestStack = $requestStack;
         $this->router = $router;
         $this->errorController = $errorController;
@@ -87,7 +82,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
                 ['customerNotLoggedInHandler'],
             ],
             KernelEvents::CONTROLLER => [
-                ['preventPageLoadingFromXmlHttpRequest', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE]
+                ['preventPageLoadingFromXmlHttpRequest', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE],
             ],
             KernelEvents::RESPONSE => [
                 ['setCanonicalUrl'],
@@ -105,10 +100,14 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        //ToDo: Impressum/Datenschutz durchlassen
         $request = $event->getRequest();
 
+        //ToDo: Impressum/Datenschutz/maintenance durchlassen
         if ($request->isXmlHttpRequest() || $request->attributes->get('_route') === 'frontend.maintenance.page') {
+            return;
+        }
+
+        if ($request->getRequestUri() === '/cms/singlepage') {
             return;
         }
 

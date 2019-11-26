@@ -1,8 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -21,21 +20,19 @@ class MaintenanceController extends StorefrontController
      * @var SystemConfigService
      */
     private $systemConfigService;
+
     /**
      * @var MaintenancePageLoader
      */
     private $maintenancePageLoader;
 
-    public function __construct
-    (
+    public function __construct(
         SystemConfigService $systemConfigService,
         MaintenancePageLoader $maintenancePageLoader
-    )
-    {
+    ) {
         $this->systemConfigService = $systemConfigService;
         $this->maintenancePageLoader = $maintenancePageLoader;
     }
-
 
     /**
      * @HttpCache()
@@ -47,7 +44,9 @@ class MaintenanceController extends StorefrontController
         $maintenanceLayoutId = $this->systemConfigService->get('core.basicInformation.maintenancePage', $salesChannelId);
 
         if (!$maintenanceLayoutId) {
-            throw new PageNotFoundException($maintenanceLayoutId);
+            return $this->renderStorefront(
+                '@Storefront/storefront/page/error/error-maintenance.html.twig'
+            );
         }
 
         $maintenancePage = $this->maintenancePageLoader->load($maintenanceLayoutId, $request, $context);

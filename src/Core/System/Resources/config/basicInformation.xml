@@ -92,6 +92,16 @@
         </component>
 
         <component name="sw-cms-page-select">
+            <name>imprintPage</name>
+            <entity>cms_page</entity>
+            <pageType>page</pageType>
+            <label>Shop page layout assignment for imprint</label>
+            <label lang="de-DE">Shopseiten-Layout Zuweisung für Impressum</label>
+            <placeholder>Select layout</placeholder>
+            <placeholder lang="de-DE">Layout auswählen</placeholder>
+        </component>
+
+        <component name="sw-cms-page-select">
             <name>404Page</name>
             <entity>cms_page</entity>
             <pageType>page</pageType>

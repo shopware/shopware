@@ -1,21 +1,21 @@
-{% block error_maintenance_doctype %}
+{% block single_cms_page_doctype %}
     <!DOCTYPE html>
 {% endblock %}
 
-{% block error_maintenance_html %}
+{% block single_cms_page_html %}
     <html lang="{{ "meta.xmlLang"|trans|striptags }}"
           itemscope="itemscope"
           itemtype="https://schema.org/WebPage">
 {% endblock %}
 
-{% block error_maintenance_head %}
+{% block single_cms_page_head %}
     {% sw_include '@Storefront/storefront/layout/meta.html.twig' %}
 {% endblock %}
 
-{% block error_maintenance_body %}
+{% block single_cms_page_body %}
     <body class="is-ctl-{{ controllerName|lower }} is-act-{{ controllerAction|lower }}">
-        {% block error_maintenance_body_inner %}
-            {% block error_maintenance_noscript %}
+        {% block single_cms_page_body_inner %}
+            {% block single_cms_page_noscript %}
                 <noscript class="noscript-main">
                     {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                         type: 'info',
@@ -24,9 +24,9 @@
                 </noscript>
             {% endblock %}
 
-            {% block error_maintenance_header %}
-                <header class="header-main mt-3">
-                    {% block error_maintenance_header_inner %}
+            {% block single_cms_page_header %}
+                <header class="header-main">
+                    {% block single_cms_page_header_inner %}
                         <div class="container">
                             <div class="row align-items-center header-row">
                                 <div class="col-12 col-lg-auto header-logo-col">
@@ -38,36 +38,21 @@
                 </header>
             {% endblock %}
 
-            {% block error_maintenance_main %}
+            {% block single_cms_page_main %}
                 <main class="content-main">
-                    {% block error_maintenance_main_content %}
-                        {% if page is not null %}
-
-                            <div class="cms-page">
-                                {% block page_content_blocks %}
-                                    {% sw_include "@Storefront/storefront/page/content/detail.html.twig" with {'cmsPage': page.cmsPage} %}
-
-                                {% endblock %}
-                            </div>
-                        {% else %}
-                            {% block error_maintenance_main_fallback %}
-                                <div class="container mt-5">
-                                    <img src="{{ asset('bundles/storefront/assets/illustration/maintenance_mode.png') }}"
-                                         alt="{{ "general.maintenanceModeHeader"|trans|striptags }}"
-                                         class="rounded mx-auto d-block w-75"/>
-
-                                    <h1 class="mt-4 text-center">{{ "general.maintenanceModeHeader"|trans }}</h1>
-                                    <p class="text-center">{{ "general.maintenanceModeDescription"|trans }}</p>
-                                </div>
+                    {% block single_cms_page_main_content %}
+                        <div class="cms-page">
+                            {% block page_content_blocks %}
+                                {% sw_include "@Storefront/storefront/page/content/detail.html.twig" with {'cmsPage': page.cmsPage} %}
                             {% endblock %}
-                        {% endif %}
+                        </div>
                     {% endblock %}
                 </main>
             {% endblock %}
 
-            {% block error_maintenance_footer %}
+            {% block single_cms_page_footer %}
                 <footer class="footer-main mt-5 w-75 mx-auto">
-                    {% block error_maintenance_footer_content %}
+                    {% block single_cms_page_footer_content %}
                         <div class="container mt-3 text-center">
                             {% if shopware.config.core.basicInformation.imprintPage is not null %}
                                 <a href="{{ path('frontend.cms.singlepage',{ id: shopware.config.core.basicInformation.imprintPage }) }}"
@@ -90,34 +75,34 @@
             {% endblock %}
         {% endblock %}
 
-        {% block error_maintenance_scroll_up %}
+        {% block single_cms_page_scroll_up %}
             {% sw_include '@Storefront/storefront/layout/scroll-up.html.twig' %}
         {% endblock %}
 
-        {% block error_maintenance_cookie_permission %}
+        {% block single_cms_page_cookie_permission %}
             {% sw_include '@Storefront/storefront/layout/cookie-permission.html.twig' %}
         {% endblock %}
 
-        {% block error_maintenance_pseudo_modal %}
+        {% block single_cms_page_pseudo_modal %}
             {% sw_include '@Storefront/storefront/component/pseudo-modal.html.twig' %}
         {% endblock %}
 
-        {% block error_maintenance_body_script %}
-            {% block error_maintenance_script_token %}
+        {% block single_cms_page_body_script %}
+            {% block single_cms_page_script_token %}
                 <script>
                     window.accessKey = '{{ context.salesChannel.accessKey }}';
                     window.contextToken = '{{ context.token }}';
                 </script>
             {% endblock %}
 
-            {% block error_maintenance_script_breakpoints %}
+            {% block single_cms_page_script_breakpoints %}
                 {# Register the available viewport breakpoints the window.breakpoints object #}
                 <script>
                     window.breakpoints = {{ shopware.theme.breakpoint|json_encode()|raw }};
                 </script>
             {% endblock %}
 
-            {% block error_maintenance_script_csrf %}
+            {% block single_cms_page_script_csrf %}
                 <script>
                     window.csrf = {
                         'enabled': '{{ shopware.csrfEnabled }}',

@@ -84,7 +84,6 @@ class ProductUrlProviderTest extends TestCase
 
     private function createProducts(): void
     {
-        /** @var array $products */
         $products = $this->getProductTestData($this->salesChannelContext);
 
         $this->getContainer()->get('product.repository')->create($products, $this->salesChannelContext->getContext());

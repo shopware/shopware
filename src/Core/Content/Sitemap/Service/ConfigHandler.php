@@ -25,7 +25,6 @@ class ConfigHandler
         $filteredUrls = [];
         $customUrls = [];
 
-        /** @var ConfigHandlerInterface $configHandler */
         foreach ($this->configHandlers as $configHandler) {
             $config = $configHandler->getSitemapConfig();
             $filteredUrls = $this->addUrls($filteredUrls, $config[self::EXCLUDED_URLS_KEY]);

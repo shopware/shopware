@@ -7,7 +7,15 @@
     <link>{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}</link>
     <g:image_link>{{ product.cover.media.url }}</g:image_link>
     <g:condition>neu</g:condition>
-    <g:availability>{% if product.availableStock >= product.minPurchase and product.deliveryTime %}bestellbar{% elseif product.availableStock < product.minPurchase and product.deliveryTime and product.restockTime %}vorbestellt{% else %}nicht auf lager{% endif %}</g:availability>
+    <g:availability>
+        {%- if product.availableStock >= product.minPurchase and product.deliveryTime -%}
+            bestellbar
+        {%- elseif product.availableStock < product.minPurchase and product.deliveryTime and product.restockTime -%}
+            vorbestellt
+        {%- else -%}
+            nicht auf lager
+        {%- endif -%}
+    </g:availability>
     <g:price>{{ product.calculatedListingPrice.from.unitPrice|currency }}</g:price>
     <g:brand>{{ product.manufacturer.translated.name|escape }}</g:brand>
     <g:gtin>{{ product.ean }}</g:gtin>

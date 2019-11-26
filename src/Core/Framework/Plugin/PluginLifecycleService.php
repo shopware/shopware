@@ -35,6 +35,8 @@ use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackExcepti
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -107,6 +109,16 @@ class PluginLifecycleService
      */
     private $restartSignalCachePool;
 
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
+
+    /**
+     * @var ConfigReader
+     */
+    private $configReader;
+
     public function __construct(
         EntityRepositoryInterface $pluginRepo,
         EventDispatcherInterface $eventDispatcher,
@@ -120,6 +132,8 @@ class PluginLifecycleService
         CommandExecutor $executor,
         RequirementsValidator $requirementValidator,
         CacheItemPoolInterface $restartSignalCachePool,
+        SystemConfigService $systemConfigService,
+        ConfigReader $configReader,
         string $shopwareVersion
     ) {
         $this->pluginRepo = $pluginRepo;
@@ -133,6 +147,8 @@ class PluginLifecycleService
         $this->assetInstaller = $assetInstaller;
         $this->executor = $executor;
         $this->requirementValidator = $requirementValidator;
+        $this->systemConfigService = $systemConfigService;
+        $this->configReader = $configReader;
         $this->shopwareVersion = $shopwareVersion;
         $this->restartSignalCachePool = $restartSignalCachePool;
     }
@@ -178,6 +194,8 @@ class PluginLifecycleService
         }
 
         $this->eventDispatcher->dispatch(new PluginPreInstallEvent($plugin, $installContext));
+
+        $this->savePluginConfiguration($pluginBaseClass, $installContext);
 
         $pluginBaseClass->install($installContext);
 
@@ -272,6 +290,8 @@ class PluginLifecycleService
         }
 
         $this->eventDispatcher->dispatch(new PluginPreUpdateEvent($plugin, $updateContext));
+
+        $this->savePluginConfiguration($pluginBaseClass, $updateContext);
 
         $pluginBaseClass->update($updateContext);
         if ($plugin->getInstalledAt() && $plugin->getActive()) {
@@ -507,5 +527,26 @@ class PluginLifecycleService
         }
 
         return $this->getPluginBaseClass($pluginBaseClassString);
+    }
+
+    private function savePluginConfiguration(Plugin $plugin, InstallContext $context): void
+    {
+        $config     = $this->configReader->getConfigFromBundle($plugin);
+        $prefix     = $plugin->getName() . '.config.';
+        $noOverride = $context instanceof UpdateContext;
+
+        foreach ($config as $card) {
+            foreach ($card['elements'] as $element) {
+                $key   = $prefix . $element['name'];
+                $value = $element['defaultValue'];
+
+                if (
+                    !empty($value)
+                    && ($noOverride && !$this->systemConfigService->get($key))
+                ) {
+                    $this->systemConfigService->set($key, $value);
+                }
+            }
+        }
     }
 }

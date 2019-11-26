@@ -35,6 +35,7 @@
             <xs:element name="label" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="placeholder" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="helpText" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="defaultValue" type="xs:string" />
             <xs:element name="options" type="option-collection" minOccurs="0"/>
             <xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>

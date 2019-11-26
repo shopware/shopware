@@ -57,6 +57,8 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\Composer\CommandExecutor"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator"/>
             <argument type="service" id="cache.messenger.restart_workers_signal" />
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader" />
             <argument>%kernel.shopware_version%</argument>
         </service>
 

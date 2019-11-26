@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SystemConfig;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
+use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidKeyException;
+use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 
 class SystemConfigService
 {
@@ -33,10 +35,16 @@ class SystemConfigService
      */
     private $configs = [];
 
-    public function __construct(Connection $connection, EntityRepositoryInterface $systemConfigRepository)
+    /**
+     * @var ConfigReader
+     */
+    private $configReader;
+
+    public function __construct(Connection $connection, EntityRepositoryInterface $systemConfigRepository, ConfigReader $configReader)
     {
         $this->connection = $connection;
         $this->systemConfigRepository = $systemConfigRepository;
+        $this->configReader = $configReader;
     }
 
     public function get(string $key, ?string $salesChannelId = null)
@@ -157,6 +165,46 @@ class SystemConfigService
     public function delete(string $key, ?string $salesChannel = null): void
     {
         $this->set($key, null, $salesChannel);
+    }
+
+    /**
+     * Fetches default values from bundle configuration and saves it to database.
+     *
+     * @param Bundle $bundle   The bundle or plugin.
+     * @param bool   $override Whether the existing values should be overridden.
+     *
+     * @throws Exception\BundleConfigNotFoundException
+     */
+    public function savePluginConfiguration(Bundle $bundle, bool $override = true): void
+    {
+        $config = $this->configReader->getConfigFromBundle($bundle);
+        $prefix = $bundle->getName() . '.config.'; // todo: Make this dynamically, see https://github.com/shopware/platform/pull/310
+
+        foreach ($config as $card) {
+            foreach ($card['elements'] as $element) {
+                $key   = $prefix . $element['name'];
+                $value = $element['defaultValue'];
+
+                switch ($element['type']) {
+                    case 'int':
+                        $value = (int) $value;
+                    break;
+                    case 'bool':
+                        $value = (bool) $value;
+                    break;
+                    case 'float':
+                        $value = (float) $value;
+                    break;
+                }
+
+                if (
+                    !empty($value)
+                    && ($override || !$this->get($key))
+                ) {
+                    $this->set($key, $value);
+                }
+            }
+        }
     }
 
     private function load(?string $salesChannelId): array

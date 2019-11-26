@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use SwagTest\Migration\Migration1536761533Test;
 use SwagTest\SwagTest;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -71,6 +72,11 @@ class PluginLifecycleServiceTest extends TestCase
      */
     private $context;
 
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
+
     protected function setUp(): void
     {
         // force kernel boot
@@ -94,6 +100,7 @@ class PluginLifecycleServiceTest extends TestCase
         require_once __DIR__ . '/_fixture/plugins/SwagTest/src/Migration/Migration1536761533Test.php';
         $this->addTestPluginToKernel();
         $this->context = Context::createDefaultContext();
+        $this->systemConfigService = $this->container->get(SystemConfigService::class);
     }
 
     protected function tearDown(): void
@@ -118,6 +125,11 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertNotNull($pluginInstalled->getInstalledAt());
 
         static::assertSame(1, $this->getMigrationTestKeyCount());
+
+        static::assertSame(7, $this->systemConfigService->get('SwagTest.config.intField'));
+        static::assertSame('string', $this->systemConfigService->get('SwagTest.config.textField'));
+        static::assertTrue($this->systemConfigService->get('SwagTest.config.switchField'));
+        static::assertSame(0.349831239840912348, $this->systemConfigService->get('SwagTest.config.floatField'));
     }
 
     public function testInstallPluginAlreadyInstalled(): void
@@ -325,7 +337,8 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(CommandExecutor::class),
             $this->container->get(RequirementsValidator::class),
             $this->container->get('cache.messenger.restart_workers_signal'),
-            Kernel::SHOPWARE_FALLBACK_VERSION
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            $this->container->get(SystemConfigService::class)
         );
     }
 

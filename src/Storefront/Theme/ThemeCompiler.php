@@ -12,7 +12,6 @@ use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
 class ThemeCompiler
@@ -21,11 +20,6 @@ class ThemeCompiler
      * @var FilesystemInterface
      */
     private $publicFilesystem;
-
-    /**
-     * @var Filesystem
-     */
-    private $localFileSystem;
 
     /**
      * @var string
@@ -44,13 +38,11 @@ class ThemeCompiler
 
     public function __construct(
         FilesystemInterface $publicFilesystem,
-        Filesystem $localFileSystem,
         ThemeFileResolver $themeFileResolver,
         string $cacheDir,
         bool $debug
     ) {
         $this->publicFilesystem = $publicFilesystem;
-        $this->localFileSystem = $localFileSystem;
         $this->themeFileResolver = $themeFileResolver;
         $this->cacheDir = $cacheDir;
 

@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Framework\Twig;
 
+use Symfony\Component\HttpKernel\KernelInterface;
 use Twig\Error\LoaderError;
 
 interface TemplateFinderInterface
 {
-    public function registerBundles(array $bundles): void;
+    public function registerBundles(KernelInterface $kernel): void;
 
     public function getTemplateName(string $template): string;
 

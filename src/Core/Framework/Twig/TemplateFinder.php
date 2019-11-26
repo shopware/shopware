@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Twig;
 
 use Shopware\Core\Framework\Bundle;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Twig\Cache\FilesystemCache;
 use Twig\Environment;
 use Twig\Error\LoaderError;
@@ -37,18 +38,13 @@ class TemplateFinder implements TemplateFinderInterface
         $this->cacheDir = $cacheDir . '/twig';
     }
 
-    /**
-     * Called on Kernel::handle to register all active bundles and plugins
-     * This function builds the inheritance for twig templates
-     */
-    public function registerBundles(array $bundles): void
+    public function registerBundles(KernelInterface $kernel): void
     {
-        foreach ($bundles as $bundle) {
+        foreach ($kernel->getBundles() as $bundle) {
             if ($bundle instanceof Bundle) {
                 $this->addBundle($bundle);
             }
         }
-
         $this->defineCache($this->bundles);
     }
 

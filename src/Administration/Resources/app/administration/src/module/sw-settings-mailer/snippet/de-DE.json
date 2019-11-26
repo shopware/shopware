@@ -1,0 +1,51 @@
+{
+  "sw-settings-mailer": {
+    "general": {
+      "mainMenuItemGeneral": "Mailer",
+      "textHeadline": "Mailer",
+      "buttonSave": "Speichern"
+    },
+    "mailer-configuration": {
+      "card-title": "Mailer-Konfiguration",
+      "agent": "Bevorzugter E-Mail-Agent",
+      "local-agent": "Lokaler Email Agent",
+      "smtp-server": "SMTP Server"
+    },
+    "first-configuration": {
+      "headline": "Erstellung der E-Mail Kommunikation",
+      "description": "Die Kommunikation mit den Kunden ist ein Schlüsselfaktor im täglichen E-Commerce. Daher sollte die Einrichtung eines Mailingsystems so schnell wie möglich aus Ihrer Liste gestrichen werden."
+    },
+    "card-smtp": {
+      "host": "Host",
+      "host-placeholder": "Host eingeben",
+      "port": "Port",
+      "port-placeholder": "Port eingeben",
+      "username": "Benutzername",
+      "username-placeholder": "Benutzername eingeben",
+      "password": "Passwort",
+      "password-placeholder": "Passwort eingeben",
+      "encryption": "Verschlüsselungsmethode",
+      "encryption-placeholder": "Verschlüsselungsmethode auswählen",
+      "authentication": "Authentifizierungsmethode",
+      "authentication-placeholder": "Authentifizierungsmethode auswählen",
+      "sender-address": "Sender Adresse",
+      "sender-address-placeholder": "Bitte eine valide Email eingeben",
+      "delivery-address": "Empfänger Adresse",
+      "delivery-address-placeholder": "Bitte eine valide Email eingeben",
+      "delivery-address-helptext": "Es wird der Standard-Mailer (Sendmail) Deines Systems verwendet. Stelle sicher, dass Sendmail in Deiner Host-Umgebung verfügbar ist und funktioniert.",
+      "disable-delivery": "Versand deaktivieren"
+    },
+    "encryption": {
+      "no-encryption": "Keine Verschlüsselung",
+      "ssl": "SSL",
+      "tls": "TLS"
+    },
+    "authentication": {
+      "no-authentication": "Keine Authentifizierung",
+      "plain": "Einfach",
+      "login": "Login",
+      "cram-md5": "Cram MD5"
+    }
+  }
+}
+

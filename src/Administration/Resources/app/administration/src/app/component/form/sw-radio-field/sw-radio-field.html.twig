@@ -19,6 +19,8 @@
                         </div>
 
                         <label :for="`${identification}-${index}`">{{ option.name }}</label>
+
+                        <sw-help-text v-if="option.helpText" :text="option.helpText"></sw-help-text>
                     </div>
                 </div>
         </template>

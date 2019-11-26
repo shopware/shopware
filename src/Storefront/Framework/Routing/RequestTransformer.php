@@ -7,7 +7,7 @@ use Doctrine\DBAL\Driver\Statement;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
-use Shopware\Core\Framework\Seo\SeoResolver;
+use Shopware\Core\Framework\Seo\SeoResolverInterface;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
@@ -47,10 +47,19 @@ class RequestTransformer implements RequestTransformerInterface
      */
     private $punycode;
 
-    public function __construct(RequestTransformerInterface $decorated, Connection $connection)
-    {
+    /**
+     * @var SeoResolverInterface
+     */
+    private $resolver;
+
+    public function __construct(
+        RequestTransformerInterface $decorated,
+        Connection $connection,
+        SeoResolverInterface $resolver
+    ) {
         $this->connection = $connection;
         $this->decorated = $decorated;
+        $this->resolver = $resolver;
         $this->punycode = new Punycode();
     }
 
@@ -72,7 +81,12 @@ class RequestTransformer implements RequestTransformerInterface
         $absoluteBaseUrl = $this->getSchemeAndHttpHost($request) . $request->getBaseUrl();
         $baseUrl = str_replace($absoluteBaseUrl, '', $salesChannel['url']);
 
-        $resolved = $this->resolveSeoUrl($request, $baseUrl, $salesChannel['languageId'], $salesChannel['salesChannelId']);
+        $resolved = $this->resolveSeoUrl(
+            $request,
+            $baseUrl,
+            $salesChannel['languageId'],
+            $salesChannel['salesChannelId']
+        );
 
         /**
          * - Remove "virtual" suffix of domain mapping shopware.de/de
@@ -128,7 +142,10 @@ class RequestTransformer implements RequestTransformerInterface
         $clone->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME, $salesChannel['parentThemeName']);
 
         if (isset($resolved['canonicalPathInfo'])) {
-            $clone->attributes->set(SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK, $this->getSchemeAndHttpHost($request) . $baseUrl . $resolved['canonicalPathInfo']);
+            $clone->attributes->set(
+                SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK,
+                $this->getSchemeAndHttpHost($request) . $baseUrl . $resolved['canonicalPathInfo']
+            );
         }
 
         $clone->headers->add($request->headers->all());
@@ -170,7 +187,12 @@ class RequestTransformer implements RequestTransformerInterface
             ])->from('sales_channel')
             ->innerJoin('sales_channel', 'sales_channel_domain', 'domain', 'domain.sales_channel_id = sales_channel.id')
             ->innerJoin('domain', 'snippet_set', 'snippet_set', 'snippet_set.id = domain.snippet_set_id')
-            ->leftJoin('sales_channel', 'theme_sales_channel', 'theme_sales_channel', 'sales_channel.id = theme_sales_channel.sales_channel_id')
+            ->leftJoin(
+                'sales_channel',
+                'theme_sales_channel',
+                'theme_sales_channel',
+                'sales_channel.id = theme_sales_channel.sales_channel_id'
+            )
             ->leftJoin('theme_sales_channel', 'theme', 'theme', 'theme_sales_channel.theme_id = theme.id')
             ->leftJoin('theme', 'theme', 'parentTheme', 'theme.parent_theme_id = parentTheme.id')
             ->where('sales_channel.type_id = UNHEX(:typeId)')
@@ -236,8 +258,7 @@ class RequestTransformer implements RequestTransformerInterface
             $seoPathInfo = mb_substr($seoPathInfo, mb_strlen($baseUrl));
         }
 
-        $resolved = (new SeoResolver($this->connection))
-            ->resolveSeoPath($languageId, $salesChannelId, $seoPathInfo);
+        $resolved = $this->resolver->resolveSeoPath($languageId, $salesChannelId, $seoPathInfo);
 
         $resolved['pathInfo'] = '/' . ltrim($resolved['pathInfo'], '/');
 

@@ -58,7 +58,6 @@ class CategoryUrlProvider implements UrlProviderInterface
 
         $urls = [];
         $url = new Url();
-        /** @var CategoryEntity $category */
         foreach ($categories as $category) {
             /** @var \DateTimeInterface $lastmod */
             $lastmod = $category->getUpdatedAt() ?: $category->getCreatedAt();

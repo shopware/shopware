@@ -60,7 +60,6 @@ class ProductUrlProvider implements UrlProviderInterface
 
         $urls = [];
         $url = new Url();
-        /** @var ProductEntity $product */
         foreach ($products as $product) {
             /** @var \DateTimeInterface $lastmod */
             $lastmod = $product->getUpdatedAt() ?: $product->getCreatedAt();

@@ -101,7 +101,6 @@ class SitemapWriterTest extends TestCase
         // to extract the content of the gz sitemap it needs to be written to the disk temporarily
         file_put_contents($this->testOutputGZFilename, $gzMemoryContent);
 
-        /** @var string $content */
         $content = $this->extractGZStream($this->testOutputGZFilename);
 
         $expected = sprintf('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://shopware.com</loc><lastmod>%s</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url></urlset>', (new \DateTime())->format('Y-m-d'));

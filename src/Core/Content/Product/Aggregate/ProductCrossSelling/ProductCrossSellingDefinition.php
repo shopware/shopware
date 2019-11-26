@@ -38,6 +38,11 @@ class ProductCrossSellingDefinition extends EntityDefinition
         return ProductCrossSellingEntity::class;
     }
 
+    public function getCollectionClass(): string
+    {
+        return ProductCrossSellingCollection::class;
+    }
+
     public function getParentDefinitionClass(): ?string
     {
         return ProductDefinition::class;

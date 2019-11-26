@@ -303,6 +303,8 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
         * use the command with the option "--all" to remove both of them.
         * with the option "--days" it is possible to remove the data which is same old and older than the given number of days
     * Updated Symfony dependencies to version `4.4.0`.    
+    * Removed the optional Parameters of the `\Shopware\Core\Content\ProductStream\Service\ProductStreamServiceInterface` in favor of am optional Criteria object that gets extended
+    * Renamed `\Shopware\Core\Content\ProductStream\Service\ProductStreamServiceInterface::buildCriteria()` to `\Shopware\Core\Content\ProductStream\Service\ProductStreamServiceInterface::extendCriteria()`    
     * We removed the `\Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface`, use `\Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand` instead
     * The sitemap generator now uses the `cache.system` pool instead of `serializer.mapping.cache.symfony`
     * Added sales channel type `product_comparison` for generating file exports of dynamic product groups 

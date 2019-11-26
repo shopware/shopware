@@ -20,6 +20,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Page\Product\Configurator\ProductPageConfiguratorLoader;
+use Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoader;
 use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -71,6 +72,11 @@ class ProductPageLoader
      */
     private $productReviewLoader;
 
+    /**
+     * @var CrossSellingLoader
+     */
+    private $crossSellingLoader;
+
     public function __construct(
         GenericPageLoader $genericLoader,
         SalesChannelRepositoryInterface $productRepository,
@@ -80,7 +86,8 @@ class ProductPageLoader
         ProductPageConfiguratorLoader $configuratorLoader,
         ProductDefinition $productDefinition,
         ProductLoader $productLoader,
-        ProductReviewLoader $productReviewLoader
+        ProductReviewLoader $productReviewLoader,
+        CrossSellingLoader $crossSellingLoader
     ) {
         $this->genericLoader = $genericLoader;
         $this->productRepository = $productRepository;
@@ -91,6 +98,7 @@ class ProductPageLoader
         $this->productDefinition = $productDefinition;
         $this->productLoader = $productLoader;
         $this->productReviewLoader = $productReviewLoader;
+        $this->crossSellingLoader = $crossSellingLoader;
     }
 
     /**
@@ -119,6 +127,10 @@ class ProductPageLoader
 
         $page->setConfiguratorSettings(
             $this->configuratorLoader->load($product, $salesChannelContext)
+        );
+
+        $page->setCrossSellings(
+            $this->crossSellingLoader->load($productId, $salesChannelContext)
         );
 
         if ($cmsPage = $this->getCmsPage($salesChannelContext)) {

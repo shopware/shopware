@@ -15,75 +15,9 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-condition-and-container', {
     template,
 
-    inject: ['config', 'entityAssociationStore', 'isApi'],
-
     mixins: [
-        Mixin.getByName('validation'),
-        Mixin.getByName('notification')
+        Mixin.getByName('ruleContainer')
     ],
-
-    props: {
-        condition: {
-            type: Object,
-            required: false,
-            default: null
-        },
-        level: {
-            type: Number,
-            required: true
-        },
-        parentDisabledDelete: {
-            type: Boolean,
-            required: false,
-            default: false
-        }
-    },
-
-    computed: {
-        containerRowClass() {
-            return this.level % 2 ? 'container-condition-level__is--odd' : 'container-condition-level__is--even';
-        },
-        nextPosition() {
-            const children = this.condition[this.config.childName];
-            if (!children || !children.length) {
-                return 1;
-            }
-
-            return children[children.length - 1].position + 1;
-        },
-        sortedChildren() {
-            if (!this.condition[this.config.childName]) {
-                return [];
-            }
-            return this.filterDeletedChildren(this.condition)
-                .sort((child1, child2) => { return child1.position - child2.position; });
-        },
-        disabledDeleteButton() {
-            if (this.level === 1) {
-                return this.parentDisabledDelete;
-            }
-
-            if (this.level > 0 || !this.condition || !this.condition[this.config.childName]) {
-                return false;
-            }
-
-            const firstLevelChildren = this.filterDeletedChildren(this.condition);
-
-            if (firstLevelChildren.length !== 1 || !this.config.isAndContainer(firstLevelChildren[0])) {
-                return false;
-            }
-
-            const secondLevelChildren = this.filterDeletedChildren(firstLevelChildren[0]);
-
-            return (secondLevelChildren.length === 1 && this.config.isPlaceholder(secondLevelChildren[0]));
-        }
-    },
-
-    watch: {
-        condition() {
-            this.createFirstPlaceholderIfNecessary();
-        }
-    },
 
     created() {
         this.createdComponent();
@@ -91,114 +25,40 @@ Component.register('sw-condition-and-container', {
 
     methods: {
         createdComponent() {
-            this.createFirstPlaceholderIfNecessary();
-        },
-        createFirstPlaceholderIfNecessary() {
-            if (!this.condition[this.config.childName]) {
-                this.condition[this.config.childName] = [];
-                return;
+            if (this.nextPosition === 0) {
+                this.onAddPlaceholder();
             }
+        },
 
-            if (!this.condition[this.config.childName].length) {
-                this.createCondition(this.config.placeholder, this.nextPosition);
-            }
-        },
-        getComponent(condition) {
-            return this.config.getComponent(condition);
-        },
-        onAddAndClick() {
-            this.createCondition(this.config.placeholder, this.nextPosition);
-        },
-        onAddChildClick() {
-            this.createCondition(this.config.orContainer, this.nextPosition);
-        },
-        createCondition(conditionData, position) {
-            const condition = Object.assign(
-                this.entityAssociationStore().create(),
-                conditionData,
-                {
-                    parentId: this.condition.id,
-                    position: position
-                }
+        onAddPlaceholder() {
+            this.insertNodeIntoTree(
+                this.condition,
+                this.createCondition(
+                    this.conditionDataProviderService.getPlaceholderData(),
+                    this.condition.id,
+                    this.nextPosition
+                )
             );
-            this.condition[this.config.childName].push(condition);
         },
-        createPlaceholderBefore(element) {
-            const originalPosition = element.position;
-            this.condition[this.config.childName].forEach(child => {
-                if (child.position < originalPosition) {
-                    return;
-                }
 
-                child.position += 1;
-            });
+        onAddOrContainer() {
+            const orContainer = this.createCondition(
+                this.conditionDataProviderService.getOrContainerData(),
+                this.condition.id,
+                this.nextPosition
+            );
 
-            this.createCondition(this.config.placeholder, originalPosition);
+            this.insertNodeIntoTree(this.condition, orContainer);
+
+            // "replace" first child if it is a placeholder
+            if (this.condition[this.childAssociationField].length === 2 &&
+                this.condition[this.childAssociationField][0].type === null) {
+                this.removeNodeFromTree(this.condition, this.condition[this.childAssociationField][0]);
+            }
         },
-        createPlaceholderAfter(element) {
-            const originalPosition = element.position;
-            this.condition[this.config.childName].forEach(child => {
-                if (child.position <= originalPosition) {
-                    return;
-                }
 
-                child.position += 1;
-            });
-
-            this.createCondition(this.config.placeholder, originalPosition + 1);
-        },
         onDeleteAll() {
-            if (this.level === 0) {
-                this.condition[this.config.childName].forEach((child) => {
-                    child.delete();
-                    this.deleteChildren(child[this.config.childName]);
-                });
-            } else {
-                this.deleteChildren(this.condition[this.config.childName]);
-            }
-
-            this.condition[this.config.childName] = [];
-
-            this.$emit('condition-delete', this.condition);
-        },
-        deleteChildren(children) {
-            children.forEach((child) => {
-                if (child[this.config.childName].length > 0) {
-                    this.deleteChildren(child[this.config.childName]);
-                }
-                child.remove();
-            });
-        },
-        onDeleteCondition(condition) {
-            const originalPosition = condition.position;
-            const children = this.filterDeletedChildren(this.condition);
-            children.forEach(child => {
-                if (child.position < originalPosition) {
-                    return;
-                }
-
-                child.position -= 1;
-            });
-
-            if (children.length === 1) {
-                this.onDeleteAll();
-                return;
-            }
-
-            condition.delete();
-
-            if (children.length <= 0) {
-                this.$nextTick(() => {
-                    if (this.level === 0) {
-                        this.onAddChildClick();
-                    } else {
-                        this.createCondition(this.config.placeholder, this.nextPosition);
-                    }
-                });
-            }
-        },
-        filterDeletedChildren(condition) {
-            return condition[this.config.childName].filter(child => !child.isDeleted);
+            this.removeNodeFromTree(this.parentCondition, this.condition);
         }
     }
 });

@@ -79,7 +79,7 @@ class DeprecatedTagTest extends TestCase
      */
     private function getTaggedVersion(): string
     {
-        $envVersion = getenv('VERSION');
+        $envVersion = $_SERVER['VERSION'] ?? '';
         if (is_string($envVersion) && $envVersion !== '') {
             return $envVersion;
         }

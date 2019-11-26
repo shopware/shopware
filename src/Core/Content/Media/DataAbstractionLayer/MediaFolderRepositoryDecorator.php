@@ -124,7 +124,6 @@ class MediaFolderRepositoryDecorator implements EntityRepositoryInterface
 
     private function deleteMediaAndSubfolders(MediaFolderCollection $folders, Context $context): void
     {
-        /** @var MediaFolderEntity $folder */
         foreach ($folders as $folder) {
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('mediaFolderId', $folder->getId()));

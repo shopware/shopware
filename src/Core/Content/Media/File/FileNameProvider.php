@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Media\File;
 
 use Shopware\Core\Content\Media\MediaCollection;
-use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -77,7 +76,6 @@ abstract class FileNameProvider
     ): string {
         $nextFileName = $this->getNextFileName($preferredFileName, $relatedMedia, $iteration);
 
-        /** @var MediaEntity $media */
         foreach ($relatedMedia as $media) {
             if ($media->hasFile() && $media->getFileName() === $nextFileName) {
                 return $this->getPossibleFileName($relatedMedia, $preferredFileName, $iteration + 1);

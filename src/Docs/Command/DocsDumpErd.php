@@ -20,6 +20,8 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class DocsDumpErd extends Command
 {
+    protected static $defaultName = 'docs:dump-erd';
+
     private $ignoredDefinitions = [
         VersionCommitDataDefinition::class,
         VersionCommitDefinition::class,
@@ -48,7 +50,6 @@ class DocsDumpErd extends Command
     protected function configure(): void
     {
         $this
-            ->setName('docs:dump-erd')
             ->setDescription('Dump an entity relationship diagram');
     }
 

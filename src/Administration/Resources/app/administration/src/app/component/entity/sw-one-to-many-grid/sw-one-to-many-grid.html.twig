@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block sw_data_grid_slot_actions %}
-    <slot name="more-actions" :item="item"></slot>
+    <slot name="more-actions" v-bind="{ item }"></slot>
 
     <slot name="delete-action" :item="item">
         <sw-context-menu-item @click="deleteItem(item.id)" variant="danger">

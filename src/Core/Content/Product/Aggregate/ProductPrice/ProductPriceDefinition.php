@@ -4,10 +4,12 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductPrice;
 
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
+use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -54,7 +56,8 @@ class ProductPriceDefinition extends EntityDefinition
             (new IntField('quantity_start', 'quantityStart'))->addFlags(new Required()),
             new IntField('quantity_end', 'quantityEnd'),
             (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false))->addFlags(new ReverseInherited('prices')),
-            new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, 'id', false),
+            (new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, 'id', false))
+                ->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             new CustomFields(),
         ]);
     }

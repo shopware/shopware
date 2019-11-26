@@ -16,23 +16,22 @@ class JsonApiDecoder implements DecoderInterface
      */
     public function decode($data, $format, array $context = [])
     {
-        $decoder = new JsonDecode([JsonDecode::ASSOCIATIVE => true]);
-        $data = $decoder->decode($data, 'json');
+        $decodedData = (new JsonDecode([JsonDecode::ASSOCIATIVE => true]))->decode($data, 'json');
 
-        if (!\is_array($data) || !array_key_exists('data', $data) || !\is_array($data)) {
+        if (!\is_array($decodedData) || !\array_key_exists('data', $decodedData)) {
             throw new UnexpectedValueException('Input not a valid JSON:API data object.');
         }
 
         $includes = [];
-        if (array_key_exists('included', $data)) {
-            $includes = $this->resolveIncludes($data['included']);
+        if (\array_key_exists('included', $decodedData)) {
+            $includes = $this->resolveIncludes($decodedData['included']);
         }
 
-        if ($this->isCollection($data['data'])) {
-            return $this->decodeCollection($data, $includes);
+        if ($this->isCollection($decodedData['data'])) {
+            return $this->decodeCollection($decodedData, $includes);
         }
 
-        return $this->decodeResource($data['data'], $includes);
+        return $this->decodeResource($decodedData['data'], $includes);
     }
 
     /**
@@ -49,8 +48,14 @@ class JsonApiDecoder implements DecoderInterface
 
         $hash = md5(json_encode(['id' => $resource['id'], 'type' => $resource['type']]));
 
-        if (!array_key_exists($hash, $includes)) {
-            throw new InvalidArgumentException(sprintf('Resolving relationship "%s(%s)" failed due to non-existence.', $resource['type'], $resource['id']));
+        if (!\array_key_exists($hash, $includes)) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    'Resolving relationship "%s(%s)" failed due to non-existence.',
+                    $resource['type'],
+                    $resource['id']
+                )
+            );
         }
 
         return $includes[$hash];
@@ -72,13 +77,13 @@ class JsonApiDecoder implements DecoderInterface
 
             $indexed[$hash] = $this->convertToStruct($include);
 
-            if (array_key_exists('relationships', $include)) {
+            if (\array_key_exists('relationships', $include)) {
                 $indexed[$hash]['relationships'] = $include['relationships'];
             }
         }
 
         foreach ($indexed as $hash => $include) {
-            if (!array_key_exists('relationships', $include)) {
+            if (!\array_key_exists('relationships', $include)) {
                 continue;
             }
 
@@ -100,7 +105,7 @@ class JsonApiDecoder implements DecoderInterface
     {
         $entity = $this->convertToStruct($data);
 
-        if (!array_key_exists('relationships', $data)) {
+        if (!\array_key_exists('relationships', $data)) {
             return $entity;
         }
 
@@ -113,7 +118,7 @@ class JsonApiDecoder implements DecoderInterface
                 throw new UnexpectedValueException('Relationships of a resource must have a valid property name.');
             }
 
-            if (!\is_array($relationship) || !array_key_exists('data', $relationship)) {
+            if (!\is_array($relationship) || !\array_key_exists('data', $relationship)) {
                 throw new UnexpectedValueException('A relationship link must be an array and contain the "data" property with a single or multiple resource identifiers.');
             }
 
@@ -135,7 +140,7 @@ class JsonApiDecoder implements DecoderInterface
             'uuid' => $data['id'],
         ];
 
-        if (array_key_exists('attributes', $data)) {
+        if (\array_key_exists('attributes', $data)) {
             if (!\is_array($data['attributes'])) {
                 throw new UnexpectedValueException('The attributes of a resource must be an array.');
             }
@@ -175,7 +180,7 @@ class JsonApiDecoder implements DecoderInterface
 
     private function validateResourceIdentifier($resource): void
     {
-        if (\is_array($resource) && array_key_exists('type', $resource) && array_key_exists('id', $resource)) {
+        if (\is_array($resource) && \array_key_exists('type', $resource) && \array_key_exists('id', $resource)) {
             return;
         }
 

@@ -2,6 +2,7 @@ import template from './sw-condition-goods-price.html.twig';
 import './sw-condition-goods-price.scss';
 
 const { Component } = Shopware;
+const { mapApiErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -13,40 +14,33 @@ const { Component } = Shopware;
  */
 Component.extend('sw-condition-goods-price', 'sw-condition-base', {
     template,
-    inject: ['ruleConditionDataProviderService'],
 
-    computed: {
-        fieldNames() {
-            return ['operator', 'amount'];
-        },
-        defaultValues() {
-            return {
-                operator: this.ruleConditionDataProviderService.operators.equals.identifier
-            };
-        },
-        conditionClass() {
-            return 'sw-condition-goods-price';
-        }
-    },
-
-    // TODO: extract data, methods and template (see sw-condition-goods-count)
-    // Wait for extending an extended component
     data() {
         return {
             showFilterModal: false
         };
     },
 
-    methods: {
-        deleteCondition() {
-            this.deleteChildren(this.condition.children);
-
-            this.$super('deleteCondition');
+    computed: {
+        operators() {
+            return this.conditionDataProviderService.getOperatorSet('number');
         },
-        deleteChildren(children) {
-            children.forEach((child) => {
-                child.delete();
-            });
+
+        amount: {
+            get() {
+                this.ensureValueExist();
+                return this.condition.value.amount;
+            },
+            set(amount) {
+                this.ensureValueExist();
+                this.condition.value = { ...this.condition.value, amount };
+            }
+        },
+
+        ...mapApiErrors('condition', ['value.operator', 'value.amount']),
+
+        currentError() {
+            return this.conditionValueOperatorError || this.conditionValueAmountError;
         }
     }
 });

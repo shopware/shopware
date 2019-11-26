@@ -72,6 +72,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
             ],
         ], $this->context);
 
+        /** @var MediaEntity $media */
         $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
 
         $this->getPublicFilesystem()->putStream(
@@ -88,10 +89,10 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $criteria = new Criteria([$media->getId()]);
         $criteria->addAssociation('thumbnails');
 
+        /** @var MediaEntity $media */
         $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
         static::assertEquals(2, $media->getThumbnails()->count());
 
-        /** @var MediaEntity $media */
         foreach ($media->getThumbnails() as $thumbnail) {
             static::assertTrue(
                 ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)
@@ -119,6 +120,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
             ],
         ], $this->context);
 
+        /** @var MediaEntity $media */
         $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
 
         $this->getPublicFilesystem()->putStream(
@@ -136,10 +138,10 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $criteria->addAssociation('thumbnails');
         $criteria->addAssociation('mediaFolder.configuration.thumbnailSizes');
 
+        /** @var MediaEntity $media */
         $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
         static::assertEquals(2, $media->getThumbnails()->count());
 
-        /** @var MediaEntity $media */
         foreach ($media->getThumbnails() as $thumbnail) {
             static::assertTrue(
                 ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)

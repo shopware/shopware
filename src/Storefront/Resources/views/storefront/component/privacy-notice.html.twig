@@ -2,9 +2,9 @@
     <p class="form-text privacy-notice">
         {% block component_privacy_label %}
             <label>
-                <strong>{{ "general.privacyTitle"|trans }}</strong><br />
+                <strong>{{ "general.privacyTitle"|trans|sw_sanitize }}</strong><br />
                 {{ "general.privacyNotice"|trans({
-                    '%url%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.privacyPage })
+                    '%url%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.privacyPage })|sw_sanitize
                 })|raw }}
             </label>
         {% endblock %}

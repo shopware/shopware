@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class CustomerMetaFieldSubscriber implements EventSubscriberInterface
@@ -59,7 +58,6 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
             /** @var \DateTimeInterface $orderDate */
             $orderDate = $payload['orderDateTime'];
 
-            /** @var EntitySearchResult $orderResult */
             $orderResult = $this->orderRepository->search(
                 (new Criteria([$payload['id']]))->addAssociation('orderCustomer'),
                 $context
@@ -80,7 +78,6 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
 
             $orderCount = 0;
 
-            /** @var EntitySearchResult $customerResult */
             $customerResult = $this->customerRepository->search(
                 (new Criteria([$customerId]))->addAssociation('orderCustomers'),
                 $context

@@ -45,6 +45,7 @@ Component.register('sw-category-detail', {
         return {
             term: '',
             isLoading: false,
+            isCustomFieldLoading: false,
             isSaveSuccessful: false,
             isMobileViewport: null,
             splitBreakpoint: 1024,
@@ -83,6 +84,21 @@ Component.register('sw-category-detail', {
 
         cmsPageId() {
             return this.category ? this.category.cmsPageId : null;
+        },
+
+        customFieldSetRepository() {
+            return this.repositoryFactory.create('custom_field_set');
+        },
+
+        customFieldSetCriteria() {
+            const criteria = new Criteria(1, 100);
+
+            criteria.addFilter(Criteria.equals('relations.entityName', 'category'));
+            criteria
+                .getAssociation('customFields')
+                .addSorting(Criteria.sort('config.customFieldPosition'));
+
+            return criteria;
         },
 
         mediaRepository() {
@@ -242,8 +258,20 @@ Component.register('sw-category-detail', {
                 id: this.categoryId
             }).then(() => Shopware.State.dispatch('cmsPageState/resetCmsPageState'))
                 .then(this.getAssignedCmsPage)
+                .then(this.loadCustomFieldSet)
                 .then(() => {
                     this.isLoading = false;
+                });
+        },
+
+        loadCustomFieldSet() {
+            this.isCustomFieldLoading = true;
+
+            return this.customFieldSetRepository.search(this.customFieldSetCriteria, Shopware.Context.api)
+                .then((customFieldSet) => {
+                    return this.$store.commit('swCategoryDetail/setCustomFieldSets', customFieldSet);
+                }).then(() => {
+                    this.isCustomFieldLoading = true;
                 });
         },
 
@@ -314,17 +342,10 @@ Component.register('sw-category-detail', {
                 this.category.slotConfig = cloneDeep(pageOverrides);
             }
 
-            const seoUrls = Shopware.State.getters['swSeoUrl/getNewOrModifiedUrls']();
-
-            seoUrls.forEach(seoUrl => {
-                if (seoUrl.seoPathInfo) {
-                    seoUrl.isModified = true;
-                    this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId);
-                }
-            });
-
             this.isLoading = true;
-            return this.categoryRepository.save(this.category, Shopware.Context.api).then(() => {
+            this.updateSeoUrls().then(() => {
+                return this.categoryRepository.save(this.category, Shopware.Context.api);
+            }).then(() => {
                 this.isSaveSuccessful = true;
                 return this.setCategory();
             }).catch(() => {
@@ -381,6 +402,23 @@ Component.register('sw-category-detail', {
                 });
             }
             return slotOverrides;
+        },
+
+        updateSeoUrls() {
+            if (!Shopware.State.list().includes('swSeoUrl')) {
+                return Promise.resolve();
+            }
+
+            const seoUrls = Shopware.State.getters['swSeoUrl/getNewOrModifiedUrls']();
+
+            return Promise.all(seoUrls.map((seoUrl) => {
+                if (seoUrl.seoPathInfo) {
+                    seoUrl.isModified = true;
+                    return this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId);
+                }
+
+                return Promise.resolve();
+            }));
         }
     }
 });

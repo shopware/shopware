@@ -2,7 +2,7 @@
     {% if position is empty %}
         {% set position = 'top-bar' %}
     {% endif %}
-    
+
     {% if page.header.serviceMenu|length > 0 %}
         <div class="top-bar-nav-item top-bar-menu">
             {% block layout_header_actions_service_menu_list %}
@@ -14,7 +14,7 @@
                             aria-haspopup="true"
                             aria-expanded="false">
                         {% sw_icon 'help' %}
-                        <span class="top-bar-nav-text">{{ "header.indexLinkService"|trans }}</span>
+                        <span class="top-bar-nav-text">{{ "header.indexLinkService"|trans|sw_sanitize }}</span>
                     </button>
                     {% block layout_header_actions_service_menu_items %}
                         <div class="dropdown-menu dropdown-menu-right"

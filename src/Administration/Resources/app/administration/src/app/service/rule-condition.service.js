@@ -97,15 +97,22 @@ export default function createConditionService() {
         getByType,
         addCondition,
         getConditions,
-        operatorSets,
-        operators,
         addModuleType,
         getModuleTypes,
         getOperatorSet,
-        getPlaceholder
+        getAndContainerData,
+        isAndContainer,
+        getOrContainerData,
+        isOrContainer,
+        getPlaceholderData,
+        getComponentByCondition
     };
 
     function getByType(type) {
+        if (!type) {
+            return getByType('placeholder');
+        }
+
         return $store[type];
     }
 
@@ -114,23 +121,19 @@ export default function createConditionService() {
         $store[type] = condition;
     }
 
-    function getOperatorSet(operatorSetName, translateCallback) {
-        const operatorSet = this.operatorSets[operatorSetName];
-
-        return translateData(operatorSet, translateCallback);
+    function getOperatorSet(operatorSetName) {
+        return operatorSets[operatorSetName];
     }
 
     function addModuleType(type) {
         moduleTypes[type.id] = type;
     }
 
-    function getModuleTypes(translateCallback) {
-        const values = Object.values(moduleTypes);
-
-        return translateData(values, translateCallback);
+    function getModuleTypes() {
+        return Object.values(moduleTypes);
     }
 
-    function getConditions(translateCallback, allowedScopes = null) {
+    function getConditions(allowedScopes = null) {
         let values = Object.values($store);
 
         if (allowedScopes !== null) {
@@ -139,18 +142,48 @@ export default function createConditionService() {
             });
         }
 
-        return translateData(values, translateCallback);
-    }
-
-    function translateData(values, translateCallback) {
-        if (translateCallback) {
-            values.forEach(value => translateCallback(value));
-        }
-
         return values;
     }
 
-    function getPlaceholder() {
-        return getByType('placeholder');
+    function getAndContainerData() {
+        return { type: 'andContainer', value: {} };
+    }
+
+    function isAndContainer(condition) {
+        return condition.type === 'andContainer';
+    }
+
+    function getOrContainerData() {
+        return { type: 'orContainer', value: {} };
+    }
+
+    function isOrContainer(condition) {
+        return condition.type === 'orContainer';
+    }
+
+    function getPlaceholderData() {
+        return { type: null, value: {} };
+    }
+
+    function getComponentByCondition(condition) {
+        if (isAndContainer(condition)) {
+            return 'sw-condition-and-container';
+        }
+
+        if (isOrContainer(condition)) {
+            return 'sw-condition-or-container';
+        }
+
+        if (!condition.type) {
+            return 'sw-condition-base';
+        }
+
+        const conditionType = getByType(condition.type);
+
+        if (typeof conditionType === 'undefined' || !conditionType.component) {
+            return 'sw-condition-not-found';
+        }
+
+        return conditionType.component;
     }
 }

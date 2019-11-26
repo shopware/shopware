@@ -17,16 +17,11 @@
         "valid": "Valide",
         "invalid": "Invalide"
       },
-      "contextMenuEdit": "Bearbeiten",
-      "contextMenuDuplicate": "Duplizieren",
-      "contextMenuDelete": "Löschen",
-      "messageEmpty": "Noch keine Produktgruppen",
-      "modalTitleDelete": "Produktgruppe löschen",
-      "textDeleteConfirm": "Möchtest Du die Produktgruppe \"{name}\" wirklich löschen?",
-      "buttonCancel": "Abbrechen",
-      "buttonDelete": "Löschen"
+      "messageEmpty": "Noch keine Produktgruppen"
     },
     "filter": {
+      "placeholderFieldSelect": "Wähle eine Eigenschaft",
+      "placeholderOperatorSelect": "Wähle einen Operator",
       "valid": "Nur valide Produktgruppen anzeigen",
       "type": {
         "equals": "Gleich",

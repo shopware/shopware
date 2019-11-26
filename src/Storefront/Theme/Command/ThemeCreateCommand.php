@@ -12,6 +12,8 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 
 class ThemeCreateCommand extends Command
 {
+    protected static $defaultName = 'theme:create';
+
     /**
      * @var string
      */
@@ -25,7 +27,7 @@ class ThemeCreateCommand extends Command
 
     protected function configure(): void
     {
-        $this->setName('theme:create')
+        $this
             ->addArgument('theme-name', InputArgument::OPTIONAL, 'Theme name')
             ->setDescription('Creates a plugin skeleton');
     }

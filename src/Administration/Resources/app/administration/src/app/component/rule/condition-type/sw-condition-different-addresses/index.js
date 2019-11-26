@@ -1,7 +1,7 @@
-import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-condition-different-addresses.html.twig';
 
 const { Component } = Shopware;
+const { mapApiErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -16,40 +16,31 @@ Component.extend('sw-condition-different-addresses', 'sw-condition-base', {
 
     computed: {
         selectValues() {
-            const values = [
+            return [
                 {
                     label: this.$tc('global.sw-condition.condition.yes'),
-                    value: 'true'
+                    value: true
                 },
                 {
                     label: this.$tc('global.sw-condition.condition.no'),
-                    value: 'false'
+                    value: false
                 }
             ];
-
-            return new LocalStore(values, 'value');
         },
-        fieldNames() {
-            return ['isDifferent'];
-        },
-        defaultValues() {
-            return {
-                isDifferent: true
-            };
-        }
-    },
-
-    watch: {
         isDifferent: {
-            handler(newValue) {
-                this.condition.value.isDifferent = newValue === String(true);
+            get() {
+                this.ensureValueExist();
+                return this.condition.value.isDifferent;
+            },
+            set(isDifferent) {
+                this.condition.value = { ...this.condition.value, isDifferent };
             }
-        }
-    },
+        },
 
-    data() {
-        return {
-            isDifferent: this.condition.value.isDifferent ? String(this.condition.value.isDifferent) : String(true)
-        };
+        ...mapApiErrors('condition', ['value.operator', 'value.isDifferent']),
+
+        currentError() {
+            return this.conditionValueOperatorError || this.conditionValueIsDifferentError;
+        }
     }
 });

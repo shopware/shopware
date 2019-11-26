@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilderResult;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
-use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
 use Shopware\Core\Content\Rule\RuleCollection;
 
 class LineItemGroupBuilderResultTest extends TestCase
@@ -105,10 +104,8 @@ class LineItemGroupBuilderResultTest extends TestCase
         $result = new LineItemGroupBuilderResult();
         $result->addGroup($groupDefinition, $group);
 
-        /** @var LineItemQuantity[] $data */
         $data = $result->getGroupTotalResult($groupDefinition);
 
-        /** @var LineItemQuantity $itemQuantity */
         $itemQuantity = $result->getGroupTotalResult($groupDefinition)['ID1'];
 
         static::assertCount(1, $data);
@@ -135,7 +132,6 @@ class LineItemGroupBuilderResultTest extends TestCase
         $result = new LineItemGroupBuilderResult();
         $result->addGroup($groupDefinition, $group);
 
-        /** @var LineItemQuantity[] $data */
         $data = $result->getGroupTotalResult($groupDefinition);
 
         static::assertCount(2, $data);
@@ -284,7 +280,6 @@ class LineItemGroupBuilderResultTest extends TestCase
         $result->addGroup($groupDefinition, $group1);
         $result->addGroup($groupDefinition, $group2);
 
-        /** @var LineItemGroup[] $data */
         $data = $result->getGroupResult($groupDefinition);
 
         static::assertCount(2, $data);

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
-use Shopware\Core\Framework\Api\Converter\ConverterService;
+use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException;
@@ -42,16 +42,16 @@ class RequestCriteriaBuilder
     private $aggregationParser;
 
     /**
-     * @var ConverterService
+     * @var ApiVersionConverter
      */
-    private $converterService;
+    private $apiVersionConverter;
 
-    public function __construct(AggregationParser $aggregationParser, ConverterService $converterService, int $maxLimit, array $availableLimits = [])
+    public function __construct(AggregationParser $aggregationParser, ApiVersionConverter $apiVersionConverter, int $maxLimit, array $availableLimits = [])
     {
         $this->maxLimit = $maxLimit;
         $this->allowedLimits = $availableLimits;
         $this->aggregationParser = $aggregationParser;
-        $this->converterService = $converterService;
+        $this->apiVersionConverter = $apiVersionConverter;
     }
 
     public function handleRequest(Request $request, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
@@ -79,7 +79,7 @@ class RequestCriteriaBuilder
         return $this->allowedLimits;
     }
 
-    private function fromArray(array $payload, Criteria $criteria, EntityDefinition $definition, Context $context, int $apiVerison): Criteria
+    private function fromArray(array $payload, Criteria $criteria, EntityDefinition $definition, Context $context, int $apiVersion): Criteria
     {
         $searchException = new SearchRequestException();
 
@@ -155,11 +155,11 @@ class RequestCriteriaBuilder
 
                 $nested = $criteria->getAssociation($propertyName);
 
-                $this->fromArray($association, $nested, $ref, $context, $apiVerison);
+                $this->fromArray($association, $nested, $ref, $context, $apiVersion);
             }
         }
 
-        $this->converterService->convertCriteria($definition, $criteria, $apiVerison, $searchException);
+        $this->apiVersionConverter->convertCriteria($definition, $criteria, $apiVersion, $searchException);
 
         $searchException->tryToThrow();
 

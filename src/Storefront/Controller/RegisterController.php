@@ -3,11 +3,17 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Exception\CustomerAlreadyConfirmedException;
+use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
+use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -56,13 +62,19 @@ class RegisterController extends StorefrontController
      */
     private $systemConfigService;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $customerRepository;
+
     public function __construct(
         AccountLoginPageLoader $loginPageLoader,
         AccountService $accountService,
         AccountRegistrationService $accountRegistrationService,
         CartService $cartService,
         CheckoutRegisterPageLoader $registerPageLoader,
-        SystemConfigService $systemConfigService
+        SystemConfigService $systemConfigService,
+        EntityRepositoryInterface $customerRepository
     ) {
         $this->loginPageLoader = $loginPageLoader;
         $this->accountService = $accountService;
@@ -70,6 +82,7 @@ class RegisterController extends StorefrontController
         $this->cartService = $cartService;
         $this->registerPageLoader = $registerPageLoader;
         $this->systemConfigService = $systemConfigService;
+        $this->customerRepository = $customerRepository;
     }
 
     /**
@@ -145,9 +158,66 @@ class RegisterController extends StorefrontController
             return $this->forwardToRoute($request->get('errorRoute'), ['formViolations' => $formViolations]);
         }
 
+        if ($this->isDoubleOptIn($data, $context)) {
+            return $this->redirectToRoute('frontend.account.register.page');
+        }
+
         $this->accountService->login($data->get('email'), $context, $data->has('guest'));
 
         return $this->createActionResponse($request);
+    }
+
+    /**
+     * @Route("/registration/confirm", name="frontend.account.register.mail", methods={"GET"})
+     */
+    public function confirmRegistration(SalesChannelContext $context, QueryDataBag $queryDataBag): Response
+    {
+        try {
+            $customerId = $this->accountRegistrationService->finishDoubleOptInRegistration($queryDataBag, $context);
+        } catch (CustomerNotFoundByHashException | CustomerAlreadyConfirmedException | ConstraintViolationException $exception) {
+            $this->addFlash('danger', $this->trans('account.confirmationIsAlreadyDone'));
+
+            return $this->redirectToRoute('frontend.account.register.page');
+        }
+
+        /** @var CustomerEntity $customer */
+        $customer = $this->customerRepository->search(new Criteria([$customerId]), $context->getContext())->first();
+
+        $this->accountService->login($customer->getEmail(), $context, $customer->getGuest());
+
+        if ($customer->getGuest()) {
+            $this->addFlash('success', $this->trans('account.doubleOptInMailConfirmationSuccessfully'));
+
+            return $this->redirectToRoute('frontend.checkout.confirm.page');
+        }
+
+        $this->addFlash('success', $this->trans('account.doubleOptInRegistrationSuccessfully'));
+
+        return $this->redirectToRoute('frontend.account.home.page');
+    }
+
+    private function isDoubleOptIn(DataBag $data, SalesChannelContext $context): bool
+    {
+        $configKey = $data->has('guest')
+            ? 'core.loginRegistration.doubleOptInGuestOrder'
+            : 'core.loginRegistration.doubleOptInRegistration';
+
+        $doubleOptInRequired = $this->systemConfigService
+            ->get($configKey, $context->getSalesChannel()->getId());
+
+        if (!$doubleOptInRequired) {
+            return false;
+        }
+
+        if ($data->has('guest')) {
+            $this->addFlash('success', $this->trans('account.optInGuestAlert'));
+
+            return true;
+        }
+
+        $this->addFlash('success', $this->trans('account.optInRegistrationAlert'));
+
+        return true;
     }
 
     private function getAdditionalRegisterValidationDefinitions(DataBag $data): DataValidationDefinition

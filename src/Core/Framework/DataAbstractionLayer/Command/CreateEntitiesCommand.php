@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 
 use Shopware\Core\Framework\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityGenerator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,6 +11,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class CreateEntitiesCommand extends Command
 {
+    protected static $defaultName = 'dal:create:entities';
+
     /**
      * @var EntityGenerator
      */
@@ -38,11 +39,6 @@ class CreateEntitiesCommand extends Command
         $this->entityGenerator = $entityGenerator;
     }
 
-    protected function configure(): void
-    {
-        $this->setName('dal:create:entities');
-    }
-
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new ShopwareStyle($input, $output);
@@ -55,7 +51,6 @@ class CreateEntitiesCommand extends Command
         $entities = $this->registry->getDefinitions();
         $classes = [];
 
-        /** @var EntityDefinition $entity */
         foreach ($entities as $entity) {
             $domain = explode('_', $entity->getEntityName());
             $domain = array_shift($domain);

@@ -10,7 +10,7 @@ class ShopwareStyle extends SymfonyStyle
     {
         $progressBar = parent::createProgressBar($max);
 
-        $character = getenv('PROGRESS_BAR_CHARACTER');
+        $character = $_SERVER['PROGRESS_BAR_CHARACTER'] ?? '';
         if ($character) {
             $progressBar->setProgressCharacter($character);
         }

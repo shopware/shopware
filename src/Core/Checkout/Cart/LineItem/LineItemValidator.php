@@ -12,7 +12,6 @@ class LineItemValidator implements CartValidatorInterface
 {
     public function validate(Cart $cart, ErrorCollection $errorCollection, SalesChannelContext $salesChannelContext): void
     {
-        /** @var LineItem $lineItem */
         foreach ($cart->getLineItems()->getFlat() as $lineItem) {
             if ($lineItem->getLabel() === null) {
                 $errorCollection->add(new IncompleteLineItemError($lineItem->getId(), 'label'));

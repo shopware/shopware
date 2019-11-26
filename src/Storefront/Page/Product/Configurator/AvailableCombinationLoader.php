@@ -45,7 +45,7 @@ class AvailableCombinationLoader
 
         $available = [];
 
-        foreach ($combinations as $key => $combination) {
+        foreach ($combinations as $combination) {
             $combination['options'] = json_decode($combination['options'], true);
 
             $available[] = $combination;

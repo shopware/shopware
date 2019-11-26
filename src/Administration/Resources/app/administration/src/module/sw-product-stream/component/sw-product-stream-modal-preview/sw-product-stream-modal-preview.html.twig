@@ -5,124 +5,86 @@
               variant="large"
               @modal-close="closeModal">
         {% block sw_product_stream_modal_preview_content %}
-        <div class="sw-product-stream-modal-preview__content">
-            {% block sw_product_stream_modal_preview_search_field_label %}
-                <sw-label class="sw-product-stream-modal-preview__search-field-label">
-                    {% block sw_product_stream_modal_preview_search_field %}
-                        <sw-simple-search-field
-                                size="small"
-                                variant="form"
-                                @search-term-change="searchTermChanged"
-                                :searchTerm="term"
-                                :delay="750"
-                                class="sw-product-stream-modal-preview__search-field">
-                        </sw-simple-search-field>
-                    {% endblock %}
-                </sw-label>
-            {% endblock %}
-            <sw-grid v-if="total"
-                     :items="products"
-                     :selectable="false"
-                     :table="true"
-                     :sortBy="sortBy"
-                     :sortDirection="sortDirection"
-                     class="sw-product-stream-modal-preview__grid"
-                     @sort-column="onSortColumn">
-                {% block sw_product_stream_modal_preview_grid_slots %}
-                    <template slot="columns" slot-scope="{ item }">
-                        {% block sw_product_stream_modal_preview_grid_columns_name %}
-                            <sw-grid-column flex="minmax(200px, 1fr)"
-                                            class="sw-product-stream-modal-preview__column-product-name"
-                                            :label="$tc('sw-product.list.columnName')"
-                                            dataIndex="name"
-                                            truncate
-                                            sortable>
-
-                                {% block sw_product_stream_modal_preview_grid_columns_name_link %}
-                                    <router-link :to="{ name: 'sw.product.detail', params: { id: item.id } }">
-                                        {% block sw_product_stream_modal_preview_grid_columns_name_label %}
-                                            {{ item.translated.name }}
-                                        {% endblock %}
-                                    </router-link>
-                                {% endblock %}
-                            </sw-grid-column>
+            <div class="sw-product-stream-modal-preview__content">
+                {% block sw_product_stream_modal_preview_search_field_label %}
+                    <sw-label class="sw-product-stream-modal-preview__search-field-label">
+                        {% block sw_product_stream_modal_preview_search_field %}
+                            <sw-simple-search-field
+                                    size="small"
+                                    variant="form"
+                                    v-model="searchTerm"
+                                    :delay="750"
+                                    class="sw-product-stream-modal-preview__search-field">
+                            </sw-simple-search-field>
                         {% endblock %}
+                    </sw-label>
+                {% endblock %}
 
-                        {% block sw_product_stream_modal_preview_grid_columns_manufacturer %}
-                            <sw-grid-column flex="minmax(200px, 1fr)"
-                                            class="sw-product-stream-modal-preview__column-manufacturer-name"
-                                            :label="$tc('sw-product.list.columnManufacturer')"
-                                            dataIndex="manufacturer.name"
-                                            truncate
-                                            sortable>
-                                {{ item.manufacturer.translated.name }}
-                            </sw-grid-column>
-                        {% endblock %}
+                {% block sw_product_stream_modal_preview_grid %}
+                    <sw-data-grid
+                        v-if="total"
+                        :dataSource="products"
+                        :columns="productColumns"
+                        :showSelection="false"
+                        :showActions="false"
+                        :showPreviews="true"
+                        :isLoading="isLoading"
+                        fullPage>
 
-                        {% block sw_product_stream_modal_preview_grid_columns_active %}
-                            <sw-grid-column flex="minmax(80px, 95px)"
-                                            :label="$tc('sw-product.list.columnActive')"
-                                            dataIndex="active"
-                                            align="center"
-                                            truncate
-                                            sortable>
-                                <sw-icon name="small-default-checkmark-line-medium"
-                                         small
-                                         v-if="item.active"
-                                         class="is--active">
-                                </sw-icon>
-                                <sw-icon name="small-default-x-line-medium" small v-else class="is--inactive"></sw-icon>
-                            </sw-grid-column>
-                        {% endblock %}
+                        <template #column-name="{ item, column }">
+                            {% block sw_product_stream_modal_preview_grid_column_name %}
+                                <router-link :to="{ name: column.routerLink, params: { id: item.id } }">
+                                     {{ item.name || item.translated.name }}
+                                </router-link>
+                            {% endblock %}
+                        </template>
 
-                        {% block sw_product_stream_modal_preview_grid_columns_price %}
-                            <sw-grid-column flex="minmax(95px, 105px)"
-                                            :label="$tc('sw-product.list.columnPrice')"
-                                            truncate
-                                            dataIndex="price"
-                                            align="right"
-                                            sortable>
-                                {{ getPriceOfDefaultCurrency(item.price).gross | currency('EUR') }}
-                            </sw-grid-column>
-                        {% endblock %}
+                        <template #column-active="{ item }">
+                            {% block sw_product_stream_modal_preview_grid_column_active %}
+                                <sw-data-grid-column-boolean :value="item.active" :isInlineEdit="false"></sw-data-grid-column-boolean>
+                            {% endblock %}
+                        </template>
 
-                        {% block sw_product_stream_modal_preview_grid_columns_stock %}
-                            <sw-grid-column flex="minmax(95px, 150px)"
-                                            :label="$tc('sw-product.list.columnInStock')"
-                                            truncate
-                                            dataIndex="stock"
-                                            align="right"
-                                            sortable>
+                        <template #column-price="{ item }">
+                            {% block sw_product_stream_modal_preview_grid_column_price %}
+                                {{ getPriceForDefaultCurrency(item, systemCurrency).gross | currency('EUR') }}
+                            {% endblock %}
+                        </template>
+
+                        <template #column-stock="{ item }">
+                            {% block sw_product_stream_modal_preview_grid_column_stock %}
                                 {{ item.stock }}
                                 <sw-color-badge :variant="item.stock | stockColorVariant"></sw-color-badge>
-                            </sw-grid-column>
-                        {% endblock %}
-                    </template>
+                            {% endblock %}
+                        </template>
 
-                    <template slot="pagination">
-                        {% block sw_product_stream_modal_preview_grid_pagination %}
-                            <sw-pagination :page="page"
-                                           :limit="limit"
-                                           :total="total"
-                                           :total-visible="7"
-                                           @page-change="onPageChange">
-                            </sw-pagination>
-                        {% endblock %}
-                    </template>
-
+                        <template #pagination>
+                            {% block sw_product_stream_modal_preview_grid_pagination %}
+                                <sw-pagination
+                                    v-bind="{ total, page, limit }"
+                                    :totalVisible="7"
+                                    :autoHide="false"
+                                    @page-change="onPageChange">
+                                </sw-pagination>
+                            {% endblock %}
+                        </template>
+                    </sw-data-grid>
                 {% endblock %}
-            </sw-grid>
-            {% block sw_product_stream_modal_preview_empty_state %}
-                <sw-empty-state v-if="!total && !isLoading" :title="$tc('sw-product-stream.previewModal.empty')"></sw-empty-state>
-            {% endblock %}
-        </div>
-        <template slot="modal-footer">
-            {% block sw_product_stream_modal_preview_close_button%}
-                <sw-button class="sw-product-stream-modal-preview__close-action" variant="primary" @click.prevent="closeModal">
-                    {{ $tc('sw-product-stream.previewModal.close') }}
-                </sw-button>
-            {% endblock %}
-        </template>
+
+                {% block sw_product_stream_modal_preview_empty_state %}
+                    <sw-empty-state v-if="!total && !isLoading" :title="$tc('sw-product-stream.previewModal.empty')"></sw-empty-state>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_product_stream_modal_preview_footer %}
+            <template #modal-footer>
+                {% block sw_product_stream_modal_preview_close_button %}
+                    <sw-button class="sw-product-stream-modal-preview__close-action" variant="primary" @click.prevent="closeModal">
+                        {{ $tc('sw-product-stream.previewModal.close') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
         {% endblock %}
     </sw-modal>
 {% endblock %}

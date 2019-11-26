@@ -8,7 +8,7 @@
         <parameter key="elasticsearch.index.config" type="collection">
             <parameter key="settings" type="collection">
                 <parameter key="number_of_shards">3</parameter>
-                <parameter key="number_of_replicas">2</parameter>
+                <parameter key="number_of_replicas">3</parameter>
                 <parameter key="mapping.total_fields.limit">5000</parameter>
                 <parameter key="mapping.nested_fields.limit">500</parameter>
             </parameter>
@@ -64,13 +64,13 @@
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\EntityIndexer"/>
 
             <tag name="kernel.event_subscriber"/>
-            <tag name="console.command" command="es:index"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchTestAnalyzerCommand">
             <argument id="Elasticsearch\Client" type="service"/>
 
-            <tag name="console.command" command="es:test:analyzer"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher"
@@ -114,7 +114,7 @@
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="logger"/>
 
             <tag name="messenger.message_handler"/>
         </service>
@@ -146,7 +146,7 @@
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchCreateAliasCommand">
             <argument id="Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler" type="service"/>
 
-            <tag name="console.command" command="es:create:alias"/>
+            <tag name="console.command"/>
         </service>
     </services>
 </container>

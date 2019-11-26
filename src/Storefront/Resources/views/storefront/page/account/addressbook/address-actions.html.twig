@@ -12,9 +12,9 @@
                         {% endblock %}
 
                         <button type="submit"
-                                title="{{ "account.addressesSetAsDefaultShippingAction"|trans }}"
+                                title="{{ "account.addressesSetAsDefaultShippingAction"|trans|striptags }}"
                                 class="btn btn-link address-action-set-default">
-                            {{ "account.addressesSetAsDefaultShippingAction"|trans }}
+                            {{ "account.addressesSetAsDefaultShippingAction"|trans|sw_sanitize }}
                         </button>
                     </form>
                 {% endif %}
@@ -31,9 +31,9 @@
                         {% endblock %}
 
                         <button type="submit"
-                                title="{{ "account.addressesSetAsDefaultBillingAction"|trans }}"
+                                title="{{ "account.addressesSetAsDefaultBillingAction"|trans|striptags }}"
                                 class="btn btn-link address-action-set-default">
-                            {{ "account.addressesSetAsDefaultBillingAction"|trans }}
+                            {{ "account.addressesSetAsDefaultBillingAction"|trans|sw_sanitize }}
                         </button>
                     </form>
                 {% endif %}
@@ -46,9 +46,9 @@
             {% block page_account_address_actions_update %}
                 <div class="col-auto">
                     <a href="{{ path('frontend.account.address.edit.page', {'addressId': address.id}) }}"
-                       title="{{ "account.addressesContentItemActionEdit"|trans }}"
+                       title="{{ "account.addressesContentItemActionEdit"|trans|striptags }}"
                        class="btn btn-light btn-sm">
-                        {{ "account.addressesContentItemActionEdit"|trans }}
+                        {{ "account.addressesContentItemActionEdit"|trans|sw_sanitize }}
                     </a>
                 </div>
             {% endblock %}
@@ -67,8 +67,8 @@
 
                             <button type="submit"
                                     class="btn btn-light btn-sm"
-                                    title="{{ "account.addressesContentItemActionDelete"|trans }}">
-                                {{ "account.addressesContentItemActionDelete"|trans }}
+                                    title="{{ "account.addressesContentItemActionDelete"|trans|striptags }}">
+                                {{ "account.addressesContentItemActionDelete"|trans|sw_sanitize }}
                             </button>
                         </form>
                     </div>

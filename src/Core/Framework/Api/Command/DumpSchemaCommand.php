@@ -11,6 +11,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class DumpSchemaCommand extends Command
 {
+    protected static $defaultName = 'framework:schema';
+
     /**
      * @var DefinitionService
      */
@@ -25,7 +27,7 @@ class DumpSchemaCommand extends Command
 
     protected function configure(): void
     {
-        $this->setName('framework:schema')
+        $this
             ->setDescription('Dumps the api definition to a json file.')
             ->addArgument('outfile', InputArgument::REQUIRED)
             ->addOption(

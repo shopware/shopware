@@ -92,7 +92,7 @@ class DataValidator
             $values = $data[$propertyName] ?? [];
 
             $i = 0;
-            foreach ($values as $key => $item) {
+            foreach ($values as $item) {
                 $constraintViolations->addAll(
                     $this->getViolations($item, $subDefinition, $path . '/' . $propertyName . '/' . $i)
                 );

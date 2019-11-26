@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerRecoveryHashExpiredException;
+use Shopware\Core\Checkout\Customer\Exception\InactiveCustomerException;
 use Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches;
@@ -174,7 +175,6 @@ class AccountService
 
     public function saveProfile(DataBag $data, SalesChannelContext $context): void
     {
-        /** @var DataValidationDefinition $validation */
         $validation = $this->customerProfileValidationService->buildUpdateValidation($context->getContext());
 
         $this->dispatchValidationEvent($validation, $context->getContext());
@@ -399,6 +399,7 @@ class AccountService
     /**
      * @throws BadCredentialsException
      * @throws UnauthorizedHttpException
+     * @throws InactiveCustomerException
      */
     public function loginWithPassword(DataBag $data, SalesChannelContext $context): string
     {
@@ -417,6 +418,10 @@ class AccountService
             );
         } catch (CustomerNotFoundException | BadCredentialsException $exception) {
             throw new UnauthorizedHttpException('json', $exception->getMessage());
+        }
+
+        if (!$customer->getActive()) {
+            throw new InactiveCustomerException($customer->getId());
         }
 
         $newToken = $this->contextPersister->replace($context->getToken());
@@ -489,6 +494,7 @@ class AccountService
     /**
      * @throws CustomerNotFoundException
      * @throws BadCredentialsException
+     * @throws InactiveCustomerException
      */
     public function getCustomerByLogin(string $email, string $password, SalesChannelContext $context): CustomerEntity
     {
@@ -521,7 +527,6 @@ class AccountService
      */
     private function validateResetPassword(DataBag $data, SalesChannelContext $context): void
     {
-        /** @var DataValidationDefinition $definition */
         $definition = new DataValidationDefinition('customer.password.update');
 
         $minPasswordLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength');
@@ -656,7 +661,6 @@ class AccountService
      */
     private function tryValidateEqualtoConstraint(array $data, string $field, DataValidationDefinition $validation): void
     {
-        /** @var array $validations */
         $validations = $validation->getProperties();
 
         if (!array_key_exists($field, $validations)) {
@@ -699,7 +703,6 @@ class AccountService
      */
     private function validatePasswordFields(DataBag $data, SalesChannelContext $context): void
     {
-        /** @var DataValidationDefinition $definition */
         $definition = new DataValidationDefinition('customer.password.update');
 
         $minPasswordLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength');

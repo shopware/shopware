@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Acl\Resource;
 
 use Shopware\Core\Framework\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -24,8 +25,7 @@ class AclPermissionValidator implements EventSubscriberInterface
     public function preValidate(PreWriteValidationEvent $event): void
     {
         $commands = $event->getCommands();
-        $context = $event->getContext();
-        $source = $context->getSource();
+        $source = $event->getContext()->getSource();
         if (!$source instanceof AdminApiSource) {
             return;
         }
@@ -51,9 +51,9 @@ class AclPermissionValidator implements EventSubscriberInterface
     private function tryToThrow(ConstraintViolationList $violations): void
     {
         if ($violations->count() > 0) {
-            $violations = new WriteConstraintViolationException($violations);
+            $violationException = new WriteConstraintViolationException($violations);
 
-            throw new AccessDeniedHttpException('You don\'t have all necessary permissions.', $violations);
+            throw new AccessDeniedHttpException('You don\'t have all necessary permissions.', $violationException);
         }
     }
 
@@ -72,15 +72,17 @@ class AclPermissionValidator implements EventSubscriberInterface
             $root,
             $propertyPath,
             $invalidValue,
-            $plural = null,
-            $code,
-            $constraint = null,
-            $cause = null
+            null,
+            $code
         );
     }
 
-    private function violates(string $privilege, string $resource, $command, ConstraintViolationList $violationList): void
-    {
+    private function violates(
+        string $privilege,
+        string $resource,
+        WriteCommandInterface $command,
+        ConstraintViolationList $violationList
+    ): void {
         $violationList->add(
             $this->buildViolation(
                 'No permissions to %privilege% "%resource%".',

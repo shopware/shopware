@@ -96,7 +96,6 @@ class PromotionDeliveryCalculator
                 continue;
             }
 
-            /** @var bool $deliveryItemAdded */
             $deliveryItemAdded = $this->calculateDeliveryPromotion($toCalculate, $discountItem, $context, $notDiscountedDeliveriesValue);
 
             if ($deliveryItemAdded) {
@@ -355,7 +354,6 @@ class PromotionDeliveryCalculator
             return $deliveryAdded;
         }
 
-        /** @var float $dynamicDiscountPriceValue */
         $dynamicDiscountPriceValue = $notDiscountedShippingCosts - $fixedPrice;
 
         if ($maxReducedPrice < $dynamicDiscountPriceValue) {

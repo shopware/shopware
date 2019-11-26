@@ -34,7 +34,6 @@ class RatingMatrix extends Struct
     public function __construct(array $matrix)
     {
         for ($points = self::MAX_POINTS; $points > 0; --$points) {
-            /** @var Bucket $rating */
             foreach ($matrix as $rating) {
                 if ($points === (int) $rating->getKey()) {
                     $this->totalPoints += ($points * $rating->getCount());

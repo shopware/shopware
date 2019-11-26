@@ -9,7 +9,8 @@
                     v-autofocus
                     v-model="username"
                     :label="$tc('sw-login.index.labelUsername')"
-                    :placeholder="$tc('sw-login.index.placeholderUsername')">
+                    :placeholder="$tc('sw-login.index.placeholderUsername')"
+                    required>
             </sw-text-field>
         {% endblock %}
 
@@ -17,7 +18,8 @@
             <sw-password-field
                     v-model="password"
                     :label="$tc('sw-login.index.labelPassword')"
-                    :placeholder="$tc('sw-login.index.placeholderPassword')">
+                    :placeholder="$tc('sw-login.index.placeholderPassword')"
+                    required>
             </sw-password-field>
         {% endblock %}
 
@@ -30,7 +32,9 @@
                 {% endblock %}
 
                 {% block sw_login_login_submit_button %}
-                    <sw-button class="sw-login__login-action" variant="primary">
+                    <sw-button :disabled="password.length <= 0 || username.length <= 0"
+                               class="sw-login__login-action"
+                               variant="primary">
                         {{ $tc('sw-login.index.buttonLogin') }}
                     </sw-button>
                 {% endblock %}

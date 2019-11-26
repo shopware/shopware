@@ -20,10 +20,9 @@ export default class ShippingMethodPageObject extends GeneralPageObject {
                 searchTerm: '1-3 days'
             }
         );
-        cy.get('.sw-settings-shipping-detail__top-rule').typeLegacySelectAndCheck(
-            'Cart >= 0', {
-                searchTerm: 'Cart >= 0'
-            }
+        cy.get('.sw-settings-shipping-detail__top-rule').typeSingleSelectAndCheck(
+            'Cart >= 0',
+            '.sw-settings-shipping-detail__top-rule'
         );
         this.createShippingMethodPriceRule();
     }

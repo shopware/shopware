@@ -84,6 +84,7 @@ export default function createCustomFieldService() {
     };
 
     const $entityNameStore = [
+        'category',
         'product',
         'product_manufacturer',
         'customer',

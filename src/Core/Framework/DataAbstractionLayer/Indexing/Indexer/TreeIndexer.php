@@ -76,7 +76,6 @@ class TreeIndexer implements IndexerInterface
     {
         $context = Context::createDefaultContext();
 
-        /** @var EntityDefinition $definition */
         foreach ($this->definitionRegistry->getDefinitions() as $definition) {
             if (!$definition->isTreeAware()) {
                 continue;
@@ -126,7 +125,6 @@ class TreeIndexer implements IndexerInterface
             return null;
         }
 
-        /** @var EntityDefinition $definition */
         $definition = $definitions[$definitionOffset];
 
         $context = Context::createDefaultContext();

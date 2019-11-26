@@ -45,6 +45,14 @@ class IndexCreator
             'body' => $mapping,
             'include_type_name' => true,
         ]);
+
+        $this->client->indices()->putSettings([
+            'index' => $index,
+            'body' => [
+                'number_of_replicas' => 0,
+                'refresh_interval' => -1,
+            ],
+        ]);
     }
 
     private function indexExists(string $index): bool

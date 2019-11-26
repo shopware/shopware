@@ -21,7 +21,7 @@
                                         <button class="btn nav-main-toggle-btn header-actions-btn"
                                                 type="button"
                                                 data-offcanvas-menu="true"
-                                                aria-label="{{ "general.menuLink"|trans }}">
+                                                aria-label="{{ "general.menuLink"|trans|striptags }}">
                                             {% block layout_header_navigation_toggle_tablet_button_icon %}
                                                 {% sw_icon 'stack' %}
                                             {% endblock %}
@@ -47,7 +47,7 @@
                                         <button class="btn nav-main-toggle-btn header-actions-btn"
                                                 type="button"
                                                 data-offcanvas-menu="true"
-                                                aria-label="{{ "general.menuLink"|trans }}">
+                                                aria-label="{{ "general.menuLink"|trans|striptags }}">
                                             {% block layout_header_navigation_toggle_button_icon %}
                                                 {% sw_icon 'stack' %}
                                             {% endblock %}
@@ -66,7 +66,7 @@
                                             data-target="#searchCollapse"
                                             aria-expanded="false"
                                             aria-controls="searchCollapse"
-                                            aria-label="{{ "header.searchButton"|trans }}">
+                                            aria-label="{{ "header.searchButton"|trans|striptags }}">
                                         {% sw_icon 'search' %}
                                     </button>
                                 </div>
@@ -88,7 +88,7 @@
                                     <a class="btn header-cart-btn header-actions-btn"
                                        href="{{ path('frontend.checkout.cart.page') }}"
                                        data-cart-widget="true"
-                                       title="{{ 'checkout.cartTitle'|trans }}">
+                                       title="{{ 'checkout.cartTitle'|trans|sw_sanitize }}">
                                         {% sw_include '@Storefront/storefront/layout/header/actions/cart-widget.html.twig' %}
                                     </a>
                                 </div>

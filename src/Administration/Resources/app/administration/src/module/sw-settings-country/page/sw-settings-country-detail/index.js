@@ -90,9 +90,8 @@ Component.register('sw-settings-country-detail', {
             });
         },
 
-        countryStateSelectionChanged() {
-            const selection = this.$refs.countryStateGrid.selection;
-            this.deleteButtonDisabled = Object.keys(selection).length <= 0;
+        countryStateSelectionChanged(selection, selectionCount) {
+            this.deleteButtonDisabled = selectionCount <= 0;
         },
 
         onDeleteCountryStates() {
@@ -112,8 +111,6 @@ Component.register('sw-settings-country-detail', {
             Promise.all(deletePromises).then(() => {
                 this.countryStateLoading = false;
                 this.refreshCountryStateList();
-                this.$refs.countryStateGrid.allSelectedChecked = false;
-                this.$refs.countryStateGrid.selection = {};
             });
         },
 

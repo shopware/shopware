@@ -15,6 +15,8 @@ use Symfony\Component\Finder\SplFileInfo;
 
 class DocsModuleCharacteristics extends Command
 {
+    protected static $defaultName = 'docs:dump-core-characteristics';
+
     /**
      * @var ModuleInspector
      */
@@ -29,7 +31,6 @@ class DocsModuleCharacteristics extends Command
     protected function configure(): void
     {
         $this
-            ->setName('docs:dump-core-characteristics')
             ->setDescription('Dump the characteristics of core modules');
     }
 

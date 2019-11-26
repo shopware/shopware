@@ -35,14 +35,14 @@
         <service id="Shopware\Core\Framework\ScheduledTask\Command\RegisterScheduledTasksCommand">
             <argument type="service" id="Shopware\Core\Framework\ScheduledTask\Registry\TaskRegistry"/>
 
-            <tag name="console.command" command="scheduled-task:register"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\ScheduledTask\Command\ScheduledTaskRunner">
             <argument type="service" id="Shopware\Core\Framework\ScheduledTask\Scheduler\TaskScheduler"/>
             <argument type="service" id="cache.messenger.restart_workers_signal" />
 
-            <tag name="console.command" command="scheduled-task:run"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\ScheduledTask\Api\ScheduledTaskController" public="true">

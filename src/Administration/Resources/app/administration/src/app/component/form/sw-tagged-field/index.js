@@ -1,129 +1,116 @@
 import template from './sw-tagged-field.html.twig';
 import './sw-tagged-field.scss';
 
-const { Component, Mixin } = Shopware;
-const utils = Shopware.Utils;
+const { Component } = Shopware;
 
 /**
  * @public
  * @status deprecated
  * @example-type code-only
  * @component-example
- * <sw-tagged-field label="Label" :addOnKey="[13, ',']">
+ * <sw-tagged-field label="Label" :addOnKey="['enter', ',']">
  * </sw-tagged-field>
  */
 Component.register('sw-tagged-field', {
     template,
 
-    mixins: [
-        Mixin.getByName('validation')
-    ],
+    model: {
+        prop: 'value',
+        event: 'change'
+    },
 
     props: {
-        placeholder: {
-            type: String,
-            required: false,
-            default: ''
-        },
         value: {
             type: Array,
             required: false,
             default: () => []
         },
-        label: {
-            type: String,
-            default: ''
-        },
-        disabled: {
-            type: Boolean,
-            required: false,
-            default: false
-        },
-        helpText: {
+
+        placeholder: {
             type: String,
             required: false,
-            default: ''
+            default() {
+                return this.$tc('global.sw-tagged-field.text-default-placeholder');
+            }
         },
+
         addOnKey: {
             type: Array,
             required: false,
-            default: () => [13]
+            default: () => ['enter']
         }
     },
 
     data() {
         return {
-            newTag: '',
-            hasError: false,
-            tags: []
+            newTagName: '',
+            hasFocus: false
         };
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     computed: {
-        taggedClasses() {
+        hasValues() {
+            return this.value.length > 0;
+        },
+
+        taggedFieldClasses() {
             return {
-                'has--error': !this.isValid || this.hasError,
-                'is--disabled': this.disabled
+                'has--focus': this.hasFocus
             };
         },
-        id() {
-            return `sw-tagged-field--${utils.createId()}`;
+
+        taggedFieldInputClasses() {
+            return {
+                'sw-tagged-field__input--full-width': !this.hasValues,
+                'sw-tagged-field__input--hidden': this.hasValues && !this.hasFocus
+            };
         }
     },
 
     methods: {
-        createdComponent() {
-            this.tags = this.value;
-        },
-
         dismissLastTag() {
-            if (this.newTag.length > 0) {
+            if (typeof this.newTagName === 'string' && this.newTagName.length > 0) {
                 return;
             }
 
-            if (!this.tags.length) {
-                return;
-            }
-
-            this.dismissTag(this.tags.length - 1);
+            this.$emit('change', this.value.slice(0, this.value.length - 1));
         },
 
         dismissTag(index) {
-            this.tags.splice(index, 1);
-
-            this.emitChanges();
-        },
-
-        emitChanges() {
-            this.$emit('input', this.tags);
+            this.$emit('change', this.value.filter((item, itemIndex) => itemIndex !== index));
         },
 
         performAddTag(event) {
-            if (this.disabled || (event && this.noTriggerKey(event))) {
+            if (this.disabled || this.noTriggerKey(event)) {
                 return;
             }
 
-            if (!this.newTag) {
+            if (typeof this.newTagName !== 'string' || this.newTagName === '') {
                 return;
             }
 
-            this.tags.push(this.newTag);
-            this.newTag = '';
-            this.emitChanges();
+            this.$emit('change', [...this.value, this.newTagName]);
+            this.newTagName = '';
+        },
+
+        setFocus(hasFocus) {
+            this.hasFocus = hasFocus;
+            if (hasFocus) {
+                this.$refs.taggedFieldInput.focus();
+            }
         },
 
         noTriggerKey(event) {
-            const triggerKey = this.addOnKey.indexOf(event.keyCode) !== -1
-                || this.addOnKey.indexOf(event.key) !== -1;
+            const keyIndex = this.addOnKey.findIndex((eventKey) => {
+                return eventKey.toLowerCase() === event.key.toLowerCase();
+            });
 
-            if (triggerKey) {
-                event.preventDefault();
+            if (keyIndex === -1) {
+                return true;
             }
-            return !triggerKey;
+
+            event.preventDefault();
+            return false;
         }
     }
 });

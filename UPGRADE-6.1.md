@@ -718,5 +718,22 @@ Elasticsearch
          <argument>%elasticsearch.index_prefix%</argument>
       </service>    
     ```
-
+* The extensions are now saved at the top level of the entities.
+    * Now you have to change the ElasticsearchDefinition::getMapping for external resources.
+   
+        Before:
+        ```
+            'extensions' => [
+                'type' => 'nested
+                'properties' => [
+                    'extensionsField' => $this->mapper->mapField($definition, $definition->getField('extensionsField'), $context)
+                ]
+            ]
+        ```
+      
+       After:
+      ```
+            'extensionsField' => $this->mapper->mapField($definition, $definition->getField('extensionsField'), $context)
+      ```     
+    * And you have to reindex.
 

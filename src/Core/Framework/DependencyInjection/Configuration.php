@@ -30,10 +30,8 @@ class Configuration implements ConfigurationInterface
 
     private function createFilesystemSection(): ArrayNodeDefinition
     {
-        $treeBuilder = new TreeBuilder('filesystem');
-
         /** @var ArrayNodeDefinition $rootNode */
-        $rootNode = $treeBuilder->getRootNode();
+        $rootNode = (new TreeBuilder('filesystem'))->getRootNode();
         $rootNode
             ->children()
                 ->arrayNode('private')
@@ -57,10 +55,8 @@ class Configuration implements ConfigurationInterface
 
     private function createCdnSection(): ArrayNodeDefinition
     {
-        $treeBuilder = new TreeBuilder('cdn');
-
         /** @var ArrayNodeDefinition $rootNode */
-        $rootNode = $treeBuilder->getRootNode();
+        $rootNode = (new TreeBuilder('cdn'))->getRootNode();
         $rootNode
             ->children()
                 ->scalarNode('url')->end()
@@ -72,10 +68,8 @@ class Configuration implements ConfigurationInterface
 
     private function createApiSection(): ArrayNodeDefinition
     {
-        $treeBuilder = new TreeBuilder('api');
-
         /** @var ArrayNodeDefinition $rootNode */
-        $rootNode = $treeBuilder->getRootNode();
+        $rootNode = (new TreeBuilder('api'))->getRootNode();
         $rootNode
             ->children()
             ->arrayNode('allowed_limits')
@@ -95,13 +89,11 @@ class Configuration implements ConfigurationInterface
 
     private function createStoreSection(): ArrayNodeDefinition
     {
-        $treeBuilder = new TreeBuilder('store');
-
         /** @var ArrayNodeDefinition $rootNode */
-        $rootNode = $treeBuilder->getRootNode();
+        $rootNode = (new TreeBuilder('store'))->getRootNode();
         $rootNode
             ->children()
-            ->booleanNode('frw')->end()
+                ->booleanNode('frw')->end()
             ->end();
 
         return $rootNode;
@@ -109,10 +101,8 @@ class Configuration implements ConfigurationInterface
 
     private function createAdminWorkerSection(): ArrayNodeDefinition
     {
-        $treeBuilder = new TreeBuilder('admin_worker');
-
         /** @var ArrayNodeDefinition $rootNode */
-        $rootNode = $treeBuilder->getRootNode();
+        $rootNode = (new TreeBuilder('admin_worker'))->getRootNode();
         $rootNode
             ->children()
                 ->arrayNode('transports')
@@ -124,7 +114,6 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('enable_admin_worker')
                     ->defaultValue(true)
                 ->end()
-
             ->end();
 
         return $rootNode;
@@ -132,10 +121,8 @@ class Configuration implements ConfigurationInterface
 
     private function createCacheSection(): ArrayNodeDefinition
     {
-        $treeBuilder = new TreeBuilder('cache');
-
         /** @var ArrayNodeDefinition $rootNode */
-        $rootNode = $treeBuilder->getRootNode();
+        $rootNode = (new TreeBuilder('cache'))->getRootNode();
         $rootNode
             ->children()
                 ->arrayNode('entity_cache')
@@ -151,15 +138,12 @@ class Configuration implements ConfigurationInterface
 
     private function createAutoUpdateSection(): ArrayNodeDefinition
     {
-        $treeBuilder = new TreeBuilder('auto_update');
-
         /** @var ArrayNodeDefinition $rootNode */
-        $rootNode = $treeBuilder->getRootNode();
+        $rootNode = (new TreeBuilder('auto_update'))->getRootNode();
         $rootNode
             ->children()
                 ->booleanNode('enabled')->end()
-            ->end()
-        ;
+            ->end();
 
         return $rootNode;
     }

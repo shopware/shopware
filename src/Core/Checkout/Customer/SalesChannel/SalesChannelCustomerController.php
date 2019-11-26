@@ -3,8 +3,11 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
+use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -58,13 +61,25 @@ class SalesChannelCustomerController extends AbstractController
      */
     private $customerDefinition;
 
+    /**
+     * @var ApiVersionConverter
+     */
+    private $apiVersionConverter;
+
+    /**
+     * @var CustomerAddressDefinition
+     */
+    private $addressDefinition;
+
     public function __construct(
         Serializer $serializer,
         AccountService $accountService,
         EntityRepositoryInterface $orderRepository,
         AccountRegistrationService $accountRegisterService,
         AddressService $addressService,
-        CustomerDefinition $customerDefinition
+        CustomerDefinition $customerDefinition,
+        CustomerAddressDefinition $addressDefinition,
+        ApiVersionConverter $apiVersionConverter
     ) {
         $this->serializer = $serializer;
         $this->accountService = $accountService;
@@ -72,6 +87,8 @@ class SalesChannelCustomerController extends AbstractController
         $this->accountRegisterService = $accountRegisterService;
         $this->addressService = $addressService;
         $this->customerDefinition = $customerDefinition;
+        $this->apiVersionConverter = $apiVersionConverter;
+        $this->addressDefinition = $addressDefinition;
     }
 
     /**
@@ -101,12 +118,22 @@ class SalesChannelCustomerController extends AbstractController
      *
      * @throws CustomerNotLoggedInException
      */
-    public function orderList(Request $request, SalesChannelContext $context): JsonResponse
+    public function orderList(int $version, Request $request, SalesChannelContext $context): JsonResponse
     {
         $limit = $request->query->getInt('limit', 10);
         $page = $request->query->getInt('page', 1);
 
-        return new JsonResponse($this->serialize($this->loadOrders($page, $limit, $context)));
+        $orders = $this->loadOrders($page, $limit, $context);
+        $convertedOrders = [];
+        foreach ($orders as $order) {
+            $convertedOrders[] = $this->apiVersionConverter->convertEntity(
+                $this->orderRepository->getDefinition(),
+                $order,
+                $version
+            );
+        }
+
+        return new JsonResponse($this->serialize($convertedOrders));
     }
 
     /**
@@ -177,10 +204,17 @@ class SalesChannelCustomerController extends AbstractController
      *
      * @throws CustomerNotLoggedInException
      */
-    public function getAddresses(SalesChannelContext $context): JsonResponse
+    public function getAddresses(int $version, SalesChannelContext $context): JsonResponse
     {
+        $addresses = $this->addressService->getAddressByContext($context);
+        $converted = [];
+
+        foreach ($addresses as $address) {
+            $converted[] = $this->apiVersionConverter->convertEntity($this->addressDefinition, $address, $version);
+        }
+
         return new JsonResponse(
-            $this->serialize($this->addressService->getAddressByContext($context))
+            $this->serialize($converted)
         );
     }
 
@@ -191,23 +225,25 @@ class SalesChannelCustomerController extends AbstractController
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException
      */
-    public function getAddress(string $id, SalesChannelContext $context): JsonResponse
+    public function getAddress(string $id, int $version, SalesChannelContext $context): JsonResponse
     {
+        $address = $this->addressService->getById($id, $context);
+
         return new JsonResponse(
-            $this->serialize($this->addressService->getById($id, $context))
+            $this->serialize($this->apiVersionConverter->convertEntity($this->addressDefinition, $address, $version))
         );
     }
 
     /**
-     * @Route("/sales-channel-api/v{version}/customer/address", name="sales-channel-api.customer.address.create", methods={"POST"})
+     * @Route("/sales-channel-api/v{version}/customer/address", name="sales-channel-api.customer.address.create", methods={"POST", "PATCH"})
      *
      * @throws AddressNotFoundException
      * @throws CustomerNotLoggedInException
      * @throws InvalidUuidException
      */
-    public function createAddress(RequestDataBag $requestData, SalesChannelContext $context): JsonResponse
+    public function upsertAddress(RequestDataBag $requestData, SalesChannelContext $context): JsonResponse
     {
-        $addressId = $this->addressService->create($requestData, $context);
+        $addressId = $this->addressService->upsert($requestData, $context);
 
         return new JsonResponse($this->serialize($addressId));
     }
@@ -257,7 +293,7 @@ class SalesChannelCustomerController extends AbstractController
         return new JsonResponse($this->serialize($id));
     }
 
-    private function loadOrders(int $page, int $limit, SalesChannelContext $context): array
+    private function loadOrders(int $page, int $limit, SalesChannelContext $context): OrderCollection
     {
         if (!$context->getCustomer()) {
             throw new CustomerNotLoggedInException();
@@ -272,7 +308,10 @@ class SalesChannelCustomerController extends AbstractController
         $criteria->setOffset($page * $limit);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
 
-        return $this->orderRepository->search($criteria, $context->getContext())->getElements();
+        /** @var OrderCollection $orders */
+        $orders = $this->orderRepository->search($criteria, $context->getContext())->getEntities();
+
+        return $orders;
     }
 
     private function serialize($data): array

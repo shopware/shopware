@@ -54,8 +54,10 @@
                                     :repository="ruleRepository"
                                     :showSelection="true"
                                     :isLoading="isLoading"
+                                    :fullPage="true"
                                     detailRoute="sw.settings.rule.detail"
-                                    @inline-edit-save="onInlineEditSave">
+                                    @inline-edit-save="onInlineEditSave"
+                                    @items-delete-finish="getList">
 
                                     <template #column-invalid="{item}">
                                         <template v-if="item.invalid">

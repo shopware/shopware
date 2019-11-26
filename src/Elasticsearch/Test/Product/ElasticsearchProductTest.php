@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MaxAg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MinAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\SumAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\Bucket;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\DateHistogramResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
@@ -39,6 +38,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ProductExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Util\DateHistogramCase;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
@@ -47,8 +49,11 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
+use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
+use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -61,6 +66,7 @@ class ElasticsearchProductTest extends TestCase
     use BasicTestDataBehaviour;
     use SessionTestBehaviour;
     use QueueTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour;
 
     /**
      * @var Client
@@ -87,12 +93,54 @@ class ElasticsearchProductTest extends TestCase
      */
     private $ids;
 
+    /**
+     * @var Connection|object|null
+     */
+    private $connection;
+
+    /**
+     * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
+     */
+    private $productRepository;
+
+    /**
+     * @var object|\Shopware\Core\Framework\DataAbstractionLayer\EntityRepository|null
+     */
+    private $salesChannelRepository;
+
     protected function setUp(): void
     {
         $this->helper = $this->getContainer()->get(ElasticsearchHelper::class);
         $this->client = $this->getContainer()->get(Client::class);
         $this->productDefinition = $this->getContainer()->get(ProductDefinition::class);
         $this->languageRepository = $this->getContainer()->get('language.repository');
+
+        $this->connection = $this->getContainer()->get(Connection::class);
+
+        $this->registerDefinition(ExtendedProductDefinition::class);
+        $this->registerDefinitionWithExtensions(ProductDefinition::class, ProductExtension::class);
+
+        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+
+        $elasticsearchRegistry = $this->getContainer()->get(ElasticsearchRegistry::class);
+
+        $extension = new ElasticsearchProductDefinitionExtension(
+            $this->getContainer()->get(ProductDefinition::class),
+            $this->getContainer()->get(EntityMapper::class)
+        );
+
+        $rulesProperty = ReflectionHelper::getProperty(ElasticsearchRegistry::class, 'definitions');
+        $rulesProperty->setValue($elasticsearchRegistry, [$extension]);
+
+        parent::setUp();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->removeExtension(ProductExtension::class);
+
+        parent::tearDown();
     }
 
     /**
@@ -100,10 +148,26 @@ class ElasticsearchProductTest extends TestCase
      */
     public static function startTransactionBefore(): void
     {
-        KernelLifecycleManager::getKernel()
+        $connection = KernelLifecycleManager::getKernel()
             ->getContainer()
-            ->get(Connection::class)
-            ->beginTransaction();
+            ->get(Connection::class);
+
+        $connection->executeQuery('
+            DROP TABLE IF EXISTS `extended_product`;
+            CREATE TABLE `extended_product` (
+                `id` BINARY(16) NOT NULL,
+                `name` VARCHAR(255) NULL,
+                `product_id` BINARY(16) NULL,
+                `language_id` BINARY(16) NULL,
+                `created_at` DATETIME(3) NOT NULL,
+                `updated_at` DATETIME(3) NULL,
+                PRIMARY KEY (`id`),
+                CONSTRAINT `fk.extended_product.id` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`),
+                CONSTRAINT `fk.extended_product.language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`)
+            )
+        ');
+
+        $connection->beginTransaction();
     }
 
     /**
@@ -111,21 +175,17 @@ class ElasticsearchProductTest extends TestCase
      */
     public static function stopTransactionAfter(): void
     {
-        KernelLifecycleManager::getKernel()
+        $connection = KernelLifecycleManager::getKernel()
             ->getContainer()
-            ->get(Connection::class)
-            ->rollBack();
+            ->get(Connection::class);
+
+        $connection->rollBack();
+        $connection->executeQuery('DROP TABLE `extended_product`');
     }
 
     public function testIndexing()
     {
-        /** @var Connection $connection */
-        $connection = $this->getContainer()->get(Connection::class);
-        if ($connection->isRollbackOnly()) {
-            $connection->rollBack();
-            $connection->beginTransaction();
-        }
-        $connection->executeUpdate('DELETE FROM product');
+        $this->connection->executeUpdate('DELETE FROM product');
 
         $context = Context::createDefaultContext();
 
@@ -992,7 +1052,6 @@ class ElasticsearchProductTest extends TestCase
             )
         );
 
-        /** @var AggregationResultCollection $result */
         $result = $aggregator->aggregate($this->productDefinition, $criteria, $context);
 
         static::assertTrue($result->has('release-histogram'));
@@ -1092,7 +1151,6 @@ class ElasticsearchProductTest extends TestCase
             )
         );
 
-        /** @var AggregationResultCollection $result */
         $result = $aggregator->aggregate($this->productDefinition, $criteria, $context);
 
         static::assertTrue($result->has('release-histogram'));
@@ -1129,6 +1187,21 @@ class ElasticsearchProductTest extends TestCase
         static::assertEquals(275, $price->getAvg());
     }
 
+    /**
+     * @depends testIndexing
+     */
+    public function testExtensionFilter(TestDataCollection $data): void
+    {
+        $searcher = $this->createEntitySearcher();
+        // check simple equals filter
+        $criteria = new Criteria($data->prefixed('p'));
+        $criteria->addFilter(new EqualsFilter('toOne.name', 'test'));
+
+        $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+        static::assertCount(1, $products->getIds());
+        static::assertSame(1, $products->getTotal());
+    }
+
     protected function getDiContainer(): ContainerInterface
     {
         return $this->getContainer();
@@ -1143,7 +1216,8 @@ class ElasticsearchProductTest extends TestCase
         string $releaseDate,
         float $purchasePrice,
         int $stock,
-        array $categoryKeys
+        array $categoryKeys,
+        array $extensions = []
     ): array {
         $categories = array_map(function ($categoryKey) {
             return ['id' => $this->ids->create($categoryKey), 'name' => $categoryKey];
@@ -1167,6 +1241,10 @@ class ElasticsearchProductTest extends TestCase
             $data['categories'] = $categories;
         }
 
+        foreach ($extensions as $extensionKey => $extension) {
+            $data[$extensionKey] = $extension;
+        }
+
         return $data;
     }
 
@@ -1176,7 +1254,9 @@ class ElasticsearchProductTest extends TestCase
         $repo = $this->getContainer()->get('product.repository');
 
         $repo->create([
-            $this->createProduct('p1', 'Silk', 't1', 'm1', 50, '2019-01-01 10:11:00', 0, 2, ['c1', 'c2']),
+            $this->createProduct('p1', 'Silk', 't1', 'm1', 50, '2019-01-01 10:11:00', 0, 2, ['c1', 'c2'], ['toOne' => [
+                'name' => 'test',
+            ]]),
             $this->createProduct('p2', 'Rubber', 't1', 'm2', 100, '2019-01-01 10:13:00', 0, 10, ['c1']),
             $this->createProduct('p3', 'Stilk', 't2', 'm2', 150, '2019-06-15 13:00:00', 100, 100, ['c1', 'c3']),
             $this->createProduct('p4', 'Grouped 1', 't2', 'm2', 200, '2020-09-30 15:00:00', 100, 300, ['c3']),

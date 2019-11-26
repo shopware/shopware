@@ -4,8 +4,10 @@ namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionPersonaCustomer;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
+use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -31,7 +33,8 @@ class PromotionPersonaCustomerDefinition extends MappingEntityDefinition
             (new FkField('promotion_id', 'promotionId', PromotionDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('customer_id', 'customerId', CustomerDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id'),
-            new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, 'id'),
+            (new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, 'id'))
+                ->addFlags(new ReadProtected(SalesChannelApiSource::class)),
         ]);
     }
 }

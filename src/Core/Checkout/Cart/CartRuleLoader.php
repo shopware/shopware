@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Cart;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Content\Rule\RuleCollection;
-use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -152,7 +151,6 @@ class CartRuleLoader
             ->search($criteria, $context)
             ->getEntities();
 
-        /** @var RuleEntity $rule */
         foreach ($rules as $key => $rule) {
             if ($rule->isInvalid() || !$rule->getPayload()) {
                 $rules->remove($key);

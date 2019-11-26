@@ -15,11 +15,15 @@ import Fixture from '../service/administration/fixture.service';
  * @param {String} endpoint - API endpoint for the request
  * @param {Object} [options={}] - Options concerning deletion
  */
-Cypress.Commands.add('createDefaultFixture', (endpoint, data = {}) => {
+Cypress.Commands.add('createDefaultFixture', (endpoint, data = {}, jsonPath) => {
     const fixture = new Fixture();
     let finalRawData = {};
 
-    return cy.fixture(endpoint).then((json) => {
+    if (!jsonPath) {
+        jsonPath = endpoint;
+    }
+
+    return cy.fixture(jsonPath).then((json) => {
         finalRawData = Cypress._.merge(json, data);
 
         return fixture.create(endpoint, finalRawData);

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints\DateTime;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
 class DateRangeRuleTest extends TestCase
@@ -56,12 +57,16 @@ class DateRangeRuleTest extends TestCase
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
             $exceptions = iterator_to_array($stackException->getErrors());
-            static::assertCount(2, $exceptions);
+            static::assertCount(3, $exceptions);
+
             static::assertSame('/0/value/fromDate', $exceptions[0]['source']['pointer']);
             static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[0]['code']);
 
             static::assertSame('/0/value/toDate', $exceptions[1]['source']['pointer']);
             static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[1]['code']);
+
+            static::assertSame('/0/value/useTime', $exceptions[2]['source']['pointer']);
+            static::assertSame(NotNull::IS_NULL_ERROR, $exceptions[2]['code']);
         }
     }
 

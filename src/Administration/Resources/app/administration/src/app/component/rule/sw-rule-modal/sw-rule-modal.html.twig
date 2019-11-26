@@ -6,20 +6,22 @@
         {% block sw_rule_modal_basic_info %}
             <sw-container columns="2fr 1fr" gap="0px 32px">
                 {% block sw_rule_modal_basic_info_name %}
-                    <sw-field type="text"
-                              :label="$tc('sw-rule-modal.labelName')"
-                              :placeholder="$tc('sw-rule-modal.placeholderName')"
-                              validation="required"
-                              v-model="rule.name">
-                    </sw-field>
+                    <sw-text-field
+                        :label="$tc('sw-rule-modal.labelName')"
+                        :placeholder="$tc('sw-rule-modal.placeholderName')"
+                        :error="ruleNameError"
+                        required
+                        v-model="rule.name">
+                    </sw-text-field>
                 {% endblock %}
                 {% block sw_rule_modal_basic_info_priority %}
-                    <sw-field type="number"
-                              :label="$tc('sw-rule-modal.labelPriority')"
-                              :placeholder="$tc('sw-rule-modal.placeholderPriority')"
-                              validation="required"
-                              v-model="rule.priority">
-                    </sw-field>
+                    <sw-number-field
+                        :label="$tc('sw-rule-modal.labelPriority')"
+                        :placeholder="$tc('sw-rule-modal.placeholderPriority')"
+                        :error="rulePriorityError"
+                        required
+                        v-model="rule.priority">
+                    </sw-number-field>
                 {% endblock %}
             </sw-container>
 
@@ -33,11 +35,15 @@
         {% endblock %}
 
         {% block sw_rule_modal_condition_tree %}
-            <sw-condition-tree v-if="isLoaded"
-                               :entity="rule"
-                               :conditionStore="treeConfig.conditionStore"
-                               :config="treeConfig"
-                               ref="conditionTree">
+            <sw-condition-tree
+                :conditionRepository="ruleConditionRepository"
+                :conditionDataProviderService="ruleConditionDataProviderService"
+                :rootCondition="null"
+                associationField="ruleId"
+                :associationValue="rule.id"
+                :initialConditions="initialConditions"
+                :scopes="allowedRuleScopes"
+                @conditions-changed="conditionsChanged">
             </sw-condition-tree>
         {% endblock %}
 
@@ -50,7 +56,7 @@
                 {% endblock %}
 
                 {% block sw_rule_modal_footer_button_save %}
-                    <sw-button :disabled="rule.isLoading"
+                    <sw-button :disabled="isLoading"
                                class="sw-rule-modal__save"
                                @click="saveAndClose"
                                size="small"

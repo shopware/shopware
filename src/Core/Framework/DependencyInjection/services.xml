@@ -90,11 +90,11 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
             <argument>%kernel.project_dir%</argument>
 
-            <tag name="console.command" command="database:create-migration"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\Migration\Command\RefreshMigrationCommand">
-            <tag name="console.command" command="database:refresh-migration"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\Migration\Command\MigrationCommand">
@@ -102,7 +102,14 @@
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
             <argument type="service" id="cache.object"/>
 
-            <tag name="console.command" command="database:migrate"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\PersonalData\CleanPersonalDataCommand">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="customer.repository"/>
+
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\Migration\Command\MigrationDestructiveCommand">
@@ -110,7 +117,7 @@
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
             <argument type="service" id="cache.object"/>
 
-            <tag name="console.command" command="database:migrate-destructive"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\Migration\Api\MigrationController" public="true">
@@ -314,8 +321,9 @@
         <service id="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator"/>
 
         <service id="Shopware\Core\Framework\FeatureFlag\Command\FeatureFlagCreateCommand">
-            <tag name="console.command" command="feature:add"/>
             <argument type="service" id="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator"/>
+
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\Cache\CacheClearer">

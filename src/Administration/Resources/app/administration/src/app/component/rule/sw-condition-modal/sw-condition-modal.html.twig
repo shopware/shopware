@@ -4,25 +4,26 @@
               @modal-close="closeModal"
               :title="$tc('sw-settings-rule.conditionModal.modalTitle')">
         {% block sw_condition_modal_tree %}
-            <sw-condition-tree :entity="condition"
-                               :conditionStore="treeConfig.conditionStore"
-                               :config="treeConfig"
-                               :parentId="condition.id"
-                               :entityAssociationStore="entityAssociationStore()"
-                               :conditions="condition.children"
-                               ref="conditionTree">
+            <sw-condition-tree
+                v-bind="{ initialConditions, scopes, allowedTypes, conditionRepository, conditionDataProviderService }"
+                :rootCondition="condition"
+                associationField="ruleId"
+                :associationValue="condition.ruleId"
+                :childAssociationField="childAssociationField"
+                @conditions-changed="onConditionsChanged">
             </sw-condition-tree>
         {% endblock %}
 
         {% block sw_condition_modal_footer %}
-            <template slot="modal-footer">
+            <template #modal-footer>
                 {% block sw_condition_modal_footer_delete %}
                     <sw-button variant="danger" size="small" @click="deleteAndClose">
                         {{ $tc('sw-settings-rule.conditionModal.delete') }}
                     </sw-button>
                 {% endblock %}
+
                 {% block sw_condition_modal_footer_close %}
-                    <sw-button @click="closeModal" size="small" variant="primary">
+                    <sw-button  variant="primary" size="small"  @click="saveAndCloseModal">
                         {{ $tc('sw-settings-rule.conditionModal.close') }}
                     </sw-button>
                 {% endblock %}

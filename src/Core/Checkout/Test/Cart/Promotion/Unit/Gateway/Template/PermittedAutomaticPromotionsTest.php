@@ -30,8 +30,6 @@ class PermittedAutomaticPromotionsTest extends TestCase
      */
     public function testCriteria(): void
     {
-        $associations = ['discounts'];
-
         $template = new PermittedAutomaticPromotions($this->salesChannel->getId());
 
         static::assertEquals($this->getExpectedFilter()->getQueries(), $template->getQueries());

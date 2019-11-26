@@ -3,9 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\LineItem;
 
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class LineItemQuantitySplitter
@@ -33,16 +31,13 @@ class LineItemQuantitySplitter
         $tmpItem = LineItem::createFromLineItem($item);
 
         // use calculated unit price
-        /** @var float $unitPrice */
         $unitPrice = $tmpItem->getPrice()->getUnitPrice();
 
-        /** @var TaxRuleCollection $taxRules */
         $taxRules = $tmpItem->getPrice()->getTaxRules();
 
         // change the quantity to 1 single item
         $tmpItem->setQuantity($quantity);
 
-        /** @var QuantityPriceDefinition $quantityDefinition */
         $quantityDefinition = new QuantityPriceDefinition(
             $unitPrice,
             $taxRules,
@@ -51,7 +46,6 @@ class LineItemQuantitySplitter
             true
         );
 
-        /** @var CalculatedPrice $price */
         $price = $this->quantityPriceCalculator->calculate(
             $quantityDefinition,
             $context

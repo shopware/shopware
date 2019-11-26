@@ -133,7 +133,7 @@ class SeoActionControllerTest extends TestCase
         $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
         $aId = $this->createTestCategory('A');
-        $bId = $this->createTestCategory('B', $aId);
+        $this->createTestCategory('B', $aId);
 
         $this->updateSalesChannelNavigationEntryPoint($salesChannelId, $aId);
 

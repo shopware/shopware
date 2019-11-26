@@ -9,7 +9,6 @@ use ScssPhp\ScssPhp\Formatter\Crunched;
 use ScssPhp\ScssPhp\Formatter\Expanded;
 use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
@@ -80,7 +79,6 @@ class ThemeCompiler
         $styleFiles = $resolvedFiles[ThemeFileResolver::STYLE_FILES];
 
         $concatenatedStyles = '';
-        /** @var File $file */
         foreach ($styleFiles as $file) {
             $concatenatedStyles .= '@import \'' . $file->getFilepath() . '\';' . PHP_EOL;
         }

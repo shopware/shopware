@@ -1,8 +1,8 @@
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-settings-shipping-detail.html.twig';
 import './sw-settings-shipping-detail.scss';
 
 const { Component, Mixin, StateDeprecated } = Shopware;
+const { Criteria } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 
 Component.register('sw-settings-shipping-detail', {
@@ -34,11 +34,6 @@ Component.register('sw-settings-shipping-detail', {
             shippingMethod: {},
             logoMediaItem: null,
             uploadTag: 'sw-shipping-method-upload-tag',
-            ruleFilter: CriteriaFactory.multi(
-                'OR',
-                CriteriaFactory.contains('rule.moduleTypes.types', 'shipping'),
-                CriteriaFactory.equals('rule.moduleTypes', null)
-            ),
             isSaveSuccessful: false,
             isProcessLoading: false
         };
@@ -94,6 +89,19 @@ Component.register('sw-settings-shipping-detail', {
                 message: 'ESC',
                 appearance: 'light'
             };
+        },
+
+        ruleFilter() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.multi(
+                'OR',
+                [
+                    Criteria.contains('rule.moduleTypes.types', 'shipping'),
+                    Criteria.equals('rule.moduleTypes', null)
+                ]
+            ));
+
+            return criteria;
         }
     },
 

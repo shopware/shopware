@@ -23,7 +23,7 @@
                         {% endif %}
                     </div>
                 {% endblock %}
-    
+
                 {% block component_product_quickview_minimal_product %}
                     <div class="col-12 col-md-6 quickview-minimal-product">
                         {% block component_product_quickview_minimal_product_name %}
@@ -34,13 +34,13 @@
                                 {{ page.product.translated.name }}
                             </a>
                         {% endblock %}
-    
+
                         {% block component_product_quickview_minimal_product_number %}
                             <p class="quickview-minimal-product-number">
-                                {{ "detail.ordernumberLabel"|trans }} {{ page.product.productNumber }}
+                                {{ "detail.ordernumberLabel"|trans|sw_sanitize }} {{ page.product.productNumber }}
                             </p>
                         {% endblock %}
-    
+
                         {% block component_product_quickview_minimal_product_manufacturer %}
                             {% if page.product.manufacturer %}
                                 <a href="{{ page.product.manufacturer.link }}"
@@ -61,16 +61,16 @@
                 {% endblock %}
             </div>
         {% endblock %}
-    
+
         {% block component_product_quickview_minimal_footer %}
             {% if page.product.translated.description %}
                 <div class="quickview-minimal-footer">
                     {% block component_product_quickview_minimal_footer_heading %}
                         <p class="h5 quickview-minimal-footer-heading">
-                            {{ "detail.tabsDescription"|trans }}
+                            {{ "detail.tabsDescription"|trans|sw_sanitize }}
                         </p>
                     {% endblock %}
-    
+
                     {% block component_product_quickview_minimal_footer_text %}
                         <p class="quickview-minimal-footer-description">
                             {{ page.product.translated.description }}

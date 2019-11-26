@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Api\Sync;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Api\Converter\ConverterService;
+use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionException;
 use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionNotAllowedException;
 use Shopware\Core\Framework\Context;
@@ -28,18 +28,18 @@ class SyncService implements SyncServiceInterface
     private $connection;
 
     /**
-     * @var ConverterService
+     * @var ApiVersionConverter
      */
-    private $converterService;
+    private $apiVersionConverter;
 
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         Connection $connection,
-        ConverterService $converterService
+        ApiVersionConverter $apiVersionConverter
     ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->connection = $connection;
-        $this->converterService = $converterService;
+        $this->apiVersionConverter = $apiVersionConverter;
     }
 
     /**
@@ -61,7 +61,7 @@ class SyncService implements SyncServiceInterface
                 $this->connection->beginTransaction();
             }
 
-            $result = $this->execute($operation, $context, $behavior);
+            $result = $this->execute($operation, $context);
 
             $results[$operation->getKey()] = $result;
 
@@ -69,7 +69,6 @@ class SyncService implements SyncServiceInterface
 
             if ($hasError) {
                 if ($behavior->failOnError()) {
-                    /** @var SyncOperationResult $result */
                     foreach ($results as $result) {
                         $result->resetEntities();
                     }
@@ -97,16 +96,16 @@ class SyncService implements SyncServiceInterface
         return new SyncResult($results, $hasError === false);
     }
 
-    private function execute(SyncOperation $operation, Context $context, SyncBehavior $behavior): SyncOperationResult
+    private function execute(SyncOperation $operation, Context $context): SyncOperationResult
     {
         $repository = $this->definitionRegistry->getRepository($operation->getEntity());
 
         switch (mb_strtolower($operation->getAction())) {
             case 'upsert':
-                return $this->upsertRecords($operation, $context, $repository, $behavior);
+                return $this->upsertRecords($operation, $context, $repository);
 
             case 'delete':
-                return $this->deleteRecords($operation, $context, $repository, $behavior);
+                return $this->deleteRecords($operation, $context, $repository);
 
             default:
                 throw new \RuntimeException(
@@ -115,8 +114,11 @@ class SyncService implements SyncServiceInterface
         }
     }
 
-    private function upsertRecords(SyncOperation $operation, Context $context, EntityRepositoryInterface $repository, SyncBehavior $behavior): SyncOperationResult
-    {
+    private function upsertRecords(
+        SyncOperation $operation,
+        Context $context,
+        EntityRepositoryInterface $repository
+    ): SyncOperationResult {
         $results = [];
 
         $records = array_values($operation->getPayload());
@@ -148,8 +150,11 @@ class SyncService implements SyncServiceInterface
         return new SyncOperationResult($results);
     }
 
-    private function deleteRecords(SyncOperation $operation, Context $context, EntityRepositoryInterface $repository, SyncBehavior $behavior): SyncOperationResult
-    {
+    private function deleteRecords(
+        SyncOperation $operation,
+        Context $context,
+        EntityRepositoryInterface $repository
+    ): SyncOperationResult {
         $results = [];
 
         $records = array_values($operation->getPayload());
@@ -185,12 +190,12 @@ class SyncService implements SyncServiceInterface
     {
         $exception = new ApiConversionException();
 
-        if (!$this->converterService->isAllowed($definition->getEntityName(), null, $apiVersion)) {
+        if (!$this->apiVersionConverter->isAllowed($definition->getEntityName(), null, $apiVersion)) {
             $exception->add(new ApiConversionNotAllowedException($definition->getEntityName(), $apiVersion), "/${writeIndex}");
             $exception->tryToThrow();
         }
 
-        $converted = $this->converterService->convertPayload($definition, $record, $apiVersion, $exception, "/${writeIndex}");
+        $converted = $this->apiVersionConverter->convertPayload($definition, $record, $apiVersion, $exception, "/${writeIndex}");
         $exception->tryToThrow();
 
         return $converted;

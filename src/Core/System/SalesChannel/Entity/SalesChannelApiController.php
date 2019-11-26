@@ -2,7 +2,10 @@
 
 namespace Shopware\Core\System\SalesChannel\Entity;
 
-use Shopware\Core\Framework\Api\Converter\ConverterService;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Framework\Acl\Role\AclRoleDefinition;
+use Shopware\Core\Framework\Acl\Role\AclUserRoleDefinition;
+use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context\SalesChannelApiSource;
@@ -15,10 +18,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Plugin\PluginDefinition;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryDefinition;
+use Shopware\Core\System\User\UserDefinition;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,6 +36,16 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 class SalesChannelApiController
 {
+    private const PROTECTION_BLACKLIST = [
+        CustomerDefinition::class,
+        UserDefinition::class,
+        PluginDefinition::class,
+        SalesChannelDefinition::class,
+        AclRoleDefinition::class,
+        AclUserRoleDefinition::class,
+        UserRecoveryDefinition::class,
+    ];
+
     /**
      * @var SalesChannelDefinitionInstanceRegistry
      */
@@ -40,18 +57,18 @@ class SalesChannelApiController
     private $criteriaBuilder;
 
     /**
-     * @var ConverterService
+     * @var ApiVersionConverter
      */
-    private $converterService;
+    private $apiVersionConverter;
 
     public function __construct(
         SalesChannelDefinitionInstanceRegistry $registry,
         RequestCriteriaBuilder $criteriaBuilder,
-        ConverterService $converterService
+        ApiVersionConverter $apiVersionConverter
     ) {
         $this->registry = $registry;
         $this->criteriaBuilder = $criteriaBuilder;
-        $this->converterService = $converterService;
+        $this->apiVersionConverter = $apiVersionConverter;
     }
 
     public function searchIds(Request $request, SalesChannelContext $context, string $entity): Response
@@ -175,6 +192,19 @@ class SalesChannelApiController
                 if ($flag && !$flag->isSourceAllowed(SalesChannelApiSource::class)) {
                     throw new ReadProtectedException($field->getPropertyName(), SalesChannelApiSource::class);
                 }
+
+                if (!$field instanceof AssociationField) {
+                    continue;
+                }
+
+                $referenceDefinition = $field->getReferenceDefinition();
+                if ($field instanceof ManyToManyAssociationField) {
+                    $referenceDefinition = $field->getToManyReferenceDefinition();
+                }
+
+                if (in_array($referenceDefinition->getClass(), self::PROTECTION_BLACKLIST, true)) {
+                    throw new ReadProtectedException($field->getPropertyName(), SalesChannelApiSource::class);
+                }
             }
         }
 
@@ -183,7 +213,7 @@ class SalesChannelApiController
 
     private function checkIfRouteAvailableInApiVersion(string $entity, int $version): void
     {
-        if (!$this->converterService->isAllowed($entity, null, $version)) {
+        if (!$this->apiVersionConverter->isAllowed($entity, null, $version)) {
             throw new NotFoundHttpException();
         }
     }

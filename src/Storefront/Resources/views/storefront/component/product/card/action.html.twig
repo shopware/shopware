@@ -44,8 +44,8 @@
                                 {% endblock %}
 
                                 <button class="btn btn-block btn-buy"
-                                        title="{{ "listing.boxAddProduct"|trans }}">
-                                    {{ "listing.boxAddProduct"|trans }}
+                                        title="{{ "listing.boxAddProduct"|trans|striptags }}">
+                                    {{ "listing.boxAddProduct"|trans|sw_sanitize }}
                                 </button>
                             {% endblock %}
                         </form>
@@ -55,8 +55,8 @@
                 {% block component_product_box_action_detail %}
                     <a href="{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}"
                        class="btn btn-block btn-light"
-                       title="{{ "listing.boxProductDetails"|trans }}">
-                        {{ "listing.boxProductDetails"|trans }}
+                       title="{{ "listing.boxProductDetails"|trans|striptags }}">
+                        {{ "listing.boxProductDetails"|trans|sw_sanitize }}
                     </a>
                 {% endblock %}
             {% endif %}

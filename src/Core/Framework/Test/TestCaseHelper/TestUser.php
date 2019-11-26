@@ -25,21 +25,9 @@ class TestUser
         $this->name = $name;
     }
 
-    public static function getAdmin(Connection $connection): TestUser
+    public static function getAdmin(): TestUser
     {
-        $username = 'admin';
-        $password = 'shopware';
-
-        $userId = $connection
-            ->createQueryBuilder()
-            ->select('id')
-            ->from('user')
-            ->where('username = :name AND last_name = :name AND admin = 1')
-            ->setParameter('name', $username)
-            ->execute()
-            ->fetchColumn();
-
-        return new TestUser($password, $username);
+        return new TestUser('shopware', 'admin');
     }
 
     public static function createNewTestUser(Connection $connection, array $permissions = []): TestUser

@@ -39,7 +39,6 @@ class ManyToManyJoinBuilder implements JoinBuilderInterface
 
     private function joinMapping(string $joinType, string $on, string $alias, ManyToManyAssociationField $association, EntityDefinition $definition, QueryBuilder $builder, Context $context): void
     {
-        /** @var EntityDefinition $mapping */
         $mapping = $association->getMappingDefinition();
         $table = $mapping->getEntityName();
 

@@ -97,7 +97,6 @@ class WriteCommandQueue
      */
     public function ensureIs(EntityDefinition $definition, string $class): void
     {
-        /** @var WriteCommandInterface[] $commands */
         $commands = $this->commands[$definition->getClass()];
 
         foreach ($commands as $command) {

@@ -7,7 +7,9 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-rule-list', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory'
+    ],
 
     mixins: [
         Mixin.getByName('listing'),

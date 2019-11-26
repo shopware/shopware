@@ -6,13 +6,14 @@ use Shopware\Core\Framework\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
-use Shopware\Core\Framework\Plugin\PluginEntity;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class PluginDeactivateCommand extends AbstractPluginLifecycleCommand
 {
     private const LIFECYCLE_METHOD = 'deactivate';
+
+    protected static $defaultName = 'plugin:deactivate';
 
     protected function configure(): void
     {
@@ -36,7 +37,6 @@ class PluginDeactivateCommand extends AbstractPluginLifecycleCommand
         }
 
         $deactivatedPluginCount = 0;
-        /** @var PluginEntity $plugin */
         foreach ($plugins as $plugin) {
             if ($plugin->getInstalledAt() === null) {
                 $io->note(sprintf('Plugin "%s" must be installed. Skipping.', $plugin->getName()));

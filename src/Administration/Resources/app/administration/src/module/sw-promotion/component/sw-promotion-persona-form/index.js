@@ -115,7 +115,8 @@ Component.register('sw-promotion-persona-form', {
             this.customerService = new PersonaCustomerGridService(
                 this,
                 this.repositoryFactory.create('customer'),
-                this.customerPersonaRepository
+                this.customerPersonaRepository,
+                Shopware.Context.api
             );
 
             this.customerService.reloadCustomers().then(() => {
@@ -167,11 +168,6 @@ Component.register('sw-promotion-persona-form', {
             });
 
             Promise.all(promiseList).then(() => {
-                // reset our selection in the grid
-                // and also deselect the checkbox in the header
-                this.$refs.gridCustomers.selection = [];
-                this.$refs.gridCustomers.allSelectedChecked = false;
-
                 this.refreshGridDataSource();
                 this.updateStateVariables();
             });
@@ -184,10 +180,10 @@ Component.register('sw-promotion-persona-form', {
             this.refreshGridDataSource();
             this.updateStateVariables();
         },
-        onGridSelectionChanged(selection) {
+        onGridSelectionChanged(selection, selectionCount) {
             // enable our button if rows have been selected.
             // disable our delete button if nothing has been selected
-            this.removeButtonDisabled = Object.keys(selection).length <= 0;
+            this.removeButtonDisabled = selectionCount <= 0;
         },
         refreshGridDataSource() {
             this.gridCustomersPageDataSource = this.customerService.getPageDataSource(

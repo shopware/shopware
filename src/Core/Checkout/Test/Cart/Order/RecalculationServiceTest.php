@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -151,13 +150,11 @@ class RecalculationServiceTest extends TestCase
 
         // remove delivery information from line items
 
-        /** @var Delivery $delivery */
         foreach ($cart->getDeliveries() as $delivery) {
             // remove address from ShippingLocation
             $property = ReflectionHelper::getProperty(ShippingLocation::class, 'address');
             $property->setValue($delivery->getLocation(), null);
 
-            /** @var DeliveryPosition $position */
             foreach ($delivery->getPositions() as $position) {
                 $position->getLineItem()->setDeliveryInformation(null);
                 $position->getLineItem()->setQuantityInformation(null);
@@ -171,7 +168,6 @@ class RecalculationServiceTest extends TestCase
             $delivery->getShippingMethod()->setPrices(new ShippingMethodPriceCollection());
         }
 
-        /** @var LineItem $lineItem */
         foreach ($cart->getLineItems()->getFlat() as $lineItem) {
             $lineItem->setDeliveryInformation(null);
             $lineItem->setQuantityInformation(null);

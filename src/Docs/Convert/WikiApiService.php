@@ -35,7 +35,7 @@ class WikiApiService
     public function syncFilesWithServer(DocumentTree $tree): void
     {
         echo 'Syncing markdown files ...' . PHP_EOL;
-        [$globalCategoryList, $articleList] = $this->gatherCategoryChildrenAndArticles(
+        [$_globalCategoryList, $articleList] = $this->gatherCategoryChildrenAndArticles(
             $this->rootCategoryId,
             $this->getAllCategories()
         );
@@ -417,12 +417,12 @@ class WikiApiService
         $articleUrl = vsprintf('/wiki/entries/%d', [$articleId]);
         $articleLocalizationUrl = vsprintf('%s/localizations', [$articleUrl]);
 
-        [$localeIdEn, $versionIdEn, $articleUrlEn] = $this->createArticleLocale(
+        [$localeIdEn, $versionIdEn] = $this->createArticleLocale(
             $seoEn,
             $articleLocalizationUrl,
             ['id' => 2, 'name' => 'en_GB']
         );
-        [$localeIdDe, $versionIdDe, $articleUrlDe] = $this->createArticleLocale(
+        [$localeIdDe, $versionIdDe] = $this->createArticleLocale(
             $seoDe,
             $articleLocalizationUrl,
             ['name' => 'de_DE']
@@ -472,9 +472,8 @@ class WikiApiService
 
         $responseContents = $response->getBody()->getContents();
         $versionId = json_decode($responseContents, true)['id'];
-        $articleInLocaleWithVersionUrl = $articleVersioningUrl . '/' . $versionId;
 
-        return [$localeId, $versionId, $articleInLocaleWithVersionUrl];
+        return [$localeId, $versionId];
     }
 
     private function deleteCategoryChildren(int $categoryId = -1): void
@@ -663,7 +662,6 @@ class WikiApiService
         $oldCategories = $this->getAllCategories();
         $categoryIds = array_column($oldCategories, 'id');
 
-        /** @var Document $document */
         foreach ($tree->getCategories() as $document) {
             echo 'Syncing category ' . $document->getFile()->getRelativePathname() . ' with priority ' . $document->getPriority() . ' ... ' . PHP_EOL;
             $parentId = $this->rootCategoryId;

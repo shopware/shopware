@@ -31,7 +31,7 @@ abstract class AbstractElasticsearchDefinition
         $definition = $this->getEntityDefinition();
 
         return [
-            '_source' => ['includes' => ['id']],
+            '_source' => ['includes' => ['id', 'fullText', 'fullTextBoosted']],
             'properties' => $this->mapper->mapFields($definition, $context),
         ];
     }

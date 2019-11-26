@@ -47,6 +47,8 @@
             <argument type="service" id="Shopware\Core\Content\ImportExport\Service\DownloadService"/>
             <argument type="service" id="import_export_profile.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator" />
+            <argument type="service" id="Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition" />
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter" />
             <argument>%import_export.http_batch_size%</argument>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -133,7 +135,7 @@
         <service id="Shopware\Core\Content\ImportExport\Command\DeleteExpiredFilesCommand">
             <argument type="service" id="Shopware\Core\Content\ImportExport\Service\DeleteExpiredFilesService"/>
 
-            <tag name="console.command" command="import-export:delete-expired"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\Command\ImportEntityCommand">
@@ -141,7 +143,7 @@
             <argument type="service" id="Shopware\Core\Content\ImportExport\Service\ProcessingService"/>
             <argument type="service" id="import_export_profile.repository"/>
 
-            <tag name="console.command" command="import:entity"/>
+            <tag name="console.command"/>
         </service>
 
         <!-- Message handler -->

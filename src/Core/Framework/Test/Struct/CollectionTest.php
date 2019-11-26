@@ -68,7 +68,7 @@ class CollectionTest extends TestCase
 
         $collection->add('a');
         $collection->add('b');
-        $result = $collection->map(function ($element) use (&$processedElements) {
+        $result = $collection->map(function ($element) {
             return $element . '_test';
         });
         static::assertEquals(['a_test', 'b_test'], $result);

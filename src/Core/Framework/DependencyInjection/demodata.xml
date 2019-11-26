@@ -10,7 +10,7 @@
             <argument type="service" id="Shopware\Core\Framework\Demodata\DemodataService"/>
             <argument>%kernel.environment%</argument>
 
-            <tag name="console.command" command="framework:demodata"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\DemodataService">

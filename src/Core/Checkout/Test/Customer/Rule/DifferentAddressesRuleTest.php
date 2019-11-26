@@ -52,6 +52,9 @@ class DifferentAddressesRuleTest extends TestCase
                 'id' => $id,
                 'type' => (new DifferentAddressesRule())->getName(),
                 'ruleId' => $ruleId,
+                'value' => [
+                    'isDifferent' => true,
+                ],
             ],
         ], $this->context);
 

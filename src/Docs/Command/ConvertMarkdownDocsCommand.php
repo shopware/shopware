@@ -21,9 +21,11 @@ class ConvertMarkdownDocsCommand extends Command
 
     private const CREDENTIAL_PATH = __DIR__ . '/wiki.secret';
 
+    protected static $defaultName = 'docs:convert';
+
     protected function configure(): void
     {
-        $this->setName('docs:convert')
+        $this
             ->addOption('input', 'i', InputOption::VALUE_REQUIRED, 'The path to parse for markdown files.', './platform/src/Docs/Resources/current/')
             ->addOption('output', 'o', InputOption::VALUE_REQUIRED, 'The path in which the resulting HTML files will be saved.')
             ->addOption('baseurl', 'u', InputOption::VALUE_REQUIRED, '', '/shopware-platform')
@@ -126,8 +128,7 @@ class ConvertMarkdownDocsCommand extends Command
 
         //compile into tree
         $tree = new DocumentTree();
-        /** @var Document $document */
-        foreach ($documents as $path => $document) {
+        foreach ($documents as $document) {
             if ($document->isCategory()) {
                 $parentPath = \dirname($document->getFile()->getRelativePath()) . '/' . self::CATEGORY_SITE_FILENAME;
             } else {
@@ -142,7 +143,6 @@ class ConvertMarkdownDocsCommand extends Command
                 continue;
             }
 
-            /** @var Document $parent */
             $parent = $documents[$parentPath];
             $document->setParent($parent);
             $parent->addChild($document);

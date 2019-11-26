@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerRecoveryHashExpiredException;
+use Shopware\Core\Checkout\Customer\Exception\InactiveCustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -62,6 +63,7 @@ class AuthController extends StorefrontController
             'redirectParameters' => $request->get('redirectParameters', json_encode([])),
             'page' => $page,
             'loginError' => (bool) $request->get('loginError'),
+            'errorSnippet' => $request->get('errorSnippet'),
             'data' => $data,
         ]);
     }
@@ -102,12 +104,21 @@ class AuthController extends StorefrontController
             if (!empty($token)) {
                 return $this->createActionResponse($request);
             }
-        } catch (BadCredentialsException | UnauthorizedHttpException $e) {
+        } catch (BadCredentialsException | UnauthorizedHttpException | InactiveCustomerException $e) {
+            if ($e instanceof InactiveCustomerException) {
+                $errorSnippet = $e->getSnippetKey();
+            }
         }
 
         $data->set('password', null);
 
-        return $this->forwardToRoute('frontend.account.login.page', ['loginError' => true]);
+        return $this->forwardToRoute(
+            'frontend.account.login.page',
+            [
+                'loginError' => true,
+                'errorSnippet' => $errorSnippet ?? null,
+            ]
+        );
     }
 
     /**

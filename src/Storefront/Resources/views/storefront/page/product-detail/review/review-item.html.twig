@@ -43,7 +43,7 @@
 						{% if reviewVerifcation == 1 %}
 							<a data-toggle="tooltip"
 							   data-placement="bottom"
-							   title="{{ "detail.reviewVerifiedItemTooltip"|trans }}">
+							   title="{{ "detail.reviewVerifiedItemTooltip"|trans|striptags }}">
                                 {% sw_icon 'checkmark-circle' style {
 									'color': 'primary',
 									'size': 'sm'
@@ -66,7 +66,7 @@
 				<div class="product-detail-review-item-comment">
 					<blockquote class="blockquote">
 						<footer class="blockquote-footer">
-							{{ "detail.reviewCommentLabel"|trans }}{{ review.comment }}
+							{{ "detail.reviewCommentLabel"|trans|sw_sanitize }}{{ review.comment }}
 						</footer>
 					</blockquote>
 				</div>

@@ -197,11 +197,9 @@ class CartServiceTest extends TestCase
 
     public function testOrderCartSendMail(): void
     {
-        /** @var SalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
-        /** @var SalesChannelContextService $contextService */
         $contextService = $this->getContainer()->get(SalesChannelContextService::class);
 
         $addressId = Uuid::randomHex();
@@ -217,7 +215,6 @@ class CartServiceTest extends TestCase
 
         $lineItem = (new ProductLineItemFactory())->create($this->productId);
 
-        /** @var CartService $cartService */
         $cartService = $this->getContainer()->get(CartService::class);
 
         $cart = $cartService->getCart($context->getToken(), $context);
@@ -230,12 +227,12 @@ class CartServiceTest extends TestCase
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
         $phpunit = $this;
+        $eventDidRun = false;
         $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit): void {
             $eventDidRun = true;
             $phpunit->assertStringContainsString('Shipping costs: €0.00', $event->getContents()['text/html']);
         };
 
-        $eventDidRun = false;
         $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
 
         $cartService->order($cart, $context);

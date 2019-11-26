@@ -51,6 +51,8 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\CustomerDefinition"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -64,6 +66,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationService"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="sales_channel_domain.repository"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService">

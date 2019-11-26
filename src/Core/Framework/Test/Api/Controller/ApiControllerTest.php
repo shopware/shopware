@@ -192,7 +192,7 @@ EOF;
         $browser = $this->getBrowser();
         $connection = $this->getBrowser()->getContainer()->get(Connection::class);
         $user = TestUser::createNewTestUser($connection, ['country' => ['create', 'detail']]);
-        $admin = TestUser::getAdmin($connection);
+        $admin = TestUser::getAdmin();
 
         $user->authorizeBrowser($browser);
 
@@ -283,7 +283,7 @@ EOF;
         $browser = $this->getBrowser();
         $connection = $this->getBrowser()->getContainer()->get(Connection::class);
         $user = TestUser::createNewTestUser($connection, ['product' => ['create', 'detail']]);
-        $admin = TestUser::getAdmin($connection);
+        $admin = TestUser::getAdmin();
 
         $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
         $response = $browser->getResponse();
@@ -389,7 +389,7 @@ EOF;
                 'version_commit' => ['create'],
             ]
         );
-        $admin = TestUser::getAdmin($connection);
+        $admin = TestUser::getAdmin();
 
         $user->authorizeBrowser($browser);
 

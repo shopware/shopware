@@ -1,6 +1,8 @@
 import template from './sw-condition-currency.html.twig';
 
-const { Component, StateDeprecated } = Shopware;
+const { Component, Context } = Shopware;
+const { mapApiErrors } = Component.getComponentHelper();
+const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
  * @public
@@ -12,22 +14,70 @@ const { Component, StateDeprecated } = Shopware;
  */
 Component.extend('sw-condition-currency', 'sw-condition-base', {
     template,
-    inject: ['ruleConditionDataProviderService'],
+    inheritAttrs: false,
+
+    inject: ['repositoryFactory'],
+
+    created() {
+        this.createdComponent();
+    },
+
+    data() {
+        return {
+            currencies: null
+        };
+    },
 
     computed: {
-        fieldNames() {
-            return ['operator', 'currencyIds'];
+        currencyRepository() {
+            return this.repositoryFactory.create('currency');
         },
-        defaultValues() {
-            return {
-                operator: this.ruleConditionDataProviderService.operators.isOneOf.identifier
-            };
+
+        operators() {
+            return this.conditionDataProviderService.getOperatorSet('multiStore');
+        },
+
+        currencyIds: {
+            get() {
+                this.ensureValueExist();
+                return this.condition.value.currencyIds || [];
+            },
+            set(currencyIds) {
+                this.ensureValueExist();
+                this.condition.value = { ...this.condition.value, currencyIds };
+            }
+        },
+
+        ...mapApiErrors('condition', ['value.operator', 'value.currencyIds']),
+
+        currentError() {
+            return this.conditionValueOperatorError || this.conditionValueCurrencyIdsError;
         }
     },
 
     methods: {
-        getCurrencyStore() {
-            return StateDeprecated.getStore('currency');
+        createdComponent() {
+            this.currencies = new EntityCollection(
+                this.currencyRepository.route,
+                this.currencyRepository.entityName,
+                Context.api
+            );
+
+            if (this.currencyIds.length <= 0) {
+                return Promise.resolve();
+            }
+
+            const criteria = new Criteria();
+            criteria.setIds(this.currencyIds);
+
+            return this.currencyRepository.search(criteria, Context.api).then((currencies) => {
+                this.currencies = currencies;
+            });
+        },
+
+        setCurrencyIds(currencies) {
+            this.currencyIds = currencies.getIds();
+            this.currencies = currencies;
         }
     }
 });

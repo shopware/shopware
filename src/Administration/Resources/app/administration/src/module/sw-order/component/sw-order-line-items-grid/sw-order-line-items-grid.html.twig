@@ -64,8 +64,7 @@
                           class="sw-order-line-items-grid__data-grid"
                           @inline-edit-cancel="onInlineEditCancel"
                           @inline-edit-save="onInlineEditSave"
-                          @select-item="onSelectionChanged"
-                          @select-all-items="onSelectionChanged">
+                          @selection-change="onSelectionChanged">
 
                 {% block sw_order_line_items_grid_grid_columns %}
                     {% block sw_order_line_items_grid_grid_columns_label %}

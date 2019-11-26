@@ -151,7 +151,12 @@ class CsvFileIterator implements RecordIterator, \SeekableIterator
         if (!$this->valid()) {
             throw new \OverflowException(sprintf('Cannot leave position %d. Reached end of file.', $this->index));
         }
-        fgets($this->resource);
+
+        $line = fgets($this->resource);
+        if ($line === false) {
+            throw new \RuntimeException(sprintf('Cannot leave position %d. An error occurred.', $this->index));
+        }
+
         ++$this->index;
     }
 }

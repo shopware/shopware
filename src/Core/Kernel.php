@@ -132,8 +132,11 @@ class Kernel extends HttpKernel
     public static function getConnection(): Connection
     {
         if (!self::$connection) {
+            $url = $_ENV['DATABASE_URL']
+                ?? $_SERVER['DATABASE_URL']
+                ?? getenv('DATABASE_URL');
             $parameters = [
-                'url' => getenv('DATABASE_URL'),
+                'url' => $url,
                 'charset' => 'utf8mb4',
             ];
 
@@ -223,7 +226,7 @@ class Kernel extends HttpKernel
 
         $activePluginMeta = [];
 
-        foreach ($this->pluginLoader->getPluginInstances()->getActives() as $namespace => $plugin) {
+        foreach ($this->pluginLoader->getPluginInstances()->getActives() as $plugin) {
             $class = get_class($plugin);
             $activePluginMeta[$class] = [
                 'name' => $plugin->getName(),
@@ -274,7 +277,6 @@ class Kernel extends HttpKernel
 
     private function initializeDatabaseConnectionVariables(): void
     {
-        /** @var Connection $connection */
         $connection = self::getConnection();
 
         $nonDestructiveMigrations = $connection->executeQuery('

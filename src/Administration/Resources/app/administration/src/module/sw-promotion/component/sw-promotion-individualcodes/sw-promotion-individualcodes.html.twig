@@ -51,7 +51,7 @@
                           :columns="gridColumns"
                           :showSelection="true"
                           @select-all-items="onGridSelectionChanged"
-                          @select-item="onGridSelectionChanged">
+                          @selection-change="onGridSelectionChanged">
                 <template slot="actions" slot-scope="{ item }">
                     {% block sw_promotion_individualcodes_grid_actions_open_customer %}
                         <sw-context-menu-item class="sw-promotion-individualcodes__view-action"

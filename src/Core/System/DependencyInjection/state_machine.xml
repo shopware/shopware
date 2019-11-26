@@ -27,7 +27,7 @@
         <service id="Shopware\Core\System\StateMachine\Command\WorkflowDumpCommand">
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
 
-            <tag name="console.command" command="state-machine:dump"/>
+            <tag name="console.command"/>
         </service>
         <service id="Shopware\Core\System\StateMachine\StateMachineDefinition">
             <tag name="shopware.entity.definition" entity="state_machine"/>

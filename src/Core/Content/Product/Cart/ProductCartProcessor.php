@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryTime;
 use Shopware\Core\Checkout\Cart\Exception\MissingLineItemPriceException;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\QuantityInformation;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
@@ -86,7 +85,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         CartBehavior $behavior
     ): void {
         // handle all products which stored in root level
-        /** @var LineItemCollection $lineItems */
         $lineItems = $original
             ->getLineItems()
             ->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE);
@@ -99,6 +97,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             }
 
             if ($behavior->isRecalculation()) {
+                $definition->setQuantity($lineItem->getQuantity());
                 $lineItem->setPrice($this->calculator->calculate($definition, $context));
                 $toCalculate->add($lineItem);
 

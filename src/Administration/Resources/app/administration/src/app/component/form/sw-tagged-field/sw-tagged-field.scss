@@ -1,164 +1,50 @@
-@import "~scss/variables";
-
-$sw-tagged-field-border-radius:                   $border-radius-default;
-$sw-tagged-field-color-border:                    $color-steam-cloud;
-$sw-tagged-field-color-background:                $color-white;
-$sw-tagged-field-color-label:                     $color-kashmir;
-$sw-tagged-field-font-family:                     $font-family-default;
-$sw-tagged-field-input-color-text:                $color-gutenberg;
-$sw-tagged-field-input-color-placeholder:         lighten($color-gutenberg, 25%);
-$sw-tagged-field-color-error:                     $color-crimson;
-$sw-tagged-field-disabled-color-background:       $color-light-gray;
-$sw-tagged-field-disabled-color-text:             lighten($color-gutenberg, 40%);
-$sw-tagged-field-transition-results:              all ease-in-out .2s;
-$sw-tagged-field-transition-tags:                 all ease-in-out .15s;
-
 .sw-tagged-field {
-    outline: none;
-
-    .sw-tagged-field__label {
-        display: block;
-        line-height: 16px;
-        font-size: 14px;
-        margin-bottom: 8px;
-        color: $sw-tagged-field-color-label;
-        font-weight: normal;
-        cursor: pointer;
-        user-select: none;
-    }
-
-    .sw-tagged-field__inner {
-        display: block;
-        position: relative;
-        width: 100%;
-        padding: 6px 45px 0 6px;
-        line-height: 20px;
-        min-height: 45px;
-        font-size: 14px;
-        border-radius: $sw-tagged-field-border-radius;
-        border: 1px solid $sw-tagged-field-color-border;
-        background-color: $sw-tagged-field-color-background;
-        transition: $sw-tagged-field-transition-results;
-        cursor: text;
-    }
-
-    .sw-help-text {
-        margin-right: 8px;
-    }
-
-    .sw-tagged-field__indicators {
-        position: absolute;
-        display: flex;
-        top: 12px;
-        right: 14px;
-        min-height: 20px;
-        align-items: center;
-    }
-
-    .sw-tagged-field__tags {
+    .sw-tagged-field__tag-list {
         display: flex;
         flex-wrap: wrap;
         list-style: none;
-        padding-top: 6px;
-    }
-
-    .sw-tagged-field__tags-wrapper {
-        display: flex;
-        padding-top: 1px;
-    }
-
-    .sw-tagged-field__tag-item-input {
-        flex-grow: 1;
-        margin-bottom: 6px;
+        padding: 0 8px;
     }
 
     .sw-tagged-field__input {
-        display: inline-block;
-        min-width: 200px;
-        width: 100%;
-        padding: 2px 8px;
-        font-size: 14px;
-        line-height: 26px;
-        border: 0 none;
-        outline: none;
-        color: $sw-tagged-field-input-color-text;
-        font-family: $sw-tagged-field-font-family;
-        background: 0 none;
-
-        &::placeholder {
-            color: $sw-tagged-field-input-color-placeholder;
-        }
+        padding: 12px 8px;
     }
 
-    .sw-tagged-field__selection {
-        max-width: 220px;
-        padding-right: 6px;
-        padding-bottom: 6px;
-        line-height: 0;
+    &.sw-field--medium {
+        .sw-tagged-field__tag-list {
+            padding-top: 4px;
+        }
 
         .sw-label {
-            margin: 0;
-        }
-
-        &:hover .sw-label--dismiss-able {
-            .sw-tagged-field__selection-item {
-                display: block;
-                width: calc(100% - 15px);
-            }
-
-            .sw-label__dismiss {
-                display: block;
-                color: $color-shopware-blue;
-            }
-        }
-    }
-
-    .sw-tagged-field__selection-item {
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .sw-label--dismiss-able .sw-label__dismiss {
-        display: none;
-    }
-
-    &.has--error {
-        .sw-tagged-field__label {
-            color: $sw-tagged-field-color-error;
-        }
-
-        .sw-tagged-field__inner {
-            border-color: $sw-tagged-field-color-error;
-        }
-    }
-
-    &.is--disabled {
-        pointer-events: none;
-        color: $sw-tagged-field-disabled-color-text;
-
-        .sw-tagged-field__inner {
-            background: $sw-tagged-field-disabled-color-background;
+            margin: 4px 6px 0 0;
         }
 
         .sw-tagged-field__input {
-            color: $sw-tagged-field-disabled-color-text;
-
-            &::placeholder {
-                color: $sw-tagged-field-disabled-color-text;
-            }
+            padding: 4px 8px 8px;
         }
     }
 
-  // Vue.js transitions
-    .sw-tagged-field-magnify-enter-active,
-    .sw-tagged-field-magnify-leave-active {
-        transition: $sw-tagged-field-transition-tags;
-        transform: scale(1);
+    &.sw-field--small {
+        .sw-tagged-field__tag-list {
+            padding-top: 4px;
+        }
+
+        .sw-label {
+            margin: 2px 8px 4px;
+        }
+
+        .sw-tagged-field__input {
+            padding: 2px 16px 4px 8px;
+        }
     }
 
-    .sw-tagged-field-magnify-enter,
-    .sw-tagged-field-magnify-leave-to {
-        opacity: 0;
-        transform: scale(0.4);
+    .sw-tagged-field__input--full-width {
+        width: 100%
+    }
+
+    .sw-tagged-field__input.sw-tagged-field__input--hidden {
+        width: 0;
+        padding-left: 0;
+        padding-right: 0;
     }
 }

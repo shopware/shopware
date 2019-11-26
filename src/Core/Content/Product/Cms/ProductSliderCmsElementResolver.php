@@ -58,8 +58,6 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
             return;
         }
 
-        $products = null;
-
         if ($productConfig->isStatic()) {
             $this->enrichFromSearch($slider, $result, self::STATIC_SEARCH_KEY . '_' . $slot->getUniqueIdentifier());
         }

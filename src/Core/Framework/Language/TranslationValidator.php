@@ -104,8 +104,14 @@ class TranslationValidator implements EventSubscriberInterface
         return $fields;
     }
 
-    private function buildViolation(string $messageTemplate, array $parameters, $root = null, ?string $propertyPath = null, $invalidValue = null, $code = null): ConstraintViolationInterface
-    {
+    private function buildViolation(
+        string $messageTemplate,
+        array $parameters,
+        $root = null,
+        ?string $propertyPath = null,
+        $invalidValue = null,
+        $code = null
+    ): ConstraintViolationInterface {
         return new ConstraintViolation(
             str_replace(array_keys($parameters), array_values($parameters), $messageTemplate),
             $messageTemplate,
@@ -113,10 +119,8 @@ class TranslationValidator implements EventSubscriberInterface
             $root,
             $propertyPath,
             $invalidValue,
-            $plural = null,
-            $code,
-            $constraint = null,
-            $cause = null
+            null,
+            $code
         );
     }
 }

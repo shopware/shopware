@@ -358,10 +358,6 @@ Component.register('sw-cms-detail', {
             return this.onSave();
         },
 
-        onSalesChannelChange() {
-            this.loadPage(this.pageId);
-        },
-
         onDemoEntityChange(demoEntityId) {
             Shopware.State.commit('cmsPageState/removeCurrentDemoEntity');
 

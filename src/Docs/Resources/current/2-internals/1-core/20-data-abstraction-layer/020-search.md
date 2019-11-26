@@ -190,7 +190,7 @@ The nested query groups multiple queries into one and concat them using the `AND
 ```php
 $criteria->addFilter(new NotFilter(
     NotFilter::CONNECTION_AND,
-    new EqualsAnyFilter('product.name', ['Sword', 'Axe']),
+    [new EqualsAnyFilter('product.name', ['Sword', 'Axe'])]
 ));
 ```
 

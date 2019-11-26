@@ -64,7 +64,7 @@ EOL;
         $columns = [];
 
         foreach ($definition->getFields() as $field) {
-            $columns[] = $this->generateFieldColumn($definition, $field);
+            $columns[] = $this->generateFieldColumn($field);
         }
         $columns = array_filter($columns);
 
@@ -86,7 +86,7 @@ EOL;
         return $template;
     }
 
-    private function generateFieldColumn(EntityDefinition $definition, Field $field): ?string
+    private function generateFieldColumn(Field $field): ?string
     {
         if ($field->is(Runtime::class)) {
             return null;

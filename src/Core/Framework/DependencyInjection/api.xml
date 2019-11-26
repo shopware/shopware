@@ -42,7 +42,7 @@
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ConverterService"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -50,7 +50,7 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ConverterService"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
             <argument type="tagged" tag="shopware.composite_search.definition"/>
         </service>
 
@@ -72,7 +72,7 @@
         <service id="Shopware\Core\Framework\Api\Command\DumpSchemaCommand">
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
 
-            <tag name="console.command" command="framework:schema"/>
+            <tag name="console.command"/>
         </service>
 
         <!-- Serializer -->
@@ -98,12 +98,12 @@
         </service>
 
         <service id="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder">
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ConverterService"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder">
             <argument type="service" id="serializer"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ConverterService"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Response\Type\Api\JsonType">
@@ -119,7 +119,7 @@
             <argument type="tagged" tag="shopware.api.converter"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Api\Converter\ConverterService">
+        <service id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter">
             <argument type="service" id="Shopware\Core\Framework\Api\Converter\ConverterRegistry"/>
         </service>
 

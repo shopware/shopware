@@ -1,6 +1,7 @@
 import template from './sw-condition-shipping-zip-code.html.twig';
 
 const { Component } = Shopware;
+const { mapApiErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -12,16 +13,27 @@ const { Component } = Shopware;
  */
 Component.extend('sw-condition-shipping-zip-code', 'sw-condition-base', {
     template,
-    inject: ['ruleConditionDataProviderService'],
 
     computed: {
-        fieldNames() {
-            return ['operator', 'zipCodes'];
+        operators() {
+            return this.conditionDataProviderService.getOperatorSet('multiStore');
         },
-        defaultValues() {
-            return {
-                operator: this.ruleConditionDataProviderService.operators.isOneOf.identifier
-            };
+
+        zipCodes: {
+            get() {
+                this.ensureValueExist();
+                return this.condition.value.zipCodes || [];
+            },
+            set(zipCodes) {
+                this.ensureValueExist();
+                this.condition.value = { ...this.condition.value, zipCodes };
+            }
+        },
+
+        ...mapApiErrors('condition', ['value.operator', 'value.zipCodes']),
+
+        currentError() {
+            return this.conditionValueOperatorError || this.conditionValueZipCodesError;
         }
     }
 });

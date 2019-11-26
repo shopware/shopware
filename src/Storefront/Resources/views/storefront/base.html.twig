@@ -1,12 +1,12 @@
 {# Set variable to "true" to enable HMR (hot page reloading) mode #}
-{% set isHMRMode = false %}
+{% set isHMRMode = app.request.headers.get('hot-reload-mode') %}
 
 {% block base_doctype %}
 <!DOCTYPE html>
 {% endblock %}
 
 {% block base_html %}
-<html lang="{{ "meta.xmlLang"|trans }}"
+<html lang="{{ app.request.locale }}"
       itemscope="itemscope"
       itemtype="https://schema.org/WebPage">
 {% endblock %}
@@ -22,7 +22,7 @@
             <noscript class="noscript-main">
                 {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                     type: 'info',
-                    content: 'general.noscriptNotice'|trans
+                    content: 'general.noscriptNotice'|trans|sw_sanitize
                 } %}
             </noscript>
         {% endblock %}

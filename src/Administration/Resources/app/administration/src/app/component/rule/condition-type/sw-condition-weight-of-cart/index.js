@@ -1,6 +1,7 @@
 import template from './sw-condition-weight-of-cart.html.twig';
 
 const { Component } = Shopware;
+const { mapApiErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -12,17 +13,27 @@ const { Component } = Shopware;
  */
 Component.extend('sw-condition-weight-of-cart', 'sw-condition-base', {
     template,
-    inject: ['ruleConditionDataProviderService'],
 
     computed: {
-        fieldNames() {
-            return ['operator', 'weight'];
+        operators() {
+            return this.conditionDataProviderService.getOperatorSet('number');
         },
-        defaultValues() {
-            return {
-                operator: this.ruleConditionDataProviderService.operators.equals.identifier,
-                weight: 0.0
-            };
+
+        weight: {
+            get() {
+                this.ensureValueExist();
+                return this.condition.value.weight;
+            },
+            set(weight) {
+                this.ensureValueExist();
+                this.condition.value = { ...this.condition.value, weight };
+            }
+        },
+
+        ...mapApiErrors('condition', ['value.operator', 'value.weight']),
+
+        currentError() {
+            return this.conditionValueOperatorError || this.conditionValueWeightError;
         }
     }
 });

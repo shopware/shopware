@@ -35,9 +35,15 @@ class LineItemTransformer
             $id = Uuid::randomHex();
         }
 
+        $productId = null;
+        if ($lineItem->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            $productId = $lineItem->getReferencedId();
+        }
+
         $data = [
             'id' => $id,
             'identifier' => $lineItem->getId(),
+            'productId' => $productId,
             'referencedId' => $lineItem->getReferencedId(),
             'quantity' => $lineItem->getQuantity(),
             'type' => $lineItem->getType(),
@@ -69,13 +75,11 @@ class LineItemTransformer
         $index = [];
         $root = new LineItemCollection();
 
-        /** @var OrderLineItemEntity $lineItem */
         foreach ($lineItems as $id => $lineItem) {
             if (!array_key_exists($id, $index)) {
                 $index[$id] = new LineItem($lineItem->getIdentifier(), self::LINE_ITEM_PLACEHOLDER);
             }
 
-            /** @var LineItem $currentLineItem */
             $currentLineItem = $index[$id];
 
             self::updateLineItem($currentLineItem, $lineItem, $id);

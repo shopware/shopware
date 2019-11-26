@@ -10,7 +10,7 @@
     {% block page_checkout_address %}
         {% block page_checkout_address_header %}
             <h1 class="address-main-header">
-                {{ "checkout.addressHeader"|trans }}
+                {{ "checkout.addressHeader"|trans|sw_sanitize }}
             </h1>
         {% endblock %}
 
@@ -21,7 +21,7 @@
                    class="login-collapse-toggle"
                    data-toggle="collapse"
                    aria-expanded="false">
-                    <strong>{{ "checkout.addressLoginToggle"|trans }}</strong> </a>
+                    <strong>{{ "checkout.addressLoginToggle"|trans|sw_sanitize }}</strong> </a>
             </div>
         {% endblock %}
 
@@ -36,7 +36,7 @@
         {% block page_checkout_address_register %}
             {% block page_checkout_address_register_card %}
                 {% sw_include '@Storefront/storefront/page/checkout/address/register.html.twig' with {
-                    'cardTitle': "checkout.addressRegisterCardTitle"|trans
+                    'cardTitle': "checkout.addressRegisterCardTitle"|trans|sw_sanitize
                 } %}
             {% endblock %}
         {% endblock %}
@@ -50,7 +50,7 @@
         <div class="checkout-aside-products">
             {% block page_checkout_address_products_header %}
                 <h2 class="checkout-aside-product-header">
-                    {{ "checkout.cartHeader"|trans }}
+                    {{ "checkout.cartHeader"|trans|sw_sanitize }}
                 </h2>
             {% endblock %}
 

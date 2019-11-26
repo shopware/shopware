@@ -278,4 +278,11 @@ describe('entity-collection.data.js', () => {
         expect(filtered.length).toBe(1);
         expect(filtered.first()).toStrictEqual(fixture[0]);
     });
+
+    it('can return an empty colletion', () => {
+        const collection = getCollection();
+
+        const filtered = collection.filter(() => false);
+        expect(filtered.length).toBe(0);
+    });
 });

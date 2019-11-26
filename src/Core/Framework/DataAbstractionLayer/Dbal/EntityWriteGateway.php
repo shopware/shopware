@@ -21,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
@@ -87,7 +86,6 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             $this->eventDispatcher->dispatch($event);
             $context->getExceptions()->tryToThrow();
 
-            /** @var WriteCommandInterface $command */
             foreach ($commands as $command) {
                 $definition = $command->getDefinition();
                 $table = $definition->getEntityName();
@@ -163,7 +161,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
     private static function isAssociative(array $array): bool
     {
-        foreach ($array as $key => $_) {
+        foreach ($array as $key => $_value) {
             if (!is_int($key)) {
                 return true;
             }
@@ -230,7 +228,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         );
 
         $identifier = $command->getPrimaryKey();
-        foreach ($identifier as $key => $value) {
+        foreach ($identifier as $key => $_value) {
             $query->andWhere(EntityDefinitionQueryHelper::escape($key) . ' = ?');
         }
         $query->setParameters(array_merge($values, array_values($identifier)));

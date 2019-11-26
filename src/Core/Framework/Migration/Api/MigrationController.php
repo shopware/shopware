@@ -7,8 +7,8 @@ use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -37,17 +37,17 @@ class MigrationController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/database/sync-migration", name="api.action.database.sync-migration", methods={"POST"})
      */
-    public function syncMigrations(Request $request): JsonResponse
+    public function syncMigrations(Request $request): Response
     {
         $this->loader->syncMigrationCollection($request->request->get('identifier', MigrationCollectionLoader::SHOPWARE_CORE_MIGRATION_IDENTIFIER));
 
-        return new JsonResponse(['message' => 'migrations added to the database']);
+        return new Response(null, Response::HTTP_NO_CONTENT);
     }
 
     /**
      * @Route("/api/v{version}/_action/database/migrate", name="api.action.database.migrate", methods={"POST"})
      */
-    public function migrate(Request $request): JsonResponse
+    public function migrate(Request $request): Response
     {
         if (!($limit = $request->request->getInt('limit'))) {
             $limit = null;
@@ -65,7 +65,7 @@ class MigrationController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/database/migrate-destructive", name="api.action.database.migrate-destructive", methods={"POST"})
      */
-    public function migrateDestructive(Request $request): JsonResponse
+    public function migrateDestructive(Request $request): Response
     {
         if (!($limit = $request->request->getInt('limit'))) {
             $limit = null;
@@ -80,7 +80,7 @@ class MigrationController extends AbstractController
         return $this->migrateGenerator($generator);
     }
 
-    private function migrateGenerator(\Generator $generator): JsonResponse
+    private function migrateGenerator(\Generator $generator): Response
     {
         try {
             while ($generator->valid()) {
@@ -90,6 +90,6 @@ class MigrationController extends AbstractController
             throw new MigrateException($e->getMessage());
         }
 
-        return new JsonResponse(['message' => 'Migrations executed']);
+        return new Response(null, Response::HTTP_NO_CONTENT);
     }
 }

@@ -8,18 +8,18 @@
     </title>
 
     {% block administration_favicons %}
-        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('bundles/administration/static/img/favicon/apple-touch-icon.png') }}">
-        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('bundles/administration/static/img/favicon/favicon-16x16.png') }}">
-        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('bundles/administration/static/img/favicon/favicon-32x32.png') }}" id="dynamic-favicon">
-        <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('bundles/administration/static/img/favicon/android-chrome-192x192.png') }}">
-        <link rel="icon" type="image/png" sizes="256x256" href="{{ asset('bundles/administration/static/img/favicon/android-chrome-256x256.png') }}">
-        <meta name="msapplication-TileImage" content="{{ asset('bundles/administration/static/img/favicon/mstile-150x150.png') }}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('static/img/favicon/apple-touch-icon.png', '@Administration') }}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('static/img/favicon/favicon-16x16.png', '@Administration') }}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('static/img/favicon/favicon-32x32.png', '@Administration') }}" id="dynamic-favicon">
+        <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('static/img/favicon/android-chrome-192x192.png', '@Administration') }}">
+        <link rel="icon" type="image/png" sizes="256x256" href="{{ asset('static/img/favicon/android-chrome-256x256.png', '@Administration') }}">
+        <meta name="msapplication-TileImage" content="{{ asset('static/img/favicon/mstile-150x150.png', '@Administration') }}">
         <meta name="msapplication-TileColor" content="#189eff">
         <meta name="theme-color" content="#189eff">
     {% endblock %}
 
-    <link rel="stylesheet" href="{{ asset('bundles/administration/static/css/vendors-node.css') }}?{{ 'now'|date('U') }}">
-    <link rel="stylesheet" href="{{ asset('bundles/administration/static/css/app.css') }}?{{ 'now'|date('U') }}">
+    <link rel="stylesheet" href="{{ asset('static/css/vendors-node.css', '@Administration') }}">
+    <link rel="stylesheet" href="{{ asset('static/css/app.css', '@Administration') }}">
 
 </head>
 <body>
@@ -28,10 +28,10 @@
 
 {% block administration_templates %}{% endblock %}
 
-<script src="{{ asset('bundles/administration/static/js/runtime.js') }}?{{ 'now'|date('U') }}"></script>
-<script src="{{ asset('bundles/administration/static/js/vendors-node.js') }}?{{ 'now'|date('U') }}"></script>
-<script src="{{ asset('bundles/administration/static/js/commons.js') }}?{{ 'now'|date('U') }}"></script>
-<script src="{{ asset('bundles/administration/static/js/app.js') }}?{{ 'now'|date('U') }}"></script>
+<script src="{{ asset('static/js/runtime.js', '@Administration') }}"></script>
+<script src="{{ asset('static/js/vendors-node.js', '@Administration') }}"></script>
+<script src="{{ asset('static/js/commons.js', '@Administration') }}"></script>
+<script src="{{ asset('static/js/app.js', '@Administration') }}"></script>
 
 <script>
     /*

@@ -16,11 +16,11 @@
 
             {% block layout_head_meta_tags_general %}
                 <meta name="author"
-                      content="{{ page.metaInformation.author }}"/>
+                      content="{{ page.metaInformation.author|striptags }}"/>
                 <meta name="robots"
                       content="{% block layout_head_meta_tags_robots %}{{ page.metaInformation.robots }}{% endblock %}"/>
                 <meta name="revisit-after"
-                      content="{{ page.metaInformation.revisit }}"/>
+                      content="{{ page.metaInformation.revisit|striptags }}"/>
                 <meta name="keywords"
                       content="{% block layout_head_meta_tags_keywords %}{{ metaKeywords }}{% endblock %}"/>
                 <meta name="description"
@@ -55,7 +55,7 @@
                 <meta itemprop="copyrightHolder"
                       content="{{ shopware.config.core.basicInformation.shopName }}"/>
                 <meta itemprop="copyrightYear"
-                      content="{{ page.metaInformation.copyrightYear }}"/>
+                      content="{{ page.metaInformation.copyrightYear|striptags }}"/>
                 <meta itemprop="isFamilyFriendly"
                       content="{% if shopware.config.core.basicInformation.familyFriendly %}true{% else %}false{% endif %}"/>
                 <meta itemprop="image"

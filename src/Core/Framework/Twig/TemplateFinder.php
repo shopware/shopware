@@ -41,7 +41,7 @@ class TemplateFinder
         $this->twig = $twig;
         $this->loader = $loader;
         $this->kernel = $kernel;
-        $this->cacheDir = $kernel->getCacheDir();
+        $this->cacheDir = $kernel->getCacheDir() . '/twig';
         $this->addBundles($kernel);
     }
 
@@ -108,7 +108,7 @@ class TemplateFinder
 
         // iterate over all bundles but exclude the originally requested bundle
         // example: if @Storefront/storefront/index.html.twig is requested, all bundles except Storefront will be checked first
-        foreach ($queue as $index => $prefix) {
+        foreach ($queue as $prefix) {
             $name = '@' . $prefix . '/' . $templatePath;
 
             if ($name === $originalTemplate) {

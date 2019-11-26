@@ -1,6 +1,8 @@
 import template from './sw-select-rule-create.html.twig';
+import './sw-select-rule-create.scss';
 
-const { Component, StateDeprecated } = Shopware;
+const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 
 /**
  * @status ready
@@ -16,6 +18,10 @@ const { Component, StateDeprecated } = Shopware;
 Component.register('sw-select-rule-create', {
     template,
 
+    inject: [
+        'repositoryFactory'
+    ],
+
     data() {
         return {
             itemAddNewRule: {
@@ -26,12 +32,6 @@ Component.register('sw-select-rule-create', {
         };
     },
 
-    computed: {
-        ruleStore() {
-            return StateDeprecated.getStore('rule');
-        }
-    },
-
     props: {
         ruleId: {
             type: String,
@@ -40,28 +40,16 @@ Component.register('sw-select-rule-create', {
         },
         ruleFilter: {
             type: Object,
-            required: false
-        },
-        required: {
-            type: Boolean,
             required: false,
-            default: false
-        },
-        placeholder: {
-            type: String,
-            required: false,
-            default: null
-        },
-        size: {
-            type: String,
-            required: false,
-            default: null
+            default() {
+                return new Criteria(1, Shopware.Context.api);
+            }
         }
     },
 
     methods: {
-        onSaveRule(rule) {
-            this.$emit('save-rule', rule.id);
+        onSaveRule(ruleId) {
+            this.$emit('save-rule', ruleId);
         },
 
         onSelectRule(event) {

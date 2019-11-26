@@ -32,7 +32,6 @@ class AntiJoinBuilder implements JoinBuilderInterface
         /** @var AssociationField $firstAssociation */
         $firstAssociation = array_shift($associations);
         if ($firstAssociation instanceof ManyToManyAssociationField) {
-            /** @var EntityDefinition $mapping */
             $mapping = $firstAssociation->getMappingDefinition();
             $mappingAlias = $on . '.' . $firstAssociation->getPropertyName() . '.mapping';
 

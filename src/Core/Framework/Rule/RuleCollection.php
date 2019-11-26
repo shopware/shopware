@@ -59,7 +59,9 @@ class RuleCollection extends Collection
         $this->flat[] = $rule;
 
         if ($rule instanceof Container) {
-            array_map([$this, 'addMeta'], $rule->getRules());
+            foreach ($rule->getRules() as $childRule) {
+                $this->addMeta($childRule);
+            }
         }
     }
 }

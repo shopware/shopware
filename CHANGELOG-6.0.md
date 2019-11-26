@@ -63,6 +63,11 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * The changeset generator now ommits write protected fields
     * We added `fromCollection` and `fromCriteria` methods to criteria/collections to deep copy them if needed
     * Due to the redesign of the cms blocks and elements you can now translate the label of your blocks and elements
+    * The Layouts which can be assigned under settings > basic information > Shop Pages now have to be of the type `shop page`
+    * You can now assign a 404 error page layout in settings > basic information > Shop Pages which will be rolled out in a 404 not found error.
+    * Moved all rule specific components to `src/app/components/rule`
+    * Added error handling for multiple errors per request
+    * Replaced `repository.sync` with a request against the `sync` endpoint. The former behavior of `sync` ist now available as `repository.saveAll`
    
 * Core
     * Added DAL support for multi primary keys.
@@ -117,6 +122,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added `\Shopware\Storefront\Framework\Cache\ObjectCacheKeyFinder` which finds all entity cache keys in a none entity object.
     * Added twig helper function `seoUrl` that returns a seo url if possible, otherwise just calls `url`. 
     * Deprecated twig helper functions `productUrl` and `navigationUrl`, use `seoUrl` instead.
+    * Added ErrorPage, ErrorpageLoader and ErrorPageLoaderEvent which is used in the `ErrorController` to load the CMS error layout if a 404 layout is assigned.
 
 **Removals**
 
@@ -159,6 +165,30 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Move context to the Store
     * Make vuex store initially available
     * Moved `Resources/administration` directory to `Resources/app/administration`
+    * Add cache busting to the administration script and style files through last modified timestamp in combination with the filesize
+    * Double opt in for registrations and guests is now configurable in the settings at the Login / Registration module
+    * Added component `sw-entitiy-multi-id-select` which can be used to select entities but only emit their ids
+        * The v-model is bound to `change` event and sets the `ids` property
+        * exposes the same slots as any `select` component
+    * Added component `sw-arrow-field` which can be used to wrap components in a breadcrumb like visualization
+        * It takes two props `primary` and `secondary` which are color keys for the arrow's background and border color
+        * Additional content can be placed in the default slot of the component
+    * `sw-tagged-field` now works with `event.key` instead of `event.keycode`
+    * `sw-tagged-field` v-model event changed to `change` instead of `input` an does not mutate the original prop anymore
+    * Removed component `sw-condition-value`
+    * Added component `sw-condition-type-select` 
+    * Removed `config` property from `sw-condition-tree`.
+    * Refactored
+    * Replaced Store based datahandling with repository based datahandling in `sw-settings-rule`, `sw-product-stream` modules and rule/product stream specific components
+    * Removed client side validation for rules and product streams
+    * Added APi validation for rules and product streams
+    * Split `sw-product-stream-filter` component into smaler subcomponents `sw-product-stream-field-select` and `sw-product-stream-value`
+    * Removed `sw-product-stream-create` page
+    * Removed `sw-settings-rule-create` page
+    * Added event `selection-change` to `sw-data-grid`. The event is fired whenever the selection in the grid changes including pagination and delete requests.
+      * The event emits two values: the actual selection and the selection count of the `sw-data-grid`.
+      * `change-selection` should be preferred over `select-item` if you are interested in the selection itself and not in a specific item that was selected.
+    * Added custom fields to categories 
 * Core
     * Moved the seo module from the storefront into the core.
     * Switched the execution condition of `\Shopware\Core\Framework\Migration\MigrationStep::addBackwardTrigger()` and `\Shopware\Core\Framework\Migration\MigrationStep::addForwardTrigger()` to match the execution conditions in the methods documentation.
@@ -183,6 +213,12 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added `taxRules` association to country entity
     * Changed the calling of `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getDefaults` which is now only called by newly created entities. The check `$existence->exists()` inside this method is not necessary anymore
     * Added new method `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getChildDefaults`. Use it to define defaults for newly created child entities
+    * Extended the `\Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService::register` method which sets additional the double opt in data (only if set in the admin settings) and dispatches the respective event which send the mail with the confirm link
+        - the confirm link includes the route to the `\Shopware\Storefront\Controller\RegisterController::confirmRegistration` method and two parameters (the sha1 hashed email address of the customer and a random generated hash)
+    * Added new method `\Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService::finishDoubleOptInRegistration` which validates the double opt in confirmation and activates the customer when the data is valid
+    * Added new event `\Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent` for sending the confirm mail for double opt in guests
+    * Added new event `\Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent` for sending the confirm mail for double opt in registrations
+    * Extended the `\Shopware\Core\System\Resources\config\loginRegistration.xml` with input fields for double opt in registrations and guests
     * We adjusted the entry points for administration and storefront resources so that there are no naming conflicts anymore. It is no longer possible to adjust the paths to the corresponding sources. The new structure looks as follows:
         ```
         MyPlugin
@@ -240,7 +276,18 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
         * Changed the technical_name for all stateMachine default mailTemplates by stripping the `state_enter` from the beginning.
         * Added optional Parameter `binAttachments` to method `createMessage` in `\Core\Content\MailTemplate\Service\MessageFactory` to provide binary attachments for mails.
         * Added `\Core\Checkout\Order\Api\OrderActionController` to provide endpoints for combine order state changes with sending of mails.  
-    * Marked the `\Shopware\Core\Framework\Context::createDefaultContext()` as internal  
+    * Marked the `\Shopware\Core\Framework\Context::createDefaultContext()` as internal
+    * Added relation between `order_line_item` and `product`.
+    * Added validation for `order_line_item` of type `product`. If a line item of type `product` is written and one of the following properties is specified: `productId`, `referencedId`, `payload.productNumber`, the other two properties must also be specified.
+    * Changed the order while loading plugins from the database. They are now sorted ascending by the installation date.
+    * Moved `Shopware\Core\Content\Newsletter\SalesChannelNewsletterController` to `Shopware\Core\Content\Newsletter\SalesChannel\SalesChannelNewsletterController`
+    * The MigrationController and MediaFolderController now return StatusCode 204 without content on successful requests
+    * Renamed `\Shopware\Core\Framework\Api\Converter\ConverterService` to `\Shopware\Core\Framework\Api\Converter\ApiVersionConverter`
+    * Added `\Shopware\Core\Framework\PersonalData\CleanPersonalDataCommand` to removing personal data by the cli command: "bin/console database:clean-personal-data"
+        * use the command with the argument "guests" to remove guests without orders
+        * use the command with the argument "carts" to remove canceled carts
+        * use the command with the option "--all" to remove both of them.
+        * with the option "--days" it is possible to remove the data which is same old and older than the given number of days
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain
@@ -251,9 +298,15 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added JS plugin for handling csrf token generation in native forms(only if `csrf` `mode` is set to `ajax`)
     * Added `MetaInformation` struct to handle meta information in `pageLoader`
     * Renamed the `breadcrumb` variable used in category seo url templates. It can now be access using `category.seoBreadcrumb` to align it with all other variables.
+    * Added an automatic hot reload watcher with automatic detection. Use `./psh.phar storefront:hot-proxy` 
+    * Extended the `\Shopware\Storefront\Controller\RegisterController::register` method with the double opt in logic (only if set in the admin settings)
+    * Added new method `\Shopware\Storefront\Controller\RegisterController::confirmRegistration` to confirm double opt in registrations or email addresses
+    * Added twig filter `sw_sanitize` to filter unwanted tags and attributes (prevent XSS)
 * Elasticsearch
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.
         * You can set them with a parameter.yml too.
+    * The extensions are now saved at the top level of the entities.
+    * Updated `ongr/elasticsearch-dsl` to version `7.0.0`
 
 **Removals**
 

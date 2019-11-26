@@ -12,7 +12,7 @@
         {% block component_product_badges_topseller %}
             {% if product.markAsTopseller %}
                 <div class="badge badge-warning badge-topseller">
-                    {{ "listing.boxLabelTopseller"|trans }}
+                    {{ "listing.boxLabelTopseller"|trans|sw_sanitize }}
                 </div>
             {% endif %}
         {% endblock %}
@@ -20,7 +20,7 @@
         {% block component_product_badges_new %}
             {% if product.isNew %}
                 <div class="badge badge-success badge-new">
-                    {{ "listing.boxLabelNew"|trans }}
+                    {{ "listing.boxLabelNew"|trans|sw_sanitize }}
                 </div>
             {% endif %}
         {% endblock %}

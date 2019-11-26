@@ -32,16 +32,23 @@
 
                     {% block component_account_login_form_description %}
                         <p class="login-form-description">
-                            {{ "account.loginFormDescription"|trans }}
+                            {{ "account.loginFormDescription"|trans|sw_sanitize }}
                         </p>
                     {% endblock %}
 
                     {% block component_account_login_form_error %}
                         {% if loginError %}
-                            {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                                type: "danger",
-                                content: "account.loginBadCredentials"|trans
-                            } %}
+                            {% if errorSnippet != null %}
+                                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                                    type: "danger",
+                                    content: errorSnippet|trans|sw_sanitize
+                                } %}
+                            {% else %}
+                                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                                    type: "danger",
+                                    content: "account.loginBadCredentials"|trans|sw_sanitize
+                                } %}
+                            {% endif %}
                         {% endif %}
                     {% endblock %}
 
@@ -52,7 +59,7 @@
                                     {% block component_account_login_form_mail_label %}
                                         <label class="form-label"
                                                for="loginMail">
-                                            {{ "account.loginMailLabel"|trans }}
+                                            {{ "account.loginMailLabel"|trans|sw_sanitize }}
                                         </label>
                                     {% endblock %}
 
@@ -60,7 +67,7 @@
                                         <input type="email"
                                                class="form-control{% if loginError %} is-invalid{% endif %}"
                                                id="loginMail"
-                                               placeholder="{{ "account.loginMailPlaceholder"|trans }}"
+                                               placeholder="{{ "account.loginMailPlaceholder"|trans|striptags }}"
                                                name="username"
                                                required="required">
                                     {% endblock %}
@@ -72,14 +79,14 @@
                                     {% block component_account_login_form_password_label %}
                                         <label class="form-label"
                                                for="loginPassword">
-                                            {{ "account.loginPasswordLabel"|trans }}
+                                            {{ "account.loginPasswordLabel"|trans|sw_sanitize }}
                                         </label>
                                     {% endblock %}
                                     {% block component_account_login_form_password_input %}
                                         <input type="password"
                                                class="form-control{% if loginError %} is-invalid{% endif %}"
                                                id="loginPassword"
-                                               placeholder="{{ "account.loginPasswordPlaceholder"|trans }}"
+                                               placeholder="{{ "account.loginPasswordPlaceholder"|trans|striptags }}"
                                                name="password"
                                                required="required">
                                     {% endblock %}
@@ -102,7 +109,7 @@
                         <div class="login-submit">
                             <button type="submit"
                                     class="btn btn-primary">
-                                {{ "account.loginSubmit"|trans }}
+                                {{ "account.loginSubmit"|trans|sw_sanitize }}
                             </button>
                         </div>
                     {% endblock %}

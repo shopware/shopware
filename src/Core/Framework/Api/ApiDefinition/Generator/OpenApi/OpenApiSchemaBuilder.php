@@ -36,7 +36,7 @@ class OpenApiSchemaBuilder
      */
     private function createServers(bool $forSalesChannel): array
     {
-        $url = getenv('APP_URL');
+        $url = $_SERVER['APP_URL'] ?? '';
 
         return [
             new Server(['url' => rtrim($url, '/') . ($forSalesChannel ? '/sales-channel-api/v1' : '/api/v1')]),
@@ -344,7 +344,7 @@ class OpenApiSchemaBuilder
             ];
         }
 
-        $url = getenv('APP_URL');
+        $url = $_SERVER['APP_URL'] ?? '';
 
         return [
             'oAuth' => new SecurityScheme([

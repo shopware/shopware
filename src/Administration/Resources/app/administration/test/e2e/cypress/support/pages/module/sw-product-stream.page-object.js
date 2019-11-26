@@ -28,123 +28,76 @@ export default class ProductStreamPageObject extends GeneralPageObject {
         cy.get(this.elements.modal).should('not.exist');
     }
 
-
-    createBasicSelectCondition(ruleData) {
-        cy.get(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`).typeLegacySelectAndCheck(
-            ruleData.type,
-            {
-                searchTerm: ruleData.type
-            }
-        );
-
-        if (ruleData.operator) {
-            cy.get(`${ruleData.ruleSelector} .field--operator`).typeLegacySelectAndCheck(
-                ruleData.operator,
-                {
-                    searchTerm: ruleData.operator
-                }
-            );
-        }
-        cy.get(`${ruleData.ruleSelector} .field--main`).typeLegacySelectAndCheck(
-            ruleData.value,
-            {
-                searchTerm: ruleData.value,
-                isMulti: ruleData.isMulti,
-                clearField: false
-            }
-        );
+    clickProductStreamFilterOption(productStreamFilterQuery, actionLabel) {
+        productStreamFilterQuery.within(() => {
+            cy.get('.sw-context-button').click();
+        });
+        cy.get('.sw-context-menu').contains(actionLabel).click();
     }
 
-    createBasicSwitchCondition(ruleData) {
-        cy.get(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`).typeLegacySelectAndCheck(
-            ruleData.type,
-            {
-                searchTerm: ruleData.type
-            }
-        );
-        cy.get(`${ruleData.ruleSelector} .field--main input`).click(ruleData.value);
+    fillFilterWithSelect(selector, { field, operator, value }) {
+        this.selectFieldAndOperator(selector, field, operator);
 
-        if (ruleData.operator) {
-            cy.get(`${ruleData.ruleSelector} .sw-condition-operator-select`).typeLegacySelectAndCheck(
-                ruleData.operator,
-                {
-                    searchTerm: ruleData.operator
-                }
-            );
-        }
+        cy.get(selector).within(() => {
+            // value is the last single-select
+            cy.get('.sw-single-select').last().within(($singleSelect) => {
+                cy.wrap($singleSelect).click();
+                cy.get('.sw-select-result-list').should('be.visible');
+                cy.get('li.sw-select-result').contains(value).click();
+            });
+        });
     }
 
-    createBasicInputCondition(ruleData) {
-        cy.get(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`).typeLegacySelectAndCheck(
-            ruleData.type,
-            {
-                searchTerm: ruleData.type
-            }
-        );
-        cy.get(`${ruleData.ruleSelector} input[name=${ruleData.inputName}]`).clear();
-        cy.get(`${ruleData.ruleSelector} input[name=${ruleData.inputName}]`).type(ruleData.value);
+    fillFilterWithEntitySelect(selector, { field, operator, value }) {
+        this.selectFieldAndOperator(selector, field, operator);
 
-        if (ruleData.operator) {
-            cy.get(`${ruleData.ruleSelector} .field--operator`).typeLegacySelectAndCheck(
-                ruleData.operator,
-                {
-                    searchTerm: ruleData.operator
-                }
-            );
-        }
+        cy.get(selector).within(() => {
+            // value is the last single-select
+            cy.get('.sw-entity-single-select').within(($singleSelect) => {
+                cy.wrap($singleSelect).click();
+                cy.get('.sw-select-result-list').should('be.visible');
+                cy.get('li.sw-select-result').contains(value).click();
+            });
+        });
     }
 
-    createCombinedInputSelectCondition(ruleData) {
-        cy.get(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}:nth-of-type(1)`).typeLegacySelectAndCheck(
-            ruleData.type,
-            {
-                searchTerm: ruleData.type
-            }
-        );
-        cy.get(`${ruleData.ruleSelector} .field--condition:nth-of-type(2)`).typeLegacySelectAndCheck(
-            ruleData.firstValue,
-            {
-                searchTerm: ruleData.firstValue,
-                isMulti: ruleData.isMulti
-            }
-        );
-        cy.get(`${ruleData.ruleSelector} .field--operator`).typeLegacySelectAndCheck(
-            ruleData.operator,
-            {
-                searchTerm: ruleData.operator,
-                isMulti: ruleData.isMulti
-            }
-        );
-        cy.get(`${ruleData.ruleSelector} input[name=${ruleData.inputName}]`).clear();
-        cy.get(`${ruleData.ruleSelector} input[name=${ruleData.inputName}]`).type(ruleData.secondValue);
+    fillFilterWithEntityMultiSelect(selector, { field, operator, value }) {
+        this.selectFieldAndOperator(selector, field, operator);
+
+        cy.get(selector).within((p) => {
+            cy.get('.sw-entity-multi-select').within(($multiSelect) => {
+                cy.wrap($multiSelect).click();
+                cy.get('.sw-select-result-list').should('be.visible');
+
+                value.forEach((value) => {
+                    cy.get('li.sw-select-result').contains(value).click();
+                });
+            });
+        })
     }
 
-    createDateRangeCondition(ruleData) {
-        cy.get(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`).typeLegacySelectAndCheck(
-            ruleData.type,
-            {
-                searchTerm: ruleData.type
+    selectFieldAndOperator(selector, fieldPath, operator) {
+        cy.get(selector).within(() => {
+            if (typeof fieldPath === 'string' && fieldPath !== '') {
+                cy.wrap(fieldPath.split('.')).each((field) => {
+                    cy.get(`.sw-product-stream-field-select`).last().within(($singleSelect) => {
+                        cy.wrap($singleSelect).click();
+                        cy.get('.sw-select-result-list').should('be.visible');
+                        cy.get('li.sw-select-result').contains(field).click();
+                    })
+                });
             }
-        );
 
-        cy.get(`${ruleData.ruleSelector} .sw-select[name=useTime]`).typeLegacySelectAndCheck(
-            ruleData.useTime ? 'Include time reference' : 'Exclude time reference',
-            {
-                isMulti: false
+            if (typeof operator === 'string' && operator !== '') {
+                cy.get('.sw-product-stream-value').within(() => {
+
+                    cy.get('.sw-single-select').first().within(($singleSelect) => {
+                        cy.wrap($singleSelect).click();
+                        cy.get('.sw-select-result-list').should('be.visible');
+                        cy.get('li.sw-select-result').contains(operator).click();
+                    });
+                });
             }
-        );
-
-        cy.get('.field--from-date').fillAndCheckDateField(ruleData.fromDate);
-        cy.get('.field--to-date').fillAndCheckDateField(ruleData.toDate);
-    }
-
-    createDateCondition(ruleData) {
-        cy.get(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}`).typeLegacySelectAndCheck(
-            ruleData.type,
-            {
-                searchTerm: ruleData.type
-            }
-        );
-        cy.get('.field--main').fillAndCheckDateField(ruleData.value);
+        });
     }
 }

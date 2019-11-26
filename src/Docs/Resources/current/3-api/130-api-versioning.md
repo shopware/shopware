@@ -272,9 +272,9 @@ public function doSomething(Context $context): Response
 ### Returning entities
  
 If you return entities or search results from your api route you also have to take care of converting the entities between versions, as described above.
-Therefore you can use the `ConverterService::convertEntity()`-method:
+Therefore you can use the `ApiVersionConverter::convertEntity()`-method:
 ```php
-use Shopware\Core\Framework\Api\Converter\ConverterService;
+use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -291,16 +291,16 @@ class MyController extends AbstractController
     private $productRepository;
 
     /**
-     * @var ConverterService
+     * @var ApiVersionConverter
      */
-    private $converterService;
+    private $apiVersionConverter;
 
     public function __construct(
         EntityRepositoryInterface $productRepository,
-        ConverterService $converterService
+        ApiVersionConverter $apiVersionConverter
     ) {
         $this->productRepository = $productRepository;
-        $this->converterService = $converterService;
+        $this->apiVersionConverter = $apiVersionConverter;
     }
     
     /**
@@ -309,7 +309,7 @@ class MyController extends AbstractController
     public function getProductById(string $id, int $version, Context $context): Response
     {
         $entity = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
-        $entity = $this->converterService->convertEntity(
+        $entity = $this->apiVersionConverter->convertEntity(
             $this->productRepository->getDefinition(),
             $entity,
             $apiVersion

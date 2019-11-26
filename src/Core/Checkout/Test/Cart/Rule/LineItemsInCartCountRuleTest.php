@@ -19,7 +19,6 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -112,8 +111,7 @@ class LineItemsInCartCountRuleTest extends TestCase
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
             static::assertGreaterThan(0, count($stackException->getExceptions()));
-            /** @var ConstraintViolationException $exception */
-            foreach ($stackException->getExceptions() as $exception) {
+            foreach ($stackException->getExceptions() as $_exception) {
                 $exceptions = iterator_to_array($stackException->getErrors());
 
                 static::assertCount(2, $exceptions);

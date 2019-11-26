@@ -8,11 +8,9 @@ use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
-use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilderResult;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
-use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
@@ -75,10 +73,8 @@ class SetScopeDiscountPackager implements DiscountPackagerInterface
             // now run through all definitions
             // and check if our set and count is valid
             foreach ($definitions as $definition) {
-                /** @var LineItemGroup[] $groupResult */
                 $groupResult = $result->getGroupResult($definition);
 
-                /** @var LineItemQuantity[] $itemsInGroup */
                 $itemsInGroup = $groupResult[$i]->getItems();
 
                 $itemsInSet = array_merge($itemsInSet, $itemsInGroup);

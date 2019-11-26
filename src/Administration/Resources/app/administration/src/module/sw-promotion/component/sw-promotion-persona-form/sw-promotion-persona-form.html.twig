@@ -60,7 +60,7 @@
                                       :columns="gridCustomersColumns"
                                       :showSelection="true"
                                       @select-all-items="onGridSelectionChanged"
-                                      @select-item="onGridSelectionChanged">
+                                      @selection-change="onGridSelectionChanged">
                             <template slot="column-fullName" slot-scope="{ item, index }">
                                 {{ item.firstName }} {{ item.lastName }}
                             </template>

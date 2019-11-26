@@ -29,6 +29,6 @@ class FeatureConfig
             throw new \RuntimeException(sprintf('Unable to retrieve flag %s, not registered', $flagName));
         }
 
-        return getenv(self::$flags[$flagName]) === '1';
+        return ($_SERVER[self::$flags[$flagName]] ?? '') === '1';
     }
 }

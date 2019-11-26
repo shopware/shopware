@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
+use Shopware\Core\Framework\Asset\LastModifiedVersionStrategy;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -141,13 +142,13 @@ class InfoController extends AbstractController
             $bundleName = mb_strtolower($bundle->getName());
 
             $styles = array_map(static function (string $filename) use ($package, $bundleName) {
-                $url = sprintf('bundles/%s/administration/css/%s', $bundleName, $filename);
+                $url = 'bundles/' . $bundleName . '/' . $filename;
 
                 return $package->getUrl($url);
             }, $this->getAdministrationStyles($bundle));
 
             $scripts = array_map(static function (string $filename) use ($package, $bundleName) {
-                $url = sprintf('bundles/%s/administration/js/%s', $bundleName, $filename);
+                $url = 'bundles/' . $bundleName . '/' . $filename;
 
                 return $package->getUrl($url);
             }, $this->getAdministrationScripts($bundle));
@@ -167,25 +168,29 @@ class InfoController extends AbstractController
 
     private function getAdministrationStyles(Bundle $bundle): array
     {
-        $bundleName = str_replace('_', '-', $bundle->getContainerPrefix());
-        $filename = $bundleName . '.css';
+        $path = 'administration/css/' . str_replace('_', '-', $bundle->getContainerPrefix()) . '.css';
+        $bundlePath = $bundle->getPath();
 
-        if (!file_exists($bundle->getPath() . '/Resources/public/administration/css/' . $filename)) {
+        if (!file_exists($bundlePath . '/Resources/public/' . $path)) {
             return [];
         }
 
-        return [$filename];
+        $strategy = new LastModifiedVersionStrategy($bundlePath);
+
+        return [$strategy->applyVersion($path)];
     }
 
     private function getAdministrationScripts(Bundle $bundle): array
     {
-        $bundleName = str_replace('_', '-', $bundle->getContainerPrefix());
-        $filename = $bundleName . '.js';
+        $path = 'administration/js/' . str_replace('_', '-', $bundle->getContainerPrefix()) . '.js';
+        $bundlePath = $bundle->getPath();
 
-        if (!file_exists($bundle->getPath() . '/Resources/public/administration/js/' . $filename)) {
+        if (!file_exists($bundlePath . '/Resources/public/' . $path)) {
             return [];
         }
 
-        return [$filename];
+        $strategy = new LastModifiedVersionStrategy($bundlePath);
+
+        return [$strategy->applyVersion($path)];
     }
 }

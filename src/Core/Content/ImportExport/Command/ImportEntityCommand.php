@@ -17,6 +17,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ImportEntityCommand extends Command
 {
+    protected static $defaultName = 'import:entity';
+
     /**
      * @var InitiationService
      */
@@ -42,9 +44,9 @@ class ImportEntityCommand extends Command
 
     protected function configure(): void
     {
-        $this->setName('import:entity');
-        $this->addArgument('file', InputArgument::REQUIRED, 'Path to import file');
-        $this->addArgument('expireDate', InputArgument::REQUIRED, 'PHP DateTime compatible string');
+        $this
+            ->addArgument('file', InputArgument::REQUIRED, 'Path to import file')
+            ->addArgument('expireDate', InputArgument::REQUIRED, 'PHP DateTime compatible string');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

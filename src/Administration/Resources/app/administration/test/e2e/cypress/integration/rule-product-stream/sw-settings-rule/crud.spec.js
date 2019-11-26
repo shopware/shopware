@@ -21,20 +21,57 @@ describe('Rule builder: Test crud operations', () => {
 
         // Request we want to wait for later
         cy.server();
+
         cy.route({
-            url: '/api/v1/rule?_response=true',
+            url: '/api/v1/rule',
             method: 'post'
         }).as('saveData');
 
         cy.get('a[href="#/sw/settings/rule/create"]').click();
 
-        // Create rule
-        cy.get('.field--condition').contains('Search conditions...');
-        page.createBasicRule('Rule 1st');
+        // save with empty data
+        cy.get('button.sw-button').contains('Save').click();
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 400);
+        });
+
+        cy.awaitAndCheckNotification('An error occurred while saving rule "".');
+
+        // fill basic data
+        cy.get('.sw-field').contains('.sw-field', 'Name').then((field) => {
+            cy.wrap(field).should('have.class', 'has--error');
+            cy.get('input', { withinSubject: field}).type('Rule 1st');
+            cy.wrap(field).should('not.have.class', 'has--error');
+        });
+
+        cy.get('.sw-field').contains('.sw-field', 'Priority').then((field) => {
+            cy.wrap(field).should('have.class', 'has--error');
+            cy.get('input', { withinSubject: field}).type('1').blur();
+            cy.wrap(field).should('not.have.class', 'has--error');
+        });
+
+        cy.get('.sw-field').contains('.sw-field', 'Description').then((field) => {
+            cy.get('textarea', { withinSubject: field }).type('desc');
+        });
+
+        // fill rule data
+        cy.get('.sw-condition').then((conditionElement) => {
+            cy.get('.sw-condition-type-select', { withinSubject: conditionElement })
+                .then((conditionTypeSelect) => {
+                    cy.wrap(conditionTypeSelect).click();
+                    cy.get('.sw-select-result-list', { withinSubject: conditionTypeSelect })
+                        .should('be.visible');
+
+                    cy.get('.sw-select-result-list', { withinSubject: conditionTypeSelect })
+                        .contains('Time range')
+                        .click();
+                })
+        });
 
         // Verify rule
+        cy.get('button.sw-button').contains('Save').click();
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+            expect(xhr).to.have.property('status', 204);
         });
 
         cy.get(page.elements.smartBarBack).click();

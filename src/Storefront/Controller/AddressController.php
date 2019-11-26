@@ -173,7 +173,7 @@ class AddressController extends StorefrontController
         /** @var RequestDataBag $address */
         $address = $data->get('address');
         try {
-            $this->addressService->create($address, $context);
+            $this->addressService->upsert($address, $context);
 
             return new RedirectResponse($this->generateUrl('frontend.account.address.page', ['addressSaved' => true]));
         } catch (ConstraintViolationException $formViolations) {
@@ -226,7 +226,7 @@ class AddressController extends StorefrontController
         try {
             $addressId = $dataBag->get('id');
 
-            $this->addressService->create($addressData, $context);
+            $this->addressService->upsert($addressData, $context);
 
             $success = true;
             $messages = ['type' => 'success', 'text' => $this->trans('account.addressSaved')];

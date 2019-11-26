@@ -22,7 +22,6 @@ abstract class NestedEvent extends Event implements ShopwareEvent
             return new NestedEventCollection($events);
         }
 
-        /** @var NestedEvent $event */
         foreach ($nestedEvents as $event) {
             $events[] = $event;
             foreach ($event->getFlatEventList() as $item) {

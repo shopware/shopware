@@ -9,13 +9,13 @@
                         <div class="card-body">
                             {% block page_contact_headline_title %}
                                 <h1 class="contact-title">
-                                    {{ "contact.headline"|trans }}
+                                    {{ "contact.headline"|trans|sw_sanitize }}
                                 </h1>
                             {% endblock %}
 
                             {% block page_contact_headline_info %}
                                 <div class="contact-info">
-                                    {{ "contact.info"|trans|raw }}
+                                    {{ "contact.info"|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}
                         </div>
@@ -27,7 +27,7 @@
                         <div class="card-body">
                             {% block page_contact_form_title %}
                                 <div class="card-title">
-                                    {{ "contact.headline"|trans }}
+                                    {{ "contact.headline"|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}
 
@@ -47,7 +47,7 @@
                                                 <div class="form-group col-md-4 contact-salutation">
                                                     {% block page_contact_form_field_salutation_select_label %}
                                                         <label class="form-label" for="contactSalutation">
-                                                            {{ "account.personalSalutationLabel"|trans }}{{ "general.required"|trans }}
+                                                            {{ "account.personalSalutationLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                                                         </label>
                                                     {% endblock %}
                                                     {% block page_contact_form_field_salutation_select %}
@@ -59,7 +59,7 @@
                                                                 <option disabled="disabled"
                                                                         selected="selected"
                                                                         value="">
-                                                                    {{ "account.personalSalutationPlaceholder"|trans }}{{ "general.required"|trans }}
+                                                                    {{ "account.personalSalutationPlaceholder"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                                                                 </option>
                                                             {% endif %}
 
@@ -86,7 +86,7 @@
                                             <div class="form-group contact-firstname">
                                                 {% block page_contact_form_field_firstname_label %}
                                                     <label class="form-label" for="contactFirstName">
-                                                        {{ "account.personalFirstNameLabel"|trans }}{{ "general.required"|trans }}
+                                                        {{ "account.personalFirstNameLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                                                     </label>
                                                 {% endblock %}
 
@@ -94,7 +94,7 @@
                                                     <input name="firstName"
                                                            id="contactFirstName"
                                                            type="text"
-                                                           placeholder="{{ "account.personalFirstNamePlaceholder"|trans }}{{ "general.required"|trans }}"
+                                                           placeholder="{{ "account.personalFirstNamePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
                                                            required="required"
                                                            value="{{ data.get('firstName') }}"
                                                            class="form-control{% if formViolations.getViolations('/firstName') %} is-invalid{% endif %}"/>
@@ -114,7 +114,7 @@
                                             <div class="form-group contact-lastname">
                                                 {% block page_contact_form_field_lastname_label %}
                                                     <label class="form-label" for="contactLastName">
-                                                        {{ "account.personalLastNameLabel"|trans }}{{ "general.required"|trans }}
+                                                        {{ "account.personalLastNameLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                                                     </label>
                                                 {% endblock %}
 
@@ -122,7 +122,7 @@
                                                     <input name="lastName"
                                                            id="contactLastName"
                                                            type="text"
-                                                           placeholder="{{ "account.personalLastNamePlaceholder"|trans }}{{ "general.required"|trans }}"
+                                                           placeholder="{{ "account.personalLastNamePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
                                                            required="required"
                                                            value="{{ data.get('lastName') }}"
                                                            class="form-control{% if formViolations.getViolations('/lastName') %} is-invalid{% endif %}"/>
@@ -142,7 +142,7 @@
                                             <div class="form-group contact-email">
                                                 {% block page_contact_form_field_email_label %}
                                                     <label class="form-label" for="contactMail">
-                                                        {{ "account.loginMailLabel"|trans }}{{ "general.required"|trans }}
+                                                        {{ "account.loginMailLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                                                     </label>
                                                 {% endblock %}
 
@@ -150,7 +150,7 @@
                                                     <input name="email"
                                                            type="email"
                                                            id="contactMail"
-                                                           placeholder="{{ "account.loginMailPlaceholder"|trans }}{{ "general.required"|trans }}"
+                                                           placeholder="{{ "account.loginMailPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
                                                            required="required"
                                                            value="{{ data.get('email') }}"
                                                            class="form-control{% if formViolations.getViolations('/email') %} is-invalid{% endif %}"/>
@@ -170,14 +170,14 @@
                                             <div class="form-group contact-phone">
                                                 {% block page_contact_form_field_phone_label %}
                                                     <label class="form-label" for="contactPhone">
-                                                        {{ "account.personalPhoneLabel"|trans }}{{ "general.required"|trans }}
+                                                        {{ "account.personalPhoneLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                                                     </label>
                                                 {% endblock %}
                                                 {% block page_contact_form_field_phone_input %}
                                                     <input name="phone"
                                                            id="contactPhone"
                                                            type="text"
-                                                           placeholder="{{ "account.personalPhonePlaceholder"|trans }}{{ "general.required"|trans }}"
+                                                           placeholder="{{ "account.personalPhonePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
                                                            required="required"
                                                            value="{{ data.get('phone') }}"
                                                            class="form-control{% if formViolations.getViolations('/phone') %} is-invalid{% endif %}"/>
@@ -197,14 +197,14 @@
                                             <div class="form-group contact-subject">
                                                 {% block page_contact_form_field_subject_label %}
                                                     <label class="form-label" for="contactSubject">
-                                                        {{ "contact.subjectLabel"|trans }}{{ "general.required"|trans }}
+                                                        {{ "contact.subjectLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                                                     </label>
                                                 {% endblock %}
                                                 {% block page_contact_form_field_subject_input %}
                                                     <input name="subject"
                                                            id="contactSubject"
                                                            type="text"
-                                                           placeholder="{{ "contact.subjectPlaceholder"|trans }}{{ "general.required"|trans }}"
+                                                           placeholder="{{ "contact.subjectPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
                                                            required="required"
                                                            value="{{ data.get('subject') }}"
                                                            class="form-control{% if formViolations.getViolations('/subject') %} is-invalid{% endif %}"/>
@@ -224,14 +224,14 @@
                                             <div class="form-group contact-comment">
                                                 {% block page_contact_form_field_comment_label %}
                                                     <label class="form-label" for="contactComment">
-                                                        {{ "contact.commentLabel"|trans }}{{ "general.required"|trans }}
+                                                        {{ "contact.commentLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                                                     </label>
                                                 {% endblock %}
                                                 {% block page_contact_form_field_comment_textarea %}
                                                     <textarea name="comment"
                                                               rows="5"
                                                               id="contactComment"
-                                                              placeholder="{{ "contact.commentPlaceholder"|trans }}{{ "general.required"|trans }}"
+                                                              placeholder="{{ "contact.commentPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
                                                               required="required"
                                                               class="form-control{% if formViolations.getViolations('/comment') %} is-invalid{% endif %}"/>{{ data.get('comment') }}</textarea>
                                                 {% endblock %}
@@ -249,7 +249,7 @@
 
                                     {% block page_contact_form_required %}
                                         <p class="form-text contact-required-info">
-                                            {{ "general.requiredFields"|trans }}
+                                            {{ "general.requiredFields"|trans|sw_sanitize }}
                                         </p>
                                     {% endblock %}
 
@@ -263,7 +263,7 @@
                                         <div class="contact-action">
                                             <button type="submit"
                                                     class="btn btn-primary contact-btn">
-                                                {{ "contact.formSubmit"|trans }}
+                                                {{ "contact.formSubmit"|trans|sw_sanitize }}
                                             </button>
                                         </div>
                                     {% endblock %}

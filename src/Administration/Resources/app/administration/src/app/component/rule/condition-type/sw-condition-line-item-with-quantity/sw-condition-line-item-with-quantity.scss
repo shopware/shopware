@@ -1,19 +1,4 @@
 .sw-condition-line-item-with-quantity {
-    .sw-condition-line-item-with-quantity__id-select {
-        height: auto;
-        padding: 0;
-        flex-grow: 1;
-        min-width: 50%;
-
-        .sw-select__inner {
-            border: none;
-            padding: 4px 45px 0 13px;
-            min-height: 38px;
-        }
-
-        .sw-select__indicators {
-            top: 10px;
-            right: 5px;
-        }
-    }
+    display: grid;
+    grid-template-columns: minmax(128px, auto) minmax(128px, auto) 1fr;
 }

@@ -89,7 +89,6 @@ class PromotionSetGroupCalculationTest extends TestCase
             ->addDiscount(PromotionDiscountEntity::SCOPE_SET, PromotionDiscountEntity::TYPE_PERCENTAGE, 100.0, false, null);
         $promotionBuilder->buildPromotion();
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         // add 3 items to our cart
@@ -143,7 +142,6 @@ class PromotionSetGroupCalculationTest extends TestCase
             ->addDiscount(PromotionDiscountEntity::SCOPE_SET, PromotionDiscountEntity::TYPE_ABSOLUTE, 50.0, false, null);
         $promotionBuilder->buildPromotion();
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         // add 3 items to our cart
@@ -204,7 +202,6 @@ class PromotionSetGroupCalculationTest extends TestCase
             ->addDiscount(PromotionDiscountEntity::SCOPE_SET, PromotionDiscountEntity::TYPE_FIXED_UNIT, 20.0, false, null);
         $promotionBuilder->buildPromotion();
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         // add 3 items to our cart
@@ -265,7 +262,6 @@ class PromotionSetGroupCalculationTest extends TestCase
             ->addDiscount(PromotionDiscountEntity::SCOPE_SET, PromotionDiscountEntity::TYPE_FIXED, 50.0, false, null);
         $promotionBuilder->buildPromotion();
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         // add 3 items to our cart

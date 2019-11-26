@@ -21,7 +21,7 @@ class RequirementStackException extends ShopwareHttpException
             [
                 'method' => $method,
                 'failureCount' => \count($requirements),
-                'errors' => "\n" . print_r($this->toArray(), true),
+                'errors' => $this->getInnerExceptionsDetails(),
             ]
         );
     }
@@ -44,32 +44,22 @@ class RequirementStackException extends ShopwareHttpException
         return $this->requirements;
     }
 
-    public function toArray(): array
-    {
-        $result = [];
-
-        foreach ($this->requirements as $exception) {
-            $result[] = $exception->getMessage();
-        }
-
-        return $result;
-    }
-
     public function getErrors(bool $withTrace = false): \Generator
     {
+        yield from parent::getErrors($withTrace);
+
         foreach ($this->requirements as $exception) {
-            $error = [
-                'code' => (string) $exception->getCode(),
-                'status' => (string) $exception->getStatusCode(),
-                'title' => Response::$statusTexts[$exception->getStatusCode()] ?? 'unknown status',
-                'detail' => $exception->getMessage(),
-            ];
-
-            if ($withTrace) {
-                $error['trace'] = $exception->getTraceAsString();
-            }
-
-            yield $error;
+            yield from $exception->getErrors($withTrace);
         }
+    }
+
+    private function getInnerExceptionsDetails(): string
+    {
+        $details = [];
+        foreach ($this->requirements as $innerException) {
+            $details[] = "\n" . $innerException->getMessage();
+        }
+
+        return implode($details);
     }
 }

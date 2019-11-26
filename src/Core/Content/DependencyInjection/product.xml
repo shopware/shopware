@@ -90,6 +90,14 @@
             <tag name="shopware.entity.definition" entity="product_category_tree"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition">
+            <tag name="shopware.entity.definition" entity="product_cross_selling"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="product_cross_selling_translation"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\Cart\ProductGateway">
             <argument type="service" id="sales_channel.product.repository"/>
         </service>

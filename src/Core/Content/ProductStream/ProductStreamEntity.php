@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductStream;
 
+use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterCollection;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -45,6 +46,11 @@ class ProductStreamEntity extends Entity
      * @var array|null
      */
     protected $customFields;
+
+    /**
+     * @var ProductCrossSellingCollection|null
+     */
+    protected $productCrossSellings;
 
     public function getName(): string
     {
@@ -114,5 +120,15 @@ class ProductStreamEntity extends Entity
     public function setCustomFields(?array $customFields): void
     {
         $this->customFields = $customFields;
+    }
+
+    public function getProductCrossSellings(): ?ProductCrossSellingCollection
+    {
+        return $this->productCrossSellings;
+    }
+
+    public function setProductCrossSellings(ProductCrossSellingCollection $productCrossSellings): void
+    {
+        $this->productCrossSellings = $productCrossSellings;
     }
 }

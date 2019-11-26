@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductStream;
 
+use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -49,7 +50,8 @@ class ProductStreamDefinition extends EntityDefinition
             new TranslatedField('customFields'),
 
             (new TranslationsAssociationField(ProductStreamTranslationDefinition::class, 'product_stream_id'))->addFlags(new Required()),
-            (new OneToManyAssociationField('filters', ProductStreamFilterDefinition::class, 'product_stream_id', 'id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('filters', ProductStreamFilterDefinition::class, 'product_stream_id'))->setFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('productCrossSellings', ProductCrossSellingDefinition::class, 'product_stream_id'))->setFlags(new CascadeDelete()),
         ]);
     }
 }

@@ -51,7 +51,6 @@ Mixin.register('listing', {
         // When no route information are provided
         if (types.isEmpty(actualQueryParameters)) {
             this.resetListing();
-            this.updateRoute();
         } else {
             // otherwise update local data and fetch from server
             this.updateData(actualQueryParameters);

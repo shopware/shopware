@@ -581,16 +581,19 @@
                 {% block sw_sales_channel_detail_base_maintenance_input_active %}
                     <sw-field
                         type="switch"
-                        :label="$tc('sw-sales-channel.detail.labelInputActive')"
+                        :label="$tc('sw-sales-channel.detail.labelMaintenanceActive')"
                         v-model="salesChannel.maintenance">
                     </sw-field>
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_maintenance_ipwhitelist %}
-                    <sw-textarea-field
-                        :label="$tc('sw-sales-channel.detail.ipAddressWhitleList')"
-                        v-model="salesChannel.maintenanceIpWhitelist">
-                    </sw-textarea-field>
+                <sw-multi-ip-select
+                    v-if="!isLoading"
+                    class="sw-order-user-card__tag-select"
+                    :label="$tc('sw-sales-channel.detail.ipAddressWhitleList')"
+                    :helpText="$tc('sw-sales-channel.detail.ipAddressWhitleListHelpText')"
+                    v-model="salesChannel.maintenanceIpWhitelist">
+                </sw-multi-ip-select>
                 {% endblock %}
             </sw-card>
         {% endblock %}

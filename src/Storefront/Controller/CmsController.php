@@ -76,7 +76,7 @@ class CmsController extends StorefrontController
      * Route for stand alone cms pages
      *
      * @HttpCache()
-     * @Route("/cms/singlepage/{id}", name="frontend.cms.singlepage", methods={"GET"}, defaults={"id"=null, "XmlHttpRequest"=true})
+     * @Route("/cms/singlepage/{id}", name="frontend.cms.singlepage", methods={"GET"}, defaults={"bypassMaintenance"="1", "XmlHttpRequest"=true})
      *
      * @throws InconsistentCriteriaIdsException
      * @throws MissingRequestParameterException

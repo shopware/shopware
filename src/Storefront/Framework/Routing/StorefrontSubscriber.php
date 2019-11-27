@@ -102,24 +102,27 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
         $request = $event->getRequest();
 
-        //ToDo: Impressum/Datenschutz/maintenance durchlassen
+        if ($request->attributes->get('bypassMaintenance')) {
+            return;
+        }
+
         if ($request->isXmlHttpRequest() || $request->attributes->get('_route') === 'frontend.maintenance.page') {
             return;
         }
 
-        if ($request->getRequestUri() === '/cms/singlepage') {
+        $salesChannelMaintenance = $request->attributes
+            ->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE);
+        if (!$salesChannelMaintenance) {
             return;
         }
 
-        // ToDo: errors -> fallback html?
-        $salesChannelMaintenance = $request->attributes
-            ->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE);
-        $maintenanceWhiteList = $request->attributes
-            ->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST);
         $currentIp = $request->server->get('REMOTE_ADDR');
 
-        // ToDo: IP Whitelist
-        if (!$salesChannelMaintenance) {
+        $maintenanceWhiteList = $request->attributes
+            ->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST);
+        $maintenanceWhiteList = json_decode($maintenanceWhiteList, true);
+
+        if (in_array($currentIp, $maintenanceWhiteList, true)) {
             return;
         }
 

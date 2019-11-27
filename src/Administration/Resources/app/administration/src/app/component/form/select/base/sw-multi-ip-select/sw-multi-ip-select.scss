@@ -1,0 +1,15 @@
+@import "~scss/variables";
+
+.sw-select.sw-multi-ip-select {
+    .sw-select__selection-indicators {
+        display: none;
+    }
+
+    .sw-select-selection-list {
+        width: 100%;
+    }
+
+    .sw-select-selection-list .sw-select-selection-list__item-holder {
+        max-width: 246px;
+    }
+}

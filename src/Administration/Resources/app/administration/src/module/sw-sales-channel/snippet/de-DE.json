@@ -95,9 +95,11 @@
       "columnDomainUrl": "URL",
       "columnDomainLanguage": "Sprache",
       "columnDomainSnippetSet": "Snippet Set",
-      "columnDomainCurrency": "Währung",
       "maintenanceModeTitle": "Wartungsmodus",
       "maintenanceModeDescription": "Der Wartungsmodus setzt den Vertriebskanal für Besucher unsichtbar. Allerdings können Whitelist-/beschriftete IPs weiterhin darauf zugreifen. Auf diese Weise können Sie sicher mit den Daten des Vertriebskanals arbeiten und Besucher mit einem Wartungsmodusbildschirm ausschließen.",
+      "labelMaintenanceActive": "Wartungsmodus aktivieren",
+      "ipAddressWhitleListHelpText": "Fügen Sie der Whitelist IP-Adressen hinzu, um einen selektiven Zugriff auf Ihren Shop zu ermöglichen. Sie können bei Bedarf IPv4- und IPv6-Adressen hinzufügen.",
+      "basicinformationLink": "Standard Wartungsseiten Layout hier ändern",
       "ipAddressWhitleList": "Whitelist für IP-Adressen",
       "columnDomainCurrency": "Währung",
       "productComparison": {

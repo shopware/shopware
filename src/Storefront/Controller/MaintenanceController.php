@@ -36,11 +36,17 @@ class MaintenanceController extends StorefrontController
 
     /**
      * @HttpCache()
-     * @Route("/maintenance", name="frontend.maintenance.page", methods={"GET"})
+     * @Route("/maintenance", name="frontend.maintenance.page", methods={"GET"}, defaults={"bypassMaintenance"="1"})
      */
     public function renderMaintenancePage(Request $request, SalesChannelContext $context): ?Response
     {
-        $salesChannelId = $context->getSalesChannel()->getId();
+        $salesChannel = $context->getSalesChannel();
+
+        if (!$salesChannel->isMaintenance()) {
+            return $this->redirectToRoute('frontend.home.page');
+        }
+
+        $salesChannelId = $salesChannel->getId();
         $maintenanceLayoutId = $this->systemConfigService->get('core.basicInformation.maintenancePage', $salesChannelId);
 
         if (!$maintenanceLayoutId) {
@@ -49,7 +55,7 @@ class MaintenanceController extends StorefrontController
             );
         }
 
-        $maintenancePage = $this->maintenancePageLoader->load($maintenanceLayoutId, $request, $context);
+        $maintenancePage = $this->maintenancePageLoader->load((string) $maintenanceLayoutId, $request, $context);
 
         $response = $this->renderStorefront(
             '@Storefront/storefront/page/error/error-maintenance.html.twig',

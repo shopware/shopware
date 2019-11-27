@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -194,6 +195,12 @@ class ProductSearchKeywordIndexer implements IndexerInterface
             return;
         }
 
+        if ($products instanceof EntityDeletedEvent) {
+            $this->delete($products->getIds(), $event->getContext()->getLanguageId(), $event->getContext()->getVersionId());
+
+            return;
+        }
+
         $this->update($products->getIds(), $event->getContext());
     }
 
@@ -251,15 +258,7 @@ class ProductSearchKeywordIndexer implements IndexerInterface
         $this->connection->beginTransaction();
 
         try {
-            $bytes = array_map(function ($id) {
-                return Uuid::fromHexToBytes($id);
-            }, $ids);
-
-            $this->connection->executeUpdate(
-                'DELETE FROM product_search_keyword WHERE product_id IN (:ids) AND language_id = :language',
-                ['ids' => $bytes, 'language' => $languageId],
-                ['ids' => Connection::PARAM_STR_ARRAY]
-            );
+            $this->delete($ids, $context->getLanguageId(), $context->getVersionId());
 
             $insert->execute();
         } catch (\Exception $e) {
@@ -278,5 +277,22 @@ class ProductSearchKeywordIndexer implements IndexerInterface
     public static function getName(): string
     {
         return 'Swag.ProductSearchKeywordIndexer';
+    }
+
+    private function delete(array $ids, string $languageId, string $versionId): void
+    {
+        $bytes = array_map(function ($id) {
+            return Uuid::fromHexToBytes($id);
+        }, $ids);
+
+        $this->connection->executeUpdate(
+            'DELETE FROM product_search_keyword WHERE product_id IN (:ids) AND language_id = :language AND version_id = :versionId',
+            [
+                'ids' => $bytes,
+                'language' => Uuid::fromHexToBytes($languageId),
+                'versionId' => Uuid::fromHexToBytes($versionId),
+            ],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
     }
 }

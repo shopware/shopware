@@ -450,8 +450,6 @@ EOF;
 
     public function testDeleteVersion(): void
     {
-        static::markTestSkipped('Deleting the version does not work.');
-
         $id = Uuid::randomHex();
         $browser = $this->getBrowser();
 

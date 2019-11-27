@@ -163,6 +163,7 @@ class ProductExportController extends AbstractController
                 $salesChannelDomainNotFoundException
             );
             $this->eventDispatcher->dispatch($loggingEvent);
+
             throw $salesChannelDomainNotFoundException;
         }
 

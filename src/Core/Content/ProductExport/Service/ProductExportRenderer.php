@@ -56,6 +56,7 @@ class ProductExportRenderer implements ProductExportRendererInterface
         } catch (StringTemplateRenderingException $exception) {
             $renderHeaderException = new RenderHeaderException($exception->getMessage());
             $this->logException($salesChannelContext->getContext(), $renderHeaderException);
+
             throw $renderHeaderException;
         }
     }
@@ -86,6 +87,7 @@ class ProductExportRenderer implements ProductExportRendererInterface
         } catch (StringTemplateRenderingException $exception) {
             $renderFooterException = new RenderFooterException($exception->getMessage());
             $this->logException($salesChannelContext->getContext(), $renderFooterException);
+
             throw $renderFooterException;
         }
     }
@@ -104,6 +106,7 @@ class ProductExportRenderer implements ProductExportRendererInterface
         } catch (StringTemplateRenderingException $exception) {
             $renderProductException = new RenderProductException($exception->getMessage());
             $this->logException($salesChannelContext->getContext(), $renderProductException);
+
             throw $renderProductException;
         }
     }

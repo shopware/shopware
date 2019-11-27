@@ -114,6 +114,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             $this->eventDispatcher->dispatch($loggingEvent);
 
             $this->translator->resetInjection();
+
             throw $exception;
         }
 

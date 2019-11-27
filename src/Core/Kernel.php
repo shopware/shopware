@@ -261,21 +261,7 @@ class Kernel extends HttpKernel
         ]));
     }
 
-    private function addApiRoutes(RouteCollectionBuilder $routes): void
-    {
-        $routes->import('.', null, 'api');
-    }
-
-    private function addBundleRoutes(RouteCollectionBuilder $routes): void
-    {
-        foreach ($this->getBundles() as $bundle) {
-            if ($bundle instanceof Framework\Bundle) {
-                $bundle->configureRoutes($routes, (string) $this->environment);
-            }
-        }
-    }
-
-    private function initializeDatabaseConnectionVariables(): void
+    protected function initializeDatabaseConnectionVariables(): void
     {
         $connection = self::getConnection();
 
@@ -301,6 +287,20 @@ class Kernel extends HttpKernel
         }
 
         $connection->executeQuery(implode(';', $connectionVariables));
+    }
+
+    private function addApiRoutes(RouteCollectionBuilder $routes): void
+    {
+        $routes->import('.', null, 'api');
+    }
+
+    private function addBundleRoutes(RouteCollectionBuilder $routes): void
+    {
+        foreach ($this->getBundles() as $bundle) {
+            if ($bundle instanceof Framework\Bundle) {
+                $bundle->configureRoutes($routes, (string) $this->environment);
+            }
+        }
     }
 
     private function addFallbackRoute(RouteCollectionBuilder $routes): void

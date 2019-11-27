@@ -390,6 +390,7 @@ RIPS security:
     stage: Security
     image: php:7.3-alpine
     before_script: []
+    allow_failure: true
     only:
         - master
     script:

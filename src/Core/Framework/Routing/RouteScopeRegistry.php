@@ -18,14 +18,9 @@ class RouteScopeRegistry
     }
 
     /**
-     * @return RouteScopeInterface[]|iterable
+     * @throws \InvalidArgumentException
      */
-    public function getRouteScopes(): iterable
-    {
-        return $this->routeScopes;
-    }
-
-    public function getRouteScope(string $id): ?RouteScopeInterface
+    public function getRouteScope(string $id): RouteScopeInterface
     {
         foreach ($this->routeScopes as $routeScope) {
             if ($routeScope->getId() === $id) {
@@ -33,6 +28,6 @@ class RouteScopeRegistry
             }
         }
 
-        return null;
+        throw new \InvalidArgumentException('Unknown route scope requested "' . $id . '"');
     }
 }

@@ -218,23 +218,29 @@ class SeoUrlGenerator
         $rootNode = $this->twig->parse($this->twig->tokenize(new Source($template, '__check')));
         $nodeStack = $rootNode->getIterator()->getArrayCopy();
         $accessors = [];
+
         do {
             /** @var Node $node */
             $node = array_pop($nodeStack);
             $childNodes = $node->getIterator()->getArrayCopy();
+
             if ($node instanceof GetAttrExpression) {
                 $accessedMembers = [];
                 $attrChildren = $node->getIterator()->getArrayCopy();
                 /* @var Node $attrChild */
+
                 while (!empty($attrChildren)) {
                     $attrChild = array_pop($attrChildren);
+
                     if ($attrChild instanceof NameExpression) {
                         $accessedMembers[] = $attrChild->getAttribute('name');
                     } elseif ($attrChild instanceof ConstantExpression) {
                         $accessedMembers[] = $attrChild->getAttribute('value');
                     }
+
                     $attrChildren = array_merge($attrChildren, $attrChild->getIterator()->getArrayCopy());
                 }
+
                 $accessors[] = array_reverse($accessedMembers);
             } else {
                 $nodeStack = array_merge($nodeStack, $childNodes);
@@ -262,7 +268,7 @@ class SeoUrlGenerator
                     /** @var SeoTemplateReplacementVariable $replacement */
                     $replacement = $specialVariables[$fieldName];
 
-                    if (!key_exists($replacement->getMappedEntityName(), $relevantDefinitions)) {
+                    if (!array_key_exists($replacement->getMappedEntityName(), $relevantDefinitions)) {
                         $relevantDefinitions[$replacement->getMappedEntityName()] = [];
                     }
 
@@ -279,12 +285,12 @@ class SeoUrlGenerator
 
                 if ($accessedField instanceof AssociationField) {
                     $currentDefinition = $accessedField->getReferenceDefinition();
-                    if (!key_exists($currentDefinition->getEntityName(), $relevantDefinitions)) {
+                    if (!array_key_exists($currentDefinition->getEntityName(), $relevantDefinitions)) {
                         $relevantDefinitions[$currentDefinition->getEntityName()] = [];
                     }
                 } elseif ($accessedField instanceof TranslatedField) {
                     $translationDefinition = $currentDefinition->getTranslationDefinition();
-                    if (!key_exists($translationDefinition->getEntityName(), $relevantDefinitions)) {
+                    if (!array_key_exists($translationDefinition->getEntityName(), $relevantDefinitions)) {
                         $relevantDefinitions[$translationDefinition->getEntityName()] = [];
                     }
                     $relevantDefinitions[$translationDefinition->getEntityName()][] = $accessedField->getPropertyName();

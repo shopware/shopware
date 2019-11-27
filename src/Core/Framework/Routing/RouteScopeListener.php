@@ -3,10 +3,8 @@
 namespace Shopware\Core\Framework\Routing;
 
 use Shopware\Core\Framework\Routing\Annotation\RouteScope as RouteScopeAnnotation;
-use Shopware\Core\Framework\Routing\Event\RouteScopeWhitlistCollectEvent;
 use Shopware\Core\Framework\Routing\Exception\InvalidRouteScopeException;
 use Shopware\Core\PlatformRequest;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -21,70 +19,53 @@ class RouteScopeListener implements EventSubscriberInterface
     private $requestStack;
 
     /**
-     * @var array
-     */
-    private $whitelistedControllers = [
-        'Symfony\*',
-    ];
-
-    /**
      * @var RouteScopeRegistry
      */
     private $routeScopeRegistry;
 
     /**
-     * @var EventDispatcherInterface
+     * @var RouteScopeWhitelistInterface[]
      */
-    private $eventDispatcher;
+    private $whitelists;
 
     public function __construct(
         RouteScopeRegistry $routeScopeRegistry,
         RequestStack $requestStack,
-        EventDispatcherInterface $eventDispatcher
+        iterable $whitelists
     ) {
         $this->routeScopeRegistry = $routeScopeRegistry;
         $this->requestStack = $requestStack;
-        $this->eventDispatcher = $eventDispatcher;
-
-        $whitlistCollectorEvent = new RouteScopeWhitlistCollectEvent($this->whitelistedControllers);
-        $whitlistCollectorEvent = $eventDispatcher->dispatch(
-            $whitlistCollectorEvent,
-            RouteScopeEvents::ROUTE_SCOPE_WHITELIST_COLLECT
-        );
-        $this->whitelistedControllers = $whitlistCollectorEvent->getWhitelistedControllers();
+        $this->whitelists = $whitelists;
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::CONTROLLER => [
-                ['checkScope', -15],
+                ['checkScope', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE],
             ],
         ];
     }
 
+    /**
+     * Validate that any given controller invocation creates a valid scope with the original master request
+     */
     public function checkScope(ControllerEvent $event): void
     {
-        if ($this->requestStack->getParentRequest() !== null) {
-            return;
-        }
-
         if ($this->isWhitelistedController($event)) {
             return;
         }
 
-        /** @var Request $masterRequest */
-        $masterRequest = $this->requestStack->getMasterRequest();
+        $currentRouteScopeAnnotation = $this->extractCurrentScopeAnnotation($event);
+        $masterRequest = $this->getMasterRequest();
 
-        $routeScopeAnnotation = $masterRequest->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE);
-        if ($routeScopeAnnotation === null) {
-            $routeScopeAnnotation = new RouteScopeAnnotation(['scopes' => ['default']]);
-        }
-        foreach ($routeScopeAnnotation->getScopes() as $routeScopeName) {
-            /** @var RouteScope $routeScope */
-            if (($routeScope = $this->routeScopeRegistry->getRouteScope($routeScopeName)) === null) {
-                throw new InvalidRouteScopeException($masterRequest->attributes->get('_route'));
-            } elseif ($routeScope->isAllowedPath($masterRequest->getPathInfo()) && $routeScope->isAllowed($masterRequest)) {
+        foreach ($currentRouteScopeAnnotation->getScopes() as $routeScopeName) {
+            $routeScope = $this->routeScopeRegistry->getRouteScope($routeScopeName);
+
+            $pathAllowed = $routeScope->isAllowedPath($masterRequest->getPathInfo());
+            $requestAllowed = $routeScope->isAllowed($masterRequest);
+
+            if ($pathAllowed && $requestAllowed) {
                 return;
             }
         }
@@ -92,7 +73,7 @@ class RouteScopeListener implements EventSubscriberInterface
         throw new InvalidRouteScopeException($masterRequest->attributes->get('_route'));
     }
 
-    private function getControllerClass(ControllerEvent $event): string
+    private function extractControllerClass(ControllerEvent $event): string
     {
         $controllerCallable = \Closure::fromCallable($event->getController());
         $controllerCallable = new \ReflectionFunction($controllerCallable);
@@ -103,21 +84,40 @@ class RouteScopeListener implements EventSubscriberInterface
 
     private function isWhitelistedController(ControllerEvent $event): bool
     {
-        $controllerClass = $this->getControllerClass($event);
-        foreach ($this->whitelistedControllers as $ignoredController) {
-            if (strcmp($controllerClass, $ignoredController) === 0) {
-                return true;
-            }
+        $controllerClass = $this->extractControllerClass($event);
 
-            if (mb_substr($ignoredController, -1) !== '*') {
-                continue;
-            }
+        foreach ($this->whitelists as $whitelist) {
+            $isWhitelisted = $whitelist->applies($controllerClass);
 
-            if (strncmp($controllerClass, mb_substr($ignoredController, 0, -1), mb_strlen($ignoredController) - 1) === 0) {
+            if ($isWhitelisted) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    private function extractCurrentScopeAnnotation(ControllerEvent $event): RouteScopeAnnotation
+    {
+        $currentRequest = $event->getRequest();
+
+        $currentRouteScopeAnnotation = $currentRequest->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE);
+
+        if ($currentRouteScopeAnnotation === null) {
+            throw new InvalidRouteScopeException($currentRequest->attributes->get('_route'));
+        }
+
+        return $currentRouteScopeAnnotation;
+    }
+
+    private function getMasterRequest(): Request
+    {
+        $masterRequest = $this->requestStack->getMasterRequest();
+
+        if (!$masterRequest) {
+            throw new \InvalidArgumentException('Unable to check the request scope without master request');
+        }
+
+        return $masterRequest;
     }
 }

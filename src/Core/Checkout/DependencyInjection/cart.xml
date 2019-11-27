@@ -18,7 +18,6 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\CartValueResolver">
-            <argument type="service" id="request_stack"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
 
             <tag name="controller.argument_value_resolver" priority="1001"/>

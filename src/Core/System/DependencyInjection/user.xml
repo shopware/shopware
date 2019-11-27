@@ -32,6 +32,9 @@
 
         <service id="Shopware\Core\System\User\Api\UserRecoveryController" public="true">
             <argument type="service" id="Shopware\Core\System\User\Recovery\UserRecoveryService"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
         </service>
 
         <service id="Shopware\Core\System\User\Service\UserValidationService">
@@ -40,6 +43,9 @@
 
         <service id="Shopware\Core\System\User\Api\UserValidationController" public="true">
             <argument type="service" id="Shopware\Core\System\User\Service\UserValidationService"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
         </service>
     </services>
 </container>

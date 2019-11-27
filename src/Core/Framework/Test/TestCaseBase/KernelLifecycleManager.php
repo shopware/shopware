@@ -109,7 +109,7 @@ class KernelLifecycleManager
             throw new \InvalidArgumentException('No class loader set. Please call KernelLifecycleManager::prepare');
         }
 
-        $pluginLoader = new DbalKernelPluginLoader(self::$classLoader, null, static::$class::getConnection());
+        $pluginLoader = new DbalKernelPluginLoader(self::$classLoader, null, $kernelClass::getConnection());
 
         // This hash MUST be constant as long as NEXT-5273 is not resolved.
         // Otherwise tests using a dataprovider wither services (such as JsonSalesChannelEntityEncoderTest)

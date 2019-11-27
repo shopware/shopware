@@ -16,7 +16,7 @@
             <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapWriter"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="tagged" tag="shopware.sitemap_url_provider"/>
-            <argument type="service" id="serializer.mapping.cache.symfony"/>
+            <argument type="service" id="cache.system"/>
             <argument>%shopware.sitemap.batchsize%</argument>
             <argument type="service" id="Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface"/>
             <argument type="service" id="logger"/>

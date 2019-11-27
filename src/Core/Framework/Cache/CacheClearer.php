@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Cache;
 
 use Psr\Cache\CacheItemPoolInterface;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\PruneableInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -55,7 +54,6 @@ class CacheClearer
     {
         foreach ($this->adapters as $adapter) {
             if ($adapter instanceof TagAwareAdapterInterface) {
-                /* @var FilesystemAdapter $adapter */
                 $adapter->invalidateTags($tags);
             }
         }

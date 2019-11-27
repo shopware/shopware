@@ -291,6 +291,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
         * with the option "--days" it is possible to remove the data which is same old and older than the given number of days
     * Updated Symfony dependencies to version `4.4.0`.    
     * We removed the `\Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface`, use `\Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand` instead
+    * The sitemap generator now uses the `cache.system` pool instead of `serializer.mapping.cache.symfony`
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain
@@ -308,6 +309,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * The filter plugin moves to the offcanvas when the user is in mobile view
     * Updated Symfony Dependencies to version `4.4.0`.    
     * Added the `referencePrice` of a product to the `offcanvas cart` and the `ajax-search`
+    * The default cache time for the theme config now uses the lifetime of the cache pool instead of 1 hour
 * Elasticsearch
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.
         * You can set them with a parameter.yml too.
@@ -338,6 +340,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
         - Example for nested sub entities: Writing a `order_delivery_position` entity now also dispatches a `order_delivery.written` and a `order.written` event
     * Dropped `additionalText` column of product entity, use `metaDescription` instead
     * Removed `EntityExistence $existence` parameter from `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getDefaults` as it is not necessary anymore
+    * Removed configuration `shopware.entity_cache` in favor of the symfony cache pool `cache.object` configuration.
 * Storefront
     * Removed `\Shopware\Storefront\Framework\Cache\CacheWarmer\Navigation\NavigationRouteMessage`
     * Removed `\Shopware\Storefront\Framework\Cache\CacheWarmer\Product\ProductRouteMessage`

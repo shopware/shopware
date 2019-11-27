@@ -5,12 +5,15 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
@@ -479,14 +482,23 @@ EOF;
         static::assertArrayHasKey('id', $response);
         static::assertArrayHasKey('entity', $response);
         static::assertTrue(Uuid::isValid($response['versionId']));
+        $versionId = $response['versionId'];
 
-        $uri = utf8_encode('/api/v' . PlatformRequest::API_VERSION . '/_action/version/' . $response['versionId'] . '/product/' . $id);
-        $browser->request('POST', $uri);
+        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/version/' . $response['versionId'] . '/product/' . $id);
         $response = json_decode($browser->getResponse()->getContent(), true);
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
         static::assertEmpty($response);
 
-        $this->assertEntityNotExists($browser, 'product', $id);
+        $this->assertEntityExists($browser, 'product', $id);
+
+        /** @var EntityRepositoryInterface $productRepo */
+        $productRepo = $this->getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
+        $criteria = new Criteria([$id]);
+        $criteria->addFilter(
+            new EqualsFilter('versionId', $versionId)
+        );
+
+        static::assertCount(0, $productRepo->search($criteria, Context::createDefaultContext()));
     }
 
     public function testDeleteWithoutPermission(): void

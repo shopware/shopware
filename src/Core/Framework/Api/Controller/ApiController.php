@@ -279,7 +279,7 @@ class ApiController extends AbstractController
      * @throws InvalidUuidException
      * @throws InvalidVersionNameException
      */
-    public function deleteVersion(Context $context, string $entity, string $entityId, string $versionId): Response
+    public function deleteVersion(Context $context, string $entity, string $entityId, string $versionId): JsonResponse
     {
         if ($versionId !== null && !Uuid::isValid($versionId)) {
             throw new InvalidUuidException($versionId);

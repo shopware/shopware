@@ -85,46 +85,47 @@ class CachedEntitySearcherTest extends TestCase
      */
     public function testDisableCacheOption(Criteria $criteria): void
     {
-        $dbalSearcher = $this->createMock(EntitySearcher::class);
-
-        $id1 = Uuid::randomHex();
-        $id2 = Uuid::randomHex();
-
         $context = Context::createDefaultContext();
+        $context->disableCache(function (Context $context) use ($criteria): void {
+            $dbalSearcher = $this->createMock(EntitySearcher::class);
 
-        $dbalSearcher->expects(static::atLeast(2))
-            ->method('search')
-            ->willReturn(
-                new IdSearchResult(
-                    0,
-                    [
-                        $id1 => ['primaryKey' => $id1, 'data' => []],
-                        $id2 => ['primaryKey' => $id2, 'data' => []],
-                    ],
-                    $criteria,
-                    $context
-                )
+            $id1 = Uuid::randomHex();
+            $id2 = Uuid::randomHex();
+
+            $dbalSearcher->expects(static::atLeast(2))
+                ->method('search')
+                ->willReturn(
+                    new IdSearchResult(
+                        0,
+                        [
+                            $id1 => ['primaryKey' => $id1, 'data' => []],
+                            $id2 => ['primaryKey' => $id2, 'data' => []],
+                        ],
+                        $criteria,
+                        $context
+                    )
+                );
+
+            $cache = $this->getContainer()->get('cache.object');
+
+            $generator = $this->getContainer()->get(EntityCacheKeyGenerator::class);
+
+            $cachedSearcher = new CachedEntitySearcher($generator, $cache, $dbalSearcher, false, 3600);
+
+            //first call should not match and the expects of the dbal searcher should called
+            $databaseResult = $cachedSearcher->search($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
+
+            //cache is disabled. second call shouldn't hit the cache and the dbal reader should be called
+            $cachedResult = $cachedSearcher->search($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
+
+            static::assertSame($databaseResult, $cachedResult);
+
+            $cacheItem = $cache->getItem(
+                $generator->getSearchCacheKey($this->getContainer()->get(TaxDefinition::class), $criteria, $context)
             );
 
-        $cache = $this->getContainer()->get('cache.object');
-
-        $generator = $this->getContainer()->get(EntityCacheKeyGenerator::class);
-
-        $cachedSearcher = new CachedEntitySearcher($generator, $cache, $dbalSearcher, false, 3600);
-
-        //first call should not match and the expects of the dbal searcher should called
-        $databaseResult = $cachedSearcher->search($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
-
-        //cache is disabled. second call shouldn't hit the cache and the dbal reader should be called
-        $cachedResult = $cachedSearcher->search($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
-
-        static::assertSame($databaseResult, $cachedResult);
-
-        $cacheItem = $cache->getItem(
-            $generator->getSearchCacheKey($this->getContainer()->get(TaxDefinition::class), $criteria, $context)
-        );
-
-        static::assertNull($cacheItem->get());
+            static::assertNull($cacheItem->get());
+        });
     }
 
     public function searchCases(): array

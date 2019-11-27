@@ -133,6 +133,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
 
             $this->translator->resetInjection();
             $this->connection->delete('sales_channel_api_context', ['token' => $contextToken]);
+
             throw $exception;
         }
 

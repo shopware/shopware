@@ -72,6 +72,7 @@ class ProductExporter implements ProductExporterInterface
         if ($productExports->count() === 0) {
             $exportNotFoundException = new ExportNotFoundException($productExportId);
             $this->logException($context->getContext(), $exportNotFoundException);
+
             throw $exportNotFoundException;
         }
 
@@ -100,6 +101,7 @@ class ProductExporter implements ProductExporterInterface
         if ($result->hasErrors()) {
             $exportInvalidException = new ExportInvalidException($productExport, $result->getErrors());
             $this->logException($context->getContext(), $exportInvalidException);
+
             throw $exportInvalidException;
         }
 

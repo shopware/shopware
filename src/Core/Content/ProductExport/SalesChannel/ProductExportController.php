@@ -85,6 +85,7 @@ class ProductExportController extends StorefrontController
         if ($productExport === null) {
             $exportNotFoundException = new ExportNotFoundException(null, $request->get('fileName'));
             $this->logException($context->getContext(), $exportNotFoundException);
+
             throw $exportNotFoundException;
         }
 
@@ -93,6 +94,7 @@ class ProductExportController extends StorefrontController
         if (!$this->fileSystem->has($filePath)) {
             $exportNotGeneratedException = new ExportNotGeneratedException();
             $this->logException($context->getContext(), $exportNotGeneratedException);
+
             throw $exportNotGeneratedException;
         }
 
@@ -111,9 +113,11 @@ class ProductExportController extends StorefrontController
         switch ($fileFormat) {
             case ProductExportEntity::FILE_FORMAT_CSV:
                 $contentType = 'text/csv';
+
                 break;
             case ProductExportEntity::FILE_FORMAT_XML:
                 $contentType = 'text/xml';
+
                 break;
         }
 

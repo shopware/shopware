@@ -65,7 +65,6 @@ class SalesChannelRepositoryIterator
     public function fetch(): ?EntitySearchResult
     {
         $this->criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
-
         $result = $this->repository->search($this->criteria, $this->context);
 
         // increase offset for next iteration

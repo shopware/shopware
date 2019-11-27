@@ -7,8 +7,8 @@ use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Framework\Routing\Exception\InvalidRouteScopeException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
-use Shopware\Storefront\Framework\Twig\ErrorTemplateStruct;
 use Shopware\Storefront\Page\Navigation\NavigationPage;
+use Symfony\Component\HttpFoundation\Response;
 
 class StorefrontRoutingTest extends TestCase
 {
@@ -43,8 +43,8 @@ class StorefrontRoutingTest extends TestCase
             ])
         );
 
-        static::assertInstanceOf(StorefrontResponse::class, $response);
-        static::assertInstanceOf(ErrorTemplateStruct::class, $response->getData()['page']);
-        static::assertInstanceOf(InvalidRouteScopeException::class, $response->getData()['page']->getArguments()['exception']);
+        static::assertInstanceOf(Response::class, $response);
+        static::assertSame(500, $response->getStatusCode());
+        static::assertStringContainsString(InvalidRouteScopeException::class, $response->getContent());
     }
 }

@@ -146,18 +146,20 @@ class StorefrontSubscriber implements EventSubscriberInterface
         if ($this->kernelDebug) {
             return;
         }
+
         if (!$event->getRequest()->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {
             //When no saleschannel context is resolved, we need to resolve it now.
             $this->setSalesChannelContext($event);
         }
+
         if ($event->getRequest()->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {
             $event->stopPropagation();
-            $content = $this->errorController->error(
+            $response = $this->errorController->error(
                 $event->getThrowable(),
                 $this->requestStack->getMasterRequest(),
                 $event->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)
             );
-            $event->setResponse($content);
+            $event->setResponse($response);
         }
     }
 
@@ -223,14 +225,17 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     private function setSalesChannelContext(ExceptionEvent $event): void
     {
-        $contextToken = $event->getRequest()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        $salesChannelId = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+        $request = $event->getRequest();
+
+        $contextToken = $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        $salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
 
         $context = $this->contextService->get(
             $salesChannelId,
             $contextToken,
-            $event->getRequest()->headers->get(PlatformRequest::HEADER_LANGUAGE_ID)
+            $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID)
         );
-        $event->getRequest()->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
     }
 }

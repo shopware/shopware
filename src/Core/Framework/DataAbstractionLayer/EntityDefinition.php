@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LockedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
@@ -138,23 +139,20 @@ abstract class EntityDefinition
                 }
 
                 if (!$field instanceof FkField) {
-                    throw new \Exception('Only AssociationFields, fk fields for a ManyToOneAssociationField or fields flagged as Runtime can be added as Extension.');
+                    throw new \Exception('Only AssociationFields, FkFields/ReferenceVersionFields for a ManyToOneAssociationField or fields flagged as Runtime can be added as Extension.');
                 }
 
-                $hasManyToOne = false;
-                foreach ($new as $association) {
-                    if (!$association instanceof ManyToOneAssociationField) {
-                        continue;
+                if ($field instanceof ReferenceVersionField) {
+                    if (!$this->hasManyToOneAssociation($field, $new)) {
+                        throw new \Exception(sprintf('ReferenceVersionField has no configured ManyToOneAssociationField in entity %s', $this->className));
                     }
 
-                    if ($association->getStorageName() === $field->getStorageName()) {
-                        $hasManyToOne = true;
+                    $fields->add($field);
 
-                        break;
-                    }
+                    continue;
                 }
 
-                if (!$hasManyToOne) {
+                if (!$this->hasManyToOneWithStorageField($field->getStorageName(), $new)) {
                     throw new \Exception(sprintf('FkField %s has no configured ManyToOneAssociationField in entity %s', $field->getPropertyName(), $this->className));
                 }
 
@@ -318,5 +316,37 @@ abstract class EntityDefinition
     protected function getBaseFields(): array
     {
         return [];
+    }
+
+    private function hasManyToOneAssociation(ReferenceVersionField $field, FieldCollection $new): bool
+    {
+        $reference = $field->getVersionReferenceClass();
+
+        foreach ($new as $association) {
+            if (!$association instanceof ManyToOneAssociationField) {
+                continue;
+            }
+
+            if ($association->getReferenceClass() === $reference) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function hasManyToOneWithStorageField(string $storageName, FieldCollection $new): bool
+    {
+        foreach ($new as $association) {
+            if (!$association instanceof ManyToOneAssociationField) {
+                continue;
+            }
+
+            if ($association->getStorageName() === $storageName) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

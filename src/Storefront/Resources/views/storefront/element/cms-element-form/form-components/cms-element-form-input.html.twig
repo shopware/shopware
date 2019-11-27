@@ -1,0 +1,26 @@
+{% block cms_element_form_input %}
+    <div class="form-group {{ additionalClass }}">
+        <label
+            class="form-label"
+            for="form-{{ fieldName }}"
+        >
+            {{ label|trans }}{% if required %} {{ "general.required"|trans }}{% endif %}
+        </label>
+
+        <input
+            name="{{ fieldName }}"
+            {% if type %}type="{{ type }}"{% endif %}
+            id="form-{{ fieldName }}"
+            value="{{ data.get( fieldName ) }}"
+            placeholder="{{ placeholder|trans }}"
+            {% if required %}required="required"{% endif %}
+            class="form-control{% if formViolations.getViolations( '/' ~ fieldName ) %} is-invalid{% endif %}"
+        />
+
+        {% if formViolations.getViolations( '/' ~ fieldName ) is not empty %}
+            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                violationPath: ('/' ~ fieldName)
+            } %}
+        {% endif %}
+    </div>
+{% endblock %}

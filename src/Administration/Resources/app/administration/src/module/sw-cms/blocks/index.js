@@ -34,3 +34,5 @@ import './sidebar/category-navigation';
 import './commerce/product-three-column';
 import './commerce/product-listing';
 import './commerce/product-slider';
+
+import './form/form';

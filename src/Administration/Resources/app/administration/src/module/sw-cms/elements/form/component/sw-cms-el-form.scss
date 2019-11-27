@@ -1,0 +1,55 @@
+@import "~scss/variables";
+
+.sw-cms-el-form {
+    width: 100%;
+    user-select: none;
+
+    &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1;
+        pointer-events: all;
+        cursor: not-allowed;
+    }
+
+    h3 {
+        border-bottom: 1px solid $color-steam-cloud;
+        padding-bottom: 10px;
+    }
+
+    p {
+        font-size: 14px;
+    }
+
+    .sw-cms-el-form__action {
+        float: right;
+        padding: 3px 15px;
+        background: $color-steam-cloud;
+        color: $color-kashmir;
+        text-align: center;
+        line-height: 26px;
+        border-radius: 3px;
+    }
+
+    .sw-cms-el-form-contact-form-group {
+        display: flex;
+        justify-content: space-between;
+
+        &.three-items > * {
+            width: calc(33% - 15px);
+        }
+
+        &.two-items > * {
+            width: calc(50% - 15px);
+        }
+    }
+
+    input,
+    textarea {
+        color: #94a6b7 !important;
+    }
+}

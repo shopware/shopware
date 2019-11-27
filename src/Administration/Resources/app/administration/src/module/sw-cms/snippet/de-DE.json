@@ -81,6 +81,7 @@
         "blockCategoryImage": "Bilder",
         "blockCategoryCommerce": "Commerce",
         "blockCategoryVideo": "Video",
+        "blockCategoryForm": "Formular",
         "buttonElementSettingsConfirm": "Fertig",
         "buttonElementChangeAbort": "Abbrechen",
         "blockNameField": "Block-Name",
@@ -317,6 +318,56 @@
       },
       "youtubeVideo": {
         "label": "YouTube-Video"
+      },
+      "form": {
+        "config": {
+          "label": {
+            "receiverEmail": "Empfängeraddressen",
+            "title": "Titel",
+            "type": "Formulartyp",
+            "typeContact": "Kontakt",
+            "typeNewsletter": "Newsletter",
+            "confirmationText": "Bestätigungstext"
+          },
+          "placeholder": {
+            "type": "Wähle einen Formulartypen ..."
+          }
+        },
+        "element": {
+          "label": {
+            "action": "Aktion",
+            "email": "Email Adresse*",
+            "firstName": "Vorname*",
+            "lastName" : "Nachname*",
+            "message": "Ihre Nachricht*",
+            "newsletterSubmit": "Weiter",
+            "phone": "Telefon",
+            "privacy": "Datenschutz",
+            "salutation": "Anrede*",
+            "salutationUndisclosed" : "Keine Angabe",
+            "send": "Senden",
+            "subject": "Betreff*",
+            "subscribeToNewsletter": "Newsletter abonnieren"
+          },
+          "placeholder": {
+            "firstName": "John",
+            "lastName": "Doe",
+            "email": "john@doe.com",
+            "phone": "+4920 3920173",
+            "subject": "Lorem ipsum dolor sit amet.",
+            "message": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum."
+          },
+          "helpText": {
+            "privacy": "Ich habe die Datenschutzinformationen gelesen.",
+            "requiredFields": "Felder, die mit * markiert sind, werden benötigt"
+          }
+        },
+        "preview": {
+          "label": {
+            "form": "Formular",
+            "send": "Senden"
+          }
+        }
       }
     },
     "blocks": {

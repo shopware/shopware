@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\ProductStream;
 
-use Shopware\Core\Content\ProductExport\ProductExportDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
+use Shopware\Core\Content\ProductExport\ProductExportDefinition;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;

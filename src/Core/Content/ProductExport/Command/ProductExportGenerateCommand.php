@@ -42,7 +42,7 @@ class ProductExportGenerateCommand extends Command
             ->addArgument('product-export-id', InputArgument::OPTIONAL, 'Generate specific export');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): ?int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $productExportId = $input->getArgument('product-export-id');
         $salesChannelId = $input->getArgument('sales-channel-id');
@@ -61,6 +61,6 @@ class ProductExportGenerateCommand extends Command
             $productExportId
         );
 
-        return null;
+        return 0;
     }
 }

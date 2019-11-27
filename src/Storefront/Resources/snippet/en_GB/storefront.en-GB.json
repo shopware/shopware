@@ -323,6 +323,8 @@
         "promotion-discount-added": "Discount \"%name%\" has been added"
     },
     "listing": {
+        "filterTitleText": "Filter",
+        "showResults": "Show results",
         "boxUnitLabel": "Content:",
         "boxLabelTopseller": "Tip!",
         "boxLabelNew": "New",

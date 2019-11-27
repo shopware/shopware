@@ -39,7 +39,7 @@ class ElasticsearchTestAnalyzerCommand extends Command
             ->setDescription('Allows to test an elasticsearch analyzer');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->io = new ShopwareStyle($input, $output);
 
@@ -72,7 +72,7 @@ class ElasticsearchTestAnalyzerCommand extends Command
 
         $this->io->table(['Analyzer', 'Tokens'], $rows);
 
-        return null;
+        return 0;
     }
 
     protected function getAnalyzers(): array

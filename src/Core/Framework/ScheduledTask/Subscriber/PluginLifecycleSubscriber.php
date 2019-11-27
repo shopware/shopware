@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
 use Shopware\Core\Framework\ScheduledTask\Registry\TaskRegistry;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Messenger\Worker\StopWhenRestartSignalIsReceived;
+use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
 class PluginLifecycleSubscriber implements EventSubscriberInterface
 {
@@ -40,7 +40,7 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
         $this->registry->registerTasks();
 
         // signal worker restart
-        $cacheItem = $this->restartSignalCachePool->getItem(StopWhenRestartSignalIsReceived::RESTART_REQUESTED_TIMESTAMP_KEY);
+        $cacheItem = $this->restartSignalCachePool->getItem(StopWorkerOnRestartSignalListener::RESTART_REQUESTED_TIMESTAMP_KEY);
         $cacheItem->set(microtime(true));
         $this->restartSignalCachePool->save($cacheItem);
     }

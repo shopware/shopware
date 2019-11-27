@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="../../SystemConfig/Schema/config.xsd">
+    <card>
+        <title>Sitemap</title>
+        <title lang="de-DE">Sitemap</title>
+
+        <input-field type="int">
+            <name>sitemapRefreshTime</name>
+            <label>Refresh time</label>
+            <label lang="de-DE">Aktualisierungsinterval</label>
+            <placeholder>Refresh time ...</placeholder>
+            <placeholder lang="de-DE">Aktualisierungsinterval ...</placeholder>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>sitemapRefreshStrategy</name>
+            <options>
+                <option>
+                    <id>1</id>
+                    <name>Manual</name>
+                    <name lang="de-DE">Manuell</name>
+                </option>
+                <option>
+                    <id>2</id>
+                    <name>scheduled task</name>
+                    <name lang="de-DE">Scheduled Task</name>
+                </option>
+                <option>
+                    <id>3</id>
+                    <name>Live</name>
+                    <name lang="de-DE">Live</name>
+                </option>
+            </options>
+            <label>Refresh strategy</label>
+            <label lang="de-DE">Aktualisierungsmethode</label>
+        </input-field>
+    </card>
+</config>

@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -24,9 +25,7 @@ abstract class StorefrontController extends AbstractController
     {
         $request = $this->get('request_stack')->getCurrentRequest();
 
-        $master = $this->get('request_stack')->getMasterRequest();
-
-        $salesChannelContext = $master->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+        $salesChannelContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
 
         $activeThemeName = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_NAME);
         $activeThemeBaseName = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME);
@@ -77,13 +76,13 @@ abstract class StorefrontController extends AbstractController
         if ($request->get('forwardTo')) {
             $params = $this->decodeParam($request, 'forwardParameters');
 
-            return $this->forwardToRoute($request->get('forwardTo'), $params);
+            return $this->forwardToRoute($request->get('forwardTo'), [], $params);
         }
 
         return new Response();
     }
 
-    protected function forwardToRoute(string $routeName, array $parameters = [], array $routeParameters = []): Response
+    protected function forwardToRoute(string $routeName, array $attributes = [], array $routeParameters = []): Response
     {
         $router = $this->container->get('router');
 
@@ -99,9 +98,14 @@ abstract class StorefrontController extends AbstractController
         $router->getContext()->setMethod($method);
 
         $request = $this->container->get('request_stack')->getCurrentRequest();
-        $parameters = array_merge($request->attributes->all(), $parameters);
 
-        return $this->forward($route['_controller'], $parameters);
+        $attributes = array_merge(
+            $this->get(RequestTransformerInterface::class)->extractInheritableAttributes($request),
+            $route,
+            $attributes
+        );
+
+        return $this->forward($route['_controller'], $attributes, $routeParameters);
     }
 
     protected function resolveView(string $view, ?string $activeThemeName, ?string $activeThemeBaseName): string
@@ -119,10 +123,10 @@ abstract class StorefrontController extends AbstractController
     {
         /** @var RequestStack $requestStack */
         $requestStack = $this->get('request_stack');
-        $request = $requestStack->getMasterRequest();
+        $request = $requestStack->getCurrentRequest();
 
         if (!$request) {
-            return;
+            throw new CustomerNotLoggedInException();
         }
 
         /** @var SalesChannelContext|null $context */

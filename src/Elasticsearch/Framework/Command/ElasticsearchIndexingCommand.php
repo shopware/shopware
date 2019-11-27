@@ -36,12 +36,12 @@ class ElasticsearchIndexingCommand extends Command implements EventSubscriberInt
             ->setDescription('Reindex all entities to elasticsearch');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->io = new ShopwareStyle($input, $output);
 
         $this->indexer->index(new \DateTime());
 
-        return null;
+        return 0;
     }
 }

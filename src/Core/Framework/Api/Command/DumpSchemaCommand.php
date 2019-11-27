@@ -40,7 +40,7 @@ class DumpSchemaCommand extends Command
             ->addOption('pretty', 'p', InputOption::VALUE_NONE, 'Dumps the output in a human-readable form.');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $outFile = $input->getArgument('outfile');
         $formatType = $input->getOption('schema-format');
@@ -59,6 +59,6 @@ class DumpSchemaCommand extends Command
         file_put_contents($outFile, json_encode($definitionContents, $jsonFlags));
         $output->writeln('Done!');
 
-        return null;
+        return 0;
     }
 }

@@ -35,6 +35,7 @@ class ProductCombinationFinder
             foreach ($options as $groupId => $_optionId) {
                 if ($groupId !== $wishedGroupId) {
                     unset($options[$groupId]);
+
                     break;
                 }
             }

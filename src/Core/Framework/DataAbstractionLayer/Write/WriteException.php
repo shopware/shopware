@@ -55,6 +55,7 @@ class WriteException extends ShopwareHttpException
         foreach ($this->getExceptions() as $innerException) {
             if ($innerException instanceof ShopwareHttpException) {
                 yield from $innerException->getErrors($withTrace);
+
                 continue;
             }
 

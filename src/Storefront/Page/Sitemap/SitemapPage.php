@@ -2,39 +2,22 @@
 
 namespace Shopware\Storefront\Page\Sitemap;
 
-use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Struct\Struct;
 
 class SitemapPage extends Struct
 {
     /**
-     * @var CategoryCollection|null
+     * @var array
      */
-    protected $categories;
+    protected $sitemaps;
 
-    /**
-     * @var ProductCollection|null
-     */
-    protected $products;
-
-    public function getCategories(): ?CategoryCollection
+    public function getSitemaps(): array
     {
-        return $this->categories;
+        return $this->sitemaps;
     }
 
-    public function setCategories(CategoryCollection $categories): void
+    public function setSitemaps(array $sitemaps): void
     {
-        $this->categories = $categories;
-    }
-
-    public function getProducts(): ?ProductCollection
-    {
-        return $this->products;
-    }
-
-    public function setProducts(ProductCollection $products): void
-    {
-        $this->products = $products;
+        $this->sitemaps = $sitemaps;
     }
 }

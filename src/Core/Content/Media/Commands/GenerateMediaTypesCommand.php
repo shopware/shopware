@@ -61,7 +61,7 @@ class GenerateMediaTypesCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->io = new ShopwareStyle($input, $output);
 
@@ -75,7 +75,7 @@ class GenerateMediaTypesCommand extends Command
 
         $this->io->progressFinish();
 
-        return null;
+        return 0;
     }
 
     private function validateBatchSize(InputInterface $input): int

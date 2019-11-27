@@ -1,6 +1,29 @@
 @import "~scss/variables";
 
 .sw-cms-page-form {
+    margin: 0 40px;
+
+    &.is--compact {
+        .sw-cms-page-form__section-divider {
+            width: calc(100% - 140px);
+            margin-left: auto;
+        }
+
+        .sw-cms-page-form__section-type-label {
+            transform: initial;
+        }
+
+        .sw-cms-page-form__section-name {
+            position: static;
+            width: 800px;
+            margin: 0 auto;
+        }
+
+        .sw-cms-page-form__section-name-label {
+            width: 100%;
+        }
+    }
+
     .sw-cms-page-form__element-config {
         margin-bottom: 22px;
         border-bottom: 1px solid $color-steam-cloud;
@@ -14,5 +37,98 @@
     .sw-cms-page-form__language-warning {
         max-width: 800px;
         margin: auto;
+    }
+
+    .sw-card .sw-card__title {
+        width: auto;
+        position: static;
+        text-align: left;
+        font-size: 22px;
+    }
+
+    .sw-cms-page-form__block-card {
+        margin: 0 auto;
+        margin-top: 18px;
+    }
+
+    .sw-cms-page-form__block-card + .sw-cms-page-form__block-card {
+        margin-top: 60px;
+    }
+
+    &__section {
+        position: relative;
+        padding: 50px 30px 70px 30px;
+        border-bottom: 2px solid rgb(209, 217, 224);
+        width: 100%;
+
+        &:first-of-type {
+            padding-top: 0;
+
+            .sw-cms-page-form__section-name {
+                top: 0;
+            }
+        }
+
+        &:last-of-type {
+            border-bottom: 0 none;
+        }
+    }
+
+    &__section-name {
+        display: flex;
+        position: absolute;
+        top: 73px;
+        left: 0;
+    }
+
+    &__section-name + &__section-type {
+        margin-top: 21px;
+    }
+
+    &__section-name-icon {
+        display: inline-block;
+        margin-right: 10px;
+        color: $color-gray-900;
+    }
+
+    &__section-name-label {
+        color: #52667a;
+        font-weight: 600;
+        line-height: 22px;
+        width: 190px;
+        word-wrap: break-word;
+    }
+
+    &__section-type {
+        position: relative;
+        display: flex;
+        align-items: center;
+        margin: 0 auto;
+        margin-top: 50px;
+        height: 22px;
+        max-width: 800px;
+    }
+
+    &__section-type-label {
+        position: absolute;
+        left: 0;
+        top: 0;
+        transform: translateX(calc(-100% - 10px));
+    }
+
+    &__section-type-name,
+    &__section-type-icon {
+        margin-right: 10px;
+        color: #b3bfcc;
+        font-weight: 600;
+    }
+
+    &__section-divider {
+        position: absolute;
+        right: 0;
+        width: 100%;
+        height: 1px;
+        border: 0 none;
+        background: #d1d9e0;
     }
 }

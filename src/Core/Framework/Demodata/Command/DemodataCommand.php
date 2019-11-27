@@ -73,12 +73,12 @@ class DemodataCommand extends Command
         $this->addOption('media-attributes', null, InputOption::VALUE_REQUIRED, 'Media attribute count');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if ($this->kernelEnv !== 'prod') {
             $output->writeln('Demo data command should only be used in production environment. You can provide the environment as follow `APP_ENV=prod framework:demodata`');
 
-            return null;
+            return 0;
         }
 
         $io = new ShopwareStyle($input, $output);
@@ -115,7 +115,7 @@ class DemodataCommand extends Command
             $demoContext->getTimings()
         );
 
-        return null;
+        return 0;
     }
 
     private function getCustomFieldOptions(InputInterface $input): array

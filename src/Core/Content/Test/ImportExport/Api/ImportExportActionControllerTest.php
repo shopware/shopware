@@ -118,10 +118,12 @@ class ImportExportActionControllerTest extends TestCase
             case 'text/html':
                 $content = '<!DOCTYPE html><html><body></body></html>';
                 $fileName = 'test.html';
+
                 break;
             case 'text/xml':
                 $content = '<?xml version="1.0" ?><foo></foo>';
                 $fileName = 'test.xml';
+
                 break;
             case 'text/csv':
             default:

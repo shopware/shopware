@@ -4,7 +4,10 @@ namespace Shopware\Core\Framework\Update\Api;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Update\Event\UpdateFinishedEvent;
+use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
+use Shopware\Core\Framework\Update\Event\UpdatePostPrepareEvent;
+use Shopware\Core\Framework\Update\Event\UpdatePreFinishEvent;
+use Shopware\Core\Framework\Update\Event\UpdatePrePrepareEvent;
 use Shopware\Core\Framework\Update\Exception\UpdateFailedException;
 use Shopware\Core\Framework\Update\Services\ApiClient;
 use Shopware\Core\Framework\Update\Services\PluginCompatibility;
@@ -30,6 +33,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class UpdateController extends AbstractController
 {
     public const UPDATE_TOKEN_KEY = 'core.update.token';
+    public const UPDATE_PREVIOUS_VERSION_KEY = 'core.update.previousVersion';
 
     /**
      * @var ApiClient
@@ -61,13 +65,19 @@ class UpdateController extends AbstractController
      */
     private $systemConfig;
 
+    /**
+     * @var string
+     */
+    private $shopwareVersion;
+
     public function __construct(
         string $rootDir,
         ApiClient $apiClient,
         RequirementsValidator $requirementsValidator,
         PluginCompatibility $pluginCompatibility,
         EventDispatcherInterface $eventDispatcher,
-        SystemConfigService $systemConfig
+        SystemConfigService $systemConfig,
+        string $shopwareVersion
     ) {
         $this->rootDir = $rootDir;
         $this->apiClient = $apiClient;
@@ -75,6 +85,7 @@ class UpdateController extends AbstractController
         $this->pluginCompatibility = $pluginCompatibility;
         $this->eventDispatcher = $eventDispatcher;
         $this->systemConfig = $systemConfig;
+        $this->shopwareVersion = $shopwareVersion;
     }
 
     /**
@@ -145,10 +156,19 @@ class UpdateController extends AbstractController
     {
         $update = $this->apiClient->checkForUpdates();
 
-        $deactivationFilter = $request->query->get('deactivationFilter', PluginCompatibility::PLUGIN_DEACTIVATION_FILTER_NOT_COMPATIBLE);
+        // plugins can subscribe to this events, check compatibility and throw exceptions to prevent the update
+        $this->eventDispatcher->dispatch(new UpdatePrePrepareEvent($context, $this->shopwareVersion, $update->version));
 
+        // disable plugins - save active plugins
+
+        $deactivationFilter = $request->query->get('deactivationFilter', PluginCompatibility::PLUGIN_DEACTIVATION_FILTER_NOT_COMPATIBLE);
         // TODO: NEXT-5205 - Refactor into DeactivateIncompatiblePluginStep
         $this->pluginCompatibility->deactivateIncompatiblePlugins($update, $context, $deactivationFilter);
+
+        // reboot without plugins
+
+        // @internal plugins are deactivated
+        $this->eventDispatcher->dispatch(new UpdatePostPrepareEvent($context, $this->shopwareVersion, $update->version));
 
         $source = $this->createDestinationFromVersion($update);
         $offset = $request->query->getInt('offset');
@@ -182,6 +202,8 @@ class UpdateController extends AbstractController
                 throw new UpdateFailedException(sprintf('Could not write file %s', $updateFilePath));
             }
 
+            $this->systemConfig->set(self::UPDATE_PREVIOUS_VERSION_KEY, $update->version);
+
             return new JsonResponse([
                 'redirectTo' => $request->getBaseUrl() . '/recovery/update/index.php',
             ]);
@@ -203,9 +225,17 @@ class UpdateController extends AbstractController
         if (!$dbUpdateToken || $token !== $dbUpdateToken) {
             return $this->redirectToRoute('administration.index');
         }
+        $oldVersion = (string) $this->systemConfig->get(self::UPDATE_PREVIOUS_VERSION_KEY);
 
         $_unusedPreviousSetting = ignore_user_abort(true);
-        $this->eventDispatcher->dispatch(new UpdateFinishedEvent($context));
+
+        // disable plugins
+        $this->eventDispatcher->dispatch(new UpdatePreFinishEvent($context, $oldVersion, $this->shopwareVersion));
+
+        // re-enable disabled plugins
+
+        // reboot
+        $this->eventDispatcher->dispatch(new UpdatePostFinishEvent($context, $oldVersion, $this->shopwareVersion));
 
         return $this->redirectToRoute('administration.index');
     }

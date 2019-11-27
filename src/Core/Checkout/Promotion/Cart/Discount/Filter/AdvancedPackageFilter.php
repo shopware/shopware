@@ -51,6 +51,7 @@ class AdvancedPackageFilter
             // configuration by using every x units
             if ($applierKey !== self::APPLIER_ALL && $index % (int) $applierKey !== 0) {
                 ++$index;
+
                 continue;
             }
 

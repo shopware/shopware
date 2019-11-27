@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
@@ -79,11 +79,13 @@ class RuleValidator implements EventSubscriberInterface
 
             if ($command instanceof InsertCommand) {
                 $this->validateCondition(null, $command, $writeException);
+
                 continue;
             }
 
             if ($command instanceof UpdateCommand) {
                 $updateQueue[] = $command;
+
                 continue;
             }
 
@@ -97,7 +99,7 @@ class RuleValidator implements EventSubscriberInterface
 
     private function validateCondition(
         ?RuleConditionEntity $condition,
-        WriteCommandInterface $command,
+        WriteCommand $command,
         WriteException $writeException
     ): void {
         $payload = $command->getPayload();

@@ -96,7 +96,7 @@ class SalesChannelCreateCommand extends Command
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $id = $input->getOption('id');
         $typeId = $input->getOption('typeId');
@@ -157,7 +157,7 @@ class SalesChannelCreateCommand extends Command
 
             $io->listing($messages);
 
-            return null;
+            return 0;
         }
 
         $io->text('Access tokens:');
@@ -171,7 +171,7 @@ class SalesChannelCreateCommand extends Command
 
         $table->render();
 
-        return null;
+        return 0;
     }
 
     protected function getSalesChannelConfiguration(InputInterface $input, OutputInterface $output): array

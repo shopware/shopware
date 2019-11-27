@@ -54,6 +54,7 @@ class SystemConfigService
 
             if (array_key_exists($part, $pointer)) {
                 $pointer = $pointer[$part];
+
                 continue;
             }
 

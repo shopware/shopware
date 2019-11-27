@@ -80,7 +80,7 @@ required
 | payload     | array   |                                                                             |          |
 | quantity    | int     | Default: 1                                                                  |          |
 | stackable   | boolean | Default: false, if set to true, quantity cannot be changed                  |          |
-| removable   | boolean | Default: false, if set to true, line items cannot be removed from the cart  |          |
+| removable   | boolean | Default: false, if set to true, line items can be removed from the cart     |          |
 | label       | string  |                                                                             |          |
 | description | string  |                                                                             |          |
 | coverId     | uuid    | UUID of a media entity                                                      |          |

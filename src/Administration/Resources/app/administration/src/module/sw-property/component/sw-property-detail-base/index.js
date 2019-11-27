@@ -1,6 +1,7 @@
 import template from './sw-property-detail-base.html.twig';
 
 const { Component, Mixin } = Shopware;
+const { mapApiErrors } = Component.getComponentHelper();
 
 Component.register('sw-property-detail-base', {
     template,
@@ -10,12 +11,16 @@ Component.register('sw-property-detail-base', {
     ],
 
     props: {
-        group: {
+        propertyGroup: {
             type: Object,
             required: true,
             default() {
                 return {};
             }
+        },
+        isLoading: {
+            type: Boolean,
+            default: false
         }
     },
 
@@ -32,5 +37,13 @@ Component.register('sw-property-detail-base', {
                 { value: 'color', label: this.$tc('sw-property.detail.colorDisplayType') }
             ]
         };
+    },
+
+    computed: {
+        ...mapApiErrors('propertyGroup', [
+            'name',
+            'displayType',
+            'sortingType'
+        ])
     }
 });

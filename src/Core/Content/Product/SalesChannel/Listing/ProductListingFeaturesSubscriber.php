@@ -383,7 +383,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     {
         $event->getResult()->addCurrentFilter('manufacturer', $this->getManufacturerIds($event->getRequest()));
 
-        $event->getResult()->addCurrentFilter('properties', $this->getManufacturerIds($event->getRequest()));
+        $event->getResult()->addCurrentFilter('properties', $this->getPropertyIds($event->getRequest()));
 
         $event->getResult()->addCurrentFilter('shipping-free', $event->getRequest()->get('shipping-free'));
 

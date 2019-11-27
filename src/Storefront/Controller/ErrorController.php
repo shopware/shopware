@@ -53,7 +53,7 @@ class ErrorController extends StorefrontController
         $this->systemConfigService = $systemConfigService;
     }
 
-    public function error(\Exception $exception, Request $request, SalesChannelContext $context): Response
+    public function error(\Throwable $exception, Request $request, SalesChannelContext $context): Response
     {
         try {
             if (!$this->flashBag->has('danger')) {

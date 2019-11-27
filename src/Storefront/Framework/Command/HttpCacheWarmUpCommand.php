@@ -23,12 +23,12 @@ class HttpCacheWarmUpCommand extends Command
         $this->warmer = $warmer;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $cacheId = Uuid::randomHex();
 
         $this->warmer->warmUp($cacheId);
 
-        return null;
+        return 0;
     }
 }

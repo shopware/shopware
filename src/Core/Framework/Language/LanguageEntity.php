@@ -16,6 +16,7 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTy
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
@@ -302,6 +303,11 @@ class LanguageEntity extends Entity
      * @var TaxRuleTypeTranslationCollection|null
      */
     protected $taxRuleTypeTranslations;
+
+    /**
+     * @var ProductCrossSellingTranslationCollection|null
+     */
+    protected $productCrossSellingTranslations;
 
     public function getMailHeaderFooterTranslations(): ?MailHeaderFooterCollection
     {
@@ -811,5 +817,15 @@ class LanguageEntity extends Entity
     public function setTaxRuleTypeTranslations(TaxRuleTypeTranslationCollection $taxRuleTypeTranslations): void
     {
         $this->taxRuleTypeTranslations = $taxRuleTypeTranslations;
+    }
+
+    public function getProductCrossSellingTranslations(): ?ProductCrossSellingTranslationCollection
+    {
+        return $this->productCrossSellingTranslations;
+    }
+
+    public function setProductCrossSellingTranslations(ProductCrossSellingTranslationCollection $productCrossSellingTranslations): void
+    {
+        $this->productCrossSellingTranslations = $productCrossSellingTranslations;
     }
 }

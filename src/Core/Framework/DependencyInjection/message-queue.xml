@@ -79,6 +79,9 @@
             <argument type="service" id="messenger.receiver_locator"/>
             <argument type="service" id="messenger.bus.shopware"/>
             <argument>%shopware.admin_worker.poll_interval%</argument>
+            <argument type="service" id="messenger.listener.stop_worker_on_restart_signal_listener"/>
+            <argument type="service" id="messenger.listener.stop_worker_on_sigterm_signal_listener"/>
+            <argument type="service" id="messenger.listener.dispatch_pcntl_signal_listener"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

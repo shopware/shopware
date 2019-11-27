@@ -3,16 +3,17 @@
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use Doctrine\DBAL\Connection;
-use function Flag\next3722;
-use function Flag\skipTestNext3722;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
@@ -23,6 +24,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\HttpFoundation\Response;
+use function Flag\next3722;
+use function Flag\skipTestNext3722;
 
 class ApiControllerTest extends TestCase
 {
@@ -446,6 +449,56 @@ EOF;
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
 
         $this->assertEntityNotExists($this->getBrowser(), 'product', $id);
+    }
+
+    public function testDeleteVersion(): void
+    {
+        $id = Uuid::randomHex();
+        $browser = $this->getBrowser();
+
+        $data = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'name' => $id,
+            'tax' => ['name' => 'test', 'taxRate' => 10],
+            'manufacturer' => ['name' => 'test'],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
+        ];
+
+        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
+        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/product/' . $id, $response->headers->get('Location'));
+
+        $this->assertEntityExists($browser, 'product', $id);
+
+        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/version/product/' . $id);
+        $response = json_decode($browser->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
+        static::assertArrayHasKey('versionId', $response);
+        static::assertArrayHasKey('versionName', $response);
+        static::assertArrayHasKey('id', $response);
+        static::assertArrayHasKey('entity', $response);
+        static::assertTrue(Uuid::isValid($response['versionId']));
+        $versionId = $response['versionId'];
+
+        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/version/' . $response['versionId'] . '/product/' . $id);
+        $response = json_decode($browser->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
+        static::assertEmpty($response);
+
+        $this->assertEntityExists($browser, 'product', $id);
+
+        /** @var EntityRepositoryInterface $productRepo */
+        $productRepo = $this->getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
+        $criteria = new Criteria([$id]);
+        $criteria->addFilter(
+            new EqualsFilter('versionId', $versionId)
+        );
+
+        static::assertCount(0, $productRepo->search($criteria, Context::createDefaultContext()));
     }
 
     public function testDeleteWithoutPermission(): void

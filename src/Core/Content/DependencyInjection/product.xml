@@ -20,7 +20,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\ProductExceptionHandler">
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductExceptionHandler">
             <tag name="shopware.dal.exception_handler"/>
         </service>
 
@@ -88,6 +88,14 @@
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition">
             <tag name="shopware.entity.definition" entity="product_category_tree"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition">
+            <tag name="shopware.entity.definition" entity="product_cross_selling"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="product_cross_selling_translation"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Cart\ProductGateway">

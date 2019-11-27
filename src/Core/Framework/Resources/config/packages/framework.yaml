@@ -19,9 +19,11 @@ framework:
         pools:
             cache.object:
                 adapter: cache.adapter.filesystem
+                default_lifetime: 3600
                 tags: true
             cache.http:
                 adapter: cache.adapter.filesystem
+                default_lifetime: 3600
                 tags: true
     messenger:
         transports:

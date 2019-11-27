@@ -86,7 +86,6 @@ Component.register('sw-settings-tax-list', {
             });
         },
 
-
         getTaxColumns() {
             return [{
                 property: 'name',

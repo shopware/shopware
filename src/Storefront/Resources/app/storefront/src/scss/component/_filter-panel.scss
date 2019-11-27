@@ -181,3 +181,59 @@ This file contains the generic styling for all filter items.
         opacity: 0.6;
     }
 }
+
+.btn.filter-panel-wrapper-toggle {
+    display: none;
+    width: 100%;
+    border: 1px solid #399;
+    padding: 6px;
+
+    &:hover {
+        background-color: $gray-200;
+    }
+}
+
+.filter-panel--offcanvas-only {
+    display: none;
+}
+
+.filter-panel--offcanvas-header {
+    position: absolute;
+    margin-bottom: 2rem;
+    width: calc(100% - 4rem);
+}
+
+.filter-panel-offcanvas-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+}
+
+@include media-breakpoint-down(md) {
+    .filter-panel {
+        height: calc(90vh - 3rem);
+        max-height: calc(100% - 64px);
+        position: absolute;
+        top: 4rem;
+        left: 0;
+        width: 100%;
+        padding: 1rem 2rem;
+    }
+
+    .btn.filter-panel-wrapper-toggle {
+        display: block;
+    }
+
+    .filter-panel-wrapper {
+        display: none;
+    }
+
+    .offcanvas {
+        padding: 25px;
+
+        .filter-panel--offcanvas-only {
+            display: inherit;
+        }
+    }
+}

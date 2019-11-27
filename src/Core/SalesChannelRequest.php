@@ -5,12 +5,9 @@ namespace Shopware\Core;
 final class SalesChannelRequest
 {
     public const ATTRIBUTE_IS_SALES_CHANNEL_REQUEST = '_is_sales_channel';
-    public const ATTRIBUTE_SALES_CHANNEL_REDIRECT = '_sales_channel_seo_redirect';
 
     public const ATTRIBUTE_THEME_ID = 'theme-id';
-
     public const ATTRIBUTE_THEME_NAME = 'theme-name';
-
     public const ATTRIBUTE_THEME_BASE_NAME = 'theme-base-name';
 
     /**

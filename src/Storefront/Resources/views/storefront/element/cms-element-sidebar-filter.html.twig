@@ -3,10 +3,28 @@
     {% set slot = page.cmsPage.firstElementOfType('product-listing') %}
 
     <div class="cms-element-sidebar-filter">
-        {% block element_product_slider_alignment %}
-            {% sw_include '@Storefront/storefront/component/listing/filter-panel.html.twig' with {
-                listing: slot.data.listing
-            } %}
+        {% block element_product_listing_filter_button %}
+            <button class="btn header-actions-btn filter-panel-wrapper-toggle"
+                    type="button"
+                    data-offcanvas-filter="true"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                    aria-label="{{ "general.menuLink"|trans }}">
+                {% block element_product_listing_filter_button_icon %}
+                    {% sw_icon 'sliders-horizontal' %}
+                {% endblock %}
+                {{ "listing.filterTitleText"|trans }}
+            </button>
+        {% endblock %}
+
+        {% block element_sidebar_filter_panel %}
+            <div id="filter-panel-wrapper"
+                 class="filter-panel-wrapper"
+                 data-offcanvas-filter-content="true">
+                {% sw_include '@Storefront/storefront/component/listing/filter-panel.html.twig' with {
+                    listing: slot.data.listing
+                } %}
+            </div>
         {% endblock %}
     </div>
 {% endblock %}

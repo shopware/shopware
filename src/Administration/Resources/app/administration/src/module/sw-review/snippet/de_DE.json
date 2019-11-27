@@ -16,7 +16,8 @@
       "columnComment": "Kommentiert",
       "columnTitle": "Titel",
       "placeholderSearchBar": "Durchsuche alle Bewertungen...",
-      "messageEmpty": "Noch keine Bewertungen"
+      "messageEmpty": "Noch keine Bewertungen",
+      "messageEmptySubline": "Verwalte Bewertungen hier"
     },
     "detail": {
       "textHeadline": "Bewertung",
@@ -32,8 +33,8 @@
       "labelProduct": "Produkt",
       "labelEmail": "E-Mail",
       "labelLanguage": "Sprache",
-      "labelPositive": "Positive votes",
-      "labelNegative": "Negative votes",
+      "labelPositive": "Positive Bewertungen",
+      "labelNegative": "Negative Bewertungen",
       "labelStatus": "Sichtbar",
       "labelContent": "Inhalt",
       "labelComment": "Kommentar",

@@ -16,6 +16,7 @@ class TwigDateFormatTest extends TestCase
     public function testFallbackBehavior(): void
     {
         static::markTestSkipped();
+
         try {
             $this->getKernel()->handle(new Request([], [], [], [TwigDateRequestListener::TIMEZONE_COOKIE => 'Invalid']), HttpKernelInterface::MASTER_REQUEST, false);
         } catch (\Error $e) {
@@ -31,6 +32,7 @@ class TwigDateFormatTest extends TestCase
     {
         static::markTestSkipped();
         $timezone = 'Europe/Berlin';
+
         try {
             $this->getKernel()->handle(new Request([], [], [], [TwigDateRequestListener::TIMEZONE_COOKIE => $timezone]), HttpKernelInterface::MASTER_REQUEST, false);
         } catch (\Error $e) {

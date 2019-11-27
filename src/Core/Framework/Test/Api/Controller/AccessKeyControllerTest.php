@@ -30,6 +30,7 @@ class AccessKeyControllerTest extends TestCase
         static::assertNotEmpty($body['accessKey']);
 
         $e = null;
+
         try {
             AccessKeyHelper::getOrigin($body['accessKey']);
         } catch (\Exception $e) {
@@ -56,6 +57,7 @@ class AccessKeyControllerTest extends TestCase
         static::assertNotEmpty($body['accessKey']);
 
         $e = null;
+
         try {
             AccessKeyHelper::getOrigin($body['accessKey']);
         } catch (\Exception $e) {
@@ -80,6 +82,7 @@ class AccessKeyControllerTest extends TestCase
         static::assertNotEmpty($body['accessKey']);
 
         $e = null;
+
         try {
             AccessKeyHelper::getOrigin($body['accessKey']);
         } catch (\Exception $e) {

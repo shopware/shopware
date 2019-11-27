@@ -37,7 +37,7 @@ class DeleteNotUsedMediaCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);
 
@@ -48,7 +48,7 @@ class DeleteNotUsedMediaCommand extends Command
         if ($count === 0) {
             $io->comment('No unused media files found.');
 
-            return null;
+            return 0;
         }
 
         $confirm = $io->confirm(sprintf('Are you sure that you want to delete %d media files?', $count), false);
@@ -56,12 +56,12 @@ class DeleteNotUsedMediaCommand extends Command
         if (!$confirm) {
             $io->caution('Aborting due to user input.');
 
-            return null;
+            return 0;
         }
 
         $this->deleteMediaService->deleteNotUsedMedia($context);
         $io->success(sprintf('Successfully deleted %d media files.', $count));
 
-        return null;
+        return 0;
     }
 }

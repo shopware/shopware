@@ -57,6 +57,11 @@ class ReferenceVersionField extends FkField
         return $this->versionReferenceDefinition;
     }
 
+    public function getVersionReferenceClass(): string
+    {
+        return $this->versionReferenceClass;
+    }
+
     protected function getSerializerClass(): string
     {
         return ReferenceVersionFieldSerializer::class;

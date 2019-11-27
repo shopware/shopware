@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 
 interface ExceptionHandlerInterface
 {
-    public function matchException(\Exception $e, WriteCommandInterface $command): ?\Exception;
+    public function matchException(\Exception $e, WriteCommand $command): ?\Exception;
 }

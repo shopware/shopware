@@ -125,6 +125,7 @@ class ThemeCompiler
                 }
 
                 $this->copyAssets($config, $configurationCollection, $outputPath);
+
                 continue;
             }
 

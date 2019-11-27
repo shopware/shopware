@@ -219,6 +219,7 @@ class StorefrontPluginConfiguration
         }
 
         $config = new self();
+
         try {
             $data = json_decode(file_get_contents($pathname), true);
             if (json_last_error() !== JSON_ERROR_NONE) {
@@ -242,6 +243,7 @@ class StorefrontPluginConfiguration
                 foreach ($data['style'] as $style) {
                     if (!is_array($style)) {
                         $fileCollection->add(new File($style));
+
                         continue;
                     }
 

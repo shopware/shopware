@@ -80,8 +80,10 @@ class ThemeFileResolver
             if (!$this->isInclude($filepath)) {
                 if (file_exists($filepath)) {
                     $resolvedFiles->add($file);
+
                     continue;
                 }
+
                 throw new ThemeCompileException(
                     $themeConfig->getTechnicalName(),
                     sprintf('Unable to load file "%s". Did you forget to build the theme? Try running ./psh.phar storefront:build ', $filepath)
@@ -94,6 +96,7 @@ class ThemeFileResolver
                         $resolvedFiles->add($item);
                     }
                 }
+
                 continue;
             }
 

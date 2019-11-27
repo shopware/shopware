@@ -128,6 +128,7 @@ class ThumbnailService
                 ) {
                     $toBeDeletedThumbnails->remove($thumbnail->getId());
                     $tobBeCreatedSizes->remove($thumbnailSize->getId());
+
                     continue 2;
                 }
             }
@@ -161,6 +162,7 @@ class ThumbnailService
         $originalImageSize = $this->getOriginalImageSize($mediaImage);
 
         $savedThumbnails = [];
+
         try {
             foreach ($thumbnailSizes as $size) {
                 $thumbnailSize = $this->calculateThumbnailSize($originalImageSize, $size, $config);
@@ -309,13 +311,16 @@ class ThumbnailService
         switch ($media->getMimeType()) {
             case 'image/png':
                 imagepng($thumbnail);
+
                 break;
             case 'image/gif':
                 imagegif($thumbnail);
+
                 break;
             case 'image/jpg':
             case 'image/jpeg':
                 imagejpeg($thumbnail, null, $quality);
+
                 break;
         }
         $imageFile = ob_get_contents();

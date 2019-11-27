@@ -39,7 +39,7 @@ class CreateSchemaCommand extends Command
         $this->dir = $rootDir . '/../schema/';
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);
         $io->title('DAL generate schema');
@@ -63,6 +63,6 @@ class CreateSchemaCommand extends Command
             file_put_contents($this->dir . '/' . $domain . '.sql', implode("\n\n", $sql));
         }
 
-        return null;
+        return 0;
     }
 }

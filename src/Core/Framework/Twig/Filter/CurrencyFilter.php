@@ -42,6 +42,7 @@ class CurrencyFilter extends AbstractExtension
             if (isset($twigContext['testMode']) && $twigContext['testMode'] === true) {
                 return $price;
             }
+
             throw new \InvalidArgumentException('Error while processing Twig currency filter. No context or locale given.');
         }
 
@@ -53,6 +54,7 @@ class CurrencyFilter extends AbstractExtension
             if (isset($twigContext['testMode']) && $twigContext['testMode'] === true) {
                 return $price;
             }
+
             throw new \InvalidArgumentException('Error while processing Twig currency filter. Could not resolve currencyIsoCode.');
         }
 

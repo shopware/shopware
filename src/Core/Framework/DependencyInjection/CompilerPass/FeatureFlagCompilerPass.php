@@ -23,6 +23,7 @@ class FeatureFlagCompilerPass implements CompilerPassInterface
                 }
 
                 $container->removeDefinition($serviceId);
+
                 break;
             }
         }

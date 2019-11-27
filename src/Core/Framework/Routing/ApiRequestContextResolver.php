@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Routing;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
-use function Flag\next3722;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
@@ -17,36 +16,45 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpFoundation\Request;
+use function Flag\next3722;
 
 class ApiRequestContextResolver implements RequestContextResolverInterface
 {
+    use RouteScopeCheckTrait;
+
     /**
      * @var Connection
      */
     private $connection;
 
-    public function __construct(Connection $connection)
-    {
+    /**
+     * @var RouteScopeRegistry
+     */
+    private $routeScopeRegistry;
+
+    public function __construct(
+        Connection $connection,
+        RouteScopeRegistry $routeScopeRegistry
+    ) {
         $this->connection = $connection;
+        $this->routeScopeRegistry = $routeScopeRegistry;
     }
 
-    public function resolve(Request $master, Request $request): void
+    public function resolve(Request $request): void
     {
-        //sub requests can use context of master
-        if ($master->attributes->has(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT)) {
-            $request->attributes->set(
-                PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT,
-                $master->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT)
-            );
-
+        if ($request->attributes->has(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT)) {
             return;
         }
 
-        $params = $this->getContextParameters($master);
+        if (!$this->isRequestScoped($request, ApiContextRouteScopeDependant::class)) {
+            return;
+        }
+
+        $params = $this->getContextParameters($request);
         $languageIdChain = $this->getLanguageIdChain($params);
 
         $context = new Context(
-            $this->resolveContextOrigin($request),
+            $this->resolveContextSource($request),
             [],
             $params['currencyId'],
             $languageIdChain,
@@ -59,7 +67,12 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
     }
 
-    private function getContextParameters(Request $master)
+    protected function getScopeRegistry(): RouteScopeRegistry
+    {
+        return $this->routeScopeRegistry;
+    }
+
+    private function getContextParameters(Request $request)
     {
         $params = [
             'currencyId' => Defaults::CURRENCY,
@@ -67,11 +80,11 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             'systemFallbackLanguageId' => Defaults::LANGUAGE_SYSTEM,
             'currencyFactory' => 1.0,
             'currencyPrecision' => 2,
-            'versionId' => $master->headers->get(PlatformRequest::HEADER_VERSION_ID),
+            'versionId' => $request->headers->get(PlatformRequest::HEADER_VERSION_ID),
             'considerInheritance' => false,
         ];
 
-        $runtimeParams = $this->getRuntimeParameters($master);
+        $runtimeParams = $this->getRuntimeParameters($request);
         $params = array_replace_recursive($params, $runtimeParams);
 
         return $params;
@@ -96,7 +109,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         return $parameters;
     }
 
-    private function resolveContextOrigin(Request $request): ContextSource
+    private function resolveContextSource(Request $request): ContextSource
     {
         if ($request->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
             return new SalesChannelApiSource(Defaults::SALES_CHANNEL);

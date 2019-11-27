@@ -140,6 +140,7 @@ class PromotionCalculator
             // depending on the added requirements and conditions.
             if (!$this->isRequirementValid($discountItem, $calculated, $context)) {
                 $this->addDeleteNoticeToCart($original, $calculated, $discountItem);
+
                 continue;
             }
 
@@ -204,14 +205,17 @@ class PromotionCalculator
         switch ($discount->getScope()) {
             case PromotionDiscountEntity::SCOPE_CART:
                 $packager = new CartScopeDiscountPackager($this->lineItemQuantitySplitter);
+
                 break;
 
             case PromotionDiscountEntity::SCOPE_SET:
                 $packager = new SetScopeDiscountPackager($this->groupBuilder);
+
                 break;
 
             case PromotionDiscountEntity::SCOPE_SETGROUP:
                 $packager = new SetGroupScopeDiscountPackager($this->groupBuilder);
+
                 break;
 
             default:
@@ -260,18 +264,22 @@ class PromotionCalculator
         switch ($discount->getType()) {
             case PromotionDiscountEntity::TYPE_ABSOLUTE:
                 $calculator = new DiscountAbsoluteCalculator($this->absolutePriceCalculator);
+
                 break;
 
             case PromotionDiscountEntity::TYPE_PERCENTAGE:
                 $calculator = new DiscountPercentageCalculator($this->absolutePriceCalculator, $this->percentagePriceCalculator);
+
                 break;
 
             case PromotionDiscountEntity::TYPE_FIXED:
                 $calculator = new DiscountFixedPriceCalculator($this->absolutePriceCalculator);
+
                 break;
 
             case PromotionDiscountEntity::TYPE_FIXED_UNIT:
                 $calculator = new DiscountFixedUnitPriceCalculator($this->absolutePriceCalculator);
+
                 break;
 
             default:

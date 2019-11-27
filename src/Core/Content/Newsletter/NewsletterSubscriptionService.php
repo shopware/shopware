@@ -206,7 +206,7 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
     private function getUpdateValidator(): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('newsletter_recipient.update');
-        $definition->add('email', new isNull())
+        $definition->add('email', new IsNull())
             ->add('id', new NotBlank());
 
         return $definition;

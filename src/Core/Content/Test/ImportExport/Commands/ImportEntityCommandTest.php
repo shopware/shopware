@@ -132,6 +132,7 @@ class ImportEntityCommandTest extends TestCase
             'expireDate' => date('d.m.Y'),
         ];
         $commandTester->setInputs([self::DEFAULT_CUSTOMER_IMPORT_PROFILE]);
+
         try {
             $commandTester->execute($args);
             static::fail('Expected exception not thrown.');
@@ -158,6 +159,7 @@ class ImportEntityCommandTest extends TestCase
             'expireDate' => date('d.m.Y'),
         ];
         $commandTester->setInputs([self::DEFAULT_CUSTOMER_IMPORT_PROFILE]);
+
         try {
             $commandTester->execute($args);
             static::fail('Expected exception not thrown.');

@@ -1,0 +1,57 @@
+{% block element_form %}
+    {%  set config = element.fieldConfig.elements %}
+
+    <div class="cms-element-{{ element.type }}">
+
+        <div class="row justify-content-center">
+            <div class="col-lg-12">
+
+                {% set formViolations = app.request.get('errors') %}
+
+                <div class="card">
+                    <div class="card-body">
+
+                        {% if element.config.type.value is same as('contact') %}
+
+                            <div class="card-title mb-4">
+                                {% if element.config.title.value %}
+                                    {{ element.config.title.value }}
+                                {%  else %}
+                                    {{ "contact.headline"|trans }}
+                                {% endif %}
+                            </div>
+
+                            {%
+                                sw_include '@Storefront/storefront/element/cms-element-form/form-types/contact-form.html.twig'
+                                with {
+                                    action: 'frontend.form.contact.send',
+                                    submitText: 'contact.formSubmit'
+                                }
+                            %}
+
+                        {% elseif element.config.type.value is same as('newsletter') %}
+
+                            <div class="card-title mb-4">
+                                {% if element.config.title.value %}
+                                    {{ element.config.title.value }}
+                                {%  else %}
+                                    {{ "newsletter.headline"|trans }}
+                                {% endif %}
+                            </div>
+
+                            {%
+                                sw_include '@Storefront/storefront/element/cms-element-form/form-types/newsletter-form.html.twig'
+                                with {
+                                    action: 'frontend.form.newsletter.register.handle',
+                                    submitText: 'newsletter.formSubmit'
+                                }
+                            %}
+
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

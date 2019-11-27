@@ -5,10 +5,11 @@ namespace Shopware\Core\Framework\Language;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\CascadeDeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PostWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -69,7 +70,7 @@ class LanguageValidator implements EventSubscriberInterface
         $violations = new ConstraintViolationList();
 
         foreach ($commands as $command) {
-            if (!$command instanceof DeleteCommand || $command->getDefinition()->getClass() !== LanguageDefinition::class) {
+            if (!$command instanceof DeleteCommand || $command instanceof CascadeDeleteCommand || $command->getDefinition()->getClass() !== LanguageDefinition::class) {
                 continue;
             }
 
@@ -160,7 +161,7 @@ class LanguageValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param WriteCommandInterface[] $commands
+     * @param WriteCommand[] $commands
      *
      * @return string[]
      */

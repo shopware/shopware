@@ -50,7 +50,7 @@ class BillingCountryRule extends Rule
                 return !\in_array($id, $this->countryIds, true);
 
             default:
-                throw new UnsupportedOperatorException($this->operator, __CLASS__);
+                throw new UnsupportedOperatorException($this->operator, self::class);
         }
     }
 

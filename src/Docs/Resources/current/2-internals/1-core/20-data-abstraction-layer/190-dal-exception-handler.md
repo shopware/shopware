@@ -14,7 +14,7 @@ matching condition to the method `matchException`. As an example you can take th
 ```
 class ProductExceptionHandler implements ExceptionHandlerInterface
 {
-    public function matchException(\Exception $e, WriteCommandInterface $command): ?\Exception
+    public function matchException(\Exception $e, WriteCommand $command): ?\Exception
     {
         if ($e->getCode() !== 0 || $command->getDefinition()->getEntityName() !== 'product') {
             return null;

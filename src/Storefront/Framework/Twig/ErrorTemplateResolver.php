@@ -18,7 +18,7 @@ class ErrorTemplateResolver
         $this->twig = $twig;
     }
 
-    public function resolve(\Exception $exception, Request $request): ErrorTemplateStruct
+    public function resolve(\Throwable $exception, Request $request): ErrorTemplateStruct
     {
         $template = '@Storefront/storefront/page/error/error';
 

@@ -185,6 +185,7 @@ class VariantListingIndexer implements IndexerInterface
                     'UPDATE product SET display_group = MD5(HEX(product.parent_id)) WHERE product.parent_id = :id AND product.version_id = :versionId',
                     ['id' => $parentId, 'versionId' => $versionBytes]
                 );
+
                 continue;
             }
 

@@ -3,8 +3,9 @@
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 use Enqueue\Dbal\DbalContext;
+use Shopware\Core\Framework\Test\TestCaseHelper\StopWorkerWhenIdleListener;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Transport\Receiver\ReceiverInterface;
 use Symfony\Component\Messenger\Worker;
@@ -36,14 +37,14 @@ trait QueueTestBehaviour
     {
         $bus = $this->getBus();
 
-        $worker = new Worker([$this->getReceiver()], $bus);
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addSubscriber(new StopWorkerWhenIdleListener());
+
+        $worker = new Worker([$this->getReceiver()], $bus, $eventDispatcher);
+
         $worker->run([
             'sleep' => 1000,
-        ], function (?Envelope $envelope) use ($worker): void {
-            if ($envelope === null) {
-                $worker->stop();
-            }
-        });
+        ]);
     }
 
     abstract protected function getContainer(): ContainerInterface;

@@ -20,6 +20,7 @@
 
             <argument type="service" id="Shopware\Storefront\Framework\Routing\RequestTransformer.inner" />
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Seo\SeoResolver"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\Router" decorates="router">
@@ -305,8 +306,10 @@
 
         <service id="Shopware\Storefront\Page\Sitemap\SitemapPageLoader">
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="sales_channel.category.repository"/>
-            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapLister"/>
+            <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapExporter"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="session"/>
         </service>
 
         <!--SnippetFiles-->

@@ -20,7 +20,7 @@ module.exports = function createLiveReloadServer() {
         // start the normal webpack dev server for hot reloading the files
         const server = new WebpackDevServer(compiler, devServerOptions);
 
-        server.listen(devServerOptions.port, '127.0.0.1', (err) => {
+        server.listen(devServerOptions.port, '0.0.0.0', (err) => {
             if (err) {
                 reject(err);
             }

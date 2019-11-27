@@ -93,6 +93,7 @@ class PromotionDeliveryCalculator
 
             if (!$this->isRequirementValid($discountItem, $toCalculate, $context)) {
                 $this->addDeleteNoticeToCart($original, $toCalculate, $discountItem);
+
                 continue;
             }
 

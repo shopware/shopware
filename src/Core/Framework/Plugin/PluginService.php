@@ -90,6 +90,7 @@ class PluginService
                     $pluginPath . '/composer.json',
                     ['Neither a PSR-4 nor PSR-0 autoload information is given.']
                 ));
+
                 continue;
             }
 
@@ -138,6 +139,7 @@ class PluginService
                         $this->changelogService->getLocaleFromChangelogFile($file),
                         $shopwareContext
                     );
+
                     try {
                         $pluginData['translations'][$languageId]['changelog'] = $this->changelogService->parseChangelog($file);
                     } catch (PluginChangelogInvalidException $e) {

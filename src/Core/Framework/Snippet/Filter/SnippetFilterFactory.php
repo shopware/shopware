@@ -28,6 +28,6 @@ class SnippetFilterFactory
             }
         }
 
-        throw new FilterNotFoundException($name, __CLASS__);
+        throw new FilterNotFoundException($name, self::class);
     }
 }

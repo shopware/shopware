@@ -9,7 +9,7 @@ use Shopware\Core\Content\Product\Exception\ProductLineItemDifferentIdException;
 use Shopware\Core\Content\Product\Exception\ProductLineItemInconsistentException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -92,7 +92,7 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
 
     private function findProducts(array $commands)
     {
-        $ids = array_map(function (WriteCommandInterface $command) {
+        $ids = array_map(function (WriteCommand $command) {
             if ($command->getDefinition()->getClass() !== OrderLineItemDefinition::class) {
                 return null;
             }

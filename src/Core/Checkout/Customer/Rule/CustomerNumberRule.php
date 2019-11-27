@@ -50,7 +50,7 @@ class CustomerNumberRule extends Rule
                 return !\in_array(mb_strtolower($customer->getCustomerNumber()), $this->numbers, true);
 
             default:
-                throw new UnsupportedOperatorException($this->operator, __CLASS__);
+                throw new UnsupportedOperatorException($this->operator, self::class);
         }
     }
 

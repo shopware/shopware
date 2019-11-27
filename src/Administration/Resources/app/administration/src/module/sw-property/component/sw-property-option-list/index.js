@@ -1,167 +1,90 @@
 import template from './sw-property-option-list.html.twig';
 import './sw-property-option-list.scss';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, State } = Shopware;
 
 Component.register('sw-property-option-list', {
     template,
 
-    mixins: [
-        Mixin.getByName('listing')
+    inject: [
+        'repositoryFactory'
     ],
 
-    data() {
-        return {
-            limit: 10,
-            options: [],
-            isLoading: false,
-            currentOption: null,
-            searchTerm: null,
-            sortedOptions: [],
-            deleteButtonDisabled: true,
-            disableRouteParams: true,
-            sortings: [],
-            isSystemLanguage: false,
-            fieldData: null
-        };
-    },
-
     props: {
-        group: {
+        propertyGroup: {
+            type: Object,
+            required: true
+        },
+        optionRepository: {
             type: Object,
             required: true
         }
     },
 
+    data() {
+        return {
+            isLoading: false,
+            currentOption: null,
+            term: null,
+            naturalSorting: true,
+            selection: null,
+            deleteButtonDisabled: true,
+            sortBy: 'name',
+            sortDirection: 'ASC',
+            showDeleteModal: false,
+            limit: 10
+        };
+    },
+
     computed: {
-        optionStore() {
-            return this.group.getAssociation('options');
+        isSystemLanguage() {
+            return State.get('context').api.systemLanguageId === this.currentLanguage;
         },
 
-        languageStore() {
-            return StateDeprecated.getStore('language');
+        currentLanguage() {
+            return State.get('context').api.languageId;
+        }
+    },
+
+    watch: {
+        currentLanguage() {
+            this.refreshOptionList();
         }
     },
 
     methods: {
-        checkSystemLanguage() {
-            // check if you are in the system language
-            this.isSystemLanguage = this.languageStore.getCurrentId() === this.languageStore.systemLanguageId;
+        onSearch() {
+            this.propertyGroup.options.criteria.setTerm(this.term);
+            this.refreshOptionList();
         },
 
-        setSorting() {
-            if (this.group.sortingType === 'alphanumeric') {
-                this.sortings = [{
-                    field: 'property_group_option.name',
-                    order: 'ASC',
-                    naturalSorting: false
-                }];
-            } else if (this.group.sortingType === 'numeric') {
-                this.sortings = [{
-                    field: 'property_group_option.name',
-                    order: 'ASC',
-                    naturalSorting: true
-                }];
-            } else if (this.group.sortingType === 'position') {
-                this.sortings = [{
-                    field: 'property_group_option.position',
-                    order: 'ASC',
-                    naturalSorting: false
-                }];
-            }
-        },
-
-        onSearch(value) {
-            if (!this.hasExistingOptions()) {
-                this.term = '';
-                return;
-            }
-
-            this.term = value;
-
-            this.page = 1;
-            this.getList();
-        },
-
-        hasExistingOptions() {
-            const optionCount = Object.values(this.optionStore.store).filter((item) => {
-                return !item.isLocal;
-            });
-
-            return optionCount.length > 0;
-        },
-
-        getList() {
-            this.isLoading = true;
-
-            this.checkSystemLanguage();
-            const params = this.getListingParams();
-
-            if (this.sortings.length <= 0) {
-                this.setSorting();
-            }
-            params.sortings = this.sortings;
-
-            this.options = [];
-            return this.optionStore.getList(params, true).then((response) => {
-                this.total = response.total;
-                this.options = response.items;
-                this.isLoading = false;
-
-                this.buildGridArray();
-
-                return this.options;
-            });
-        },
-
-        selectionChanged() {
-            const selection = this.$refs.grid.getSelection();
-            this.deleteButtonDisabled = Object.keys(selection).length <= 0;
-        },
-
-        newItems() {
-            const items = [];
-            this.optionStore.forEach((item) => {
-                if (item.isLocal) {
-                    items.push(item);
-                }
-            });
-            return items;
+        onGridSelectionChanged(selection, selectionCount) {
+            this.selection = selection;
+            this.deleteButtonDisabled = selectionCount <= 0;
         },
 
         onOptionDelete(option) {
-            option.delete();
-
-            if (option.isLocal) {
-                this.optionStore.removeById(option.id);
-
-                this.options.forEach((item, index) => {
-                    if (item.id === option.id) {
-                        this.options.splice(index, 1);
-                    }
-                });
-
-                this.buildGridArray();
+            if (option.isNew()) {
+                this.propertyGroup.options.remove(option.id);
+                return Promise.resolve();
             }
+            return this.optionRepository.delete(option.id, Shopware.Context.api);
         },
 
         onDeleteOptions() {
-            const selection = this.$refs.grid.getSelection();
-
-            Object.values(selection).forEach((option) => {
-                this.onOptionDelete(option);
-                this.$refs.grid.selectItem(false, option);
-            });
+            if (this.selection) {
+                Object.values(this.selection).forEach((option) => {
+                    this.onOptionDelete(option);
+                });
+                this.refreshOptionList();
+            }
         },
 
         onAddOption() {
             if (!this.isSystemLanguage) {
                 return false;
             }
-
-            const option = this.optionStore.create();
-            this.optionStore.removeById(option.id);
-            this.onOptionEdit(option);
+            this.currentOption = this.optionRepository.create();
 
             return true;
         },
@@ -171,48 +94,60 @@ Component.register('sw-property-option-list', {
         },
 
         onSaveOption() {
-            if (!this.optionStore.hasId(this.currentOption.id)) {
-                this.optionStore.add(this.currentOption);
-                this.buildGridArray();
+            if (this.propertyGroup.isNew()) {
+                return this.saveGroupLocal();
             }
 
-            this.currentOption = null;
+            return this.saveGroupRemote();
         },
 
-        onOptionResetDelete(option) {
-            option.isDeleted = false;
+        saveGroupLocal() {
+            if (this.currentOption.isNew()) {
+                if (!this.propertyGroup.options.has(this.currentOption.id)) {
+                    this.propertyGroup.options.add(this.currentOption);
+                }
+                this.currentOption = null;
+            }
+            return Promise.resolve();
         },
 
-        onInlineEditCancel(option) {
-            // replace values with the previous values
-            const prevOption = this.fieldData;
-
-            option.name = prevOption.name;
-            option.colorHexCode = prevOption.colorHexCode;
-            option.position = prevOption.position;
-
-            // reset previous option
-            this.fieldData = null;
+        saveGroupRemote() {
+            return this.optionRepository.save(this.currentOption, Shopware.Context.api).then(() => {
+                this.currentOption = null;
+                this.$refs.grid.load();
+            });
         },
 
-        onInlineEditStart(option) {
-            // save current values
-            this.fieldData = {
-                name: option.name,
-                colorHexCode: option.colorHexCode,
-                position: option.position
-            };
+        refreshOptionList() {
+            this.isLoading = true;
+
+            this.$refs.grid.load().then(() => {
+                this.isLoading = false;
+            });
         },
 
         onOptionEdit(option) {
-            this.currentOption = option;
+            const localCopy = this.optionRepository.create(Shopware.Context.api, option.id);
+            Object.assign(localCopy, option);
+            localCopy._isNew = false;
+
+            this.currentOption = localCopy;
         },
 
-        buildGridArray() {
-            this.options = this.options.filter((value) => {
-                return value.isLocal === false;
-            });
-            this.options.splice(0, 0, ...this.newItems());
+        getGroupColumns() {
+            return [{
+                property: 'name',
+                label: this.$tc('sw-property.detail.labelOptionName'),
+                routerLink: 'sw.property.detail',
+                inlineEdit: 'string',
+                primary: true
+            }, {
+                property: 'colorHexCode',
+                label: this.$tc('sw-property.detail.labelOptionColor')
+            }, {
+                property: 'position',
+                label: this.$tc('sw-property.detail.labelOptionPosition')
+            }];
         }
     }
 });

@@ -33,7 +33,7 @@ class AdministrationDumpFeaturesCommand extends Command
             ->setDescription('Creating json file with feature config for administration testing and hot reloading capabilities.');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         file_put_contents(
             $this->kernel->getCacheDir() . '/../../config_administration_features.json',
@@ -43,6 +43,6 @@ class AdministrationDumpFeaturesCommand extends Command
         $style = new ShopwareStyle($input, $output);
         $style->success('Successfully dumped administration feature configuration');
 
-        return null;
+        return 0;
     }
 }

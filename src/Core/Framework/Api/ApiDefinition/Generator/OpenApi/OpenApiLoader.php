@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi;
 
 use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Operation;
+use OpenApi\Annotations\UNDEFINED;
 use const OpenApi\Annotations\UNDEFINED;
 use function OpenApi\scan;
 

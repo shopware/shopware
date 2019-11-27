@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Migration;
 
-use function date;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -21,7 +20,7 @@ class Migration1563288227MarkAsNewConfig extends MigrationStep
             'id' => Uuid::randomBytes(),
             'configuration_key' => 'core.listing.markAsNew',
             'configuration_value' => '{"_value": "30"}',
-            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => \date(Defaults::STORAGE_DATE_FORMAT),
         ]);
     }
 

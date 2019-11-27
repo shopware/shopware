@@ -61,10 +61,13 @@ import FilterBooleanPlugin from 'src/plugin/listing/filter-boolean.plugin';
 import FilterRangePlugin from 'src/plugin/listing/filter-range.plugin';
 import FilterRatingPlugin from 'src/plugin/listing/filter-rating.plugin';
 import ListingPlugin from 'src/plugin/listing/listing.plugin';
+import OffCanvasFilterPlugin from 'src/plugin/offcanvas-filter/offcanvas-filter.plugin';
 import RatingSystemPlugin from 'src/plugin/rating-system/rating-system.plugin';
 import ListingPaginationPlugin from 'src/plugin/listing/listing-pagination.plugin';
 import ListingSortingPlugin from 'src/plugin/listing/listing-sorting.plugin';
+import DatePickerPlugin from 'src/plugin/date-picker/date-picker.plugin';
 import FormCsrfHandlerPlugin from 'src/plugin/forms/form-csrf-handler.plugin';
+import FormCmsHandlerPlugin from 'src/plugin/forms/form-cms-handler.plugin';
 
 window.eventEmitter = new NativeEventEmitter();
 
@@ -113,6 +116,7 @@ PluginManager.register('AddressEditor', AddressEditorPlugin, '[data-address-edit
 PluginManager.register('SetBrowserClass', SetBrowserClassPlugin, 'html');
 PluginManager.register('RatingSystem', RatingSystemPlugin, '[data-rating-system]');
 PluginManager.register('Listing', ListingPlugin, '[data-listing]');
+PluginManager.register('OffCanvasFilter', OffCanvasFilterPlugin, '[data-offcanvas-filter]');
 PluginManager.register('FilterBoolean', FilterBooleanPlugin, '[data-filter-boolean]');
 PluginManager.register('FilterRange', FilterRangePlugin, '[data-filter-range]');
 PluginManager.register('FilterMultiSelect', FilterMultiSelectPlugin, '[data-filter-multi-select]');
@@ -120,7 +124,8 @@ PluginManager.register('FilterPropertySelect', FilterPropertySelectPlugin, '[dat
 PluginManager.register('FilterRating', FilterRatingPlugin, '[data-filter-rating]');
 PluginManager.register('ListingPagination', ListingPaginationPlugin, '[data-listing-pagination]');
 PluginManager.register('ListingSorting', ListingSortingPlugin, '[data-listing-sorting]');
-PluginManager.register('RatingSystemPlugin', RatingSystemPlugin, '[data-rating-system]');
+PluginManager.register('DatePicker', DatePickerPlugin, '[data-date-picker]');
+PluginManager.register('FormCmsHandler', FormCmsHandlerPlugin, '.cms-element-form form');
 
 if (window.csrf.enabled && window.csrf.mode === 'ajax') {
     PluginManager.register('FormCsrfHandler', FormCsrfHandlerPlugin, '[data-form-csrf-handler]');

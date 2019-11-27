@@ -29,6 +29,9 @@
       "gridHeaderCreated": "Erstellt"
     },
     "section": {
+      "fallBackSectionName": "Sektion",
+      "positionLeft": "Inhalt, links",
+      "positionRight": "Inhalt, rechts",
       "fullWidth": "Volle Breite",
       "sidebar": "Sidebar",
       "isSidebar": "Layout-Sektion - Sidebar",
@@ -66,7 +69,7 @@
         "buttonSave": "Speichern",
         "pageName": "Layout-Name",
         "pageType": "Layout-Typ",
-        "pageTypeLandingpage": "Landeseite",
+        "pageTypeLandingpage": "Landingpage",
         "pageTypeShopPage": "Shopseite",
         "pageTypeCategory": "Kategorieseite",
         "pageTypeProduct": "Produktseite",
@@ -78,6 +81,7 @@
         "blockCategoryImage": "Bilder",
         "blockCategoryCommerce": "Commerce",
         "blockCategoryVideo": "Video",
+        "blockCategoryForm": "Formular",
         "buttonElementSettingsConfirm": "Fertig",
         "buttonElementChangeAbort": "Abbrechen",
         "blockNameField": "Block-Name",
@@ -108,10 +112,7 @@
         "addBlocks": "Füge Blöcke per Drag & Drop hinzu",
         "labelNavigation": "Navigation",
         "headlineEmptyState": "Raum für Kreativität",
-        "claimEmptyState": "Stelle neue Layouts mithilfe von Sektionen zusammen. Wähle eine Sektion und füge einfach per Drag & Drop-Blöcke zu jeder Sektion hinzu und befülle die Blöcke dann mit deinem individuellen Inhalt.",
-        "sidebarMobile": "Mobiles Sidebar-Verhalten",
-        "sidebarMobileOptionHidden": "Nicht angezeigt",
-        "sidebarMobileOptionWrap": "Umbrechen"
+        "claimEmptyState": "Stelle neue Layouts mithilfe von Sektionen zusammen. Wähle eine Sektion und füge einfach per Drag & Drop-Blöcke zu jeder Sektion hinzu und befülle die Blöcke dann mit deinem individuellen Inhalt."
       },
       "notification": {
         "titleMissingFields": "Fehlende Konfiguration",
@@ -138,7 +139,10 @@
         "titleBlockSettings": "Block-Einstellungen",
         "headerBlockSettings": "Block:",
         "titleNavigator": "Navigator",
-        "titleSectionSettings": "Sektion-Einstellungen"
+        "titleSectionSettings": "Sektion-Einstellungen",
+        "mobile": "Mobiles Sidebar-Verhalten",
+        "mobileOptionHidden": "Nicht angezeigt",
+        "mobileOptionWrap": "Umbrechen"
       },
       "title": {
         "elementSettingsModal": "Element-Einstellungen",
@@ -314,6 +318,56 @@
       },
       "youtubeVideo": {
         "label": "YouTube-Video"
+      },
+      "form": {
+        "config": {
+          "label": {
+            "receiverEmail": "Empfängeraddressen",
+            "title": "Titel",
+            "type": "Formulartyp",
+            "typeContact": "Kontakt",
+            "typeNewsletter": "Newsletter",
+            "confirmationText": "Bestätigungstext"
+          },
+          "placeholder": {
+            "type": "Wähle einen Formulartypen ..."
+          }
+        },
+        "element": {
+          "label": {
+            "action": "Aktion",
+            "email": "Email Adresse*",
+            "firstName": "Vorname*",
+            "lastName" : "Nachname*",
+            "message": "Ihre Nachricht*",
+            "newsletterSubmit": "Weiter",
+            "phone": "Telefon",
+            "privacy": "Datenschutz",
+            "salutation": "Anrede*",
+            "salutationUndisclosed" : "Keine Angabe",
+            "send": "Senden",
+            "subject": "Betreff*",
+            "subscribeToNewsletter": "Newsletter abonnieren"
+          },
+          "placeholder": {
+            "firstName": "John",
+            "lastName": "Doe",
+            "email": "john@doe.com",
+            "phone": "+4920 3920173",
+            "subject": "Lorem ipsum dolor sit amet.",
+            "message": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum."
+          },
+          "helpText": {
+            "privacy": "Ich habe die Datenschutzinformationen gelesen.",
+            "requiredFields": "Felder, die mit * markiert sind, werden benötigt"
+          }
+        },
+        "preview": {
+          "label": {
+            "form": "Formular",
+            "send": "Senden"
+          }
+        }
       }
     },
     "blocks": {

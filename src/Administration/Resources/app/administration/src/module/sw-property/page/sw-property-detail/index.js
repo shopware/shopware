@@ -1,9 +1,14 @@
 import template from './sw-property-detail.html.twig';
 
-const { Component, StateDeprecated, Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-property-detail', {
     template,
+
+    inject: [
+        'repositoryFactory'
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -15,10 +20,21 @@ Component.register('sw-property-detail', {
         ESCAPE: 'onCancel'
     },
 
+    props: {
+        groupId: {
+            type: String
+        }
+    },
+
+    watch: {
+        groupId() {
+            this.loadEntityData();
+        }
+    },
+
     data() {
         return {
-            group: {},
-            groupId: null,
+            propertyGroup: null,
             isLoading: false,
             isSaveSuccessful: false
         };
@@ -32,11 +48,18 @@ Component.register('sw-property-detail', {
 
     computed: {
         identifier() {
-            return this.placeholder(this.group, 'name');
+            return this.placeholder(this.propertyGroup, 'name');
         },
 
-        groupStore() {
-            return StateDeprecated.getStore('property_group');
+        optionRepository() {
+            return this.repositoryFactory.create(
+                this.propertyGroup.options.entity,
+                this.propertyGroup.options.source
+            );
+        },
+
+        propertyRepository() {
+            return this.repositoryFactory.create('property_group');
         },
 
         tooltipSave() {
@@ -53,8 +76,18 @@ Component.register('sw-property-detail', {
                 message: 'ESC',
                 appearance: 'light'
             };
-        }
+        },
 
+        defaultCriteria() {
+            const criteria = new Criteria(this.page, this.limit);
+
+            criteria.setTerm(this.term);
+            return criteria;
+        },
+
+        useNaturalSorting() {
+            return this.sortBy === 'property.name';
+        }
     },
 
     created() {
@@ -63,17 +96,19 @@ Component.register('sw-property-detail', {
 
     methods: {
         createdComponent() {
-            this.groupId = this.$route.params.id;
             this.loadEntityData();
         },
 
         loadEntityData() {
-            this.group = this.groupStore.getById(this.groupId);
+            this.isLoading = true;
 
-            if (this.$refs.optionListing) {
-                this.$refs.optionListing.setSorting();
-                this.$refs.optionListing.getList();
-            }
+            this.propertyRepository.get(this.groupId, Shopware.Context.api, this.defaultCriteria)
+                .then((currentGroup) => {
+                    this.propertyGroup = currentGroup;
+                    this.isLoading = false;
+                }).catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         saveFinish() {
@@ -85,7 +120,7 @@ Component.register('sw-property-detail', {
         },
 
         abortOnLanguageChange() {
-            return this.group.hasChanges();
+            return this.propertyRepository.hasChanges(this.propertyGroup);
         },
 
         onChangeLanguage() {
@@ -93,26 +128,17 @@ Component.register('sw-property-detail', {
         },
 
         onSave() {
-            const entityName = this.group.name || this.placeholder(this.group, 'name');
-
-            const titleSaveError = this.$tc('global.default.error');
-            const messageSaveError = this.$tc(
-                'global.notification.notificationSaveErrorMessage', 0, { entityName: entityName }
-            );
-
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return this.group.save().then(() => {
+            return this.propertyRepository.save(this.propertyGroup, Shopware.Context.api).then(() => {
+                this.loadEntityData();
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
-
-                this.$refs.optionListing.setSorting();
-                this.$refs.optionListing.getList();
             }).catch((exception) => {
                 this.createNotificationError({
-                    title: titleSaveError,
-                    message: messageSaveError
+                    title: this.$tc('sw-property.detail.titleSaveError'),
+                    message: this.$tc('sw-property.detail.messageSaveError')
                 });
                 this.isLoading = false;
                 throw exception;

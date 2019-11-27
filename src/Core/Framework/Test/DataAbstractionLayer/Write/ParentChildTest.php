@@ -46,6 +46,7 @@ class ParentChildTest extends TestCase
         $context = Context::createDefaultContext();
 
         $e = null;
+
         try {
             $this->categoryRepository->upsert([$category], $context);
         } catch (WriteException $e) {
@@ -244,6 +245,7 @@ class ParentChildTest extends TestCase
         $context = Context::createDefaultContext();
 
         $e = null;
+
         try {
             $this->categoryRepository->upsert([$category], $context);
         } catch (WriteException $e) {

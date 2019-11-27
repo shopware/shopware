@@ -73,6 +73,7 @@ class RequirementsValidatorTest extends TestCase
         $plugin = $this->createPlugin($path);
 
         $exception = null;
+
         try {
             $this->createValidator()->validateRequirements($plugin, Context::createDefaultContext(), 'test');
         } catch (RequirementStackException $exception) {
@@ -99,6 +100,7 @@ class RequirementsValidatorTest extends TestCase
         $plugin = $this->createPlugin($path);
 
         $exception = null;
+
         try {
             $this->createValidator()->validateRequirements($plugin, Context::createDefaultContext(), 'test');
         } catch (RequirementStackException $exception) {

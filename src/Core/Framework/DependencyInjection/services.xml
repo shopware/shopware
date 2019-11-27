@@ -105,6 +105,13 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Framework\PersonalData\CleanPersonalDataCommand">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="customer.repository"/>
+
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Migration\Command\MigrationDestructiveCommand">
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
@@ -136,16 +143,19 @@
 
         <!-- Routing -->
         <service id="Shopware\Core\Framework\Routing\ContextResolverListener">
-            <argument type="service" id="request_stack"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\ApiRequestContextResolver"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Routing\SymfonyRouteScopeWhitelist">
+            <tag name="shopware.route_scope_whitelist"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Routing\RouteScopeListener">
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
             <argument type="service" id="request_stack"/>
-            <argument type="service" id="event_dispatcher"/>
+            <argument type="tagged" tag="shopware.route_scope_whitelist"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -261,6 +271,7 @@
 
         <service id="Shopware\Core\Framework\Routing\ApiRequestContextResolver">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
         </service>
 
         <service id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver"
@@ -268,6 +279,7 @@
             <argument type="service" id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver.inner"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\SalesChannelProxyController" public="true">

@@ -146,6 +146,7 @@ class EntityForeignKeyResolver
                     . ')'
                     . ' SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
                 );
+
                 continue;
             }
 
@@ -157,6 +158,7 @@ class EntityForeignKeyResolver
                     . EntityDefinitionQueryHelper::escape($alias) . '.`id`)'
                     . ' SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
                 );
+
                 continue;
             }
 
@@ -170,6 +172,7 @@ class EntityForeignKeyResolver
                     . EntityDefinitionQueryHelper::escape($mappingAlias) . '.' . $cascade->getMappingReferenceColumn()
                     . ') SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
                 );
+
                 continue;
             }
 
@@ -278,6 +281,19 @@ class EntityForeignKeyResolver
 
                 if (!array_key_exists($class, $restrictions)) {
                     $restrictions[$class] = [];
+                }
+
+                if ($field instanceof TranslationsAssociationField) {
+                    $targetProperty = $field->getReferenceDefinition()->getFields()->getByStorageName($field->getReferenceField());
+
+                    $value = array_map(function ($key) use ($targetProperty) {
+                        $key = explode('-', $key);
+
+                        return [
+                            $targetProperty->getPropertyName() => $key[0],
+                            'languageId' => $key[1],
+                        ];
+                    }, $value);
                 }
 
                 $restrictions[$class] = array_merge_recursive($restrictions[$class], $value);

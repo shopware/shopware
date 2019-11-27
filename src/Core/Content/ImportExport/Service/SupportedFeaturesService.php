@@ -75,12 +75,15 @@ class SupportedFeaturesService
         switch ($unit) {
             case 'k':
                 $qty *= 1024;
+
                 break;
             case 'm':
                 $qty *= 1048576;
+
                 break;
             case 'g':
                 $qty *= 1073741824;
+
                 break;
         }
 

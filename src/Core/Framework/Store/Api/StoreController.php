@@ -208,6 +208,7 @@ class StoreController extends AbstractController
 
         /** @var PluginCollection $plugins */
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
+
         try {
             $storeToken = $this->getUserStoreToken($context);
         } catch (StoreTokenMissingException $e) {
@@ -280,6 +281,7 @@ class StoreController extends AbstractController
 
         /** @var PluginCollection $plugins */
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
+
         try {
             $storeToken = $this->getUserStoreToken($context);
         } catch (StoreTokenMissingException $e) {
@@ -309,8 +311,10 @@ class StoreController extends AbstractController
 
         /** @var PluginCollection $plugins */
         $plugins = $searchResult->getEntities();
+
         try {
             $language = $request->query->get('language', 'en-GB');
+
             try {
                 $storeToken = $this->getUserStoreToken($context);
             } catch (StoreTokenMissingException $e) {

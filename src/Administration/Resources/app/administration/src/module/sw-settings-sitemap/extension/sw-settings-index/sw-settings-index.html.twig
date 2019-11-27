@@ -1,0 +1,13 @@
+{% block sw_settings_content_card_slot_shop %}
+    {% parent %}
+
+    {% block sw_settings_sitemap_item %}
+        <sw-settings-item
+                :label="$tc('sw-settings-sitemap.general.mainMenuItemGeneral')"
+                :to="{ name: 'sw.settings.sitemap.index' }">
+            <template slot="icon">
+                <sw-icon name="default-location-map"></sw-icon>
+            </template>
+        </sw-settings-item>
+    {% endblock %}
+{% endblock %}

@@ -53,6 +53,7 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
                 if ($searchResult->getTotal() >= $limit) {
                     $pagination['next'] = $this->buildPaginationUrl($uri, $parameters, $limit, $currentPage + 1);
                 }
+
                 break;
 
             case Criteria::TOTAL_COUNT_MODE_EXACT:
@@ -63,6 +64,7 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
                 if ($currentPage < $lastPage) {
                     $pagination['next'] = $this->buildPaginationUrl($uri, $parameters, $limit, $currentPage + 1);
                 }
+
                 break;
 
             case Criteria::TOTAL_COUNT_MODE_NEXT_PAGES:
@@ -75,6 +77,7 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
                     $lastPage = $currentPage - 1 + (int) ceil($remaining / $limit);
                     $pagination['last'] = $this->buildPaginationUrl($uri, $parameters, $limit, $lastPage);
                 }
+
                 break;
         }
 

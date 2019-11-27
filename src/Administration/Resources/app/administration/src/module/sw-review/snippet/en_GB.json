@@ -16,7 +16,8 @@
       "columnComment": "Commented on",
       "columnTitle": "Review title",
       "placeholderSearchBar": "Search reviews...",
-      "messageEmpty": "No reviews yet"
+      "messageEmpty": "No reviews yet",
+      "messageEmptySubline": "Manage reviews here"
     },
     "detail": {
       "textHeadline": "Review",

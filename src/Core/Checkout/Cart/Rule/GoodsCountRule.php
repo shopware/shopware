@@ -70,7 +70,7 @@ class GoodsCountRule extends FilterRule
                 return $goods->count() !== $this->count;
 
             default:
-                throw new UnsupportedOperatorException($this->operator, __CLASS__);
+                throw new UnsupportedOperatorException($this->operator, self::class);
         }
     }
 

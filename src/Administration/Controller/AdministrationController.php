@@ -40,7 +40,7 @@ class AdministrationController extends AbstractController
 
     /**
      * @RouteScope(scopes={"administration"})
-     * @Route("/admin", name="administration.index", methods={"GET"})
+     * @Route("/admin", defaults={"auth_required"=false}, name="administration.index", methods={"GET"})
      */
     public function index(): Response
     {

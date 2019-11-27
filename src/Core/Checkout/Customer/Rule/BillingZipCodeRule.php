@@ -51,7 +51,7 @@ class BillingZipCodeRule extends Rule
                 return !\in_array(mb_strtolower($zipCode), $this->zipCodes, true);
 
             default:
-                throw new UnsupportedOperatorException($this->operator, __CLASS__);
+                throw new UnsupportedOperatorException($this->operator, self::class);
         }
     }
 

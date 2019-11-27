@@ -25,7 +25,8 @@
         "required": "*",
         "requiredFields": "* hierbei handelt es sich um ein Pflichtfeld",
         "privacyTitle": "Datenschutz",
-        "privacyNotice": "Ich habe die <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen."
+        "privacyNotice": "Ich habe die <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen.",
+        "formSubmit": "Absenden"
     },
     "header": {
         "logoLink": "zur Startseite wechseln",
@@ -219,7 +220,7 @@
         "orderInfoNoDispatch": "Nicht angegeben",
         "orderLinkRepeat": "Bestellung wiederholen",
         "newsletterTitle": "Ihre Newsletter-Einstellungen",
-        "newsletterSettings": "Ja, ich möchte den kostenlosen %shopname% Newsletter erhalten! (Ich weiß, ich kann mich jederzeit hier wieder vom Newsletter abmelden.)",
+        "newsletterSettings": "Ja, ich möchte regelmäßig den kostenlosen Newsletter von %shopname% erhalten! Ich weiß, dass ich mich hier jederzeit wieder von dem Newsletter abmelden kann.",
         "passwordResetTitle": "Passwort vergessen?",
         "passwordResetInfo": "Wenn Sie das Passwort für Ihr Konto vergessen haben, können Sie hier ein neues definieren. Wenn Sie das neue Passwort speichern, wird Ihr altes Passwort ungültig.",
         "passwordOptInInfo": "Wir senden Ihnen eine Bestätigungs-E-Mail. Klicken Sie auf den darin enthaltenen Link, um Ihr Passwort zu ändern."
@@ -242,7 +243,7 @@
         "companyNameLabel": "Firma",
         "companyNamePlaceholder": "Firma eingeben ...",
         "companyDepartmentLabel": "Abteilung",
-        "companyDepartmentPlaceholder": "Abteilung eigeben ...",
+        "companyDepartmentPlaceholder": "Abteilung eingeben ...",
         "companyVatLabel": "Umsatzsteuer-ID",
         "companyVatPlaceholder": "Umsatzsteuer-ID eingeben ..."
     },
@@ -323,6 +324,8 @@
         "promotion-discount-added": "Der Rabatt \"%name%\" wurde dem Warenkorb hinzugefügt"
     },
     "listing": {
+        "filterTitleText": "Filter",
+        "showResults": "Ergebnisse anzeigen",
         "boxUnitLabel": "Inhalt:",
         "boxLabelTopseller": "Tipp!",
         "boxLabelNew": "Neu",
@@ -356,7 +359,14 @@
         "subscriptionRevokeSuccess": "Sie haben sich erfolgreich vom Newsletter abgemeldet.",
         "subscriptionConfirmationSuccess": "Ihr Newsletter-Abonnement wurde erfolgreich registriert!",
         "subscriptionConfirmationFailed": "Bei Ihrer Newsletter-Anmeldung ist etwas schief gelaufen, Bitte wenden Sie sich an den Shop-Betreiber.",
-        "subscriptionCompleted": "Vielen Dank. Wir haben Ihre Adresse eingetragen."
+        "subscriptionCompleted": "Vielen Dank. Wir haben Ihre Adresse eingetragen.",
+        "labelActionSelect": "Aktion",
+        "labelMail": "Email Adresse",
+        "labelFirstName": "Vorname",
+        "labelLastName": "Nachname",
+        "placeholderMail": "john@doe.com",
+        "placeholderFirstName": "John",
+        "placeholderLastName": "Doe"
     },
     "contact": {
         "headline": "Kontaktformular",
@@ -405,7 +415,7 @@
         "reviewFormErrorAlert": "Es ist ein Fehler aufgetreten. Bitte überprüfen Sie die Felder.",
         "reviewFormSuccessAlert": "Vielen Dank für Ihre Bewertung. Die Bewertung wird allerdings erst sichtbar, wenn wir sie freischalten. Bitte haben Sie ein wenig Geduld.",
         "reviewFormSuccessUpdateAlert": "Vielen Dank für das Bearbeiten Ihrer Bewertung. Die Bewertung wird wieder sichtbar, sobald wir sie erneut freigeschaltet haben.",
-        "reviewTeaserTitle": "Geben Sie eine Bewertung",
+        "reviewTeaserTitle": "Geben Sie eine Bewertung ab",
         "reviewTeaserText": "Teilen Sie Ihre Erfahrungen mit dem Produkt mit anderen Kunden.",
         "reviewTeaserButton": "Schreiben Sie eine Bewertung",
         "reviewTeaserButtonHide": "Bewertungen anzeigen",

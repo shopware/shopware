@@ -9,7 +9,10 @@ class InvalidRouteScopeException extends ShopwareHttpException
 {
     public function __construct(string $routeName)
     {
-        parent::__construct('Invalid route scope for route {{ routeName }}.', ['routeName' => $routeName]);
+        parent::__construct(
+            'Invalid route scope for route {{ routeName }}.',
+            ['routeName' => $routeName]
+        );
     }
 
     public function getErrorCode(): string

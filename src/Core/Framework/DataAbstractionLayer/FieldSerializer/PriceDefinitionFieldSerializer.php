@@ -65,6 +65,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                     foreach ($value['taxRules'] as $key => $taxRule) {
                         $this->validateProperties($taxRule, TaxRule::getConstraints(), $parameters->getPath() . '/taxRules/' . $key);
                     }
+
                     break;
                 case AbsolutePriceDefinition::TYPE:
                     $this->validateProperties(
@@ -80,6 +81,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                     if ($violations->count() > 0) {
                         throw new WriteConstraintViolationException($violations, $parameters->getPath());
                     }
+
                     break;
                 case PercentagePriceDefinition::TYPE:
                     $this->validateProperties(
@@ -95,6 +97,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                     if ($violations->count() > 0) {
                         throw new WriteConstraintViolationException($violations, $parameters->getPath());
                     }
+
                     break;
                 default:
                     throw new InvalidPriceFieldTypeException($value['type']);

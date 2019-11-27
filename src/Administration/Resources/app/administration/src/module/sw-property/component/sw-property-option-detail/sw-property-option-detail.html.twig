@@ -1,35 +1,46 @@
 {% block sw_property_option_detail %}
-    <sw-modal @modal-close="onCancel" :title="currentOption.name ? currentOption.name : $tc('sw-property.detail.textOptionHeadline')">
+    <sw-modal :title="currentOption.name ? currentOption.name : $tc('sw-property.detail.textOptionHeadline')" @modal-close="onCancel">
         {% block sw_property_option_detail_name %}
-            <sw-field v-model="currentOption.name" type="text" validation="required" required :label="$tc('sw-property.detail.labelOptionName')" :placeholder="$tc('sw-property.detail.placeholderOptionName')" ></sw-field>
+            <sw-text-field
+                v-model="currentOption.name"
+                validation="required"
+                :label="$tc('sw-property.detail.labelOptionName')"
+                :placeholder="$tc('sw-property.detail.placeholderOptionName')"
+                required>
+            </sw-text-field>
         {% endblock %}
 
         {% block sw_property_option_detail_position %}
-            <sw-field v-model="currentOption.position" type="number" :step="1" pattern="[0-9]" :label="$tc('sw-property.detail.labelOptionPosition')" ></sw-field>
+            <sw-number-field
+                v-model="currentOption.position"
+                pattern="[0-9]"
+                :step="1"
+                :label="$tc('sw-property.detail.labelOptionPosition')"
+                :placeholder="$tc('sw-property.detail.placeholderOptionPosition')">
+            </sw-number-field>
         {% endblock %}
 
         {% block sw_property_option_detail_color %}
-            <sw-colorpicker v-model="currentOption.colorHexCode" colorOutput="hex" :label="$tc('sw-property.detail.labelOptionColor')"  :zIndex="1000"></sw-colorpicker>
+            <sw-colorpicker v-model="currentOption.colorHexCode" colorOutput="hex" :label="$tc('sw-property.detail.labelOptionColor')" :zIndex="1000"></sw-colorpicker>
         {% endblock %}
 
         {% block sw_property_option_detail_media %}
             <sw-upload-store-listener
                     :uploadTag="currentOption.id"
-                    @media-upload-add="onUploadsAdded"
+                    autoUpload
                     @media-upload-finish="successfulUpload">
             </sw-upload-store-listener>
-
             <sw-media-compact-upload
-                    :source="currentOption.mediaId"
-                    :uploadTag="currentOption.id"
-                    defaultFolder="product"
-                    @media-upload-remove-image="removeMedia"
-                    @selection-change="setMedia">
+                defaultFolder="product"
+                :source="currentOption.mediaId"
+                :uploadTag="currentOption.id"
+                @media-upload-remove-image="removeMedia"
+                @selection-change="setMedia">
             </sw-media-compact-upload>
         {% endblock %}
 
         {% block sw_property_option_detail_footer %}
-            <template slot="modal-footer">
+            <template #modal-footer>
                 {% block sw_property_option_detail_footer_cancel %}
                     <sw-button size="small" @click="onCancel">
                         {{ $tc('sw-property.detail.buttonCancel') }}

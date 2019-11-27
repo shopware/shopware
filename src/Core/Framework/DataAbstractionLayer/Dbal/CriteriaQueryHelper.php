@@ -100,6 +100,10 @@ trait CriteriaQueryHelper
 
         $primaryKeys = array_values($primaryKeys);
 
+        if (empty($primaryKeys)) {
+            return;
+        }
+
         if (!\is_array($primaryKeys[0]) || \count($primaryKeys[0]) === 1) {
             $primaryKeyField = $definition->getPrimaryKeys()->first();
             if ($primaryKeyField instanceof IdField) {
@@ -227,6 +231,7 @@ trait CriteriaQueryHelper
             if ($sorting->getField() === '_score') {
                 $query->addOrderBy('_score', $sorting->getDirection());
                 $query->addState('_score');
+
                 continue;
             }
 
@@ -366,6 +371,7 @@ trait CriteriaQueryHelper
                     || !$this->isAssociationPath($definition, $field)
                 ) {
                     $normalFilters[] = $childFilter;
+
                     continue;
                 }
                 $antiJoinFilters[] = $childFilter;

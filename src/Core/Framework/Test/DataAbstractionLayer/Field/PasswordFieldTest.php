@@ -88,6 +88,7 @@ class PasswordFieldTest extends TestCase
 
         $exception = null;
         $array = null;
+
         try {
             $handler = $this->getContainer()->get(PasswordFieldSerializer::class);
 
@@ -118,6 +119,7 @@ class PasswordFieldTest extends TestCase
 
         $exception = null;
         $array = null;
+
         try {
             $handler = $this->getContainer()->get(PasswordFieldSerializer::class);
 

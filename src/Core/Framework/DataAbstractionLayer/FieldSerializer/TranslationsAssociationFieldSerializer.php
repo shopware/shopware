@@ -153,6 +153,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
             && !\in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)
         ) {
             $path = $parameters->getPath() . '/' . $key . '/' . Defaults::LANGUAGE_SYSTEM;
+
             throw new MissingSystemTranslationException($path);
         }
 

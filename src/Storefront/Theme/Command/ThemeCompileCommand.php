@@ -39,7 +39,7 @@ class ThemeCompileCommand extends Command
         $this->salesChannelRepository = $salesChannelRepository;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->io = new SymfonyStyle($input, $output);
         $context = Context::createDefaultContext();
@@ -59,7 +59,7 @@ class ThemeCompileCommand extends Command
 
         $this->io->note(sprintf('Took %f seconds', (float) microtime(true) - $start));
 
-        return null;
+        return 0;
     }
 
     private function getSalesChannels(Context $context): SalesChannelCollection

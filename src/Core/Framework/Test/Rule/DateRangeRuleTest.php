@@ -46,6 +46,7 @@ class DateRangeRuleTest extends TestCase
     public function testValidateWithoutParameters(): void
     {
         $conditionId = Uuid::randomHex();
+
         try {
             $this->conditionRepository->create([
                 [

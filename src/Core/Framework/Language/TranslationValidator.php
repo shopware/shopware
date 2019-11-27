@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Language;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\CascadeDeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -44,7 +45,7 @@ class TranslationValidator implements EventSubscriberInterface
         $violations = new ConstraintViolationList();
 
         foreach ($writeCommands as $writeCommand) {
-            if (!$writeCommand instanceof DeleteCommand) {
+            if (!$writeCommand instanceof DeleteCommand || $writeCommand instanceof CascadeDeleteCommand) {
                 continue;
             }
             $pk = $writeCommand->getPrimaryKey();

@@ -74,6 +74,7 @@ class IndexingMessageHandler extends AbstractMessageHandler
             if ($key === 'extensions') {
                 $extensions = $document;
                 unset($documents['extensions']);
+
                 continue;
             }
 

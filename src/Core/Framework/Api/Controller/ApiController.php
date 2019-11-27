@@ -217,8 +217,8 @@ class ApiController extends AbstractController
         $entity = $this->urlToSnakeCase($entity);
         $this->checkIfRouteAvailableInApiVersion($entity, $version);
 
-        $versionId = $request->query->get('versionId');
-        $versionName = $request->query->get('versionName');
+        $versionId = $request->request->get('versionId');
+        $versionName = $request->request->get('versionName');
 
         if ($versionId !== null && !Uuid::isValid($versionId)) {
             throw new InvalidUuidException($versionId);
@@ -279,7 +279,7 @@ class ApiController extends AbstractController
      * @throws InvalidUuidException
      * @throws InvalidVersionNameException
      */
-    public function deleteVersion(Context $context, string $entity, string $entityId, string $versionId): Response
+    public function deleteVersion(Context $context, string $entity, string $entityId, string $versionId): JsonResponse
     {
         if ($versionId !== null && !Uuid::isValid($versionId)) {
             throw new InvalidUuidException($versionId);
@@ -290,7 +290,7 @@ class ApiController extends AbstractController
         }
 
         try {
-            $entityDefinition = $this->definitionRegistry->getByEntityName($entity);
+            $entityDefinition = $this->definitionRegistry->getByEntityName($this->urlToSnakeCase($entity));
         } catch (DefinitionNotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         }
@@ -680,6 +680,7 @@ class ApiController extends AbstractController
 
         if ($type === self::WRITE_CREATE && !empty($last['value'])) {
             $methods = ['GET', 'PATCH', 'DELETE'];
+
             throw new MethodNotAllowedHttpException($methods, sprintf('No route found for "%s %s": Method Not Allowed (Allow: %s)', $request->getMethod(), $request->getPathInfo(), implode(', ', $methods)));
         }
 
@@ -910,6 +911,7 @@ class ApiController extends AbstractController
             $field = $root->getFields()->get($part['entity']);
             if (!$field) {
                 $path = implode('.', array_column($entities, 'entity')) . '.' . $part['entity'];
+
                 throw new NotFoundHttpException(sprintf('Resource at path "%s" is not an existing relation.', $path));
             }
 

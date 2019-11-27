@@ -5,6 +5,10 @@ const { Component, StateDeprecated } = Shopware;
 Component.register('sw-property-option-detail', {
     template,
 
+    inject: [
+        'repositoryFactory'
+    ],
+
     props: {
         currentOption: {
             type: Object,
@@ -19,6 +23,10 @@ Component.register('sw-property-option-detail', {
             return StateDeprecated.getStore('media');
         },
 
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
+        },
+
         uploadStore() {
             return StateDeprecated.getStore('upload');
         }
@@ -26,9 +34,6 @@ Component.register('sw-property-option-detail', {
 
     methods: {
         onCancel() {
-            if (this.currentOption !== null) {
-                this.currentOption.discardChanges();
-            }
             this.$emit('cancel-option-edit', this.currentOption);
         },
 
@@ -36,23 +41,10 @@ Component.register('sw-property-option-detail', {
             this.$emit('save-option-edit', this.currentOption);
         },
 
-        onUploadsAdded({ data }) {
-            if (data.length === 0) {
-                return;
-            }
-
-            this.mediaStore.sync().then(() => {
-                data.forEach((upload) => {
-                    this.currentOption.mediaId = upload.targetId;
-                });
-                this.uploadStore.runUploads(this.currentOption.id);
-            });
-        },
-
         successfulUpload({ targetId }) {
-            this.mediaStore.getByIdAsync(targetId).then(() => {
-                this.$forceUpdate();
-            });
+            this.currentOption.mediaId = targetId;
+            return this.mediaRepository.get(targetId, Shopware.Context.api)
+                .then((media) => { return media; });
         },
 
         removeMedia() {

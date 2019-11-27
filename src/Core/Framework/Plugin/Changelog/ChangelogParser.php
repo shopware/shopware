@@ -19,6 +19,7 @@ class ChangelogParser
             switch ($line[0]) {
                 case '#':
                     $currentRelease = $this->parseTitle($line);
+
                     break;
                 case '-':
                 case '*':
@@ -26,6 +27,7 @@ class ChangelogParser
                         throw new PluginChangelogInvalidException($path);
                     }
                     $releases[$currentRelease][] = $this->parseItem($line);
+
                     break;
             }
         }

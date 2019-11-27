@@ -49,7 +49,7 @@ class LineItemRule extends Rule
                 return !\in_array($scope->getLineItem()->getId(), $this->identifiers, true);
 
             default:
-                throw new UnsupportedOperatorException($this->operator, __CLASS__);
+                throw new UnsupportedOperatorException($this->operator, self::class);
         }
     }
 

@@ -1,40 +1,33 @@
 import template from './sw-property-create.html.twig';
 
-const { Component, StateDeprecated } = Shopware;
-const utils = Shopware.Utils;
+const { Component } = Shopware;
 
 Component.extend('sw-property-create', 'sw-property-detail', {
     template,
 
-    beforeRouteEnter(to, from, next) {
-        if (to.name.includes('sw.property.create') && !to.params.id) {
-            to.params.id = utils.createId();
-        }
-
-        next();
-    },
-
-    computed: {
-        languageStore() {
-            return StateDeprecated.getStore('language');
-        }
+    data() {
+        return {
+            newId: null
+        };
     },
 
     methods: {
         createdComponent() {
-            if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {
-                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            if (Shopware.Context.api.languageId !== Shopware.Context.api.systemLanguageId) {
+                Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
             }
 
-            this.group = this.groupStore.create(this.$route.params.id);
-            this.group.sortingType = 'alphanumeric';
-            this.group.displayType = 'text';
-            this.groupId = this.group.id;
+            this.propertyGroup = this.propertyRepository.create(Shopware.Context.api);
+            this.propertyGroup.sortingType = 'alphanumeric';
+            this.propertyGroup.displayType = 'text';
+            this.newId = this.propertyGroup.id;
+
+            this.isLoading = false;
         },
 
         saveFinish() {
             this.isSaveSuccessful = false;
-            this.$router.push({ name: 'sw.property.detail', params: { id: this.groupId } });
+            this.$router.push({ name: 'sw.property.detail', params: { id: this.newId } });
         },
 
         onSave() {

@@ -110,6 +110,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             // container products can not be bought
             if ($product->getChildCount() > 0) {
                 $original->remove($lineItem->getId());
+
                 continue;
             }
 
@@ -252,6 +253,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             // user change line item quantity or price?
             if ($lineItem->isModified()) {
                 $ids[] = $id;
+
                 continue;
             }
 

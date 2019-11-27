@@ -3,11 +3,14 @@
 namespace Shopware\Storefront\Framework\Routing;
 
 use Shopware\Core\Framework\Routing\AbstractRouteScope;
+use Shopware\Core\Framework\Routing\SalesChannelContextRouteScopeDependant;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpFoundation\Request;
 
-class StorefrontRouteScope extends AbstractRouteScope
+class StorefrontRouteScope extends AbstractRouteScope implements SalesChannelContextRouteScopeDependant
 {
+    public const ID = 'storefront';
+
     /**
      * @var string[]
      */
@@ -22,6 +25,6 @@ class StorefrontRouteScope extends AbstractRouteScope
 
     public function getId(): string
     {
-        return 'storefront';
+        return self::ID;
     }
 }

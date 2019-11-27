@@ -101,7 +101,7 @@ EOL;
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $name = $input->getArgument('name');
         $name = ucfirst($name);
@@ -145,6 +145,6 @@ EOL;
             file_put_contents($configXmlFile, $configXml);
         }
 
-        return null;
+        return 0;
     }
 }

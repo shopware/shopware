@@ -67,6 +67,7 @@ class ProductPageConfiguratorLoader
                 $combinable = $this->isCombinable($option, $current, $combinations);
                 if ($combinable === null) {
                     $group->getOptions()->remove($option->getId());
+
                     continue;
                 }
 

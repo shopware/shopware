@@ -70,6 +70,7 @@ class EntityDefinitionQueryHelper
                 $source = $source->getTranslationDefinition();
                 $fields = $source->getFields();
                 $accessorFields[] = $fields->get($part);
+
                 continue;
             }
 

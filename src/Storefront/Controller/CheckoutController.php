@@ -149,6 +149,7 @@ class CheckoutController extends StorefrontController
         }
 
         $formViolations = null;
+
         try {
             $orderId = $this->orderService->createOrder($data, $context);
             $this->addAffiliateTracking($orderId, $request, $context);

@@ -227,6 +227,7 @@ class EntityLoadedEvent extends NestedEvent implements GenericEvent
             foreach ($nested as $nestedDefinition => $nestedCollection) {
                 if (!isset($events[$nestedDefinition])) {
                     $events[$nestedDefinition] = $nestedCollection;
+
                     continue;
                 }
 

@@ -189,6 +189,8 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
       * The event emits two values: the actual selection and the selection count of the `sw-data-grid`.
       * `change-selection` should be preferred over `select-item` if you are interested in the selection itself and not in a specific item that was selected.
     * Added custom fields to categories 
+    * Updated Symfony Dependencies to version `4.4.0`.    
+    * Added cms block `form`
 * Core
     * Moved the seo module from the storefront into the core.
     * Switched the execution condition of `\Shopware\Core\Framework\Migration\MigrationStep::addBackwardTrigger()` and `\Shopware\Core\Framework\Migration\MigrationStep::addForwardTrigger()` to match the execution conditions in the methods documentation.
@@ -283,6 +285,13 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Moved `Shopware\Core\Content\Newsletter\SalesChannelNewsletterController` to `Shopware\Core\Content\Newsletter\SalesChannel\SalesChannelNewsletterController`
     * The MigrationController and MediaFolderController now return StatusCode 204 without content on successful requests
     * Renamed `\Shopware\Core\Framework\Api\Converter\ConverterService` to `\Shopware\Core\Framework\Api\Converter\ApiVersionConverter`
+    * Added `\Shopware\Core\Framework\PersonalData\CleanPersonalDataCommand` to removing personal data by the cli command: "bin/console database:clean-personal-data"
+        * use the command with the argument "guests" to remove guests without orders
+        * use the command with the argument "carts" to remove canceled carts
+        * use the command with the option "--all" to remove both of them.
+        * with the option "--days" it is possible to remove the data which is same old and older than the given number of days
+    * Updated Symfony dependencies to version `4.4.0`.    
+    * We removed the `\Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface`, use `\Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand` instead
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain
@@ -297,11 +306,15 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Extended the `\Shopware\Storefront\Controller\RegisterController::register` method with the double opt in logic (only if set in the admin settings)
     * Added new method `\Shopware\Storefront\Controller\RegisterController::confirmRegistration` to confirm double opt in registrations or email addresses
     * Added twig filter `sw_sanitize` to filter unwanted tags and attributes (prevent XSS)
+    * The filter plugin moves to the offcanvas when the user is in mobile view
+    * Updated Symfony Dependencies to version `4.4.0`.    
+    * Added the `referencePrice` of a product to the `offcanvas cart` and the `ajax-search`
 * Elasticsearch
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.
         * You can set them with a parameter.yml too.
     * The extensions are now saved at the top level of the entities.
     * Updated `ongr/elasticsearch-dsl` to version `7.0.0`
+    * Updated Symfony Dependencies to version `4.4.0`.    
 
 **Removals**
 

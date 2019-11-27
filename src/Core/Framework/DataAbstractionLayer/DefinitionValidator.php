@@ -6,6 +6,7 @@ use Doctrine\Common\Inflector\Inflector;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Schema\Table;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -203,9 +204,10 @@ class DefinitionValidator
             if (\in_array($table->getName(), self::TABLES_WITHOUT_DEFINITION, true)) {
                 continue;
             }
+
             try {
                 $this->registry->getByEntityName($table->getName());
-            } catch (Exception\DefinitionNotFoundException $e) {
+            } catch (DefinitionNotFoundException $e) {
                 $violations[] = sprintf(
                     'Table %s has no configured definition',
                     $table->getName()
@@ -328,6 +330,7 @@ class DefinitionValidator
             foreach ($getterMethods as $getterMethod) {
                 if ($reflection->hasMethod($getterMethod)) {
                     $hasGetter = true;
+
                     break;
                 }
             }
@@ -436,6 +439,7 @@ class DefinitionValidator
 
             if (!$method->hasReturnType()) {
                 $violations[$translationDefinition->getClass()][] = sprintf('No return type is declared in `%s` for method `%s`', $translationDefinition->getClass(), $method->getName());
+
                 continue;
             }
 
@@ -712,6 +716,7 @@ class DefinitionValidator
 
             if ($field) {
                 $mappedFieldNames[] = $field->getPropertyName();
+
                 continue;
             }
 
@@ -720,6 +725,7 @@ class DefinitionValidator
 
             if ($association instanceof AssociationField && $association->is(Inherited::class)) {
                 $mappedFieldNames[] = $association->getPropertyName();
+
                 continue;
             }
 

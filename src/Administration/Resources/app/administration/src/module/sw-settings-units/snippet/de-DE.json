@@ -1,9 +1,9 @@
 {
   "sw-settings-units": {
     "general": {
-      "mainMenuItemGeneral": "Einheiten",
+      "mainMenuItemGeneral": "Maßeinheiten",
       "placeholderSearchBar": "Durchsuche alle Maßeinheiten ...",
-      "createNewUnit": "Einheit erstellen"
+      "createNewUnit": "Maßeinheit erstellen"
     },
     "grid": {
       "columnName": "Name",
@@ -11,14 +11,14 @@
       "contextMenuDelete": "Löschen"
     },
     "empty-state": {
-      "title": "Noch keine Einheiten vorhanden",
-      "subline": "Verwaltung von Einheiten."
+      "title": "Noch keine Maßeinheiten vorhanden",
+      "subline": "Verwaltung von Maßeinheiten."
     },
     "notification": {
-      "successTitle": "Einheit gespeichert",
-      "successMessage": "Die Einheit wurde erfolgreich gespeichert.",
+      "successTitle": "Maßeinheit gespeichert",
+      "successMessage": "Die Maßeinheit wurde erfolgreich gespeichert.",
       "errorTitle": "Fehler",
-      "errorMessage": "Die Einheit konnte nicht gespeichert werden. Überprüfe, ob alle Felder ausgefüllt sind."
+      "errorMessage": "Die Maßeinheit konnte nicht gespeichert werden. Überprüfe, ob alle Felder ausgefüllt sind."
     }
   }
 }

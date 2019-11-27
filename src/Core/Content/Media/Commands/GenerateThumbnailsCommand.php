@@ -109,7 +109,7 @@ class GenerateThumbnailsCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->io = new ShopwareStyle($input, $output);
         $context = Context::createDefaultContext();
@@ -124,7 +124,7 @@ class GenerateThumbnailsCommand extends Command
             $this->generateAsynchronous($mediaIterator, $context);
         }
 
-        return null;
+        return 0;
     }
 
     private function initializeCommand(InputInterface $input, Context $context): void

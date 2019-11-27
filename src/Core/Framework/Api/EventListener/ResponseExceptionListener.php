@@ -34,7 +34,7 @@ class ResponseExceptionListener implements EventSubscriberInterface
             return $event;
         }
 
-        $exception = $event->getException();
+        $exception = $event->getThrowable();
 
         $event->setResponse((new ErrorResponseFactory())->getResponseFromException($exception, $this->debug));
 

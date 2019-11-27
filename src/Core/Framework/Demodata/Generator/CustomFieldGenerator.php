@@ -113,6 +113,7 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
                     ],
                     'customFieldPosition' => 1,
                 ];
+
                 break;
             case CustomFieldTypes::FLOAT:
                 $config = [
@@ -128,6 +129,7 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
                     ],
                     'customFieldPosition' => 1,
                 ];
+
                 break;
             case CustomFieldTypes::DATETIME:
                 $config = [
@@ -140,6 +142,7 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
                     ],
                     'customFieldPosition' => 1,
                 ];
+
                 break;
             case CustomFieldTypes::BOOL:
                 $config = [
@@ -151,6 +154,7 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
                     ],
                     'customFieldPosition' => 1,
                 ];
+
                 break;
             default:
                 $config = [
@@ -165,6 +169,7 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
                     ],
                     'customFieldPosition' => 1,
                 ];
+
                 break;
         }
 

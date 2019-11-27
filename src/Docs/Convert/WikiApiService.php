@@ -326,6 +326,7 @@ class WikiApiService
         foreach ($chain as $parentCategory) {
             if ($parentCategory->getCategoryId()) {
                 $prevEntryId = $parentCategory->getCategoryId();
+
                 continue;
             }
 
@@ -673,11 +674,13 @@ class WikiApiService
 
             if (!$categoryId) {
                 echo 'Skipping category ' . $document->getFile()->getRelativePathname() . " - no sync reason found\n";
+
                 continue;
             }
 
             if (!$parentId) {
                 echo 'Skipping category ' . $document->getFile()->getRelativePathname() . " - parent not synced\n";
+
                 continue;
             }
 

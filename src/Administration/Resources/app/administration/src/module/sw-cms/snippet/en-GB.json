@@ -317,6 +317,56 @@
       },
       "youtubeVideo": {
         "label": "YouTube video"
+      },
+      "form": {
+        "config": {
+          "label": {
+            "receiverEmail": "Receiver addresses",
+            "title": "Title",
+            "type": "Form type",
+            "typeContact": "Contact",
+            "typeNewsletter": "Newsletter",
+            "confirmationText": "Confirmation text"
+          },
+          "placeholder": {
+            "type": "Choose a form type..."
+          }
+        },
+        "element": {
+          "label": {
+            "action": "Action",
+            "email": "Email address*",
+            "firstName": "First name*",
+            "lastName" : "Last name*",
+            "message": "Your message*",
+            "newsletterSubmit": "Continue",
+            "phone": "Phone number",
+            "privacy": "Privacy",
+            "salutation": "Salutation*",
+            "salutationUndisclosed" : "Prefer not to disclose",
+            "send": "Send",
+            "subject": "Subject line*",
+            "subscribeToNewsletter": "Subscribe to newsletter"
+          },
+          "placeholder": {
+            "firstName": "John",
+            "lastName": "Doe",
+            "email": "john@doe.com",
+            "phone": "+4920 3920173",
+            "subject": "Lorem ipsum dolor sit amet.",
+            "message": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum."
+          },
+          "helpText": {
+            "privacy": "I have read the data protection information.",
+            "requiredFields": "Fields marked with * are required"
+          }
+        },
+        "preview": {
+          "label": {
+            "form": "Form",
+            "send": "Send"
+          }
+        }
       }
     },
     "blocks": {

@@ -45,6 +45,11 @@
             <tag name="shopware.cms.data_resolver"/>
         </service>
 
+        <service id="Shopware\Core\Content\Cms\DataResolver\Element\FormCmsElementResolver">
+            <tag name="shopware.cms.data_resolver"/>
+            <argument type="service" id="salutation.repository"/>
+        </service>
+
         <service id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageController" public="true">
             <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>
             <argument type="service" id="Shopware\Core\Content\Cms\CmsPageDefinition" />

@@ -25,7 +25,8 @@
         "required": "*",
         "requiredFields": "Fields marked with asterisks (*) are required.",
         "privacyTitle": "Privacy",
-        "privacyNotice": "I have read the <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Data protection information\">data protection information</a>."
+        "privacyNotice": "I have read the <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Data protection information\">data protection information</a>.",
+        "formSubmit": "Submit"
     },
     "header": {
         "logoLink": "Go to homepage",
@@ -358,7 +359,14 @@
         "subscriptionRevokeSuccess": "You have unsubscribed from the newsletter.",
         "subscriptionConfirmationSuccess": "You have subscribed to the newsletter.",
         "subscriptionConfirmationFailed": "Newsletter subscription did not work properly, please contact us.",
-        "subscriptionCompleted": "Thank you! We have stored your address."
+        "subscriptionCompleted": "Thank you! We have stored your address.",
+        "labelActionSelect": "Action",
+        "labelMail": "Email Address",
+        "labelFirstName": "First Name",
+        "labelLastName": "Last Name",
+        "placeholderMail": "john@doe.com",
+        "placeholderFirstName": "John",
+        "placeholderLastName": "Doe"
     },
     "contact": {
         "headline": "Contact",

@@ -25,7 +25,8 @@
         "required": "*",
         "requiredFields": "* hierbei handelt es sich um ein Pflichtfeld",
         "privacyTitle": "Datenschutz",
-        "privacyNotice": "Ich habe die <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen."
+        "privacyNotice": "Ich habe die <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen.",
+        "formSubmit": "Absenden"
     },
     "header": {
         "logoLink": "zur Startseite wechseln",
@@ -358,7 +359,14 @@
         "subscriptionRevokeSuccess": "Sie haben sich erfolgreich vom Newsletter abgemeldet.",
         "subscriptionConfirmationSuccess": "Ihr Newsletter-Abonnement wurde erfolgreich registriert!",
         "subscriptionConfirmationFailed": "Bei Ihrer Newsletter-Anmeldung ist etwas schief gelaufen, Bitte wenden Sie sich an den Shop-Betreiber.",
-        "subscriptionCompleted": "Vielen Dank. Wir haben Ihre Adresse eingetragen."
+        "subscriptionCompleted": "Vielen Dank. Wir haben Ihre Adresse eingetragen.",
+        "labelActionSelect": "Aktion",
+        "labelMail": "Email Adresse",
+        "labelFirstName": "Vorname",
+        "labelLastName": "Nachname",
+        "placeholderMail": "john@doe.com",
+        "placeholderFirstName": "John",
+        "placeholderLastName": "Doe"
     },
     "contact": {
         "headline": "Kontaktformular",

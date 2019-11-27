@@ -190,6 +190,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
       * `change-selection` should be preferred over `select-item` if you are interested in the selection itself and not in a specific item that was selected.
     * Added custom fields to categories 
     * Updated Symfony Dependencies to version `4.4.0`.    
+    * Added cms block `form`
 * Core
     * Moved the seo module from the storefront into the core.
     * Switched the execution condition of `\Shopware\Core\Framework\Migration\MigrationStep::addBackwardTrigger()` and `\Shopware\Core\Framework\Migration\MigrationStep::addForwardTrigger()` to match the execution conditions in the methods documentation.

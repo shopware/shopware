@@ -12,8 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Plugin\Context\InstallContext;
-use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
@@ -171,16 +169,15 @@ class SystemConfigService
     /**
      * Fetches default values from bundle configuration and saves it to database.
      *
-     * @param Bundle              $bundle  The bundle or plugin.
-     * @param InstallContext|null $context Used for plugins.
+     * @param Bundle $bundle   The bundle or plugin.
+     * @param bool   $override Whether the existing values should be overridden.
      *
      * @throws Exception\BundleConfigNotFoundException
      */
-    public function savePluginConfiguration(Bundle $bundle, InstallContext $context = null): void
+    public function savePluginConfiguration(Bundle $bundle, bool $override = true): void
     {
         $config     = $this->configReader->getConfigFromBundle($bundle);
         $prefix     = $bundle->getName() . '.config.'; // todo: Make this dynamically, see https://github.com/shopware/platform/pull/310
-        $noOverride = $context instanceof UpdateContext;
 
         foreach ($config as $card) {
             foreach ($card['elements'] as $element) {
@@ -189,7 +186,7 @@ class SystemConfigService
 
                 if (
                     !empty($value)
-                    && ($noOverride && !$this->get($key))
+                    && ($override || !$this->get($key))
                 ) {
                     $this->set($key, $value);
                 }

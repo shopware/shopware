@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
-use Shopware\Core\Framework\Migration\MigrationRuntime;
+use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
@@ -65,19 +65,9 @@ class PluginLifecycleService
     private $container;
 
     /**
-     * @var MigrationCollection
-     */
-    private $migrationCollection;
-
-    /**
      * @var MigrationCollectionLoader
      */
     private $migrationLoader;
-
-    /**
-     * @var MigrationRuntime
-     */
-    private $migrationRunner;
 
     /**
      * @var Connection
@@ -119,9 +109,7 @@ class PluginLifecycleService
         EventDispatcherInterface $eventDispatcher,
         KernelPluginCollection $pluginCollection,
         ContainerInterface $container,
-        MigrationCollection $migrationCollection,
         MigrationCollectionLoader $migrationLoader,
-        MigrationRuntime $migrationRunner,
         Connection $connection,
         AssetService $assetInstaller,
         CommandExecutor $executor,
@@ -134,9 +122,7 @@ class PluginLifecycleService
         $this->eventDispatcher = $eventDispatcher;
         $this->pluginCollection = $pluginCollection;
         $this->container = $container;
-        $this->migrationCollection = $migrationCollection;
         $this->migrationLoader = $migrationLoader;
-        $this->migrationRunner = $migrationRunner;
         $this->connection = $connection;
         $this->assetInstaller = $assetInstaller;
         $this->executor = $executor;
@@ -158,7 +144,8 @@ class PluginLifecycleService
             $pluginBaseClass,
             $shopwareContext,
             $this->shopwareVersion,
-            $pluginVersion
+            $pluginVersion,
+            $this->createMigrationCollection($pluginBaseClass)
         );
 
         if ($plugin->getInstalledAt()) {
@@ -192,7 +179,7 @@ class PluginLifecycleService
 
         $pluginBaseClass->install($installContext);
 
-        $this->runMigrations($pluginBaseClass);
+        $this->runMigrations($installContext);
 
         $installDate = new \DateTime();
         $pluginData['installedAt'] = $installDate->format(Defaults::STORAGE_DATE_TIME_FORMAT);
@@ -231,8 +218,10 @@ class PluginLifecycleService
             $shopwareContext,
             $this->shopwareVersion,
             $plugin->getVersion(),
+            $this->createMigrationCollection($pluginBaseClass),
             $keepUserData
         );
+        $uninstallContext->setAutoMigrate(false);
 
         $this->eventDispatcher->dispatch(new PluginPreUninstallEvent($plugin, $uninstallContext));
         $this->assetInstaller->removeAssetsOfBundle($pluginBaseClassString);
@@ -272,6 +261,7 @@ class PluginLifecycleService
             $shopwareContext,
             $this->shopwareVersion,
             $plugin->getVersion(),
+            $this->createMigrationCollection($pluginBaseClass),
             $plugin->getUpgradeVersion() ?? $plugin->getVersion()
         );
 
@@ -291,7 +281,7 @@ class PluginLifecycleService
             $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString);
         }
 
-        $this->runMigrations($pluginBaseClass);
+        $this->runMigrations($updateContext);
 
         $updateVersion = $updateContext->getUpdatePluginVersion();
         $updateDate = new \DateTime();
@@ -331,7 +321,8 @@ class PluginLifecycleService
             $pluginBaseClass,
             $shopwareContext,
             $this->shopwareVersion,
-            $plugin->getVersion()
+            $plugin->getVersion(),
+            $this->createMigrationCollection($pluginBaseClass)
         );
 
         if ($plugin->getActive()) {
@@ -349,10 +340,14 @@ class PluginLifecycleService
             $pluginBaseClass,
             $shopwareContext,
             $this->shopwareVersion,
-            $plugin->getVersion()
+            $plugin->getVersion(),
+            $this->createMigrationCollection($pluginBaseClass)
         );
+        $activateContext->setAutoMigrate(false);
 
         $pluginBaseClass->activate($activateContext);
+
+        $this->runMigrations($activateContext);
         $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString);
 
         $this->updatePluginData(
@@ -363,10 +358,7 @@ class PluginLifecycleService
             $shopwareContext
         );
 
-        // stop in old cache dir
-        $cacheItem = $this->restartSignalCachePool->getItem(StopWorkerOnRestartSignalListener::RESTART_REQUESTED_TIMESTAMP_KEY);
-        $cacheItem->set(microtime(true));
-        $this->restartSignalCachePool->save($cacheItem);
+        $this->signalWorkerStopInOldCacheDir();
 
         $this->eventDispatcher->dispatch(new PluginPostActivateEvent($plugin, $activateContext));
 
@@ -394,8 +386,10 @@ class PluginLifecycleService
             $pluginBaseClass,
             $shopwareContext,
             $this->shopwareVersion,
-            $plugin->getVersion()
+            $plugin->getVersion(),
+            $this->createMigrationCollection($pluginBaseClass)
         );
+        $deactivateContext->setAutoMigrate(false);
 
         $this->eventDispatcher->dispatch(new PluginPreDeactivateEvent($plugin, $deactivateContext));
 
@@ -413,10 +407,7 @@ class PluginLifecycleService
             $shopwareContext
         );
 
-        // signal worker stop in old cache dir
-        $cacheItem = $this->restartSignalCachePool->getItem(StopWorkerOnRestartSignalListener::RESTART_REQUESTED_TIMESTAMP_KEY);
-        $cacheItem->set(microtime(true));
-        $this->restartSignalCachePool->save($cacheItem);
+        $this->signalWorkerStopInOldCacheDir();
 
         $this->eventDispatcher->dispatch(new PluginPostDeactivateEvent($plugin, $deactivateContext));
 
@@ -437,7 +428,7 @@ class PluginLifecycleService
         return $baseClass;
     }
 
-    private function runMigrations(Plugin $pluginBaseClass): void
+    private function createMigrationCollection(Plugin $pluginBaseClass): MigrationCollection
     {
         $migrationPath = str_replace(
             '\\',
@@ -450,12 +441,28 @@ class PluginLifecycleService
         );
 
         if (!is_dir($migrationPath)) {
+            return $this->migrationLoader->collect('null');
+        }
+
+        $this->migrationLoader->addSource(new MigrationSource($pluginBaseClass->getName(), [
+            $migrationPath => $pluginBaseClass->getMigrationNamespace(),
+        ]));
+
+        $collection = $this->migrationLoader
+            ->collect($pluginBaseClass->getName());
+
+        $collection->sync();
+
+        return $collection;
+    }
+
+    private function runMigrations(InstallContext $context): void
+    {
+        if (!$context->isAutoMigrate()) {
             return;
         }
 
-        $this->migrationCollection->addDirectory($migrationPath, $pluginBaseClass->getMigrationNamespace());
-        $this->migrationLoader->syncMigrationCollection($pluginBaseClass->getNamespace());
-        iterator_to_array($this->migrationRunner->migrate());
+        $context->getMigrationCollection()->migrateInPlace();
     }
 
     private function removeMigrations(Plugin $pluginBaseClass): void
@@ -526,5 +533,12 @@ class PluginLifecycleService
         }
 
         return $this->getPluginBaseClass($pluginBaseClassString);
+    }
+
+    private function signalWorkerStopInOldCacheDir(): void
+    {
+        $cacheItem = $this->restartSignalCachePool->getItem(StopWorkerOnRestartSignalListener::RESTART_REQUESTED_TIMESTAMP_KEY);
+        $cacheItem->set(microtime(true));
+        $this->restartSignalCachePool->save($cacheItem);
     }
 }

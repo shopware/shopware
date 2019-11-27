@@ -105,7 +105,7 @@ abstract class Plugin extends Bundle
         $canonicalizedPluginClassPath = parent::getPath();
         $canonicalizedPluginPath = realpath($this->basePath);
 
-        if (mb_strpos($canonicalizedPluginClassPath, $canonicalizedPluginPath) === 0) {
+        if ($canonicalizedPluginPath !== false && mb_strpos($canonicalizedPluginClassPath, $canonicalizedPluginPath) === 0) {
             $relativePluginClassPath = mb_substr($canonicalizedPluginClassPath, mb_strlen($canonicalizedPluginPath));
 
             return $this->basePath . $relativePluginClassPath;

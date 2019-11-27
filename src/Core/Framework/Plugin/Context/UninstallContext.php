@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Plugin\Context;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Plugin;
 
 class UninstallContext extends InstallContext
@@ -17,9 +18,10 @@ class UninstallContext extends InstallContext
         Context $context,
         string $currentShopwareVersion,
         string $currentPluginVersion,
+        MigrationCollection $migrationCollection,
         bool $keepUserData
     ) {
-        parent::__construct($plugin, $context, $currentShopwareVersion, $currentPluginVersion);
+        parent::__construct($plugin, $context, $currentShopwareVersion, $currentPluginVersion, $migrationCollection);
         $this->keepUserData = $keepUserData;
     }
 

@@ -6,10 +6,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Plugin\Changelog\ChangelogParser;
 use Shopware\Core\Framework\Plugin\Changelog\ChangelogService;
+use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use SwagTest\SwagTest;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait PluginTestsHelper
 {
@@ -50,5 +52,18 @@ trait PluginTestsHelper
             ],
             $context
         );
+    }
+
+    abstract protected function getContainer(): ContainerInterface;
+
+    private function addTestPluginToKernel($pluginName): void
+    {
+        $testPluginBaseDir = __DIR__ . '/_fixture/plugins/' . $pluginName;
+        $class = $pluginName . '\\' . $pluginName;
+
+        require_once $testPluginBaseDir . '/src/' . $pluginName . '.php';
+
+        $this->container->get(KernelPluginCollection::class)
+            ->add(new $class(false, $testPluginBaseDir));
     }
 }

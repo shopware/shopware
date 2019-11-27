@@ -6,13 +6,12 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
-use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
-class MigrationRuntimeTest extends TestCase
+class MigrationCollectionRuntimeTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    private const MIGRATION_IDENTIFIER = 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time_exceptions';
+    use MigrationTestBehaviour;
 
     /**
      * @var Connection
@@ -20,33 +19,27 @@ class MigrationRuntimeTest extends TestCase
     private $connection;
 
     /**
-     * @var MigrationRuntime
+     * @var MigrationCollection
      */
-    private $runner;
+    private $validMigrationCollection;
 
     /**
      * @var MigrationCollection
      */
-    private $collector;
-
-    /**
-     * @var MigrationCollectionLoader
-     */
-    private $loader;
+    private $exceptionMigrationCollection;
 
     protected function setUp(): void
     {
         $container = $this->getContainer();
 
         $this->connection = $container->get(Connection::class);
-        $this->runner = $container->get(MigrationRuntime::class);
+        $loader = $container->get(MigrationCollectionLoader::class);
 
-        $this->collector = new MigrationCollection([
-            'Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time' => __DIR__ . '/_test_migrations_valid_run_time',
-        ]);
-        $this->loader = new MigrationCollectionLoader($this->connection, $this->collector);
+        $this->validMigrationCollection = $loader->collect('_test_migrations_valid_run_time');
+        $this->exceptionMigrationCollection = $loader->collect('_test_migrations_valid_run_time_exceptions');
 
-        $this->loader->syncMigrationCollection('Shopware\Core\Framework\Test\Migration');
+        $this->validMigrationCollection->sync();
+        $this->exceptionMigrationCollection->sync();
     }
 
     protected function tearDown(): void
@@ -58,6 +51,19 @@ class MigrationRuntimeTest extends TestCase
         );
     }
 
+    public function testMigrationExecutionInGenerall(): void
+    {
+        $cnt = 0;
+        $generator = $this->validMigrationCollection->migrateInSteps();
+
+        while ($generator->valid()) {
+            $generator->next();
+            ++$cnt;
+        }
+
+        static::assertSame(2, $cnt);
+    }
+
     public function testItWorksWithASingleMigration(): void
     {
         $migrations = $this->getMigrations();
@@ -66,10 +72,7 @@ class MigrationRuntimeTest extends TestCase
         static::assertNull($migrations[1]['update']);
         static::assertNull($migrations[1]['update_destructive']);
 
-        $runner = $this->runner->migrate(null, 1);
-        while ($runner->valid()) {
-            $runner->next();
-        }
+        static::assertCount(1, $this->validMigrationCollection->migrateInPlace(null, 1));
 
         $migrations = $this->getMigrations();
         static::assertNotNull($migrations[0]['update']);
@@ -86,10 +89,7 @@ class MigrationRuntimeTest extends TestCase
         static::assertNull($migrations[1]['update']);
         static::assertNull($migrations[1]['update_destructive']);
 
-        $runner = $this->runner->migrate();
-        while ($runner->valid()) {
-            $runner->next();
-        }
+        $this->validMigrationCollection->migrateInPlace();
 
         $migrations = $this->getMigrations();
         static::assertNotNull($migrations[0]['update']);
@@ -106,10 +106,7 @@ class MigrationRuntimeTest extends TestCase
         static::assertNull($migrations[1]['update']);
         static::assertNull($migrations[1]['update_destructive']);
 
-        $runner = $this->runner->migrate();
-        while ($runner->valid()) {
-            $runner->next();
-        }
+        $this->validMigrationCollection->migrateInPlace();
 
         $migrations = $this->getMigrations();
         static::assertNotNull($migrations[0]['update']);
@@ -119,10 +116,7 @@ class MigrationRuntimeTest extends TestCase
 
         $oldDate = $migrations[0]['update'];
 
-        $runner = $this->runner->migrate();
-        while ($runner->valid()) {
-            $runner->next();
-        }
+        $this->validMigrationCollection->migrateInPlace();
 
         $migrations = $this->getMigrations();
         static::assertSame($oldDate, $migrations[0]['update']);
@@ -140,10 +134,7 @@ class MigrationRuntimeTest extends TestCase
         static::assertNull($migrations[1]['update']);
         static::assertNull($migrations[1]['update_destructive']);
 
-        $runner = $this->runner->migrateDestructive();
-        while ($runner->valid()) {
-            $runner->next();
-        }
+        $this->validMigrationCollection->migrateDestructiveInPlace();
 
         $migrations = $this->getMigrations();
         static::assertNull($migrations[0]['update']);
@@ -160,10 +151,7 @@ class MigrationRuntimeTest extends TestCase
         static::assertNull($migrations[1]['update']);
         static::assertNull($migrations[1]['update_destructive']);
 
-        $runner = $this->runner->migrate(null, 1);
-        while ($runner->valid()) {
-            $runner->next();
-        }
+        $this->validMigrationCollection->migrateInPlace(null, 1);
 
         $migrations = $this->getMigrations();
         static::assertNotNull($migrations[0]['update']);
@@ -171,10 +159,7 @@ class MigrationRuntimeTest extends TestCase
         static::assertNull($migrations[1]['update']);
         static::assertNull($migrations[1]['update_destructive']);
 
-        $runner = $this->runner->migrateDestructive();
-        while ($runner->valid()) {
-            $runner->next();
-        }
+        $this->validMigrationCollection->migrateDestructiveInPlace();
 
         $migrations = $this->getMigrations();
         static::assertNotNull($migrations[0]['update']);
@@ -191,10 +176,7 @@ class MigrationRuntimeTest extends TestCase
         static::assertNull($migrations[1]['update']);
         static::assertNull($migrations[1]['update_destructive']);
 
-        $runner = $this->runner->migrate();
-        while ($runner->valid()) {
-            $runner->next();
-        }
+        $this->validMigrationCollection->migrateInPlace();
 
         $migrations = $this->getMigrations();
         static::assertNotNull($migrations[0]['update']);
@@ -202,10 +184,7 @@ class MigrationRuntimeTest extends TestCase
         static::assertNotNull($migrations[1]['update']);
         static::assertNull($migrations[1]['update_destructive']);
 
-        $runner = $this->runner->migrateDestructive();
-        while ($runner->valid()) {
-            $runner->next();
-        }
+        $this->validMigrationCollection->migrateDestructiveInPlace();
 
         $migrations = $this->getMigrations();
         static::assertNotNull($migrations[0]['update']);
@@ -222,12 +201,10 @@ class MigrationRuntimeTest extends TestCase
         static::assertNull($migrations[1]['update']);
         static::assertNull($migrations[1]['update_destructive']);
 
-        $runner = $this->runner->migrate(1);
-        while ($runner->valid()) {
-            $runner->next();
-        }
+        $executedMigrations = $this->validMigrationCollection->migrateInPlace(1);
 
         $migrations = $this->getMigrations();
+        static::assertSame(["Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time\Migration1"], $executedMigrations);
         static::assertNotNull($migrations[0]['update']);
         static::assertNull($migrations[0]['update_destructive']);
         static::assertNull($migrations[1]['update']);
@@ -236,17 +213,10 @@ class MigrationRuntimeTest extends TestCase
 
     public function testExceptionHandling(): void
     {
-        $this->collector->addDirectory(
-            __DIR__ . '/_test_migrations_valid_run_time_exceptions',
-            'Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time_exceptions'
-        );
-        $this->loader->syncMigrationCollection(self::MIGRATION_IDENTIFIER);
+        $this->validMigrationCollection->migrateInPlace();
 
         try {
-            $runner = $this->runner->migrate();
-            while ($runner->valid()) {
-                $runner->next();
-            }
+            $this->exceptionMigrationCollection->migrateInPlace();
         } catch (\Exception $e) {
             //nth
         }
@@ -260,26 +230,18 @@ class MigrationRuntimeTest extends TestCase
 
     public function testExceptionHandlingDestructive(): void
     {
-        $this->collector->addDirectory(
-            __DIR__ . '/_test_migrations_valid_run_time_exceptions',
-            'Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time_exceptions'
-        );
-        $this->loader->syncMigrationCollection(self::MIGRATION_IDENTIFIER);
+        $this->validMigrationCollection->migrateInPlace();
 
         try {
-            $runner = $this->runner->migrate();
-            while ($runner->valid()) {
-                $runner->next();
-            }
+            $this->exceptionMigrationCollection->migrateInPlace();
         } catch (\Exception $e) {
             //nth
         }
 
+        $this->validMigrationCollection->migrateDestructiveInPlace();
+
         try {
-            $runner = $this->runner->migrateDestructive();
-            while ($runner->valid()) {
-                $runner->next();
-            }
+            $this->exceptionMigrationCollection->migrateDestructiveInPlace();
         } catch (\Exception $e) {
             //nth
         }

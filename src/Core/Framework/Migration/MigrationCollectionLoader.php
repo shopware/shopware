@@ -3,61 +3,70 @@
 namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
+use Shopware\Core\Framework\Migration\Exception\UnknownMigrationSourceException;
 
 class MigrationCollectionLoader
 {
-    public const SHOPWARE_CORE_MIGRATION_IDENTIFIER = 'Shopware\\Core\\Migration';
-
     /**
      * @var Connection
      */
     private $connection;
 
     /**
-     * @var MigrationCollection
+     * @var array<string, MigrationSource>
      */
-    private $collection;
+    private $migrationSources;
 
-    public function __construct(Connection $connection, MigrationCollection $collection)
+    /**
+     * @var MigrationRuntime
+     */
+    private $migrationRuntime;
+
+    public function __construct(Connection $connection, MigrationRuntime $migrationRuntime, iterable $migrationSources = [])
     {
         $this->connection = $connection;
-        $this->collection = $collection;
+        $this->migrationRuntime = $migrationRuntime;
+
+        foreach ($migrationSources as $migrationSource) {
+            $this->addSource($migrationSource);
+        }
     }
 
-    public function syncMigrationCollection(string $identifier = self::SHOPWARE_CORE_MIGRATION_IDENTIFIER): void
+    public function addSource(MigrationSource $migrationSource): void
     {
-        $migrations = $this->collection->getMigrationCollection();
-
-        if (!$migrations) {
-            return;
-        }
-
-        $this->addMigrationsToTable($migrations, $identifier);
+        $this->migrationSources[$migrationSource->getName()] = $migrationSource;
     }
 
     /**
-     * @return int[]
+     * @throws UnknownMigrationSourceException
+     * @throws InvalidMigrationClassException
      */
-    public function getActiveMigrationTimestamps(): array
+    public function collect(string $name): MigrationCollection
     {
-        return $this->collection->getActiveMigrationTimestamps();
+        if (!isset($this->migrationSources[$name])) {
+            throw new UnknownMigrationSourceException('No source registered for "' . $name . '"');
+        }
+
+        $source = $this->migrationSources[$name];
+
+        return new MigrationCollection($source, $this->migrationRuntime, $this->connection);
     }
 
     /**
-     * @param MigrationStep[] $migrations
+     * @throws InvalidMigrationClassException
+     * @throws UnknownMigrationSourceException
+     *
+     * @return MigrationCollection[]
      */
-    private function addMigrationsToTable(array $migrations, string $identifier): void
+    public function collectAll(): array
     {
-        $insertQuery = new MultiInsertQueryQueue($this->connection, 250, true);
-        foreach ($migrations as $className => $migration) {
-            if (mb_strpos($className, $identifier) !== false) {
-                $insertQuery->addInsert('migration', [
-                    '`class`' => $className,
-                    '`creation_timestamp`' => $migration->getCreationTimestamp(),
-                ]);
-            }
+        $collections = [];
+
+        foreach ($this->migrationSources as $source) {
+            $collections[$source->getName()] = $this->collect($source->getName());
         }
-        $insertQuery->execute();
+
+        return $collections;
     }
 }

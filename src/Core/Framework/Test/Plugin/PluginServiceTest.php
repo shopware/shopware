@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginService;
@@ -52,8 +53,8 @@ class PluginServiceTest extends TestCase
     public function testRefreshPlugins(): void
     {
         $this->pluginService->refreshPlugins($this->context, new NullIO());
-        /** @var PluginEntity $plugin */
-        $plugin = $this->pluginRepo->search(new Criteria(), $this->context)->first();
+
+        $plugin = $this->fetchSwagTestPluginEntity();
 
         $this->performDefaultTests($plugin);
         static::assertNotNull($plugin->getCreatedAt());
@@ -77,8 +78,7 @@ class PluginServiceTest extends TestCase
 
         $this->pluginService->refreshPlugins($context, new NullIO());
 
-        /** @var PluginEntity $plugin */
-        $plugin = $this->pluginRepo->search(new Criteria(), $context)->first();
+        $plugin = $this->fetchSwagTestPluginEntity($context);
 
         $this->performDefaultGermanTests($plugin);
         static::assertNotNull($plugin->getCreatedAt());
@@ -102,8 +102,7 @@ class PluginServiceTest extends TestCase
 
         $this->pluginService->refreshPlugins($this->context, new NullIO());
 
-        /** @var PluginEntity $plugin */
-        $plugin = $this->pluginRepo->search(new Criteria(), $this->context)->first();
+        $plugin = $this->fetchSwagTestPluginEntity();
 
         static::assertSame(SwagTest::class, $plugin->getBaseClass());
         static::assertSame(SwagTest::PLUGIN_LABEL, $plugin->getLabel());
@@ -116,8 +115,7 @@ class PluginServiceTest extends TestCase
 
         $this->pluginService->refreshPlugins($this->context, new NullIO());
 
-        /** @var PluginEntity $plugin */
-        $plugin = $this->pluginRepo->search(new Criteria(), $this->context)->first();
+        $plugin = $this->fetchSwagTestPluginEntity();
 
         $this->performDefaultTests($plugin);
         static::assertNull($plugin->getUpgradeVersion());
@@ -125,11 +123,12 @@ class PluginServiceTest extends TestCase
 
     public function testRefreshPluginsDeleteNonExistingPlugin(): void
     {
+        $nonExistentPluginBaseClass = 'SwagFoo\\SwagFoo';
         $this->pluginRepo->create(
             [
                 [
                     'name' => 'SwagFoo',
-                    'baseClass' => 'SwagFoo\\SwagFoo',
+                    'baseClass' => $nonExistentPluginBaseClass,
                     'version' => '1.1.1',
                     'label' => 'Foo Label',
                     'autoload' => [],
@@ -138,11 +137,15 @@ class PluginServiceTest extends TestCase
             $this->context
         );
 
+        $pluginCollectionBefore = $this->pluginRepo->search(new Criteria(), $this->context)->getEntities();
+        static::assertInstanceOf(PluginEntity::class, $pluginCollectionBefore->filterByProperty('baseClass', $nonExistentPluginBaseClass)->first());
+
         $this->pluginService->refreshPlugins($this->context, new NullIO());
         $pluginCollection = $this->pluginRepo->search(new Criteria(), $this->context)->getEntities();
-        static::assertCount(2, $pluginCollection);
+
+        static::assertNull($pluginCollection->filterByProperty('baseClass', $nonExistentPluginBaseClass)->first());
         /** @var PluginEntity $plugin */
-        $plugin = $pluginCollection->first();
+        $plugin = $pluginCollection->filterByProperty('baseClass', 'SwagTest\\SwagTest')->first();
 
         $this->performDefaultTests($plugin);
         static::assertNull($plugin->getUpgradeVersion());
@@ -206,6 +209,17 @@ class PluginServiceTest extends TestCase
                 1 => 'nichts gemacht',
             ],
         ];
+    }
+
+    private function fetchSwagTestPluginEntity(?Context $context = null): PluginEntity
+    {
+        if ($context === null) {
+            $context = $this->context;
+        }
+
+        return $this->pluginRepo
+            ->search((new Criteria())->addFilter(new EqualsFilter('baseClass', 'SwagTest\\SwagTest')), $context)
+            ->first();
     }
 
     private function getValidIconAsBase64(): string

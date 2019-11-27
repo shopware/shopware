@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework;
 use Shopware\Core\Framework\Adapter\Asset\AssetPackageService;
 use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
+use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Kernel;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
@@ -86,10 +87,17 @@ abstract class Bundle extends SymfonyBundle
             return;
         }
 
-        $directories = $container->getParameter('migration.directories');
-        $directories[$this->getMigrationNamespace()] = $migrationPath;
+        $container->register(MigrationSource::class . '_' . $this->getName(), MigrationSource::class)
+            ->addArgument($this->getName())
+            ->addArgument([$migrationPath => $this->getMigrationNamespace()])
+            ->addTag('shopware.migration_source');
+    }
 
-        $container->setParameter('migration.directories', $directories);
+    protected function addCoreMigrationPath(ContainerBuilder $container, string $path, string $namespace): void
+    {
+        $directories = $container->getParameter('core.migration.directories');
+        $directories[$path] = $namespace;
+        $container->setParameter('core.migration.directories', $directories);
     }
 
     private function registerFilesystem(ContainerBuilder $container, string $key): void

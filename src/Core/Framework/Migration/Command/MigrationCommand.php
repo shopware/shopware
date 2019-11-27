@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Migration\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
+use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
@@ -50,20 +51,20 @@ class MigrationCommand extends Command
         $this->cache = $cache;
     }
 
-    protected function getMigrationGenerator(?int $until, ?int $limit): \Generator
+    protected function getMigrationGenerator(MigrationCollection $collection, ?int $until, ?int $limit): \Generator
     {
-        yield from $this->runner->migrate($until, $limit);
+        yield from $collection->migrateInSteps($until, $limit);
     }
 
-    protected function getMigrationsCount(?int $until, ?int $limit): int
+    protected function getMigrationsCount(MigrationCollection $collection, ?int $until, ?int $limit): int
     {
-        return \count($this->runner->getExecutableMigrations($until, $limit));
+        return \count($collection->getExecutableMigrations($until, $limit));
     }
 
     protected function configure(): void
     {
         $this
-            ->addArgument('identifier', InputArgument::OPTIONAL, 'identifier to determine which migrations to run', MigrationCollectionLoader::SHOPWARE_CORE_MIGRATION_IDENTIFIER)
+            ->addArgument('identifier', InputArgument::OPTIONAL, 'identifier to determine which migrations to run', 'core')
             ->addArgument('until', InputArgument::OPTIONAL, 'timestamp cap for migrations')
             ->addOption('all', 'all', InputOption::VALUE_NONE, 'no migration timestamp cap')
             ->addOption('limit', 'l', InputOption::VALUE_OPTIONAL, '', '0');
@@ -79,7 +80,8 @@ class MigrationCommand extends Command
 
         $this->io->writeln('Get collection from directories');
 
-        $this->loader->syncMigrationCollection($input->getArgument('identifier'));
+        $collection = $this->loader->collect($input->getArgument('identifier'));
+        $collection->sync();
 
         $this->io->writeln('migrate Migrations');
 
@@ -90,19 +92,19 @@ class MigrationCommand extends Command
             $until = null;
         }
 
-        $total = $this->getMigrationsCount($until, $limit);
+        $total = $this->getMigrationsCount($collection, $until, $limit);
         $this->io->progressStart($total);
         $migratedCounter = 0;
 
         try {
-            foreach ($this->getMigrationGenerator($until, $limit) as $_return) {
+            foreach ($this->getMigrationGenerator($collection, $until, $limit) as $_return) {
                 $this->io->progressAdvance();
                 ++$migratedCounter;
             }
         } catch (\Exception $e) {
             $this->finishProgress($migratedCounter, $total);
 
-            throw new MigrateException($e->getMessage() . PHP_EOL . 'Trace: ' . PHP_EOL . $e->getTraceAsString());
+            throw new MigrateException($e->getMessage() . PHP_EOL . 'Trace: ' . PHP_EOL . $e->getTraceAsString(), $e);
         }
 
         $this->finishProgress($migratedCounter, $total);

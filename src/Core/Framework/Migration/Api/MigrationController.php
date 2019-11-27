@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\Migration\Api;
 
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
+use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
-use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,17 +21,10 @@ class MigrationController extends AbstractController
      */
     private $loader;
 
-    /**
-     * @var MigrationRuntime
-     */
-    private $runner;
-
     public function __construct(
-        MigrationCollectionLoader $loader,
-        MigrationRuntime $runner
+        MigrationCollectionLoader $loader
     ) {
         $this->loader = $loader;
-        $this->runner = $runner;
     }
 
     /**
@@ -39,7 +32,7 @@ class MigrationController extends AbstractController
      */
     public function syncMigrations(Request $request): Response
     {
-        $this->loader->syncMigrationCollection($request->request->get('identifier', MigrationCollectionLoader::SHOPWARE_CORE_MIGRATION_IDENTIFIER));
+        $this->getCollection($request)->sync();
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
@@ -57,9 +50,15 @@ class MigrationController extends AbstractController
             $until = null;
         }
 
-        $generator = $this->runner->migrate($until, $limit);
+        $collection = $this->getCollection($request);
 
-        return $this->migrateGenerator($generator);
+        try {
+            $collection->migrateInPlace($until, $limit);
+        } catch (\Exception $e) {
+            throw new MigrateException($e->getMessage(), $e);
+        }
+
+        return new Response(null, Response::HTTP_NO_CONTENT);
     }
 
     /**
@@ -75,21 +74,19 @@ class MigrationController extends AbstractController
             $until = null;
         }
 
-        $generator = $this->runner->migrateDestructive($until, $limit);
+        $collection = $this->getCollection($request);
 
-        return $this->migrateGenerator($generator);
-    }
-
-    private function migrateGenerator(\Generator $generator): Response
-    {
         try {
-            while ($generator->valid()) {
-                $generator->next();
-            }
+            $collection->migrateDestructiveInPlace($until, $limit);
         } catch (\Exception $e) {
-            throw new MigrateException($e->getMessage());
+            throw new MigrateException($e->getMessage(), $e);
         }
 
         return new Response(null, Response::HTTP_NO_CONTENT);
+    }
+
+    private function getCollection(Request $request): MigrationCollection
+    {
+        return $this->loader->collect($request->request->get('identifier', 'core'));
     }
 }

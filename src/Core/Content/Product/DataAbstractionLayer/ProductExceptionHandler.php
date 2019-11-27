@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product;
+namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Shopware\Core\Content\Product\Exception\DuplicateProductNumberException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 
 class ProductExceptionHandler implements ExceptionHandlerInterface
 {
-    public function matchException(\Exception $e, WriteCommandInterface $command): ?\Exception
+    public function matchException(\Exception $e, WriteCommand $command): ?\Exception
     {
         if ($e->getCode() !== 0 || $command->getDefinition()->getEntityName() !== 'product') {
             return null;

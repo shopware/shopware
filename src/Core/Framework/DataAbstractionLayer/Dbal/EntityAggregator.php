@@ -167,6 +167,7 @@ class EntityAggregator implements EntityAggregatorInterface
         $query = new QueryBuilder($this->connection);
 
         $query = $this->buildQueryByCriteria($query, $definition, $clone, $context);
+        $this->addIdCondition($criteria, $definition, $query);
 
         $table = $definition->getEntityName();
 

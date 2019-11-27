@@ -275,12 +275,16 @@ An example of the `MyController` controller could look like this:
 
 namespace Swag\PluginQuickStart\Controller;
 
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Context;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
+/**
+ * @RouteScope(scopes={"api"})
+ */
 class MyController extends AbstractController
 {
     /**
@@ -375,6 +379,7 @@ An example usage would be in your new controller.
 
 namespace Swag\PluginQuickStart\Controller;
 
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Swag\PluginQuickStart\Service\MyService;
 use Shopware\Core\Framework\Context;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -382,6 +387,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
+/**
+ * @RouteScope(scopes={"api"})
+ */
 class MyController extends AbstractController
 {
     /**

@@ -283,6 +283,19 @@ class EntityForeignKeyResolver
                     $restrictions[$class] = [];
                 }
 
+                if ($field instanceof TranslationsAssociationField) {
+                    $targetProperty = $field->getReferenceDefinition()->getFields()->getByStorageName($field->getReferenceField());
+
+                    $value = array_map(function ($key) use ($targetProperty) {
+                        $key = explode('-', $key);
+
+                        return [
+                            $targetProperty->getPropertyName() => $key[0],
+                            'languageId' => $key[1],
+                        ];
+                    }, $value);
+                }
+
                 $restrictions[$class] = array_merge_recursive($restrictions[$class], $value);
             }
 

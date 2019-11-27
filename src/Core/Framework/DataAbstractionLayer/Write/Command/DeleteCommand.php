@@ -6,28 +6,13 @@ use Shopware\Core\Framework\Acl\Resource\AclResourceDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 
-class DeleteCommand implements WriteCommandInterface
+class DeleteCommand extends WriteCommand implements ChangeSetAware
 {
-    /**
-     * @var EntityDefinition
-     */
-    private $definition;
+    use ChangeSetAwareTrait;
 
-    /**
-     * @var array
-     */
-    private $primaryKey;
-
-    /**
-     * @var EntityExistence
-     */
-    private $existence;
-
-    public function __construct(EntityDefinition $definition, array $pkData, EntityExistence $existence)
+    public function __construct(EntityDefinition $definition, array $primaryKey, EntityExistence $existence)
     {
-        $this->definition = $definition;
-        $this->primaryKey = $pkData;
-        $this->existence = $existence;
+        parent::__construct($definition, [], $primaryKey, $existence, '');
     }
 
     public function isValid(): bool
@@ -35,33 +20,8 @@ class DeleteCommand implements WriteCommandInterface
         return (bool) \count($this->primaryKey);
     }
 
-    public function getDefinition(): EntityDefinition
-    {
-        return $this->definition;
-    }
-
-    public function getPrimaryKey(): array
-    {
-        return $this->primaryKey;
-    }
-
-    public function getEntityExistence(): EntityExistence
-    {
-        return $this->existence;
-    }
-
     public function getPrivilege(): string
     {
         return AclResourceDefinition::PRIVILEGE_DELETE;
-    }
-
-    public function getPayload(): array
-    {
-        return [];
-    }
-
-    public function getPath(): string
-    {
-        return '';
     }
 }

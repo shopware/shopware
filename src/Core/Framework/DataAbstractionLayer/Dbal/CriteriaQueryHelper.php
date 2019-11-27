@@ -100,6 +100,10 @@ trait CriteriaQueryHelper
 
         $primaryKeys = array_values($primaryKeys);
 
+        if (empty($primaryKeys)) {
+            return;
+        }
+
         if (!\is_array($primaryKeys[0]) || \count($primaryKeys[0]) === 1) {
             $primaryKeyField = $definition->getPrimaryKeys()->first();
             if ($primaryKeyField instanceof IdField) {

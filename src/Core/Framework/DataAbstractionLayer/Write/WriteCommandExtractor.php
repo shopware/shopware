@@ -104,8 +104,8 @@ class WriteCommandExtractor
             $jsonUpdateCommand = new JsonUpdateCommand(
                 $definition,
                 $storageName,
-                $pks,
                 $attributes,
+                $pks,
                 $existence,
                 $parameters->getPath()
             );
@@ -198,30 +198,12 @@ class WriteCommandExtractor
 
         /* @var EntityDefinition $definition */
         if ($existence->exists()) {
-            $queue->add(
-                $definition,
-                new UpdateCommand(
-                    $definition,
-                    $pkData,
-                    $data,
-                    $existence,
-                    $parameterBag->getPath()
-                )
-            );
+            $queue->add($definition, new UpdateCommand($definition, $data, $pkData, $existence, $parameterBag->getPath()));
 
             return;
         }
 
-        $queue->add(
-            $definition,
-            new InsertCommand(
-                $definition,
-                array_merge($pkData, $data),
-                $pkData,
-                $existence,
-                $parameterBag->getPath()
-            )
-        );
+        $queue->add($definition, new InsertCommand($definition, array_merge($pkData, $data), $pkData, $existence, $parameterBag->getPath()));
     }
 
     /**

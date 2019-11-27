@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Acl\Resource;
 
 use Shopware\Core\Framework\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -80,7 +80,7 @@ class AclPermissionValidator implements EventSubscriberInterface
     private function violates(
         string $privilege,
         string $resource,
-        WriteCommandInterface $command,
+        WriteCommand $command,
         ConstraintViolationList $violationList
     ): void {
         $violationList->add(

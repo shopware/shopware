@@ -142,19 +142,8 @@ abstract class EntityDefinition
                     throw new \Exception('Only AssociationFields, FkFields/ReferenceVersionFields for a ManyToOneAssociationField or fields flagged as Runtime can be added as Extension.');
                 }
 
-                if (($field instanceof ReferenceVersionField)) {
-                    $reference = $field->jsonSerialize()['versionReferenceClass'];
-
-                    $referenceAssociationFound = false;
-                    foreach ($new as $association) {
-                        if (!($association instanceof ManyToOneAssociationField)) {
-                            continue;
-                        }
-
-                        $referenceAssociationFound = $association->jsonSerialize()['referenceClass'] === $reference;
-                    }
-
-                    if (!$referenceAssociationFound) {
+                if ($field instanceof ReferenceVersionField) {
+                    if (!$this->hasManyToOneAssociation($field, $new)) {
                         throw new \Exception(sprintf('ReferenceVersionField has no configured ManyToOneAssociationField in entity %s', $this->className));
                     }
 
@@ -163,20 +152,7 @@ abstract class EntityDefinition
                     continue;
                 }
 
-                $hasManyToOne = false;
-                foreach ($new as $association) {
-                    if (!$association instanceof ManyToOneAssociationField) {
-                        continue;
-                    }
-
-                    if ($association->getStorageName() === $field->getStorageName()) {
-                        $hasManyToOne = true;
-
-                        break;
-                    }
-                }
-
-                if (!$hasManyToOne) {
+                if (!$this->hasManyToOneWithStorageField($field->getStorageName(), $new)) {
                     throw new \Exception(sprintf('FkField %s has no configured ManyToOneAssociationField in entity %s', $field->getPropertyName(), $this->className));
                 }
 
@@ -340,5 +316,37 @@ abstract class EntityDefinition
     protected function getBaseFields(): array
     {
         return [];
+    }
+
+    private function hasManyToOneAssociation(ReferenceVersionField $field, FieldCollection $new): bool
+    {
+        $reference = $field->getVersionReferenceDefinition()->getClass();
+
+        foreach ($new as $association) {
+            if (!$association instanceof ManyToOneAssociationField) {
+                continue;
+            }
+
+            if ($association->getReferenceDefinition()->getClass() === $reference) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function hasManyToOneWithStorageField(string $storageName, FieldCollection $new): bool
+    {
+        foreach ($new as $association) {
+            if (!$association instanceof ManyToOneAssociationField) {
+                continue;
+            }
+
+            if ($association->getStorageName() === $storageName) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

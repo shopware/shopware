@@ -79,6 +79,11 @@
             <argument>%storefront.csrf.mode%</argument>
         </service>
 
+        <service id="Shopware\Storefront\Framework\Media\StorefrontUploadService" public="true">
+            <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
+            <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Routing\StorefrontSubscriber">
             <argument type="service" id="request_stack"/>
             <argument type="service" id="router"/>

@@ -7,7 +7,7 @@ class SeoUrlRouteRegistry
     /**
      * @var SeoUrlRouteInterface[]
      */
-    private $seoUrlRoutes;
+    private $seoUrlRoutes = [];
 
     public function __construct(iterable $seoUrlRoutes)
     {

@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SystemConfig;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
+use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -11,10 +12,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Plugin\Context\InstallContext;
+use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidKeyException;
+use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 
 class SystemConfigService
 {
@@ -33,10 +37,16 @@ class SystemConfigService
      */
     private $configs = [];
 
-    public function __construct(Connection $connection, EntityRepositoryInterface $systemConfigRepository)
+    /**
+     * @var ConfigReader
+     */
+    private $configReader;
+
+    public function __construct(Connection $connection, EntityRepositoryInterface $systemConfigRepository, ConfigReader $configReader)
     {
         $this->connection = $connection;
         $this->systemConfigRepository = $systemConfigRepository;
+        $this->configReader = $configReader;
     }
 
     public function get(string $key, ?string $salesChannelId = null)
@@ -156,6 +166,35 @@ class SystemConfigService
     public function delete(string $key, ?string $salesChannel = null): void
     {
         $this->set($key, null, $salesChannel);
+    }
+
+    /**
+     * Fetches default values from bundle configuration and saves it to database.
+     *
+     * @param Bundle              $bundle  The bundle or plugin.
+     * @param InstallContext|null $context Used for plugins.
+     *
+     * @throws Exception\BundleConfigNotFoundException
+     */
+    public function savePluginConfiguration(Bundle $bundle, InstallContext $context = null): void
+    {
+        $config     = $this->configReader->getConfigFromBundle($bundle);
+        $prefix     = $bundle->getName() . '.config.'; // todo: Make this dynamically, see https://github.com/shopware/platform/pull/310
+        $noOverride = $context instanceof UpdateContext;
+
+        foreach ($config as $card) {
+            foreach ($card['elements'] as $element) {
+                $key   = $prefix . $element['name'];
+                $value = $element['defaultValue'];
+
+                if (
+                    !empty($value)
+                    && ($noOverride && !$this->get($key))
+                ) {
+                    $this->set($key, $value);
+                }
+            }
+        }
     }
 
     private function load(?string $salesChannelId): array

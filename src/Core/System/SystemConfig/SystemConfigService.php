@@ -176,13 +176,25 @@ class SystemConfigService
      */
     public function savePluginConfiguration(Bundle $bundle, bool $override = true): void
     {
-        $config     = $this->configReader->getConfigFromBundle($bundle);
-        $prefix     = $bundle->getName() . '.config.'; // todo: Make this dynamically, see https://github.com/shopware/platform/pull/310
+        $config = $this->configReader->getConfigFromBundle($bundle);
+        $prefix = $bundle->getName() . '.config.'; // todo: Make this dynamically, see https://github.com/shopware/platform/pull/310
 
         foreach ($config as $card) {
             foreach ($card['elements'] as $element) {
                 $key   = $prefix . $element['name'];
                 $value = $element['defaultValue'];
+
+                switch ($element['type']) {
+                    case 'int':
+                        $value = (int) $value;
+                    break;
+                    case 'bool':
+                        $value = (bool) $value;
+                    break;
+                    case 'float':
+                        $value = (float) $value;
+                    break;
+                }
 
                 if (
                     !empty($value)

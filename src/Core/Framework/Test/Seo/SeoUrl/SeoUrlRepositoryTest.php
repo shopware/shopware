@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Framework\Seo\SeoUrl\SeoUrlEntity;
+use Shopware\Core\Framework\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -110,5 +111,19 @@ class SeoUrlRepositoryTest extends TestCase
         /** @var SeoUrlEntity|null $first */
         $first = $repo->search(new Criteria([$id]), $context)->first();
         static::assertNull($first);
+    }
+
+    public function testEmptySeoUrlCollection(): void
+    {
+        $registry = new SeoUrlRouteRegistry($this->emptyGenerator());
+        static::assertSame([], (array) $registry->getSeoUrlRoutes());
+
+        $registry = new SeoUrlRouteRegistry([]);
+        static::assertSame([], (array) $registry->getSeoUrlRoutes());
+    }
+
+    private function emptyGenerator(): \Generator
+    {
+        yield from [];
     }
 }

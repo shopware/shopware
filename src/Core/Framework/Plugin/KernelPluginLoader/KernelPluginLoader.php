@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Plugin\KernelPluginLoader;
 
 use Composer\Autoload\ClassLoader;
+use Composer\Autoload\ClassMapGenerator;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Exception\KernelPluginLoaderException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
@@ -193,6 +194,11 @@ abstract class KernelPluginLoader extends Bundle
                 }
                 $mappedPaths = $this->mapPsrPaths($pluginName, $paths, $projectDir, $plugin['path']);
                 $this->classLoader->addPsr4($namespace, $mappedPaths);
+                if ($this->classLoader->isClassMapAuthoritative()) {
+                    foreach ($mappedPaths as $mappedPath) {
+                        $this->classLoader->addClassMap(ClassMapGenerator::createMap($mappedPath));
+                    }
+                }
             }
 
             foreach ($psr0 as $namespace => $paths) {
@@ -202,6 +208,11 @@ abstract class KernelPluginLoader extends Bundle
                 $mappedPaths = $this->mapPsrPaths($pluginName, $paths, $projectDir, $plugin['path']);
 
                 $this->classLoader->add($namespace, $mappedPaths);
+                if ($this->classLoader->isClassMapAuthoritative()) {
+                    foreach ($mappedPaths as $mappedPath) {
+                        $this->classLoader->addClassMap(ClassMapGenerator::createMap($mappedPath));
+                    }
+                }
             }
         }
     }

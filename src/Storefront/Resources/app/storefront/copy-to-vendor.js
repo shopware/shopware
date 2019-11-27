@@ -21,6 +21,7 @@ const fromDirectories = [
     'node_modules/bootstrap',
     'node_modules/jquery',
     'node_modules/tiny-slider',
+    'node_modules/flatpickr',
 ];
 
 /**

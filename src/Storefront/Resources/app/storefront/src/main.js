@@ -64,6 +64,7 @@ import ListingPlugin from 'src/plugin/listing/listing.plugin';
 import RatingSystemPlugin from 'src/plugin/rating-system/rating-system.plugin';
 import ListingPaginationPlugin from 'src/plugin/listing/listing-pagination.plugin';
 import ListingSortingPlugin from 'src/plugin/listing/listing-sorting.plugin';
+import DatePickerPlugin from 'src/plugin/date-picker/date-picker.plugin';
 import FormCsrfHandlerPlugin from 'src/plugin/forms/form-csrf-handler.plugin';
 
 window.eventEmitter = new NativeEventEmitter();
@@ -120,7 +121,7 @@ PluginManager.register('FilterPropertySelect', FilterPropertySelectPlugin, '[dat
 PluginManager.register('FilterRating', FilterRatingPlugin, '[data-filter-rating]');
 PluginManager.register('ListingPagination', ListingPaginationPlugin, '[data-listing-pagination]');
 PluginManager.register('ListingSorting', ListingSortingPlugin, '[data-listing-sorting]');
-PluginManager.register('RatingSystemPlugin', RatingSystemPlugin, '[data-rating-system]');
+PluginManager.register('DatePicker', DatePickerPlugin, '[data-date-picker]');
 
 if (window.csrf.enabled && window.csrf.mode === 'ajax') {
     PluginManager.register('FormCsrfHandler', FormCsrfHandlerPlugin, '[data-form-csrf-handler]');

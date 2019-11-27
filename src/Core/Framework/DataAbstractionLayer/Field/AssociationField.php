@@ -48,6 +48,11 @@ abstract class AssociationField extends Field
         return $this->referenceField;
     }
 
+    public function getReferenceClass(): string
+    {
+        return $this->referenceClass;
+    }
+
     final public function getAutoload(): bool
     {
         return $this->autoload;

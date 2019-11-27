@@ -320,14 +320,14 @@ abstract class EntityDefinition
 
     private function hasManyToOneAssociation(ReferenceVersionField $field, FieldCollection $new): bool
     {
-        $reference = $field->getVersionReferenceDefinition()->getClass();
+        $reference = $field->getVersionReferenceClass();
 
         foreach ($new as $association) {
             if (!$association instanceof ManyToOneAssociationField) {
                 continue;
             }
 
-            if ($association->getReferenceDefinition()->getClass() === $reference) {
+            if ($association->getReferenceClass() === $reference) {
                 return true;
             }
         }

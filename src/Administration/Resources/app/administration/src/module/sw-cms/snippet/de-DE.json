@@ -330,7 +330,7 @@
             "confirmationText": "Bestätigungstext"
           },
           "placeholder": {
-            "type": "Choose a form type..."
+            "type": "Wähle einen Formulartypen ..."
           }
         },
         "element": {

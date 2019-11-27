@@ -329,7 +329,7 @@
             "confirmationText": "Confirmation text"
           },
           "placeholder": {
-            "type": "Choose a form type..."
+            "type": "Select a form type..."
           }
         },
         "element": {

@@ -10,9 +10,9 @@
     },
     "require": {
         "shopware/core": "*",
-        "symfony/framework-bundle": "4.3.8",
-        "symfony/http-foundation": "4.3.8",
-        "symfony/routing": "4.3.8",
-        "symfony/mime": "4.3.8"
+        "symfony/framework-bundle": "4.4.0",
+        "symfony/http-foundation": "4.4.0",
+        "symfony/routing": "4.4.0",
+        "symfony/mime": "4.4.0"
     }
 }

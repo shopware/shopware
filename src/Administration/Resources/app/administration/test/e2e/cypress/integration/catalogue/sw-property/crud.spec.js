@@ -24,23 +24,22 @@ describe('Property: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/property-group?_response=true',
+            url: '/api/v1/property-group',
             method: 'post'
         }).as('saveData');
 
         // Add property group
         cy.get('a[href="#/sw/property/create"]').click();
 
-        cy.get('input[name=sw-field--group-name]').typeAndCheck('1 Coleur');
+        cy.get('input[name=sw-field--propertyGroup-name]').typeAndCheck('1 Coleur');
         cy.get(page.elements.propertySaveAction).click();
 
         // Verify property in listing
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+            expect(xhr).to.have.property('status', 204);
         });
         cy.get(page.elements.smartBarBack).click();
-        cy.get('.sw-data-grid__cell--0 .sw-data-grid__cell-content').click();
-        cy.get(`${page.elements.dataGridRow}--0 a`).contains('1 Coleur');
+        cy.contains('.sw-data-grid__row', '1 Coleur');
     });
 
     it('@package @catalogue: update and read property', () => {
@@ -49,8 +48,8 @@ describe('Property: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/property-group/**',
-            method: 'patch'
+            url: '/api/v1/search/property-group',
+            method: 'post'
         }).as('saveData');
 
         // Add option to property group
@@ -103,13 +102,13 @@ describe('Property: Test crud operations', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.gridRow}--0`
+            `${page.elements.dataGridRow}--0`
         );
 
-        cy.get(`${page.elements.gridRow}--0.is--deleted`).should('be.visible');
+        cy.get(`${page.elements.gridRow}--2`).should('not.exist');
         cy.get(page.elements.propertySaveAction).click();
         cy.get(page.elements.successIcon).should('be.visible');
-        cy.get(`${page.elements.gridRow}--2`).should('not.exist');
+        cy.get(`${page.elements.dataGridRow}--2`).should('not.exist');
 
         // Delete property in listing
         cy.get(page.elements.smartBarBack).click();
@@ -123,7 +122,6 @@ describe('Property: Test crud operations', () => {
             .contains('Are you sure you really want to delete the property "Color"?');
 
         cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
-
 
         // Verify new options in listing
         cy.wait('@deleteData').then((xhr) => {

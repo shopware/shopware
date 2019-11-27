@@ -72,6 +72,7 @@ class FirstRunWizardController extends AbstractController
 
         /** @var PluginCollection $plugins */
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
+
         try {
             $languagePlugins = $this->frwClient->getLanguagePlugins($language, $plugins);
         } catch (ClientException $exception) {
@@ -93,6 +94,7 @@ class FirstRunWizardController extends AbstractController
 
         /** @var PluginCollection $plugins */
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
+
         try {
             $languagePlugins = $this->frwClient->getDemoDataPlugins($language, $plugins);
         } catch (ClientException $exception) {
@@ -111,6 +113,7 @@ class FirstRunWizardController extends AbstractController
     public function getRecommendationRegions(Request $request): JsonResponse
     {
         $language = $request->query->get('language', '');
+
         try {
             $recommendationRegions = $this->frwClient->getRecommendationRegions($language);
         } catch (ClientException $exception) {
@@ -134,6 +137,7 @@ class FirstRunWizardController extends AbstractController
 
         /** @var PluginCollection $plugins */
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
+
         try {
             $recommendations = $this->frwClient->getRecommendations($language, $plugins, $region, $category);
         } catch (ClientException $exception) {
@@ -227,6 +231,7 @@ class FirstRunWizardController extends AbstractController
 
         $userId = null;
         $newStoreToken = '';
+
         try {
             $userId = $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null;
             $storeToken = $this->getUserStoreToken($context);

@@ -167,6 +167,7 @@ class EntityAggregator implements EntityAggregatorInterface
         $query = new QueryBuilder($this->connection);
 
         $query = $this->buildQueryByCriteria($query, $definition, $clone, $context);
+        $this->addIdCondition($criteria, $definition, $query);
 
         $table = $definition->getEntityName();
 
@@ -189,51 +190,61 @@ class EntityAggregator implements EntityAggregatorInterface
             case $aggregation instanceof DateHistogramAggregation:
                 /* @var DateHistogramAggregation $aggregation */
                 $this->parseDateHistogramAggregation($aggregation, $query, $definition, $context);
+
                 break;
 
             case $aggregation instanceof TermsAggregation:
                 /* @var TermsAggregation $aggregation */
                 $this->parseTermsAggregation($aggregation, $query, $definition, $context);
+
                 break;
 
             case $aggregation instanceof FilterAggregation:
                 /* @var FilterAggregation $aggregation */
                 $this->parseFilterAggregation($aggregation, $query, $definition, $context);
+
                 break;
 
             case $aggregation instanceof AvgAggregation:
                 /* @var AvgAggregation $aggregation */
                 $this->parseAvgAggregation($aggregation, $query, $definition, $context);
+
                 break;
 
             case $aggregation instanceof SumAggregation:
                 /* @var SumAggregation $aggregation */
                 $this->parseSumAggregation($aggregation, $query, $definition, $context);
+
                 break;
 
             case $aggregation instanceof MaxAggregation:
                 /* @var MaxAggregation $aggregation */
                 $this->parseMaxAggregation($aggregation, $query, $definition, $context);
+
                 break;
 
             case $aggregation instanceof MinAggregation:
                 /* @var MinAggregation $aggregation */
                 $this->parseMinAggregation($aggregation, $query, $definition, $context);
+
                 break;
 
             case $aggregation instanceof CountAggregation:
                 /* @var CountAggregation $aggregation */
                 $this->parseCountAggregation($aggregation, $query, $definition, $context);
+
                 break;
 
             case $aggregation instanceof StatsAggregation:
                 /* @var StatsAggregation $aggregation */
                 $this->parseStatsAggregation($aggregation, $query, $definition, $context);
+
                 break;
 
             case $aggregation instanceof EntityAggregation:
                 /* @var EntityAggregation $aggregation */
                 $this->parseEntityAggregation($aggregation, $query, $definition, $context);
+
                 break;
 
             default:
@@ -255,24 +266,31 @@ class EntityAggregator implements EntityAggregatorInterface
         switch ($aggregation->getInterval()) {
             case DateHistogramAggregation::PER_MINUTE:
                 $groupBy = 'DATE_FORMAT(' . $accessor . ', \'%Y-%m-%d %H:%i\')';
+
                 break;
             case DateHistogramAggregation::PER_HOUR:
                 $groupBy = 'DATE_FORMAT(' . $accessor . ', \'%Y-%m-%d %H\')';
+
                 break;
             case DateHistogramAggregation::PER_DAY:
                 $groupBy = 'DATE_FORMAT(' . $accessor . ', \'%Y-%m-%d\')';
+
                 break;
             case DateHistogramAggregation::PER_WEEK:
                 $groupBy = 'DATE_FORMAT(' . $accessor . ', \'%Y-%v\')';
+
                 break;
             case DateHistogramAggregation::PER_MONTH:
                 $groupBy = 'DATE_FORMAT(' . $accessor . ', \'%Y-%m\')';
+
                 break;
             case DateHistogramAggregation::PER_QUARTER:
                 $groupBy = 'CONCAT(DATE_FORMAT(' . $accessor . ', \'%Y\'), \'-\', QUARTER(' . $accessor . '))';
+
                 break;
             case DateHistogramAggregation::PER_YEAR:
                 $groupBy = 'DATE_FORMAT(' . $accessor . ', \'%Y\')';
+
                 break;
 
             default:

@@ -119,6 +119,7 @@ EOF;
         ];
 
         $ex = null;
+
         try {
             $this->getWriter()->insert($this->registerDefinition(ListDefinition::class), [$data], $context);
         } catch (WriteException $ex) {

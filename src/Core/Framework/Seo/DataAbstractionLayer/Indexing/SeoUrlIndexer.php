@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Seo\DataAbstractionLayer\Indexing;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -131,7 +132,7 @@ class SeoUrlIndexer implements IndexerInterface
                 $language = $languages->get($languageId);
 
                 $chain = $languageChains[$languageId];
-                $context = new Context(new Context\SystemSource(), [], Defaults::CURRENCY, $chain);
+                $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
                 $context->setConsiderInheritance(true);
                 $iterator = $this->iteratorFactory->createIterator($config->getDefinition());
 
@@ -222,7 +223,7 @@ class SeoUrlIndexer implements IndexerInterface
         $groups = $group['groups'];
 
         $chain = $languageChains[$languageId];
-        $context = new Context(new Context\SystemSource(), [], Defaults::CURRENCY, $chain);
+        $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
         $context->setConsiderInheritance(true);
         $iterator = $this->iteratorFactory->createIterator($config->getDefinition(), $dataOffset);
 
@@ -292,7 +293,7 @@ class SeoUrlIndexer implements IndexerInterface
             /** @var TemplateGroup[] $groups */
             foreach ($templateLanguageGroups as $languageId => $groups) {
                 $chain = $languageChains[$languageId];
-                $context = new Context(new Context\SystemSource(), [], Defaults::CURRENCY, $chain);
+                $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
                 $context->setConsiderInheritance(true);
                 foreach (array_chunk($extractResult->getIds(), 250) as $idsChunk) {
                     $seoUrls = $this->seoUrlGenerator->generateSeoUrls($context, $seoUrlRoute, $idsChunk, $groups);

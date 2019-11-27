@@ -110,6 +110,7 @@ class ConnectionProfiler implements DataCollectorInterface
                 }
                 if ($type instanceof Type) {
                     $query['types'][$j] = $type->getBindingType();
+
                     try {
                         $param = $type->convertToDatabaseValue($param, Kernel::getConnection()->getDatabasePlatform());
                     } catch (\TypeError $e) {

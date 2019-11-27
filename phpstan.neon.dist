@@ -37,8 +37,8 @@ parameters:
         # Tests
         - %currentWorkingDirectory%/vendor/shopware/platform/src/**/*Test.php
         - %currentWorkingDirectory%/src/**/*Test.php
-        - %currentWorkingDirectory%/vendor/shopware/platform/src/Core/Framework/Test/Plugin/_fixture/plugins/**/*.php
-        - %currentWorkingDirectory%/src/Core/Framework/Test/Plugin/_fixture/plugins/**/*.php
+        - %currentWorkingDirectory%/src/Core/Framework/Test/**/*.php
+        - %currentWorkingDirectory%/vendor/shopware/platform/src/Core/Framework/Test/**/*.php
 
         - %currentWorkingDirectory%/vendor/shopware/platform/src/**/Test/**/_fixture/feature_*.php
         - %currentWorkingDirectory%/src/**/Test/**/_fixture/feature_*.php

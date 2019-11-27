@@ -1,0 +1,42 @@
+@import "~scss/variables";
+
+.sw-cms-el-preview-form {
+    overflow: auto;
+
+    h4 {
+        margin-bottom: 10px !important;
+        border-bottom: 1px solid $color-steam-cloud;
+        padding-bottom: 5px;
+    }
+
+    .sw-cms-el-preview-form-inputs {
+        overflow: auto;
+
+        & > div {
+            width: calc(50% - 7px);
+            float: left;
+
+            &:first-child {
+                margin-right: 14px;
+            }
+        }
+    }
+
+    .sw-cms-el-preview-form-input {
+        margin-bottom: 10px;
+        height: 1em;
+        border-radius: 4px;
+        border: 1px solid $color-steam-cloud;
+    }
+
+    .sw-cms-el-preview-form-inputs__action {
+        float: right;
+        padding: 0 10px;
+        background: $color-steam-cloud;
+        color: $color-kashmir;
+        text-align: center;
+        font-size: 12px;
+        line-height: 26px;
+        border-radius: 3px;
+    }
+}

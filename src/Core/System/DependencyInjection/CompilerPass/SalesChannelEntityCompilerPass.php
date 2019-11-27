@@ -69,6 +69,7 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
             $service = $container->getDefinition($serviceId);
 
             $repositoryId = 'sales_channel.' . $entityName . '.repository';
+
             try {
                 $container->getDefinition($repositoryId);
             } catch (ServiceNotFoundException $exception) {

@@ -164,6 +164,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
              */
             if ($nestedField instanceof JsonField && empty($nestedField->getPropertyMapping())) {
                 $stack->update($kvPair->getKey(), $kvPair->getValue());
+
                 continue;
             }
 

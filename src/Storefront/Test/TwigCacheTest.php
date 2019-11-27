@@ -26,11 +26,11 @@ class TwigCacheTest extends TestCase
         $templateName = 'storefront/frontend/index.html.twig';
         $templateFinder->find($templateName);
 
-        $firstCacheKey = $twig->getCache(false)->generateKey($templateName, get_class($this));
+        $firstCacheKey = $twig->getCache(false)->generateKey($templateName, static::class);
 
         $templateFinder->addBundle($bundlePlugin2);
         $templateFinder->find($templateName);
-        $secondCacheKey = $twig->getCache(false)->generateKey($templateName, get_class($this));
+        $secondCacheKey = $twig->getCache(false)->generateKey($templateName, static::class);
 
         static::assertNotEquals($firstCacheKey, $secondCacheKey);
     }

@@ -62,6 +62,7 @@ class CalculatedTaxCollection extends Collection
         foreach ($taxCollection as $calculatedTax) {
             if (!$new->exists($calculatedTax)) {
                 $new->add(clone $calculatedTax);
+
                 continue;
             }
 

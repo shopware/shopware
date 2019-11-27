@@ -677,6 +677,7 @@ class AccountService
         foreach ($fieldValidations as $emailValidation) {
             if ($emailValidation instanceof EqualTo) {
                 $equalityValidation = $emailValidation;
+
                 break;
             }
         }

@@ -43,7 +43,7 @@ class PluginRefreshCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);
         $io->title('Shopware Plugin Service');
@@ -60,7 +60,7 @@ class PluginRefreshCommand extends Command
 
         $skipPluginList = $input->getOption('skipPluginList');
         if ($skipPluginList) {
-            return null;
+            return 0;
         }
 
         $listInput = new StringInput('plugin:list');
@@ -69,6 +69,6 @@ class PluginRefreshCommand extends Command
         $application = $this->getApplication();
         $application->doRun($listInput, $output);
 
-        return null;
+        return 0;
     }
 }

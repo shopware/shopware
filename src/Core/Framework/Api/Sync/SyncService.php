@@ -72,6 +72,7 @@ class SyncService implements SyncServiceInterface
                     foreach ($results as $result) {
                         $result->resetEntities();
                     }
+
                     continue;
                 }
                 $this->connection->rollBack();

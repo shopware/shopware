@@ -24,7 +24,7 @@ module.exports = function createProxyServer(userOptions) {
             method: client_req.method,
             headers: {
                 ...client_req.headers,
-                host: originalHost,
+                host: `${originalHost}:${appPort}`,
                 'hot-reload-mode': true,
                 'accept-encoding': 'identity',
             },
@@ -77,6 +77,10 @@ function openBrowserWithUrl(url) {
         detached: true,
     };
 
-    const start = (process.platform === 'darwin'? 'open': process.platform === 'win32'? 'start': 'xdg-open');
-    spawn(start, [url], childProcessOptions);
+    try {
+        const start = (process.platform === 'darwin' ? 'open' : process.platform === 'win32' ? 'start' : 'xdg-open');
+        spawn(start, [url], childProcessOptions);
+    } catch (ex) {
+        console.log(ex);
+    }
 }

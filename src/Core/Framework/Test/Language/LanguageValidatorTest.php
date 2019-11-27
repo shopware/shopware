@@ -783,6 +783,7 @@ class LanguageValidatorTest extends TestCase
     {
         /** @var WriteException|null $stack */
         $stack = null;
+
         try {
             $function();
         } catch (WriteException $exception) {

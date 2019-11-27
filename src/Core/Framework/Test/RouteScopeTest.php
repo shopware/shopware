@@ -7,7 +7,7 @@ use Symfony\Component\Routing\Router;
 
 class RouteScopeTest extends KernelTestBehaviourTest
 {
-    public function testAllRouteshaveRouteScopes(): void
+    public function testAllRoutesHaveRouteScopes(): void
     {
         /** @var Router $router */
         $router = $this->getKernel()->getContainer()->get('router');

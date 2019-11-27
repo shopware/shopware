@@ -6,8 +6,8 @@
       "moduleTitle": "Shopping Experiences",
       "greeting": "Layouts",
       "createNewLayout": "Create new layout",
-      "deleteDisabledToolTip": "The layout you want to delete is still allocated to at least one category.",
-      "disabledAddingBlocksToolTip": "You can only add blocks in your default system language.",
+      "deleteDisabledToolTip": "The layout you want to delete is still assigned to at least one category.",
+      "disabledAddingBlocksToolTip": "Adding blocks only works in your default system language.",
       "buttonDelete": "Delete"
     },
     "sorting": {
@@ -29,11 +29,14 @@
       "gridHeaderCreated": "Created"
     },
     "section": {
+      "fallBackSectionName": "Section",
+      "positionLeft": "Content, left",
+      "positionRight": "Content, right",
       "fullWidth": "Full width",
       "sidebar": "Sidebar",
       "layoutSection": "Layout section",
       "isSidebar": "Layout section - Sidebar",
-      "isDefault": "layout section - Default"
+      "isDefault": "Layout section - Default"
     },
     "sidebar": {
       "contentMenu": {
@@ -43,10 +46,7 @@
         "settings": "Settings",
         "layoutSettings": "Layout",
         "duplicate": "Duplicate"
-      },
-      "labelSidebarMobile": "Mobile sidebar behavior",
-      "labelSidebarMobileOptionHidden": "Hidden",
-      "labelSidebarMobileOptionWrap": "Wrap"
+      }
     },
     "createWizard": {
       "choosePageTypeTitle": "What kind of page would you like to create?",
@@ -82,6 +82,7 @@
         "blockCategoryImage": "Images",
         "blockCategoryCommerce": "Commerce",
         "blockCategoryVideo": "Video",
+        "blockCategoryForm": "Form",
         "buttonElementSettingsConfirm": "Done",
         "buttonElementChangeAbort": "Cancel",
         "blockNameField": "Block name",
@@ -139,7 +140,10 @@
         "titleBlockSettings": "Block settings",
         "headerBlockSettings": "Block:",
         "titleNavigator": "Navigator",
-        "titleSectionSettings": "Section settings"
+        "titleSectionSettings": "Section settings",
+        "mobile": "Mobile sidebar behavior",
+        "mobileOptionHidden": "Hidden",
+        "mobileOptionWrap": "Wrap"
       },
       "title": {
         "elementSettingsModal": "Element settings",
@@ -313,6 +317,56 @@
       },
       "youtubeVideo": {
         "label": "YouTube video"
+      },
+      "form": {
+        "config": {
+          "label": {
+            "receiverEmail": "Receiver addresses",
+            "title": "Title",
+            "type": "Form type",
+            "typeContact": "Contact",
+            "typeNewsletter": "Newsletter",
+            "confirmationText": "Confirmation text"
+          },
+          "placeholder": {
+            "type": "Select a form type..."
+          }
+        },
+        "element": {
+          "label": {
+            "action": "Action",
+            "email": "Email address*",
+            "firstName": "First name*",
+            "lastName" : "Last name*",
+            "message": "Your message*",
+            "newsletterSubmit": "Continue",
+            "phone": "Phone number",
+            "privacy": "Privacy",
+            "salutation": "Salutation*",
+            "salutationUndisclosed" : "Prefer not to disclose",
+            "send": "Send",
+            "subject": "Subject line*",
+            "subscribeToNewsletter": "Subscribe to newsletter"
+          },
+          "placeholder": {
+            "firstName": "John",
+            "lastName": "Doe",
+            "email": "john@doe.com",
+            "phone": "+4920 3920173",
+            "subject": "Lorem ipsum dolor sit amet.",
+            "message": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum."
+          },
+          "helpText": {
+            "privacy": "I have read the data protection information.",
+            "requiredFields": "Fields marked with * are required"
+          }
+        },
+        "preview": {
+          "label": {
+            "form": "Form",
+            "send": "Send"
+          }
+        }
       }
     },
     "blocks": {
@@ -442,7 +496,7 @@
         "addPreviewImage": "Add preview image",
         "removePreviewImage": "Remove preview",
         "notificationDeleteErrorTitle": "Error",
-        "notificationDeleteErrorMessage": "The layout you want to delete is still allocated to at least one category.",
+        "notificationDeleteErrorMessage": "The layout you want to delete is still assigned to at least one category.",
         "modal": {
           "modalTitleDelete": "Delete layout",
           "textDeleteConfirm": "Are you sure you really want to delete the layout \"{pageName}\"?",

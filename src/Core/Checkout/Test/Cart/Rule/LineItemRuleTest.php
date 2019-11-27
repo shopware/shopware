@@ -113,6 +113,7 @@ class LineItemRuleTest extends TestCase
     public function testValidateWithInvalidArrayIdentifiers(): void
     {
         $conditionId = Uuid::randomHex();
+
         try {
             $this->conditionRepository->create([
                 [

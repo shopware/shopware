@@ -68,11 +68,14 @@ PHP analysis:
     services:
         -   name: mysql:5.7
             alias: mysql
+    retry:
+        max: 2
+        when: runner_system_failure
     script:
         - ./psh.phar init
         - if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
         - php dev-ops/analyze/generate-composer.php
-        - php dev-ops/analyze/vendor/bin/php-cs-fixer fix --config=vendor/shopware/platform/.php_cs.dist --dry-run --format=junit | tee php-cs-fixer.xml
+        - php dev-ops/analyze/vendor/bin/ecs check vendor/shopware/platform/src --config vendor/shopware/platform/easy-coding-standard.yml
         - php dev-ops/analyze/phpstan-config-generator.php
         - php dev-ops/analyze/vendor/bin/phpstan analyze --configuration vendor/shopware/platform/phpstan.neon --error-format gitlab | tee phpstan-report.json
         - >
@@ -83,7 +86,6 @@ PHP analysis:
         - php dev-ops/analyze/vendor/bin/psalm --config=vendor/shopware/platform/psalm.xml --threads=2 --show-info=false src
     artifacts:
         reports:
-            junit: development/php-cs-fixer.xml
             codequality: development/phpstan-report.json
 
 # stage: unit
@@ -295,11 +297,11 @@ General (Storefront):
     script: *storefront_definition
     needs: [Storefront (Jest)]
 
-Shopping experiences (Mixed):
+Content (Mixed):
     <<: *e2e_definition
     script: *mixed_definition
     variables:
-        TEST_DIRECTORY: e2e-Administration/cypress/integration/shopping-experiences/**/*
+        TEST_DIRECTORY: e2e-Administration/cypress/integration/content/**/*
 
 Catalogues  (Mixed):
     <<: *e2e_definition
@@ -388,6 +390,7 @@ RIPS security:
     stage: Security
     image: php:7.3-alpine
     before_script: []
+    allow_failure: true
     only:
         - master
     script:

@@ -389,6 +389,7 @@ class SearchCriteriaBuilderTest extends TestCase
         ];
 
         $gotError = false;
+
         try {
             $this->fakeHandleRequest($maxLimit, [], $params);
         } catch (SearchRequestException $e) {
@@ -412,6 +413,7 @@ class SearchCriteriaBuilderTest extends TestCase
         ];
 
         $gotError = false;
+
         try {
             $this->fakeHandleRequest(0, $allowedLimits, $params);
         } catch (SearchRequestException $e) {

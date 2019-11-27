@@ -54,20 +54,20 @@
                 <div class="sw-property-list__content">
 
                     {% block sw_property_list_grid %}
-                        <sw-data-grid v-if="total || term"
-                                      :dataSource="properties"
-                                      :columns="propertiesColumns"
-                                      ref="propertyList"
-                                      :showSelection="false"
-                                      :showSettings="true"
-                                      :fullPage="true"
-                                      :sortBy="sortBy"
-                                      :sortDirection="sortDirection"
-                                      :isLoading="isLoading"
-                                      :allowColumnEdit="true"
-                                      :compactMode="false"
-                                      identifier="sw-properties-list"
-                                      @column-sort="onSortColumn">
+                        <sw-entity-listing :items="propertyGroup"
+                            :columns="getPropertyColumns()"
+                            :repository="propertyRepository"
+                            ref="propertyList"
+                            :showSelection="false"
+                            :showSettings="true"
+                            :fullPage="true"
+                            :sortBy="sortBy"
+                            :sortDirection="sortDirection"
+                            :isLoading="isLoading"
+                            :allowColumnEdit="true"
+                            :compactMode="false"
+                            identifier="sw-properties-list"
+                            @column-sort="onSortColumn">
 
                             {% block sw_property_list_grid_options %}
                                 <template slot="column-options" slot-scope="{ item }">
@@ -117,15 +117,11 @@
                                 </template>
                             {% endblock %}
 
-                        </sw-data-grid>
+                        </sw-entity-listing>
                     {% endblock %}
 
                     {% block sw_property_list_empty_state %}
-                        <sw-empty-state v-else-if="!isLoading && !total" :title="$tc('sw-property.list.messageEmpty')"></sw-empty-state>
-                    {% endblock %}
-
-                    {% block sw_property_list_loader %}
-                        <sw-loader v-if="isLoading"></sw-loader>
+                        <sw-empty-state v-if="!total && !isLoading" :title="$tc('sw-property.list.messageEmpty')"></sw-empty-state>
                     {% endblock %}
                 </div>
             {% endblock %}

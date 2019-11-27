@@ -5,7 +5,7 @@
             <template slot="smart-bar-header">
 
                 {% block sw_property_detail_smart_bar_header_title %}
-                    <h2>{{ placeholder(group, 'name', $tc('sw-property.detail.textHeadline')) }}</h2>
+                    <h2>{{ placeholder(propertyGroup, 'name', $tc('sw-property.detail.textHeadline')) }}</h2>
                 {% endblock %}
 
             </template>
@@ -14,7 +14,7 @@
         {% block sw_property_detail_smart_bar_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_property_detail_smart_bar_actions_cancel %}
-                    <sw-button :disabled="group.isLoading" v-tooltip.bottom="tooltipCancel" @click="onCancel">
+                    <sw-button :disabled="isLoading" v-tooltip.bottom="tooltipCancel" @click="onCancel">
                         {{ $tc('sw-property.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
@@ -24,7 +24,7 @@
                             class="sw-property-detail__save-action"
                             :isLoading="isLoading"
                             :processSuccess="isSaveSuccessful"
-                            :disabled="group.isLoading"
+                            :disabled="isLoading"
                             variant="primary"
                             @process-finish="saveFinish"
                             v-tooltip.bottom="tooltipSave"
@@ -48,16 +48,16 @@
             <sw-card-view slot="content">
                 {% block sw_property_detail_content_language_info %}
                     <sw-language-info
-                            :entityDescription="placeholder(group, 'name', $tc('sw-property.detail.textHeadline'))">
+                            :entityDescription="placeholder(propertyGroup, 'name', $tc('sw-property.detail.textHeadline'))">
                     </sw-language-info>
                 {% endblock %}
 
                 {% block sw_property_detail_content_detail_base %}
-                    <sw-property-detail-base :group="group" />
+                <sw-property-detail-base v-if="propertyGroup" :propertyGroup="propertyGroup" :isLoading="isLoading"></sw-property-detail-base>
                 {% endblock %}
 
                 {% block sw_property_detail_content_option_list %}
-                    <sw-property-option-list v-if="group.sortingType" :group="group" ref="optionListing" />
+                <sw-property-option-list :optionRepository="optionRepository" v-if="propertyGroup" :propertyGroup="propertyGroup" ref="optionListing" :isLoading="isLoading"></sw-property-option-list>
                 {% endblock %}
             </sw-card-view>
         {% endblock %}

@@ -15,7 +15,7 @@ describe('Account: Login as customer', () => {
         cy.get(`${page.elements.loginSubmit} [type="submit"]`).click();
 
         cy.get('.alert-danger').should((element) => {
-            expect(element).to.contain('There is no account matching the given credentials.');
+            expect(element).to.contain('There is no account that matches the given credentials.');
         });
     });
 

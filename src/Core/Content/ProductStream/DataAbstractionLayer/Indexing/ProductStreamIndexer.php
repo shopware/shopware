@@ -161,6 +161,7 @@ class ProductStreamIndexer implements IndexerInterface
         foreach ($filters as $id => $filter) {
             $invalid = false;
             $serialized = null;
+
             try {
                 $nested = $this->buildNested($filter, null);
 

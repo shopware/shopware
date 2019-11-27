@@ -8,8 +8,10 @@ use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
-class ApiRouteScope extends AbstractRouteScope
+class ApiRouteScope extends AbstractRouteScope implements ApiContextRouteScopeDependant
 {
+    public const ID = 'api';
+
     /**
      * @var string[]
      */
@@ -17,18 +19,20 @@ class ApiRouteScope extends AbstractRouteScope
 
     public function isAllowed(Request $request): bool
     {
-        /** @var Context $requestContext */
-        $requestContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        /** @var Context $context */
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        $authRequired = $request->attributes->get('auth_required', true);
+        $source = $context->getSource();
 
-        if (!$request->attributes->get('auth_required', true)) {
-            return $requestContext->getSource() instanceof SystemSource;
+        if (!$authRequired) {
+            return $source instanceof SystemSource || $source instanceof AdminApiSource;
         }
 
-        return $requestContext->getSource() instanceof AdminApiSource;
+        return $context->getSource() instanceof AdminApiSource;
     }
 
     public function getId(): string
     {
-        return 'api';
+        return self::ID;
     }
 }

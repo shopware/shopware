@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Theme\Subscriber;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Update\Event\UpdateFinishedEvent;
+use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Shopware\Storefront\Theme\ThemeService;
@@ -41,14 +41,14 @@ class UpdateSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            UpdateFinishedEvent::class => 'updateFinished',
+            UpdatePostFinishEvent::class => 'updateFinished',
         ];
     }
 
     /**
      * @internal
      */
-    public function updateFinished(UpdateFinishedEvent $event): void
+    public function updateFinished(UpdatePostFinishEvent $event): void
     {
         $context = $event->getContext();
         $this->themeLifecycleService->refreshThemes($context);

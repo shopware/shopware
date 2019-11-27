@@ -68,6 +68,7 @@ class ImportExportFileRepositoryTest extends TestCase
         foreach ($requiredProperties as $property) {
             $entry = array_shift($data);
             unset($entry[$property]);
+
             try {
                 $this->repository->create([$entry], $this->context);
                 static::fail(sprintf("Create without required property '%s'", $property));

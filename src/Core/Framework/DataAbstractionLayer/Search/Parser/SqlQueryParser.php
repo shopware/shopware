@@ -62,6 +62,7 @@ class SqlQueryParser
                     $result->addWhere(
                         sprintf('IF(%s , %s * %s, 0)', $where, $this->connection->quote($query->getScore()), $field)
                     );
+
                     continue;
                 }
 

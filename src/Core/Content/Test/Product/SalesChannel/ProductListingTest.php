@@ -148,6 +148,7 @@ class ProductListingTest extends TestCase
             if ($result->has($id)) {
                 $match = $id;
                 unset($pool[$index]);
+
                 break;
             }
         }

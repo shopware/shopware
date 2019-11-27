@@ -90,6 +90,7 @@ class ScheduledTaskHandlerTest extends TestCase
         $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $taskId, true);
 
         $exception = null;
+
         try {
             $handler($task);
         } catch (MessageFailedException $e) {

@@ -95,6 +95,7 @@ class PaymentService
             return $this->paymentProcessor->process($orderId, $dataBag, $context, $finishUrl);
         } catch (AsyncPaymentProcessException | SyncPaymentProcessException $e) {
             $this->cancelOrderTransaction($e->getOrderTransactionId(), $context->getContext());
+
             throw $e;
         }
     }
@@ -126,6 +127,7 @@ class PaymentService
             $paymentHandler->finalize($paymentTransactionStruct, $request, $salesChannelContext);
         } catch (CustomerCanceledAsyncPaymentException | AsyncPaymentFinalizeException $e) {
             $this->cancelOrderTransaction($e->getOrderTransactionId(), $context);
+
             throw $e;
         }
 

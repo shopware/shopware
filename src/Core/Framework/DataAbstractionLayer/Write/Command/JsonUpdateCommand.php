@@ -15,12 +15,12 @@ class JsonUpdateCommand extends UpdateCommand
     public function __construct(
         EntityDefinition $definition,
         string $storageName,
-        array $pkData,
         array $payload,
+        array $primaryKey,
         EntityExistence $existence,
         string $path
     ) {
-        parent::__construct($definition, $pkData, $payload, $existence, $path);
+        parent::__construct($definition, $payload, $primaryKey, $existence, $path);
         $this->storageName = $storageName;
     }
 

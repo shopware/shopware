@@ -340,6 +340,7 @@ class ApiVersionConverterTest extends TestCase
         $request = new Request($query, [], ['version' => 2]);
 
         $exception = null;
+
         try {
             $searchCriteriaBuilder->handleRequest($request, new Criteria(), $deprecatedDefinition, Context::createDefaultContext());
         } catch (SearchRequestException $e) {
@@ -388,6 +389,7 @@ class ApiVersionConverterTest extends TestCase
         $request = new Request($query, [], ['version' => 1]);
 
         $exception = null;
+
         try {
             $searchCriteriaBuilder->handleRequest($request, new Criteria(), $deprecatedDefinition, Context::createDefaultContext());
         } catch (SearchRequestException $e) {

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Newsletter;
 
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 interface NewsletterSubscriptionServiceInterface
@@ -19,11 +20,23 @@ interface NewsletterSubscriptionServiceInterface
 
     public const STATUS_DIRECT = 'direct';
 
+    /**
+     * @throws ConstraintViolationException
+     */
     public function subscribe(DataBag $requestDataBag, SalesChannelContext $context): void;
 
+    /**
+     * @throws ConstraintViolationException
+     */
     public function confirm(DataBag $requestDataBag, SalesChannelContext $context): void;
 
+    /**
+     * @throws ConstraintViolationException
+     */
     public function unsubscribe(DataBag $requestDataBag, SalesChannelContext $context): void;
 
+    /**
+     * @throws ConstraintViolationException
+     */
     public function update(DataBag $requestDataBag, SalesChannelContext $context): void;
 }

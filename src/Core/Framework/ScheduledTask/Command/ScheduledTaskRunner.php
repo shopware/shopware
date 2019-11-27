@@ -8,7 +8,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Messenger\Worker\StopWhenRestartSignalIsReceived;
+use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
 class ScheduledTaskRunner extends Command
 {
@@ -45,7 +45,7 @@ class ScheduledTaskRunner extends Command
             ->setDescription('Worker that runs scheduled task.');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $startTime = microtime(true);
         $endTime = null;
@@ -88,12 +88,12 @@ class ScheduledTaskRunner extends Command
             }
         }
 
-        return null;
+        return 0;
     }
 
     private function shouldRestart(float $workerStartedAt): bool
     {
-        $cacheItem = $this->restartSignalCachePool->getItem(StopWhenRestartSignalIsReceived::RESTART_REQUESTED_TIMESTAMP_KEY);
+        $cacheItem = $this->restartSignalCachePool->getItem(StopWorkerOnRestartSignalListener::RESTART_REQUESTED_TIMESTAMP_KEY);
 
         if (!$cacheItem->isHit()) {
             // no restart has ever been scheduled

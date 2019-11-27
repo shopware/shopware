@@ -31,4 +31,9 @@ class RouteScope extends ConfigurationAnnotation
     {
         $this->scopes = $scopes;
     }
+
+    public function hasScope(string $scopeName): bool
+    {
+        return in_array($scopeName, $this->scopes, true);
+    }
 }

@@ -8,6 +8,7 @@ use Shopware\Core\Content\DeliveryTime\DeliveryTimeDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductOption\ProductOptionDefinition;
@@ -198,6 +199,9 @@ class ProductDefinition extends EntityDefinition
 
             //inherited associations which are not loaded immediately
             (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id'))
+                ->addFlags(new CascadeDelete(), new Inherited()),
+
+            (new OneToManyAssociationField('crossSellings', ProductCrossSellingDefinition::class, 'product_id'))
                 ->addFlags(new CascadeDelete(), new Inherited()),
 
             //associations which are not loaded immediately

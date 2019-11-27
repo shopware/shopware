@@ -164,6 +164,7 @@ class ProductVisibilityTest extends TestCase
 
             $e = null;
             $page = null;
+
             try {
                 $page = $this->productPageLoader->load($request, $salesChannelContext);
             } catch (\Exception $e) {
@@ -173,6 +174,7 @@ class ProductVisibilityTest extends TestCase
                 static::assertNull($e, 'Exception should not be thrown.');
                 static::assertNotNull($page, 'Page should not be null');
                 static::assertSame($case['productId'], $page->getProduct()->getId());
+
                 continue;
             }
 

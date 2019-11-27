@@ -49,6 +49,23 @@ export default class ListingPlugin extends Plugin {
     /**
      * @public
      */
+    refreshRegistry() {
+        // get only the registrations which are visible in the document
+        const visibleRegistrations = this._registry.filter((entry) => document.body.contains(entry.el));
+
+        // reinitialize the listing plugin
+        this.init();
+
+        // replace empty registry with existing visible registries
+        this._registry = visibleRegistrations;
+
+        // initialize plugins which are not registered yet
+        window.PluginManager.initializePlugins();
+    }
+
+    /**
+     * @public
+     */
     changeListing() {
         this._buildRequest();
 

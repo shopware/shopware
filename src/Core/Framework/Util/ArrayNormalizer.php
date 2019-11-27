@@ -15,6 +15,7 @@ class ArrayNormalizer
                 foreach (self::flatten($value) as $innerKey => $innerValue) {
                     $result[$key . '.' . $innerKey] = $innerValue;
                 }
+
                 continue;
             }
 

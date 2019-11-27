@@ -79,10 +79,14 @@ class KernelLifecycleManager
         return static::$kernel;
     }
 
-    public static function createKernel(): KernelInterface
+    public static function createKernel(?string $kernelClass = null): KernelInterface
     {
-        if (static::$class === null) {
-            static::$class = static::getKernelClass();
+        if ($kernelClass === null) {
+            if (static::$class === null) {
+                static::$class = static::getKernelClass();
+            }
+
+            $kernelClass = static::$class;
         }
 
         if (isset($_ENV['APP_ENV'])) {
@@ -105,14 +109,14 @@ class KernelLifecycleManager
             throw new \InvalidArgumentException('No class loader set. Please call KernelLifecycleManager::prepare');
         }
 
-        $pluginLoader = new DbalKernelPluginLoader(self::$classLoader, null, static::$class::getConnection());
+        $pluginLoader = new DbalKernelPluginLoader(self::$classLoader, null, $kernelClass::getConnection());
 
         // This hash MUST be constant as long as NEXT-5273 is not resolved.
         // Otherwise tests using a dataprovider wither services (such as JsonSalesChannelEntityEncoderTest)
         // will fail randomly
         $cacheId = 'h8f3f0ee9c61829627676afd6294bb029';
 
-        return new static::$class($env, $debug, $pluginLoader, $cacheId);
+        return new $kernelClass($env, $debug, $pluginLoader, $cacheId);
     }
 
     /**

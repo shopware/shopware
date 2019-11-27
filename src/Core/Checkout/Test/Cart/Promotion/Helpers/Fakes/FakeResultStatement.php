@@ -3,9 +3,8 @@
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes;
 
 use Doctrine\DBAL\Driver\ResultStatement;
-use Symfony\Component\Serializer\Tests\Fixtures\TraversableDummy;
 
-class FakeResultStatement extends TraversableDummy implements ResultStatement
+class FakeResultStatement implements \IteratorAggregate, ResultStatement
 {
     /**
      * @var array
@@ -45,5 +44,10 @@ class FakeResultStatement extends TraversableDummy implements ResultStatement
     public function fetchColumn($columnIndex = 0)
     {
         return '';
+    }
+
+    public function getIterator(): \Traversable
+    {
+        return new \ArrayIterator(get_object_vars($this));
     }
 }

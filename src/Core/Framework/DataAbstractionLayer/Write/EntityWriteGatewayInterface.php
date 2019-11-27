@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 
 interface EntityWriteGatewayInterface
@@ -15,7 +15,7 @@ interface EntityWriteGatewayInterface
     public function getExistence(EntityDefinition $definition, array $primaryKey, array $data, WriteCommandQueue $commandQueue): EntityExistence;
 
     /**
-     * @param WriteCommandInterface[] $commands
+     * @param WriteCommand[] $commands
      */
     public function execute(array $commands, WriteContext $context): void;
 }

@@ -73,6 +73,6 @@ abstract class MigrationStep
 
     protected function registerIndexer(Connection $connection, string $name): void
     {
-        IndexerQueuer::registerIndexer($connection, $name, get_class($this));
+        IndexerQueuer::registerIndexer($connection, $name, static::class);
     }
 }

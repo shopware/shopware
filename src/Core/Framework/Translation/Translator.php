@@ -199,10 +199,11 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
     private function getCustomizedCatalog(MessageCatalogueInterface $catalog): MessageCatalogueInterface
     {
         if ($this->snippetSetId === null) {
-            $request = $this->requestStack->getMasterRequest();
+            $request = $this->requestStack->getCurrentRequest();
             if (!$request) {
                 return $catalog;
             }
+
             $snippetSetId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID);
             if ($snippetSetId === null) {
                 return $catalog;

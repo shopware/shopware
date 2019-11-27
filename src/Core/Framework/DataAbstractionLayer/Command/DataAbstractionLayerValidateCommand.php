@@ -24,7 +24,7 @@ class DataAbstractionLayerValidateCommand extends Command
         $this->validator = $validator;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);
         $io->title('Data Abstraction Layer Validation');

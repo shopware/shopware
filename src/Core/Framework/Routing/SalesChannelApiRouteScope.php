@@ -8,8 +8,10 @@ use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
-class SalesChannelApiRouteScope extends AbstractRouteScope
+class SalesChannelApiRouteScope extends AbstractRouteScope implements SalesChannelContextRouteScopeDependant
 {
+    public const ID = 'sales-channel-api';
+
     /**
      * @var string[]
      */
@@ -29,6 +31,6 @@ class SalesChannelApiRouteScope extends AbstractRouteScope
 
     public function getId(): string
     {
-        return 'sales-channel-api';
+        return self::ID;
     }
 }

@@ -44,7 +44,7 @@ class AssignAllTemplatesToAllSalesChannelsCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);
 
@@ -55,7 +55,7 @@ class AssignAllTemplatesToAllSalesChannelsCommand extends Command
         if ($salesChannels->count() === 0) {
             $io->comment('No salesChannels found.');
 
-            return null;
+            return 0;
         }
         $criteria = new Criteria();
         $criteria->addAssociation('salesChannels');
@@ -65,7 +65,7 @@ class AssignAllTemplatesToAllSalesChannelsCommand extends Command
         if ($mailtemplates->count() === 0) {
             $io->comment('No mailTemplates found.');
 
-            return null;
+            return 0;
         }
 
         $confirm = $io->confirm(
@@ -76,7 +76,7 @@ class AssignAllTemplatesToAllSalesChannelsCommand extends Command
         if (!$confirm) {
             $io->caution('Aborting due to user input.');
 
-            return null;
+            return 0;
         }
 
         $mailtemplatesCount = 0;
@@ -104,6 +104,6 @@ class AssignAllTemplatesToAllSalesChannelsCommand extends Command
 
         $io->success(sprintf('Successfully assigned %d mailTemplates to %d salesChannels.', $mailtemplatesCount, $salesChannels->count()));
 
-        return null;
+        return 0;
     }
 }

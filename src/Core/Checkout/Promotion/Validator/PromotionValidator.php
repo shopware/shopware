@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -92,6 +92,7 @@ class PromotionValidator implements EventSubscriberInterface
                         $violationList,
                         $index
                     );
+
                     break;
 
                 case PromotionDiscountDefinition::class:
@@ -112,6 +113,7 @@ class PromotionValidator implements EventSubscriberInterface
                         $violationList,
                         $index
                     );
+
                     break;
             }
         }
@@ -133,7 +135,7 @@ class PromotionValidator implements EventSubscriberInterface
         $promotionIds = [];
         $discountIds = [];
 
-        /** @var WriteCommandInterface $command */
+        /** @var WriteCommand $command */
         foreach ($writeCommands as $command) {
             if (!$command instanceof InsertCommand && !$command instanceof UpdateCommand) {
                 continue;
@@ -142,10 +144,12 @@ class PromotionValidator implements EventSubscriberInterface
             switch (get_class($command->getDefinition())) {
                 case PromotionDefinition::class:
                     $promotionIds[] = $command->getPrimaryKey()['id'];
+
                     break;
 
                 case PromotionDiscountDefinition::class:
                     $discountIds[] = $command->getPrimaryKey()['id'];
+
                     break;
             }
         }
@@ -323,6 +327,7 @@ class PromotionValidator implements EventSubscriberInterface
                         $index
                     ));
                 }
+
                 break;
         }
     }

@@ -102,6 +102,7 @@ final class StoreService
         ];
 
         $client = new Client($this->getClientBaseConfig());
+
         try {
             $response = $client->post('/swplatform/tracking/events', ['json' => $payload]);
 

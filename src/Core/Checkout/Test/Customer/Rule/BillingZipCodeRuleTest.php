@@ -43,6 +43,7 @@ class BillingZipCodeRuleTest extends TestCase
     public function testValidateWithMissingZipCodes(): void
     {
         $conditionId = Uuid::randomHex();
+
         try {
             $this->conditionRepository->create([
                 [

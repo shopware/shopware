@@ -30,10 +30,10 @@ class ThemeRefreshCommand extends Command
         $this->context = Context::createDefaultContext();
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->themeLifecycleService->refreshThemes($this->context);
 
-        return null;
+        return 0;
     }
 }

@@ -81,7 +81,7 @@ class EntityReaderTest extends TestCase
         $this->categoryRepository->create($data, $context);
 
         $context = new Context(
-            new Context\SystemSource(),
+            new SystemSource(),
             [],
             Defaults::CURRENCY,
             [
@@ -98,7 +98,7 @@ class EntityReaderTest extends TestCase
         static::assertSame('test', $category->getTranslated()['name']);
 
         $context = new Context(
-            new Context\SystemSource(),
+            new SystemSource(),
             [],
             Defaults::CURRENCY,
             [
@@ -115,7 +115,7 @@ class EntityReaderTest extends TestCase
         static::assertSame('test', $category->getTranslated()['name']);
 
         $context = new Context(
-            new Context\SystemSource(),
+            new SystemSource(),
             [],
             Defaults::CURRENCY,
             [

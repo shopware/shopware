@@ -38,6 +38,13 @@ Module.register('sw-property', {
         detail: {
             component: 'sw-property-detail',
             path: 'detail/:id',
+            props: {
+                default: (route) => {
+                    return {
+                        groupId: route.params.id
+                    };
+                }
+            },
             meta: {
                 parentPath: 'sw.property.index'
             }

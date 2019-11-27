@@ -9,8 +9,10 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -92,7 +94,7 @@ class ProductSearchKeywordIndexer implements IndexerInterface
         /** @var LanguageEntity $language */
         foreach ($languages as $language) {
             $context = new Context(
-                new Context\SystemSource(),
+                new SystemSource(),
                 [],
                 Defaults::CURRENCY,
                 [$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM],
@@ -151,7 +153,7 @@ class ProductSearchKeywordIndexer implements IndexerInterface
 
         $language = $languages[$languageOffset];
         $context = new Context(
-            new Context\SystemSource(),
+            new SystemSource(),
             [],
             Defaults::CURRENCY,
             [$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM],
@@ -190,6 +192,12 @@ class ProductSearchKeywordIndexer implements IndexerInterface
         $products = $event->getEventByEntityName(ProductDefinition::ENTITY_NAME);
 
         if (!$products) {
+            return;
+        }
+
+        if ($products instanceof EntityDeletedEvent) {
+            $this->delete($products->getIds(), $event->getContext()->getLanguageId(), $event->getContext()->getVersionId());
+
             return;
         }
 
@@ -248,20 +256,14 @@ class ProductSearchKeywordIndexer implements IndexerInterface
         }
 
         $this->connection->beginTransaction();
-        try {
-            $bytes = array_map(function ($id) {
-                return Uuid::fromHexToBytes($id);
-            }, $ids);
 
-            $this->connection->executeUpdate(
-                'DELETE FROM product_search_keyword WHERE product_id IN (:ids) AND language_id = :language',
-                ['ids' => $bytes, 'language' => $languageId],
-                ['ids' => Connection::PARAM_STR_ARRAY]
-            );
+        try {
+            $this->delete($ids, $context->getLanguageId(), $context->getVersionId());
 
             $insert->execute();
         } catch (\Exception $e) {
             $this->connection->rollBack();
+
             throw $e;
         }
         // Only commit if transaction not marked as rollback
@@ -275,5 +277,22 @@ class ProductSearchKeywordIndexer implements IndexerInterface
     public static function getName(): string
     {
         return 'Swag.ProductSearchKeywordIndexer';
+    }
+
+    private function delete(array $ids, string $languageId, string $versionId): void
+    {
+        $bytes = array_map(function ($id) {
+            return Uuid::fromHexToBytes($id);
+        }, $ids);
+
+        $this->connection->executeUpdate(
+            'DELETE FROM product_search_keyword WHERE product_id IN (:ids) AND language_id = :language AND version_id = :versionId',
+            [
+                'ids' => $bytes,
+                'language' => Uuid::fromHexToBytes($languageId),
+                'versionId' => Uuid::fromHexToBytes($versionId),
+            ],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
     }
 }

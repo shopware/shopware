@@ -33,3 +33,8 @@ shopware:
             expiration_time: 3600
     store:
         frw: false
+
+    sitemap:
+        batchsize: 100
+        custom_urls:
+        excluded_urls:

@@ -4,13 +4,16 @@ namespace Shopware\Core\Content\Test\Product\DataAbstractionLayer\Indexing;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -29,6 +32,11 @@ class ProductStockIndexerTest extends TestCase
      * @var EntityRepositoryInterface
      */
     private $repository;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $lineItemRepository;
 
     /**
      * @var CartService
@@ -51,6 +59,7 @@ class ProductStockIndexerTest extends TestCase
         $this->repository = $this->getContainer()->get('product.repository');
         $this->cartService = $this->getContainer()->get(CartService::class);
         $this->contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $this->lineItemRepository = $this->getContainer()->get('order_line_item.repository');
 
         $this->context = $this->contextFactory->create(
             Uuid::randomHex(),
@@ -228,6 +237,99 @@ class ProductStockIndexerTest extends TestCase
         static::assertFalse($product->getAvailable());
         static::assertSame(0, $product->getStock());
         static::assertSame(0, $product->getAvailableStock());
+    }
+
+    public function testSwitchLineItem(): void
+    {
+        $id = $this->createProduct();
+        $id2 = $this->createProduct();
+
+        $context = Context::createDefaultContext();
+
+        $product = $this->repository->search(new Criteria([$id]), $context)->get($id);
+
+        static::assertSame(5, $product->getStock());
+
+        $orderId = $this->orderProduct($id, 5);
+
+        /** @var ProductEntity $product */
+        $product = $this->repository->search(new Criteria([$id]), $context)->get($id);
+
+        static::assertFalse($product->getAvailable());
+        static::assertSame(5, $product->getStock());
+        static::assertSame(0, $product->getAvailableStock());
+
+        $lineItemRepository = $this->getContainer()->get('order_line_item.repository');
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('referencedId', $id));
+        $criteria->addFilter(new EqualsFilter('orderId', $orderId));
+
+        $lineItem = $lineItemRepository->search($criteria, $context)->first();
+        /** @var OrderLineItemEntity $lineItem */
+        static::assertInstanceOf(OrderLineItemEntity::class, $lineItem);
+
+        $update = [
+            ['id' => $lineItem->getId(), 'referencedId' => $id2, 'productId' => $id2, 'payload' => ['productNumber' => $id2]],
+        ];
+
+        $this->lineItemRepository->update($update, $context);
+
+        /** @var EntityCollection $products */
+        $products = $context->disableCache(function () use ($id, $id2, $context) {
+            return $this->repository->search(new Criteria([$id, $id2]), $context);
+        });
+
+        $product = $products->get($id);
+        static::assertTrue($product->getAvailable());
+        static::assertSame(5, $product->getStock());
+        static::assertSame(5, $product->getAvailableStock());
+
+        $product = $products->get($id2);
+        static::assertFalse($product->getAvailable());
+        static::assertSame(5, $product->getStock());
+        static::assertSame(0, $product->getAvailableStock());
+    }
+
+    public function testDeleteOrderedProduct(): void
+    {
+        $id = $this->createProduct();
+
+        $context = Context::createDefaultContext();
+
+        $product = $this->repository->search(new Criteria([$id]), $context)->get($id);
+
+        static::assertSame(5, $product->getStock());
+
+        $orderId = $this->orderProduct($id, 5);
+
+        /** @var ProductEntity $product */
+        $product = $this->repository->search(new Criteria([$id]), $context)->get($id);
+
+        static::assertFalse($product->getAvailable());
+        static::assertSame(5, $product->getStock());
+        static::assertSame(0, $product->getAvailableStock());
+
+        $lineItemRepository = $this->getContainer()->get('order_line_item.repository');
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('referencedId', $id));
+        $criteria->addFilter(new EqualsFilter('orderId', $orderId));
+
+        $lineItem = $lineItemRepository->search($criteria, $context)->first();
+
+        /** @var OrderLineItemEntity $lineItem */
+        static::assertInstanceOf(OrderLineItemEntity::class, $lineItem);
+
+        $lineItemRepository->delete([
+            ['id' => $lineItem->getId()],
+        ], $context);
+
+        $product = $context->disableCache(function () use ($id, $context) {
+            return $this->repository->search(new Criteria([$id]), $context)->get($id);
+        });
+
+        static::assertTrue($product->getAvailable());
+        static::assertSame(5, $product->getStock());
+        static::assertSame(5, $product->getAvailableStock());
     }
 
     private function createCustomer(): string

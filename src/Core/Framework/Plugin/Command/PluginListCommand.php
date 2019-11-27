@@ -42,7 +42,7 @@ class PluginListCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);
         $io->title('Shopware Plugin Service');
@@ -110,6 +110,6 @@ class PluginListCommand extends Command
             )
         );
 
-        return null;
+        return 0;
     }
 }

@@ -4,6 +4,14 @@ UPGRADE FROM 6.0 to 6.1
 Core
 ----
 
+* `\Shopware\Storefront\Controller\StorefrontController::forwardToRoute` now handles parameters correctly.
+* Request scope changes during a single request handle are prohibited.
+* Use `\Shopware\Core\Framework\Routing\RequestTransformerInterface::extractInheritableAttributes` if you want to create a true subrequest.
+* The Context will only be resolved when a valid scope is dipatched.
+* All admin and api routes are now authentication protected by default.
+* Changed the `\Symfony\Component\HttpKernel\KernelEvents::CONTROLLER` Event-Subscriber priorities. Now all Shopware Listeners are handled after the core symfony event handlers. You can find the priorities in `\Shopware\Core\Framework\Routing\KernelListenerPriorities`.
+* Removed the `Shopware\Core\Framework\Routing\Event\RouteScopeWhitlistCollectEvent` in favor of a taggable interface named `Shopware\Core\Framework\Routing\RouteScopeWhitelistInterface`.
+* Requests can no longer be forwarded across different request scopes.
 * If you have implemented a custom FieldResolver, you need to implement the `getJoinBuilder` method.
 * `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria` association handling
 

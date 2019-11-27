@@ -2,17 +2,16 @@
 
 namespace Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTypeTranslation;
 
-use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                          add(ProductTranslationEntity $entity)
- * @method void                          set(string $key, ProductTranslationEntity $entity)
- * @method ProductTranslationEntity[]    getIterator()
- * @method ProductTranslationEntity[]    getElements()
- * @method ProductTranslationEntity|null get(string $key)
- * @method ProductTranslationEntity|null first()
- * @method ProductTranslationEntity|null last()
+ * @method void                                   add(MailTemplateTypeTranslationEntity $entity)
+ * @method void                                   set(string $key, MailTemplateTypeTranslationEntity $entity)
+ * @method MailTemplateTypeTranslationEntity[]    getIterator()
+ * @method MailTemplateTypeTranslationEntity[]    getElements()
+ * @method MailTemplateTypeTranslationEntity|null get(string $key)
+ * @method MailTemplateTypeTranslationEntity|null first()
+ * @method MailTemplateTypeTranslationEntity|null last()
  */
 class MailTemplateTypeTranslationCollection extends EntityCollection
 {

@@ -55,7 +55,7 @@ class Entity extends Struct
     {
         if (!$this->has($property)) {
             throw new \InvalidArgumentException(
-                sprintf('Property %s do not exist in class %s', $property, \get_class($this))
+                sprintf('Property %s do not exist in class %s', $property, static::class)
             );
         }
 

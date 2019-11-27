@@ -49,7 +49,7 @@ class LineItemsInCartRule extends Rule
                 return empty(array_intersect($identifiers, $this->identifiers));
 
             default:
-                throw new UnsupportedOperatorException($this->operator, __CLASS__);
+                throw new UnsupportedOperatorException($this->operator, self::class);
         }
     }
 

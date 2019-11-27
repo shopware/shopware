@@ -23,6 +23,7 @@ class IntFieldTest extends TestCase
         $data = new KeyValuePair('count', null, false);
 
         $this->expectException(WriteConstraintViolationException::class);
+
         try {
             $serializer->encode(
                 $this->getIntField(),
@@ -33,6 +34,7 @@ class IntFieldTest extends TestCase
         } catch (WriteConstraintViolationException $e) {
             static::assertSame('/count', $e->getViolations()->get(0)->getPropertyPath());
             static::assertSame('This value should not be blank.', $e->getViolations()->get(0)->getMessage());
+
             throw $e;
         }
     }
@@ -44,6 +46,7 @@ class IntFieldTest extends TestCase
         $data = new KeyValuePair('count', 'foo', false);
 
         $this->expectException(WriteConstraintViolationException::class);
+
         try {
             $serializer->encode(
                 $this->getIntField(),
@@ -54,6 +57,7 @@ class IntFieldTest extends TestCase
         } catch (WriteConstraintViolationException $e) {
             static::assertSame('/count', $e->getViolations()->get(0)->getPropertyPath());
             static::assertSame('This value should be of type int.', $e->getViolations()->get(0)->getMessage());
+
             throw $e;
         }
     }

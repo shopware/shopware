@@ -110,6 +110,7 @@ class ConfigReader extends XmlReader
             foreach ($options as $option) {
                 if ($this->isTranslateAbleOption($option)) {
                     $elementData[$option->nodeName][$this->getLocaleCodeFromElement($option)] = $option->nodeValue;
+
                     continue;
                 }
 
@@ -128,16 +129,19 @@ class ConfigReader extends XmlReader
         foreach ($options as $option) {
             if ($this->isTranslateAbleOption($option)) {
                 $elementData[$option->nodeName][$this->getLocaleCodeFromElement($option)] = $option->nodeValue;
+
                 continue;
             }
 
             if ($this->isBoolOption($option)) {
                 $elementData[$option->nodeName] = filter_var($option->nodeValue, FILTER_VALIDATE_BOOLEAN);
+
                 continue;
             }
 
             if ($this->elementIsOptions($option)) {
                 $elementData['options'] = $this->optionsToArray($option);
+
                 continue;
             }
 

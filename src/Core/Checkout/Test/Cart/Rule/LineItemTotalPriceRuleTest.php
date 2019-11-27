@@ -45,6 +45,7 @@ class LineItemTotalPriceRuleTest extends TestCase
     public function testValidateWithMissingParameters(): void
     {
         $conditionId = Uuid::randomHex();
+
         try {
             $this->conditionRepository->create([
                 [

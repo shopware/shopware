@@ -11,10 +11,10 @@
             {% block sw_profile_index_actions %}
                 <sw-button-process
                     class="sw-profile__save-action"
+                    variant="primary"
                     :isLoading="isLoading || isUserLoading"
                     :processSuccess="isSaveSuccessful"
                     :disabled="isLoading || isUserLoading"
-                    variant="primary"
                     @process-finish="saveFinish"
                     @click.prevent="onSave">
                     {{ $tc('sw-profile.index.buttonSaveLabel') }}
@@ -31,15 +31,15 @@
                                  :isLoading="isUserLoading || !languageId">
                             <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0 30px">
                                 {% block sw_profile_index_info_card_first_name_field %}
-                                    <sw-text-field :label="$tc('sw-profile.index.labelFirstNameField')"
-                                                   v-model="user.firstName"
+                                    <sw-text-field v-model="user.firstName"
+                                                   :label="$tc('sw-profile.index.labelFirstNameField')"
                                                    :disabled="isDisabled">
                                     </sw-text-field>
                                 {% endblock %}
 
                                 {% block sw_profile_index_info_card_last_name_field %}
-                                    <sw-text-field :label="$tc('sw-profile.index.labelLastNameField')"
-                                                   v-model="user.lastName"
+                                    <sw-text-field v-model="user.lastName"
+                                                   :label="$tc('sw-profile.index.labelLastNameField')"
                                                    :disabled="isDisabled">
                                     </sw-text-field>
                                 {% endblock %}
@@ -47,18 +47,18 @@
 
                             <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0 30px">
                                 {% block sw_profile_index_info_card_username_field %}
-                                    <sw-text-field :label="$tc('sw-profile.index.labelUsernameField')"
-                                                   v-model="user.username"
+                                    <sw-text-field v-model="user.username"
+                                                   :label="$tc('sw-profile.index.labelUsernameField')"
                                                    :disabled="isDisabled">
                                     </sw-text-field>
                                 {% endblock %}
 
                                 {% block sw_profile_index_info_card_language %}
                                     <sw-select-field
-                                            class="sw-profile__language"
-                                            :label="$tc('sw-settings-user.user-detail.labelLanguage')"
-                                            v-model="user.localeId"
-                                            :placeholder="$tc('sw-settings-user.user-detail.labelLanguagePlaceholder')">
+                                        v-model="user.localeId"
+                                        class="sw-profile__language"
+                                        :label="$tc('sw-settings-user.user-detail.labelLanguage')"
+                                        :placeholder="$tc('sw-settings-user.user-detail.labelLanguagePlaceholder')">
                                         <option v-for="language in languages"
                                                 :value="language.locale.id"
                                                 :selected="user.localeId === language.locale.id">
@@ -69,9 +69,9 @@
                             </sw-container>
 
                             {% block sw_profile_index_info_card_email_field %}
-                                <sw-text-field :label="$tc('sw-profile.index.labelEmailField')"
-                                               v-model="user.email"
-                                               validation="email">
+                                <sw-text-field v-model="user.email"
+                                               validation="email"
+                                               :label="$tc('sw-profile.index.labelEmailField')">
                                 </sw-text-field>
                             {% endblock %}
                         </sw-card>
@@ -88,11 +88,11 @@
                                     @media-upload-finish="setMediaItem">
                                 </sw-upload-store-listener>
                                 <sw-media-upload
+                                    variant="regular"
+                                    class="sw-profile-index__user-image-upload"
                                     :uploadTag="uploadTag"
                                     :source="avatarMediaItem"
-                                    class="sw-profile-index__user-image-upload"
                                     :allowMultiSelect="false"
-                                    variant="regular"
                                     :label="$tc('sw-profile.index.labelUploadAvatar')"
                                     :defaultFolder="userRepository.schema.entity"
                                     @media-drop="onDropMedia"
@@ -108,23 +108,26 @@
                                  :title="$tc('sw-profile.index.titlePasswordCard')"
                                  :isLoading="isUserLoading || !languageId">
                             {% block sw_profile_index_password_card_old_password_field %}
-                                <sw-password-field :label="$tc('sw-profile.index.labelOldPassword')"
-                                                   v-model="oldPassword"
-                                                   autocomplete="off">
+                                <sw-password-field v-model="oldPassword"
+                                                   autocomplete="off"
+                                                   :label="$tc('sw-profile.index.labelOldPassword')"
+                                                   :placeholder="$tc('sw-profile.index.placeholderOldPassword')">
                                 </sw-password-field>
                             {% endblock %}
 
                             {% block sw_profile_index_password_card_new_password_field %}
-                                <sw-password-field :label="$tc('sw-profile.index.labelNewPasswordField')"
-                                                   v-model="newPassword"
-                                                   autocomplete="off">
+                                <sw-password-field v-model="newPassword"
+                                                   autocomplete="off"
+                                                   :label="$tc('sw-profile.index.labelNewPassword')"
+                                                   :placeholder="$tc('sw-profile.index.placeholderNewPassword')">
                                 </sw-password-field>
                             {% endblock %}
 
                             {% block sw_profile_index_password_card_confirm_new_password_field %}
-                                <sw-password-field :label="$tc('sw-profile.index.labelNewPasswordConfirmField')"
-                                                   v-model="newPasswordConfirm"
+                                <sw-password-field v-model="newPasswordConfirm"
                                                    autocomplete="off"
+                                                   :label="$tc('sw-profile.index.labelNewPasswordConfirm')"
+                                                   :placeholder="$tc('sw-profile.index.placeholderNewPasswordConfirm')"
                                                    :validation="newPassword === newPasswordConfirm">
                                 </sw-password-field>
                             {% endblock %}

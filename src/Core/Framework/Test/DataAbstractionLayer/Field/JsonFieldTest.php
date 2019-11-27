@@ -127,6 +127,7 @@ EOF;
         ];
 
         $ex = null;
+
         try {
             $this->getWriter()->insert($this->registerDefinition(ProductDefinition::class), [$data], $context);
         } catch (WriteException $ex) {
@@ -163,6 +164,7 @@ EOF;
         ];
 
         $ex = null;
+
         try {
             $this->getWriter()->insert($this->registerDefinition(ProductDefinition::class), [$data], $context);
         } catch (WriteException $ex) {
@@ -208,6 +210,7 @@ EOF;
         ];
 
         $ex = null;
+
         try {
             $this->getWriter()->insert($this->registerDefinition(ProductDefinition::class), [$data], $context);
         } catch (WriteException $ex) {
@@ -240,6 +243,7 @@ EOF;
         ];
 
         $ex = null;
+
         try {
             $this->getWriter()->insert($this->registerDefinition(ProductDefinition::class), [$data], $context);
         } catch (WriteException $ex) {
@@ -301,6 +305,7 @@ EOF;
         ];
 
         $ex = null;
+
         try {
             $this->getWriter()->insert($this->registerDefinition(NestedDefinition::class), [$data], $context);
         } catch (WriteException $ex) {

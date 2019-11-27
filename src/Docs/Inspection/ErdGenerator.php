@@ -83,6 +83,7 @@ class ErdGenerator
                         $this->toId($associated->toClassName()),
                         $associated->entityName()
                     );
+
                     continue;
                 }
 

@@ -73,7 +73,7 @@ class GoodsPriceRule extends FilterRule
                 return FloatComparator::notEquals($goodsAmount, $this->amount);
 
             default:
-                throw new UnsupportedOperatorException($this->operator, __CLASS__);
+                throw new UnsupportedOperatorException($this->operator, self::class);
         }
     }
 

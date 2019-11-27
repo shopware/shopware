@@ -188,6 +188,7 @@ class PromotionExclusionIndexer implements IndexerInterface
             if (count($results) === count($promotionExclusions)) {
                 // if there is no corrupted data we will add id to all excluded promotions too
                 $this->addToJSON($id, $promotionExclusions);
+
                 continue;
             }
 

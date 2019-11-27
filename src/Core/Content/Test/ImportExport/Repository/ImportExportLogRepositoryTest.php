@@ -105,6 +105,7 @@ class ImportExportLogRepositoryTest extends TestCase
         foreach ($requiredProperties as $property) {
             $entry = array_shift($data);
             unset($entry[$property]);
+
             try {
                 $this->logRepository->create([$entry], $this->context);
                 static::fail(sprintf("Create without required property '%s'", $property));

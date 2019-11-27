@@ -29,6 +29,9 @@
       "gridHeaderCreated": "Erstellt"
     },
     "section": {
+      "fallBackSectionName": "Sektion",
+      "positionLeft": "Inhalt, links",
+      "positionRight": "Inhalt, rechts",
       "fullWidth": "Volle Breite",
       "sidebar": "Sidebar",
       "isSidebar": "Layout-Sektion - Sidebar",
@@ -108,10 +111,7 @@
         "addBlocks": "Füge Blöcke per Drag & Drop hinzu",
         "labelNavigation": "Navigation",
         "headlineEmptyState": "Raum für Kreativität",
-        "claimEmptyState": "Stelle neue Layouts mithilfe von Sektionen zusammen. Wähle eine Sektion und füge einfach per Drag & Drop-Blöcke zu jeder Sektion hinzu und befülle die Blöcke dann mit deinem individuellen Inhalt.",
-        "sidebarMobile": "Mobiles Sidebar-Verhalten",
-        "sidebarMobileOptionHidden": "Nicht angezeigt",
-        "sidebarMobileOptionWrap": "Umbrechen"
+        "claimEmptyState": "Stelle neue Layouts mithilfe von Sektionen zusammen. Wähle eine Sektion und füge einfach per Drag & Drop-Blöcke zu jeder Sektion hinzu und befülle die Blöcke dann mit deinem individuellen Inhalt."
       },
       "notification": {
         "titleMissingFields": "Fehlende Konfiguration",
@@ -138,7 +138,10 @@
         "titleBlockSettings": "Block-Einstellungen",
         "headerBlockSettings": "Block:",
         "titleNavigator": "Navigator",
-        "titleSectionSettings": "Sektion-Einstellungen"
+        "titleSectionSettings": "Sektion-Einstellungen",
+        "mobile": "Mobiles Sidebar-Verhalten",
+        "mobileOptionHidden": "Nicht angezeigt",
+        "mobileOptionWrap": "Umbrechen"
       },
       "title": {
         "elementSettingsModal": "Element-Einstellungen",

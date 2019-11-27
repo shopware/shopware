@@ -29,6 +29,9 @@
       "gridHeaderCreated": "Created"
     },
     "section": {
+      "fallBackSectionName": "Section",
+      "positionLeft": "Content, left",
+      "positionRight": "Content, right",
       "fullWidth": "Full width",
       "sidebar": "Sidebar",
       "layoutSection": "Layout section",
@@ -43,10 +46,7 @@
         "settings": "Settings",
         "layoutSettings": "Layout",
         "duplicate": "Duplicate"
-      },
-      "labelSidebarMobile": "Mobile sidebar behavior",
-      "labelSidebarMobileOptionHidden": "Hidden",
-      "labelSidebarMobileOptionWrap": "Wrap"
+      }
     },
     "createWizard": {
       "choosePageTypeTitle": "What kind of page would you like to create?",
@@ -139,7 +139,10 @@
         "titleBlockSettings": "Block settings",
         "headerBlockSettings": "Block:",
         "titleNavigator": "Navigator",
-        "titleSectionSettings": "Section settings"
+        "titleSectionSettings": "Section settings",
+        "mobile": "Mobile sidebar behavior",
+        "mobileOptionHidden": "Hidden",
+        "mobileOptionWrap": "Wrap"
       },
       "title": {
         "elementSettingsModal": "Element settings",

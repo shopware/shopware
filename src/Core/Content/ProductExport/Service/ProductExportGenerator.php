@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport\Service;
 
+use Doctrine\DBAL\Connection;
 use Monolog\Logger;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
@@ -16,6 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\SalesChannelReposit
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Translation\Translator;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -46,6 +49,12 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
     /** @var Translator */
     private $translator;
 
+    /** @var SalesChannelContextPersister */
+    private $contextPersister;
+
+    /** @var Connection */
+    private $connection;
+
     public function __construct(
         ProductStreamBuilderInterface $productStreamBuilder,
         SalesChannelRepositoryInterface $productRepository,
@@ -54,6 +63,8 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         ProductExportValidatorInterface $productExportValidator,
         SalesChannelContextServiceInterface $salesChannelContextService,
         Translator $translator,
+        SalesChannelContextPersister $contextPersister,
+        Connection $connection,
         int $readBufferSize
     ) {
         $this->productStreamBuilder = $productStreamBuilder;
@@ -63,16 +74,22 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         $this->productExportValidator = $productExportValidator;
         $this->salesChannelContextService = $salesChannelContextService;
         $this->translator = $translator;
+        $this->contextPersister = $contextPersister;
+        $this->connection = $connection;
         $this->readBufferSize = $readBufferSize;
     }
 
     public function generate(ProductExportEntity $productExport, ExportBehavior $exportBehavior): ?ProductExportResult
     {
+        $contextToken = Uuid::randomHex();
+        $this->contextPersister->save($contextToken, [
+            SalesChannelContextService::CURRENCY_ID => $productExport->getCurrencyId(),
+        ]);
+
         $context = $this->salesChannelContextService->get(
             $productExport->getStorefrontSalesChannelId(),
-            Uuid::randomHex(),
-            $productExport->getSalesChannelDomain()->getLanguageId(),
-            $productExport->getCurrencyId()
+            $contextToken,
+            $productExport->getSalesChannelDomain()->getLanguageId()
         );
 
         $this->translator->injectSettings(
@@ -115,6 +132,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             $this->eventDispatcher->dispatch($loggingEvent);
 
             $this->translator->resetInjection();
+            $this->connection->delete('sales_channel_api_context', ['token' => $contextToken]);
             throw $exception;
         }
 
@@ -162,6 +180,8 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         );
 
         $this->translator->resetInjection();
+
+        $this->connection->delete('sales_channel_api_context', ['token' => $contextToken]);
 
         if (empty($content)) {
             return null;

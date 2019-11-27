@@ -170,6 +170,7 @@ class ProductExportController extends AbstractController
         $productExportEntity = $this->createEntity($dataBag);
         $productExportEntity->setSalesChannelDomain($salesChannelDomain);
         $productExportEntity->setStorefrontSalesChannelId($salesChannelDomain->getSalesChannelId());
+        $productExportEntity->setSalesChannel($salesChannelDomain->getSalesChannel());
 
         $exportBehavior = new ExportBehavior(true, true, true);
 

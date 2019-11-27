@@ -19,7 +19,7 @@
                     {% if product.calculatedPrice.referencePrice is not null %}
                         <span class="price-unit-reference">
                             {% if product.priceRange %}
-                                ({{ "listing.listingTextFrom"|trans|sw_sanitize }} {{ product.calculatedListingPrice.from.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ product.calculatedListingPrice.from.referencePrice.referenceUnit }} {{ product.calculatedListingPrice.from.referencePrice.unitName }})
+                                ({{ "listing.listingTextFrom"|trans|sw_sanitize }} {{ product.calculatedListingPrice.from.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ product.calculatedListingPrice.from.referencePrice.referenceUnit }}&nbsp;{{ product.calculatedListingPrice.from.referencePrice.unitName }})
                             {% else %}
                                 ({{ product.calculatedPrice.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ product.calculatedPrice.referencePrice.referenceUnit }} {{ product.calculatedPrice.referencePrice.unitName }})
                             {% endif %}

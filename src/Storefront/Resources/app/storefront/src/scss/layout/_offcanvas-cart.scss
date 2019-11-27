@@ -66,6 +66,14 @@ Extends the basic offcanvas component with additional cart styles.
 
     .cart-item-price {
         font-weight: $font-weight-bold;
+        margin-left: $spacer;
+        text-align: right;
+
+        .cart-item-reference-price {
+            color: lighten($sw-text-color, 20);
+            display: inline-block;
+            line-height: $spacer * 0.85;
+        }
     }
 }
 

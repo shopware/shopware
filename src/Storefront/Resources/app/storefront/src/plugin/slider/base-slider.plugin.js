@@ -83,13 +83,14 @@ export default class BaseSliderPlugin extends Plugin {
      * with the options for our viewport
      *
      * @param viewport
+     * @param startAtZero
      */
-    rebuild(viewport = ViewportDetection.getCurrentViewport()) {
+    rebuild(viewport = ViewportDetection.getCurrentViewport(), startAtZero = false) {
         this._getSettings(viewport.toLowerCase());
 
         // get the current index and use it as the start index
         try {
-            if (this._slider) {
+            if (this._slider && !startAtZero) {
                 const currentIndex = this._getCurrentIndex();
                 this._sliderSettings.startIndex = currentIndex;
             }

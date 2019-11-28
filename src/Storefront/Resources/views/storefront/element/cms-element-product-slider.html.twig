@@ -1,5 +1,7 @@
 {% block element_product_slider %}
-    {%  set sliderConfig = element.fieldConfig.elements %}
+    {% if not sliderConfig %}
+        {% set sliderConfig = element.fieldConfig.elements %}
+    {% endif %}
 
     <div class="cms-element-{{ element.type }}{% if sliderConfig.displayMode.value == "standard" and sliderConfig.verticalAlign.value %} has-vertical-alignment{% endif %}">
         {% block element_product_slider_alignment %}

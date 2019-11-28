@@ -1,0 +1,26 @@
+.product-detail-cross-selling {
+
+    @include media-breakpoint-down(xs) {
+        .product-detail-tabs-content {
+            display: block;
+        }
+
+        .product-cross-selling-tab-navigation {
+            display: none;
+        }
+
+        .tab-pane {
+            margin-top: 20px;
+            display: block;
+            opacity: 1;
+
+            .cms-element-title {
+                display: block;
+            }
+        }
+    }
+
+    .cms-element-title {
+        display: none;
+    }
+}

@@ -68,6 +68,7 @@ import ListingSortingPlugin from 'src/plugin/listing/listing-sorting.plugin';
 import DatePickerPlugin from 'src/plugin/date-picker/date-picker.plugin';
 import FormCsrfHandlerPlugin from 'src/plugin/forms/form-csrf-handler.plugin';
 import FormCmsHandlerPlugin from 'src/plugin/forms/form-cms-handler.plugin';
+import CrossSellingPlugin from 'src/plugin/cross-selling/cross-selling.plugin';
 
 window.eventEmitter = new NativeEventEmitter();
 
@@ -124,6 +125,8 @@ PluginManager.register('FilterPropertySelect', FilterPropertySelectPlugin, '[dat
 PluginManager.register('FilterRating', FilterRatingPlugin, '[data-filter-rating]');
 PluginManager.register('ListingPagination', ListingPaginationPlugin, '[data-listing-pagination]');
 PluginManager.register('ListingSorting', ListingSortingPlugin, '[data-listing-sorting]');
+PluginManager.register('RatingSystemPlugin', RatingSystemPlugin, '[data-rating-system]');
+PluginManager.register('CrossSelling', CrossSellingPlugin, '[data-cross-selling]');
 PluginManager.register('DatePicker', DatePickerPlugin, '[data-date-picker]');
 PluginManager.register('FormCmsHandler', FormCmsHandlerPlugin, '.cms-element-form form');
 

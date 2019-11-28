@@ -178,7 +178,11 @@ Component.register('sw-data-grid', {
         },
 
         allSelectedChecked() {
-            if (!this.records || this.selectionCount < this.records.length) {
+            if (!this.records || this.records.length === 0) {
+                return false;
+            }
+
+            if (this.selectionCount < this.records.length) {
                 return false;
             }
 

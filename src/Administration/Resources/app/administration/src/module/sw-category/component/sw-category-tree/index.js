@@ -142,7 +142,7 @@ Component.register('sw-category-tree', {
 
         deleteCheckedItems(checkedItems) {
             const ids = Object.keys(checkedItems);
-            this.categoryRepository.syncDeleted(ids, this.apiContext).then(() => {
+            this.categoryRepository.syncDeleted(ids, Shopware.Context.api).then(() => {
                 ids.forEach(id => this.removeFromStore(id));
             });
         },

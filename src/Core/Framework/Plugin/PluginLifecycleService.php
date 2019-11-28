@@ -126,8 +126,8 @@ class PluginLifecycleService
         CommandExecutor $executor,
         RequirementsValidator $requirementValidator,
         CacheItemPoolInterface $restartSignalCachePool,
-        SystemConfigService $systemConfigService,
-        string $shopwareVersion
+        string $shopwareVersion,
+        SystemConfigService $systemConfigService
     ) {
         $this->pluginRepo = $pluginRepo;
         $this->eventDispatcher = $eventDispatcher;

@@ -3,8 +3,8 @@
 .sw-cms-el-preview-form {
     overflow: auto;
 
-    h4 {
-        margin-bottom: 10px !important;
+    .sw-cms-el--preview-form-headline {
+        margin-bottom: 10px;
         border-bottom: 1px solid $color-steam-cloud;
         padding-bottom: 5px;
     }
@@ -12,7 +12,7 @@
     .sw-cms-el-preview-form-inputs {
         overflow: auto;
 
-        & > div {
+        & > .sw-cms-el-preview-form-input {
             width: calc(50% - 7px);
             float: left;
 

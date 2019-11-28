@@ -16,20 +16,20 @@
         cursor: not-allowed;
     }
 
-    h3 {
-        border-bottom: 1px solid $color-steam-cloud;
+    .sw-cms-el-form-headline {
+        border-bottom: 1px solid $color-gray-300;
         padding-bottom: 10px;
     }
 
-    p {
+    .sw-cms-el-form-note {
         font-size: 14px;
     }
 
     .sw-cms-el-form__action {
         float: right;
         padding: 3px 15px;
-        background: $color-steam-cloud;
-        color: $color-kashmir;
+        background: $color-gray-300;
+        color: $color-darkgray-200;
         text-align: center;
         line-height: 26px;
         border-radius: 3px;
@@ -46,10 +46,5 @@
         &.two-items > * {
             width: calc(50% - 15px);
         }
-    }
-
-    input,
-    textarea {
-        color: #94a6b7 !important;
     }
 }

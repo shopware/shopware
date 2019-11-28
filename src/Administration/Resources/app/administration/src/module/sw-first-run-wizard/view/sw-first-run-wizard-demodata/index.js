@@ -8,7 +8,6 @@ Component.register('sw-first-run-wizard-demodata', {
     template,
 
     inject: [
-        'addNextCallback',
         'storeService',
         'pluginService',
         'repositoryFactory'
@@ -36,8 +35,31 @@ Component.register('sw-first-run-wizard-demodata', {
 
     methods: {
         createdComponent() {
+            this.updateButtons();
             this.getInstalledPlugins();
-            this.addNextCallback(this.installDemodata);
+        },
+
+        updateButtons() {
+            const buttonConfig = [
+                {
+                    key: 'skip',
+                    label: this.$tc('sw-first-run-wizard.general.buttonSkip'),
+                    position: 'right',
+                    variant: null,
+                    action: 'sw.first.run.wizard.index.paypal.info',
+                    disabled: false
+                },
+                {
+                    key: 'install',
+                    label: this.$tc('sw-first-run-wizard.general.buttonInstall'),
+                    position: 'right',
+                    variant: 'primary',
+                    action: this.installDemodata.bind(this),
+                    disabled: false
+                }
+            ];
+
+            this.$emit('buttons-update', buttonConfig);
         },
 
         installDemodata() {
@@ -89,6 +111,8 @@ Component.register('sw-first-run-wizard-demodata', {
                 })
                 .then(() => {
                     this.isInstallingPlugin = false;
+
+                    this.$emit('frw-redirect', 'sw.first.run.wizard.index.paypal.info');
 
                     return false;
                 })

@@ -68,6 +68,7 @@ Component.register('sw-first-run-wizard-welcome', {
         },
 
         createdComponent() {
+            this.updateButtons();
             this.getLanguagePlugins();
 
             const languagePromise = new Promise((resolve) => {
@@ -86,6 +87,21 @@ Component.register('sw-first-run-wizard-welcome', {
             Promise.all(promises).then(() => {
                 this.loadLanguages();
             });
+        },
+
+        updateButtons() {
+            const buttonConfig = [
+                {
+                    key: 'next',
+                    label: this.$tc('sw-first-run-wizard.general.buttonNext'),
+                    position: 'right',
+                    variant: 'primary',
+                    action: 'sw.first.run.wizard.index.demodata',
+                    disabled: false
+                }
+            ];
+
+            this.$emit('buttons-update', buttonConfig);
         },
 
         setUserData(userProfile) {

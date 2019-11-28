@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSetAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\SetNullOnDeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
@@ -132,15 +133,18 @@ class EntityWriter implements EntityWriterInterface
         }
 
         // we had some logic in the command layer (pre-validate, post-validate, indexer which listens to this events)
-        // to trigger this logic for cascade deletes, we add a fake commands for the affected rows
+        // to trigger this logic for cascade deletes or set nulls, we add a fake commands for the affected rows
         $this->addDeleteCascadeCommands($commandQueue, $definition, $writeContext, $resolved);
+        $this->addSetNullOnDeletesCommands($commandQueue, $definition, $writeContext, $resolved);
 
         $writeContext->setLanguages($this->languageLoader->loadLanguages());
         $this->gateway->execute($commandQueue->getCommandsInOrder(), $writeContext);
 
         $identifiers = $this->getWriteResults($commandQueue);
 
-        return new DeleteResult($identifiers, $skipped);
+        $results = $this->splitResultsByOperation($identifiers);
+
+        return new DeleteResult($results['deleted'], $skipped, $results['updated']);
     }
 
     /**
@@ -375,6 +379,44 @@ class EntityWriter implements EntityWriterInterface
         }
     }
 
+    private function addSetNullOnDeletesCommands(WriteCommandQueue $queue, EntityDefinition $definition, WriteContext $writeContext, array $resolved): void
+    {
+        if ($definition instanceof MappingEntityDefinition) {
+            return;
+        }
+
+        $setNulls = [];
+        $setNullsPerPk = $this->foreignKeyResolver->getAffectedSetNulls($definition, $resolved, $writeContext->getContext());
+
+        $setNullsPerPk = array_column($setNullsPerPk, 'restrictions');
+        foreach ($setNullsPerPk as $setNull) {
+            $setNulls = array_merge_recursive($setNulls, $setNull);
+        }
+
+        foreach ($setNulls as $affectedDefinitionClass => $restrictions) {
+            $affectedDefinition = $this->registry->getByEntityName($affectedDefinitionClass);
+
+            foreach ($restrictions as $key => $fkFields) {
+                $primaryKey = ['id' => $key];
+                $payload = ['id' => Uuid::fromHexToBytes($key)];
+
+                $primary = EntityHydrator::encodePrimaryKey($affectedDefinition, $primaryKey, $writeContext->getContext());
+                $existence = new EntityExistence($affectedDefinition->getEntityName(), $primary, true, false, false, []);
+
+                foreach ($fkFields as $fkField) {
+                    $payload[$fkField] = null;
+
+                    if ($definition->isVersionAware()) {
+                        $versionField = str_replace('_id', '_version_id', $fkField);
+                        $payload[$versionField] = null;
+                    }
+                }
+
+                $queue->add($affectedDefinition, new SetNullOnDeleteCommand($affectedDefinition, $payload, $primary, $existence, ''));
+            }
+        }
+    }
+
     private function resolvePrimaryKeys(array $ids, EntityDefinition $definition, WriteContext $writeContext): array
     {
         $fields = $definition->getPrimaryKeys();
@@ -426,5 +468,29 @@ class EntityWriter implements EntityWriterInterface
         }
 
         return $resolved;
+    }
+
+    private function splitResultsByOperation(array $identifiers): array
+    {
+        $deleted = [];
+        $updated = [];
+        foreach ($identifiers as $entityName => $writeResults) {
+            $deletedEntities = array_filter($writeResults, function (EntityWriteResult $result): bool {
+                return $result->getOperation() === EntityWriteResult::OPERATION_DELETE;
+            });
+            if (!empty($deletedEntities)) {
+                $deleted[$entityName] = $deletedEntities;
+            }
+
+            $updatedEntities = array_filter($writeResults, function (EntityWriteResult $result): bool {
+                return $result->getOperation() === EntityWriteResult::OPERATION_UPDATE;
+            });
+
+            if (!empty($updatedEntities)) {
+                $updated[$entityName] = $updatedEntities;
+            }
+        }
+
+        return ['deleted' => $deleted, 'updated' => $updated];
     }
 }

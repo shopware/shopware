@@ -1,8 +1,8 @@
 import template from './sw-product-detail-cross-selling.html.twig';
 import './sw-product-detail-cross-selling.scss';
 
-const {Component} = Shopware;
-const {mapState} = Shopware.Component.getComponentHelper();
+const { Component } = Shopware;
+const { mapState } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-detail-cross-selling', {
     inject: ['repositoryFactory'],

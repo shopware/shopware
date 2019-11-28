@@ -2,7 +2,7 @@
     <div class="sw-product-detail-cross-selling">
 
         {% block sw_product_detail_cross_selling_items %}
-            <ul v-if="product.crossSellings.length > 0" class="sw-promotion-detail-discounts__discount-list">
+            <ul v-if="product.crossSellings.length > 0" class="sw-product-detail-cross-selling__cross-selling-list">
                 <sw-product-cross-selling-form
                     v-for="item in product.crossSellings"
                     :key="item.id"

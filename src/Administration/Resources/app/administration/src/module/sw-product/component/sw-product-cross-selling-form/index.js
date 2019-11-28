@@ -1,7 +1,7 @@
 import template from './sw-product-cross-selling-form.html.twig';
 import './sw-product-cross-selling-form.scss';
 
-const {Component} = Shopware;
+const { Component } = Shopware;
 
 Component.register('sw-product-cross-selling-form', {
     inject: ['repositoryFactory'],
@@ -16,12 +16,6 @@ Component.register('sw-product-cross-selling-form', {
 
     data() {
         return {
-            sortingTypes: [
-                { value: 'priceAsc', label: this.$tc('sw-product.crossselling.priceAscendingSortingType') },
-                { value: 'priceDesc', label: this.$tc('sw-product.crossselling.priceDescendingSortingType') },
-                { value: 'name', label: this.$tc('sw-product.crossselling.nameSortingType') },
-                { value: 'releaseDate', label: this.$tc('sw-product.crossselling.releaseDateSortingType') }
-            ],
             showDeleteModal: false
         };
     },
@@ -39,6 +33,23 @@ Component.register('sw-product-cross-selling-form', {
 
         productStreamRepository() {
             return this.repositoryFactory.create('product_stream');
+        },
+
+        displayTitle() {
+            if (this.crossSelling._isNew) {
+                return this.$tc('sw-product.crossselling.cardTitleCrossSelling');
+            }
+
+            return this.crossSelling.translated.name || this.$tc('sw-product.crossselling.cardTitleCrossSelling');
+        },
+
+        sortingTypes() {
+            return [
+                { value: 'priceAsc', label: this.$tc('sw-product.crossselling.priceAscendingSortingType') },
+                { value: 'priceDesc', label: this.$tc('sw-product.crossselling.priceDescendingSortingType') },
+                { value: 'name', label: this.$tc('sw-product.crossselling.nameSortingType') },
+                { value: 'releaseDate', label: this.$tc('sw-product.crossselling.releaseDateSortingType') }
+            ];
         }
     },
 

@@ -68,7 +68,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
 
     private function permute($arg): array
     {
-        $array = \is_string($arg) ? str_split($arg) : $arg;
+        $array = \is_string($arg) ? mb_str_split($arg) : $arg;
 
         if (\count($array) === 1) {
             return $array;

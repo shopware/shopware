@@ -34,6 +34,11 @@ class MailTemplateDefinition extends EntityDefinition
         return MailTemplateEntity::class;
     }
 
+    public function getCollectionClass(): string
+    {
+        return MailTemplateCollection::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

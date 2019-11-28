@@ -123,7 +123,7 @@ class ServiceDefinitionTest extends TestCase
 
     private function getLineNumber(string $content, int $position): int
     {
-        list($before) = str_split($content, $position);
+        list($before) = mb_str_split($content, $position);
 
         return mb_strlen($before) - mb_strlen(str_replace(PHP_EOL, '', $before)) + 1;
     }

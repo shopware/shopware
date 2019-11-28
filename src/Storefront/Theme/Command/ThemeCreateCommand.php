@@ -171,6 +171,11 @@ EOL;
 {
   "name": "#name#",
   "author": "Shopware AG",
+  "views": [
+     "@Storefront",
+     "@Plugins",
+     "@#name#"
+  ],
   "style": [
     "@Storefront",
     "app/storefront/src/scss/base.scss"

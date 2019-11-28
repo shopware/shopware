@@ -13,7 +13,7 @@
                              :itemVariant="stepVariant"
                              :initialItemVariants="stepInitialItemVariants">
                                 <sw-step-item>
-                                    {{ $tc('sw-first-run-wizard.stepItemTitle.demodata') }}
+                                    {{ $tc('sw-first-run-wizard.stepItemTitle.dataImport') }}
                                 </sw-step-item>
                                 <sw-step-item>
                                     {{ $tc('sw-first-run-wizard.stepItemTitle.setupPaypal') }}
@@ -49,6 +49,7 @@
                                         :key="button.key"
                                         @click="onButtonClick(button.action)"
                                         :variant="button.variant"
+                                        :disabled="button.disabled"
                                         size="small">
                                         {{ button.label }}
                             </sw-button>
@@ -61,6 +62,7 @@
                                        :key="button.key"
                                        @click="onButtonClick(button.action)"
                                        :variant="button.variant"
+                                       :disabled="button.disabled"
                                        size="small">
                                 {{ button.label }}
                             </sw-button>

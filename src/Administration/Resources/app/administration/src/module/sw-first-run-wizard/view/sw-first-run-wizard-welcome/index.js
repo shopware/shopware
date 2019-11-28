@@ -96,7 +96,7 @@ Component.register('sw-first-run-wizard-welcome', {
                     label: this.$tc('sw-first-run-wizard.general.buttonNext'),
                     position: 'right',
                     variant: 'primary',
-                    action: 'sw.first.run.wizard.index.demodata',
+                    action: 'sw.first.run.wizard.index.data-import',
                     disabled: false
                 }
             ];

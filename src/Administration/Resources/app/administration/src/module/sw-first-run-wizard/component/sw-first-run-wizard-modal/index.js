@@ -31,8 +31,8 @@ Component.register('sw-first-run-wizard-modal', {
                     variant: 'large',
                     navigationIndex: 0
                 },
-                demodata: {
-                    name: 'sw.first.run.wizard.index.demodata',
+                'data-import': {
+                    name: 'sw.first.run.wizard.index.data-import',
                     variant: 'large',
                     navigationIndex: 1
                 },

@@ -37,11 +37,11 @@ Component.register('sw-first-run-wizard-paypal-credentials', {
     },
 
     created() {
-        this.onCreated();
+        this.createdComponent();
     },
 
     methods: {
-        onCreated() {
+        createdComponent() {
             this.updateButtons();
         },
 

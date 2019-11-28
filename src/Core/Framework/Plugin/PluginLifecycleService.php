@@ -35,6 +35,7 @@ use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackExcepti
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -108,6 +109,11 @@ class PluginLifecycleService
      */
     private $restartSignalCachePool;
 
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
+
     public function __construct(
         EntityRepositoryInterface $pluginRepo,
         EventDispatcherInterface $eventDispatcher,
@@ -121,7 +127,8 @@ class PluginLifecycleService
         CommandExecutor $executor,
         RequirementsValidator $requirementValidator,
         CacheItemPoolInterface $restartSignalCachePool,
-        string $shopwareVersion
+        string $shopwareVersion,
+        SystemConfigService $systemConfigService
     ) {
         $this->pluginRepo = $pluginRepo;
         $this->eventDispatcher = $eventDispatcher;
@@ -134,6 +141,7 @@ class PluginLifecycleService
         $this->assetInstaller = $assetInstaller;
         $this->executor = $executor;
         $this->requirementValidator = $requirementValidator;
+        $this->systemConfigService = $systemConfigService;
         $this->shopwareVersion = $shopwareVersion;
         $this->restartSignalCachePool = $restartSignalCachePool;
     }
@@ -179,6 +187,8 @@ class PluginLifecycleService
         }
 
         $this->eventDispatcher->dispatch(new PluginPreInstallEvent($plugin, $installContext));
+
+        $this->systemConfigService->savePluginConfiguration($pluginBaseClass, true);
 
         $pluginBaseClass->install($installContext);
 
@@ -273,6 +283,8 @@ class PluginLifecycleService
         }
 
         $this->eventDispatcher->dispatch(new PluginPreUpdateEvent($plugin, $updateContext));
+
+        $this->systemConfigService->savePluginConfiguration($pluginBaseClass);
 
         $pluginBaseClass->update($updateContext);
         if ($plugin->getInstalledAt() && $plugin->getActive()) {

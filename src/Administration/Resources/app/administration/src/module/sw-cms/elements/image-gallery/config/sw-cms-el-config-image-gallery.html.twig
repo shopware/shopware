@@ -63,13 +63,14 @@
                                                              class="sw-cms-el-config-image-gallery__setting-display-mode">
                                                 <option value="standard">{{ $tc('sw-cms.elements.general.config.label.displayModeStandard') }}</option>
                                                 <option value="cover">{{ $tc('sw-cms.elements.general.config.label.displayModeCover') }}</option>
+                                                <option value="contain">{{ $tc('sw-cms.elements.general.config.label.displayModeContain') }}</option>
                                             </sw-select-field>
                                         {% endblock %}
 
                                         {% block sw_cms_element_image_gallery_config_settings_min_height %}
                                             <sw-text-field :label="$tc('sw-cms.elements.image.config.label.minHeight')"
                                                            :placeholder="$tc('sw-cms.elements.image.config.placeholder.enterMinHeight')"
-                                                           :disabled="element.config.displayMode.value !== 'cover'"
+                                                           :disabled="!['cover', 'contain'].includes(element.config.displayMode.value)"
                                                            v-model="element.config.minHeight.value"
                                                            @input="onChangeMinHeight">
                                             </sw-text-field>
@@ -79,7 +80,7 @@
                                             <sw-select-field :label="$tc('sw-cms.elements.general.config.label.verticalAlign')"
                                                              v-model="element.config.verticalAlign.value"
                                                              :placeholder="$tc('sw-cms.elements.general.config.label.verticalAlign')"
-                                                             :disabled="element.config.displayMode.value === 'cover'">
+                                                             :disabled="['cover', 'contain'].includes(element.config.displayMode.value)">
                                                 <option value="flex-start">{{ $tc('sw-cms.elements.general.config.label.verticalAlignTop') }}</option>
                                                 <option value="center">{{ $tc('sw-cms.elements.general.config.label.verticalAlignCenter') }}</option>
                                                 <option value="flex-end">{{ $tc('sw-cms.elements.general.config.label.verticalAlignBottom') }}</option>

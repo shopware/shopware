@@ -30,6 +30,8 @@ parameters:
     excludes_analyse:
         - %currentWorkingDirectory%/vendor/shopware/platform/src/Core/Flag/feature_*.php
         - %currentWorkingDirectory%/src/Core/Flag/feature_*.php
+        - %currentWorkingDirectory%/vendor/shopware/platform/src/Recovery/*
+        - %currentWorkingDirectory%/src/Recovery/*
 
         - %currentWorkingDirectory%/vendor/shopware/platform/src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php
         - %currentWorkingDirectory%/src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php

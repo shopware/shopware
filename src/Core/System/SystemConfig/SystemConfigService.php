@@ -182,7 +182,7 @@ class SystemConfigService
         foreach ($config as $card) {
             foreach ($card['elements'] as $element) {
                 $key   = $prefix . $element['name'];
-                $value = $element['defaultValue'];
+                $value = $element['defaultValue'] ?? null;
 
                 switch ($element['type']) {
                     case 'int':

@@ -41,7 +41,7 @@ Directive.register('popover', {
 
         // Configurable target element
         let targetElement = document.body;
-        if (config.targetSelector && config.targetSelector.length) {
+        if (config.targetSelector && config.targetSelector.length > 0) {
             targetElement = element.closest(config.targetSelector);
         }
 
@@ -118,8 +118,16 @@ function setElementPosition(element, refElement, config) {
     const originElement = refElement ? refElement : element;
     const elementPosition = originElement.getBoundingClientRect();
 
-    const targetElement = originElement.closest(config.targetSelector);
-    const targetPosition = targetElement.getBoundingClientRect();
+    let targetElement = originElement;
+    let targetPosition = {
+        top: 0,
+        left: 0
+    };
+
+    if (config.targetSelector && config.targetSelector.length > 0) {
+        targetElement = originElement.closest(config.targetSelector);
+        targetPosition = targetElement.getBoundingClientRect();
+    }
 
     // add inline styling
     element.style.position = 'absolute';

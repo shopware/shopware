@@ -20,6 +20,7 @@ class RequestTransformer implements RequestTransformerInterface
     public const SALES_CHANNEL_BASE_URL = 'sw-sales-channel-base-url';
     public const SALES_CHANNEL_ABSOLUTE_BASE_URL = 'sw-sales-channel-absolute-base-url';
     public const SALES_CHANNEL_RESOLVED_URI = 'resolved-uri';
+    public const IS_CANONICAL_SEO_URL_REQUEST = 'is-canonical-seo-url';
 
     private const INHERITABLE_ATTRIBUTE_NAMES = [
         self::SALES_CHANNEL_BASE_URL,
@@ -108,9 +109,10 @@ class RequestTransformer implements RequestTransformerInterface
             }
         }
 
+        $seoPathInfo = $this->getSeoPathInfo($request->getPathInfo(), $baseUrl);
+
         $resolved = $this->resolveSeoUrl(
-            $request,
-            $baseUrl,
+            $seoPathInfo,
             $salesChannel['languageId'],
             $salesChannel['salesChannelId']
         );
@@ -175,6 +177,8 @@ class RequestTransformer implements RequestTransformerInterface
                 SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK,
                 $this->getSchemeAndHttpHost($request) . $baseUrl . $resolved['canonicalPathInfo']
             );
+        } elseif (ltrim($seoPathInfo, '/') !== $resolved['pathInfo']) {
+            $request->attributes->set(self::IS_CANONICAL_SEO_URL_REQUEST, true);
         }
 
         $request->headers->add($request->headers->all());
@@ -287,10 +291,8 @@ class RequestTransformer implements RequestTransformerInterface
         return $bestMatch;
     }
 
-    private function resolveSeoUrl(Request $request, string $baseUrl, string $languageId, string $salesChannelId): array
+    private function getSeoPathInfo(string $seoPathInfo, string $baseUrl)
     {
-        $seoPathInfo = $request->getPathInfo();
-
         // only remove full base url not part
         // registered domain: 'shop-dev.de/de'
         // incoming request:  'shop-dev.de/detail'
@@ -303,8 +305,12 @@ class RequestTransformer implements RequestTransformerInterface
             $seoPathInfo = mb_substr($seoPathInfo, mb_strlen($baseUrl));
         }
 
-        $resolved = $this->resolver->resolveSeoPath($languageId, $salesChannelId, $seoPathInfo);
+        return $seoPathInfo;
+    }
 
+    private function resolveSeoUrl(string $seoPathInfo, string $languageId, string $salesChannelId): array
+    {
+        $resolved = $this->resolver->resolveSeoPath($languageId, $salesChannelId, $seoPathInfo);
         $resolved['pathInfo'] = '/' . ltrim($resolved['pathInfo'], '/');
 
         return $resolved;

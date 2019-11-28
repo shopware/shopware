@@ -5,6 +5,15 @@ namespace Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void                         add(MailTemplateMediaEntity $entity)
+ * @method void                         set(string $key, MailTemplateMediaEntity $entity)
+ * @method MailTemplateMediaEntity[]    getIterator()
+ * @method MailTemplateMediaEntity[]    getElements()
+ * @method MailTemplateMediaEntity|null get(string $key)
+ * @method MailTemplateMediaEntity|null first()
+ * @method MailTemplateMediaEntity|null last()
+ */
 class MailTemplateMediaCollection extends EntityCollection
 {
     public function getMailTemplateIds(): array

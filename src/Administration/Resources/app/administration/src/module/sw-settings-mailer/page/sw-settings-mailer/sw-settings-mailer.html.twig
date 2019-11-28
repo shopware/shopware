@@ -37,98 +37,56 @@
                     <sw-card :isLoading="isLoading"
                              :title="$tc('sw-settings-mailer.mailer-configuration.card-title')">
 
-                        <div v-if="isFirstConfiguration"
-                             class="sw-settings-mailer__first-configuration">
-                            <h4 class="sw-settings-mailer__headline">
-                                <strong>
-                                    {{ $tc('sw-settings-mailer.first-configuration.headline') }}
-                                </strong>
-                            </h4>
-                            <p>
-                                {{ $tc('sw-settings-mailer.first-configuration.description') }}
-                            </p>
-                        </div>
+                        {% block sw_settings_mailer_first_configuration %}
+                            <div v-if="isFirstConfiguration"
+                                 class="sw-settings-mailer__first-configuration">
+                                {% block sw_settings_mailer_first_configuration_headline %}
+                                    <h4 class="sw-settings-mailer__headline">
+                                        <strong>
+                                            {{ $tc('sw-settings-mailer.first-configuration.headline') }}
+                                        </strong>
+                                    </h4>
+                                {% endblock %}
 
-                        <p class="sw-settings-mailer__headline">
-                            {{ $tc('sw-settings-mailer.mailer-configuration.agent') }}
-                        </p>
+                                {% block sw_settings_mailer_first_configuration_description %}
+                                    <p>
+                                        {{ $tc('sw-settings-mailer.first-configuration.description') }}
+                                    </p>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+
+                        {% block sw_settings_mailer_headline_agent %}
+                            <p class="sw-settings-mailer__headline">
+                                {{ $tc('sw-settings-mailer.mailer-configuration.agent') }}
+                            </p>
+                        {% endblock %}
 
                         <div class="sw-settings-mailer__radio-selection">
-                            <sw-field type="radio"
-                                      :options="emailAgentOptions"
-                                      v-model="mailerSettings['core.mailerSettings.emailAgent']">
-                            </sw-field>
+                            {% block sw_settings_mailer_agent_options %}
+                                <sw-field type="radio"
+                                          :options="emailAgentOptions"
+                                          v-model="mailerSettings['core.mailerSettings.emailAgent']">
+                                </sw-field>
+                            {% endblock %}
                         </div>
 
                     </sw-card>
 
-                    <sw-card v-if="isSmtpMode"
-                             :isLoading="isLoading"
-                             title="SMTP server"
-                             class="sw-settings-mailer__input-fields">
+                    {% block sw_settings_mailer_smtp %}
+                        <sw-card v-if="isSmtpMode"
+                                 :isLoading="isLoading"
+                                 title="SMTP server"
+                                 class="sw-settings-mailer__input-fields">
 
-                        <sw-field type="text"
-                                  :label="$tc('sw-settings-mailer.card-smtp.host')"
-                                  :placeholder="$tc('sw-settings-mailer.card-smtp.host-placeholder')"
-                                  required
-                                  v-model="mailerSettings['core.mailerSettings.host']">
-                        </sw-field>
+                            {% block sw_settings_mailer_smtp_settings %}
+                                <sw-settings-mailer-smtp
+                                    :mailerSettings="mailerSettings">
+                                </sw-settings-mailer-smtp>
+                            {% endblock %}
 
-                        <sw-field type="text"
-                                  :label="$tc('sw-settings-mailer.card-smtp.port')"
-                                  :placeholder="$tc('sw-settings-mailer.card-smtp.port-placeholder')"
-                                  required
-                                  v-model="mailerSettings['core.mailerSettings.port']">
-                        </sw-field>
-
-                        <sw-field type="text"
-                                  :label="$tc('sw-settings-mailer.card-smtp.username')"
-                                  :placeholder="$tc('sw-settings-mailer.card-smtp.username-placeholder')"
-                                  required
-                                  v-model="mailerSettings['core.mailerSettings.username']">
-                        </sw-field>
-
-                        <sw-field type="password"
-                                  :label="$tc('sw-settings-mailer.card-smtp.password')"
-                                  :placeholder="$tc('sw-settings-mailer.card-smtp.password-placeholder')"
-                                  required
-                                  v-model="mailerSettings['core.mailerSettings.password']">
-                        </sw-field>
-
-                        <sw-single-select
-                            :label="$tc('sw-settings-mailer.card-smtp.encryption')"
-                            :placeholder="$tc('sw-settings-mailer.card-smtp.encryption-placeholder')"
-                            :options="encryptionOptions"
-                            v-model="mailerSettings['core.mailerSettings.encryption']">
-                        </sw-single-select>
-
-                        <sw-single-select
-                            :label="$tc('sw-settings-mailer.card-smtp.authentication')"
-                            :placeholder="$tc('sw-settings-mailer.card-smtp.authentication-placeholder')"
-                            :options="authenticationOptions"
-                            v-model="mailerSettings['core.mailerSettings.authenticationMethod']">
-                        </sw-single-select>
-
-                        <sw-field type="text"
-                                  :label="$tc('sw-settings-mailer.card-smtp.sender-address')"
-                                  :placeholder="$tc('sw-settings-mailer.card-smtp.sender-address-placeholder')"
-                                  validation="email"
-                                  v-model="mailerSettings['core.mailerSettings.senderAddress']">
-                        </sw-field>
-
-                        <sw-field type="text"
-                                  :label="$tc('sw-settings-mailer.card-smtp.delivery-address')"
-                                  :placeholder="$tc('sw-settings-mailer.card-smtp.delivery-address-placeholder')"
-                                  :helpText="$tc('sw-settings-mailer.card-smtp.delivery-address-helptext')"
-                                  validation="email"
-                                  v-model="mailerSettings['core.mailerSettings.deliveryAddress']">
-                        </sw-field>
-
-                        <sw-switch-field v-model="mailerSettings['core.mailerSettings.disableDelivery']"
-                                         :label="$tc('sw-settings-mailer.card-smtp.disable-delivery')">
-                        </sw-switch-field>
-
-                    </sw-card>
+                        </sw-card>
+                    {% endblock %}
                 </sw-card-view>
             </template>
         {% endblock %}

@@ -38,30 +38,12 @@ Shopware.Component.register('sw-settings-mailer', {
                 {
                     value: 'local',
                     name: this.$tc('sw-settings-mailer.mailer-configuration.local-agent'),
-                    helpText: 'This option uses your system‘s default mailer (Sendmail). ' +
-                        'Make sure Sendmail works and is available in your own hosting environment.'
+                    helpText: this.$tc('sw-settings-mailer.mailer-configuration.local-helptext')
                 },
                 {
                     value: 'smtp',
                     name: this.$tc('sw-settings-mailer.mailer-configuration.smtp-server')
                 }
-            ];
-        },
-
-        encryptionOptions() {
-            return [
-                { value: 'null', label: this.$tc('sw-settings-mailer.encryption.no-encryption') },
-                { value: 'ssl', label: this.$tc('sw-settings-mailer.encryption.ssl') },
-                { value: 'tls', label: this.$tc('sw-settings-mailer.encryption.tls') }
-            ];
-        },
-
-        authenticationOptions() {
-            return [
-                { value: 'null', label: this.$tc('sw-settings-mailer.authentication.no-authentication') },
-                { value: 'plain', label: this.$tc('sw-settings-mailer.authentication.plain') },
-                { value: 'login', label: this.$tc('sw-settings-mailer.authentication.login') },
-                { value: 'cram-md5', label: this.$tc('sw-settings-mailer.authentication.cram-md5') }
             ];
         },
 

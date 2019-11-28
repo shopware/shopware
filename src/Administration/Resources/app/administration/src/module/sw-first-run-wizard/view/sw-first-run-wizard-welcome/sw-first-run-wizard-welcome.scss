@@ -1,6 +1,8 @@
 @import "~scss/variables";
 
 .sw-first-run-wizard-welcome {
+    align-self: flex-start;
+
     .center {
         text-align: center;
     }
@@ -41,8 +43,4 @@
     .sw-first-run-wizard-welcome__modal-text {
         margin-bottom: 22px;
     }
-}
-
-.sw-first-run-wizard-modal .sw-first-run-wizard-modal-content .sw-first-run-wizard-modal-content__page {
-    position: static;
 }

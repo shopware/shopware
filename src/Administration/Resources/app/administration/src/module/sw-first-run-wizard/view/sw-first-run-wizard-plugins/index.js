@@ -54,7 +54,12 @@ Component.register('sw-first-run-wizard-plugins', {
     methods: {
         createdComponent() {
             this.updateButtons();
+            this.setTitle();
             this.getRecommendationRegions();
+        },
+
+        setTitle() {
+            this.$emit('frw-set-title', this.$tc('sw-first-run-wizard.recommendedPlugins.modalTitle'));
         },
 
         updateButtons() {

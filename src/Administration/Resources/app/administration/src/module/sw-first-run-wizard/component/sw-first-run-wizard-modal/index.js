@@ -8,16 +8,15 @@ Component.register('sw-first-run-wizard-modal', {
 
     inject: ['firstRunWizardService'],
 
-    props: {
-        title: {
-            type: String,
-            required: true,
-            default: 'unknown title'
-        }
+    metaInfo() {
+        return {
+            title: this.title
+        };
     },
 
     data() {
         return {
+            title: 'No title defined',
             buttonConfig: [],
             stepVariant: 'info',
             currentStep: {
@@ -36,35 +35,45 @@ Component.register('sw-first-run-wizard-modal', {
                     variant: 'large',
                     navigationIndex: 1
                 },
+                'mailer.selection': {
+                    name: 'sw.first.run.wizard.index.mailer.selection',
+                    variant: 'large',
+                    navigationIndex: 2
+                },
+                'mailer.smtp': {
+                    name: 'sw.first.run.wizard.index.mailer.setup',
+                    variant: 'large',
+                    navigationIndex: 2
+                },
                 'paypal.info': {
                     name: 'sw.first.run.wizard.index.paypal.info',
                     variant: 'large',
-                    navigationIndex: 2
+                    navigationIndex: 3
                 },
                 'paypal.credentials': {
                     name: 'sw.first.run.wizard.index.paypal.credentials',
                     variant: 'large',
-                    navigationIndex: 2
+                    navigationIndex: 3
                 },
                 plugins: {
                     name: 'sw.first.run.wizard.index.plugins',
                     variant: 'large',
-                    navigationIndex: 3
+                    navigationIndex: 4
                 },
                 'shopware.account': {
                     name: 'sw.first.run.wizard.index.shopware.account',
                     variant: 'large',
-                    navigationIndex: 4
+                    navigationIndex: 5
                 },
                 'shopware.domain': {
                     name: 'sw.first.run.wizard.index.shopware.domain',
                     variant: 'large',
-                    navigationIndex: 4
+                    navigationIndex: 5
                 },
                 finish: {
                     name: 'sw.first.run.wizard.index.finish',
                     variant: 'large',
-                    navigationIndex: 5
+                    navigationIndex: 6
                 }
             }
         };
@@ -110,12 +119,12 @@ Component.register('sw-first-run-wizard-modal', {
 
         stepInitialItemVariants() {
             const navigationSteps = [
-                ['disabled', 'disabled', 'disabled', 'disabled'],
-                ['info', 'disabled', 'disabled', 'disabled'],
-                ['success', 'info', 'disabled', 'disabled'],
-                ['success', 'success', 'info', 'disabled'],
-                ['success', 'success', 'success', 'info'],
-                ['success', 'success', 'success', 'success']
+                ['disabled', 'disabled', 'disabled', 'disabled', 'disabled'],
+                ['info', 'disabled', 'disabled', 'disabled', 'disabled'],
+                ['success', 'info', 'disabled', 'disabled', 'disabled'],
+                ['success', 'success', 'info', 'disabled', 'disabled'],
+                ['success', 'success', 'success', 'info', 'disabled'],
+                ['success', 'success', 'success', 'success', 'disabled']
             ];
             const { navigationIndex } = this.currentStep;
 
@@ -165,6 +174,10 @@ Component.register('sw-first-run-wizard-modal', {
 
         redirect(routeName) {
             this.$router.push({ name: routeName });
+        },
+
+        setTitle(title) {
+            this.title = title;
         },
 
         finishFRW() {

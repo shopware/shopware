@@ -16,6 +16,9 @@
                                     {{ $tc('sw-first-run-wizard.stepItemTitle.dataImport') }}
                                 </sw-step-item>
                                 <sw-step-item>
+                                    {{ $tc('sw-first-run-wizard.stepItemTitle.mailer') }}
+                                </sw-step-item>
+                                <sw-step-item>
                                     {{ $tc('sw-first-run-wizard.stepItemTitle.setupPaypal') }}
                                 </sw-step-item>
                                 <sw-step-item>
@@ -32,6 +35,7 @@
                         <div class="sw-first-run-wizard-modal-content__page">
                             <router-view @buttons-update="updateButtons"
                                          @frw-redirect="redirect"
+                                         @frw-set-title="setTitle"
                                          @frw-finish="finishFRW">
                             </router-view>
                         </div>

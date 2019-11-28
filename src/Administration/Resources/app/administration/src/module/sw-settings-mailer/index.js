@@ -1,4 +1,5 @@
 import './extension/sw-settings-index';
+import './component/sw-settings-mailer-smtp';
 import './page/sw-settings-mailer';
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
@@ -9,7 +10,7 @@ Shopware.Module.register('sw-settings-mailer', {
     title: 'sw-settings-store.general.mainMenuItemGeneral', // TODO: Add title
     description: 'sw-settings-store.general.description', // TODO: Add description
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'default-communication-envelope',
     favicon: 'icon-module-settings.png',
 
     snippets: {

@@ -72,6 +72,8 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * `sw-sales-channel-detail-base` got refactored based on a new design, the domain management was moved to a new component
     * Created a new component `sw-sales-channel-detail-domains` which handles the domain management of a sales channel now
     * `sw-entity-single-select` fires a new event called `option-select` which provides the selected entity and  as the payload
+    * Added mailer settings in the settings page
+    * Added mailer settings in the first run wizard
    
 * Core
     * Added DAL support for multi primary keys.

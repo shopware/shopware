@@ -69,6 +69,7 @@ Component.register('sw-first-run-wizard-welcome', {
 
         createdComponent() {
             this.updateButtons();
+            this.setTitle();
             this.getLanguagePlugins();
 
             const languagePromise = new Promise((resolve) => {
@@ -87,6 +88,10 @@ Component.register('sw-first-run-wizard-welcome', {
             Promise.all(promises).then(() => {
                 this.loadLanguages();
             });
+        },
+
+        setTitle() {
+            this.$emit('frw-set-title', this.$tc('sw-first-run-wizard.welcome.modalTitle'));
         },
 
         updateButtons() {

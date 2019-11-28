@@ -1,10 +1,5 @@
 @import "~scss/variables";
 
-.sw-first-run-wizard-paypal {
-    height: 100%;
-    position: relative;
-}
-
 .sw-first-run-wizard-paypal-info {
     text-align: center;
     display: flex;
@@ -13,7 +8,6 @@
 
     &__icon {
         height: 48px;
-        margin-top: 140px;
         margin-bottom: 25px;
     }
 
@@ -24,13 +18,13 @@
         text-align: center;
         letter-spacing: 0.41px;
         line-height: 25px;
-        margin: 50px auto;
+        margin: 24px auto;
     }
 
     .paymethods {
         flex-grow: 1;
         width: 565px;
-        margin: 0 auto;
+        margin: 0 auto 24px auto;
     }
 
     .paymethod {
@@ -41,9 +35,17 @@
         line-height: 22px;
     }
 
+    .disclaimer {
+        position: absolute;
+        bottom: 24px;
+        margin-top: 50px;
+        left: 50%;
+        transform: translate(-50%, 0);
+    }
+
     .disclaimer p {
         color: $color-gray-500;
-        width: 732px;
+        //width: 732px;
         font-size: 12px;
         font-weight: normal;
         letter-spacing: 0;

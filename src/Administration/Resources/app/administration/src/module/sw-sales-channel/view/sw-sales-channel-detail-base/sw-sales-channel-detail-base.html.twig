@@ -5,6 +5,45 @@
             <sw-card v-if="salesChannel" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleGeneralSettings')" key="edit">
 
                 {% block sw_sales_channel_detail_base_general %}
+
+                    {% block sw_sales_channel_detail_base_general_input_product_comparison_template %}
+                        <sw-select-field
+                            v-if="isProductComparison"
+                            :label="$tc('sw-sales-channel.detail.productComparison.templates.label')"
+                            :placeholder="$tc('sw-sales-channel.detail.productComparison.templates.placeholderSelectTemplate')"
+                            :options="templateOptions"
+                            v-model="templateName"
+                            @change="$emit('template-selected', arguments[0])"
+                        >
+                            <option v-for="option in templateOptions"
+                                    :value="option.name">
+                                {{ $tc(option.translationKey) }}
+                            </option>
+                        </sw-select-field>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_detail_product_comparison_template_modal %}
+                        <sw-modal
+                            v-if="showTemplateModal"
+                            :title="$tc('sw-sales-channel.detail.productComparison.templates.modal-title')"
+                            @modal-close="$emit('template-modal-close')"
+                            @template-modal-confirm="$emit('template-modal-confirm')">
+                            {% block sw_sales_channel_detail_product_comparison_template_modal_notification %}
+                                <slot>
+                                    <p>{{ $tc('sw-sales-channel.detail.productComparison.templates.modal-message') }}</p>
+                                </slot>
+                                <slot slot="modal-footer">
+                                    <sw-button size="small" @click="$emit('template-modal-close')">
+                                        {{ $tc('sw-sales-channel.detail.productComparison.templates.modal-cancel') }}
+                                    </sw-button>
+                                    <sw-button size="small" variant="primary" @click="$emit('template-modal-confirm')">
+                                        {{ $tc('sw-sales-channel.detail.productComparison.templates.modal-confirm') }}
+                                    </sw-button>
+                                </slot>
+                            {% endblock %}
+                        </sw-modal>
+                    {% endblock %}
+
                     <sw-container columns="1fr 200px" gap="0px 30px">
                         {% block sw_sales_channel_detail_base_general_input_name %}
                             <sw-field
@@ -342,6 +381,20 @@
                     </sw-entity-single-select>
                 {% endblock %}
 
+                {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain_currency %}
+                    <div class="sw-sales-channel-detail-base__product-comparison-container" v-if="productExport.salesChannelDomain">
+                        <sw-entity-single-select
+                                :label="$tc('sw-sales-channel.detail.productComparison.storefrontDomainCurrency.label')"
+                                :criteria="storefrontSalesChannelCurrencyCriteria"
+                                labelProperty="name"
+                                valueProperty="id"
+                                required
+                                entity="currency"
+                                v-model="productExport.currencyId">
+                        </sw-entity-single-select>
+                    </div>
+                {% endblock %}
+
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain_language %}
                     <div class="sw-sales-channel-detail-base__product-comparison-container" v-if="productExport.salesChannelDomain">
                         <sw-entity-single-select
@@ -355,24 +408,6 @@
                         <sw-help-text
                             class="sw-sales-channel-detail-base__product-comparison-helptext"
                             :text="$tc('sw-sales-channel.detail.productComparison.storefrontDomainLanguage.help')"
-                            tooltipPosition="top">
-                        </sw-help-text>
-                    </div>
-                {% endblock %}
-
-                {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain_currency %}
-                    <div class="sw-sales-channel-detail-base__product-comparison-container" v-if="productExport.salesChannelDomain">
-                        <sw-entity-single-select
-                            :label="$tc('sw-sales-channel.detail.productComparison.storefrontDomainCurrency.label')"
-                            labelProperty="name"
-                            valueProperty="id"
-                            entity="currency"
-                            :disabled="true"
-                            v-model="productExport.salesChannelDomain.currencyId">
-                        </sw-entity-single-select>
-                        <sw-help-text
-                            class="sw-sales-channel-detail-base__product-comparison-helptext"
-                            :text="$tc('sw-sales-channel.detail.productComparison.storefrontDomainCurrency.help')"
                             tooltipPosition="top">
                         </sw-help-text>
                     </div>

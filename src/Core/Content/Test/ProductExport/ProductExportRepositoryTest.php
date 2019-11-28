@@ -53,6 +53,7 @@ class ProductExportRepositoryTest extends TestCase
                 'salesChannelId' => $this->getSalesChannelId(),
                 'salesChannelDomainId' => $this->getSalesChannelDomainId(),
                 'generateByCronjob' => false,
+                'currencyId' => Defaults::CURRENCY,
             ],
         ], $this->context);
 
@@ -78,6 +79,7 @@ class ProductExportRepositoryTest extends TestCase
                 'salesChannelId' => $this->getSalesChannelId(),
                 'salesChannelDomainId' => $this->getSalesChannelDomainId(),
                 'generateByCronjob' => false,
+                'currencyId' => Defaults::CURRENCY,
             ],
         ], $this->context);
         $this->repository->upsert([
@@ -109,6 +111,7 @@ class ProductExportRepositoryTest extends TestCase
                 'salesChannelId' => $this->getSalesChannelId(),
                 'salesChannelDomainId' => $this->getSalesChannelDomainId(),
                 'generateByCronjob' => false,
+                'currencyId' => Defaults::CURRENCY,
             ],
         ], $this->context);
 
@@ -129,6 +132,7 @@ class ProductExportRepositoryTest extends TestCase
                 'salesChannelId' => $this->getSalesChannelId(),
                 'salesChannelDomainId' => $this->getSalesChannelDomainId(),
                 'generateByCronjob' => false,
+                'currencyId' => Defaults::CURRENCY,
             ],
         ], $this->context);
     }
@@ -150,6 +154,7 @@ class ProductExportRepositoryTest extends TestCase
                 'salesChannelId' => $this->getSalesChannelId(),
                 'salesChannelDomainId' => $this->getSalesChannelDomainId(),
                 'generateByCronjob' => false,
+                'currencyId' => Defaults::CURRENCY,
             ],
         ], $this->context);
 
@@ -177,6 +182,7 @@ class ProductExportRepositoryTest extends TestCase
                 'salesChannelId' => $this->getSalesChannelId(),
                 'salesChannelDomainId' => $this->getSalesChannelDomainId(),
                 'generateByCronjob' => false,
+                'currencyId' => Defaults::CURRENCY,
             ],
         ], $this->context);
 
@@ -204,6 +210,7 @@ class ProductExportRepositoryTest extends TestCase
                 'salesChannelId' => $this->getSalesChannelId(),
                 'salesChannelDomainId' => $this->getSalesChannelDomainId(),
                 'generateByCronjob' => false,
+                'currencyId' => Defaults::CURRENCY,
             ],
         ], $this->context);
 

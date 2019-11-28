@@ -1,9 +1,4 @@
 {
-  "global": {
-    "error-codes": {
-      "DUPLICATED_PRODUCT_EXPORT_FILE_NAME": "Filename already in use. Please choose a different one."
-    }
-  },
   "sw-sales-channel": {
     "general": {
       "titleMenuItems": "Sales channel"
@@ -137,15 +132,31 @@
           "help": "Automatically selected from sales channel domain"
         },
         "storefrontDomainCurrency": {
-          "label": "Currency",
-          "help": "Automatically selected from sales channel domain"
+          "label": "Currency"
         },
         "storefrontSalesChannelCustomerGroup": {
           "label": "Customer Group",
           "help": "Automatically selected from sales channel"
         },
         "titleAccessKeyChanged": "Access key changed",
-        "messageAccessKeyChanged": "The access key and the changed export URL are only active after saving the sales channel."
+        "messageAccessKeyChanged": "The access key and the changed export URL are only active after saving the sales channel.",
+        "templates": {
+          "label": "Template",
+          "placeholderSelectTemplate": "Do not use a template",
+          "template-label": {
+            "billiger-de": "billiger.de (CSV)",
+            "idealo": "idealo.de (CSV)",
+            "google-product-search-de": "Google Shopping (XML)"
+          },
+          "modal-title": "Apply template",
+          "modal-message": "When you apply the template, existing data in this sales channel will be overwritten. Both the settings and the template tabs will be adjusted.",
+          "modal-confirm": "Apply template",
+          "modal-cancel": "Cancel",
+          "message": {
+            "template-applied-title": "Template applied",
+            "template-applied-message": "The data from the template has been applied. Please save the sales channel to save the changes."
+          }
+        }
       }
     }
   }

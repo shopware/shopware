@@ -7,7 +7,10 @@ Component.register('sw-sales-channel-detail', {
 
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'exportTemplateService'
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -27,7 +30,12 @@ Component.register('sw-sales-channel-detail', {
             isSaveSuccessful: false,
             newProductExport: null,
             productComparisonAccessUrl: null,
-            invalidFileName: false
+            invalidFileName: false,
+            templateOptions: [],
+            templates: null,
+            templateName: null,
+            showTemplateModal: false,
+            selectedTemplate: null
         };
     },
 
@@ -111,6 +119,7 @@ Component.register('sw-sales-channel-detail', {
     methods: {
         createdComponent() {
             this.loadEntityData();
+            this.loadProductExportTemplates();
         },
 
         loadEntityData() {
@@ -158,6 +167,41 @@ Component.register('sw-sales-channel-detail', {
             return criteria;
         },
 
+        onTemplateSelected(templateName) {
+            if (this.templates === null || this.templates[templateName] === undefined) {
+                return;
+            }
+
+            this.selectedTemplate = this.templates[templateName];
+            const contentChanged = Object.keys(this.selectedTemplate).some((value) => {
+                return this.productExport[value] !== this.selectedTemplate[value];
+            });
+
+            if (!contentChanged) {
+                return;
+            }
+
+            this.showTemplateModal = true;
+        },
+
+        onTemplateModalClose() {
+            this.selectedTemplate = null;
+            this.templateName = null;
+            this.showTemplateModal = false;
+        },
+
+        onTemplateModalConfirm() {
+            Object.keys(this.selectedTemplate).forEach((value) => {
+                this.productExport[value] = this.selectedTemplate[value];
+            });
+            this.onTemplateModalClose();
+
+            this.createNotificationInfo({
+                title: this.$tc('sw-sales-channel.detail.productComparison.templates.message.template-applied-title'),
+                message: this.$tc('sw-sales-channel.detail.productComparison.templates.message.template-applied-message')
+            });
+        },
+
         loadStorefrontSalesChannels() {
             const criteria = new Criteria();
 
@@ -195,6 +239,11 @@ Component.register('sw-sales-channel-detail', {
             const salesChannelDomainUrl = this.productExport.salesChannelDomain.url.replace(/\/+$/g, '');
             this.productComparisonAccessUrl =
                 `${salesChannelDomainUrl}/export/${this.productExport.accessKey}/${this.productExport.fileName}`;
+        },
+
+        loadProductExportTemplates() {
+            this.templateOptions = Object.values(this.exportTemplateService.getProductExportTemplateRegistry());
+            this.templates = this.exportTemplateService.getProductExportTemplateRegistry();
         },
 
         saveFinish() {

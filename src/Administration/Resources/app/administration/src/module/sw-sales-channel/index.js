@@ -9,6 +9,8 @@ import './view/sw-sales-channel-detail-base';
 import './view/sw-sales-channel-create-base';
 import './view/sw-sales-channel-detail-product-comparison';
 import './view/sw-sales-channel-detail-product-comparison-preview';
+import './service/export-template.service';
+import './product-export-templates';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';

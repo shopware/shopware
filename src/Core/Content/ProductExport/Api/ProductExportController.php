@@ -138,6 +138,7 @@ class ProductExportController extends AbstractController
         $entity->setAccessKey($dataBag->get('access_key'));
         $entity->setSalesChannelId($dataBag->get('sales_channel_id'));
         $entity->setSalesChannelDomainId($dataBag->get('sales_channel_domain_id'));
+        $entity->setCurrencyId($dataBag->get('currency_id'));
 
         return $entity;
     }
@@ -170,6 +171,7 @@ class ProductExportController extends AbstractController
         $productExportEntity = $this->createEntity($dataBag);
         $productExportEntity->setSalesChannelDomain($salesChannelDomain);
         $productExportEntity->setStorefrontSalesChannelId($salesChannelDomain->getSalesChannelId());
+        $productExportEntity->setSalesChannel($salesChannelDomain->getSalesChannel());
 
         $exportBehavior = new ExportBehavior(true, true, true);
 

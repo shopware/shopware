@@ -55,7 +55,7 @@ describe('Customer group: Test crud operations', () => {
             .typeSingleSelectAndCheck('E2E Merchant', '.sw-customer-base-form__customer-group-select')
 
         // Check usage of customer group in sales channel
-        salesChannelPage.openSalesChannel('Headless', 2);
+        salesChannelPage.openSalesChannel('Headless');
         cy.get('.sw-sales-channel-detail__select-navigation-category-id').scrollIntoView();
         cy.get('.sw-sales-channel-detail__select-customer-group')
             .typeSingleSelectAndCheck('E2E Merchant', '.sw-sales-channel-detail__select-customer-group');

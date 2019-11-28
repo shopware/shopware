@@ -50,6 +50,21 @@ Component.register('sw-sales-channel-detail-base', {
         productComparisonAccessUrl: {
             type: String,
             default: ''
+        },
+
+        templateOptions: {
+            type: Array,
+            default: []
+        },
+
+        showTemplateModal: {
+            type: Boolean,
+            default: false
+        },
+
+        templateName: {
+            type: String,
+            default: null
         }
     },
 
@@ -84,6 +99,14 @@ Component.register('sw-sales-channel-detail-base', {
             const criteria = new Criteria();
 
             return criteria.addFilter(Criteria.equals('salesChannelId', this.productExport.storefrontSalesChannelId));
+        },
+
+        storefrontSalesChannelCurrencyCriteria() {
+            const criteria = new Criteria();
+
+            criteria.addAssociation('salesChannels');
+
+            return criteria.addFilter(Criteria.equals('salesChannels.id', this.productExport.storefrontSalesChannelId));
         },
 
         storefrontDomainsLoaded() {
@@ -285,7 +308,7 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         onToggleActive() {
-            if (this.salesChannel.active !== true) {
+            if (this.salesChannel.active !== true || this.isProductComparison) {
                 return;
             }
             const criteria = new Criteria();
@@ -379,6 +402,7 @@ Component.register('sw-sales-channel-detail-base', {
                 .get(storefrontSalesChannelDomainId, Shopware.Context.api)
                 .then((entity) => {
                     this.productExport.salesChannelDomain = entity;
+                    this.productExport.currencyId = entity.currencyId;
                     this.$emit('domain-changed');
                 });
         },

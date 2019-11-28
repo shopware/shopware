@@ -11,6 +11,7 @@ use Shopware\Core\Content\ProductExport\Exception\RenderHeaderException;
 use Shopware\Core\Content\ProductExport\Exception\RenderProductException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Twig\Exception\StringTemplateRenderingException;
 use Shopware\Core\Framework\Twig\StringTemplateRenderer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -24,10 +25,14 @@ class ProductExportRenderer implements ProductExportRendererInterface
     /** @var EventDispatcherInterface */
     private $eventDispatcher;
 
-    public function __construct(StringTemplateRenderer $templateRenderer, EventDispatcherInterface $eventDispatcher)
+    /** @var SeoUrlPlaceholderHandlerInterface */
+    private $seoUrlPlaceholderHandler;
+
+    public function __construct(StringTemplateRenderer $templateRenderer, EventDispatcherInterface $eventDispatcher, SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler)
     {
         $this->templateRenderer = $templateRenderer;
         $this->eventDispatcher = $eventDispatcher;
+        $this->seoUrlPlaceholderHandler = $seoUrlPlaceholderHandler;
     }
 
     public function renderHeader(
@@ -48,11 +53,13 @@ class ProductExportRenderer implements ProductExportRendererInterface
         );
 
         try {
-            return $this->templateRenderer->render(
+            $content = $this->templateRenderer->render(
                 $productExport->getHeaderTemplate(),
                 $headerContext->getContext(),
                 $salesChannelContext->getContext()
             ) . PHP_EOL;
+
+            return $this->replaceSeoUrlPlaceholder($content, $productExport, $salesChannelContext);
         } catch (StringTemplateRenderingException $exception) {
             $renderHeaderException = new RenderHeaderException($exception->getMessage());
             $this->logException($salesChannelContext->getContext(), $renderHeaderException);
@@ -79,11 +86,13 @@ class ProductExportRenderer implements ProductExportRendererInterface
         );
 
         try {
-            return $this->templateRenderer->render(
+            $content = $this->templateRenderer->render(
                 $productExport->getFooterTemplate(),
                 $footerContext->getContext(),
                 $salesChannelContext->getContext()
             ) . PHP_EOL;
+
+            return $this->replaceSeoUrlPlaceholder($content, $productExport, $salesChannelContext);
         } catch (StringTemplateRenderingException $exception) {
             $renderFooterException = new RenderFooterException($exception->getMessage());
             $this->logException($salesChannelContext->getContext(), $renderFooterException);
@@ -98,11 +107,13 @@ class ProductExportRenderer implements ProductExportRendererInterface
         array $data
     ): string {
         try {
-            return $this->templateRenderer->render(
+            $content = $this->templateRenderer->render(
                 $productExport->getBodyTemplate(),
                 $data,
                 $salesChannelContext->getContext()
             ) . PHP_EOL;
+
+            return $this->replaceSeoUrlPlaceholder($content, $productExport, $salesChannelContext);
         } catch (StringTemplateRenderingException $exception) {
             $renderProductException = new RenderProductException($exception->getMessage());
             $this->logException($salesChannelContext->getContext(), $renderProductException);
@@ -123,5 +134,14 @@ class ProductExportRenderer implements ProductExportRendererInterface
         );
 
         $this->eventDispatcher->dispatch($loggingEvent);
+    }
+
+    private function replaceSeoUrlPlaceholder(string $content, ProductExportEntity $productExportEntity, SalesChannelContext $salesChannelContext): string
+    {
+        return $this->seoUrlPlaceholderHandler->replace(
+            $content,
+            $productExportEntity->getSalesChannelDomain()->getUrl(),
+            $salesChannelContext
+        );
     }
 }

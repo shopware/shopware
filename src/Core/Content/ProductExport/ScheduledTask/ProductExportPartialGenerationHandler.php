@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Service\ProductExportFileHandlerInterface;
 use Shopware\Core\Content\ProductExport\Service\ProductExportGeneratorInterface;
@@ -16,6 +17,8 @@ use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\Translation\Translator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -48,6 +51,12 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
     /** @var SalesChannelContextServiceInterface */
     private $salesChannelContextService;
 
+    /** @var SalesChannelContextPersister */
+    private $contextPersister;
+
+    /** @var Connection */
+    private $connection;
+
     public function __construct(
         ProductExportGeneratorInterface $productExportGenerator,
         SalesChannelContextFactory $salesChannelContextFactory,
@@ -57,17 +66,21 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
         ProductExportRendererInterface $productExportRender,
         Translator $translator,
         SalesChannelContextServiceInterface $salesChannelContextService,
+        SalesChannelContextPersister $contextPersister,
+        Connection $connection,
         int $readBufferSize
     ) {
         $this->productExportGenerator = $productExportGenerator;
         $this->salesChannelContextFactory = $salesChannelContextFactory;
         $this->productExportRepository = $productExportRepository;
-        $this->readBufferSize = $readBufferSize;
-        $this->messageBus = $messageBus;
         $this->productExportFileHandler = $productExportFileHandler;
+        $this->messageBus = $messageBus;
         $this->productExportRender = $productExportRender;
         $this->translator = $translator;
         $this->salesChannelContextService = $salesChannelContextService;
+        $this->contextPersister = $contextPersister;
+        $this->connection = $connection;
+        $this->readBufferSize = $readBufferSize;
     }
 
     public static function getHandledMessages(): iterable
@@ -154,9 +167,14 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
 
     private function finalizeExport(ProductExportEntity $productExport, string $filePath): void
     {
+        $contextToken = Uuid::randomHex();
+        $this->contextPersister->save($contextToken, [
+            SalesChannelContextService::CURRENCY_ID => $productExport->getCurrencyId(),
+        ]);
+
         $context = $this->salesChannelContextService->get(
             $productExport->getStorefrontSalesChannelId(),
-            Uuid::randomHex(),
+            $contextToken,
             $productExport->getSalesChannelDomain()->getLanguageId()
         );
 
@@ -179,5 +197,7 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
             $headerContent,
             $footerContent
         );
+
+        $this->connection->delete('sales_channel_api_context', ['token' => $contextToken]);
     }
 }

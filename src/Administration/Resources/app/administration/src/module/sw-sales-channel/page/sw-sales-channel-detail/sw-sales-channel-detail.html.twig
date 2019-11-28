@@ -73,10 +73,16 @@
                                  :isLoading="isLoading"
                                  :productComparisonAccessUrl="productComparisonAccessUrl"
                                  :key="$route.params.id"
+                                 :templateOptions="templateOptions"
+                                 :showTemplateModal="showTemplateModal"
+                                 :templateName="templateName"
+                                 @template-selected="onTemplateSelected"
                                  @access-key-changed="generateAccessUrl"
                                  @domain-changed="generateAccessUrl"
                                  @invalid-file-name="setInvalidFileName(true)"
-                                 @valid-file-name="setInvalidFileName(false)">
+                                 @valid-file-name="setInvalidFileName(false)"
+                                 @template-modal-close="onTemplateModalClose"
+                                 @template-modal-confirm="onTemplateModalConfirm">
                     </router-view>
                 {% endblock %}
             </sw-card-view>

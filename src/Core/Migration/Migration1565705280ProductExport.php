@@ -3,7 +3,9 @@
 namespace Shopware\Core\Migration;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class Migration1565705280ProductExport extends MigrationStep
 {
@@ -46,10 +48,59 @@ class Migration1565705280ProductExport extends MigrationStep
                 CONSTRAINT `fk.product_export.sales_channel_domain_id` FOREIGN KEY (`sales_channel_domain_id`) REFERENCES `sales_channel_domain` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
+
+        $this->createSalesChannelType($connection);
     }
 
     public function updateDestructive(Connection $connection): void
     {
         // implement update destructive
+    }
+
+    private function createSalesChannelType(Connection $connection): void
+    {
+        $salesChannelTypeId = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON);
+
+        $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
+        $languageDE = $this->getDeDeLanguageId($connection);
+
+        $connection->insert(
+            'sales_channel_type',
+            [
+                'id' => $salesChannelTypeId,
+                'icon_name' => 'default-object-rocket',
+                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
+        );
+        $connection->insert(
+            'sales_channel_type_translation',
+            [
+                'sales_channel_type_id' => $salesChannelTypeId,
+                'language_id' => $languageEN,
+                'name' => 'Product comparison',
+                'manufacturer' => 'shopware AG',
+                'description' => 'Sales channel for product comparison platforms',
+                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
+        );
+        $connection->insert(
+            'sales_channel_type_translation',
+            [
+                'sales_channel_type_id' => $salesChannelTypeId,
+                'language_id' => $languageDE,
+                'name' => 'Produktvergleich',
+                'manufacturer' => 'shopware AG',
+                'description' => 'Verkaufskanal für Produktvergleichsportale',
+                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
+        );
+    }
+
+    private function getDeDeLanguageId(Connection $connection): string
+    {
+        return (string) $connection->fetchColumn(
+            'SELECT id FROM language WHERE id != :default',
+            ['default' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
+        );
     }
 }

@@ -137,15 +137,31 @@
           "help": "Auf Basis der Storefront-Domain automatisch gewählt"
         },
         "storefrontDomainCurrency": {
-          "label": "Währung",
-          "help": "Auf Basis der Storefront-Domain automatisch gewählt"
+          "label": "Währung"
         },
         "storefrontSalesChannelCustomerGroup": {
           "label": "Kundengruppe",
           "help": "Auf Basis des Storefront-Verkaufskanals automatisch gewählt"
         },
         "titleAccessKeyChanged": "Zugangsschlüssel geändert",
-        "messageAccessKeyChanged": "Der Zugangsschlüssel und die geänderte Export-URL werden erst nach dem Speichern aktiv."
+        "messageAccessKeyChanged": "Der Zugangsschlüssel und die geänderte Export-URL werden erst nach dem Speichern aktiv.",
+        "templates": {
+          "label": "Vorlage",
+          "placeholderSelectTemplate": "Keine Vorlage nutzen",
+          "template-label": {
+            "billiger-de": "billiger.de (CSV)",
+            "idealo": "idealo.de (CSV)",
+            "google-product-search-de": "Google Shopping (XML)"
+          },
+          "modal-title": "Vorlage anwenden",
+          "modal-message": "Bei Übernahme der Daten aus der Vorlage werden vorhandene Daten in diesem Sales Channel überschrieben. Es werden sowohl Einstellungen als auch das Template angepasst.",
+          "modal-confirm": "Vorlage übernehmen",
+          "modal-cancel": "Abbrechen",
+          "message": {
+            "template-applied-title": "Vorlage übernommen",
+            "template-applied-message": "Die Daten aus der Vorlage wurden übernommen. Bitte speichern Sie den Sales Channel um die Änderungen dauerhaft zu übernehmen."
+          }
+        }
       }
     }
   }

@@ -154,6 +154,7 @@ class ProductExporterTest extends TestCase
                 'salesChannelId' => $this->getSalesChannelId(),
                 'salesChannelDomainId' => $this->getSalesChannelDomainId(),
                 'generateByCronjob' => false,
+                'currencyId' => Defaults::CURRENCY,
             ],
         ], $this->context);
 

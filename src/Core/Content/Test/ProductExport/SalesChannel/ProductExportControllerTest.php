@@ -121,6 +121,7 @@ class ProductExportControllerTest extends TestCase
                 'salesChannelId' => Defaults::SALES_CHANNEL,
                 'salesChannelDomainId' => $this->getSalesChannelDomain()->getId(),
                 'generateByCronjob' => false,
+                'currencyId' => Defaults::CURRENCY,
             ],
         ], $this->context);
 
@@ -149,6 +150,7 @@ class ProductExportControllerTest extends TestCase
                 'salesChannelId' => Defaults::SALES_CHANNEL,
                 'salesChannelDomainId' => $this->getSalesChannelDomain()->getId(),
                 'generateByCronjob' => false,
+                'currencyId' => Defaults::CURRENCY,
             ],
         ], $this->context);
 

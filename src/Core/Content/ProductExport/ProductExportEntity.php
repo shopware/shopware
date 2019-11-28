@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\ProductExport;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
@@ -30,6 +31,9 @@ class ProductExportEntity extends Entity
     protected $salesChannelDomainId;
 
     /** @var string */
+    protected $currencyId;
+
+    /** @var string */
     protected $fileName;
 
     /** @var string */
@@ -52,6 +56,9 @@ class ProductExportEntity extends Entity
 
     /** @var SalesChannelDomainEntity */
     protected $salesChannelDomain;
+
+    /** @var CurrencyEntity */
+    protected $currency;
 
     /** @var bool */
     protected $includeVariants;
@@ -112,6 +119,16 @@ class ProductExportEntity extends Entity
     public function setSalesChannelDomainId(string $salesChannelDomainId): void
     {
         $this->salesChannelDomainId = $salesChannelDomainId;
+    }
+
+    public function getCurrencyId(): string
+    {
+        return $this->currencyId;
+    }
+
+    public function setCurrencyId(string $currencyId): void
+    {
+        $this->currencyId = $currencyId;
     }
 
     public function getFileName(): string
@@ -192,6 +209,16 @@ class ProductExportEntity extends Entity
     public function setSalesChannelDomain(SalesChannelDomainEntity $salesChannelDomain): void
     {
         $this->salesChannelDomain = $salesChannelDomain;
+    }
+
+    public function getCurrency(): CurrencyEntity
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency(CurrencyEntity $currency): void
+    {
+        $this->currency = $currency;
     }
 
     public function isIncludeVariants(): bool

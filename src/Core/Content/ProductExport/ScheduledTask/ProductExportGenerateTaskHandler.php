@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -19,20 +19,20 @@ class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
     /** @var SalesChannelContextFactory */
     private $salesChannelContextFactory;
 
-    /** @var EntityRepository */
+    /** @var EntityRepositoryInterface */
     private $salesChannelRepository;
 
-    /** @var EntityRepository */
+    /** @var EntityRepositoryInterface */
     private $productExportRepository;
 
     /** @var MessageBusInterface */
     private $messageBus;
 
     public function __construct(
-        EntityRepository $scheduledTaskRepository,
+        EntityRepositoryInterface $scheduledTaskRepository,
         SalesChannelContextFactory $salesChannelContextFactory,
-        EntityRepository $salesChannelRepository,
-        EntityRepository $productExportRepository,
+        EntityRepositoryInterface $salesChannelRepository,
+        EntityRepositoryInterface $productExportRepository,
         MessageBusInterface $messageBus
     ) {
         parent::__construct($scheduledTaskRepository);

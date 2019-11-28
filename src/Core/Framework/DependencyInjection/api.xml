@@ -8,6 +8,12 @@
                  class="Shopware\Core\Framework\Routing\RequestTransformer"
                  public="true"/>
 
+        <service id="Shopware\Storefront\Framework\Routing\RequestInheritableAttributes"/>
+
+        <service id="Shopware\Storefront\Framework\Routing\RequestInheritableAttributesInterface"
+                 alias="Shopware\Storefront\Framework\Routing\RequestInheritableAttributes"
+                 public="true"/>
+
         <service id="Shopware\Core\Framework\Api\Controller\FallbackController" public="true">
             <call method="setContainer">
                 <argument type="service" id="service_container" />

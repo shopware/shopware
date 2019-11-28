@@ -9,6 +9,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
+use Shopware\Storefront\Framework\Routing\RequestInheritableAttributesInterface;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\Router;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
@@ -100,7 +101,7 @@ abstract class StorefrontController extends AbstractController
         $request = $this->container->get('request_stack')->getCurrentRequest();
 
         $attributes = array_merge(
-            $this->get(RequestTransformerInterface::class)->extractInheritableAttributes($request),
+            $this->get(RequestInheritableAttributesInterface::class)->extract($request),
             $route,
             $attributes
         );

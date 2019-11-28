@@ -20,26 +20,6 @@ class RequestTransformer implements RequestTransformerInterface
     public const SALES_CHANNEL_ABSOLUTE_BASE_URL = 'sw-sales-channel-absolute-base-url';
     public const SALES_CHANNEL_RESOLVED_URI = 'resolved-uri';
 
-    private const INHERITABLE_ATTRIBUTE_NAMES = [
-        self::SALES_CHANNEL_BASE_URL,
-        self::SALES_CHANNEL_ABSOLUTE_BASE_URL,
-        self::SALES_CHANNEL_RESOLVED_URI,
-
-        PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID,
-        SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST,
-
-        SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE,
-        SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID,
-        SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID,
-        SalesChannelRequest::ATTRIBUTE_DOMAIN_ID,
-
-        SalesChannelRequest::ATTRIBUTE_THEME_ID,
-        SalesChannelRequest::ATTRIBUTE_THEME_NAME,
-        SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME,
-
-        SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK,
-    ];
-
     /**
      * @var Connection
      */
@@ -172,22 +152,6 @@ class RequestTransformer implements RequestTransformerInterface
         $transformedRequest->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $salesChannel['languageId']);
 
         return $transformedRequest;
-    }
-
-    public function extractInheritableAttributes(Request $sourceRequest): array
-    {
-        $inheritableAttributes = $this->decorated
-            ->extractInheritableAttributes($sourceRequest);
-
-        foreach (self::INHERITABLE_ATTRIBUTE_NAMES as $attributeName) {
-            if (!$sourceRequest->attributes->has($attributeName)) {
-                continue;
-            }
-
-            $inheritableAttributes[$attributeName] = $sourceRequest->attributes->get($attributeName);
-        }
-
-        return $inheritableAttributes;
     }
 
     private function isSalesChannelRequired(string $pathInfo): bool

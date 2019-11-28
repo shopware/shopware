@@ -10,7 +10,6 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
-use Shopware\Storefront\Framework\Routing\Router;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Theme\Twig\ThemeTemplateFinder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 abstract class StorefrontController extends AbstractController
 {
@@ -86,7 +86,7 @@ abstract class StorefrontController extends AbstractController
     {
         $router = $this->container->get('router');
 
-        $url = $this->generateUrl($routeName, $routeParameters, Router::PATH_INFO);
+        $url = $this->generateUrl($routeName, $routeParameters);
 
         // for the route matching the request method is set to "GET" because
         // this method is not ought to be used as a post passthrough

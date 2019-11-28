@@ -23,11 +23,6 @@
             <argument type="service" id="Shopware\Core\Framework\Seo\SeoResolver"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Routing\Router" decorates="router">
-            <argument type="service" id="Shopware\Storefront\Framework\Routing\Router.inner"/>
-            <argument type="service" id="request_stack"/>
-        </service>
-
         <service id="Shopware\Storefront\Framework\Routing\StorefrontRouteScope">
             <tag name="shopware.route_scope"/>
         </service>

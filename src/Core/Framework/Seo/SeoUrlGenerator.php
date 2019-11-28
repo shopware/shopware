@@ -136,7 +136,7 @@ class SeoUrlGenerator
     {
         $request = $this->requestStack->getMasterRequest();
 
-        $basePath = $request ? $request->getBasePath() : '';
+        $basePath = $request ? $request->getBaseUrl() : '';
 
         /** @var Entity $entity */
         foreach ($entities as $entity) {

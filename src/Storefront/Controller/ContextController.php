@@ -12,13 +12,12 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextSwitcher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Routing\RequestTransformer;
-use Shopware\Storefront\Framework\Routing\Router;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Router;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
@@ -155,9 +154,6 @@ class ContextController extends StorefrontController
         $routerContext->setMethod('GET');
         $routerContext->setHost($url);
         $routerContext->setBaseUrl('');
-
-        $this->requestStack->getMasterRequest()
-            ->attributes->set(RequestTransformer::SALES_CHANNEL_BASE_URL, '');
 
         $url = $this->router->generate($route, $params, Router::ABSOLUTE_URL);
 

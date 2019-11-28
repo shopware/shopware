@@ -728,6 +728,20 @@ class LanguageValidatorTest extends TestCase
         $this->assertDeleteViolations([$a], []);
     }
 
+    public function testSetParentOfSystemDefaultViolation(): void
+    {
+        // *systemDefault +> UUID
+
+        $systemDefaultLanguage = [
+            'id' => Defaults::LANGUAGE_SYSTEM,
+            'parentId' => Uuid::randomHex(),
+        ];
+
+        $this->assertUpsertViolations([$systemDefaultLanguage], [
+            [LanguageValidator::VIOLATION_DEFAULT_LANGUAGE_PARENT, '/0/parentId'],
+        ]);
+    }
+
     public function testDeleteEnglishViolation(): void
     {
         // -en

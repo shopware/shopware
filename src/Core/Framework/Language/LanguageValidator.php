@@ -27,6 +27,8 @@ class LanguageValidator implements EventSubscriberInterface
 
     public const VIOLATION_DELETE_DEFAULT_LANGUAGE = 'delete_default_language_violation';
 
+    public const VIOLATION_DEFAULT_LANGUAGE_PARENT = 'default_language_parent_violation';
+
     public const DEFAULT_LANGUAGES = [Defaults::LANGUAGE_SYSTEM];
 
     /**
@@ -67,33 +69,49 @@ class LanguageValidator implements EventSubscriberInterface
     public function preValidate(PreWriteValidationEvent $event): void
     {
         $commands = $event->getCommands();
-        $violations = new ConstraintViolationList();
 
         foreach ($commands as $command) {
-            if (!$command instanceof DeleteCommand || $command instanceof CascadeDeleteCommand || $command->getDefinition()->getClass() !== LanguageDefinition::class) {
+            $violations = new ConstraintViolationList();
+
+            if ($command instanceof CascadeDeleteCommand || $command->getDefinition()->getClass() !== LanguageDefinition::class) {
                 continue;
             }
 
             $pk = $command->getPrimaryKey();
             $id = \mb_strtolower(Uuid::fromBytesToHex($pk['id']));
-            if ($id !== Defaults::LANGUAGE_SYSTEM) {
-                continue;
+
+            if ($command instanceof DeleteCommand && $id === Defaults::LANGUAGE_SYSTEM) {
+                $violations->add(
+                    $this->buildViolation(
+                        'The default language {{ id }} cannot be deleted.',
+                        ['{{ id }}' => $id],
+                        null,
+                        '/' . $id,
+                        $id,
+                        self::VIOLATION_DELETE_DEFAULT_LANGUAGE
+                    )
+                );
             }
 
-            $violations->add(
-                $this->buildViolation(
-                    'The default language {{ id }} cannot be deleted.',
-                    ['{{ id }}' => $id],
-                    null,
-                    '/' . $id,
-                    $id,
-                    self::VIOLATION_DELETE_DEFAULT_LANGUAGE
-                )
-            );
-        }
+            if ($command instanceof UpdateCommand && $id === Defaults::LANGUAGE_SYSTEM) {
+                $payload = $command->getPayload();
+                if (array_key_exists('parent_id', $payload) && $payload['parent_id'] !== null) {
+                    $violations->add(
+                        $this->buildViolation(
+                            'The default language {{ id }} cannot inherit from another language.',
+                            ['{{ id }}' => $id],
+                            null,
+                            '/parentId',
+                            $payload['parent_id'],
+                            self::VIOLATION_DEFAULT_LANGUAGE_PARENT
+                        )
+                    );
+                }
+            }
 
-        if ($violations->count() > 0) {
-            $event->getExceptions()->add(new WriteConstraintViolationException($violations));
+            if ($violations->count() > 0) {
+                $event->getExceptions()->add(new WriteConstraintViolationException($violations, $command->getPath()));
+            }
         }
     }
 

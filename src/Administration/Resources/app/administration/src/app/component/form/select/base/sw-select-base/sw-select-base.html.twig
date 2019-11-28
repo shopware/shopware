@@ -1,5 +1,5 @@
 {% block sw_select_base %}
-    <sw-block-field class="sw-select" :class="swFieldClasses" v-bind="$attrs" v-on="$listeners">
+    <sw-block-field class="sw-select" :class="swFieldClasses" v-bind="$attrs" :disabled="disabled" v-on="$listeners">
         <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
             <div class="sw-select__selection"
                  tabindex="0"

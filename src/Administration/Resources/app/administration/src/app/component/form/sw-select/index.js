@@ -570,6 +570,11 @@ Component.register('sw-select', {
         },
 
         setFocus(event) {
+            if (this.disabled) {
+                this.closeResultList();
+                return;
+            }
+
             if (this.multi) {
                 this.$refs.swSelectInput.focus();
                 return;

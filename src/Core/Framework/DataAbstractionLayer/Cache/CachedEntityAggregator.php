@@ -30,36 +30,18 @@ class CachedEntityAggregator implements EntityAggregatorInterface
      */
     private $cacheKeyGenerator;
 
-    /**
-     * @var bool
-     */
-    private $enabled;
-
-    /**
-     * @var int
-     */
-    private $expirationTime;
-
     public function __construct(
         TagAwareAdapterInterface $cache,
         EntityAggregatorInterface $decorated,
-        EntityCacheKeyGenerator $cacheKeyGenerator,
-        bool $enabled,
-        int $expirationTime
+        EntityCacheKeyGenerator $cacheKeyGenerator
     ) {
         $this->cache = $cache;
         $this->decorated = $decorated;
         $this->cacheKeyGenerator = $cacheKeyGenerator;
-        $this->enabled = $enabled;
-        $this->expirationTime = $expirationTime;
     }
 
     public function aggregate(EntityDefinition $definition, Criteria $criteria, Context $context): AggregationResultCollection
     {
-        if (!$this->enabled) {
-            return $this->decorated->aggregate($definition, $criteria, $context);
-        }
-
         if (!$context->getUseCache()) {
             return $this->decorated->aggregate($definition, $criteria, $context);
         }
@@ -117,7 +99,6 @@ class CachedEntityAggregator implements EntityAggregatorInterface
             $item = $this->cache->getItem($key);
             $item->set($result);
             $item->tag($tags);
-            $item->expiresAfter($this->expirationTime);
 
             //deferred saves are persisted with the cache->commit()
             $this->cache->saveDeferred($item);

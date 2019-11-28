@@ -47,25 +47,18 @@ class CartRuleLoader
      */
     private $cache;
 
-    /**
-     * @var int
-     */
-    private $expirationTime;
-
     public function __construct(
         CartPersisterInterface $cartPersister,
         Processor $processor,
         EntityRepositoryInterface $repository,
         LoggerInterface $logger,
-        TagAwareAdapterInterface $cache,
-        int $expirationTime
+        TagAwareAdapterInterface $cache
     ) {
         $this->cartPersister = $cartPersister;
         $this->repository = $repository;
         $this->processor = $processor;
         $this->logger = $logger;
         $this->cache = $cache;
-        $this->expirationTime = $expirationTime;
     }
 
     public function loadByToken(SalesChannelContext $context, string $cartToken): RuleLoaderResult
@@ -158,7 +151,6 @@ class CartRuleLoader
         }
 
         $item->set($rules);
-        $item->expiresAfter($this->expirationTime);
 
         $this->cache->save($item);
 

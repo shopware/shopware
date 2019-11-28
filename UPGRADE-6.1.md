@@ -161,6 +161,31 @@ Core
 * If your entity definition overwrites the `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getDefaults` method, you will have to remove the parameter, as it is not needed anymore. Remove the check `$existence->exists()` as this is done before by the Core now. If you want to define different defaults for child entities, overwrite `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getChildDefaults`
 * 
 * If you depend on `\Shopware\Core\Framework\Context::createDefaultContext()` outside of tests, pass the context as a parameter to your method instead
+* The Shopware entity cache has been removed and has been replaced by a symfony cache pool. You have to remove any configuration files pointing to `shopware.entity_cache`.
+
+    Example: Redis implementation
+    ```yaml
+    framework:
+        cache:
+            app: cache.adapter.redis
+            default_redis_provider: 'redis://redis.server'
+    ```
+
+    Example: Disable the object cache only
+    ```yaml
+    framework:
+        cache:
+            pools:
+                cache.object:
+                    adapter: cache.adapter.array
+    ```
+
+    Example: Disable the cache entirely
+    ```yaml
+    framework:
+        cache:
+            app: cache.adapter.array
+    ```
 
 Administration
 --------------

@@ -13,7 +13,6 @@ use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
 
 class ThemeService
 {
@@ -209,9 +208,7 @@ class ThemeService
 
     public function getResolvedThemeConfiguration(string $themeId, Context $context): array
     {
-        return $this->cache->get('theme.resolved-config.' . $themeId, function (ItemInterface $item) use ($themeId, $context) {
-            $item->expiresAfter(\DateInterval::createFromDateString('1 hour'));
-
+        return $this->cache->get('theme.resolved-config.' . $themeId, function () use ($themeId, $context) {
             $config = $this->getThemeConfiguration($themeId, false, $context);
             $resolvedConfig = [];
             $mediaItems = [];

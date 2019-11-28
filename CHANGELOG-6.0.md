@@ -342,6 +342,8 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Dropped `additionalText` column of product entity, use `metaDescription` instead
     * Removed `EntityExistence $existence` parameter from `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getDefaults` as it is not necessary anymore
     * Removed configuration `shopware.entity_cache` in favor of the symfony cache pool `cache.object` configuration.
+    * Removed the `voku/stop-words` package
+    * Removed the `SearchFilterInterface` and `StopWordFilter`, which were not used anywhere 
 * Storefront
     * Removed `\Shopware\Storefront\Framework\Cache\CacheWarmer\Navigation\NavigationRouteMessage`
     * Removed `\Shopware\Storefront\Framework\Cache\CacheWarmer\Product\ProductRouteMessage`

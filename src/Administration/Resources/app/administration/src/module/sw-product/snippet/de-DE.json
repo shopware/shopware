@@ -300,13 +300,14 @@
       "inputCrossSellingProductStreamPlaceholder": "Wähle eine Produktgruppe ...",
       "popularitySortingType": "Beliebtheit",
       "priceAscendingSortingType": "Preis, aufsteigend",
-      "priceDescendingSortingType": "Preis, absteigend",
+      "priceDescendingSortingType": "Preis",
       "nameSortingType": "Name",
       "releaseDateSortingType": "Erscheinungsdatum",
       "deleteConfirmTitle": "Cross Selling löschen",
       "deleteConfirmText": "Möchtest Du die Cross Selling Gruppe wirklich löschen?",
       "deleteButtonCancel": "Zurück",
       "deleteButtonDelete": "Löschen",
+      "linkOpenStreamPreview": "Vorschau öffnen",
       "emptyStateDescription": "Für dieses Produkt existiert noch keine Cross Selling Konfiguration."
     }
   }

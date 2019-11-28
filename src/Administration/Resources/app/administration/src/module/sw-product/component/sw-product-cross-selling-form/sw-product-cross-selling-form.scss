@@ -5,21 +5,29 @@
         float: right;
     }
 
-    p {
-        margin-bottom: 30px;
-    }
-
     .sw-field .sw-field__help-text {
         position: relative;
         top: 40px;
         right: 65px;
     }
 
-    .product-basic-form__switches {
+    .sw-product-cross-selling-form__switches {
         display: flex;
 
         .sw-field {
             margin-right: 20px;
+        }
+    }
+
+    .sw-product-price-form__links {
+        .sw-card__quick-link:first-child {
+            margin-top: 0;
+        }
+
+        .sw-card__quick-link {
+            transition: color 0.3s ease;
+            cursor: pointer;
+            margin-top: 16px;
         }
     }
 }

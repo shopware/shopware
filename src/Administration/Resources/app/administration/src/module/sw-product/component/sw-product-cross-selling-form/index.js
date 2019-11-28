@@ -1,11 +1,14 @@
 import template from './sw-product-cross-selling-form.html.twig';
 import './sw-product-cross-selling-form.scss';
 
-const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
+const { Component, Context } = Shopware;
+const { mapApiErrors } = Component.getComponentHelper();
 
 Component.register('sw-product-cross-selling-form', {
-    inject: ['repositoryFactory'],
     template,
+
+    inject: ['repositoryFactory'],
 
     props: {
         crossSelling: {
@@ -16,11 +19,20 @@ Component.register('sw-product-cross-selling-form', {
 
     data() {
         return {
-            showDeleteModal: false
+            showDeleteModal: false,
+            showModalPreview: false,
+            productStream: null,
+            productStreamFilter: []
         };
     },
 
     computed: {
+        ...mapApiErrors('product.crossSelling', [
+            'name',
+            'displayType',
+            'sortingType'
+        ]),
+
         product() {
             const state = Shopware.State.get('swProductDetail');
 
@@ -45,15 +57,28 @@ Component.register('sw-product-cross-selling-form', {
 
         sortingTypes() {
             return [
-                { value: 'priceAsc', label: this.$tc('sw-product.crossselling.priceAscendingSortingType') },
-                { value: 'priceDesc', label: this.$tc('sw-product.crossselling.priceDescendingSortingType') },
+                { value: 'price', label: this.$tc('sw-product.crossselling.priceDescendingSortingType') },
                 { value: 'name', label: this.$tc('sw-product.crossselling.nameSortingType') },
                 { value: 'releaseDate', label: this.$tc('sw-product.crossselling.releaseDateSortingType') }
             ];
         }
     },
 
+    watch: {
+        'crossSelling.productStreamId'() {
+            this.loadStreamPreview();
+        }
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            this.loadStreamPreview();
+        },
+
         onShowDeleteModal() {
             this.showDeleteModal = true;
         },
@@ -67,6 +92,34 @@ Component.register('sw-product-cross-selling-form', {
             this.$nextTick(() => {
                 this.product.crossSellings.remove(this.crossSelling.id);
             });
+        },
+
+        openModalPreview() {
+            this.loadStreamPreview();
+            this.showModalPreview = true;
+        },
+
+        closeModalPreview() {
+            this.showModalPreview = false;
+        },
+
+        loadStreamPreview() {
+            this.productStreamRepository.get(this.crossSelling.productStreamId, Shopware.Context.api)
+                .then((searchResult) => {
+                    this.productStream = searchResult;
+
+                    const filterRepository = this.repositoryFactory.create(
+                        this.productStream.filters.entity,
+                        this.productStream.filters.source,
+                    );
+
+                    const criteria = new Criteria();
+                    criteria.addFilter(Criteria.equals('productStreamId', this.crossSelling.productStreamId));
+
+                    return filterRepository.search(criteria, Context.api).then((productFilter) => {
+                        this.productStreamFilter = productFilter;
+                    });
+                });
         }
     }
 });

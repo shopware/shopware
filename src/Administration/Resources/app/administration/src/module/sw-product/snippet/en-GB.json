@@ -300,13 +300,14 @@
       "inputCrossSellingPositionPlaceholder": "Select a position...",
       "popularitySortingType": "Popularity",
       "priceAscendingSortingType": "Price, ascending",
-      "priceDescendingSortingType": "Price, descending",
+      "priceDescendingSortingType": "Price",
       "nameSortingType": "Name",
       "releaseDateSortingType": "Release date",
       "deleteConfirmTitle": "Delete cross selling",
       "deleteConfirmText": "Are you sure you want to delete the cross selling group?",
       "deleteButtonCancel": "Cancel",
       "deleteButtonDelete": "Delete",
+      "linkOpenStreamPreview": "Open preview",
       "emptyStateDescription": "This product has no cross selling configured yet."
     }
   }

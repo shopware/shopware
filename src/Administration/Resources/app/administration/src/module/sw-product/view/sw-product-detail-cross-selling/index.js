@@ -5,8 +5,9 @@ const { Component } = Shopware;
 const { mapState } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-detail-cross-selling', {
-    inject: ['repositoryFactory'],
     template,
+
+    inject: ['repositoryFactory'],
 
     data() {
         return {
@@ -26,6 +27,13 @@ Component.register('sw-product-detail-cross-selling', {
             set() {
                 this.product.add(this.crossSellings);
             }
+        },
+
+        total() {
+            if (this.crossSellings || this.crossSellings.length > 0) {
+                return this.crossSellings.length;
+            }
+            return null;
         }
     },
 

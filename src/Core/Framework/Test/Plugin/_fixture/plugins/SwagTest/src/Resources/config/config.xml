@@ -11,14 +11,23 @@
             <defaultValue>7</defaultValue>
         </input-field>
         <input-field type="text">
+            <name>textFieldWithoutDefault</name>
+            <label>Test field without default value</label>
+        </input-field>
+        <input-field type="text">
             <name>textField</name>
             <label>Test field with default value</label>
             <defaultValue>string</defaultValue>
         </input-field>
+        <input-field type="text">
+            <name>textFieldNull</name>
+            <label>Test field with default value null</label>
+            <defaultValue>null</defaultValue>
+        </input-field>
         <input-field type="bool">
             <name>switchField</name>
             <label>Test field with default value</label>
-            <defaultValue>true</defaultValue>
+            <defaultValue>false</defaultValue>
         </input-field>
         <input-field type="float">
             <name>floatField</name>

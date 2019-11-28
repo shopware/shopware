@@ -14,9 +14,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidKeyException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
+use Symfony\Component\Config\Util\XmlUtils;
 
 class SystemConfigService
 {
@@ -40,8 +42,11 @@ class SystemConfigService
      */
     private $configReader;
 
-    public function __construct(Connection $connection, EntityRepositoryInterface $systemConfigRepository, ConfigReader $configReader)
-    {
+    public function __construct(
+        Connection $connection,
+        EntityRepositoryInterface $systemConfigRepository,
+        ConfigReader $configReader
+    ) {
         $this->connection = $connection;
         $this->systemConfigRepository = $systemConfigRepository;
         $this->configReader = $configReader;
@@ -56,11 +61,11 @@ class SystemConfigService
         $pointer = $config;
 
         foreach ($parts as $part) {
-            if (!is_array($pointer)) {
+            if (!\is_array($pointer)) {
                 return null;
             }
 
-            if (array_key_exists($part, $pointer)) {
+            if (\array_key_exists($part, $pointer)) {
                 $pointer = $pointer[$part];
 
                 continue;
@@ -168,39 +173,27 @@ class SystemConfigService
     }
 
     /**
-     * Fetches default values from bundle configuration and saves it to database.
-     *
-     * @param Bundle $bundle   The bundle or plugin.
-     * @param bool   $override Whether the existing values should be overridden.
-     *
-     * @throws Exception\BundleConfigNotFoundException
+     * Fetches default values from bundle configuration and saves it to database
      */
-    public function savePluginConfiguration(Bundle $bundle, bool $override = true): void
+    public function savePluginConfiguration(Bundle $bundle, bool $override = false): void
     {
-        $config = $this->configReader->getConfigFromBundle($bundle);
-        $prefix = $bundle->getName() . '.config.'; // todo: Make this dynamically, see https://github.com/shopware/platform/pull/310
+        try {
+            $config = $this->configReader->getConfigFromBundle($bundle);
+        } catch (BundleConfigNotFoundException $e) {
+            return;
+        }
+
+        $prefix = $bundle->getName() . '.config.';
 
         foreach ($config as $card) {
             foreach ($card['elements'] as $element) {
-                $key   = $prefix . $element['name'];
-                $value = $element['defaultValue'];
-
-                switch ($element['type']) {
-                    case 'int':
-                        $value = (int) $value;
-                    break;
-                    case 'bool':
-                        $value = (bool) $value;
-                    break;
-                    case 'float':
-                        $value = (float) $value;
-                    break;
+                $key = $prefix . $element['name'];
+                if (!isset($element['defaultValue'])) {
+                    continue;
                 }
 
-                if (
-                    !empty($value)
-                    && ($override || !$this->get($key))
-                ) {
+                $value = XmlUtils::phpize($element['defaultValue']);
+                if ($override || $this->get($key) === null) {
                     $this->set($key, $value);
                 }
             }
@@ -242,8 +235,8 @@ class SystemConfigService
     }
 
     /**
-     * the keys of the systemconfigs look like core.loginRegistration.showPhoneNumberField
-     * this method splits those strings and builds an array structur
+     * The keys of the system configs look like `core.loginRegistration.showPhoneNumberField`.
+     * This method splits those strings and builds an array structure
      *
      * ```
      * Array
@@ -252,7 +245,7 @@ class SystemConfigService
      *         (
      *             [loginRegistration] => Array
      *                 (
-     *                     [showPhoneNumberField] => 'somevalue'
+     *                     [showPhoneNumberField] => 'someValue'
      *                 )
      *         )
      * )
@@ -278,7 +271,7 @@ class SystemConfigService
         if (empty($keys)) {
             $configValues[$key] = $value;
         } else {
-            if (!array_key_exists($key, $configValues)) {
+            if (!\array_key_exists($key, $configValues)) {
                 $configValues[$key] = [];
             }
 
@@ -288,6 +281,10 @@ class SystemConfigService
         return $configValues;
     }
 
+    /**
+     * @throws InvalidKeyException
+     * @throws InvalidUuidException
+     */
     private function validate(string $key, ?string $salesChannelId): void
     {
         $key = trim($key);

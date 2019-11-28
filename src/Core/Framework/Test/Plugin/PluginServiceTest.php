@@ -140,7 +140,7 @@ class PluginServiceTest extends TestCase
 
         $this->pluginService->refreshPlugins($this->context, new NullIO());
         $pluginCollection = $this->pluginRepo->search(new Criteria(), $this->context)->getEntities();
-        static::assertCount(1, $pluginCollection);
+        static::assertCount(2, $pluginCollection);
         /** @var PluginEntity $plugin */
         $plugin = $pluginCollection->first();
 

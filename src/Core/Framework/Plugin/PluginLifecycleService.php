@@ -188,7 +188,7 @@ class PluginLifecycleService
 
         $this->eventDispatcher->dispatch(new PluginPreInstallEvent($plugin, $installContext));
 
-        $this->systemConfigService->savePluginConfiguration($pluginBaseClass);
+        $this->systemConfigService->savePluginConfiguration($pluginBaseClass, true);
 
         $pluginBaseClass->install($installContext);
 
@@ -284,7 +284,7 @@ class PluginLifecycleService
 
         $this->eventDispatcher->dispatch(new PluginPreUpdateEvent($plugin, $updateContext));
 
-        $this->systemConfigService->savePluginConfiguration($pluginBaseClass, false);
+        $this->systemConfigService->savePluginConfiguration($pluginBaseClass);
 
         $pluginBaseClass->update($updateContext);
         if ($plugin->getInstalledAt() && $plugin->getActive()) {
@@ -523,5 +523,4 @@ class PluginLifecycleService
 
         return $this->getPluginBaseClass($pluginBaseClassString);
     }
-
 }

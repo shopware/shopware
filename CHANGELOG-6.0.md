@@ -311,6 +311,18 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Updated Symfony Dependencies to version `4.4.0`.    
     * Added the `referencePrice` of a product to the `offcanvas cart` and the `ajax-search`
     * The default cache time for the theme config now uses the lifetime of the cache pool instead of 1 hour
+    * The `theme.json` can now also define the order of the templates. For this you can use the `views` parameter:
+        ```json
+        {
+            "views": [
+                 "@Storefront",
+                 "@Plugins",
+                 "@SwagCustomizedProduct",
+                 "@MyTheme",
+                 "@SwagPayPal"
+            ]
+        }
+      ```
 * Elasticsearch
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.
         * You can set them with a parameter.yml too.

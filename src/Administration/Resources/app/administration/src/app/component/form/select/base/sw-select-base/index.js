@@ -18,6 +18,12 @@ Component.register('sw-select-base', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -44,6 +50,10 @@ Component.register('sw-select-base', {
 
         expand() {
             if (this.expanded) {
+                return;
+            }
+
+            if (this.disabled) {
                 return;
             }
 

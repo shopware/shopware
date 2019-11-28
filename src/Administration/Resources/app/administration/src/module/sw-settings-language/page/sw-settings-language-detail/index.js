@@ -94,6 +94,18 @@ Component.register('sw-settings-language-detail', {
             const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.not('and', [Criteria.equals('id', this.language.id)]));
             return criteria;
+        },
+
+        isSystemDefaultLanguageId() {
+            return this.language.id === Shopware.Context.api.systemLanguageId;
+        },
+
+        inheritanceTooltipText() {
+            if (this.isSystemDefaultLanguageId) {
+                return this.$tc('sw-settings-language.detail.tooltipInheritanceNotPossible');
+            }
+
+            return this.$tc('sw-settings-language.detail.tooltipLanguageNotChoosable');
         }
     },
 

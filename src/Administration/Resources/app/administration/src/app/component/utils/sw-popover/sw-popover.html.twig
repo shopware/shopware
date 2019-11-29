@@ -1,6 +1,6 @@
 {% block sw_popover %}
     <div class="sw-popover">
-        <div class="sw-popover__wrapper" :style="componentStyle" v-popover>
+        <div class="sw-popover__wrapper" :style="componentStyle" v-popover="{ active: true }">
             <slot></slot>
         </div>
     </div>

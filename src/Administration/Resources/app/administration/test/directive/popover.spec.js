@@ -42,7 +42,7 @@ describe('directives/popover', () => {
 
         expect(popover.virtualScrollingElements.size).toBe(1);
 
-        popover.unregisterVirtualScrollingElement(mockContext);
+        popover.unregisterVirtualScrollingElement(mockContext._uid);
 
         expect(popover.virtualScrollingElements.size).toBe(0);
     });
@@ -63,7 +63,7 @@ describe('directives/popover', () => {
         expect(popover.virtualScrollingElements.size).toBe(1);
         expect(eventListener).toHaveProperty('scroll');
 
-        popover.unregisterVirtualScrollingElement(mockContext);
+        popover.unregisterVirtualScrollingElement(mockContext._uid);
     });
 
     it('should remove an event listener', () => {
@@ -78,7 +78,7 @@ describe('directives/popover', () => {
         expect(popover.virtualScrollingElements.size).toBe(1);
         expect(eventListener).toHaveProperty('scroll');
 
-        popover.unregisterVirtualScrollingElement(mockContext);
+        popover.unregisterVirtualScrollingElement(mockContext._uid);
 
         expect(eventListener).not.toHaveProperty('scroll');
     });

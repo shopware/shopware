@@ -1,7 +1,7 @@
 import './sw-entity-single-select.scss';
 import template from './sw-entity-single-select.html.twig';
 
-const { Component } = Shopware;
+const { Component, Utils } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 const { debounce, get } = Shopware.Utils;
 
@@ -271,6 +271,8 @@ Component.register('sw-entity-single-select', {
             /** @deprecated Html select don't have an onInput event */
             this.$emit('input', item.id, item);
             this.$emit('change', item.id, item);
+
+            this.$emit('option-select', Utils.string.camelCase(this.entity), item);
         },
 
         clearSelection() {
@@ -278,6 +280,8 @@ Component.register('sw-entity-single-select', {
             /** @deprecated Html select don't have an onInput event */
             this.$emit('input', null);
             this.$emit('change', null);
+
+            this.$emit('option-select', Utils.string.camelCase(this.entity), null);
         },
 
         resetActiveItem(pos = 0) {

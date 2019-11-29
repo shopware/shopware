@@ -68,6 +68,10 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Moved all rule specific components to `src/app/components/rule`
     * Added error handling for multiple errors per request
     * Replaced `repository.sync` with a request against the `sync` endpoint. The former behavior of `sync` ist now available as `repository.saveAll`
+    * We splitted the component `sw-sales-channel-modal` up into two additional components `sw-sales-channel-modal-detail` and `sw-sales-channel-modal-grid`
+    * `sw-sales-channel-detail-base` got refactored based on a new design, the domain management was moved to a new component
+    * Created a new component `sw-sales-channel-detail-domains` which handles the domain management of a sales channel now
+    * `sw-entity-single-select` fires a new event called `option-select` which provides the selected entity and  as the payload
    
 * Core
     * Added DAL support for multi primary keys.

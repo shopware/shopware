@@ -7,7 +7,7 @@ Component.override('sw-sales-channel-detail', {
     template,
 
     methods: {
-        loadSalesChannel() {
+        getLoadSalesChannelCriteria() {
             const criteria = new Criteria();
 
             criteria.addAssociation('paymentMethods');
@@ -18,13 +18,11 @@ Component.override('sw-sales-channel-detail', {
             criteria.addAssociation('domains');
             criteria.addAssociation('themes');
 
-            this.isLoading = true;
-            this.salesChannelRepository
-                .get(this.$route.params.id, Shopware.Context.api, criteria)
-                .then((entity) => {
-                    this.salesChannel = entity;
-                    this.isLoading = false;
-                });
+            criteria.addAssociation('domains.language');
+            criteria.addAssociation('domains.snippetSet');
+            criteria.addAssociation('domains.currency');
+
+            return criteria;
         }
     }
 });

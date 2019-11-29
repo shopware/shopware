@@ -20,6 +20,12 @@ export default class SalesChannelPageObject extends GeneralPageObject {
     fillInBasicSalesChannelData(salesChannelName) {
         cy.get(this.elements.salesChannelNameInput).typeAndCheck(salesChannelName);
 
+        cy.get('.sw-sales-channel-detail__select-navigation-category-id')
+            .typeSingleSelectAndCheck('Catalogue #1', '.sw-sales-channel-detail__select-navigation-category-id');
+
+        cy.get('.sw-sales-channel-detail__select-customer-group')
+            .typeSingleSelectAndCheck('Standard customer group', '.sw-sales-channel-detail__select-customer-group');
+
         cy.get('.sw-sales-channel-detail__select-payment-method').typeMultiSelectAndCheck('Invoice', {
             searchTerm: 'Invoice'
         });
@@ -49,12 +55,6 @@ export default class SalesChannelPageObject extends GeneralPageObject {
         });
         cy.get('.sw-sales-channel-detail__assign-languages')
             .typeSingleSelectAndCheck('English','.sw-sales-channel-detail__assign-languages');
-
-        cy.get('.sw-sales-channel-detail__select-customer-group')
-            .typeSingleSelectAndCheck('Standard customer group', '.sw-sales-channel-detail__select-customer-group');
-
-        cy.get('.sw-sales-channel-detail__select-navigation-category-id')
-            .typeSingleSelectAndCheck('Catalogue #1', '.sw-sales-channel-detail__select-navigation-category-id');
     }
 
     openSalesChannel(salesChannelName, position = 0) {
@@ -68,7 +68,7 @@ export default class SalesChannelPageObject extends GeneralPageObject {
         cy.get(this.elements.dangerButton).click();
         cy.get(this.elements.modal).should('be.visible');
         cy.get(`${this.elements.modal}__body .sw-sales-channel-detail-base__delete-modal-confirm-text`)
-            .contains('Are you sure you want to delete this sales channel?');
+            .contains('Are you sure you want to delete this Sales Channel?');
         cy.get(`${this.elements.modal}__body .sw-sales-channel-detail-base__delete-modal-name`)
             .contains(salesChannelName);
 

@@ -1,0 +1,172 @@
+{% block sw_sales_channel_detail_domains %}
+    <sw-card :title="$tc('sw-sales-channel.detail.titleDomains')"
+             class="sw-sales-channel-detail-domains">
+
+        {% block sw_sales_channel_detail_domains_meta %}
+            <div class="sw-sales-channel-detail-domains__meta">
+                {% block sw_sales_channel_detail_domains_headline %}
+                    <h4 class="sw-sales-channel-detail-domains__headline sw-sales-channel-detail-base__headline">
+                        <span class="sw-sales-channel-detail-domains__headline-text sw-sales-channel-detail-base__headline-text">
+                            {{ $tc('sw-sales-channel.detail.titleDomainHeadline') }}
+                        </span>
+                    </h4>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_domains_description %}
+                    <div class="sw-sales-channel-detail-domains__description-text sw-sales-channel-detail-base__description-text ">
+                        {{ $tc('sw-sales-channel.detail.textDomainDescription') }}
+                    </div>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_domains_add_button %}
+                    <sw-button size="small" @click="onClickOpenCreateDomainModal" class="sw-sales-channel-detail__button-domain-add">
+                        {{ $tc('sw-sales-channel.detail.buttonAddDomain') }}
+                    </sw-button>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        <template #grid>
+            {% block sw_sales_channel_detail_domains_grid %}
+                <sw-data-grid
+                    ref="gridDomains"
+                    :dataSource="salesChannel.domains"
+                    :columns="getDomainColumns()"
+                    :showSelection="false"
+                    :isLoading="isLoadingDomains"
+                    :showActions="true">
+                    {% block sw_sales_channel_detail_domains_columns_template %}
+
+                        {% block sw_sales_channel_detail_domains_column_language_id %}
+                            <template slot="column-languageId" slot-scope="{ item, isInlineEdit}">
+                                {{ item.language.name }}
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_domains_column_currency_id %}
+                            <template slot="column-currencyId" slot-scope="{ item, isInlineEdit}">
+                                {{ item.currency.name }}
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_domains_column_snippet_set_id %}
+                            <template slot="column-snippetSetId" slot-scope="{ item, isInlineEdit}">
+                                {{ item.snippetSet.name }}
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_domains_column_actions %}
+                            <template #actions="{ item }">
+                                {% block sw_sales_channel_detail_domains_column_action_domain_edit %}
+                                    <sw-context-menu-item @click="onClickEditDomain(item)">
+                                        {{ $tc('sw-sales-channel.detail.buttonEditDomain') }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
+
+                                {% block sw_sales_channel_detail_domains_column_action_domain_delete %}
+                                    <sw-context-menu-item @click="onClickDeleteDomain(item)" variant="danger">
+                                        {{ $tc('sw-sales-channel.detail.buttonDeleteDomain') }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
+                            </template>
+                        {% endblock %}
+                    {% endblock %}
+                </sw-data-grid>
+            </template>
+        {% endblock %}
+
+        {% block sw_sales_channel_detail_domains_create_modal %}
+            <sw-modal
+                v-if="currentDomain"
+                :title="currentDomainModalTitle"
+                @modal-close="onCloseCreateDomainModal">
+
+                {% block sw_sales_channel_detail_domains_create_modal_content %}
+                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
+                        {% block sw_sales_channel_detail_domains_input_url %}
+                            <sw-url-field type="text" label="Url" v-model="currentDomain.url"></sw-url-field>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_domains_input_language %}
+                            <sw-entity-single-select
+                                :label="$tc('sw-sales-channel.detail.labelInputLanguage')"
+                                entity="language"
+                                required
+                                v-model="currentDomain.languageId"
+                                @option-select="onOptionSelect">
+                            </sw-entity-single-select>
+                        {% endblock %}
+                    </sw-container>
+
+                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
+                        {% block sw_sales_channel_detail_domains_input_currency %}
+                            <sw-entity-single-select
+                                :label="$tc('sw-sales-channel.detail.labelInputCurrency')"
+                                entity="currency"
+                                required
+                                v-model="currentDomain.currencyId"
+                                @option-select="onOptionSelect">
+                            </sw-entity-single-select>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_domains_input_snippet_set %}
+                            <sw-entity-single-select
+                                :label="$tc('sw-sales-channel.detail.labelInputSnippet')"
+                                v-model="currentDomain.snippetSetId"
+                                required
+                                entity="snippet_set"
+                                @option-select="onOptionSelect">
+                            </sw-entity-single-select>
+                        {% endblock %}
+                    </sw-container>
+                {% endblock %}
+
+                <template slot="modal-footer">
+                    {% block sw_sales_channel_detail_domains_create_action_cancel %}
+                        <sw-button size="small" @click="onCloseCreateDomainModal">
+                            {{ $tc('sw-sales-channel.modal.buttonCancel') }}
+                        </sw-button>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_detail_domains_create_action_create %}
+                        <sw-button size="small" variant="primary" @click="onClickAddNewDomain">
+                            {{ currentDomainModalButtonText }}
+                        </sw-button>
+                    {% endblock %}
+                </template>
+            </sw-modal>
+        {% endblock %}
+
+        {% block sw_sales_channel_detail_domains_delete_modal %}
+            <sw-modal
+                v-if="deleteDomain"
+                :title="$tc('sw-sales-channel.detail.deleteDomainModalTitle')"
+                variant="small"
+                @modal-close="onCloseDeleteDomainModal">
+
+                {% block sw_sales_channel_detail_domains_delete_modal_confirm_text %}
+                    {{ $tc('sw-sales-channel.detail.textConfirmDeleteDomain', 0, { url: deleteDomain.url }) }}
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_domains_delete_modal_footer %}
+                    <template slot="modal-footer">
+                        {% block sw_sales_channel_detail_domains_delete_modal_abort %}
+                            <sw-button size="small" @click="onCloseDeleteDomainModal">
+                                {{ $tc('sw-sales-channel.detail.buttonCloseDeleteDomainModal') }}
+                            </sw-button>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_domains_delete_modal_confirm %}
+                            <sw-button
+                                size="small"
+                                variant="danger"
+                                @click="onConfirmDeleteDomain(deleteDomain)">
+                                {{ $tc('sw-sales-channel.detail.buttonConfirmDeleteDomain') }}
+                            </sw-button>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+            </sw-modal>
+        {% endblock %}
+    </sw-card>
+{% endblock %}

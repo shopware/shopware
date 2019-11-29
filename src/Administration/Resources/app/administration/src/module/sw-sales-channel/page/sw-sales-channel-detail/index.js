@@ -1,13 +1,14 @@
 import template from './sw-sales-channel-detail.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-sales-channel-detail', {
-
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory'
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -39,7 +40,7 @@ Component.register('sw-sales-channel-detail', {
         },
 
         isStoreFront() {
-            return this.salesChannel.typeId === '8a243080f92e4c719546314b577cf82b';
+            return this.salesChannel.typeId === Defaults.storefrontSalesChannelTypeId;
         },
 
         salesChannelRepository() {
@@ -92,19 +93,29 @@ Component.register('sw-sales-channel-detail', {
             this.loadCustomFieldSets();
         },
 
-        loadSalesChannel() {
+        getLoadSalesChannelCriteria() {
             const criteria = new Criteria();
 
             criteria.addAssociation('paymentMethods');
             criteria.addAssociation('shippingMethods');
             criteria.addAssociation('countries');
             criteria.addAssociation('currencies');
-            criteria.addAssociation('languages');
             criteria.addAssociation('domains');
+            criteria.addAssociation('languages');
+
+            criteria.addAssociation('domains.language');
+            criteria.addAssociation('domains.snippetSet');
+            criteria.addAssociation('domains.currency');
+
+            return criteria;
+        },
+
+        loadSalesChannel() {
+            const criteria = this.getLoadSalesChannelCriteria();
 
             this.isLoading = true;
-            this.salesChannelRepository
-                .get(this.$route.params.id, Shopware.Context.api, criteria)
+            return this.salesChannelRepository
+                .get(this.$route.params.id, Context.api, criteria)
                 .then((entity) => {
                     this.salesChannel = entity;
                     this.isLoading = false;
@@ -119,7 +130,7 @@ Component.register('sw-sales-channel-detail', {
                 .addSorting(Criteria.sort('config.customFieldPosition'));
 
             this.customFieldRepository
-                .search(criteria, Shopware.Context.api)
+                .search(criteria, Context.api)
                 .then((searchResult) => {
                     this.customFieldSets = searchResult;
                 });
@@ -135,7 +146,7 @@ Component.register('sw-sales-channel-detail', {
             this.isSaveSuccessful = false;
 
             this.salesChannelRepository
-                .save(this.salesChannel, Shopware.Context.api)
+                .save(this.salesChannel, Context.api)
                 .then(() => {
                     this.isLoading = false;
                     this.isSaveSuccessful = true;

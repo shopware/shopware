@@ -60,10 +60,30 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-settings-snippet').click();
+        cy.wait('@getData', {
+            timeout: 30000
+        }).then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+        cy.get('.sw-grid').should('be.visible');
+    });
+
+    it('@general: navigate to sitemap module', () => {
+        cy.server();
+        cy.route({
+            url: '/api/v1/_action/system-config/schema?domain=core.sitemap',
+            method: 'get'
+        }).as('getData');
+
+        cy.clickMainMenuItem({
+            targetPath: '#/sw/settings/index',
+            mainMenuId: 'sw-settings'
+        });
+        cy.contains('Sitemap').click();
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
-        cy.get('.sw-settings-snippet-set-list__actions').should('be.visible');
+        cy.get('.sw-system-config').should('be.visible');
     });
 
     it('@general: navigate to shipping module', () => {
@@ -82,6 +102,24 @@ describe('Administration: Check module navigation in settings', () => {
             expect(xhr).to.have.property('status', 200);
         });
         cy.get('.sw-settings-shipping-list__content').should('exist');
+    });
+
+    it('@general: navigate to seo module', () => {
+        cy.server();
+        cy.route({
+            url: '/api/v1/search/seo-url-template',
+            method: 'post'
+        }).as('getData');
+
+        cy.clickMainMenuItem({
+            targetPath: '#/sw/settings/index',
+            mainMenuId: 'sw-settings'
+        });
+        cy.get('#sw-settings-seo').click();
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+        cy.get('.sw-seo-url-template-card').should('be.visible');
     });
 
     it('@general: navigate to salutation module', () => {
@@ -157,6 +195,24 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-settings-number-range-list-grid').should('be.visible');
     });
 
+    it('@general: navigate to newsletter configuration module', () => {
+        cy.server();
+        cy.route({
+            url: '/api/v1/_action/system-config?domain=core.newsletter',
+            method: 'get'
+        }).as('getData');
+
+        cy.clickMainMenuItem({
+            targetPath: '#/sw/settings/index',
+            mainMenuId: 'sw-settings'
+        });
+        cy.contains('Newsletter configuration').click();
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+        cy.get('.sw-card__title').contains('Newsletter configuration');
+    });
+
     it('@general: navigate to login registration module', () => {
         cy.server();
         cy.route({
@@ -173,28 +229,6 @@ describe('Administration: Check module navigation in settings', () => {
             expect(xhr).to.have.property('status', 200);
         });
         cy.get('.sw-card__title').contains('Login / registration');
-    });
-
-    it('@general: navigate to logging module', () => {
-        cy.server();
-        cy.route({
-            url: '/api/v1/search/log-entry',
-            method: 'post'
-        }).as('getData');
-
-        cy.clickMainMenuItem({
-            targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
-        });
-
-        cy.get('.sw-settings__tab-system').should('be.visible');
-        cy.get('.sw-settings__tab-system').click();
-
-        cy.get('#sw-settings-logging').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
-        cy.get('.sw-data-grid').should('be.visible');
     });
 
     it('@general: navigate to listing setting module', () => {
@@ -249,6 +283,24 @@ describe('Administration: Check module navigation in settings', () => {
             expect(xhr).to.have.property('status', 200);
         });
         cy.get('.sw-settings-document-list-grid').should('be.visible');
+    });
+
+    it('@general: navigate to delivery time module', () => {
+        cy.server();
+        cy.route({
+            url: '/api/v1/search/delivery-time',
+            method: 'post'
+        }).as('getData');
+
+        cy.clickMainMenuItem({
+            targetPath: '#/sw/settings/index',
+            mainMenuId: 'sw-settings'
+        });
+        cy.get('#sw-settings-delivery-time').click();
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+        cy.get('.sw-data-grid').should('be.visible');
     });
 
     it('@general: navigate to customer group module', () => {

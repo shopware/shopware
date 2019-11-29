@@ -1,0 +1,67 @@
+language: php
+
+php:
+    - 7.2
+    - 7.3
+    - 7.4
+
+services:
+    - mysql
+    - elasticsearch
+
+git:
+    depth: false
+
+before_install:
+    - curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.1.1-amd64.deb
+    - sudo dpkg -i --force-confnew elasticsearch-7.1.1-amd64.deb
+    - sudo chmod 777 /etc/default/elasticsearch
+    - sudo service elasticsearch restart
+    - npm i -g npm@6.5.0
+
+install:
+    - git checkout -t origin/master
+    - git checkout $TRAVIS_BRANCH
+    - echo "ALTER USER 'travis'@'localhost' IDENTIFIED BY 'travis';" | mysql -u root
+    - zip -rqm platform.zip .
+    - git clone --branch 6.1 https://github.com/shopware/development.git
+    - unzip -q platform.zip -d development/platform/
+    - cd development
+    - cp -v dev-ops/github/.psh.yaml.override .
+    - ./psh.phar init-composer
+    - if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
+
+script:
+    - nohup php -S localhost:8000 -t public > phpd.log 2>&1 &
+    - PHP_SERVER_PID=$!
+    - ./psh.phar init
+    - php -d memory_limit=2G vendor/bin/phpunit --configuration vendor/shopware/platform/phpunit.xml.dist
+    - kill -3 $PHP_SERVER_PID
+
+jobs:
+    include:
+        -   stage: Javascript analysis
+            php: 7.2
+            script:
+                - cd platform/src/Administration/Resources
+                - npm clean-install
+                - npm run lerna -- bootstrap
+                - cd app/administration
+                - PROJECT_ROOT=$(pwd) node_modules/.bin/eslint --ext .js,.vue src test
+        -   stage: PHP analysis
+            php: 7.2
+            script:
+                - ./psh.phar init
+                - php dev-ops/analyze/generate-composer.php
+                - php dev-ops/analyze/vendor/bin/ecs check vendor/shopware/platform/src --config vendor/shopware/platform/easy-coding-standard.yml
+                - php dev-ops/analyze/phpstan-config-generator.php
+                - php dev-ops/analyze/vendor/bin/phpstan analyze --configuration vendor/shopware/platform/phpstan.neon
+                - >
+                    for module in $(ls platform/src/); do
+                        echo "[PSALM: scan $module]"
+                        php dev-ops/analyze/vendor/bin/psalm --config=vendor/shopware/platform/psalm.xml --threads=2 --show-info=false vendor/shopware/platform/src/$module;
+                    done
+                - php dev-ops/analyze/vendor/bin/psalm --config=vendor/shopware/platform/psalm.xml --threads=2 --show-info=false src
+
+notifications:
+    email: false

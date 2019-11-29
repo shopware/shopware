@@ -1,5 +1,6 @@
 <div align="center">
 
+[![Build Status](https://travis-ci.org/shopware/platform.svg?branch=6.1)](https://travis-ci.org/shopware/platform)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/shopware/platform/badges/quality-score.png)](https://scrutinizer-ci.com/g/shopware/platform/)
 [![Latest Stable Version](https://poser.pugx.org/shopware/platform/v/stable)](https://packagist.org/packages/shopware/platform)
 [![Total Downloads](https://poser.pugx.org/shopware/platform/downloads)](https://packagist.org/packages/shopware/platform)

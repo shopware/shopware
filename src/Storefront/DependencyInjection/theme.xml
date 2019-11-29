@@ -135,7 +135,7 @@
 
         <!-- Twig -->
         <service id="Shopware\Storefront\Theme\Twig\ThemeTemplateFinder" public="true"
-                 decorates="Shopware\Core\Framework\Twig\TemplateFinder">
+                 decorates="Shopware\Core\Framework\Adapter\Twig\TemplateFinder">
 
             <argument type="service" id="twig"/>
             <argument type="service" id="twig.loader"/>

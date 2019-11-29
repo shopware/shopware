@@ -6,33 +6,33 @@
 
     <services>
         <!-- Filesystem -->
-        <service id="Shopware\Core\Framework\Filesystem\FilesystemFactory">
+        <service id="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory">
             <argument type="tagged" tag="shopware.filesystem.factory"/>
         </service>
 
         <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.public">
-            <factory service="Shopware\Core\Framework\Filesystem\FilesystemFactory" method="factory"/>
+            <factory service="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory" method="factory"/>
             <argument>%shopware.filesystem.public%</argument>
         </service>
 
         <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.private">
-            <factory service="Shopware\Core\Framework\Filesystem\FilesystemFactory" method="factory"/>
+            <factory service="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory" method="factory"/>
             <argument>%shopware.filesystem.private%</argument>
         </service>
 
-        <service class="Shopware\Core\Framework\Filesystem\Adapter\LocalFactory" id="Shopware\Core\Framework\Filesystem\FilesystemFactory.local">
+        <service class="Shopware\Core\Framework\Adapter\Filesystem\Adapter\LocalFactory" id="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory.local">
             <tag name="shopware.filesystem.factory"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Filesystem\Adapter\AwsS3v3Factory" id="Shopware\Core\Framework\Filesystem\FilesystemFactory.amazon_s3">
+        <service class="Shopware\Core\Framework\Adapter\Filesystem\Adapter\AwsS3v3Factory" id="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory.amazon_s3">
             <tag name="shopware.filesystem.factory"/>
         </service>
 
-        <service class="Shopware\Core\Framework\Filesystem\Adapter\GoogleStorageFactory" id="Shopware\Core\Framework\Filesystem\FilesystemFactory.google_storage">
+        <service class="Shopware\Core\Framework\Adapter\Filesystem\Adapter\GoogleStorageFactory" id="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory.google_storage">
             <tag name="shopware.filesystem.factory"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Filesystem\PrefixFilesystem">
+        <service id="Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem">
             <argument type="service" id="shopware.filesystem.public"/>
             <argument>media</argument>
         </service>

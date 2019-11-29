@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Test\Logging\Event;
 
 use Monolog\Logger;
-use Shopware\Core\Framework\Logging\LogAwareBusinessEventInterface;
+use Shopware\Core\Framework\Log\LogAwareBusinessEventInterface;
 use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
 
 class LogAwareTestBusinessEvent extends TestBusinessEvent implements LogAwareBusinessEventInterface

@@ -148,10 +148,10 @@ Core
 * Removed `Shopware\Core\Framework\DataAbstractionLayer\EntityWrittenContainerEvent::getEventByDefinition`. Use `getEventByEntityName` instead, which takes the entity name instead of the entity classname but proved the same functionality.
 * Removed `getDefinition` and the corresponding `definition` member from `\Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResults` and `...\Event\EntityWrittenEvent`. Classes which used this function can access the name of the written entity via the new method `getEntityName` and retrieve the definition using the `DefinitionInstanceRegistry`
 * Replace service id `shopware.cache` with `cache.object`
-* If you invalidated the entity cache over the `shopware.cache` service, use the `\Shopware\Core\Framework\Cache\CacheClearer` instead.
+* If you invalidated the entity cache over the `shopware.cache` service, use the `\Shopware\Core\Framework\Adapter\Cache\CacheClearer` instead.
 * All customer events in `Shopware\Core\Checkout\Customer\Event` now get the `Shopware\Core\Syste\SalesChannel\SalesChannelContext` instead of `Shopware\Core\Framework\Context` and a `salesChannelId`
 * Implement `getName` for classes that implement `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface`
-* We've moved the seo module into the core. Replace the namespace `Shopware\Storefront\Framework\Seo\` with `Shopware\Core\Framework\Seo\`
+* We've moved the seo module into the core. Replace the namespace `Shopware\Storefront\Framework\Seo\` with `Shopware\Core\Content\Seo\`
 * Switch the usage of `\Shopware\Core\Framework\Migration\MigrationStep::addForwardTrigger()` and `\Shopware\Core\Framework\Migration\MigrationStep::addBackwardTrigger()`, as the execution conditions were switched. 
 * `\Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity::$trackingCode` has been replaced with `\Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity::$trackingCodes`.
 * Add Bearer Auth Token to requests to `/api/v{version}/_info/entity-schema.json` and `/api/v{version}/_info/business-events.json` routes
@@ -188,7 +188,28 @@ Core
     ```
   
  * Add the `extractInheritableAttributes()` function to your implementations of `\Shopware\Core\Framework\Routing\RequestTransformerInterface`
-
+ * Find and replace `Shopware\Core\Framework\Acl` with `Shopware\Core\Framework\Api\Acl`
+ * Find and replace `Shopware\Core\Framework\CustomField` with `Shopware\Core\System\CustomField`
+ * Find and replace `Shopware\Core\Framework\Language` with `Shopware\Core\System\Language`
+ * Find and replace `Shopware\Core\Framework\Snippet` with `Shopware\Core\System\Snippet`
+ * Find and replace `Shopware\Core\Framework\Doctrine` with `Shopware\Core\Framework\DataAbstractionLayer\Doctrine`
+ * Find and replace `Shopware\Core\Framework\Pricing` with `Shopware\Core\Framework\DataAbstractionLayer\Pricing`
+ * Find and replace `Shopware\Core\Framework\Version` with `Shopware\Core\Framework\DataAbstractionLayer\Version`
+ * Find and replace `Shopware\Core\Framework\Faker` with `Shopware\Core\Framework\Demodata\Faker`
+ * Find and replace `Shopware\Core\Framework\PersonalData` with `Shopware\Core\Framework\Demodata\PersonalData`
+ * Find and replace `Shopware\Core\Framework\Logging` with `Shopware\Core\Framework\Log`
+ * Find and replace `Shopware\Core\Framework\ScheduledTask` with `Shopware\Core\Framework\MessageQueue\ScheduledTask`
+ * Find and replace `Shopware\Core\Framework\Twig` with `Shopware\Core\Framework\Adapter\Twig`
+ * Find and replace `Shopware\Core\Framework\Asset` with `Shopware\Core\Framework\Adapter\Asset`
+ * Find and replace `Shopware\Core\Framework\Console` with `Shopware\Core\Framework\Adapter\Console`
+ * Find and replace `Shopware\Core\Framework\Cache` with `Shopware\Core\Framework\Adapter\Cache`
+ * Find and replace `Shopware\Core\Framework\Filesystem` with `Shopware\Core\Framework\Adapter\Filesystem`
+ * Find and replace `Shopware\Core\Framework\Translation` with `Shopware\Core\Framework\Adapter\Translation`
+ * Find and replace `Shopware\Core\Framework\Seo` with `Shopware\Core\Content\Seo`
+ * Find and replace `Shopware\Core\Content\DeliveryTime` with `Shopware\Core\System\DeliveryTime`
+ * Find and replace `Shopware\Core\Framework\Context\` with `Shopware\Core\Framework\Api\Context\`
+ * Find and replace `Shopware\Core\System\User\Service\UserProvisioner` with `Shopware\Core\System\User\Service\UserProvisioner`
+    * Warning: Do not replace `Shopware\Core\Framework\Context` with `Shopware\Core\Framework\Api\Context`, this would replace the `Framework\Context.php` usage.
 
 Administration
 --------------

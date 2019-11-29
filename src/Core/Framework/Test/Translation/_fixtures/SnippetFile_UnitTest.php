@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Translation\_fixtures;
 
-use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
+use Shopware\Core\System\Snippet\Files\SnippetFileInterface;
 
 class SnippetFile_UnitTest implements SnippetFileInterface
 {

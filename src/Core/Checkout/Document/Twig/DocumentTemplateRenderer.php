@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Document\Twig;
 
+use Shopware\Core\Framework\Adapter\Translation\Translator;
+use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Translation\Translator;
-use Shopware\Core\Framework\Twig\TemplateFinder;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;

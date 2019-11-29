@@ -3,8 +3,8 @@
 namespace Shopware\Storefront\Test;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Twig\TemplateFinder;
 use Shopware\Core\Kernel;
 use Shopware\Storefront\Test\fixtures\BundleFixture;
 

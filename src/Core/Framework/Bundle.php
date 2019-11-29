@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework;
 
-use Shopware\Core\Framework\Asset\AssetPackageService;
+use Shopware\Core\Framework\Adapter\Asset\AssetPackageService;
+use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
-use Shopware\Core\Framework\Filesystem\PrefixFilesystem;
 use Shopware\Core\Kernel;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;

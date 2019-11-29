@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Product\Util;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class VariantCombinationLoader

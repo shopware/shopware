@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductPrice;
 
-use Shopware\Core\Framework\Pricing\PriceRuleCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceRuleCollection;
 
 /**
  * @method void                    add(ProductPriceEntity $entity)

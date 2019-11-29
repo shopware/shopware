@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\MessageQueue\DeadMessage;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\ScheduledTask\ScheduledTaskEntity;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 
 class DeadMessageEntity extends Entity
 {

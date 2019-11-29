@@ -13,7 +13,7 @@
 
         <service id="Shopware\Administration\Controller\AdministrationController"
                  public="true">
-            <argument type="service" id="Shopware\Core\Framework\Twig\TemplateFinder"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateFinder"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient"/>
             <argument type="service" id="Shopware\Administration\Snippet\SnippetFinder"/>
             <call method="setContainer">

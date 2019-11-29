@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Plugin\Command;
 
 use Composer\IO\ConsoleIO;
-use Shopware\Core\Framework\Console\ShopwareStyle;
+use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Symfony\Component\Console\Application;

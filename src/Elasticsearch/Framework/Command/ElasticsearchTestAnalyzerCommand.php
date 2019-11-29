@@ -3,7 +3,7 @@
 namespace Shopware\Elasticsearch\Framework\Command;
 
 use Elasticsearch\Client;
-use Shopware\Core\Framework\Console\ShopwareStyle;
+use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

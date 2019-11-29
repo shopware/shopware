@@ -2,7 +2,7 @@
 
 namespace Shopware\Administration\Command;
 
-use Shopware\Core\Framework\Console\ShopwareStyle;
+use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
 use Shopware\Core\Kernel;
 use Symfony\Component\Console\Command\Command;

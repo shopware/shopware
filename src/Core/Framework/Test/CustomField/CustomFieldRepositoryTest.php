@@ -4,11 +4,11 @@ namespace Shopware\Core\Framework\Test\CustomField;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\CustomField\CustomFieldDefinition;
-use Shopware\Core\Framework\CustomField\CustomFieldEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomField\CustomFieldDefinition;
+use Shopware\Core\System\CustomField\CustomFieldEntity;
 
 class CustomFieldRepositoryTest extends TestCase
 {

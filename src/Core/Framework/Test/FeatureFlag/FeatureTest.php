@@ -3,9 +3,9 @@
 namespace Shopware\Core\Framework\Test\FeatureFlag;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Twig\FeatureFlagExtension;
 use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
 use Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator;
-use Shopware\Core\Framework\Twig\FeatureFlagExtension;
 use Twig\Environment;
 use Twig\Error\RuntimeError;
 use Twig\Loader\FilesystemLoader;

@@ -40,7 +40,7 @@
         <!-- Controller -->
         <service id="Shopware\Core\Content\MailTemplate\Api\MailActionController" public="true">
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailService"/>
-            <argument type="service" id="Shopware\Core\Framework\Twig\StringTemplateRenderer"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -67,7 +67,7 @@
 
         <service id="Shopware\Core\Content\MailTemplate\Service\MailService">
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator" />
-            <argument type="service" id="Shopware\Core\Framework\Twig\StringTemplateRenderer" />
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer" />
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MessageFactory" />
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailSender" />
             <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaRepositoryDecorator" />

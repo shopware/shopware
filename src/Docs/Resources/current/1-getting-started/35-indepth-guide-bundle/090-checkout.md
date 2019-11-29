@@ -830,7 +830,7 @@ If you do not want to do this yourself, you can simply use one of the two calcul
 * `\Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator` Calculates prices based on a percentage value relative to the discounting prices.
 * `\Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator` Calculates prices based on an absolute price relative to the discounting prices.
 
-However, in order to calculate the taxes proportionately, both calculators need to have a `\Shopware\Core\Framework\Pricing\PriceCollection` in which the prices to be discounted are located.
+However, in order to calculate the taxes proportionately, both calculators need to have a `\Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection` in which the prices to be discounted are located.
 In your case it is the prices of the products that are in the bundle line item stored as children. 
 You can easily extract them by first filtering on the product type and then calling `getPrices()`:
 

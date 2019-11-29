@@ -133,15 +133,15 @@ EOD
 The storefront application of Shopware 6. Therefore contains Storefront specific entities that do not need to be part of the core and just support inner workings of this particular Storefront.
 EOD
     ,
-    Shopware\Core\Framework\CustomField\CustomFieldDefinition::class => <<<'EOD'
+    Shopware\Core\System\CustomField\CustomFieldDefinition::class => <<<'EOD'
 A single custom field with a name and configuration.
 EOD
     ,
-    Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition::class => <<<'EOD'
+    Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition::class => <<<'EOD'
 A defined and named set of custom fields.
 EOD
     ,
-    Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationDefinition::class => <<<'EOD'
+    Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationDefinition::class => <<<'EOD'
 Relates a set to a entity type.
 EOD
     ,
@@ -161,7 +161,7 @@ EOD
 Contains registered plugins. Is a database representation of the plugin configuration.
 EOD
     ,
-    Shopware\Core\Framework\ScheduledTask\ScheduledTaskDefinition::class => <<<'EOD'
+    Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition::class => <<<'EOD'
 Like cron jobs. Contains named messages and a an interval to execute them in. 
 EOD
     ,
@@ -197,11 +197,11 @@ EOD
 Part of the I18N capabilities of Shopware. Per default this table already contains a list of valid locales.
 EOD
     ,
-    Shopware\Core\Framework\Snippet\Aggregate\SnippetSet\SnippetSetDefinition::class => <<<'EOD'
+    Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetDefinition::class => <<<'EOD'
 A set of related snippets.
 EOD
     ,
-    Shopware\Core\Framework\Snippet\SnippetDefinition::class => <<<'EOD'
+    Shopware\Core\System\Snippet\SnippetDefinition::class => <<<'EOD'
 A Key/Value pair of a translation string and a translation.
 EOD
     ,
@@ -229,7 +229,7 @@ EOD
 Simple M:N association related to the password recovery process.
 EOD
     ,
-    Shopware\Core\Framework\Language\LanguageDefinition::class => <<<'EOD'
+    Shopware\Core\System\Language\LanguageDefinition::class => <<<'EOD'
 The central language associated to all translation tables and dependant on a locale.
 EOD
     ,
@@ -509,7 +509,7 @@ EOD
 Promotions based on rules.
 EOD
     ,
-    Shopware\Core\Content\DeliveryTime\DeliveryTimeDefinition::class => <<<'EOD'
+    Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition::class => <<<'EOD'
 Delivery time of a shipping method.
 EOD
     ,
@@ -542,7 +542,7 @@ A log of rendered and sent header or footer content.
 EOD
     ,
     Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooterTranslation\MailHeaderFooterTranslationDefinition::class => '',
-    Shopware\Core\Content\DeliveryTime\Aggregate\DeliveryTimeTranslation\DeliveryTimeTranslationDefinition::class => '',
+    Shopware\Core\System\DeliveryTime\Aggregate\DeliveryTimeTranslation\DeliveryTimeTranslationDefinition::class => '',
     Shopware\Core\Checkout\Promotion\PromotionDefinition::class => <<<'EOD'
 A promotion that is applied during the checkout process.
 EOD
@@ -583,19 +583,19 @@ EOD
 The import/export funtionality of Shopware 6 centrally 
 EOD
     ,
-    Shopware\Core\Framework\Logging\LogEntryDefinition::class => <<<'EOD'
+    Shopware\Core\Framework\Log\LogEntryDefinition::class => <<<'EOD'
 __EMPTY__
 EOD
     ,
-    Shopware\Core\Framework\Acl\Resource\AclResourceDefinition::class => <<<'EOD'
+    Shopware\Core\Framework\Api\Acl\Resource\AclResourceDefinition::class => <<<'EOD'
 __EMPTY__
 EOD
     ,
-    Shopware\Core\Framework\Acl\Role\AclRoleDefinition::class => <<<'EOD'
+    Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition::class => <<<'EOD'
 __EMPTY__
 EOD
     ,
-    Shopware\Core\Framework\Acl\Role\AclUserRoleDefinition::class => '',
+    Shopware\Core\Framework\Api\Acl\Role\AclUserRoleDefinition::class => '',
     Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition::class => <<<'EOD'
 __EMPTY__
 EOD
@@ -628,15 +628,15 @@ EOD
 __EMPTY__
 EOD
     ,
-    Shopware\Core\Framework\Seo\SeoUrl\SeoUrlDefinition::class => <<<'EOD'
+    Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition::class => <<<'EOD'
 __EMPTY__
 EOD
     ,
-    Shopware\Core\Framework\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition::class => <<<'EOD'
+    Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition::class => <<<'EOD'
 __EMPTY__
 EOD
     ,
-    Shopware\Core\Framework\Seo\MainCategory\MainCategoryDefinition::class => <<<'EOD'
+    Shopware\Core\Content\Seo\MainCategory\MainCategoryDefinition::class => <<<'EOD'
 __EMPTY__
 EOD
     ,

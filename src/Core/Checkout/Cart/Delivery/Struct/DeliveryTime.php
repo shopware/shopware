@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
-use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 
 class DeliveryTime extends Struct
 {

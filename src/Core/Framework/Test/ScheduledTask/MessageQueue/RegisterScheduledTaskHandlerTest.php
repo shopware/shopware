@@ -3,9 +3,9 @@
 namespace Shopware\Core\Framework\Test\ScheduledTask\MessageQueue;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ScheduledTask\MessageQueue\RegisterScheduledTaskHandler;
-use Shopware\Core\Framework\ScheduledTask\MessageQueue\RegisterScheduledTaskMessage;
-use Shopware\Core\Framework\ScheduledTask\Registry\TaskRegistry;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\MessageQueue\RegisterScheduledTaskHandler;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\MessageQueue\RegisterScheduledTaskMessage;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 
 class RegisterScheduledTaskHandlerTest extends TestCase
 {

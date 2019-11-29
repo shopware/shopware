@@ -55,38 +55,23 @@ class ContactFormService
         $this->cmsSlotRepository = $cmsSlotRepository;
     }
 
-    public function sendContactForm(DataBag $data, SalesChannelContext $context): void
+    public function sendContactForm(DataBag $data, SalesChannelContext $context): string
     {
-        /** @var string $shopEmail */
-        $shopEmail = $this->systemConfigService->get('core.basicInformation.email');
+        $receivers = [];
+        $message = '';
+        if ($data->has('slotId')) {
+            $slotId = $data->get('slotId');
 
-        $this->validateContactForm($data, $context);
+            if ($slotId) {
+                $criteria = new Criteria([$slotId]);
+                $slot = $this->cmsSlotRepository->search($criteria, $context->getContext());
+                $receivers = $slot->getEntities()->first()->get('config')['mailReceiver']['value'];
+                $message = $slot->getEntities()->first()->get('config')['confirmationText']['value'];
+            }
+        }
 
-        $event = new ContactFormEvent(
-            $context->getContext(),
-            $context->getSalesChannel()->getId(),
-            new MailRecipientStruct([$shopEmail => $shopEmail]),
-            $data
-        );
-
-        $this->eventDispatcher->dispatch(
-            $event,
-            ContactFormEvent::EVENT_NAME
-        );
-    }
-
-    public function sendCmsContactForm(DataBag $data, SalesChannelContext $context): string
-    {
-        $slotId = $data->get('slotId');
-
-        if ($slotId) {
-            $criteria = new Criteria([$slotId]);
-            $slot = $this->cmsSlotRepository->search($criteria, $context->getContext());
-            $receivers = $slot->getEntities()->first()->get('config')['mailReceiver']['value'];
-            $message = $slot->getEntities()->first()->get('config')['confirmationText']['value'];
-        } else {
+        if (empty($receivers)) {
             $receivers[] = $this->systemConfigService->get('core.basicInformation.email');
-            $message = '';
         }
 
         $this->validateContactForm($data, $context);

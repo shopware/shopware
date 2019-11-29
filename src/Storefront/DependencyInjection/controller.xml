@@ -95,14 +95,6 @@
             </call>
         </service>
 
-        <service id="Shopware\Storefront\Controller\ContactPageController">
-            <argument type="service" id="Shopware\Storefront\Page\Contact\ContactPageLoader"/>
-            <argument type="service" id="Shopware\Core\Content\ContactForm\ContactFormService"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
-
         <service id="Shopware\Storefront\Controller\ContextController">
             <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextSwitcher"/>
             <argument type="service" id="sales_channel_domain.repository"/>

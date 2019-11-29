@@ -33,9 +33,11 @@
                                 <p class="footer-contact-hotline">
                                     {{ 'footer.serviceHotline'|trans|sw_sanitize }}
                                 </p>
-                                <div class="footer-contact-form">
-                                    {{ 'footer.serviceContactLink'|trans({'%link%': path('frontend.page.contact') })|sw_sanitize }}
-                                </div>
+                            </div>
+                            <div class="footer-contact-form">
+                                {{ 'footer.serviceContactLink'|trans({
+                                    '%url%': path('frontend.cms.page', { id: shopware.config.core.basicInformation.contactPage })|sw_sanitize
+                                })|raw }}
                             </div>
                         </div>
                     {% endblock %}

@@ -45,7 +45,7 @@ class FormController extends StorefrontController
         $response = [];
 
         try {
-            $message = $this->contactFormService->sendCmsContactForm($data, $context);
+            $message = $this->contactFormService->sendContactForm($data, $context);
             if (!$message) {
                 $message = $this->trans('contact.success');
             }

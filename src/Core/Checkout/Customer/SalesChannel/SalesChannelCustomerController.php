@@ -192,6 +192,7 @@ class SalesChannelCustomerController extends AbstractController
         }
 
         return $responseFactory->createDetailResponse(
+            new Criteria(),
             $customer,
             $this->customerDefinition,
             $request,

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,7 +32,7 @@ class JsonApiType extends JsonFactoryBase
         return $contentType === 'application/vnd.api+json' && $origin instanceof AdminApiSource;
     }
 
-    public function createDetailResponse(Entity $entity, EntityDefinition $definition, Request $request, Context $context, bool $setLocationHeader = false): Response
+    public function createDetailResponse(Criteria $criteria, Entity $entity, EntityDefinition $definition, Request $request, Context $context, bool $setLocationHeader = false): Response
     {
         $headers = [];
 
@@ -47,6 +48,7 @@ class JsonApiType extends JsonFactoryBase
         ];
 
         $response = $this->serializer->encode(
+            $criteria,
             $definition,
             $entity,
             $this->getApiBaseUrl($request),
@@ -57,7 +59,7 @@ class JsonApiType extends JsonFactoryBase
         return new JsonApiResponse($response, JsonApiResponse::HTTP_OK, $headers, true);
     }
 
-    public function createListingResponse(EntitySearchResult $searchResult, EntityDefinition $definition, Request $request, Context $context): Response
+    public function createListingResponse(Criteria $criteria, EntitySearchResult $searchResult, EntityDefinition $definition, Request $request, Context $context): Response
     {
         $baseUrl = $this->getBaseUrl($request);
         $uri = $baseUrl . $request->getPathInfo();
@@ -81,6 +83,7 @@ class JsonApiType extends JsonFactoryBase
         $rootNode['aggregations'] = $aggregations;
 
         $response = $this->serializer->encode(
+            $criteria,
             $definition,
             $searchResult,
             $this->getApiBaseUrl($request),

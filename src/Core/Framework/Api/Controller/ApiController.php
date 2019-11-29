@@ -332,12 +332,17 @@ class ApiController extends AbstractController
             $repository = $this->definitionRegistry->getRepository($definition->getEntityName());
         }
 
-        $entity = $repository->search(new Criteria([$id]), $context)->get($id);
+        $criteria = new Criteria();
+        $criteria = $this->searchCriteriaBuilder->handleRequest($request, $criteria, $definition, $context);
+
+        $criteria->setIds([$id]);
+
+        $entity = $repository->search($criteria, $context)->get($id);
         if ($entity === null) {
             throw new ResourceNotFoundException($definition->getEntityName(), ['id' => $id]);
         }
 
-        return $responseFactory->createDetailResponse($entity, $definition, $request, $context);
+        return $responseFactory->createDetailResponse($criteria, $entity, $definition, $request, $context);
     }
 
     public function searchIds(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
@@ -360,7 +365,7 @@ class ApiController extends AbstractController
 
         $definition = $this->getDefinitionOfPath($entityName, $path, $request->attributes->getInt('version'));
 
-        return $responseFactory->createListingResponse($result, $definition, $request, $context);
+        return $responseFactory->createListingResponse($criteria, $result, $definition, $request, $context);
     }
 
     public function list(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
@@ -371,7 +376,7 @@ class ApiController extends AbstractController
 
         $definition = $this->getDefinitionOfPath($entityName, $path, $request->attributes->getInt('version'));
 
-        return $responseFactory->createListingResponse($result, $definition, $request, $context);
+        return $responseFactory->createListingResponse($criteria, $result, $definition, $request, $context);
     }
 
     public function create(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
@@ -702,9 +707,10 @@ class ApiController extends AbstractController
             }
 
             $repository = $this->definitionRegistry->getRepository($definition->getEntityName());
-            $entities = $repository->search(new Criteria($event->getIds()), $context);
+            $criteria = new Criteria($event->getIds());
+            $entities = $repository->search($criteria, $context);
 
-            return $responseFactory->createDetailResponse($entities->first(), $definition, $request, $context, $appendLocationHeader);
+            return $responseFactory->createDetailResponse($criteria, $entities->first(), $definition, $request, $context, $appendLocationHeader);
         }
 
         $child = array_pop($pathSegments);
@@ -738,9 +744,10 @@ class ApiController extends AbstractController
 
             $repository = $this->definitionRegistry->getRepository($definition->getEntityName());
 
-            $entities = $repository->search(new Criteria($event->getIds()), $context);
+            $criteria = new Criteria($event->getIds());
+            $entities = $repository->search($criteria, $context);
 
-            return $responseFactory->createDetailResponse($entities->first(), $definition, $request, $context, $appendLocationHeader);
+            return $responseFactory->createDetailResponse($criteria, $entities->first(), $definition, $request, $context, $appendLocationHeader);
         }
 
         if ($association instanceof ManyToOneAssociationField || $association instanceof OneToOneAssociationField) {
@@ -764,9 +771,10 @@ class ApiController extends AbstractController
                 return $responseFactory->createRedirectResponse($definition, $entityId, $request, $context);
             }
 
-            $entities = $repository->search(new Criteria($event->getIds()), $context);
+            $criteria = new Criteria($event->getIds());
+            $entities = $repository->search($criteria, $context);
 
-            return $responseFactory->createDetailResponse($entities->first(), $definition, $request, $context, $appendLocationHeader);
+            return $responseFactory->createDetailResponse($criteria, $entities->first(), $definition, $request, $context, $appendLocationHeader);
         }
 
         /** @var ManyToManyAssociationField $manyToManyAssociation */
@@ -798,14 +806,16 @@ class ApiController extends AbstractController
         $repository->update([$payload], $context);
 
         $repository = $this->definitionRegistry->getRepository($reference->getEntityName());
-        $entities = $repository->search(new Criteria([$id]), $context);
+        $criteria = new Criteria([$id]);
+
+        $entities = $repository->search($criteria, $context);
         $entity = $entities->first();
 
         if ($noContent) {
             return $responseFactory->createRedirectResponse($reference, $entity->getId(), $request, $context);
         }
 
-        return $responseFactory->createDetailResponse($entity, $definition, $request, $context, $appendLocationHeader);
+        return $responseFactory->createDetailResponse($criteria, $entity, $definition, $request, $context, $appendLocationHeader);
     }
 
     private function executeWriteOperation(

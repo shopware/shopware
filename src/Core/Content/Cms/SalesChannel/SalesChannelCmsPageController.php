@@ -48,6 +48,7 @@ class SalesChannelCmsPageController extends AbstractController
         }
 
         return $responseFactory->createDetailResponse(
+            new Criteria(),
             $pages->get($pageId),
             $this->cmsPageDefinition,
             $request,

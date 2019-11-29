@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\SerializationFixture;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicStruct;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicWithExtension;
@@ -53,7 +54,7 @@ class JsonSalesChannelEntityEncoderTest extends TestCase
         $this->expectException(UnsupportedEncoderInputException::class);
 
         $encoder = $this->getContainer()->get(JsonEntityEncoder::class);
-        $encoder->encode($this->getContainer()->get(ProductDefinition::class), $input, SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
+        $encoder->encode(new Criteria(), $this->getContainer()->get(ProductDefinition::class), $input, SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
     }
 
     public function complexStructsProvider(): array
@@ -77,7 +78,7 @@ class JsonSalesChannelEntityEncoderTest extends TestCase
         /** @var EntityDefinition $definition */
         $definition = $this->getContainer()->get($definitionClass);
         $encoder = $this->getContainer()->get(JsonEntityEncoder::class);
-        $actual = $encoder->encode($definition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
+        $actual = $encoder->encode(new Criteria(), $definition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
 
         static::assertEquals($fixture->getSalesChannelJsonFixtures(), $actual);
     }
@@ -97,7 +98,7 @@ class JsonSalesChannelEntityEncoderTest extends TestCase
         $fixture = new TestBasicWithExtension();
 
         $encoder = $this->getContainer()->get(JsonEntityEncoder::class);
-        $actual = $encoder->encode($extendableDefinition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
+        $actual = $encoder->encode(new Criteria(), $extendableDefinition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
 
         static::assertEquals($fixture->getSalesChannelJsonFixtures(), $actual);
     }

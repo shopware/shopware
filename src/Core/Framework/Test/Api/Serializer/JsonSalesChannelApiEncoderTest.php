@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\SerializationFixture;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicStruct;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicWithExtension;
@@ -54,7 +55,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
     {
         $this->expectException(UnsupportedEncoderInputException::class);
         $encoder = $this->getContainer()->get(JsonApiEncoder::class);
-        $encoder->encode($this->getContainer()->get(ProductDefinition::class), $input, SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
+        $encoder->encode(new Criteria(), $this->getContainer()->get(ProductDefinition::class), $input, SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
     }
 
     public function complexStructsProvider(): array
@@ -78,7 +79,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         /** @var EntityDefinition $definition */
         $definition = $this->getContainer()->get($definitionClass);
         $encoder = $this->getContainer()->get(JsonApiEncoder::class);
-        $actual = $encoder->encode($definition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
+        $actual = $encoder->encode(new Criteria(), $definition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
 
         $actual = json_decode($actual, true);
 
@@ -104,7 +105,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         $fixture = new TestBasicWithExtension();
 
         $encoder = $this->getContainer()->get(JsonApiEncoder::class);
-        $actual = $encoder->encode($extendableDefinition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
+        $actual = $encoder->encode(new Criteria(), $extendableDefinition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
 
         // check that empty "links" object is an object and not array: https://jsonapi.org/format/#document-links
         static::assertStringNotContainsString('"links":[]', $actual);

@@ -1,0 +1,21 @@
+language: php
+
+php:
+    - 7.2
+    - 7.3
+    - 7.4
+
+services: mysql
+
+before_script:
+    - zip -rq platform.zip .
+    - ls -la
+    - git clone git@github.com:shopware/development.git
+    - ls -la
+    - unzip -q platform.zip -d development/platform/
+
+script:
+    - ls -la
+
+notifications:
+    email: false

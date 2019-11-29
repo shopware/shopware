@@ -6,17 +6,17 @@
     <g:product_type>{{ product.categories.first.getBreadCrumb|slice(1)|join(' > ')|raw|escape }}</g:product_type>
     <link>{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}</link>
     <g:image_link>{{ product.cover.media.url }}</g:image_link>
-    <g:condition>neu</g:condition>
+    <g:condition>new</g:condition>
     <g:availability>
         {%- if product.availableStock >= product.minPurchase and product.deliveryTime -%}
-            bestellbar
+            in_stock
         {%- elseif product.availableStock < product.minPurchase and product.deliveryTime and product.restockTime -%}
-            vorbestellt
+            preorder
         {%- else -%}
-            nicht auf lager
+            out_of_stock
         {%- endif -%}
     </g:availability>
-    <g:price>{{ product.calculatedListingPrice.from.unitPrice|currency }}</g:price>
+    <g:price>{{ product.calculatedListingPrice.from.unitPrice|number_format(2, '.', '') }} {{ context.currency.isoCode }}</g:price>
     <g:brand>{{ product.manufacturer.translated.name|escape }}</g:brand>
     <g:gtin>{{ product.ean }}</g:gtin>
     <g:mpn>{{ product.manufacturerNumber }}</g:mpn>
@@ -25,5 +25,4 @@
         <g:service>Standard</g:service>
         <g:price>{{ 4.95|currency }}{# change your default delivery costs #}</g:price>
     </g:shipping>
-    {% if product.updatedAt %}<pubDate>{{ product.updatedAt|date("%a, %d %b %Y %T %Z") }}</pubDate>{% endif %}
 </item>

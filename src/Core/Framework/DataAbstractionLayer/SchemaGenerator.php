@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -291,8 +292,10 @@ EOL;
 
             if ($field->is(CascadeDelete::class)) {
                 $delete = 'CASCADE';
-            } else {
+            } elseif ($field->is(RestrictDelete::class)) {
                 $delete = 'RESTRICT';
+            } else {
+                $delete = 'SET NULL';
             }
 
             //skip foreign key to prevent bi-directional foreign key

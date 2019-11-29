@@ -109,6 +109,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     It's path `property` should now point to the object that is inspected by an validator while the `propertyPath` property in `WriteConstraint` objects should only point to the invalid property. 
     For more information read the updated "write command validation" article in the docs.
     * Added new function `\Shopware\Core\Framework\Migration\MigrationStep::registerIndexer`. This method registers an indexer that needs to run (after the update). See `\Shopware\Core\Migration\Migration1570684913ScheduleIndexer` for an example.
+    * Added the `extractInheritableAttributes()` function to the `\Shopware\Core\Framework\Routing\RequestTransformerInterface`
     
 * Storefront
     * Changed the default storefront script path in `Bundle` to `Resources/dist/storefront/js`

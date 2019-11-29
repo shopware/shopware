@@ -186,6 +186,9 @@ Core
         cache:
             app: cache.adapter.array
     ```
+  
+ * Add the `extractInheritableAttributes()` function to your implementations of `\Shopware\Core\Framework\Routing\RequestTransformerInterface`
+
 
 Administration
 --------------

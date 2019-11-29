@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooterTranslation\MailHeaderFooterTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -44,7 +45,7 @@ class MailHeaderFooterDefinition extends EntityDefinition
             new TranslatedField('footerPlain'),
 
             (new TranslationsAssociationField(MailHeaderFooterTranslationDefinition::class, 'mail_header_footer_id'))->addFlags(new Required()),
-            (new OneToManyAssociationField('salesChannels', SalesChannelDefinition::class, 'mail_header_footer_id')),
+            (new OneToManyAssociationField('salesChannels', SalesChannelDefinition::class, 'mail_header_footer_id'))->addFlags(new CascadeDelete()),
         ]);
     }
 }

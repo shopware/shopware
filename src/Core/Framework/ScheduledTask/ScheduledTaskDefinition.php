@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -60,7 +61,7 @@ class ScheduledTaskDefinition extends EntityDefinition
             new DateTimeField('last_execution_time', 'lastExecutionTime'),
             (new DateTimeField('next_execution_time', 'nextExecutionTime'))->setFlags(new Required()),
 
-            new OneToManyAssociationField('deadMessages', DeadMessageDefinition::class, 'scheduled_task_id'),
+            (new OneToManyAssociationField('deadMessages', DeadMessageDefinition::class, 'scheduled_task_id'))->addFlags(new SetNullOnDelete()),
         ]);
     }
 }

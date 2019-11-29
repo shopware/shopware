@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -48,7 +49,7 @@ class AclRoleDefinition extends EntityDefinition
 
             (new StringField('name', 'name'))->addFlags(new Required()),
             (new OneToManyAssociationField('aclResources', AclResourceDefinition::class, 'acl_role_id', 'id'))
-                ->addFlags(new ReadProtected(SalesChannelApiSource::class)),
+                ->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
 
             (new ManyToManyAssociationField('users', UserDefinition::class, AclUserRoleDefinition::class, 'acl_role_id', 'user_id'))
                 ->addFlags(new ReadProtected(SalesChannelApiSource::class)),

@@ -23,7 +23,6 @@ use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Development\Kernel;
 use SwagTest\SwagTest;
 
 class KernelPluginIntegrationTest extends TestCase
@@ -294,7 +293,7 @@ class KernelPluginIntegrationTest extends TestCase
         $kernelClass = KernelLifecycleManager::getKernelClass();
         $version = 'v' . self::getTestVersion() . '@' . self::getTestRevision();
         $this->kernel = new $kernelClass('test', true, $loader, Uuid::randomHex(), $version);
-        $connection = (new \ReflectionClass(Kernel::class))->getProperty('connection');
+        $connection = (new \ReflectionClass($kernelClass))->getProperty('connection');
         $connection->setAccessible(true);
         $connection->setValue($this->connection);
 

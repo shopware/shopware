@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Framework\Routing;
 
-use Closure;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Statement;
 use Shopware\Core\Defaults;
@@ -13,14 +12,15 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Symfony\Component\HttpFoundation\Request;
-use TrueBV\Punycode;
 
 class RequestTransformer implements RequestTransformerInterface
 {
     public const SALES_CHANNEL_BASE_URL = 'sw-sales-channel-base-url';
     public const SALES_CHANNEL_ABSOLUTE_BASE_URL = 'sw-sales-channel-absolute-base-url';
     public const SALES_CHANNEL_RESOLVED_URI = 'resolved-uri';
+
     public const IS_CANONICAL_SEO_URL_REQUEST = 'is-canonical-seo-url';
+    public const ORIGINAL_PATH_INFO = 'original-path-info';
 
     private const INHERITABLE_ATTRIBUTE_NAMES = [
         self::SALES_CHANNEL_BASE_URL,
@@ -65,24 +65,25 @@ class RequestTransformer implements RequestTransformerInterface
     ];
 
     /**
-     * @var Punycode
-     */
-    private $punycode;
-
-    /**
      * @var SeoResolverInterface
      */
     private $resolver;
+
+    /**
+     * @var RequestHelper
+     */
+    private $requestHelper;
 
     public function __construct(
         RequestTransformerInterface $decorated,
         Connection $connection,
         SeoResolverInterface $resolver
-    ) {
+    )
+    {
         $this->connection = $connection;
         $this->decorated = $decorated;
         $this->resolver = $resolver;
-        $this->punycode = new Punycode();
+        $this->requestHelper = new RequestHelper();
     }
 
     public function transform(Request $request): Request
@@ -101,7 +102,8 @@ class RequestTransformer implements RequestTransformerInterface
         }
 
         $originalBaseUrl = $request->getBaseUrl();
-        $absoluteBaseUrl = $this->getSchemeAndHttpHost($request) . $originalBaseUrl;
+        $absoluteBaseUrl = $this->requestHelper->getSchemeAndHttpHost($request) . $originalBaseUrl;
+        $originalPathInfo = $request->getPathInfo();
         $baseUrl = parse_url($salesChannel['url'], PHP_URL_PATH) ?? '';
         if ($originalBaseUrl !== '') {
             if (strpos($baseUrl, $originalBaseUrl) === 0) {
@@ -109,12 +111,12 @@ class RequestTransformer implements RequestTransformerInterface
             }
         }
 
-        $seoPathInfo = $this->getSeoPathInfo($request->getPathInfo(), $baseUrl);
+        $seoPathInfo = $this->requestHelper->getSeoPathInfo($request->getPathInfo(), $baseUrl);
 
-        $resolved = $this->resolveSeoUrl(
-            $seoPathInfo,
+        $resolved = $this->resolver->resolveSeoPath(
             $salesChannel['languageId'],
-            $salesChannel['salesChannelId']
+            $salesChannel['salesChannelId'],
+            $seoPathInfo
         );
 
         /**
@@ -149,18 +151,12 @@ class RequestTransformer implements RequestTransformerInterface
          * http://localhost:8080/en
          * http://localhost:8080/fr
          */
-
-        $closure = Closure::bind(function ($request, $baseUrl, $originalBaseUrl, $pathInfo) {
-            $request->requestUri = $originalBaseUrl . $baseUrl . $pathInfo;
-            $request->baseUrl = $originalBaseUrl . $baseUrl;
-            $request->pathInfo = $pathInfo;
-        }, null, $request);
-
-        $closure($request, $baseUrl, $originalBaseUrl, $resolved['pathInfo']);
+        $this->requestHelper->setBaseUrlAndPathInfo($request, $originalBaseUrl . $baseUrl, $resolved['pathInfo']);
 
         $request->attributes->set(self::SALES_CHANNEL_BASE_URL, $baseUrl);
         $request->attributes->set(self::SALES_CHANNEL_ABSOLUTE_BASE_URL, rtrim($absoluteBaseUrl, '/'));
         $request->attributes->set(self::SALES_CHANNEL_RESOLVED_URI, $resolved['pathInfo']);
+        $request->attributes->set(self::ORIGINAL_PATH_INFO, $originalPathInfo);
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannel['salesChannelId']);
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST, true);
@@ -175,9 +171,9 @@ class RequestTransformer implements RequestTransformerInterface
         if (isset($resolved['canonicalPathInfo'])) {
             $request->attributes->set(
                 SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK,
-                $this->getSchemeAndHttpHost($request) . $baseUrl . $resolved['canonicalPathInfo']
+                $this->requestHelper->getSchemeAndHttpHost($request) . $baseUrl . $resolved['canonicalPathInfo']
             );
-        } elseif (ltrim($seoPathInfo, '/') !== $resolved['pathInfo']) {
+        } elseif (!empty($resolved['isCanonical'])) {
             $request->attributes->set(self::IS_CANONICAL_SEO_URL_REQUEST, true);
         }
 
@@ -255,7 +251,7 @@ class RequestTransformer implements RequestTransformerInterface
         }
 
         // domain urls and request uri should be in same format, all with trailing slash
-        $requestUrl = rtrim($this->getSchemeAndHttpHost($request) . $request->getBasePath() . $request->getPathInfo(), '/') . '/';
+        $requestUrl = rtrim($this->requestHelper->getSchemeAndHttpHost($request) . $request->getBasePath() . $request->getPathInfo(), '/') . '/';
 
         // direct hit
         if (array_key_exists($requestUrl, $domains)) {
@@ -289,52 +285,5 @@ class RequestTransformer implements RequestTransformerInterface
         $bestMatch['url'] = rtrim($bestMatch['url'], '/');
 
         return $bestMatch;
-    }
-
-    private function getSeoPathInfo(string $seoPathInfo, string $baseUrl)
-    {
-        // only remove full base url not part
-        // registered domain: 'shop-dev.de/de'
-        // incoming request:  'shop-dev.de/detail'
-        // without leading slash, detail would be stripped
-        $baseUrl = rtrim($baseUrl, '/') . '/';
-
-        if ($this->equalsBaseUrl($seoPathInfo, $baseUrl)) {
-            $seoPathInfo = '';
-        } elseif ($this->containsBaseUrl($seoPathInfo, $baseUrl)) {
-            $seoPathInfo = mb_substr($seoPathInfo, mb_strlen($baseUrl));
-        }
-
-        return $seoPathInfo;
-    }
-
-    private function resolveSeoUrl(string $seoPathInfo, string $languageId, string $salesChannelId): array
-    {
-        $resolved = $this->resolver->resolveSeoPath($languageId, $salesChannelId, $seoPathInfo);
-        $resolved['pathInfo'] = '/' . ltrim($resolved['pathInfo'], '/');
-
-        return $resolved;
-    }
-
-    private function getSchemeAndHttpHost(Request $request): string
-    {
-        return $request->getScheme() . '://' . $this->punycode->decode($request->getHttpHost());
-    }
-
-    /**
-     * We add the trailing slash to the base url
-     * so we have to add it to the path info too, to check if they are equal
-     */
-    private function equalsBaseUrl(string $seoPathInfo, string $baseUrl): bool
-    {
-        return $baseUrl === rtrim($seoPathInfo, '/') . '/';
-    }
-
-    /**
-     * We don't have to add the trailing slash when we check if the pathInfo contains teh base url
-     */
-    private function containsBaseUrl(string $seoPathInfo, string $baseUrl): bool
-    {
-        return !empty($baseUrl) && mb_strpos($seoPathInfo, $baseUrl) === 0;
     }
 }

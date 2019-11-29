@@ -5,10 +5,9 @@ namespace Shopware\Storefront\Test\Framework\Routing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Storefront\Framework\Routing\RequestTransformer;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\Router;
 
 class RouterTest extends TestCase
 {
@@ -19,6 +18,7 @@ class RouterTest extends TestCase
      */
     public function testUrls(UrlCase $case): void
     {
+        /** @var Router $router */
         $router = $this->getContainer()->get('router');
         $context = $router->getContext();
         $router->setContext(new RequestContext((string) $case->baseUrl, 'GET', $case->host));

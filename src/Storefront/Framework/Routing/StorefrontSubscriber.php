@@ -120,10 +120,12 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
         $maintenanceWhiteList = $request->attributes
             ->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST);
-        $maintenanceWhiteList = json_decode($maintenanceWhiteList, true);
+        if ($maintenanceWhiteList) {
+            $maintenanceWhiteList = json_decode($maintenanceWhiteList, true);
 
-        if (in_array($currentIp, $maintenanceWhiteList, true)) {
-            return;
+            if (in_array($currentIp, $maintenanceWhiteList, true)) {
+                return;
+            }
         }
 
         $redirect = new RedirectResponse($this->router->generate('frontend.maintenance.page'));

@@ -162,8 +162,9 @@ class RequestTransformer implements RequestTransformerInterface
 
         $transformedRequest->attributes->set(
             SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE,
-            (bool)$salesChannel['maintenance']
+            (bool) $salesChannel['maintenance']
         );
+
         $transformedRequest->attributes->set(
             SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST,
             $salesChannel['maintenanceIpWhitelist']

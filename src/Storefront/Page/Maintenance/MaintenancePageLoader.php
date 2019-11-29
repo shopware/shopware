@@ -2,12 +2,9 @@
 
 namespace Shopware\Storefront\Page\Maintenance;
 
-use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -41,10 +38,6 @@ class MaintenancePageLoader
     }
 
     /**
-     * @param string $cmsErrorLayoutId
-     * @param Request $request
-     * @param SalesChannelContext $context
-     * @return MaintenancePage
      * @throws PageNotFoundException
      */
     public function load(string $cmsErrorLayoutId, Request $request, SalesChannelContext $context): MaintenancePage
@@ -64,8 +57,7 @@ class MaintenancePageLoader
             $this->eventDispatcher->dispatch(new MaintenancePageLoadedEvent($page, $context, $request));
 
             return $page;
-        }
-        catch(\Exception $e) {
+        } catch (\Exception $e) {
             throw new PageNotFoundException($cmsErrorLayoutId);
         }
     }

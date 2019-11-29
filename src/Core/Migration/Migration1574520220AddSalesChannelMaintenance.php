@@ -20,7 +20,6 @@ class Migration1574520220AddSalesChannelMaintenance extends MigrationStep
         $connection->executeQuery('
             ALTER TABLE `sales_channel` ADD `maintenance_ip_whitelist` JSON NULL AFTER `maintenance`
         ');
-
     }
 
     public function updateDestructive(Connection $connection): void

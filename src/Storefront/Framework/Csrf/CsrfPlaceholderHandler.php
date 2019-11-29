@@ -41,10 +41,6 @@ class CsrfPlaceholderHandler
             return $response;
         }
 
-        if (mb_stripos($response->headers->get('Content-Type'), 'text/html') === false) {
-            return $response;
-        }
-
         $content = $response->getContent();
 
         // https://regex101.com/r/fefx3V/1

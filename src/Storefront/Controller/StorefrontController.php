@@ -50,6 +50,7 @@ abstract class StorefrontController extends AbstractController
         $response->setData($parameters);
         $response->setContext($salesChannelContext);
         $response->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, '1');
+        $response->headers->set('Content-Type', 'text/html');
 
         return $response;
     }

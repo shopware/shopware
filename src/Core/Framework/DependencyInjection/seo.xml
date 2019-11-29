@@ -58,7 +58,6 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="slugify"/>
             <argument type="service" id="router.default"/>
-            <argument type="service" id="request_stack"/>
         </service>
 
         <service id="Shopware\Core\Framework\Seo\SeoUrlPersister">
@@ -108,7 +107,6 @@
         </service>
 
         <service id="Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface" class="Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandler" public="true">
-            <argument type="service" id="request_stack"/>
             <argument type="service" id="router.default"/>
             <argument type="service" id="sales_channel.seo_url.repository"/>
         </service>

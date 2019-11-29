@@ -93,7 +93,7 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
 
     protected function getBaseUrl(Request $request): string
     {
-        return $request->getSchemeAndHttpHost() . $request->getBasePath();
+        return $request->getSchemeAndHttpHost() . $request->getBaseUrl();
     }
 
     protected function camelCaseToSnailCase(string $input): string

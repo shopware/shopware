@@ -205,7 +205,7 @@ class UpdateController extends AbstractController
             $this->systemConfig->set(self::UPDATE_PREVIOUS_VERSION_KEY, $update->version);
 
             return new JsonResponse([
-                'redirectTo' => $request->getBaseUrl() . '/recovery/update/index.php',
+                'redirectTo' => $request->getBasePath() . '/recovery/update/index.php',
             ]);
         }
 

@@ -19,10 +19,10 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
-use Shopware\Storefront\Framework\Routing\Router;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\Router;
 
 class StorefrontRoutingTest extends TestCase
 {
@@ -95,12 +95,14 @@ class StorefrontRoutingTest extends TestCase
         $absolutePath = $this->router->generate($case->route, [], Router::ABSOLUTE_PATH);
         $absoluteUrl = $this->router->generate($case->route, [], Router::ABSOLUTE_URL);
         $networkPath = $this->router->generate($case->route, [], Router::NETWORK_PATH);
-        $pathInfo = $this->router->generate($case->route, [], Router::PATH_INFO);
+
+        $this->router->getContext()->setPathInfo('');
+        $pathInfo = $this->router->generate($case->route, [], Router::RELATIVE_PATH);
 
         static::assertSame($case->getAbsolutePath(), $absolutePath, var_export($case, true));
         static::assertSame($case->getAbsoluteUrl(), $absoluteUrl, var_export($case, true));
         static::assertSame($case->getNetworkPath(), $networkPath, var_export($case, true));
-        static::assertSame($case->getPathInfo(), $pathInfo, var_export($case, true));
+        static::assertSame($case->getPathInfo(), '/' . $pathInfo, var_export($case, true));
 
         $matches = $this->router->matchRequest($transformedRequest);
         static::assertEquals($case->route, $matches['_route']);

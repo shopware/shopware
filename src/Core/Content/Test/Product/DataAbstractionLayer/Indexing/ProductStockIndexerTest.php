@@ -252,14 +252,14 @@ class ProductStockIndexerTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $product = $this->repository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
 
         static::assertSame(5, $product->getStock());
 
         $orderId = $this->orderProduct($id, 5);
 
         /** @var ProductEntity $product */
-        $product = $this->repository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
 
         static::assertFalse($product->getAvailable());
         static::assertSame(5, $product->getStock());
@@ -282,7 +282,7 @@ class ProductStockIndexerTest extends TestCase
 
         /** @var EntityCollection $products */
         $products = $context->disableCache(function () use ($id, $id2, $context) {
-            return $this->repository->search(new Criteria([$id, $id2]), $context);
+            return $this->productRepository->search(new Criteria([$id, $id2]), $context);
         });
 
         $product = $products->get($id);
@@ -302,14 +302,14 @@ class ProductStockIndexerTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $product = $this->repository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
 
         static::assertSame(5, $product->getStock());
 
         $orderId = $this->orderProduct($id, 5);
 
         /** @var ProductEntity $product */
-        $product = $this->repository->search(new Criteria([$id]), $context)->get($id);
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
 
         static::assertFalse($product->getAvailable());
         static::assertSame(5, $product->getStock());
@@ -330,7 +330,7 @@ class ProductStockIndexerTest extends TestCase
         ], $context);
 
         $product = $context->disableCache(function () use ($id, $context) {
-            return $this->repository->search(new Criteria([$id]), $context)->get($id);
+            return $this->productRepository->search(new Criteria([$id]), $context)->get($id);
         });
 
         static::assertTrue($product->getAvailable());
@@ -420,6 +420,10 @@ class ProductStockIndexerTest extends TestCase
             [
                 'id' => $orderLineItem->getId(),
                 'referencedId' => $newProduct->getId(),
+                'productId' => $newProduct->getId(),
+                'payload' => [
+                    'productNumber' => $newProduct->getProductNumber(),
+                ],
             ],
         ], $context);
 
@@ -456,7 +460,8 @@ class ProductStockIndexerTest extends TestCase
         ], $context);
 
         $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
-        static::assertSame(3, $product->getStock());
+        // only not completed orders are considered by the stock indexer
+        static::assertSame(4, $product->getStock());
     }
 
     private function createCustomer(): string

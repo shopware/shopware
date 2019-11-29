@@ -70,7 +70,7 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
                 continue;
             }
 
-            $productId = $payload['product_id'] ? Uuid::fromBytesToHex($payload['product_id']) : null;
+            $productId = isset($payload['product_id']) ? Uuid::fromBytesToHex($payload['product_id']) : null;
             $referenceId = $payload['referenced_id'] ?? null;
 
             if ($productId !== $referenceId) {

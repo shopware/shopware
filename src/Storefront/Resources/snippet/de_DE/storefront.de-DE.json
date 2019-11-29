@@ -26,6 +26,9 @@
         "requiredFields": "* hierbei handelt es sich um ein Pflichtfeld",
         "privacyTitle": "Datenschutz",
         "privacyNotice": "Ich habe die <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen.",
+        "sortingLabel": "Sortierung",
+        "next": "Nächstes",
+        "previous": "Vorheriges",
         "formSubmit": "Absenden"
     },
     "header": {

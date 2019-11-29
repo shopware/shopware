@@ -43,6 +43,7 @@ This file contains the generic styling for all filter items.
 
         .icon-filter-panel-item-toggle svg {
             color: $primary;
+            transform: rotate(180deg);
         }
     }
 }
@@ -158,6 +159,7 @@ This file contains the generic styling for all filter items.
 
             svg {
                 color: $primary;
+                transform: rotate(180deg);
             }
         }
     }

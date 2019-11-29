@@ -13,6 +13,10 @@ Styling for productbox component.
     }
 }
 
+.product-name {
+    font-weight: $font-weight-semibold;
+}
+
 .product-price {
     color: $price-color;
 }

@@ -210,6 +210,7 @@ Core
  * Find and replace `Shopware\Core\Framework\Context\` with `Shopware\Core\Framework\Api\Context\`
  * Find and replace `Shopware\Core\System\User\Service\UserProvisioner` with `Shopware\Core\System\User\Service\UserProvisioner`
     * Warning: Do not replace `Shopware\Core\Framework\Context` with `Shopware\Core\Framework\Api\Context`, this would replace the `Framework\Context.php` usage.
+ * Added unique constraint for `iso_code` column of `currency` table. The migration can fail if there are already duplicate `iso_codes` in the table
 
 Administration
 --------------

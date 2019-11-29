@@ -329,6 +329,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * We moved the namespace Shopware\Core\Framework\Context to Shopware\Core\Framework\Api\Context
     * We moved the namespace Shopware\Core\Content\DeliveryTime to Shopware\Core\System\DeliveryTime
     * We moved the Shopware\Core\System\User\Service\UserProvisioner to Shopware\Core\System\User\Service\UserProvisioner
+    * Added unique constraint for `iso_code` column in `currency` table
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain

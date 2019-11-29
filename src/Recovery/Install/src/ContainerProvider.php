@@ -86,11 +86,11 @@ class ContainerProvider implements ServiceProviderInterface
         };
 
         $container['install.requirements'] = static function ($c) use ($recoveryRoot) {
-            return new Requirements($recoveryRoot . '/common/requirements.php', $c['translation.service']);
+            return new Requirements($recoveryRoot . '/Common/requirements.php', $c['translation.service']);
         };
 
         $container['install.requirementsPath'] = static function () use ($recoveryRoot) {
-            $check = new RequirementsPath(SW_PATH, $recoveryRoot . '/common/requirements.php');
+            $check = new RequirementsPath(SW_PATH, $recoveryRoot . '/Common/requirements.php');
             $check->addFile('public/recovery/install/data');
 
             return $check;

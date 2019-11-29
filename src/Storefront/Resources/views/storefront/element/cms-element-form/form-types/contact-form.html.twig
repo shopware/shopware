@@ -1,15 +1,12 @@
-<form
-    action="{{ path(action) }}"
-    method="post"
-    data-form-csrf-handler="true"
-    data-form-validation="true"
->
+<form action="{{ path(action) }}"
+      method="post"
+      data-form-csrf-handler="true"
+      data-form-validation="true">
 
     <div class="form-content">
         <div class="form-row">
             {% block cms_form_contact_select_salutation %}
-                {%
-                    sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-select-salutation.html.twig'
+                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-select-salutation.html.twig'
                     with {
                         additionalClass: 'col-md-4',
                         required: true
@@ -18,8 +15,7 @@
             {% endblock %}
 
             {% block cms_form_contact_input_first_name %}
-                {%
-                    sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
+                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
                     with {
                         fieldName: 'firstName',
                         required: true,
@@ -31,8 +27,7 @@
             {% endblock %}
 
             {% block cms_form_contact_input_last_name %}
-                {%
-                    sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
+                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
                     with {
                         fieldName: 'lastName',
                         required: true,
@@ -46,8 +41,7 @@
 
         <div class="form-row">
             {% block cms_form_contact_input_email %}
-                {%
-                    sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
+                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
                     with {
                         fieldName: 'email',
                         type: 'email',
@@ -60,8 +54,7 @@
             {% endblock %}
 
             {% block cms_form_contact_input_phome %}
-                {%
-                    sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
+                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
                     with {
                         fieldName: 'phone',
                         required: true,
@@ -75,8 +68,7 @@
 
         <div class="form-row">
             {% block cms_form_contact_input_subject %}
-                {%
-                    sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
+                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
                     with {
                         required: true,
                         fieldName: 'subject',
@@ -90,8 +82,7 @@
 
         <div class="form-row">
             {% block cms_form_contact_comment_textarea %}
-                {%
-                    sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-textarea.html.twig'
+                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-textarea.html.twig'
                     with {
                         rows: 5,
                         required: true,
@@ -119,13 +110,15 @@
         {% endblock %}
     </div>
 
-    <div class="form-hidden-fields">
-        {% block cms_form_contact_csrf %}
-            {{ sw_csrf(action) }}
-        {% endblock %}
+    {% block cms_form_contact_hidden_fields %}
+        <div class="form-hidden-fields">
+            {% block cms_form_contact_csrf %}
+                {{ sw_csrf(action) }}
+            {% endblock %}
 
-        <input type="hidden" name="slotId" value="{{ element.id }}"/>
+            <input type="hidden" name="slotId" value="{{ element.id }}"/>
 
-        <input type="submit" class="submit--hidden d-none" />
-    </div>
+            <input type="submit" class="submit--hidden d-none" />
+        </div>
+    {% endblock %}
 </form>

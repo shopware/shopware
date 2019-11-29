@@ -9,7 +9,9 @@ use Shopware\Core\Kernel;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Loader\FileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\Bundle\Bundle as SymfonyBundle;
@@ -18,6 +20,18 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 
 abstract class Bundle extends SymfonyBundle
 {
+    /**
+     * Array of supported service definitions files, associated to their
+     * respective FileLoader.
+     * This is used to load service defintions.
+     *
+     * @see registerContainerFile
+     */
+    protected const SUPPORTED_CONTAINER_FILES = [
+        'services.xml' => XmlFileLoader::class,
+        'services.yml' => YamlFileLoader::class,
+    ];
+
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);
@@ -112,15 +126,25 @@ abstract class Bundle extends SymfonyBundle
         $definition->addMethodCall('addMultiple', [$this->getActionEvents()]);
     }
 
+    /**
+     * Looks for service definition files inside the `Resources/config`
+     * directory and loads the first one, it finds.
+     *
+     * @param ContainerBuilder $container
+     */
     private function registerContainerFile(ContainerBuilder $container): void
     {
         $fileSystem = new Filesystem();
-        $containerFilePath = 'Resources/config/services.xml';
-        if (!$fileSystem->exists($this->getPath() . '/' . $containerFilePath)) {
-            return;
-        }
 
-        $loader = new XmlFileLoader($container, new FileLocator($this->getPath()));
-        $loader->load($containerFilePath);
+        foreach (self::SUPPORTED_CONTAINER_FILES as $path => $loaderClass) {
+            $containerFilePath = 'Resources/config/' . $path;
+            if (!$fileSystem->exists($this->getPath() . '/' . $containerFilePath)) {
+                continue;
+            }
+
+            /** @var $loader FileLoader */
+            $loader = new $loaderClass($container, new FileLocator($this->getPath()));
+            $loader->load($containerFilePath);
+        }
     }
 }

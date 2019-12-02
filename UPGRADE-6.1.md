@@ -656,6 +656,43 @@ To migrate your existing data run `bin/console database:migrate --all Shopware\\
         }
     });
     ```
+  
+ * Added new properties to the view in the `sw_sales_channel_detail_content_view` block.
+    
+    Before:
+    ```twig
+   {% block sw_sales_channel_detail_content_view %}
+       <router-view :salesChannel="salesChannel"
+                    :customFieldSets="customFieldSets"
+                    :isLoading="isLoading"
+                    :key="$route.params.id">
+       </router-view>
+   {% endblock %}
+   ``` 
+   
+   After:
+   ```twig
+   {% block sw_sales_channel_detail_content_view %}
+       <router-view :salesChannel="salesChannel"
+                    :productExport="productExport"
+                    :storefrontSalesChannelCriteria="storefrontSalesChannelCriteria"
+                    :customFieldSets="customFieldSets"
+                    :isLoading="isLoading"
+                    :productComparisonAccessUrl="productComparison.productComparisonAccessUrl"
+                    :key="$route.params.id"
+                    :templateOptions="productComparison.templateOptions"
+                    :showTemplateModal="productComparison.showTemplateModal"
+                    :templateName="productComparison.templateName"
+                    @template-selected="onTemplateSelected"
+                    @access-key-changed="generateAccessUrl"
+                    @domain-changed="generateAccessUrl"
+                    @invalid-file-name="setInvalidFileName(true)"
+                    @valid-file-name="setInvalidFileName(false)"
+                    @template-modal-close="onTemplateModalClose"
+                    @template-modal-confirm="onTemplateModalConfirm">
+       </router-view>
+    {% endblock %}
+   ```
 
 Storefront
 ----------

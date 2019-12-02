@@ -75,7 +75,6 @@ Component.register('sw-sales-channel-detail-base', {
             defaultSnippetSetId: '71a916e745114d72abafbfdc51cbd9d0',
             isLoadingDomains: false,
             deleteDomain: null,
-            storefrontSalesChannels: [],
             storefrontDomains: [],
             selectedStorefrontSalesChannel: null,
             invalidFileName: false,
@@ -377,20 +376,6 @@ Component.register('sw-sales-channel-detail-base', {
                     this.productExport.salesChannelDomain = entity;
                     this.productExport.currencyId = entity.currencyId;
                     this.$emit('domain-changed');
-                });
-        },
-
-        loadStorefrontSalesChannels() {
-            const criteria = new Criteria();
-
-            criteria.addFilter(Criteria.equals('typeId', '8a243080f92e4c719546314b577cf82b'));
-
-            this.isLoading = true;
-            this.salesChannelRepository
-                .search(criteria, Shopware.Context.api)
-                .then((searchResult) => {
-                    this.storefrontSalesChannels = searchResult;
-                    this.isLoading = false;
                 });
         },
 

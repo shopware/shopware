@@ -25,16 +25,17 @@ Component.register('sw-sales-channel-detail', {
             salesChannel: null,
             isLoading: false,
             customFieldSets: [],
-            storefrontSalesChannels: [],
             isSaveSuccessful: false,
-            newProductExport: null,
-            productComparisonAccessUrl: null,
-            invalidFileName: false,
-            templateOptions: [],
-            templates: null,
-            templateName: null,
-            showTemplateModal: false,
-            selectedTemplate: null
+            productComparison: {
+                newProductExport: null,
+                productComparisonAccessUrl: null,
+                invalidFileName: false,
+                templateOptions: [],
+                templates: null,
+                templateName: null,
+                showTemplateModal: false,
+                selectedTemplate: null
+            }
         };
     },
 
@@ -54,15 +55,15 @@ Component.register('sw-sales-channel-detail', {
                 return this.salesChannel.productExports.first();
             }
 
-            if (this.newProductExport) {
-                return this.newProductExport;
+            if (this.productComparison.newProductExport) {
+                return this.productComparison.newProductExport;
             }
 
-            this.newProductExport = this.productExportRepository.create(Shopware.Context.api);
-            this.newProductExport.interval = 0;
-            this.newProductExport.generateByCronjob = false;
+            this.productComparison.newProductExport = this.productExportRepository.create(Shopware.Context.api);
+            this.productComparison.newProductExport.interval = 0;
+            this.productComparison.newProductExport.generateByCronjob = false;
 
-            return this.newProductExport;
+            return this.productComparison.newProductExport;
         },
 
         isStoreFront() {
@@ -173,31 +174,31 @@ Component.register('sw-sales-channel-detail', {
         },
 
         onTemplateSelected(templateName) {
-            if (this.templates === null || this.templates[templateName] === undefined) {
+            if (this.productComparison.templates === null || this.productComparison.templates[templateName] === undefined) {
                 return;
             }
 
-            this.selectedTemplate = this.templates[templateName];
-            const contentChanged = Object.keys(this.selectedTemplate).some((value) => {
-                return this.productExport[value] !== this.selectedTemplate[value];
+            this.productComparison.selectedTemplate = this.productComparison.templates[templateName];
+            const contentChanged = Object.keys(this.productComparison.selectedTemplate).some((value) => {
+                return this.productExport[value] !== this.productComparison.selectedTemplate[value];
             });
 
             if (!contentChanged) {
                 return;
             }
 
-            this.showTemplateModal = true;
+            this.productComparison.showTemplateModal = true;
         },
 
         onTemplateModalClose() {
-            this.selectedTemplate = null;
-            this.templateName = null;
-            this.showTemplateModal = false;
+            this.productComparison.selectedTemplate = null;
+            this.productComparison.templateName = null;
+            this.productComparison.showTemplateModal = false;
         },
 
         onTemplateModalConfirm() {
-            Object.keys(this.selectedTemplate).forEach((value) => {
-                this.productExport[value] = this.selectedTemplate[value];
+            Object.keys(this.productComparison.selectedTemplate).forEach((value) => {
+                this.productExport[value] = this.productComparison.selectedTemplate[value];
             });
             this.onTemplateModalClose();
 
@@ -205,20 +206,6 @@ Component.register('sw-sales-channel-detail', {
                 title: this.$tc('sw-sales-channel.detail.productComparison.templates.message.template-applied-title'),
                 message: this.$tc('sw-sales-channel.detail.productComparison.templates.message.template-applied-message')
             });
-        },
-
-        loadStorefrontSalesChannels() {
-            const criteria = new Criteria();
-
-            criteria.addFilter(Criteria.equals('typeId', '8a243080f92e4c719546314b577cf82b'));
-
-            this.isLoading = true;
-            return this.salesChannelRepository
-                .search(criteria, Context.api)
-                .then((searchResult) => {
-                    this.storefrontSalesChannels = searchResult;
-                    this.isLoading = false;
-                });
         },
 
         loadCustomFieldSets() {
@@ -237,18 +224,18 @@ Component.register('sw-sales-channel-detail', {
 
         generateAccessUrl() {
             if (!this.productExport.salesChannelDomain) {
-                this.productComparisonAccessUrl = '';
+                this.productComparison.productComparisonAccessUrl = '';
                 return;
             }
 
             const salesChannelDomainUrl = this.productExport.salesChannelDomain.url.replace(/\/+$/g, '');
-            this.productComparisonAccessUrl =
+            this.productComparison.productComparisonAccessUrl =
                 `${salesChannelDomainUrl}/export/${this.productExport.accessKey}/${this.productExport.fileName}`;
         },
 
         loadProductExportTemplates() {
-            this.templateOptions = Object.values(this.exportTemplateService.getProductExportTemplateRegistry());
-            this.templates = this.exportTemplateService.getProductExportTemplateRegistry();
+            this.productComparison.templateOptions = Object.values(this.exportTemplateService.getProductExportTemplateRegistry());
+            this.productComparison.templates = this.exportTemplateService.getProductExportTemplateRegistry();
         },
 
         saveFinish() {
@@ -256,7 +243,7 @@ Component.register('sw-sales-channel-detail', {
         },
 
         setInvalidFileName(invalidFileName) {
-            this.invalidFileName = invalidFileName;
+            this.productComparison.invalidFileName = invalidFileName;
         },
 
         onSave() {

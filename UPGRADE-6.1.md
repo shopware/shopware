@@ -728,6 +728,10 @@ SHOPWARE_HTTP_DEFAULT_TTL=7200
          * @Route("/example/route", name="example.route", defaults={"csrf_protected"=false}, methods={"POST"})
         */
     ```
+* Removed abandoned TwigExtensions in favor of  Twig Core Extra extensions
+    * Use `u.wordwrap` and `u.truncate` instead of the `wordwrap` and `truncate` filter.
+    * Use the `format_date` or `format_datetime` filter instead of the `localizeddate` filter
+    * Take a look here for more information: https://github.com/twigphp/Twig-extensions
 
 
 Elasticsearch

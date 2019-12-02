@@ -103,7 +103,8 @@
         "symfony/mime": "4.4.1",
         "symfony/var-exporter": "4.4.1",
         "true/punycode": "2.1.1",
-        "twig/extensions": "1.5.4",
+        "twig/intl-extra": "2.12.2",
+        "twig/string-extra": "2.12.2",
         "twig/twig": "2.12.2",
         "zircote/swagger-php": "3.0.2"
     },

@@ -90,11 +90,11 @@
                                                            data-url="{{ path('widgets.quickview.minimal',{ 'productId': lineItem.referencedId }) }}"
                                                            {% endif %}
                                                         >
-                                                            {{ lineItem.label|truncate(60) }}
+                                                            {{ lineItem.label|u.truncate(60) }}
                                                         </a>
                                                     {% else %}
                                                         <div class="cart-item-label">
-                                                            {{ lineItem.label|truncate(60) }}
+                                                            {{ lineItem.label|u.truncate(60) }}
                                                         </div>
                                                     {% endif %}
                                                 {% endblock %}
@@ -133,8 +133,8 @@
                                                     {% if deliveryPosition and deliveryPosition.deliveryDate %}
                                                         <div class="cart-item-delivery-date">
                                                             {{ "checkout.lineItemDeliveryDate"|trans({
-                                                                '%earliest%': deliveryPosition.deliveryDate.earliest|localizeddate('short', 'none', app.request.locale),
-                                                                '%latest%': deliveryPosition.deliveryDate.latest|localizeddate('short', 'none', app.request.locale)
+                                                                '%earliest%': deliveryPosition.deliveryDate.earliest|format_date('short', locale=app.request.locale),
+                                                                '%latest%': deliveryPosition.deliveryDate.latest|format_date('short', locale=app.request.locale)
                                                             })|sw_sanitize }}
                                                         </div>
                                                     {% endif %}

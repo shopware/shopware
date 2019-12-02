@@ -1,0 +1,74 @@
+@import "~scss/variables";
+
+.sw-first-run-wizard-data-import {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 80%;
+
+    &__icon-demodata {
+        width: 154px;
+        margin: 45px auto;
+    }
+
+    &__icon-migration {
+        width: 206px;
+        margin: 40px auto;
+    }
+
+    &__headline {
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: 0.1px;
+        line-height: 25px;
+    }
+
+    &__message {
+        width: 270px;
+        height: 80px;
+        font-weight: normal;
+        letter-spacing: 0.1px;
+        margin: 0 auto 40px auto;
+    }
+
+    .installing-plugin {
+        transform: translate(0, 10%);
+    }
+
+    .sw-loader {
+        background: none;
+    }
+
+    .sw-loader-info-text {
+        position: relative;
+        width: 100%;
+        top: 60px;
+        text-align: center;
+    }
+
+    .plugin-installed {
+        height: 23px;
+        color: $color-emerald-500;
+        font-size: 14px;
+        font-weight: normal;
+        letter-spacing: 0.1px;
+        line-height: 22px;
+        margin-right: 24px;
+
+        .sw-icon {
+            margin-right: 5px;
+        }
+    }
+
+    .sw-first-run-wizard-plugin-installation__error {
+        width: 650px;
+        bottom: 150px;
+        position: fixed;
+    }
+}
+
+.sw-modal.sw-first-run-wizard-data-import__warning {
+    z-index: 1100;
+}

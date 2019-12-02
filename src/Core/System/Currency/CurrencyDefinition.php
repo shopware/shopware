@@ -66,7 +66,7 @@ class CurrencyDefinition extends EntityDefinition
 
             (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'currency_id', 'id'))->addFlags(new RestrictDelete(), new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('orders', OrderDefinition::class, 'currency_id', 'id'))->addFlags(new RestrictDelete(), new ReadProtected(SalesChannelApiSource::class)),
-            (new OneToManyAssociationField('shippingMethodPrices', ShippingMethodPriceDefinition::class, 'currency_id', 'id'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
+            (new OneToManyAssociationField('shippingMethodPrices', ShippingMethodPriceDefinition::class, 'currency_id', 'id'))->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
             (new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelCurrencyDefinition::class, 'currency_id', 'sales_channel_id'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('salesChannelDomains', SalesChannelDomainDefinition::class, 'currency_id'))->addFlags(new RestrictDelete(), new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('promotionDiscountPrices', PromotionDiscountPriceDefinition::class, 'currency_id', 'id'))->addFlags(new CascadeDelete()),

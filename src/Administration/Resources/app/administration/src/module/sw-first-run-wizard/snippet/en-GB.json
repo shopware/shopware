@@ -4,7 +4,6 @@
       "mainMenuItemGeneral": "First Run Wizard",
       "buttonNext": "Next",
       "buttonSkip": "Skip",
-      "buttonNextDemoData": "Install",
       "buttonNextPayPalInfo": "Configure",
       "buttonBack": "Back",
       "buttonInstall": "Install",
@@ -21,17 +20,15 @@
       "cancelLanguageSwitch": "Cancel",
       "switchLanguageMessage": "Your language plugin \"{pluginName}\" was installed successfully. Would you like to change your interface language?"
     },
-    "demodata": {
-      "modalTitle": "Install Demodata",
-      "headlineDemodata": "Demo data",
-      "messageDemodata": "Optionally use the possibility and equip your shop with demo data.<br><br>Please note: The demo data is for testing purposes only. You should not use them in a productive environment.",
-      "loadingMessage": "Installing demo data plugin<br>This may take a while...",
-      "installationWarning": {
-        "headline": "Caution",
-        "message": "The demo data has already been installed. A new installation may overwrite any customized data.",
-        "cancel": "Cancel",
-        "forceInstall": "Install anyway"
-      }
+    "dataImport": {
+      "modalTitle": "Getting started with Shopware 6",
+      "headlineDemoData": "Use demo data",
+      "messageDemoData": "Start exploring Shopware 6 by adding a set of demo data. Demo data gives the impression of a fully working shop, but should strictly be used for testing purposes only.",
+      "buttonInstallDemoData": "Install demo data",
+      "headlineMigration": "Migrate your shop data",
+      "messageMigration": "The Migration Assistant helps you to connect and transfer data from a previous shop system to your new Shopware 6 environment.",
+      "buttonInstallMigration": "Install the Migration Assistant",
+      "loadingMessage": "Installing plugin<br>This may take a while..."
     },
     "paypalInfo": {
       "headline": "Now pre-integrated in Shopware with even easier and faster activation of the most popular payment methods*",
@@ -88,10 +85,12 @@
       "titleLoginDataInvalid": "Error",
       "messageLoginDataInvalid": "Login data incomplete.",
       "titlePayPalInstallationFailed": "Error",
-      "messagePayPalInstallationFailed": "PayPal configuration failed"
+      "messagePayPalInstallationFailed": "PayPal configuration failed",
+      "titlePluginInstallationFailed": "Error",
+      "messagePluginInstallationFailed": "Plugin installation failed"
     },
     "stepItemTitle": {
-      "demodata": "Demodata",
+      "dataImport": "Data import",
       "setupPaypal": "Setup PayPal",
       "plugins": "Plugins",
       "shopware": "Shopware"

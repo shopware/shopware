@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Test;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Finder\Finder;
 
@@ -63,6 +65,23 @@ class ServiceDefinitionTest extends TestCase
         $errorMessage = 'Found some issues in the following files:' . PHP_EOL . PHP_EOL . print_r($errors, true);
 
         static::assertCount(0, $errors, $errorMessage);
+    }
+
+    public function testContainerLintCommand(): void
+    {
+        $command = $this->getContainer()->get('console.command.container_lint');
+        $command->setApplication(new Application(KernelLifecycleManager::getKernel()));
+        $commandTester = new CommandTester($command);
+
+        set_error_handler(function (): void {/* ignore symfony deprecations */}, E_USER_DEPRECATED);
+        $commandTester->execute([]);
+        restore_error_handler();
+
+        static::assertEquals(
+            0,
+            $commandTester->getStatusCode(),
+            "\"bin/console lint:container\" returned errors:\n" . $commandTester->getDisplay()
+        );
     }
 
     private function checkArgumentOrder(string $content): array

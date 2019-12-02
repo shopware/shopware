@@ -46,8 +46,8 @@ class StateMachineDefinition extends EntityDefinition
             (new TranslatedField('name'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new TranslatedField('customFields'),
 
-            new OneToManyAssociationField('states', StateMachineStateDefinition::class, 'state_machine_id'),
-            new OneToManyAssociationField('transitions', StateMachineTransitionDefinition::class, 'state_machine_id'),
+            (new OneToManyAssociationField('states', StateMachineStateDefinition::class, 'state_machine_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('transitions', StateMachineTransitionDefinition::class, 'state_machine_id'))->addFlags(new CascadeDelete()),
 
             new FkField('initial_state_id', 'initialStateId', StateMachineStateDefinition::class),
 

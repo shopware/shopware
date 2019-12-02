@@ -199,6 +199,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Updated Symfony Dependencies to version `4.4.0`.    
     * Added cms block `form`
     * Added component `sw-select-number-field` for select options with numeric values
+    * Added installation opportunity of Migration-Plugin into FirstRunWizard
 * Core
     * Moved the seo module from the storefront into the core.
     * Switched the execution condition of `\Shopware\Core\Framework\Migration\MigrationStep::addBackwardTrigger()` and `\Shopware\Core\Framework\Migration\MigrationStep::addForwardTrigger()` to match the execution conditions in the methods documentation.

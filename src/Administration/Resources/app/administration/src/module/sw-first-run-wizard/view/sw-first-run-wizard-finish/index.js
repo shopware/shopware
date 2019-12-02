@@ -6,7 +6,7 @@ const { Component } = Shopware;
 Component.register('sw-first-run-wizard-finish', {
     template,
 
-    inject: ['addNextCallback', 'firstRunWizardService'],
+    inject: ['firstRunWizardService'],
 
     data() {
         return {
@@ -44,6 +44,7 @@ Component.register('sw-first-run-wizard-finish', {
 
     methods: {
         createdComponent() {
+            this.updateButtons();
             const language = Shopware.State.get('adminLocale').currentLocale;
 
             this.firstRunWizardService.getLicenseDomains({
@@ -60,14 +61,34 @@ Component.register('sw-first-run-wizard-finish', {
             }).catch(() => {
                 this.licensed = false;
             });
+        },
 
-            this.addNextCallback(this.onFinish);
+        updateButtons() {
+            const buttonConfig = [
+                {
+                    key: 'back',
+                    label: this.$tc('sw-first-run-wizard.general.buttonBack'),
+                    position: 'left',
+                    variant: null,
+                    action: 'sw.first.run.wizard.index.shopware.account',
+                    disabled: false
+                },
+                {
+                    key: 'finish',
+                    label: this.$tc('sw-first-run-wizard.general.buttonFinish'),
+                    position: 'right',
+                    variant: 'primary',
+                    action: this.onFinish.bind(this),
+                    disabled: false
+                }
+            ];
+
+            this.$emit('buttons-update', buttonConfig);
         },
 
         onFinish() {
             this.restarting = true;
-
-            return Promise.resolve(false);
+            this.$emit('frw-finish', true);
         }
     }
 });

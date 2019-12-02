@@ -52,7 +52,7 @@ Component.extend('sw-entity-tag-select', 'sw-entity-multi-select', {
             const item = this.repository.create(this.entityCollection.context);
             item.name = this.searchTerm;
             this.repository.save(item, this.entityCollection.context).then(() => {
-                this.$super('addItem', item);
+                this.addItem(item);
 
                 // Reset criteria and all parameter to get a clean new result after an item has been added
                 this.criteria.setPage(1);

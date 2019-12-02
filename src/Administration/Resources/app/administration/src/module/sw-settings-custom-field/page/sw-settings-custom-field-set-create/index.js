@@ -29,13 +29,11 @@ Component.extend('sw-settings-custom-field-set-create', 'sw-settings-custom-fiel
             });
         },
         onSave() {
-            const superRef = this.$super;
-
             // Check if a set with the same name exists
             const criteria = CriteriaFactory.equals('name', this.set.name);
             return this.customFieldSetStore.getList({ criteria }).then((res) => {
                 if (res.total === 0) {
-                    superRef('onSave');
+                    this.$super('onSave');
 
                     return;
                 }

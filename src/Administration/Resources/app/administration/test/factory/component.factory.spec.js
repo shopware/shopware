@@ -1,3 +1,4 @@
+import { shallowMount } from '@vue/test-utils';
 import ComponentFactory from 'src/core/factory/component.factory';
 import TemplateFactory from 'src/core/factory/template.factory';
 
@@ -500,7 +501,6 @@ describe('core/factory/component.factory.js', () => {
         expect(componentAfterSecondOverride.extends.methods).toBeInstanceOf(Object);
     });
 
-
     it('should build the final component structure with an extend and super-call', () => {
         ComponentFactory.register('test-component', {
             methods: {
@@ -518,12 +518,14 @@ describe('core/factory/component.factory.js', () => {
 
                     return `This is an override. ${prev}`;
                 }
-            }
+            },
+            template: '<div>extended-component</div>'
         });
 
-        const extendedComponent = ComponentFactory.build('extended-component');
+        const component = shallowMount(ComponentFactory.build('extended-component'));
 
-        expect(extendedComponent.methods.testMethod()).toBe('This is an override. This is a test method.');
+        expect(component.isVueInstance()).toBe(true);
+        expect(component.vm.testMethod()).toBe('This is an override. This is a test method.');
     });
 
     it('should build the final component structure with an override and super-call', () => {
@@ -546,9 +548,10 @@ describe('core/factory/component.factory.js', () => {
             }
         });
 
-        const component = ComponentFactory.build('test-component');
+        const component = shallowMount(ComponentFactory.build('test-component'));
 
-        expect(component.methods.testMethod()).toBe('This is an override. This is a test method.');
+        expect(component.isVueInstance()).toBe(true);
+        expect(component.vm.testMethod()).toBe('This is an override. This is a test method.');
     });
 
     it('should build the final component structure with an overriden override and super-call', () => {
@@ -581,9 +584,10 @@ describe('core/factory/component.factory.js', () => {
             }
         });
 
-        const component = ComponentFactory.build('test-component');
+        const component = shallowMount(ComponentFactory.build('test-component'));
 
-        expect(component.methods.testMethod())
+        expect(component.isVueInstance()).toBe(true);
+        expect(component.vm.testMethod())
             .toBe('This is an overridden override. This is an override. This is a test method.');
     });
 
@@ -604,7 +608,8 @@ describe('core/factory/component.factory.js', () => {
 
                     return `This is an extension. ${prev}`;
                 }
-            }
+            },
+            template: '<div>extension-1</div>'
         });
 
         ComponentFactory.extend('extension-2', 'extension-1', {
@@ -614,12 +619,14 @@ describe('core/factory/component.factory.js', () => {
 
                     return `This is an extended extension. ${prev}`;
                 }
-            }
+            },
+            template: '<div>extension-2</div>'
         });
 
-        const component = ComponentFactory.build('extension-2');
+        const component = shallowMount(ComponentFactory.build('extension-2'));
 
-        expect(component.methods.testMethod())
+        expect(component.isVueInstance()).toBe(true);
+        expect(component.vm.testMethod())
             .toBe('This is an extended extension. This is an extension. This is a test method.');
     });
 
@@ -660,7 +667,8 @@ describe('core/factory/component.factory.js', () => {
                         this._getterSetter = `${value}Baz!`;
                     }
                 }
-            }
+            },
+            template: '<div>extension-1</div>'
         });
 
         ComponentFactory.extend('extension-2', 'extension-1', {
@@ -682,17 +690,19 @@ describe('core/factory/component.factory.js', () => {
                         this._getterSetter = value;
                     }
                 }
-            }
+            },
+            template: '<div>extension-2</div>'
         });
 
-        const component = ComponentFactory.build('extension-2');
+        const component = shallowMount(ComponentFactory.build('extension-2'));
 
-        expect(typeof component.computed.fooBar).toBe('function');
-        expect(typeof component.methods.$super).toBe('function');
-        expect(component.methods.$super('fooBar')).toBe('fooBarBaz');
+        expect(component.isVueInstance()).toBe(true);
+        expect(typeof component.vm.fooBar).toBe('string');
+        expect(typeof component.vm.$super).toBe('function');
+        expect(component.vm.$super('fooBar')).toBe('fooBarBaz');
 
-        component.methods.$super('getterSetter.set', 'Bar');
-        expect(component.methods.$super('getterSetter.get')).toBe('fooBarBaz!');
+        component.vm.$super('getterSetter.set', 'Bar');
+        expect(component.vm.$super('getterSetter.get')).toBe('fooBarBaz!');
     });
 
     it('should build the final component structure overriding a component with computed properties', () => {
@@ -757,13 +767,83 @@ describe('core/factory/component.factory.js', () => {
             }
         });
 
-        const component = ComponentFactory.build('test-component');
+        const component = shallowMount(ComponentFactory.build('test-component'));
 
-        expect(typeof component.computed.fooBar).toBe('function');
-        expect(typeof component.methods.$super).toBe('function');
-        expect(component.methods.$super('fooBar')).toBe('fooBarBaz');
+        expect(component.isVueInstance()).toBe(true);
+        expect(typeof component.vm.fooBar).toBe('string');
+        expect(typeof component.vm.$super).toBe('function');
+        expect(component.vm.$super('fooBar')).toBe('fooBarBaz');
 
-        component.methods.$super('getterSetter.set', 'Bar');
-        expect(component.methods.$super('getterSetter.get')).toBe('fooBarBaz!');
+        component.vm.$super('getterSetter.set', 'Bar');
+        expect(component.vm.$super('getterSetter.get')).toBe('fooBarBaz!');
+    });
+
+    it('should build the final component structure overriding a component only with a template', () => {
+        ComponentFactory.register('test-component', {
+            methods: {
+                fooBar() {
+                    return 'fooBar';
+                }
+            },
+            template: '{% block content %}<div>This is a test template.</div>{% endblock %}'
+        });
+
+        ComponentFactory.override('test-component', {
+            methods: {
+                fooBar() {
+                    const prev = this.$super('fooBar');
+
+                    return `${prev}Baz`;
+                }
+            }
+        });
+
+        ComponentFactory.override('test-component', {
+            template: '{% block content %}<div>This is a template override.</div>{% endblock %}'
+        });
+
+        const component = shallowMount(ComponentFactory.build('test-component'));
+
+        expect(component.isVueInstance()).toBe(true);
+        expect(typeof component.vm.fooBar).toBe('function');
+        expect(typeof component.vm.$super).toBe('function');
+        expect(component.vm.$super('fooBar')).toBe('fooBar');
+        expect(component.vm.fooBar()).toBe('fooBarBaz');
+        expect(component.html()).toContain('<div>This is a template override.</div>');
+    });
+
+    it('should build the $super-call-stack when $super-call is inside an promise chain', () => {
+        ComponentFactory.register('test-component', {
+            methods: {
+                fooBar() {
+                    return 'fooBar';
+                }
+            },
+            template: '{% block content %}<div>This is a test template.</div>{% endblock %}'
+        });
+
+        ComponentFactory.override('test-component', {
+            methods: {
+                fooBar() {
+                    const p = new Promise((resolve) => {
+                        resolve('Baz');
+                    });
+
+
+                    return p.then((value) => {
+                        const prev = this.$super('fooBar');
+
+                        return `${prev}${value}`;
+                    });
+                }
+            }
+        });
+
+        const component = shallowMount(ComponentFactory.build('test-component'));
+
+        expect(component.isVueInstance()).toBe(true);
+        expect(typeof component.vm.fooBar).toBe('function');
+        expect(typeof component.vm.$super).toBe('function');
+        expect(component.vm.$super('fooBar')).toBe('fooBar');
     });
 });

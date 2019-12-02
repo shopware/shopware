@@ -261,11 +261,11 @@ function build(componentName, skipTemplate = false) {
     const superRegistry = buildSuperRegistry(config);
 
     if (isNotEmptyObject(superRegistry)) {
-        const inheritatedFrom = isAnOverride(config)
+        const inheritedFrom = isAnOverride(config)
             ? `#${componentName}`
             : config.extends.name;
 
-        config.methods = { ...config.methods, ...addSuperBehaviour(inheritatedFrom, superRegistry) };
+        config.methods = { ...config.methods, ...addSuperBehaviour(inheritedFrom, superRegistry) };
     }
 
     /**
@@ -287,13 +287,12 @@ function build(componentName, skipTemplate = false) {
  */
 function convertOverrides(overrides) {
     return overrides
-        .reverse()
-        .reduce((acc, overrideComp) => {
+        .reduceRight((acc, overrideComp) => {
             if (acc.length === 0) {
                 return [overrideComp];
             }
 
-            const previous = acc.pop();
+            const previous = acc.shift();
 
             Object.entries(overrideComp).forEach(([prop, values]) => {
                 // check if current property exists in previous override
@@ -318,9 +317,8 @@ function convertOverrides(overrides) {
                 }
             });
 
-            return [...acc, previous, ...[overrideComp]];
-        }, [])
-        .reverse();
+            return [...[overrideComp], previous, ...acc];
+        }, []);
 }
 
 /**
@@ -360,7 +358,7 @@ function buildSuperRegistry(config) {
 }
 
 function updateSuperRegistry(superRegistry, methodName, method, methodOrComputed, config) {
-    const superCallPattern = new RegExp('this\\.\\$super', 'gi');
+    const superCallPattern = /(this|_this2)\.\$super/g;
     const methodString = method.toString();
     const hasSuperCall = superCallPattern.test(methodString);
 
@@ -381,11 +379,11 @@ function updateSuperRegistry(superRegistry, methodName, method, methodOrComputed
 
 /**
  * Returns a superBehaviour object, which contains a super-like callstack.
- * @param {String} inheritatedFrom
+ * @param {String} inheritedFrom
  * @param {Object} superRegistry
  * @returns {Object}
  */
-function addSuperBehaviour(inheritatedFrom, superRegistry) {
+function addSuperBehaviour(inheritedFrom, superRegistry) {
     return {
         $super(name, args) {
             this._initVirtualCallStack(name);
@@ -399,7 +397,7 @@ function addSuperBehaviour(inheritatedFrom, superRegistry) {
 
             // reset the virtual call-stack
             if (superFuncObject.parent) {
-                this._virtualCallStack[name] = this._inheritatedFrom();
+                this._virtualCallStack[name] = this._inheritedFrom();
             }
 
             return result;
@@ -411,7 +409,7 @@ function addSuperBehaviour(inheritatedFrom, superRegistry) {
             }
 
             if (!this._virtualCallStack[name]) {
-                this._virtualCallStack[name] = this._inheritatedFrom();
+                this._virtualCallStack[name] = this._inheritedFrom();
             }
         },
         _findInSuperRegister(name) {
@@ -420,8 +418,8 @@ function addSuperBehaviour(inheritatedFrom, superRegistry) {
         _superRegistry() {
             return superRegistry;
         },
-        _inheritatedFrom() {
-            return inheritatedFrom;
+        _inheritedFrom() {
+            return inheritedFrom;
         }
     };
 }
@@ -498,7 +496,7 @@ function findMethodInChain(extension, methodName, methodsOrComputed) {
 /**
  * Returns a method in the extension chain object with a method path like `getterSetterMethod.get`.
  * @param {Object} extension
- * @param {String} path
+ * @param {string[]} path
  * @param {String} methodsOrComputed
  * @returns {Object} superCallChain
  */
@@ -531,7 +529,7 @@ function isAnOverride(config) {
 
 /**
  * Tests an object, whether it is empty or not.
- * @param {Object} config
+ * @param {Object} obj
  * @returns {Boolean}
  */
 function isNotEmptyObject(obj) {

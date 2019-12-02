@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
-if (!file_exists(__DIR__ . '/vendor/autoload.php')) {
+
+if (!file_exists(__DIR__ . '/Common/vendor/autoload.php')) {
     $template = '%s: ';
     if (PHP_SAPI !== 'cli') {
         $template = '<h2>%s</h2>';
@@ -16,19 +17,42 @@ if (!file_exists(__DIR__ . '/vendor/autoload.php')) {
 }
 date_default_timezone_set(@date_default_timezone_get());
 
-define('SW_PATH', dirname(__DIR__, 3));
+$parent = dirname(__DIR__);
+$isPlatform = basename($parent) === 'src';
+
+// root/platform/src/Recovery or root/vendor/shopware/recovery
+$rootDir = dirname($parent, 2);
+if (basename(dirname($rootDir)) === 'vendor') {
+    // root/vendor/shopware/platform/src/Recovery
+    $rootDir = dirname($rootDir, 2);
+    $isPlatform = true;
+}
+
+define('SW_PATH', $rootDir);
 
 /** @var \Composer\Autoload\ClassLoader $autoloader */
-$autoloader = require_once __DIR__ . '/vendor/autoload.php';
+$autoloader = require_once __DIR__ . '/Common/vendor/autoload.php';
 
-$autoloader->addPsr4(
-    'Shopware\\Core\\', SW_PATH . '/vendor/shopware/core/'
-);
-$autoloader->addPsr4(
-    'Shopware\\Storefront\\', SW_PATH . '/vendor/shopware/storefront/'
-);
-$autoloader->addPsr4(
-    'Shopware\\Elasticsearch\\', SW_PATH . '/vendor/shopware/elasticsearch/'
-);
+if ($isPlatform) {
+    $autoloader->addPsr4(
+        'Shopware\\Core\\', SW_PATH . '/vendor/shopware/platform/src/Core/'
+    );
+    $autoloader->addPsr4(
+        'Shopware\\Storefront\\', SW_PATH . '/vendor/shopware/platform/src/Storefront/'
+    );
+    $autoloader->addPsr4(
+        'Shopware\\Elasticsearch\\', SW_PATH . '/vendor/shopware/platform/src/Elasticsearch/'
+    );
+} else {
+    $autoloader->addPsr4(
+        'Shopware\\Core\\', SW_PATH . '/vendor/shopware/core/'
+    );
+    $autoloader->addPsr4(
+        'Shopware\\Storefront\\', SW_PATH . '/vendor/shopware/storefront/'
+    );
+    $autoloader->addPsr4(
+        'Shopware\\Elasticsearch\\', SW_PATH . '/vendor/shopware/elasticsearch/'
+    );
+}
 
 return $autoloader;

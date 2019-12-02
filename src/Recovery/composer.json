@@ -1,4 +1,8 @@
 {
+    "name": "shopware/recovery",
+    "description": "Recovery for Shopware",
+    "type": "library",
+    "license": "MIT",
     "minimum-stability": "stable",
     "require": {
         "php": "^7.2"

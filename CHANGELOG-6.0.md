@@ -332,6 +332,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added unique constraint fo**r `iso_code` column in `currency` table
     * We moved the `Shopware\Storefront\Framework\Seo\SeoTemplateReplacementVariable` to `Shopware\Core\Content\Seo\SeoTemplateReplacementVariable`
     * We moved the `Shopware\Core\Content\ProductExport\SalesChannel\ProductExportController` to `Shopware\Storefront\Controller\ProductExportController`
+    * Added new `core_mailer` service which should be used to send mails. 
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain

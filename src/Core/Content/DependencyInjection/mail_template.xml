@@ -29,7 +29,8 @@
         </service>
 
         <service id="Shopware\Core\Content\MailTemplate\Service\MailSender" public="true">
-            <argument type="service" id="mailer"/>
+            <argument type="service" id="core_mailer"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Core\Content\MailTemplate\Service\MessageFactory" public="true">
@@ -48,11 +49,11 @@
 
         <!-- Header Footer Entities -->
         <service id="Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition">
-            <tag name="shopware.entity.definition"  entity="mail_header_footer"/>
+            <tag name="shopware.entity.definition" entity="mail_header_footer"/>
         </service>
 
         <service id="Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooterTranslation\MailHeaderFooterTranslationDefinition">
-            <tag name="shopware.entity.definition"  entity="mail_header_footer_translation"/>
+            <tag name="shopware.entity.definition" entity="mail_header_footer_translation"/>
         </service>
 
         <!-- Header Footer Repository -->
@@ -92,5 +93,12 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="core_mailer" class="Swift_Mailer">
+            <factory service="Shopware\Core\Content\MailTemplate\Service\MailerFactory" method="create" />
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="mailer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\MailTemplate\Service\MailerFactory" />
     </services>
 </container>

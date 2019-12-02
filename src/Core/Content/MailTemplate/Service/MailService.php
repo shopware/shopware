@@ -118,6 +118,9 @@ class MailService
         }
 
         $senderEmail = $this->systemConfigService->get('core.basicInformation.email', $salesChannelId);
+
+        $senderEmail = $senderEmail ?? $this->systemConfigService->get('core.mailerSettings.senderAddress');
+
         if ($senderEmail === null) {
             $this->logger->error('senderMail not configured for salesChannel: ' . $salesChannelId . '. Please check system_config \'core.basicInformation.email\'');
 

@@ -159,7 +159,6 @@ Core
 * Replace `product/category.extensions.seoUrls` with `product/category.seoUrls`
 * Dropped `additionalText` column of product entity, use `metaDescription` instead
 * If your entity definition overwrites the `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getDefaults` method, you will have to remove the parameter, as it is not needed anymore. Remove the check `$existence->exists()` as this is done before by the Core now. If you want to define different defaults for child entities, overwrite `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getChildDefaults`
-* 
 * If you depend on `\Shopware\Core\Framework\Context::createDefaultContext()` outside of tests, pass the context as a parameter to your method instead
 * The Shopware entity cache has been removed and has been replaced by a symfony cache pool. You have to remove any configuration files pointing to `shopware.entity_cache`.
 
@@ -211,6 +210,7 @@ Core
  * Find and replace `Shopware\Core\System\User\Service\UserProvisioner` with `Shopware\Core\System\User\Service\UserProvisioner`
     * Warning: Do not replace `Shopware\Core\Framework\Context` with `Shopware\Core\Framework\Api\Context`, this would replace the `Framework\Context.php` usage.
  * Added unique constraint for `iso_code` column of `currency` table. The migration can fail if there are already duplicate `iso_codes` in the table
+ * Replace `mailer` usage with `core_mailer` in your service definitions. 
 
 Administration
 --------------

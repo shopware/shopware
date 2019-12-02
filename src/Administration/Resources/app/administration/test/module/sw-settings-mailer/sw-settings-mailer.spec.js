@@ -40,7 +40,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
         const settingsMailer = new CreateSettingsMailer();
         const spyLoadMailer = jest.spyOn(settingsMailer.vm, 'loadMailerSettings');
 
-        await settingsMailer.vm.onCreated();
+        await settingsMailer.vm.createdComponent();
 
         expect(spyLoadMailer).toHaveBeenCalled();
     });
@@ -63,7 +63,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
 
         settingsMailer.vm.systemConfigApiService.getValues = () => Promise.resolve(expectedMailerSettings);
 
-        await settingsMailer.vm.onCreated();
+        await settingsMailer.vm.createdComponent();
         expect(settingsMailer.vm.mailerSettings).toBe(expectedMailerSettings);
     });
 
@@ -85,7 +85,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
         };
 
         settingsMailer.vm.systemConfigApiService.getValues = () => Promise.resolve(expectedMailerSettings);
-        await settingsMailer.vm.onCreated();
+        await settingsMailer.vm.createdComponent();
 
         expect(spySaveValues).not.toHaveBeenCalledWith(expectedMailerSettings);
         await settingsMailer.vm.saveMailerSettings();

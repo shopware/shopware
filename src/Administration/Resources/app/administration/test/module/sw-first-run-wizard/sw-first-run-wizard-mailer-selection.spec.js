@@ -45,7 +45,7 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-modal', () => {
         expect(spyButtonUpdateEmit).not.toBeCalledWith('buttons-update', buttonConfig);
         expect(spyButtonUpdateEmit).not.toBeCalledWith('frw-set-title', title);
 
-        frwMailerSettings.vm.onCreated();
+        frwMailerSettings.vm.createdComponent();
 
         expect(spyButtonUpdateEmit).toBeCalledWith('buttons-update', buttonConfig);
         expect(spyButtonUpdateEmit).toBeCalledWith('frw-set-title', title);

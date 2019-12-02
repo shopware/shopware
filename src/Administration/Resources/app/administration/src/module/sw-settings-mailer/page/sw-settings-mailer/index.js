@@ -53,11 +53,11 @@ Shopware.Component.register('sw-settings-mailer', {
     },
 
     created() {
-        this.onCreated();
+        this.createdComponent();
     },
 
     methods: {
-        async onCreated() {
+        async createdComponent() {
             await this.loadPageContent();
         },
 

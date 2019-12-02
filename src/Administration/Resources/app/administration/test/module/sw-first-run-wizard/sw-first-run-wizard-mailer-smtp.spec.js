@@ -47,7 +47,7 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-mailer-smtp', () => {
         expect(spyButtonUpdateEmit).not.toBeCalledWith('buttons-update', buttonConfig);
         expect(spyButtonUpdateEmit).not.toBeCalledWith('frw-set-title', title);
 
-        frwMailerSmtp.vm.onCreated();
+        frwMailerSmtp.vm.createdComponent();
 
         expect(spyButtonUpdateEmit).toBeCalledWith('buttons-update', buttonConfig);
         expect(spyButtonUpdateEmit).toBeCalledWith('frw-set-title', title);
@@ -57,7 +57,7 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-mailer-smtp', () => {
         const frwMailerSmtp = new CreateFirstRunWizardMailerSmtp();
         const spyLoadMailer = jest.spyOn(frwMailerSmtp.vm, 'loadMailerSettings');
 
-        await frwMailerSmtp.vm.onCreated();
+        await frwMailerSmtp.vm.createdComponent();
 
         expect(spyLoadMailer).toHaveBeenCalled();
     });
@@ -80,7 +80,7 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-mailer-smtp', () => {
 
         frwMailerSmtp.vm.systemConfigApiService.getValues = () => Promise.resolve(expectedMailerSettings);
 
-        await frwMailerSmtp.vm.onCreated();
+        await frwMailerSmtp.vm.createdComponent();
         expect(frwMailerSmtp.vm.mailerSettings).toBe(expectedMailerSettings);
     });
 
@@ -102,7 +102,7 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-mailer-smtp', () => {
         };
 
         frwMailerSmtp.vm.systemConfigApiService.getValues = () => Promise.resolve(expectedMailerSettings);
-        await frwMailerSmtp.vm.onCreated();
+        await frwMailerSmtp.vm.createdComponent();
 
         expect(spySaveValues).not.toHaveBeenCalledWith(expectedMailerSettings);
         await frwMailerSmtp.vm.saveMailerSettings();

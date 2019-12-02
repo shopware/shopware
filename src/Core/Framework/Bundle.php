@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Shopware\Core\Framework\Filesystem\PrefixFilesystem;
 use Shopware\Core\Kernel;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\Config\Loader\DelegatingLoader;
+use Symfony\Component\Config\Loader\LoaderResolver;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader\FileLoader;
@@ -20,18 +22,6 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 
 abstract class Bundle extends SymfonyBundle
 {
-    /**
-     * Array of supported service definitions files, associated to their
-     * respective FileLoader.
-     * This is used to load service defintions.
-     *
-     * @see registerContainerFile
-     */
-    protected const SUPPORTED_CONTAINER_FILES = [
-        'services.xml' => XmlFileLoader::class,
-        'services.yml' => YamlFileLoader::class,
-    ];
-
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);
@@ -128,23 +118,21 @@ abstract class Bundle extends SymfonyBundle
 
     /**
      * Looks for service definition files inside the `Resources/config`
-     * directory and loads the first one, it finds.
+     * directory and loads either xml or yml files.
      *
      * @param ContainerBuilder $container
      */
     private function registerContainerFile(ContainerBuilder $container): void
     {
-        $fileSystem = new Filesystem();
+        $fileLocator = new FileLocator($this->getPath());
+        $loaderResolver = new LoaderResolver([
+            new XmlFileLoader($container, $fileLocator),
+            new YamlFileLoader($container, $fileLocator),
+        ]);
+        $delegatingLoader = new DelegatingLoader($loaderResolver);
 
-        foreach (self::SUPPORTED_CONTAINER_FILES as $path => $loaderClass) {
-            $containerFilePath = 'Resources/config/' . $path;
-            if (!$fileSystem->exists($this->getPath() . '/' . $containerFilePath)) {
-                continue;
-            }
-
-            /** @var $loader FileLoader */
-            $loader = new $loaderClass($container, new FileLocator($this->getPath()));
-            $loader->load($containerFilePath);
+        foreach (glob($this->getPath() . '/Resources/config/services.*') as $path) {
+            $delegatingLoader->load($path);
         }
     }
 }

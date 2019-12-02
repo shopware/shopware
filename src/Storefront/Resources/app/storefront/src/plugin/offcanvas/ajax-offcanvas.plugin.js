@@ -17,15 +17,16 @@ export default class AjaxOffCanvas extends OffCanvas {
      * @param {boolean} closable
      * @param {number} delay
      * @param {boolean} fullwidth
+     * @param {array|string} cssClass
      */
-    static open(url = false, data = false, callback = null, position = 'left', closable = true, delay = OffCanvas.REMOVE_OFF_CANVAS_DELAY, fullwidth = false) {
+    static open(url = false, data = false, callback = null, position = 'left', closable = true, delay = OffCanvas.REMOVE_OFF_CANVAS_DELAY, fullwidth = false, cssClass = '') {
         if (!url) {
             throw new Error('A url must be given!');
         }
         // avoid multiple backdrops
         OffCanvasInstance._removeExistingOffCanvas();
 
-        const offCanvas = OffCanvasInstance._createOffCanvas(position, fullwidth);
+        const offCanvas = OffCanvasInstance._createOffCanvas(position, fullwidth, cssClass);
         this.setContent(url, data, callback, closable, delay);
         OffCanvasInstance._openOffcanvas(offCanvas);
     }

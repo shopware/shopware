@@ -1,0 +1,7 @@
+{
+  "views": [
+    "@PayPal",
+    "@ThemeWithoutStorefront",
+    "@Plugins"
+  ]
+}

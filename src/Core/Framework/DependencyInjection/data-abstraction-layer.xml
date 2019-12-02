@@ -44,8 +44,6 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntitySearcher.inner"/>
-            <argument>%shopware.cache.entity_cache.enabled%</argument>
-            <argument>%shopware.cache.entity_cache.expiration_time%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityReader"
@@ -55,8 +53,6 @@
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityReader.inner"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument>%shopware.cache.entity_cache.enabled%</argument>
-            <argument>%shopware.cache.entity_cache.expiration_time%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityAggregator"
@@ -66,8 +62,6 @@
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityAggregator.inner"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument>%shopware.cache.entity_cache.enabled%</argument>
-            <argument>%shopware.cache.entity_cache.expiration_time%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper">

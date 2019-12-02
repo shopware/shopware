@@ -6,11 +6,6 @@ const { mapApiErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-customer-base-form', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'swCustomerCreateOnChangeSalesChannel'
-    ],
-
     props: {
         customer: {
             type: Object,

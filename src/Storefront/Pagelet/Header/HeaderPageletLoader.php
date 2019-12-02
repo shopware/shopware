@@ -102,7 +102,7 @@ class HeaderPageletLoader
     private function loadLanguages(SalesChannelContext $salesChannelContext): LanguageCollection
     {
         $criteria = new Criteria();
-        $criteria->addAssociation('language.translationCode');
+        $criteria->addAssociation('translationCode');
 
         $criteria->addFilter(
             new EqualsFilter('language.salesChannelDomains.salesChannelId', $salesChannelContext->getSalesChannel()->getId())

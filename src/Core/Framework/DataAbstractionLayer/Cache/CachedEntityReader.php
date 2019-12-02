@@ -28,36 +28,18 @@ class CachedEntityReader implements EntityReaderInterface
      */
     private $cacheKeyGenerator;
 
-    /**
-     * @var bool
-     */
-    private $enabled;
-
-    /**
-     * @var int
-     */
-    private $expirationTime;
-
     public function __construct(
         TagAwareAdapterInterface $cache,
         EntityReaderInterface $decorated,
-        EntityCacheKeyGenerator $cacheKeyGenerator,
-        bool $enabled,
-        int $expirationTime
+        EntityCacheKeyGenerator $cacheKeyGenerator
     ) {
         $this->cache = $cache;
         $this->decorated = $decorated;
         $this->cacheKeyGenerator = $cacheKeyGenerator;
-        $this->enabled = $enabled;
-        $this->expirationTime = $expirationTime;
     }
 
     public function read(EntityDefinition $definition, Criteria $criteria, Context $context): EntityCollection
     {
-        if (!$this->enabled) {
-            return $this->decorated->read($definition, $criteria, $context);
-        }
-
         if (!$context->getUseCache()) {
             return $this->decorated->read($definition, $criteria, $context);
         }
@@ -181,7 +163,6 @@ class CachedEntityReader implements EntityReaderInterface
         $item = $this->cache->getItem($key);
         $item->set($entity);
         $item->tag($key);
-        $item->expiresAfter($this->expirationTime);
 
         $tags = $this->cacheKeyGenerator->getAssociatedTags($definition, $entity, $context);
 
@@ -209,8 +190,6 @@ class CachedEntityReader implements EntityReaderInterface
         $entityTag = $definition->getEntityName() . '.id';
         $item->tag([$key, $entityTag]);
 
-        $item->expiresAfter($this->expirationTime);
-
         //deferred saves are persisted with the cache->commit()
         $this->cache->saveDeferred($item);
     }
@@ -223,7 +202,6 @@ class CachedEntityReader implements EntityReaderInterface
         $item = $this->cache->getItem($key);
         $item->set($entityCollection);
         $item->tag($key);
-        $item->expiresAfter($this->expirationTime);
 
         $tagsOfTags = [[]];
         foreach ($entityCollection as $entity) {

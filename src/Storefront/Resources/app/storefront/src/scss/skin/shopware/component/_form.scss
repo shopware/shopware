@@ -14,6 +14,14 @@ https://getbootstrap.com/docs/4.3/components/forms/
     margin-bottom: 20px;
 }
 
-.form-control:focus {
-    box-shadow: none;
+.form-control {
+    &:focus {
+        box-shadow: none;
+    }
+
+    /* Workaround for missing placeholder color in chrome */
+    /* stylelint-disable-next-line selector-no-vendor-prefix */
+    &::-webkit-input-placeholder {
+        color: $input-placeholder-color;
+    }
 }

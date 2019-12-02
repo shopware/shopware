@@ -193,7 +193,7 @@ class VersionManager
             });
         }
 
-        $deleteEvent->setUpdated(array_filter($updates));
+        $deleteEvent->addUpdated(array_filter($updates));
 
         return $deleteEvent;
     }

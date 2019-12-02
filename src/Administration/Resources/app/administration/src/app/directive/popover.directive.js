@@ -1,24 +1,62 @@
+/* eslint-disable */
+
 const { Directive } = Shopware;
 
 /**
  * Directive for automatic edge detection of the element place
  *
  * Usage:
- * v-placement
+ * v-popover="{ active: true, targetSelector: '.my-element', resizeWidth: true }"
  */
 
 // add virtual scrolling
 const virtualScrollingElements = new Map();
 
+// set class name for each border
+const outsideClasses = {
+    top: '--placement-top-outside',
+    right: '--placement-right-outside',
+    bottom: '--placement-bottom-outside',
+    left: '--placement-left-outside'
+};
+
+const defaultConfig = {
+    active: false,
+    targetSelector: '',
+    resizeWidth: false
+};
+
 Directive.register('popover', {
     inserted(element, binding, vnode) {
+        // We need a configuration
+        if (!binding.value) {
+            return false;
+        }
+
+        // Merge user config with default config
+        const config = { ...defaultConfig, ...binding.value };
+        if (!config.active) {
+            return false;
+        }
+
+        // Configurable target element
+        let targetElement = document.body;
+        if (config.targetSelector && config.targetSelector.length > 0) {
+            targetElement = element.closest(config.targetSelector);
+        }
+
         calculateOutsideEdges(element);
-        setElementPosition(element, vnode.context.$el);
+        setElementPosition(element, vnode.context.$el, config);
 
-        // append to body
-        document.body.appendChild(element);
+        // Resize the width of the element
+        if (config.resizeWidth) {
+            element.style.width = `${vnode.context.$el.clientWidth}px`;
+        }
 
-        registerVirtualScrollingElement(element, vnode.context);
+        // append to target element
+        targetElement.appendChild(element);
+
+        registerVirtualScrollingElement(element, vnode.context, config);
     },
 
     unbind(element, binding, vnode) {
@@ -27,7 +65,7 @@ Directive.register('popover', {
             element.parentNode.removeChild(element);
         }
 
-        unregisterVirtualScrollingElement(vnode.context);
+        unregisterVirtualScrollingElement(vnode.context._uid);
     }
 });
 
@@ -53,14 +91,6 @@ function calculateOutsideEdges(el) {
         left: boundingClientRect.left > 0
     };
 
-    // set class name for each border
-    const outsideClasses = {
-        top: '--placement-top-outside',
-        right: '--placement-right-outside',
-        bottom: '--placement-bottom-outside',
-        left: '--placement-left-outside'
-    };
-
     // remove all existing placement classes
     el.classList.remove(...Object.values(outsideClasses));
 
@@ -84,13 +114,25 @@ function calculateOutsideEdges(el) {
     el.classList.add(...placementClasses);
 }
 
-function setElementPosition(element, refElement) {
-    const elementPosition = refElement ? refElement.getBoundingClientRect() : element.getBoundingClientRect();
+function setElementPosition(element, refElement, config) {
+    const originElement = refElement ? refElement : element;
+    const elementPosition = originElement.getBoundingClientRect();
+
+    let targetElement = originElement;
+    let targetPosition = {
+        top: 0,
+        left: 0
+    };
+
+    if (config.targetSelector && config.targetSelector.length > 0) {
+        targetElement = originElement.closest(config.targetSelector);
+        targetPosition = targetElement.getBoundingClientRect();
+    }
 
     // add inline styling
     element.style.position = 'absolute';
-    element.style.top = `${elementPosition.top}px`;
-    element.style.left = `${elementPosition.left}px`;
+    element.style.top = `${(elementPosition.top - targetPosition.top) + originElement.clientHeight}px`;
+    element.style.left = `${elementPosition.left - targetPosition.left}px`;
 }
 
 /*
@@ -112,11 +154,11 @@ function virtualScrollingHandler() {
     }
 
     virtualScrollingElements.forEach((entry) => {
-        setElementPosition(entry.el, entry.ref);
+        setElementPosition(entry.el, entry.ref, entry.config);
     });
 }
 
-function registerVirtualScrollingElement(modifiedElement, vnodeContext) {
+function registerVirtualScrollingElement(modifiedElement, vnodeContext, config) {
     const uid = vnodeContext._uid;
 
     if (!uid) {
@@ -129,13 +171,12 @@ function registerVirtualScrollingElement(modifiedElement, vnodeContext) {
 
     virtualScrollingElements.set(uid, {
         el: modifiedElement,
-        ref: vnodeContext.$el
+        ref: vnodeContext.$el,
+        config
     });
 }
 
-function unregisterVirtualScrollingElement(vnodeContext) {
-    const uid = vnodeContext._uid;
-
+function unregisterVirtualScrollingElement(uid) {
     if (!uid) {
         return;
     }

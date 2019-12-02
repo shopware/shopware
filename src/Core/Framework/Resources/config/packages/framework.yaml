@@ -18,13 +18,15 @@ framework:
         app: cache.adapter.filesystem
         pools:
             cache.object:
-                adapter: cache.adapter.filesystem
                 default_lifetime: 3600
-                tags: true
+                adapter: cache.app
+                tags: cache.tags
             cache.http:
-                adapter: cache.adapter.filesystem
                 default_lifetime: 3600
-                tags: true
+                adapter: cache.app
+                tags: cache.tags
+            cache.tags:
+                adapter: cache.app
     messenger:
         transports:
             default:

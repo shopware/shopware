@@ -164,7 +164,7 @@ class DocumentApiTest extends TestCase
             $price = random_int(100, 200000) / 100.0;
 
             shuffle($keywords);
-            $name = ucfirst(implode($keywords, ' ') . ' product');
+            $name = ucfirst(implode(' ', $keywords) . ' product');
 
             $products[] = [
                 'id' => $id,

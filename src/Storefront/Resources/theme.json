@@ -69,7 +69,7 @@
           "de-DE": "Primärfarbe"
         },
         "type": "color",
-        "value": "#399",
+        "value": "#008490",
         "editable": true,
         "block": "themeColors",
         "order": 100
@@ -80,7 +80,7 @@
           "de-DE": "Sekundärfarbe"
         },
         "type": "color",
-        "value": "#576574",
+        "value": "#526e7f",
         "editable": true,
         "block": "themeColors",
         "order": 200
@@ -91,7 +91,7 @@
           "de-DE": "Rahmen"
         },
         "type": "color",
-        "value": "#d4e2e2",
+        "value": "#bcc1c7",
         "editable": true,
         "block": "themeColors",
         "order": 300
@@ -113,7 +113,7 @@
           "de-DE": "Erfolg"
         },
         "type": "color",
-        "value": "#6ed59f",
+        "value": "#3cc261",
         "editable": true,
         "block": "statusColors",
         "order": 100
@@ -124,7 +124,7 @@
           "de-DE": "Information"
         },
         "type": "color",
-        "value": "#76bce7",
+        "value": "#26b6cf",
         "editable": true,
         "block": "statusColors",
         "order": 200
@@ -135,7 +135,7 @@
           "de-DE": "Hinweis"
         },
         "type": "color",
-        "value": "#fcc679",
+        "value": "#ffbd5d",
         "editable": true,
         "block": "statusColors",
         "order": 300
@@ -146,7 +146,7 @@
           "de-DE": "Fehler"
         },
         "type": "color",
-        "value": "#f27f7f",
+        "value": "#e52427",
         "editable": true,
         "block": "statusColors",
         "order": 400
@@ -168,7 +168,7 @@
           "de-DE": "Textfarbe"
         },
         "type": "color",
-        "value": "#545454",
+        "value": "#4a545b",
         "editable": true,
         "block": "typography",
         "order": 200
@@ -190,7 +190,7 @@
           "de-DE": "Überschriftfarbe"
         },
         "type": "color",
-        "value": "#3f4c58",
+        "value": "#4a545b",
         "editable": true,
         "block": "typography",
         "order": 400
@@ -201,7 +201,7 @@
           "de-DE": "Preis"
         },
         "type": "color",
-        "value": "#3f4c58",
+        "value": "#4a545b",
         "editable": true,
         "block": "eCommerce",
         "order": 100
@@ -212,7 +212,7 @@
           "de-DE": "Kaufen-Button"
         },
         "type": "color",
-        "value": "#399",
+        "value": "#008490",
         "editable": true,
         "block": "eCommerce",
         "order": 200

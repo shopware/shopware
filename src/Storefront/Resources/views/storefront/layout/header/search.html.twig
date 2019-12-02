@@ -16,6 +16,7 @@
                                    autocomplete="off"
                                    autocapitalize="off"
                                    placeholder="{{ "header.searchPlaceholder"|trans|striptags }}"
+                                   aria-label="{{ "header.searchPlaceholder"|trans|striptags }}"
                                    maxlength="30"
                                    value="{{ page.searchTerm }}"
                             >
@@ -24,7 +25,8 @@
                         {% block layout_header_search_button %}
                             <div class="input-group-append">
                                 <button type="submit"
-                                        class="btn header-search-btn">
+                                        class="btn header-search-btn"
+                                        aria-label="{{ "header.searchButton"|trans|striptags }}">
                                     <span class="header-search-icon">
                                         {% sw_icon 'search' %}
                                     </span>

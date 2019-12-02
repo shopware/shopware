@@ -21,10 +21,11 @@ class DeleteResult
      */
     private $updated = [];
 
-    public function __construct(array $deleted, array $notFound = [])
+    public function __construct(array $deleted, array $notFound = [], array $updated = [])
     {
         $this->deleted = $deleted;
         $this->notFound = $notFound;
+        $this->updated = $updated;
     }
 
     public function getDeleted(): array
@@ -37,9 +38,9 @@ class DeleteResult
         return $this->notFound;
     }
 
-    public function setUpdated(array $updated): void
+    public function addUpdated(array $updated): void
     {
-        $this->updated = $updated;
+        $this->updated = array_merge_recursive($this->updated, $updated);
     }
 
     public function getUpdated(): array

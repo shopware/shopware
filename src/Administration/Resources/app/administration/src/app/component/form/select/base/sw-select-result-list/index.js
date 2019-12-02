@@ -43,6 +43,15 @@ Component.register('sw-select-result-list', {
             type: Boolean,
             required: false,
             default: false
+        },
+        popoverConfig: {
+            type: Object,
+            required: false,
+            default() {
+                return {
+                    active: false
+                };
+            }
         }
     },
 

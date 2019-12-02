@@ -17,11 +17,11 @@
         "erusev/parsedown-extra": "0.7.1",
         "guzzlehttp/guzzle": "6.4.1",
         "shopware/core": "*",
-        "symfony/config": "4.4.0",
-        "symfony/console": "4.4.0",
-        "symfony/dependency-injection": "4.4.0",
-        "symfony/filesystem": "4.4.0",
-        "symfony/finder": "4.4.0",
-        "symfony/http-kernel": "4.4.0"
+        "symfony/config": "4.4.1",
+        "symfony/console": "4.4.1",
+        "symfony/dependency-injection": "4.4.1",
+        "symfony/filesystem": "4.4.1",
+        "symfony/finder": "4.4.1",
+        "symfony/http-kernel": "4.4.1"
     }
 }

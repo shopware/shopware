@@ -1407,7 +1407,7 @@ class ProductRepositoryTest extends TestCase
 
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product_media WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($redId)]);
-        static::assertEmpty($row['media_id']);
+        static::assertFalse($row);
 
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product_media WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);

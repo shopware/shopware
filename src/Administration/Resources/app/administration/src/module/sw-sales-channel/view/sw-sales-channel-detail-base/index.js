@@ -2,8 +2,9 @@ import { mapApiErrors } from 'src/app/service/map-errors.service';
 import template from './sw-sales-channel-detail-base.html.twig';
 import './sw-sales-channel-detail-base.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
+const domUtils = Shopware.Utils.dom;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const utils = Shopware.Utils;
 
@@ -88,7 +89,11 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         isStoreFront() {
-            return this.salesChannel.typeId === '8a243080f92e4c719546314b577cf82b';
+            return this.salesChannel.typeId === Defaults.storefrontSalesChannelTypeId;
+        },
+
+        salesChannelRepository() {
+            return this.repositoryFactory.create('sales_channel');
         },
 
         isProductComparison() {
@@ -124,17 +129,12 @@ Component.register('sw-sales-channel-detail-base', {
             return this.repositoryFactory.create('sales_channel_domain');
         },
 
-        salesChannelRepository() {
-            return this.repositoryFactory.create('sales_channel');
-        },
-
         productExportRepository() {
             return this.repositoryFactory.create('product_export');
         },
 
         mainNavigationCriteria() {
             const criteria = new Criteria(1, 10);
-
             return criteria.addFilter(Criteria.equals('type', 'page'));
         },
 
@@ -311,10 +311,12 @@ Component.register('sw-sales-channel-detail-base', {
             if (this.salesChannel.active !== true || this.isProductComparison) {
                 return;
             }
+
             const criteria = new Criteria();
             criteria.addAssociation('themes');
+
             this.salesChannelRepository
-                .get(this.$route.params.id, Shopware.Context.api, criteria)
+                .get(this.$route.params.id, Context.api, criteria)
                 .then((entity) => {
                     if (entity.extensions.themes !== undefined && entity.extensions.themes.length >= 1) {
                         return;
@@ -344,42 +346,13 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         deleteSalesChannel(salesChannelId) {
-            this.salesChannelRepository.delete(salesChannelId, Shopware.Context.api).then(() => {
+            this.salesChannelRepository.delete(salesChannelId, Context.api).then(() => {
                 this.$root.$emit('sales-channel-change');
             });
         },
 
-        onClickAddDomain() {
-            const newDomain = this.domainRepository.create(Shopware.Context.api);
-            newDomain.snippetSetId = this.defaultSnippetSetId;
-
-            this.salesChannel.domains.add(newDomain);
-        },
-
-        onClickDeleteDomain(domain) {
-            if (domain.isNew()) {
-                this.onConfirmDeleteDomain(domain);
-            } else {
-                this.deleteDomain = domain;
-            }
-        },
-
-        onConfirmDeleteDomain(domain) {
-            this.deleteDomain = null;
-
-            this.$nextTick(() => {
-                this.salesChannel.domains.remove(domain.id);
-
-                if (domain.isNew()) {
-                    return;
-                }
-
-                this.domainRepository.delete(domain.id, Shopware.Context.api);
-            });
-        },
-
-        onCloseDeleteDomainModal() {
-            this.deleteDomain = null;
+        copyToClipboard() {
+            domUtils.copyToClipboard(this.salesChannel.accessKey);
         },
 
         onStorefrontSelectionChange(storefrontSalesChannelId) {

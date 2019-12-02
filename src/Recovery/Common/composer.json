@@ -1,0 +1,30 @@
+{
+    "minimum-stability": "stable",
+    "require": {
+        "php": "^7.2",
+        "slim/slim": "3.12.1",
+        "symfony/console": "4.2.8",
+        "symfony/dotenv": "4.2.8",
+        "pimple/pimple": "3.2.3",
+        "knplabs/gaufrette": "0.8.1",
+        "paragonie/random_compat": "2.0.18",
+        "slim/php-view": "^2.2",
+        "hansott/psr7-cookies": "^3.0",
+        "doctrine/dbal": "^2.9",
+        "psr/log": "*",
+        "defuse/php-encryption": "v2.2.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Shopware\\Recovery\\Common\\": "src",
+            "Shopware\\Recovery\\Install\\": "../Install/src",
+            "Shopware\\Recovery\\Update\\": "../Update/src"
+        }
+    },
+    "config": {
+        "autoloader-suffix": "ShopwareRecovery",
+        "platform": {
+            "php": "7.2.0"
+        }
+    }
+}

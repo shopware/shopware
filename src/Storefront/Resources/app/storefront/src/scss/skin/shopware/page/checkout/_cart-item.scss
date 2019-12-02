@@ -15,6 +15,7 @@
 .cart-item-img {
     padding: $spacer-xs;
     border: 1px solid $border-color;
+    border-radius: $border-radius-sm;
 }
 
 .cart-item-ordernumber {
@@ -31,11 +32,11 @@
 }
 
 .cart-item-label {
-    color: $gray-600;
+    color: $body-color;
     font-weight: $font-weight-bold;
 
     &:hover {
-        color: $gray-600;
+        color: $primary;
         text-decoration: none;
     }
 }

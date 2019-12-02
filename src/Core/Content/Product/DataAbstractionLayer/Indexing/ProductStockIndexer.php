@@ -168,7 +168,7 @@ class ProductStockIndexer implements IndexerInterface, EventSubscriberInterface
 
                 continue;
             }
-            if ($command->hasField('referenced_id') || $command->hasField('product_id')) {
+            if ($command->hasField('referenced_id') || $command->hasField('product_id') || $command->hasField('quantity')) {
                 $command->requestChangeSet();
 
                 continue;
@@ -199,7 +199,7 @@ class ProductStockIndexer implements IndexerInterface, EventSubscriberInterface
                 continue;
             }
 
-            if (!$changeSet->hasChanged('referenced_id')) {
+            if (!$changeSet->hasChanged('referenced_id') && !$changeSet->hasChanged('quantity')) {
                 continue;
             }
 

@@ -115,5 +115,9 @@
             <tag name="controller.argument_value_resolver" priority="1000"/>
         </service>
 
+        <service id="Shopware\Core\System\SalesChannel\SalesChannelExceptionHandler">
+            <tag name="shopware.dal.exception_handler"/>
+        </service>
+
     </services>
 </container>

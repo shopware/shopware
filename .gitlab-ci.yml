@@ -149,8 +149,7 @@ PHP 7.3:
             alias: elasticsearch
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
 
-.PHP 7.4: # disabled until available
-    allow_failure: true
+PHP 7.4:
     extends: .phpunit_base
     image: shopware/development:7.4
     stage: unit
@@ -373,7 +372,6 @@ Component Library:
 Generating docs:
     stage: Generate docs
     dependencies: []
-    needs: []
     services:
         -   name: docker:18.09.7-dind
             alias: docker

@@ -19,6 +19,11 @@ Component.register('sw-popover', {
             type: [Number, null],
             required: false,
             default: null
+        },
+        isPopover: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 

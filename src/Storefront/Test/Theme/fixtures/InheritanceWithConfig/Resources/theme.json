@@ -1,0 +1,7 @@
+{
+  "views": [
+    "@Storefront",
+    "@InheritanceWithConfig",
+    "@Plugins"
+  ]
+}

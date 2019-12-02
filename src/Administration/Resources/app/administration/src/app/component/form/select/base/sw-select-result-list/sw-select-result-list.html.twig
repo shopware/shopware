@@ -1,6 +1,6 @@
 {% block sw_select_result_list %}
     <div class="sw-select-result-list" @scroll="onScroll">
-        <div class="sw-select-result-list__content">
+        <div class="sw-select-result-list__content" v-popover="popoverConfig">
             <slot name="before-item-list"></slot>
 
             <ul class="sw-select-result-list__item-list">

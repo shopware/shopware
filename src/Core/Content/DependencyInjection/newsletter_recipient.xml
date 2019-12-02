@@ -37,5 +37,9 @@
                 <argument type="service" id="service_container"/>
             </call>
         </service>
+
+        <service id="Shopware\Core\Content\Newsletter\NewsletterExceptionHandler">
+            <tag name="shopware.dal.exception_handler"/>
+        </service>
     </services>
 </container>

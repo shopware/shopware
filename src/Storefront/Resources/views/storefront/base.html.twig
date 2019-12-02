@@ -156,7 +156,7 @@
                 <script type="text/javascript" src="{{ baseUrl }}:9999/js/storefront.js"></script>
             {% else %}
                 {% for file in shopware.theme.assets.js %}
-                    <script type="text/javascript" src="{{ asset(file) }}"></script>
+                    <script type="text/javascript" src="{{ asset(file) }}" async></script>
                 {% endfor %}
             {% endif %}
         {% endblock %}

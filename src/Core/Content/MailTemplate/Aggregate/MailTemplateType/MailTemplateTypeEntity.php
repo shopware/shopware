@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType;
 
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTypeTranslation\MailTemplateTypeTranslationCollection;
+use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
@@ -32,7 +33,7 @@ class MailTemplateTypeEntity extends Entity
     protected $translations;
 
     /**
-     * @var MailTemplateTypeCollection|null
+     * @var MailTemplateCollection|null
      */
     protected $mailTemplates;
 
@@ -96,12 +97,12 @@ class MailTemplateTypeEntity extends Entity
         $this->translations = $translations;
     }
 
-    public function getMailTemplates(): ?MailTemplateTypeCollection
+    public function getMailTemplates(): ?MailTemplateCollection
     {
         return $this->mailTemplates;
     }
 
-    public function setMailTemplates(?MailTemplateTypeCollection $mailTemplates): void
+    public function setMailTemplates(?MailTemplateCollection $mailTemplates): void
     {
         $this->mailTemplates = $mailTemplates;
     }

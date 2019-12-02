@@ -175,20 +175,22 @@ class CachedEntityReaderTest extends TestCase
                 ])
             );
 
-        $generator = $this->getContainer()->get(EntityCacheKeyGenerator::class);
-
-        $cachedReader = new CachedEntityReader($this->cache, $dbalReader, $generator, false, 3600);
-
-        $criteria = new Criteria([$id1, $id2]);
-
         $context = Context::createDefaultContext();
 
-        //first call should not match and the expects of the dbal reader should called
-        $databaseEntities = $cachedReader->read($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
+        $context->disableCache(function (Context $context) use ($id1, $id2, $dbalReader): void {
+            $generator = $this->getContainer()->get(EntityCacheKeyGenerator::class);
 
-        //cache is disabled. second call shouldn't hit the cache and the dbal reader should be called
-        $cachedEntities = $cachedReader->read($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
+            $cachedReader = new CachedEntityReader($this->cache, $dbalReader, $generator, false, 3600);
 
-        static::assertEquals($databaseEntities, $cachedEntities);
+            $criteria = new Criteria([$id1, $id2]);
+
+            //first call should not match and the expects of the dbal reader should called
+            $databaseEntities = $cachedReader->read($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
+
+            //cache is disabled. second call shouldn't hit the cache and the dbal reader should be called
+            $cachedEntities = $cachedReader->read($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
+
+            static::assertEquals($databaseEntities, $cachedEntities);
+        });
     }
 }

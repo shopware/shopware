@@ -128,6 +128,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added twig helper function `seoUrl` that returns a seo url if possible, otherwise just calls `url`. 
     * Deprecated twig helper functions `productUrl` and `navigationUrl`, use `seoUrl` instead.
     * Added ErrorPage, ErrorpageLoader and ErrorPageLoaderEvent which is used in the `ErrorController` to load the CMS error layout if a 404 layout is assigned.
+    * Added an option to disable eslint for storefront:build
 
 **Removals**
 

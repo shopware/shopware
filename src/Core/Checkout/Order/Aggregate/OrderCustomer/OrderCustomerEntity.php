@@ -53,7 +53,7 @@ class OrderCustomerEntity extends Entity
     protected $customerNumber;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $customerId;
 

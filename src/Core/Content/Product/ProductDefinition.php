@@ -34,6 +34,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -240,7 +241,7 @@ class ProductDefinition extends EntityDefinition
             new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'foreign_key'),
 
             (new OneToManyAssociationField('orderLineItems', OrderLineItemDefinition::class, 'product_id'))
-                ->addFlags(new ReadProtected(SalesChannelApiSource::class)),
+                ->addFlags(new SetNullOnDelete(), new ReadProtected(SalesChannelApiSource::class)),
         ]);
     }
 }

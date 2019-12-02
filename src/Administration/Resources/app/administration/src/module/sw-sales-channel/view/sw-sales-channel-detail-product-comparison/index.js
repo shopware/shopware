@@ -78,20 +78,20 @@ Component.register('sw-sales-channel-detail-product-comparison', {
         },
 
         outerCompleterFunctionHeader() {
-            return this.completerFunction({
+            return this.outerCompleterFunction({
                 productExport: 'product_export'
             });
         },
 
         outerCompleterFunctionBody() {
-            return this.completerFunction({
+            return this.outerCompleterFunction({
                 productExport: 'product_export',
                 product: 'product'
             });
         },
 
         outerCompleterFunctionFooter() {
-            return this.completerFunction({
+            return this.outerCompleterFunction({
                 productExport: 'product_export'
             });
         }
@@ -157,18 +157,15 @@ Component.register('sw-sales-channel-detail-product-comparison', {
                 });
         },
 
+        outerCompleterFunction(mapping) {
+            const entityMappingService = this.entityMappingService;
 
-        completerFunction(mapping) {
-            return (function completerWrapper(entityMappingService) {
-                function completerFunction(prefix) {
-                    const entityMapping = entityMappingService.getEntityMapping(prefix, mapping);
-                    return Object.keys(entityMapping).map(val => {
-                        return { value: val };
-                    });
-                }
-
-                return completerFunction;
-            }(this.entityMappingService));
+            return function completerFunction(prefix) {
+                const entityMapping = entityMappingService.getEntityMapping(prefix, mapping);
+                return Object.keys(entityMapping).map(val => {
+                    return { value: val };
+                });
+            };
         },
 
         onPreviewClose() {

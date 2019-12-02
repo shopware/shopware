@@ -5,12 +5,12 @@ namespace Shopware\Core\Content\Test\ProductExport;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\ProductExport\Exception\DuplicateFileNameException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -115,7 +115,7 @@ class ProductExportRepositoryTest extends TestCase
             ],
         ], $this->context);
 
-        static::expectException(WriteException::class);
+        static::expectException(DuplicateFileNameException::class);
 
         $secondId = Uuid::randomHex();
         $this->repository->upsert([

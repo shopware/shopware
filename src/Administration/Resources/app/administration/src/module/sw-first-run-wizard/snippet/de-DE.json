@@ -4,7 +4,6 @@
       "mainMenuItemGeneral": "Ersteinrichtungs-Assistent",
       "buttonNext": "Weiter",
       "buttonSkip": "Überspringen",
-      "buttonNextDemoData": "Installieren",
       "buttonNextPayPalInfo": "Konfigurieren",
       "buttonBack": "Zurück",
       "buttonInstall": "Installieren",
@@ -21,17 +20,15 @@
       "cancelLanguageSwitch": "Abbrechen",
       "switchLanguageMessage": "Das Sprach-Plugin \"{pluginName}\" wurde erfolgreich installiert. Möchtest du die Spache der Benutzeroberfläche ändern?"
     },
-    "demodata": {
-      "modalTitle": "Demodaten installieren",
-      "headlineDemodata": "Demodaten",
-      "messageDemodata": "Nutze optional die Möglichkeit und statte Deinen Shop mit Demodaten aus.<br><br>Bitte beachte: Die Demodaten dienen nur zu Testzwecken. Du solltest sie nicht in einer Produktivumgebung anwenden.",
-      "loadingMessage": "Installiere Demodaten<br>Es könnte eine Weile dauern...",
-      "installationWarning": {
-        "headline": "Achtung",
-        "message": "Die Demodaten wurden bereits installiert. Eine erneute Installation könnte Deine individuellen Daten überschreiben.",
-        "cancel": "Abbrechen",
-        "forceInstall": "Trotzdem installieren"
-      }
+    "dataImport": {
+      "modalTitle": "Dein Start mit Shopware 6",
+      "headlineDemoData": "Demodaten benutzen",
+      "messageDemoData": "Statte Deinen Shop mit Demodaten aus, um Shopware 6 ausgiebig zu erkunden. (Die Demodaten dienen nur zu Testzwecken.)",
+      "buttonInstallDemoData": "Demodaten installieren",
+      "headlineMigration": "Eigenen Shop migrieren",
+      "messageMigration": "Der Migrations-Assistent hilft Dir, Dein Shopsystem mit Shopware 6 zu verbinden und vorhandene Daten zu übertragen.",
+      "buttonInstallMigration": "Migrations-Assistenten installieren",
+      "loadingMessage": "Installiere Plugin<br>Es könnte eine Weile dauern..."
     },
     "paypalInfo": {
       "headline": "Jetzt vorintegriert in Shopware mit noch einfacherer und schnellerer Aktivierung der beliebtesten Zahlarten*",
@@ -87,10 +84,12 @@
       "titleLoginDataInvalid": "Fehler",
       "messageLoginDataInvalid": "Login Daten sind unvollständig.",
       "titlePayPalInstallationFailed": "Fehler",
-      "messagePayPalInstallationFailed": "PayPal Konfiguration fehlgeschlagen"
+      "messagePayPalInstallationFailed": "PayPal Konfiguration fehlgeschlagen",
+      "titlePluginInstallationFailed": "Fehler",
+      "messagePluginInstallationFailed": "Plugin Installation fehlgeschlagen"
     },
     "stepItemTitle": {
-      "demodata": "Demodaten",
+      "dataImport": "Daten Import",
       "setupPaypal": "PayPal einrichten",
       "plugins": "Plugins",
       "shopware": "Shopware"

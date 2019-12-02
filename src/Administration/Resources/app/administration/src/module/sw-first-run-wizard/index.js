@@ -3,7 +3,7 @@ import './component/sw-first-run-wizard-modal';
 import './component/sw-plugin-card';
 import './page/index';
 import './view/sw-first-run-wizard-welcome';
-import './view/sw-first-run-wizard-demodata';
+import './view/sw-first-run-wizard-data-import';
 import './view/sw-first-run-wizard-paypal-base';
 import './view/sw-first-run-wizard-paypal-info';
 import './view/sw-first-run-wizard-paypal-credentials';
@@ -44,9 +44,9 @@ Module.register('sw-first-run-wizard', {
                     component: 'sw-first-run-wizard-welcome',
                     path: ''
                 },
-                demodata: {
-                    component: 'sw-first-run-wizard-demodata',
-                    path: 'demodata'
+                'data-import': {
+                    component: 'sw-first-run-wizard-data-import',
+                    path: 'data-import'
                 },
                 paypal: {
                     component: 'sw-first-run-wizard-paypal-base',

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 206 140" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<defs>
+<linearGradient id="e" x1="-10.607%" x2="82.189%" y1="20.578%" y2="80.98%">
+<stop stop-color="#B46FFF" offset="0"/>
+<stop stop-color="#4059F0" offset="1"/>
+</linearGradient>
+<polygon id="d" points="0 0 12 0 12 16 0 16"/>
+<rect id="a" y="23.4" width="14.431" height="14.439" rx="7.216"/>
+<mask id="b" x="0" y="0" width="14.431" height="14.439" fill="#fff">
+<use xlink:href="#a"/>
+</mask>
+</defs>
+<g transform="translate(-6.622 -17)" fill="none" fill-rule="evenodd">
+<path transform="rotate(7 7.4 142.9)" d="m174.43 10.518c19.707 12.36 33.145 36.081 26.453 55.015-6.6928 18.882-33.517 32.977-49.346 46.915-15.829 13.99-20.61 27.928-28.949 29.822-8.3395 1.946-20.132-8.0997-38.351-10.467-18.219-2.3668-42.813 2.9979-60.767-5.9959-17.901-8.9938-29.162-32.346-19.016-45.443 10.199-13.149 41.804-15.936 61.776-28.244 19.972-12.307 28.312-34.029 45.416-44.443 17.157-10.414 43.079-9.4672 62.785 2.8402z" fill="#E8EDF7" fill-rule="nonzero"/>
+<g transform="translate(73.622 47)">
+<rect width="84" height="84" rx="9" fill="url(#e)" fill-rule="nonzero"/>
+<g transform="translate(63 60)">
+<mask id="c" fill="#fff">
+<use xlink:href="#d"/>
+</mask>
+<path d="m7.9842 10.167c0-1.1905-0.89769-2.0238-1.9843-2.0238-1.1102 0-1.9843 0.85718-1.9843 2.0238 0 1.1667 0.87406 2.0715 1.9843 2.0715 1.0866 0 1.9843-0.881 1.9843-2.0715m4.0158 0.02382c0 3.4285-2.882 5.8095-6.0001 5.8095-3.1418 0-5.9999-2.381-5.9999-5.8571 0-1.8333 0.77953-3.0714 2.1259-4.881l3.8976-5.2618h4.7952l-3.4723 4.7381c2.3384 0.30949 4.6535 2.381 4.6535 5.4524" fill="#FFF" mask="url(#c)"/>
+</g>
+<g transform="translate(20 19)" fill-rule="nonzero">
+<g transform="translate(.5 1)">
+<rect x="30.014" y=".5" width="14.431" height="14.439" rx="7.216" fill="#FFF"/>
+<use mask="url(#b)" stroke="#FFF" stroke-dasharray="2 1" stroke-width="4" xlink:href="#a"/>
+</g>
+<g transform="translate(2.5)" stroke="#FFF" stroke-dasharray="4 7" stroke-linecap="round" stroke-width="3">
+<path d="m0.83916 21.818c-0.16326-7.711 2.5551-13.508 8.1552-17.393 10.106-7.0095 19.627-1.6281 19.627-1.6281"/>
+<path transform="rotate(180 26.568 29.808)" d="m13.535 39.278c0.27904-6.8014 2.9918-11.987 8.1381-15.556 5.0249-3.4852 11.001-4.2783 17.928-2.3794"/>
+</g>
+</g>
+</g>
+</g>
+</svg>

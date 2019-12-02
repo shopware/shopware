@@ -43,6 +43,22 @@
 
     .sw-modal__footer {
         display: flex !important;
+
+        .footer-left .sw-button {
+            margin-right: 12px;
+
+            &:last-child {
+                margin-right: 0;
+            }
+        }
+
+        .footer-right .sw-button {
+            margin-left: 12px;
+
+            &:first-child {
+                margin-left: 0;
+            }
+        }
     }
 
     .sw-first-run-wizard-modal__footer {

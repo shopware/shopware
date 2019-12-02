@@ -1,7 +1,7 @@
 <script>
-    import Vue from 'vue';
+import Vue from 'vue';
 
-    export default {
+export default {
     name: 'static-renderer',
     props: {
         example: {

@@ -106,9 +106,8 @@
             <tag name="shopware.product_export.validator"/>
         </service>
 
-        <service id="Shopware\Core\Content\ProductExport\ProductExportValidator">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <tag name="kernel.event_subscriber"/>
+        <service id="Shopware\Core\Content\ProductExport\DataAbstractionLayer\ProductExportExceptionHandler">
+            <tag name="shopware.dal.exception_handler"/>
         </service>
 
         <service id="Shopware\Core\Content\ProductExport\EventListener\ProductExportEventListener">

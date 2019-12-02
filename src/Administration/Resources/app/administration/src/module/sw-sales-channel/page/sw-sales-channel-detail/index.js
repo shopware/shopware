@@ -1,6 +1,6 @@
 import template from './sw-sales-channel-detail.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-sales-channel-detail', {
@@ -67,15 +67,15 @@ Component.register('sw-sales-channel-detail', {
         },
 
         isStoreFront() {
-            return this.salesChannel.typeId === '8a243080f92e4c719546314b577cf82b';
+            return this.salesChannel.typeId === Defaults.storefrontTypeId;
         },
 
         isProductComparison() {
             if (!this.salesChannel) {
-                return this.$route.params.typeId === 'ed535e5722134ac1aa6524f73e26881b';
+                return this.$route.params.typeId === Defaults.productComparisonTypeId;
             }
 
-            return this.salesChannel.typeId === 'ed535e5722134ac1aa6524f73e26881b';
+            return this.salesChannel.typeId === Defaults.productComparisonTypeId;
         },
 
         salesChannelRepository() {
@@ -93,7 +93,7 @@ Component.register('sw-sales-channel-detail', {
         storefrontSalesChannelCriteria() {
             const criteria = new Criteria();
 
-            return criteria.addFilter(Criteria.equals('typeId', '8a243080f92e4c719546314b577cf82b'));
+            return criteria.addFilter(Criteria.equals('typeId', Defaults.storefrontTypeId));
         },
 
         tooltipSave() {

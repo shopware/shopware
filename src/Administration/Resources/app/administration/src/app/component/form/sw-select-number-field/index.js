@@ -26,25 +26,26 @@ Component.extend('sw-select-number-field', 'sw-select-field', {
         }
     },
 
-    data() {
-        return {
-            currentValue: Number(this.value)
-        };
-    },
+    computed: {
+        get() {
+            return Number(this.value);
+        },
 
-    watch: {
-        value() { this.currentValue = Number(this.value); }
+        set(newValue) {
+            const numberValue = Number(newValue);
+
+            if (Number.isNaN(numberValue)) {
+                this.$emit('change', null);
+                return;
+            }
+
+            this.$emit('change', numberValue);
+        }
     },
 
     methods: {
         onChange(event) {
-            this.currentValue = Number(event.target.value);
-
-            if (Number.isNaN(this.currentValue)) {
-                this.currentValue = null;
-            }
-
-            this.$emit('change', this.currentValue);
+            this.currentValue = event.target.value;
         }
     }
 });

@@ -83,9 +83,9 @@
 </style>
 
 <script>
-    import logo from '~/assets/img/component-library-logo.svg';
+import logo from '~/assets/img/component-library-logo.svg';
 
-    export default {
+export default {
     data() {
         return {
             menu: null,

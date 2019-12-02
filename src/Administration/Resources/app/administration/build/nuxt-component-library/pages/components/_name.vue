@@ -212,11 +212,11 @@
 </style>
 
 <script>
-    import Prism from 'vue-prism-component';
-    import 'prismjs/themes/prism-okaidia.css';
-    import exampleComponent from '~/components/example';
+import Prism from 'vue-prism-component';
+import 'prismjs/themes/prism-okaidia.css';
+import exampleComponent from '~/components/example';
 
-    export default {
+export default {
     scrollToTop: true,
 
     components: {

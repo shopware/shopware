@@ -291,7 +291,9 @@ const Shopware = function Shopware() {
     this.Defaults = {
         systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
         defaultLanguageIds: ['2fbb5fe2e29a4d70aa5854ce7ce3e20b'],
-        versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425'
+        versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
+        productComparisonTypeId: 'ed535e5722134ac1aa6524f73e26881b',
+        storefrontTypeId: '8a243080f92e4c719546314b577cf82b'
     };
 
     /**

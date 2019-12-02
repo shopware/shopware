@@ -140,7 +140,7 @@ class SalesChannelDefinition extends EntityDefinition
             new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'sales_channel_id', 'id'),
             new OneToManyAssociationField('seoUrlTemplates', SeoUrlTemplateDefinition::class, 'sales_channel_id'),
             new OneToManyAssociationField('mainCategories', MainCategoryDefinition::class, 'sales_channel_id'),
-            new OneToManyAssociationField('productExports', ProductExportDefinition::class, 'sales_channel_id', 'id'),
+            (new OneToManyAssociationField('productExports', ProductExportDefinition::class, 'sales_channel_id', 'id'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
         ]);
     }
 }

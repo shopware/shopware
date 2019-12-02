@@ -1,8 +1,6 @@
 <?php declare(strict_types=1);
 
-$directory = dirname(__DIR__, 2) . '/vendor/shopware';
-
-require_once $directory . '/recovery/autoload.php';
+require_once __DIR__ . '/../autoload.php';
 
 define('UPDATE_PATH', __DIR__);
 $isManual = is_dir(SW_PATH . '/update-assets');
@@ -18,6 +16,7 @@ if ($isManual) {
     define('UPDATE_ASSET_PATH', SW_PATH . '/files/update/update-assets');
     define('UPDATE_META_FILE', SW_PATH . '/files/update/update.json');
 }
+
 use Shopware\Recovery\Update\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 
@@ -33,5 +32,5 @@ if (PHP_SAPI === 'cli') {
     return $application->run($input);
 }
 
-$app = require $directory . '/recovery/update/src/app.php';
+$app = require __DIR__ . '/src/app.php';
 $app->run();

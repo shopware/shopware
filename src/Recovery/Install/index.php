@@ -1,6 +1,15 @@
 <?php declare(strict_types=1);
 
-$lockFile = dirname(__DIR__, 2) . '/install.lock';
+$parent = dirname(__DIR__, 2);
+// root/platform/src/Recovery and root/vendor/shopware/recovery
+$rootDir = dirname($parent, 2);
+if (basename(dirname($rootDir)) === 'vendor') {
+    // root/vendor/shopware/platform/src/Recovery
+    $rootDir = dirname($rootDir, 2);
+}
+
+$lockFile = $rootDir . '/install.lock';
+
 if (is_file($lockFile)) {
     header('Content-type: text/html; charset=utf-8', true, 503);
     echo '<br /><h4>Der Installer wurde bereits ausgeführt.</h4>Wenn Sie den Installationsvorgang erneut ausführen möchten, löschen Sie die Datei install.lock!<br /><br /><br />';
@@ -26,6 +35,8 @@ set_time_limit(0);
 use Shopware\Recovery\Install\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 
+require_once dirname(__DIR__) . '/autoload.php';
+
 if (PHP_SAPI === 'cli') {
     $input = new ArgvInput();
     $env = $input->getParameterOption(['--env', '-e'], 'production');
@@ -36,9 +47,5 @@ if (PHP_SAPI === 'cli') {
 //the execution time will be increased, because the import can take a while
 ini_set('max_execution_time', '120');
 
-$directory = dirname(__DIR__, 2) . '/vendor/shopware';
-
-require_once $directory . '/recovery/autoload.php';
-
-$app = require $directory . '/recovery/install/src/app.php';
+$app = require __DIR__ . '/src/app.php';
 $app->run();

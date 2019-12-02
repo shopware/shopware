@@ -26,7 +26,7 @@ class SitemapExporter implements SitemapExporterInterface
     private $systemConfigService;
 
     /**
-     * @var array|\IteratorAggregate
+     * @var UrlProviderInterface[]
      */
     private $urlProvider;
 
@@ -45,13 +45,10 @@ class SitemapExporter implements SitemapExporterInterface
      */
     private $seoUrlPlaceholderHandler;
 
-    /**
-     * @param \IteratorAggregate<int, UrlProviderInterface> $urlProvider
-     */
     public function __construct(
         SitemapWriterInterface $sitemapWriter,
         SystemConfigService $systemConfigService,
-        \IteratorAggregate $urlProvider,
+        iterable $urlProvider,
         CacheItemPoolInterface $cache,
         int $batchSize,
         SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler
@@ -138,7 +135,6 @@ class SitemapExporter implements SitemapExporterInterface
             return $this->getNextUrlProvider($provider);
         }
 
-        /** @var UrlProviderInterface $urlProvider */
         foreach ($this->urlProvider as $urlProvider) {
             if ($urlProvider->getName() === $provider) {
                 return $urlProvider;
@@ -157,7 +153,6 @@ class SitemapExporter implements SitemapExporterInterface
         }
 
         $getNext = false;
-        /** @var UrlProviderInterface $urlProvider */
         foreach ($this->urlProvider as $urlProvider) {
             if ($getNext === true) {
                 return $urlProvider;

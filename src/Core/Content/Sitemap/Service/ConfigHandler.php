@@ -11,11 +11,11 @@ class ConfigHandler
     public const CUSTOM_URLS_KEY = 'custom_urls';
 
     /**
-     * @var \IteratorAggregate<int, ConfigHandlerInterface>
+     * @var ConfigHandlerInterface[]
      */
     private $configHandlers;
 
-    public function __construct(\IteratorAggregate $configHandlers)
+    public function __construct(iterable $configHandlers)
     {
         $this->configHandlers = $configHandlers;
     }

@@ -372,7 +372,6 @@ Component Library:
 Generating docs:
     stage: Generate docs
     dependencies: []
-    needs: []
     services:
         -   name: docker:18.09.7-dind
             alias: docker

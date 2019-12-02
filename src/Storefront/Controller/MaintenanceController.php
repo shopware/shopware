@@ -2,7 +2,9 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
@@ -36,7 +38,7 @@ class MaintenanceController extends StorefrontController
 
     /**
      * @HttpCache()
-     * @Route("/maintenance", name="frontend.maintenance.page", methods={"GET"}, defaults={"bypassMaintenance"="1"})
+     * @Route("/maintenance", name="frontend.maintenance.page", methods={"GET"})
      */
     public function renderMaintenancePage(Request $request, SalesChannelContext $context): ?Response
     {
@@ -65,5 +67,28 @@ class MaintenanceController extends StorefrontController
         $response->setStatusCode(Response::HTTP_OK);
 
         return $response;
+    }
+
+    /**
+     * Route for stand alone cms pages during maintenance
+     *
+     * @HttpCache()
+     * @Route("/maintenance/singlepage/{id}", name="frontend.maintenance.singlepage", methods={"GET"})
+     *
+     * @throws MissingRequestParameterException
+     * @throws PageNotFoundException
+     */
+    public function renderSinglePage(string $id, Request $request, SalesChannelContext $salesChannelContext): Response
+    {
+        if (!$id) {
+            throw new MissingRequestParameterException('Parameter id missing');
+        }
+
+        $cmsPage = $this->maintenancePageLoader->load($id, $request, $salesChannelContext);
+
+        return $this->renderStorefront(
+            '@Storefront/storefront/page/content/single-cms-page.html.twig',
+            ['page' => $cmsPage]
+        );
     }
 }

@@ -73,30 +73,6 @@ class CmsController extends StorefrontController
     }
 
     /**
-     * Route for stand alone cms pages
-     *
-     * @HttpCache()
-     * @Route("/cms/singlepage/{id}", name="frontend.cms.singlepage", methods={"GET"}, defaults={"bypassMaintenance"="1", "XmlHttpRequest"=true})
-     *
-     * @throws InconsistentCriteriaIdsException
-     * @throws MissingRequestParameterException
-     * @throws PageNotFoundException
-     */
-    public function standalone(string $id, Request $request, SalesChannelContext $salesChannelContext): Response
-    {
-        if (!$id) {
-            throw new MissingRequestParameterException('Parameter id missing');
-        }
-
-        $cmsPage = $this->load($id, $request, $salesChannelContext);
-
-        return $this->renderStorefront(
-            '@Storefront/storefront/page/content/single-cms-page.html.twig',
-            ['page' => ['cmsPage' => $cmsPage]]
-        );
-    }
-
-    /**
      * Route to load a cms page which assigned to the provided navigation id.
      * Navigation id is required to load the slot config for the navigation
      *

@@ -55,7 +55,7 @@
                     {% block single_cms_page_footer_content %}
                         <div class="container mt-3 text-center">
                             {% if shopware.config.core.basicInformation.imprintPage is not null %}
-                                <a href="{{ path('frontend.cms.singlepage',{ id: shopware.config.core.basicInformation.imprintPage }) }}"
+                                <a href="{{ path('frontend.maintenance.singlepage',{ id: shopware.config.core.basicInformation.imprintPage }) }}"
                                    title="{{ "general.imprintLink"|trans|sw_sanitize }}"
                                    class="pl-2 pr-2">
                                     {{ "general.imprintLink"|trans|sw_sanitize }}
@@ -63,7 +63,7 @@
                             {% endif %}
 
                             {% if shopware.config.core.basicInformation.privacyPage is not null %}
-                                <a href="{{ path('frontend.cms.singlepage',{ id: shopware.config.core.basicInformation.privacyPage }) }}"
+                                <a href="{{ path('frontend.maintenance.singlepage',{ id: shopware.config.core.basicInformation.privacyPage }) }}"
                                    title="{{ "general.privacyLink"|trans|sw_sanitize }}"
                                    class="pl-2 pr-2">
                                     {{ "general.privacyLink"|trans|sw_sanitize }}

@@ -454,7 +454,7 @@ class SalesChannelEntity extends Entity
         return $this->maintenanceIpWhitelist;
     }
 
-    public function setMaintenanceIpWhitelist(string $maintenanceIpWhitelist): void
+    public function setMaintenanceIpWhitelist(?string $maintenanceIpWhitelist): void
     {
         $this->maintenanceIpWhitelist = $maintenanceIpWhitelist;
     }

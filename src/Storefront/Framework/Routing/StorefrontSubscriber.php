@@ -101,12 +101,13 @@ class StorefrontSubscriber implements EventSubscriberInterface
         }
 
         $request = $event->getRequest();
+        $route = $request->attributes->get('_route');
 
-        if ($request->attributes->get('bypassMaintenance')) {
+        if ($route && mb_strpos($route, 'frontend.maintenance') !== false) {
             return;
         }
 
-        if ($request->isXmlHttpRequest() || $request->attributes->get('_route') === 'frontend.maintenance.page') {
+        if ($request->isXmlHttpRequest()) {
             return;
         }
 
@@ -198,7 +199,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
         if (!$event->getRequest()->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {
             //When no saleschannel context is resolved, we need to resolve it now.
-            $this->setSalesChannelContextForExceptionEvent($event);
+            $this->setSalesChannelContext($event);
         }
 
         if ($event->getRequest()->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {
@@ -272,7 +273,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         }
     }
 
-    private function setSalesChannelContextForExceptionEvent(ExceptionEvent $event): void
+    private function setSalesChannelContext(ExceptionEvent $event): void
     {
         $contextToken = $event->getRequest()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         $salesChannelId = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
@@ -283,21 +284,5 @@ class StorefrontSubscriber implements EventSubscriberInterface
             $event->getRequest()->headers->get(PlatformRequest::HEADER_LANGUAGE_ID)
         );
         $event->getRequest()->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
-    }
-
-    private function setSalesChannelContextForRequestEvent(RequestEvent $event): void
-    {
-        $request = $event->getRequest();
-
-        $contextToken = $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        $salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
-
-        $context = $this->contextService->get(
-            $salesChannelId,
-            $contextToken,
-            $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID)
-        );
-
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
     }
 }

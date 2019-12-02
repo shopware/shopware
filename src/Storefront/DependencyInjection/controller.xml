@@ -114,7 +114,7 @@
             </call>
         </service>
 
-        <service id="Shopware\Storefront\Controller\MaintenanceController">
+        <service id="Shopware\Storefront\Controller\MaintenanceController" public="true">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Storefront\Page\Maintenance\MaintenancePageLoader"/>
             <call method="setContainer">

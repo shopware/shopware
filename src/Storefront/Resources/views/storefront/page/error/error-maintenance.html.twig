@@ -52,7 +52,7 @@
                         {% else %}
                             {% block error_maintenance_main_fallback %}
                                 <div class="container mt-5">
-                                    <img src="{{ asset('bundles/storefront/assets/illustration/maintenance_mode.png') }}"
+                                    <img src="{{ asset('bundles/storefront/assets/illustration/maintenance_mode.svg') }}"
                                          alt="{{ "general.maintenanceModeHeader"|trans|striptags }}"
                                          class="rounded mx-auto d-block w-75"/>
 
@@ -70,7 +70,7 @@
                     {% block error_maintenance_footer_content %}
                         <div class="container mt-3 text-center">
                             {% if shopware.config.core.basicInformation.imprintPage is not null %}
-                                <a href="{{ seoUrl('frontend.cms.singlepage',{ id: shopware.config.core.basicInformation.imprintPage }) }}"
+                                <a href="{{ seoUrl('frontend.maintenance.singlepage',{ id: shopware.config.core.basicInformation.imprintPage }) }}"
                                    title="{{ "general.imprintLink"|trans|sw_sanitize }}"
                                    class="pl-2 pr-2">
                                     {{ "general.imprintLink"|trans|sw_sanitize }}
@@ -78,7 +78,7 @@
                             {% endif %}
 
                             {% if shopware.config.core.basicInformation.privacyPage is not null %}
-                                <a href="{{ seoUrl('frontend.cms.singlepage',{ id: shopware.config.core.basicInformation.privacyPage }) }}"
+                                <a href="{{ seoUrl('frontend.maintenance.singlepage',{ id: shopware.config.core.basicInformation.privacyPage }) }}"
                                    title="{{ "general.privacyLink"|trans|sw_sanitize }}"
                                    class="pl-2 pr-2">
                                     {{ "general.privacyLink"|trans|sw_sanitize }}
@@ -95,7 +95,7 @@
         {% endblock %}
 
         {% block error_maintenance_cookie_permission %}
-            {% sw_include '@Storefront/storefront/layout/cookie-permission.html.twig' %}
+            {% sw_include '@Storefront/storefront/layout/cookie/cookie-permission.html.twig' %}
         {% endblock %}
 
         {% block error_maintenance_pseudo_modal %}

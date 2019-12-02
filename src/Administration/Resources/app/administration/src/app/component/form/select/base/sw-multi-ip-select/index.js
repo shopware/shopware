@@ -55,10 +55,6 @@ Component.register('sw-multi-ip-select', {
     },
 
     computed: {
-        visibleValues() {
-            return this.value;
-        },
-
         objectValues() {
             const objectArray = [];
 
@@ -100,11 +96,11 @@ Component.register('sw-multi-ip-select', {
         },
 
         removeLastItem() {
-            if (!this.visibleValues.length) {
+            if (!this.value.length) {
                 return;
             }
 
-            const lastSelection = this.visibleValues[this.visibleValues.length - 1];
+            const lastSelection = this.value[this.value.length - 1];
             this.remove({ value: lastSelection });
         },
 

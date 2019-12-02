@@ -571,7 +571,7 @@
 
                 {% block sw_sales_channel_detail_base_settings_link %}
                 <div class="sw-sales-channel-detail-base__settings-link">
-                    <router-link  :to="{ name: 'sw.settings.basic.information.index'}"
+                    <router-link :to="{ name: 'sw.settings.basic.information.index'}"
                                   class="sw-card__quick-link">
                         {{ $tc('sw-sales-channel.detail.basicinformationLink') }} <sw-icon name="default-arrow-simple-right" small></sw-icon>
                     </router-link>
@@ -588,7 +588,7 @@
 
                 {% block sw_sales_channel_detail_base_maintenance_ipwhitelist %}
                 <sw-multi-ip-select
-                    v-if="!isLoading"
+                    :isLoading="isLoading"
                     class="sw-order-user-card__tag-select"
                     :label="$tc('sw-sales-channel.detail.ipAddressWhitleList')"
                     :helpText="$tc('sw-sales-channel.detail.ipAddressWhitleListHelpText')"

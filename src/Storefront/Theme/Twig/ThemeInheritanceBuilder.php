@@ -58,7 +58,7 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
             }
         }
 
-        return $flat;
+        return array_reverse($flat);
     }
 
     private function getThemeInheritance(string $theme, array $themes): ?array

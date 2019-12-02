@@ -29,7 +29,7 @@ class ThemeInheritanceBuilderTest extends TestCase
             ['ThemeWithoutConfig' => true, 'Storefront' => true]
         );
 
-        static::assertEquals(['Storefront', 'ThemeWithoutConfig'], $inheritance);
+        static::assertEquals(['ThemeWithoutConfig', 'Storefront'], $inheritance);
     }
 
     public function testInheritanceWithConfig(): void
@@ -47,7 +47,7 @@ class ThemeInheritanceBuilderTest extends TestCase
             ['InheritanceWithConfig' => true, 'Storefront' => true]
         );
 
-        static::assertEquals(['Storefront', 'InheritanceWithConfig'], $inheritance);
+        static::assertEquals(['InheritanceWithConfig', 'Storefront'], $inheritance);
     }
 
     public function testEnsurePlugins(): void
@@ -66,7 +66,7 @@ class ThemeInheritanceBuilderTest extends TestCase
             ['InheritanceWithConfig' => true, 'Storefront' => true]
         );
 
-        static::assertEquals(['Storefront', 'InheritanceWithConfig', 'PayPal'], $inheritance);
+        static::assertEquals(['PayPal', 'InheritanceWithConfig', 'Storefront'], $inheritance);
     }
 
     public function testConfigWithoutStorefrontDefined(): void
@@ -84,7 +84,7 @@ class ThemeInheritanceBuilderTest extends TestCase
             ['ConfigWithoutStorefrontDefined' => true, 'Storefront' => true]
         );
 
-        static::assertEquals(['Storefront', 'ConfigWithoutStorefrontDefined', 'PayPal'], $inheritance);
+        static::assertEquals(['PayPal', 'ConfigWithoutStorefrontDefined', 'Storefront'], $inheritance);
     }
 
     public function testPluginWildcardAndExplicit(): void
@@ -103,7 +103,7 @@ class ThemeInheritanceBuilderTest extends TestCase
             ['PluginWildcardAndExplicit' => true, 'Storefront' => true]
         );
 
-        static::assertEquals(['Storefront', 'PayPal', 'PluginWildcardAndExplicit', 'CustomProducts'], $inheritance);
+        static::assertEquals(['CustomProducts', 'PluginWildcardAndExplicit', 'PayPal', 'Storefront'], $inheritance);
     }
 
     public function testThemeWithoutStorefront(): void
@@ -122,7 +122,7 @@ class ThemeInheritanceBuilderTest extends TestCase
             ['ThemeWithoutStorefront' => true, 'Storefront' => true]
         );
 
-        static::assertEquals(['Storefront', 'PayPal', 'ThemeWithoutStorefront', 'CustomProducts'], $inheritance);
+        static::assertEquals(['CustomProducts', 'ThemeWithoutStorefront', 'PayPal',  'Storefront'], $inheritance);
     }
 }
 

@@ -18,6 +18,11 @@ Component.extend('sw-select-number-field', 'sw-select-field', {
 
     inheritAttrs: false,
 
+    model: {
+        prop: 'value',
+        event: 'change'
+    },
+
     props: {
         value: {
             type: Number,
@@ -26,26 +31,25 @@ Component.extend('sw-select-number-field', 'sw-select-field', {
         }
     },
 
-    computed: {
-        get() {
-            return Number(this.value);
-        },
+    data() {
+        return {
+            currentValue: Number(this.value)
+        };
+    },
 
-        set(newValue) {
-            const numberValue = Number(newValue);
-
-            if (Number.isNaN(numberValue)) {
-                this.$emit('change', null);
-                return;
-            }
-
-            this.$emit('change', numberValue);
-        }
+    watch: {
+        value() { this.currentValue = Number(this.value); }
     },
 
     methods: {
         onChange(event) {
-            this.currentValue = event.target.value;
+            this.currentValue = Number(event.target.value);
+
+            if (Number.isNaN(this.currentValue)) {
+                this.currentValue = null;
+            }
+
+            this.$emit('change', this.currentValue);
         }
     }
 });

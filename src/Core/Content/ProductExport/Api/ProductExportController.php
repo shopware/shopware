@@ -127,25 +127,25 @@ class ProductExportController extends AbstractController
         $entity = new ProductExportEntity();
 
         $entity->setId('');
-        $entity->setHeaderTemplate($dataBag->get('header_template' ?? ''));
-        $entity->setBodyTemplate($dataBag->get('body_template') ?? '');
-        $entity->setFooterTemplate($dataBag->get('footer_template') ?? '');
-        $entity->setProductStreamId($dataBag->get('product_stream_id'));
-        $entity->setIncludeVariants($dataBag->get('include_variants'));
+        $entity->setHeaderTemplate($dataBag->get('headerTemplate' ?? ''));
+        $entity->setBodyTemplate($dataBag->get('bodyTemplate') ?? '');
+        $entity->setFooterTemplate($dataBag->get('footerTemplate') ?? '');
+        $entity->setProductStreamId($dataBag->get('productStreamId'));
+        $entity->setIncludeVariants($dataBag->get('includeVariants'));
         $entity->setEncoding($dataBag->get('encoding'));
-        $entity->setFileFormat($dataBag->get('file_format'));
-        $entity->setFileName($dataBag->get('file_name'));
-        $entity->setAccessKey($dataBag->get('access_key'));
-        $entity->setSalesChannelId($dataBag->get('sales_channel_id'));
-        $entity->setSalesChannelDomainId($dataBag->get('sales_channel_domain_id'));
-        $entity->setCurrencyId($dataBag->get('currency_id'));
+        $entity->setFileFormat($dataBag->get('fileFormat'));
+        $entity->setFileName($dataBag->get('fileName'));
+        $entity->setAccessKey($dataBag->get('accessKey'));
+        $entity->setSalesChannelId($dataBag->get('salesChannelId'));
+        $entity->setSalesChannelDomainId($dataBag->get('salesChannelDomainId'));
+        $entity->setCurrencyId($dataBag->get('currencyId'));
 
         return $entity;
     }
 
     private function generateExportPreview(RequestDataBag $dataBag, Context $context): ProductExportResult
     {
-        $salesChannelDomainId = $dataBag->get('sales_channel_domain_id');
+        $salesChannelDomainId = $dataBag->get('salesChannelDomainId');
 
         $criteria = (new Criteria([$salesChannelDomainId]))
             ->addAssociation('language.locale')

@@ -16,20 +16,7 @@ class ProductExportApiService extends ApiService {
 
         return this.httpClient.post(
             apiRoute,
-            {
-                sales_channel_id: productExport.salesChannelId,
-                sales_channel_domain_id: productExport.salesChannelDomainId,
-                product_stream_id: productExport.productStreamId,
-                header_template: productExport.headerTemplate,
-                body_template: productExport.bodyTemplate,
-                footer_template: productExport.footerTemplate,
-                include_variants: productExport.includeVariants,
-                encoding: productExport.encoding,
-                file_format: productExport.fileFormat,
-                file_name: productExport.fileName,
-                access_key: productExport.accessKey,
-                currency_id: productExport.currencyId
-            },
+            productExport,
             {
                 headers: this.getBasicHeaders()
             }
@@ -43,20 +30,7 @@ class ProductExportApiService extends ApiService {
 
         return this.httpClient.post(
             apiRoute,
-            {
-                sales_channel_id: productExport.salesChannelId,
-                sales_channel_domain_id: productExport.salesChannelDomainId,
-                product_stream_id: productExport.productStreamId,
-                header_template: productExport.headerTemplate,
-                body_template: productExport.bodyTemplate,
-                footer_template: productExport.footerTemplate,
-                include_variants: productExport.includeVariants,
-                encoding: productExport.encoding,
-                file_format: productExport.fileFormat,
-                file_name: productExport.fileName,
-                access_key: productExport.accessKey,
-                currency_id: productExport.currencyId
-            },
+            productExport,
             {
                 headers: this.getBasicHeaders()
             }

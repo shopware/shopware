@@ -106,6 +106,11 @@ class SwSanitizeTwigFilter extends AbstractExtension
         'width',
     ];
 
+    /**
+     * @var \HTMLPurifier[]
+     */
+    private $purifiers = [];
+
     public function getFilters(): array
     {
         return [
@@ -115,10 +120,17 @@ class SwSanitizeTwigFilter extends AbstractExtension
 
     public function sanitize(string $text, $options = null, bool $override = false): string
     {
-        $config = $this->getConfig($options, $override);
-        $purifier = new \HTMLPurifier($config);
+        if ($options === null) {
+            $options = [];
+        }
+        $hash = md5(json_encode($options)) . $override;
 
-        return $purifier->purify($text);
+        if (!isset($this->purifiers[$hash])) {
+            $config = $this->getConfig($options, $override);
+            $this->purifiers[$hash] = new \HTMLPurifier($config);
+        }
+
+        return $this->purifiers[$hash]->purify($text);
     }
 
     private function getConfig($options, bool $override): \HTMLPurifier_Config

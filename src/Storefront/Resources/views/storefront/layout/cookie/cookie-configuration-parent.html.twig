@@ -1,0 +1,28 @@
+{% set name = parent.snippet_name ? parent.snippet_name|trans|sw_sanitize : parent.cookie %}
+{% set identifier = parent.cookie ? parent.cookie : name %}
+
+{% if name is not empty %}
+    <div class="custom-control custom-checkbox">
+        <input
+            type="checkbox"
+            class="custom-control-input offcanvas-cookie-parent-input"
+            id="cookie_{{  identifier }}"
+            {% if parent.isRequired %}
+                checked="checked"
+                disabled="disabled"
+                data-cookie-required="true"
+            {% endif %}
+            {% if parent.cookie %}
+                data-cookie="{{ parent.cookie }}"
+            {% endif %}
+            {% if parent.value %}
+                data-cookie-value="{{ parent.value }}"
+            {% endif %}
+            {% if parent.expiration %}
+                data-cookie-expiration="{{ parent.expiration }}"
+            {% endif %}>
+        <label for="cookie_{{ identifier }}" class="custom-control-label">
+            {{ name }}
+        </label>
+    </div>
+{% endif %}

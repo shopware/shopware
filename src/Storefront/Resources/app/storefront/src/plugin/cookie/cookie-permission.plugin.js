@@ -9,8 +9,14 @@ export default class CookiePermissionPlugin extends Plugin {
 
         /**
          * cookie expiration time
+         * the amount of days until the cookie bar will be displayed again
          */
-        cookieExpiration: 1,
+        cookieExpiration: 30,
+
+        /**
+         * cookie set to determine if cookies were accepted or denied
+         */
+        cookieName: 'cookie-preference',
 
         /**
          * cookie dismiss button selector
@@ -26,19 +32,18 @@ export default class CookiePermissionPlugin extends Plugin {
     init() {
         this._button = this.el.querySelector(this.options.buttonSelector);
 
-        if (!this._isCookieAllowed()) {
+        if (!this._isPreferenceSet()) {
             this._setBodyPadding();
             this._registerEvents();
         }
     }
 
     /**
-     * Checks if there is already a cookie permission set
-     * Hides cookie bar if cookie permission is already set
-     * If there is no cookie permission set it initializes the cookie bar
+     * Checks if a cookie preference is already set.
+     * If not, the cookie bar is displayed.
      */
-    _isCookieAllowed() {
-        const cookiePermission = CookieStorage.getItem('allowCookie', '1');
+    _isPreferenceSet() {
+        const cookiePermission = CookieStorage.getItem(this.options.cookieName);
 
         if (!cookiePermission) {
             this._showCookieBar();
@@ -73,22 +78,30 @@ export default class CookiePermissionPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
-        const submitEvent = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
 
         if (this._button) {
-            this._button.addEventListener(submitEvent, () => {
-                this._hideCookieBar();
-                this._removeBodyPadding();
-                CookieStorage.setItem('allowCookie', '1', this.options.cookieExpiration);
-
-                this.$emitter.publish('onClickButton');
-            });
+            const submitEvent = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
+            this._button.addEventListener(submitEvent, this._handleDenyButton.bind(this));
         }
 
         window.addEventListener('resize', Debouncer.debounce(this._setBodyPadding.bind(this), this.options.resizeDebounceTime), {
             capture: true,
             passive: true,
         });
+    }
+
+    /**
+     * Event handler for the cookie bar 'deny' button
+     * Sets the 'cookie-preference' cookie to hide the cookie bar
+     * @private
+     */
+    _handleDenyButton() {
+        const { cookieExpiration, cookieName } = this.options;
+        this._hideCookieBar();
+        this._removeBodyPadding();
+        CookieStorage.setItem(cookieName, '1', cookieExpiration);
+
+        this.$emitter.publish('onClickDenyButton');
     }
 
     /**

@@ -1,0 +1,42 @@
+{% block layout_cookie_permission_inner %}
+    <div
+        class="cookie-permission-container"
+        data-cookie-permission="true">
+        <div class="container">
+            <div class="row align-items-center">
+
+                {% block layout_cookie_permission_inner_content %}
+                    <div class="col cookie-permission-content">
+                        {{ "cookie.message"|trans({
+                            '%url%': path('frontend.cms.page', { id: shopware.config.core.basicInformation.shippingPaymentInfoPage })
+                        })|raw|sw_sanitize }}
+                    </div>
+                {% endblock %}
+
+                {% block layout_cookie_permission_inner_button %}
+                    <div class="col-12 col-md-auto pr-2 ">
+                        {% block layout_cookie_permission_inner_button_deny %}
+                            <span class="cookie-permission-button js-cookie-permission-button">
+                                <button
+                                    type="submit"
+                                    class="btn btn-secondary">
+                                    {{ "cookie.deny"|trans|sw_sanitize }}
+                                </button>
+                            </span>
+                        {% endblock %}
+
+                        {% block layout_cookie_permission_inner_button_configuration %}
+                            <span class="js-cookie-configuration-button">
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary">
+                                    {{ "cookie.configure"|trans|sw_sanitize }}
+                                </button>
+                            </span>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

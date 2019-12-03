@@ -2,10 +2,6 @@
 $sw-field--radio-color-border: $color-steam-cloud;
 
 .sw-field--radio {
-    label + .sw-help-text {
-        margin-left: 8px;
-    }
-
     label ~ .sw-field__radio-group,
     .sw-help-text ~ .sw-field__radio-group {
         margin-top: 12px;
@@ -13,11 +9,11 @@ $sw-field--radio-color-border: $color-steam-cloud;
 
     .sw-field__radio-option {
         display: grid;
-        grid-template-columns: 16px 1fr;
+        grid-template-columns: 16px 1fr 16px;
+        grid-column-gap: 8px;
         margin-bottom: 12px;
 
         label {
-            margin: 0 0 0 10px;
             font-weight: normal;
             font-size: $font-size-small;
             color: $color-gutenberg;

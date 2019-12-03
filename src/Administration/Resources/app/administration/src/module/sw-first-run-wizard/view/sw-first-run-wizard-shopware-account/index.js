@@ -22,7 +22,12 @@ Component.register('sw-first-run-wizard-shopware-account', {
 
     methods: {
         createdComponent() {
+            this.setTitle();
             this.updateButtons();
+        },
+
+        setTitle() {
+            this.$emit('frw-set-title', this.$tc('sw-first-run-wizard.shopwareAccount.modalTitle'));
         },
 
         updateButtons() {

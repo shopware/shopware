@@ -19,6 +19,10 @@
                         </div>
 
                         <label :for="`${identification}-${index}`">{{ option.name }}</label>
+
+                        {% block sw_radio_field_help_text %}
+                            <sw-help-text v-if="option.helpText" :text="option.helpText"></sw-help-text>
+                        {% endblock %}
                     </div>
                 </div>
         </template>

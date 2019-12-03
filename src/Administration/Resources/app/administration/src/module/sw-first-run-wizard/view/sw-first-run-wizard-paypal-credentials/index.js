@@ -42,7 +42,12 @@ Component.register('sw-first-run-wizard-paypal-credentials', {
 
     methods: {
         createdComponent() {
+            this.setTitle();
             this.updateButtons();
+        },
+
+        setTitle() {
+            this.$emit('frw-set-title', this.$tc('sw-first-run-wizard.paypalInfo.modalTitle'));
         },
 
         updateButtons() {

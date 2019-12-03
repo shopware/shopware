@@ -24,7 +24,12 @@ Component.register('sw-first-run-wizard-paypal-info', {
     methods: {
         createdComponent() {
             this.updateButtons();
+            this.setTitle();
             this.installPromise = this.installPayPal();
+        },
+
+        setTitle() {
+            this.$emit('frw-set-title', this.$tc('sw-first-run-wizard.paypalInfo.modalTitle'));
         },
 
         updateButtons() {
@@ -34,7 +39,7 @@ Component.register('sw-first-run-wizard-paypal-info', {
                     label: this.$tc('sw-first-run-wizard.general.buttonBack'),
                     position: 'left',
                     variant: null,
-                    action: 'sw.first.run.wizard.index.data-import',
+                    action: 'sw.first.run.wizard.index.mailer.selection',
                     disabled: false
                 },
                 {

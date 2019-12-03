@@ -49,7 +49,7 @@ Component.register('sw-first-run-wizard-data-import', {
                     label: this.$tc('sw-first-run-wizard.general.buttonNext'),
                     position: 'right',
                     variant: 'primary',
-                    action: 'sw.first.run.wizard.index.paypal.info',
+                    action: 'sw.first.run.wizard.index.mailer.selection',
                     disabled: this.isInstallingPlugin
                 }
             ];
@@ -70,11 +70,16 @@ Component.register('sw-first-run-wizard-data-import', {
     methods: {
         createdComponent() {
             this.updateButtons();
+            this.setTitle();
             this.getInstalledPlugins();
         },
 
         updateButtons() {
             this.$emit('buttons-update', this.buttonConfig);
+        },
+
+        setTitle() {
+            this.$emit('frw-set-title', this.$tc('sw-first-run-wizard.dataImport.modalTitle'));
         },
 
         notInstalled(pluginKey) {

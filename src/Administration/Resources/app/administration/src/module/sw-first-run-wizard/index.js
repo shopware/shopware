@@ -4,6 +4,9 @@ import './component/sw-plugin-card';
 import './page/index';
 import './view/sw-first-run-wizard-welcome';
 import './view/sw-first-run-wizard-data-import';
+import './view/sw-first-run-wizard-mailer-base';
+import './view/sw-first-run-wizard-mailer-selection';
+import './view/sw-first-run-wizard-mailer-smtp';
 import './view/sw-first-run-wizard-paypal-base';
 import './view/sw-first-run-wizard-paypal-info';
 import './view/sw-first-run-wizard-paypal-credentials';
@@ -47,6 +50,20 @@ Module.register('sw-first-run-wizard', {
                 'data-import': {
                     component: 'sw-first-run-wizard-data-import',
                     path: 'data-import'
+                },
+                mailer: {
+                    component: 'sw-first-run-wizard-mailer-base',
+                    path: 'mailer',
+                    children: {
+                        selection: {
+                            component: 'sw-first-run-wizard-mailer-selection',
+                            path: 'selection'
+                        },
+                        smtp: {
+                            component: 'sw-first-run-wizard-mailer-smtp',
+                            path: 'smtp'
+                        }
+                    }
                 },
                 paypal: {
                     component: 'sw-first-run-wizard-paypal-base',

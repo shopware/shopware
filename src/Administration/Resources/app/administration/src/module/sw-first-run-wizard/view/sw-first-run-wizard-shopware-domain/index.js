@@ -33,6 +33,7 @@ Component.register('sw-first-run-wizard-shopware-domain', {
     methods: {
         createdComponent() {
             this.updateButtons();
+            this.setTitle();
             const language = Shopware.State.get('adminLocale').currentLocale;
 
             this.firstRunWizardService.getLicenseDomains({
@@ -47,6 +48,10 @@ Component.register('sw-first-run-wizard-shopware-domain', {
                 this.licenceDomains = items;
                 this.selectedShopDomain = items[0].domain;
             });
+        },
+
+        setTitle() {
+            this.$emit('frw-set-title', this.$tc('sw-first-run-wizard.shopwareAccount.modalTitle'));
         },
 
         updateButtons() {

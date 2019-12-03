@@ -1,0 +1,94 @@
+{% block sw_settings_mailer_index %}
+    <sw-page class="sw-settings-mailer">
+
+        {% block sw_settings_mailer_smart_bar_header %}
+            <template slot="smart-bar-header">
+                {% block sw_settings_mailer_smart_bar_header_title %}
+                    <h2>
+                        {% block sw_settings_mailer_smart_bar_header_title_text %}
+                                {{ $tc('sw-settings.index.title') }}
+                                <sw-icon name="small-arrow-medium-right" small></sw-icon>
+                                {{ $tc('sw-settings-mailer.general.textHeadline') }}
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_mailer_smart_bar_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_settings_mailer_actions_save %}
+                    <sw-button-process
+                        :isLoading="isLoading"
+                        :processSuccess="isSaveSuccessful"
+                        variant="primary"
+                        @process-finish="onSaveFinish"
+                        @click="saveMailerSettings">
+                        {{ $tc('sw-settings-mailer.general.buttonSave') }}
+                    </sw-button-process>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_mailer_content %}
+            <template slot="content">
+                <sw-card-view>
+
+                    <sw-card :isLoading="isLoading"
+                             :title="$tc('sw-settings-mailer.mailer-configuration.card-title')">
+
+                        {% block sw_settings_mailer_first_configuration %}
+                            <div v-if="isFirstConfiguration"
+                                 class="sw-settings-mailer__first-configuration">
+                                {% block sw_settings_mailer_first_configuration_headline %}
+                                    <h4 class="sw-settings-mailer__headline">
+                                        <strong>
+                                            {{ $tc('sw-settings-mailer.first-configuration.headline') }}
+                                        </strong>
+                                    </h4>
+                                {% endblock %}
+
+                                {% block sw_settings_mailer_first_configuration_description %}
+                                    <p>
+                                        {{ $tc('sw-settings-mailer.first-configuration.description') }}
+                                    </p>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+
+                        {% block sw_settings_mailer_headline_agent %}
+                            <p class="sw-settings-mailer__headline">
+                                {{ $tc('sw-settings-mailer.mailer-configuration.agent') }}
+                            </p>
+                        {% endblock %}
+
+                        <div class="sw-settings-mailer__radio-selection">
+                            {% block sw_settings_mailer_agent_options %}
+                                <sw-field type="radio"
+                                          :options="emailAgentOptions"
+                                          v-model="mailerSettings['core.mailerSettings.emailAgent']">
+                                </sw-field>
+                            {% endblock %}
+                        </div>
+
+                    </sw-card>
+
+                    {% block sw_settings_mailer_smtp %}
+                        <sw-card v-if="isSmtpMode"
+                                 :isLoading="isLoading"
+                                 title="SMTP server"
+                                 class="sw-settings-mailer__input-fields">
+
+                            {% block sw_settings_mailer_smtp_settings %}
+                                <sw-settings-mailer-smtp
+                                    :mailerSettings="mailerSettings">
+                                </sw-settings-mailer-smtp>
+                            {% endblock %}
+
+                        </sw-card>
+                    {% endblock %}
+                </sw-card-view>
+            </template>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

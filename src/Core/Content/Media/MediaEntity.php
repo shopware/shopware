@@ -507,7 +507,7 @@ class MediaEntity extends Entity
         return $this->documentBaseConfigs;
     }
 
-    public function setDocumentBaseConfigs(?DocumentBaseConfigCollection $documentBaseConfigs): void
+    public function setDocumentBaseConfigs(DocumentBaseConfigCollection $documentBaseConfigs): void
     {
         $this->documentBaseConfigs = $documentBaseConfigs;
     }
@@ -517,7 +517,7 @@ class MediaEntity extends Entity
         return $this->shippingMethods;
     }
 
-    public function setShippingMethods(?ShippingMethodCollection $shippingMethods): void
+    public function setShippingMethods(ShippingMethodCollection $shippingMethods): void
     {
         $this->shippingMethods = $shippingMethods;
     }
@@ -575,7 +575,7 @@ class MediaEntity extends Entity
         return $this->cmsSections;
     }
 
-    public function setCmsSections(?CmsSectionCollection $cmsSections): void
+    public function setCmsSections(CmsSectionCollection $cmsSections): void
     {
         $this->cmsSections = $cmsSections;
     }
@@ -605,7 +605,7 @@ class MediaEntity extends Entity
         return $this->documents;
     }
 
-    public function setDocuments(?DocumentCollection $documents): void
+    public function setDocuments(DocumentCollection $documents): void
     {
         $this->documents = $documents;
     }

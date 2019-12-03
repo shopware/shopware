@@ -148,8 +148,6 @@ class DefinitionValidator
                 $violations = array_merge_recursive($violations, $this->validateEntityTranslationGettersAreNullable($definition));
                 $violations = array_merge_recursive($violations, $this->validateEntityTranslationDefinitions($definition));
             }
-
-            $violations = array_merge_recursive($violations, $this->validateSchema($definition));
         }
 
         $violations = array_filter($violations, function ($vio) {
@@ -593,6 +591,7 @@ class DefinitionValidator
         $reference = $association->getReferenceDefinition();
 
         $associationViolations = $this->validateIsPlural($definition, $association);
+        $associationViolations = $this->validateSetterIsNotNull($definition, $association, $associationViolations);
 
         $reference->getFields()->filter(
             function (Field $field) use ($association, $definition) {
@@ -633,6 +632,7 @@ class DefinitionValidator
         $reference = $association->getToManyReferenceDefinition();
 
         $violations = $this->validateIsPlural($definition, $association);
+        $violations = $this->validateSetterIsNotNull($definition, $association, $violations);
 
         $mapping = $association->getMappingDefinition();
         $column = $association->getMappingReferenceColumn();
@@ -1010,6 +1010,29 @@ class DefinitionValidator
                     \get_class($deleteFlag),
                     $fk->onDelete()
                 );
+            }
+        }
+
+        return $associationViolations;
+    }
+
+    private function validateSetterIsNotNull(EntityDefinition $definition, AssociationField $association, array $associationViolations): array
+    {
+        $setter = 'set' . ucfirst($association->getPropertyName());
+
+        $classReflection = new \ReflectionClass($definition->getEntityClass());
+        $reflectionMethods = $classReflection->getMethods(\ReflectionMethod::IS_PUBLIC);
+
+        foreach ($reflectionMethods as $reflectionMethod) {
+            if (mb_strpos($reflectionMethod->getName(), $setter) !== 0) {
+                continue;
+            }
+
+            $param = $reflectionMethod->getParameters()[0];
+
+            if ($param->allowsNull()) {
+                $associationViolations[$definition->getClass()][]
+                    = sprintf('Setter "%s" of Entity "%s" is nullable, but shouldn\'t allow null as it is a toMany association.', $setter, $definition->getEntityClass());
             }
         }
 

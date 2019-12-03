@@ -61,7 +61,7 @@ class MediaFolderConfigurationEntity extends Entity
         return $this->mediaFolders;
     }
 
-    public function setMediaFolders(?MediaFolderCollection $mediaFolders): void
+    public function setMediaFolders(MediaFolderCollection $mediaFolders): void
     {
         $this->mediaFolders = $mediaFolders;
     }

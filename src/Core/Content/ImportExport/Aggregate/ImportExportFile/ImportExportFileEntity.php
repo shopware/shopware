@@ -86,16 +86,6 @@ class ImportExportFileEntity extends Entity
         $this->size = $size;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
     public function getLog(): ?ImportExportLogEntity
     {
         return $this->log;

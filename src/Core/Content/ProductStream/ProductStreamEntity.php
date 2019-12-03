@@ -113,7 +113,7 @@ class ProductStreamEntity extends Entity
         return $this->translations;
     }
 
-    public function setTranslations(?ProductStreamTranslationCollection $translations): void
+    public function setTranslations(ProductStreamTranslationCollection $translations): void
     {
         $this->translations = $translations;
     }
@@ -133,7 +133,7 @@ class ProductStreamEntity extends Entity
         return $this->productExports;
     }
 
-    public function setProductExports(?ProductExportCollection $productExports): void
+    public function setProductExports(ProductExportCollection $productExports): void
     {
         $this->productExports = $productExports;
     }

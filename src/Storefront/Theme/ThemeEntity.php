@@ -228,26 +228,6 @@ class ThemeEntity extends Entity
         $this->active = $active;
     }
 
-    public function getCreatedAt(): \DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(?\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
-    }
-
     public function getSalesChannels(): ?SalesChannelCollection
     {
         return $this->salesChannels;
@@ -263,7 +243,7 @@ class ThemeEntity extends Entity
         return $this->media;
     }
 
-    public function setMedia(?MediaCollection $media): void
+    public function setMedia(MediaCollection $media): void
     {
         $this->media = $media;
     }
@@ -283,7 +263,7 @@ class ThemeEntity extends Entity
         return $this->childThemes;
     }
 
-    public function setChildThemes(?ThemeCollection $childThemes): void
+    public function setChildThemes(ThemeCollection $childThemes): void
     {
         $this->childThemes = $childThemes;
     }

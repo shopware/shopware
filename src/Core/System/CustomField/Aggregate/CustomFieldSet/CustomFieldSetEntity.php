@@ -71,7 +71,7 @@ class CustomFieldSetEntity extends Entity
         return $this->customFields;
     }
 
-    public function setCustomFields(?CustomFieldCollection $customFields): void
+    public function setCustomFields(CustomFieldCollection $customFields): void
     {
         $this->customFields = $customFields;
     }
@@ -81,7 +81,7 @@ class CustomFieldSetEntity extends Entity
         return $this->relations;
     }
 
-    public function setRelations(?CustomFieldSetRelationCollection $relations): void
+    public function setRelations(CustomFieldSetRelationCollection $relations): void
     {
         $this->relations = $relations;
     }

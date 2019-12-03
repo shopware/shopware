@@ -186,7 +186,7 @@ class PromotionDiscountEntity extends Entity
         return $this->discountRules;
     }
 
-    public function setDiscountRules(?RuleCollection $discountRules): void
+    public function setDiscountRules(RuleCollection $discountRules): void
     {
         $this->discountRules = $discountRules;
     }
@@ -202,7 +202,7 @@ class PromotionDiscountEntity extends Entity
         return $this->promotionDiscountPrices;
     }
 
-    public function setPromotionDiscountPrices(?PromotionDiscountPriceCollection $promotionDiscountPrices): void
+    public function setPromotionDiscountPrices(PromotionDiscountPriceCollection $promotionDiscountPrices): void
     {
         $this->promotionDiscountPrices = $promotionDiscountPrices;
     }

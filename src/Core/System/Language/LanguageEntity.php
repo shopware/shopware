@@ -314,7 +314,7 @@ class LanguageEntity extends Entity
         return $this->mailHeaderFooterTranslations;
     }
 
-    public function setMailHeaderFooterTranslations(?MailHeaderFooterCollection $mailHeaderFooterTranslations): void
+    public function setMailHeaderFooterTranslations(MailHeaderFooterCollection $mailHeaderFooterTranslations): void
     {
         $this->mailHeaderFooterTranslations = $mailHeaderFooterTranslations;
     }
@@ -539,7 +539,7 @@ class LanguageEntity extends Entity
         return $this->customers;
     }
 
-    public function setCustomers(?CustomerCollection $customers): void
+    public function setCustomers(CustomerCollection $customers): void
     {
         $this->customers = $customers;
     }
@@ -554,7 +554,7 @@ class LanguageEntity extends Entity
         return $this->salutationTranslations;
     }
 
-    public function setSalutationTranslations(?SalutationTranslationCollection $salutationTranslations): void
+    public function setSalutationTranslations(SalutationTranslationCollection $salutationTranslations): void
     {
         $this->salutationTranslations = $salutationTranslations;
     }
@@ -604,7 +604,7 @@ class LanguageEntity extends Entity
         return $this->salesChannelDomains;
     }
 
-    public function setSalesChannelDomains(?SalesChannelDomainCollection $salesChannelDomains): void
+    public function setSalesChannelDomains(SalesChannelDomainCollection $salesChannelDomains): void
     {
         $this->salesChannelDomains = $salesChannelDomains;
     }
@@ -624,7 +624,7 @@ class LanguageEntity extends Entity
         return $this->productStreamTranslations;
     }
 
-    public function setProductStreamTranslations(?ProductStreamTranslationCollection $productStreamTranslations): void
+    public function setProductStreamTranslations(ProductStreamTranslationCollection $productStreamTranslations): void
     {
         $this->productStreamTranslations = $productStreamTranslations;
     }
@@ -684,7 +684,7 @@ class LanguageEntity extends Entity
         return $this->mailTemplateTranslations;
     }
 
-    public function setMailTemplateTranslations(?MailTemplateCollection $mailTemplateTranslations): void
+    public function setMailTemplateTranslations(MailTemplateCollection $mailTemplateTranslations): void
     {
         $this->mailTemplateTranslations = $mailTemplateTranslations;
     }
@@ -704,7 +704,7 @@ class LanguageEntity extends Entity
         return $this->deliveryTimeTranslations;
     }
 
-    public function setDeliveryTimeTranslations(?DeliveryTimeCollection $deliveryTimeTranslations): void
+    public function setDeliveryTimeTranslations(DeliveryTimeCollection $deliveryTimeTranslations): void
     {
         $this->deliveryTimeTranslations = $deliveryTimeTranslations;
     }
@@ -724,7 +724,7 @@ class LanguageEntity extends Entity
         return $this->orders;
     }
 
-    public function setOrders(?OrderCollection $orders): void
+    public function setOrders(OrderCollection $orders): void
     {
         $this->orders = $orders;
     }
@@ -734,7 +734,7 @@ class LanguageEntity extends Entity
         return $this->numberRangeTypeTranslations;
     }
 
-    public function setNumberRangeTypeTranslations(?NumberRangeTypeTranslationCollection $numberRangeTypeTranslations): void
+    public function setNumberRangeTypeTranslations(NumberRangeTypeTranslationCollection $numberRangeTypeTranslations): void
     {
         $this->numberRangeTypeTranslations = $numberRangeTypeTranslations;
     }
@@ -744,7 +744,7 @@ class LanguageEntity extends Entity
         return $this->mailTemplateTypeTranslations;
     }
 
-    public function setMailTemplateTypeTranslations(?MailTemplateTypeDefinition $mailTemplateTypeTranslations): void
+    public function setMailTemplateTypeTranslations(MailTemplateTypeDefinition $mailTemplateTypeTranslations): void
     {
         $this->mailTemplateTypeTranslations = $mailTemplateTypeTranslations;
     }
@@ -774,7 +774,7 @@ class LanguageEntity extends Entity
         return $this->promotionTranslations;
     }
 
-    public function setPromotionTranslations(?PromotionTranslationCollection $promotionTranslations): void
+    public function setPromotionTranslations(PromotionTranslationCollection $promotionTranslations): void
     {
         $this->promotionTranslations = $promotionTranslations;
     }
@@ -794,7 +794,7 @@ class LanguageEntity extends Entity
         return $this->productReviews;
     }
 
-    public function setProductReviews(?ProductReviewCollection $productReviews): void
+    public function setProductReviews(ProductReviewCollection $productReviews): void
     {
         $this->productReviews = $productReviews;
     }
@@ -804,7 +804,7 @@ class LanguageEntity extends Entity
         return $this->seoUrlTranslations;
     }
 
-    public function setSeoUrlTranslations(?SeoUrlCollection $seoUrlTranslations): void
+    public function setSeoUrlTranslations(SeoUrlCollection $seoUrlTranslations): void
     {
         $this->seoUrlTranslations = $seoUrlTranslations;
     }

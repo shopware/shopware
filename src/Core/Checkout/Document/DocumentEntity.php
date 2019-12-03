@@ -217,7 +217,7 @@ class DocumentEntity extends Entity
         return $this->dependentDocuments;
     }
 
-    public function setDependentDocuments(?DocumentCollection $dependentDocuments): void
+    public function setDependentDocuments(DocumentCollection $dependentDocuments): void
     {
         $this->dependentDocuments = $dependentDocuments;
     }

@@ -85,7 +85,7 @@ class StateMachineStateEntity extends Entity
         return $this->toStateMachineHistoryEntries;
     }
 
-    public function setToStateMachineHistoryEntries(?StateMachineHistoryCollection $toStateMachineHistoryEntries): void
+    public function setToStateMachineHistoryEntries(StateMachineHistoryCollection $toStateMachineHistoryEntries): void
     {
         $this->toStateMachineHistoryEntries = $toStateMachineHistoryEntries;
     }
@@ -95,7 +95,7 @@ class StateMachineStateEntity extends Entity
         return $this->fromStateMachineHistoryEntries;
     }
 
-    public function setFromStateMachineHistoryEntries(?StateMachineHistoryCollection $fromStateMachineHistoryEntries): void
+    public function setFromStateMachineHistoryEntries(StateMachineHistoryCollection $fromStateMachineHistoryEntries): void
     {
         $this->fromStateMachineHistoryEntries = $fromStateMachineHistoryEntries;
     }

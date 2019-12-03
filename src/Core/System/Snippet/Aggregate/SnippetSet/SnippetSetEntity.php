@@ -86,7 +86,7 @@ class SnippetSetEntity extends Entity
         return $this->salesChannelDomains;
     }
 
-    public function setSalesChannelDomains(?SalesChannelDomainCollection $salesChannelDomains): void
+    public function setSalesChannelDomains(SalesChannelDomainCollection $salesChannelDomains): void
     {
         $this->salesChannelDomains = $salesChannelDomains;
     }

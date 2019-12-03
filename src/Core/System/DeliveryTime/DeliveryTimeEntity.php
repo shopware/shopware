@@ -100,7 +100,7 @@ class DeliveryTimeEntity extends Entity
         return $this->shippingMethods;
     }
 
-    public function setShippingMethods(?ShippingMethodCollection $shippingMethods): void
+    public function setShippingMethods(ShippingMethodCollection $shippingMethods): void
     {
         $this->shippingMethods = $shippingMethods;
     }

@@ -157,7 +157,7 @@ class ProductCrossSellingEntity extends Entity
         return $this->translations;
     }
 
-    public function setTranslations(?ProductCrossSellingTranslationCollection $translations): void
+    public function setTranslations(ProductCrossSellingTranslationCollection $translations): void
     {
         $this->translations = $translations;
     }

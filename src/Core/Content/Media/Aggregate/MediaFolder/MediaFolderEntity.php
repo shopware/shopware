@@ -157,7 +157,7 @@ class MediaFolderEntity extends Entity
         return $this->children;
     }
 
-    public function setChildren(?MediaFolderCollection $children): void
+    public function setChildren(MediaFolderCollection $children): void
     {
         $this->children = $children;
     }

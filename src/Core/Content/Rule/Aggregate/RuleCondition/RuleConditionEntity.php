@@ -110,7 +110,7 @@ class RuleConditionEntity extends Entity
         return $this->children;
     }
 
-    public function setChildren(?RuleConditionCollection $children): void
+    public function setChildren(RuleConditionCollection $children): void
     {
         $this->children = $children;
     }

@@ -135,7 +135,7 @@ class ProductStreamFilterEntity extends Entity
         return $this->queries;
     }
 
-    public function setQueries(?ProductStreamFilterCollection $queries): void
+    public function setQueries(ProductStreamFilterCollection $queries): void
     {
         $this->queries = $queries;
     }

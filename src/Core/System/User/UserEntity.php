@@ -117,7 +117,7 @@ class UserEntity extends Entity
         return $this->stateMachineHistoryEntries;
     }
 
-    public function setStateMachineHistoryEntries(?StateMachineHistoryCollection $stateMachineHistoryEntries): void
+    public function setStateMachineHistoryEntries(StateMachineHistoryCollection $stateMachineHistoryEntries): void
     {
         $this->stateMachineHistoryEntries = $stateMachineHistoryEntries;
     }

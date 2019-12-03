@@ -206,7 +206,7 @@ class CurrencyEntity extends Entity
         return $this->salesChannelDomains;
     }
 
-    public function setSalesChannelDomains(?SalesChannelDomainCollection $salesChannelDomains): void
+    public function setSalesChannelDomains(SalesChannelDomainCollection $salesChannelDomains): void
     {
         $this->salesChannelDomains = $salesChannelDomains;
     }
@@ -236,7 +236,7 @@ class CurrencyEntity extends Entity
         return $this->shippingMethodPrices;
     }
 
-    public function setShippingMethodPrices(?ShippingMethodPriceCollection $shippingMethodPrices): void
+    public function setShippingMethodPrices(ShippingMethodPriceCollection $shippingMethodPrices): void
     {
         $this->shippingMethodPrices = $shippingMethodPrices;
     }
@@ -251,15 +251,12 @@ class CurrencyEntity extends Entity
         $this->isSystemDefault = $isSystemDefault;
     }
 
-    /**
-     * @return PromotionDiscountPriceCollection
-     */
     public function getPromotionDiscountPrices(): ?PromotionDiscountPriceCollection
     {
         return $this->promotionDiscountPrices;
     }
 
-    public function setPromotionDiscountPrices(?PromotionDiscountPriceCollection $promotionDiscountPrices): void
+    public function setPromotionDiscountPrices(PromotionDiscountPriceCollection $promotionDiscountPrices): void
     {
         $this->promotionDiscountPrices = $promotionDiscountPrices;
     }
@@ -269,7 +266,7 @@ class CurrencyEntity extends Entity
         return $this->productExports;
     }
 
-    public function setProductExports(?ProductExportCollection $productExports): void
+    public function setProductExports(ProductExportCollection $productExports): void
     {
         $this->productExports = $productExports;
     }

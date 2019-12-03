@@ -760,7 +760,7 @@ class CustomerEntity extends Entity
         return $this->productReviews;
     }
 
-    public function setProductReviews(?ProductReviewCollection $productReviews): void
+    public function setProductReviews(ProductReviewCollection $productReviews): void
     {
         $this->productReviews = $productReviews;
     }

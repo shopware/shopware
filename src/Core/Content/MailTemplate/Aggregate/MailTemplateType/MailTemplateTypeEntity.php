@@ -92,7 +92,7 @@ class MailTemplateTypeEntity extends Entity
         $this->availableEntities = $availableEntities;
     }
 
-    public function setTranslations(?MailTemplateTypeTranslationCollection $translations): void
+    public function setTranslations(MailTemplateTypeTranslationCollection $translations): void
     {
         $this->translations = $translations;
     }
@@ -102,7 +102,7 @@ class MailTemplateTypeEntity extends Entity
         return $this->mailTemplates;
     }
 
-    public function setMailTemplates(?MailTemplateCollection $mailTemplates): void
+    public function setMailTemplates(MailTemplateCollection $mailTemplates): void
     {
         $this->mailTemplates = $mailTemplates;
     }
@@ -117,32 +117,12 @@ class MailTemplateTypeEntity extends Entity
         $this->customFields = $customFields;
     }
 
-    public function getCreatedAt(): \DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): \DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
-    }
-
     public function getSalesChannels(): ?MailTemplateSalesChannelCollection
     {
         return $this->salesChannels;
     }
 
-    public function setSalesChannels(?MailTemplateSalesChannelCollection $salesChannels): void
+    public function setSalesChannels(MailTemplateSalesChannelCollection $salesChannels): void
     {
         $this->salesChannels = $salesChannels;
     }

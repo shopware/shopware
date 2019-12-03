@@ -23,12 +23,13 @@ class OffCanvasSingleton {
      * @param {boolean} closable
      * @param {number} delay
      * @param {boolean} fullwidth
+     * @param {array|string} cssClass
      */
-    open(content, callback, position, closable, delay, fullwidth) {
+    open(content, callback, position, closable, delay, fullwidth, cssClass) {
         // avoid multiple backdrops
         this._removeExistingOffCanvas();
 
-        const offCanvas = this._createOffCanvas(position, fullwidth);
+        const offCanvas = this._createOffCanvas(position, fullwidth, cssClass);
         this.setContent(content, closable, delay);
         this._openOffcanvas(offCanvas, callback);
     }
@@ -169,16 +170,31 @@ class OffCanvasSingleton {
      * appends it to the DOM and returns the HTMLElement for further processing
      * @param {'left'|'right'|'bottom'} position
      * @param {boolean} fullwidth
+     * @param {array|string} cssClass
      * @returns {HTMLElement}
      * @private
      */
-    _createOffCanvas(position, fullwidth) {
+    _createOffCanvas(position, fullwidth, cssClass) {
         const offCanvas = document.createElement('div');
         offCanvas.classList.add(OFF_CANVAS_CLASS);
         offCanvas.classList.add(this._getPositionClass(position));
 
         if (fullwidth === true) {
             offCanvas.classList.add(OFF_CANVAS_FULLWIDTH_CLASS);
+        }
+
+        if (cssClass) {
+            const type = typeof cssClass;
+
+            if (type === 'string') {
+                offCanvas.classList.add(cssClass);
+            } else if (Array.isArray(cssClass)) {
+                cssClass.forEach((value) => {
+                    offCanvas.classList.add(value);
+                });
+            } else {
+                throw new Error(`The type "${type}" is not supported. Please pass an array or a string.`);
+            }
         }
 
         document.body.appendChild(offCanvas);
@@ -204,9 +220,10 @@ export default class OffCanvas {
      * @param {boolean} closable
      * @param {number} delay
      * @param {boolean} fullwidth
+     * @param {array|string} cssClass
      */
-    static open(content, callback = null, position = 'left', closable = true, delay = REMOVE_OFF_CANVAS_DELAY, fullwidth = false) {
-        OffCanvasInstance.open(content, callback, position, closable, delay, fullwidth);
+    static open(content, callback = null, position = 'left', closable = true, delay = REMOVE_OFF_CANVAS_DELAY, fullwidth = false, cssClass = '') {
+        OffCanvasInstance.open(content, callback, position, closable, delay, fullwidth, cssClass);
     }
 
     /**

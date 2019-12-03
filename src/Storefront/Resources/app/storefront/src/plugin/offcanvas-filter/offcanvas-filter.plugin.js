@@ -1,5 +1,6 @@
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
 import Plugin from 'src/plugin-system/plugin.class';
+import DomAccess from 'src/helper/dom-access.helper';
 
 export default class OffCanvasFilter extends Plugin {
 
@@ -47,11 +48,14 @@ export default class OffCanvasFilter extends Plugin {
             'bottom',
             true,
             0,
-            true
+            true,
+            'offcanvas-filter'
         );
 
+        const filterPanel = DomAccess.querySelector(filterContent, '.filter-panel');
+
         // move filter from original place to offcanvas
-        filterContent.children[0].remove();
+        filterPanel.remove();
 
         window.PluginManager.getPluginInstances('Listing')[0].refreshRegistry();
         document.$emitter.subscribe('onCloseOffcanvas', this._onCloseOffCanvas.bind(this));

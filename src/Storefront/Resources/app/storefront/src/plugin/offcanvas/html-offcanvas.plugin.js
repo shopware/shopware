@@ -9,10 +9,11 @@ export default class HtmlOffCanvas extends OffCanvas {
      * @param {boolean} closable
      * @param {number} delay
      * @param {boolean} fullwidth
+     * @param {array|string} cssClass
      */
 
-    static open(selector, position = 'left', closable = true, delay = OffCanvas.REMOVE_OFF_CANVAS_DELAY, fullwidth = false) {
-        super.open(HtmlOffCanvas._getContent(selector), position, closable, delay, fullwidth);
+    static open(selector, position = 'left', closable = true, delay = OffCanvas.REMOVE_OFF_CANVAS_DELAY, fullwidth = false, cssClass = '') {
+        super.open(HtmlOffCanvas._getContent(selector), position, closable, delay, fullwidth, cssClass);
     }
 
     /**

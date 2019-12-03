@@ -154,6 +154,7 @@
       "labelStreet": "Straße",
       "labelCity": "Stadt",
       "labelCountry": "Land",
+      "labelState": "Bundesland",
       "labelAdditionalAddressLine1": "Adresszusatz 1",
       "labelAdditionalAddressLine2": "Adresszusatz 2",
       "labelPhoneNumber": "Telefonnummer",

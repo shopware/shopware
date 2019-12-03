@@ -112,6 +112,10 @@
                     </sw-container>
                 {% endblock %}
 
+                {% block sw_customer_address_form_placeholder %}
+                    <span class="sw-customer-address-form__placeholder"></span>
+                {% endblock %}
+
                 {% block sw_customer_address_form_country_field %}
                     <sw-entity-single-select
                         class="sw-customer-address-form__country-select"
@@ -120,8 +124,24 @@
                         validation="required"
                         required
                         :error="addressCountryIdError"
-                        v-model="address.countryId">
+                        v-model="countryId">
                     </sw-entity-single-select>
+                {% endblock %}
+
+                {% block sw_customer_address_form_state_field %}
+                    <div class="sw-customer-address-form__state-select-placeholder">
+                        <sw-entity-single-select
+                             class="sw-customer-address-form__state-select"
+                             entity="country_state"
+                             :criteria="stateCriteria"
+                             :label="$tc('sw-customer.addressForm.labelState')"
+                             v-show="countryId"
+                             :required="country !== null && country.forceStateInRegistration"
+                             :error="addressCountryStateIdError"
+                             v-model="address.countryStateId">
+                        </sw-entity-single-select>
+                    </div>
+
                 {% endblock %}
 
                 {% block sw_customer_address_form_phone_number_field %}
@@ -144,7 +164,6 @@
                 <slot>
                     {% block sw_customer_address_form_extension_slot %} {% endblock %}
                 </slot>
-
             </sw-container>
         {% endblock %}
     </div>

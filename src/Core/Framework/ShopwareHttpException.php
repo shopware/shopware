@@ -26,6 +26,16 @@ abstract class ShopwareHttpException extends \Exception implements ShopwareExcep
 
     public function getErrors(bool $withTrace = false): \Generator
     {
+        yield $this->getCommonErrorData($withTrace);
+    }
+
+    public function getParameters(): array
+    {
+        return $this->parameters;
+    }
+
+    protected function getCommonErrorData(bool $withTrace = false): array
+    {
         $error = [
             'status' => (string) $this->getStatusCode(),
             'code' => $this->getErrorCode(),
@@ -40,12 +50,7 @@ abstract class ShopwareHttpException extends \Exception implements ShopwareExcep
             $error['trace'] = $this->getTrace();
         }
 
-        yield $error;
-    }
-
-    public function getParameters(): array
-    {
-        return $this->parameters;
+        return $error;
     }
 
     protected function parse(string $message, array $parameters = []): string

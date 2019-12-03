@@ -37,6 +37,9 @@ Component.register('sw-address', {
                     city: '',
                     country: {
                         name: ''
+                    },
+                    countryState: {
+                        name: ''
                     }
                 };
             }

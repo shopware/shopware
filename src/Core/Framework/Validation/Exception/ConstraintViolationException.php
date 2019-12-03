@@ -64,7 +64,7 @@ class ConstraintViolationException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
-        return 'FRAMEWORK::CONSTRAINT_VIOLATION';
+        return 'FRAMEWORK__CONSTRAINT_VIOLATION';
     }
 
     public function getErrors(bool $withTrace = false): \Generator

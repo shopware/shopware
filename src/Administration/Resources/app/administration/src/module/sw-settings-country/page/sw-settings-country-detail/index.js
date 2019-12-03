@@ -1,6 +1,7 @@
 import template from './sw-settings-country-detail.html.twig';
 
 const { Component, Mixin } = Shopware;
+const { mapApiErrors } = Component.getComponentHelper();
 
 Component.register('sw-settings-country-detail', {
     template,
@@ -42,7 +43,9 @@ Component.register('sw-settings-country-detail', {
         },
         stateColumns() {
             return this.getStateColumns();
-        }
+        },
+
+        ...mapApiErrors('country', ['name'])
     },
 
     created() {
@@ -97,21 +100,17 @@ Component.register('sw-settings-country-detail', {
         onDeleteCountryStates() {
             const selection = this.$refs.countryStateGrid.selection;
 
-            if (!Object.keys(selection).length) {
-                return;
+            const countryStateIds = Object.keys(selection);
+            if (!countryStateIds.length) {
+                return Promise.resolve();
             }
 
             this.countryStateLoading = true;
-            const deletePromises = [];
 
-            Object.keys(selection).forEach(id => {
-                deletePromises.push(this.countryStateRepository.delete(id, Shopware.Context.api));
-            });
-
-            Promise.all(deletePromises).then(() => {
-                this.countryStateLoading = false;
-                this.refreshCountryStateList();
-            });
+            return this.countryStateRepository.syncDeleted(countryStateIds, Shopware.Context.api)
+                .finally(() => {
+                    this.countryStateLoading = false;
+                });
         },
 
         onAddCountryState() {

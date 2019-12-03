@@ -35,6 +35,7 @@
       "labelActive": "Aktiv",
       "labelShippingAvailable": "Versand verfügbar",
       "labelTaxFree": "Steuerfrei",
+      "labelForceStateInRegistration": "Bundesland bei Registrierung erforderlich",
       "placeholderName": "Namen eingeben ...",
       "placeholderPosition": "1",
       "placeholderIso": "ISO-Code eingeben ...",

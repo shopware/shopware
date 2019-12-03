@@ -11,7 +11,11 @@
             <argument type="service" id="Shopware\Core\Framework\Update\Services\PluginCompatibility" />
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService"/>
             <argument>%kernel.shopware_version%</argument>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
         </service>
 
         <service id="Shopware\Core\Framework\Update\Services\ApiClient">

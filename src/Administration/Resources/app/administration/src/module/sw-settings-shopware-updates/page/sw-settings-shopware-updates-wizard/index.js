@@ -86,7 +86,7 @@ Component.register('sw-settings-shopware-updates-wizard', {
 
                 if (response.offset === response.total && response.success) {
                     this.progressbarValue = 0;
-                    this.unpackUpdate(0);
+                    this.deactivatePlugins(0);
                 } else if (response.offset !== response.total && response.success) {
                     this.downloadUpdate(response.offset);
                 } else {
@@ -103,9 +103,33 @@ Component.register('sw-settings-shopware-updates-wizard', {
             });
         },
 
+        deactivatePlugins(offset) {
+            this.step = 'deactivate';
+            this.updateService.deactivatePlugins(offset, this.chosenPluginBehaviour).then(response => {
+                this.progressbarValue = (Math.floor((response.offset / response.total) * 100));
+
+                if (response.offset === response.total && response.success) {
+                    this.progressbarValue = 0;
+                    this.unpackUpdate(0);
+                } else if (response.offset !== response.total && response.success) {
+                    this.deactivatePlugins(response.offset);
+                } else {
+                    this.createNotificationError({
+                        title: this.$tc('sw-settings-shopware-updates.notifications.title'),
+                        message: this.$tc('sw-settings-shopware-updates.notifications.deactivationFailed')
+                    });
+                }
+            }).catch(() => {
+                this.createNotificationError({
+                    title: this.$tc('sw-settings-shopware-updates.notifications.title'),
+                    message: this.$tc('sw-settings-shopware-updates.notifications.deactivationFailed')
+                });
+            });
+        },
+
         unpackUpdate(offset) {
             this.step = 'unpack';
-            this.updateService.unpackUpdate(offset, this.chosenPluginBehaviour).then(response => {
+            this.updateService.unpackUpdate(offset).then(response => {
                 this.progressbarValue = (Math.floor((response.offset / response.total) * 100));
 
                 if (response.redirectTo) {

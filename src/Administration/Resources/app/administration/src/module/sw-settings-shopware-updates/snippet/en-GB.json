@@ -19,6 +19,7 @@
       "updateStarted": "Update process started",
       "downloadFailed": "Download process is failed",
       "unpackFailed": "Unpack process is failed",
+      "deactivationFailed": "Deactivate plugins failed",
       "alreadyUpToDate": "You are already on the latest version"
     },
     "infos": {
@@ -27,6 +28,7 @@
       "requirementsNotMet": "Not all system requirements are met for this update",
       "progress": {
         "download": "Update file is being downloaded",
+        "deactivate": "Plugins are deactivated",
         "unpack": "Update file is unpacked"
       }
     },

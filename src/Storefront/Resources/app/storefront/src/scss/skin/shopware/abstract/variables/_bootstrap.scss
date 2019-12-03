@@ -7,112 +7,112 @@ https://getbootstrap.com/docs/4.3/getting-started/theming/#variable-defaults
 */
 
 // Color system
-$gray-100: #f9f9f9;
-$gray-200: #eee;
-$gray-300: #bcc1c7;
-$gray-600: #798490;
-$gray-800: #4a545b;
+$gray-100: #f9f9f9 !default;
+$gray-200: #eee !default;
+$gray-300: #bcc1c7 !default;
+$gray-600: #798490 !default;
+$gray-800: #4a545b !default;
 
-$primary: $sw-color-brand-primary;
-$secondary: $sw-color-brand-secondary;
+$primary: $sw-color-brand-primary !default;
+$secondary: $sw-color-brand-secondary !default;
 
-$success: $sw-color-success;
-$info: $sw-color-info;
-$warning: $sw-color-warning;
-$danger: $sw-color-danger;
+$success: $sw-color-success !default;
+$info: $sw-color-info !default;
+$warning: $sw-color-warning !default;
+$danger: $sw-color-danger !default;
 
-$light: $gray-100;
-$dark: $gray-800;
+$light: $gray-100 !default;
+$dark: $gray-800 !default;
 
-$headings-color: $sw-headline-color;
+$headings-color: $sw-headline-color !default;
 
 // Grid
-$grid-gutter-width: 40px;
+$grid-gutter-width: 40px !default;
 
 // Body
-$body-bg: $sw-background-color;
-$body-color: $sw-text-color;
+$body-bg: $sw-background-color !default;
+$body-color: $sw-text-color !default;
 
 // Components
-$border-color: $sw-border-color;
+$border-color: $sw-border-color !default;
 
-$border-radius: 3px;
-$border-radius-lg: 3px;
-$border-radius-sm: 3px;
+$border-radius: 3px !default;
+$border-radius-lg: 3px !default;
+$border-radius-sm: 3px !default;
 
 // Typography
-$font-family-base: $sw-font-family-base;
+$font-family-base: $sw-font-family-base !default;
 
-$font-size-base: 0.875rem;
-$font-size-lg: 1rem;
-$font-size-sm: 0.75rem;
-$font-weight-normal: 400;
+$font-size-base: 0.875rem !default;
+$font-size-lg: 1rem !default;
+$font-size-sm: 0.75rem !default;
+$font-weight-normal: 400 !default;
 
-$h1-font-size: 36px;
-$h2-font-size: 28px;
-$h3-font-size: 24px;
-$h4-font-size: 20px;
-$h5-font-size: 16px;
-$h6-font-size: 14px;
+$h1-font-size: 36px !default;
+$h2-font-size: 28px !default;
+$h3-font-size: 24px !default;
+$h4-font-size: 20px !default;
+$h5-font-size: 16px !default;
+$h6-font-size: 14px !default;
 
-$headings-font-weight: 700;
-$headings-font-family: $sw-font-family-headline;
+$headings-font-weight: 700 !default;
+$headings-font-family: $sw-font-family-headline !default;
 
 // Buttons + Forms
-$input-btn-padding-y: 0.5625rem;
-$input-btn-padding-x: 0.5625rem;
+$input-btn-padding-y: 0.5625rem !default;
+$input-btn-padding-x: 0.5625rem !default;
 
-$input-placeholder-color: #c3c3c3;
+$input-placeholder-color: #c3c3c3 !default;
 
 // Buttons
-$btn-padding-y: 2px;
-$btn-padding-x: 12px;
-$btn-line-height: 34px;
+$btn-padding-y: 2px !default;
+$btn-padding-x: 12px !default;
+$btn-line-height: 34px !default;
 
-$btn-padding-y-sm: 2px;
-$btn-padding-x-sm: 12px;
-$btn-font-size-sm: 14px;
-$btn-line-height-sm: 30px;
+$btn-padding-y-sm: 2px !default;
+$btn-padding-x-sm: 12px !default;
+$btn-font-size-sm: 14px !default;
+$btn-line-height-sm: 30px !default;
 
-$btn-padding-y-lg: 2px;
-$btn-padding-x-lg: 12px;
-$btn-font-size-lg: 16px;
-$btn-line-height-lg: 38px;
+$btn-padding-y-lg: 2px !default;
+$btn-padding-x-lg: 12px !default;
+$btn-font-size-lg: 16px !default;
+$btn-line-height-lg: 38px !default;
 
 // Forms
-$enable-validation-icons: false;
-$input-color: $sw-text-color;
-$input-border-color: $sw-border-color;
-$input-focus-border-color: $sw-color-brand-primary;
-$custom-select-indicator-color: $input-color;
-$custom-control-indicator-active-bg: $sw-color-brand-primary;
+$enable-validation-icons: false !default;
+$input-color: $sw-text-color !default;
+$input-border-color: $sw-border-color !default;
+$input-focus-border-color: $sw-color-brand-primary !default;
+$custom-select-indicator-color: $input-color !default;
+$custom-control-indicator-active-bg: $sw-color-brand-primary !default;
 
 // Pagination
-$pagination-border-color: $sw-border-color;
-$pagination-hover-border-color: $sw-border-color;
-$pagination-focus-border-color: $sw-border-color;
+$pagination-border-color: $sw-border-color !default;
+$pagination-hover-border-color: $sw-border-color !default;
+$pagination-focus-border-color: $sw-border-color !default;
 
 // Dropdown
-$dropdown-border-color: $sw-border-color;
+$dropdown-border-color: $sw-border-color !default;
 
 // Badges
-$badge-font-size: 12px;
+$badge-font-size: 12px !default;
 
 // Spinners
-$spinner-width: 26px;
-$spinner-border-width: 2px;
+$spinner-width: 26px !default;
+$spinner-border-width: 2px !default;
 
 // Modals
-$modal-header-padding-y: 10px;
-$modal-header-padding-x: 10px;
+$modal-header-padding-y: 10px !default;
+$modal-header-padding-x: 10px !default;
 
 // Breadcrumb
-$breadcrumb-bg: transparent;
-$breadcrumb-border-radius: 0;
+$breadcrumb-bg: transparent !default;
+$breadcrumb-border-radius: 0 !default;
 
 // Cards
-$card-border-color: transparent;
-$card-bg: transparent;
+$card-border-color: transparent !default;
+$card-bg: transparent !default;
 
 // Tables
-$table-accent-bg: #f9f9f9;
+$table-accent-bg: #f9f9f9 !default;

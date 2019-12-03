@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseCon
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentGenerator\DocumentGeneratorInterface;
 use Shopware\Core\Checkout\Document\DocumentGenerator\DocumentGeneratorRegistry;
+use Shopware\Core\Checkout\Document\Event\DocumentOrderCriteriaEvent;
 use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentGeneratorTypeException;
 use Shopware\Core\Checkout\Document\Exception\InvalidFileGeneratorTypeException;
@@ -24,13 +25,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class DocumentService
 {
     public const VERSION_NAME = 'document';
-
-    public const SYSTEM_CONFIG_SAVE_TO_FS = 'core.saveDocuments';
 
     /**
      * @var DocumentGeneratorRegistry
@@ -77,6 +77,11 @@ class DocumentService
      */
     private $customerRepository;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
     public function __construct(
         DocumentGeneratorRegistry $documentGeneratorRegistry,
         FileGeneratorRegistry $fileGeneratorRegistry,
@@ -84,9 +89,8 @@ class DocumentService
         EntityRepositoryInterface $documentRepository,
         EntityRepositoryInterface $documentTypeRepository,
         EntityRepositoryInterface $documentConfigRepository,
-        EntityRepositoryInterface $customerRepository,
-        SystemConfigService $systemConfigService,
-        MediaService $mediaService
+        MediaService $mediaService,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->documentGeneratorRegistry = $documentGeneratorRegistry;
         $this->fileGeneratorRegistry = $fileGeneratorRegistry;
@@ -94,11 +98,15 @@ class DocumentService
         $this->documentRepository = $documentRepository;
         $this->documentTypeRepository = $documentTypeRepository;
         $this->documentConfigRepository = $documentConfigRepository;
-        $this->systemConfigService = $systemConfigService;
         $this->mediaService = $mediaService;
-        $this->customerRepository = $customerRepository;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
+    /**
+     * @throws DocumentGenerationException
+     * @throws InvalidDocumentGeneratorTypeException
+     * @throws InvalidFileGeneratorTypeException
+     */
     public function create(
         string $orderId,
         string $documentTypeName,
@@ -110,7 +118,7 @@ class DocumentService
     ): DocumentIdStruct {
         $documentType = $this->getDocumentTypeByName($documentTypeName, $context);
 
-        if (!$this->documentGeneratorRegistry->hasGenerator($documentTypeName) || !$documentType) {
+        if ($documentType === null || !$this->documentGeneratorRegistry->hasGenerator($documentTypeName)) {
             throw new InvalidDocumentGeneratorTypeException($documentTypeName);
         }
 
@@ -192,6 +200,9 @@ class DocumentService
         return $generatedDocument;
     }
 
+    /**
+     * @throws InvalidDocumentGeneratorTypeException
+     */
     public function preview(
         string $orderId,
         string $deepLinkCode,
@@ -202,7 +213,7 @@ class DocumentService
     ): GeneratedDocument {
         $documentType = $this->getDocumentTypeByName($documentTypeName, $context);
 
-        if (!$this->documentGeneratorRegistry->hasGenerator($documentTypeName) || !$documentType) {
+        if ($documentType === null || !$this->documentGeneratorRegistry->hasGenerator($documentTypeName)) {
             throw new InvalidDocumentGeneratorTypeException($documentTypeName);
         }
         $fileGenerator = $this->fileGeneratorRegistry->getGenerator($fileType);
@@ -229,8 +240,15 @@ class DocumentService
         return $generatedDocument;
     }
 
-    public function uploadFileForDocument(string $documentId, Context $context, Request $uploadedFileRequest): DocumentIdStruct
-    {
+    /**
+     * @throws DocumentGenerationException
+     * @throws InconsistentCriteriaIdsException
+     */
+    public function uploadFileForDocument(
+        string $documentId,
+        Context $context,
+        Request $uploadedFileRequest
+    ): DocumentIdStruct {
         /** @var DocumentEntity $document */
         $document = $this->documentRepository->search(new Criteria([$documentId]), $context)->first();
 
@@ -280,15 +298,19 @@ class DocumentService
         string $orderId,
         string $versionId,
         Context $context,
-        ?string $deepLinkCode = null
+        string $deepLinkCode = ''
     ): OrderEntity {
         $criteria = $this->getOrderBaseCriteria($orderId);
 
-        if (!empty($deepLinkCode)) {
+        if ($deepLinkCode !== '') {
             $criteria->addFilter(new EqualsFilter('deepLinkCode', $deepLinkCode));
         }
 
-        $order = $this->orderRepository->search($criteria, $context->createWithVersionId($versionId))->get($orderId);
+        $versionContext = $context->createWithVersionId($versionId);
+
+        $this->eventDispatcher->dispatch(new DocumentOrderCriteriaEvent($criteria, $versionContext));
+
+        $order = $this->orderRepository->search($criteria, $versionContext)->get($orderId);
 
         if (!$order) {
             throw new InvalidOrderException($orderId);
@@ -305,6 +327,9 @@ class DocumentService
         return $this->documentTypeRepository->search($criteria, $context)->first();
     }
 
+    /**
+     * @throws DocumentGenerationException
+     */
     private function validateVersion(string $versionId): void
     {
         if ($versionId === Defaults::LIVE_VERSION) {
@@ -328,7 +353,6 @@ class DocumentService
 
     /**
      * @throws DocumentGenerationException
-     * @throws InconsistentCriteriaIdsException
      */
     private function getVersionIdFromReferencedDocument(
         string $referencedDocumentId,

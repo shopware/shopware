@@ -455,6 +455,14 @@
     },
     "cookie": {
         "message": "Diese Website verwendet Cookies, um Ihnen die bestmögliche Funktionalität bieten zu können. <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Mehr Informationen\">Mehr Informationen</a>.",
-        "accept": "Einverstanden"
+        "deny": "Ablehnen",
+        "configure": "Konfigurieren",
+        "configuration": "Konfiguration",
+        "save": "Speichern",
+        "headline": "Cookie Einstellungen",
+        "groupRequired": "Technisch erforderlich",
+        "groupRequiredDescription": "Diese Cookies sind für die Grundfunktionen des Shops notwendig.",
+        "groupRequiredSession": "Session",
+        "groupRequiredTimezone": "Zeitzone"
     }
 }

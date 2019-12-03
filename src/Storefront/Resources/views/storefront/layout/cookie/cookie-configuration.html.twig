@@ -1,0 +1,39 @@
+{% sw_extends '@Storefront/storefront/utilities/offcanvas.html.twig' %}
+
+{% block utilities_offcanvas_close_text %}
+    {{ "cookie.headline"|trans|sw_sanitize }}
+{% endblock %}
+
+{% block utilities_offcanvas_content %}
+    <div class="offcanvas-cookie">
+        <div class="offcanvas-cookie-description">
+            <p>
+                {{ "cookie.message"|trans({
+                    '%url%': path('frontend.cms.page', { id: shopware.config.core.basicInformation.shippingPaymentInfoPage })
+                })|raw|sw_sanitize }}
+            </p>
+
+            <div class="row align-items-center h6 offcanvas-cookie-header">
+                <div class="col">
+                    {{ "cookie.configuration"|trans|sw_sanitize }}
+                </div>
+            </div>
+        </div>
+
+        <div class="offcanvas-cookie-list">
+            {% for cookieGroup in cookieGroups %}
+                {% sw_include '@Storefront/storefront/layout/cookie/cookie-configuration-group.html.twig' with {
+                    cookieGroup: cookieGroup
+                } only %}
+            {% endfor %}
+        </div>
+
+        {% block layout_cookie_configuration_button %}
+            <button
+                type="submit"
+                class="btn btn-primary btn-block js-offcanvas-cookie-submit">
+                {{ "cookie.save"|trans|sw_sanitize }}
+            </button>
+        {% endblock %}
+    </div>
+{% endblock %}

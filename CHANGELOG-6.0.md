@@ -361,6 +361,8 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * The `src/Storefront/Resources/app/storefront/src/main.js` now uses the `readystatechange` event to initialize all JavaScript plugins.
     * Introduced new SCSS variable `$font-weight-semibold` with the value of `600`.
     * Added `fallbackImageTitle` variable to `src/Storefront/Resources/views/storefront/element/cms-element-image-gallery.html.twig` to add fallback values to the images `alt` and `title` attribute if the media object itself has no `alt` or `title` defined.
+    * Added `cookie-configuration` plugin for displaying a cookie configuration menu 
+    * Added global event `CookieConfiguration_Update` for updating the cookie preference
 * Elasticsearch
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.
         * You can set them with a parameter.yml too.

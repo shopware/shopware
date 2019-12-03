@@ -1,0 +1,28 @@
+{% block cookie_configuration_group %}
+
+    {% if cookieGroup.cookie is defined or cookieGroup.entries is defined %}
+        <div class="offcanvas-cookie-group">
+            {% sw_include '@Storefront/storefront/layout/cookie/cookie-configuration-parent.html.twig' with {
+                parent: cookieGroup
+            } only %}
+
+            {% if cookieGroup.entries is not empty or cookieGroup.snippet_description is defined %}
+                <div class="offcanvas-cookie-entries">
+                    {% sw_icon 'arrow-head-right' style {
+                        'size': 'sm'
+                    } %}
+
+                    {% if cookieGroup.snippet_description %}
+                        <p>{{ cookieGroup.snippet_description|trans|sw_sanitize }}</p>
+                    {% endif %}
+
+                    {% for entry in cookieGroup.entries %}
+                        {% sw_include '@Storefront/storefront/layout/cookie/cookie-configuration-child.html.twig' with {
+                            child: entry, isRequired: cookieGroup.isRequired
+                        } only %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}

@@ -381,5 +381,7 @@
 
             <tag name="console.command"/>
         </service>
+
+        <service id="Shopware\Storefront\Framework\Cookie\CookieProviderInterface" class="Shopware\Storefront\Framework\Cookie\CookieProvider" />
     </services>
 </container>

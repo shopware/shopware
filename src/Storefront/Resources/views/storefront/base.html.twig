@@ -97,7 +97,7 @@
     {% endblock %}
 
     {% block base_cookie_permission %}
-        {% sw_include '@Storefront/storefront/layout/cookie-permission.html.twig' %}
+        {% sw_include '@Storefront/storefront/layout/cookie/cookie-permission.html.twig' %}
     {% endblock %}
 
     {% block base_pseudo_modal %}
@@ -118,6 +118,7 @@
                 window.activeNavigationId = '{{ page.header.navigation.active.id }}';
                 window.router = {
                     'frontend.cart.offcanvas': '{{ path('frontend.cart.offcanvas') }}',
+                    'frontend.cookie.offcanvas': '{{ path('frontend.cookie.offcanvas') }}',
                     'frontend.checkout.finish.page': '{{ path('frontend.checkout.finish.page') }}',
                     'frontend.checkout.info': '{{ path('frontend.checkout.info') }}',
                     'frontend.menu.offcanvas': '{{ path('frontend.menu.offcanvas') }}',

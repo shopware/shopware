@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
-use Shopware\Core\Framework\ScheduledTask\ScheduledTask;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
 class ProductExportGenerateTask extends ScheduledTask
 {

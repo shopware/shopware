@@ -1,10 +1,9 @@
 import template from './sw-sales-channel-detail.html.twig';
 
-const { Component, Mixin, Defaults } = Shopware;
+const { Component, Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-sales-channel-detail', {
-
     template,
 
     inject: [
@@ -68,7 +67,7 @@ Component.register('sw-sales-channel-detail', {
         },
 
         isStoreFront() {
-            return this.salesChannel.typeId === Defaults.storefrontTypeId;
+            return this.salesChannel.typeId === Defaults.storefrontSalesChannelTypeId;
         },
 
         isProductComparison() {
@@ -94,7 +93,7 @@ Component.register('sw-sales-channel-detail', {
         storefrontSalesChannelCriteria() {
             const criteria = new Criteria();
 
-            return criteria.addFilter(Criteria.equals('typeId', Defaults.storefrontTypeId));
+            return criteria.addFilter(Criteria.equals('typeId', Defaults.storefrontSalesChannelTypeId));
         },
 
         tooltipSave() {
@@ -140,6 +139,7 @@ Component.register('sw-sales-channel-detail', {
             this.loadCustomFieldSets();
         },
 
+
         loadSalesChannel() {
             this.isLoading = true;
             this.salesChannelRepository
@@ -160,10 +160,15 @@ Component.register('sw-sales-channel-detail', {
             criteria.addAssociation('shippingMethods');
             criteria.addAssociation('countries');
             criteria.addAssociation('currencies');
-            criteria.addAssociation('languages');
             criteria.addAssociation('domains');
+            criteria.addAssociation('languages');
+
             criteria.addAssociation('productExports');
             criteria.addAssociation('productExports.salesChannelDomain.salesChannel');
+
+            criteria.addAssociation('domains.language');
+            criteria.addAssociation('domains.snippetSet');
+            criteria.addAssociation('domains.currency');
 
             return criteria;
         },
@@ -211,7 +216,7 @@ Component.register('sw-sales-channel-detail', {
                 .addSorting(Criteria.sort('config.customFieldPosition'));
 
             this.customFieldRepository
-                .search(criteria, Shopware.Context.api)
+                .search(criteria, Context.api)
                 .then((searchResult) => {
                     this.customFieldSets = searchResult;
                 });
@@ -250,7 +255,7 @@ Component.register('sw-sales-channel-detail', {
             }
 
             this.salesChannelRepository
-                .save(this.salesChannel, Shopware.Context.api)
+                .save(this.salesChannel, Context.api)
                 .then(() => {
                     this.isLoading = false;
                     this.isSaveSuccessful = true;

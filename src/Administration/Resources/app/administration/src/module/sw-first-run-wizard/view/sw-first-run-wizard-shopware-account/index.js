@@ -6,7 +6,7 @@ const { Component } = Shopware;
 Component.register('sw-first-run-wizard-shopware-account', {
     template,
 
-    inject: ['firstRunWizardService', 'addNextCallback'],
+    inject: ['firstRunWizardService'],
 
     data() {
         return {
@@ -22,7 +22,43 @@ Component.register('sw-first-run-wizard-shopware-account', {
 
     methods: {
         createdComponent() {
-            this.addNextCallback(this.testCredentials);
+            this.setTitle();
+            this.updateButtons();
+        },
+
+        setTitle() {
+            this.$emit('frw-set-title', this.$tc('sw-first-run-wizard.shopwareAccount.modalTitle'));
+        },
+
+        updateButtons() {
+            const buttonConfig = [
+                {
+                    key: 'back',
+                    label: this.$tc('sw-first-run-wizard.general.buttonBack'),
+                    position: 'left',
+                    variant: null,
+                    action: 'sw.first.run.wizard.index.plugins',
+                    disabled: false
+                },
+                {
+                    key: 'skip',
+                    label: this.$tc('sw-first-run-wizard.general.buttonSkip'),
+                    position: 'right',
+                    variant: null,
+                    action: 'sw.first.run.wizard.index.finish',
+                    disabled: false
+                },
+                {
+                    key: 'next',
+                    label: this.$tc('sw-first-run-wizard.general.buttonNext'),
+                    position: 'right',
+                    variant: 'primary',
+                    action: this.testCredentials.bind(this),
+                    disabled: false
+                }
+            ];
+
+            this.$emit('buttons-update', buttonConfig);
         },
 
         testCredentials() {
@@ -35,6 +71,8 @@ Component.register('sw-first-run-wizard-shopware-account', {
                 password
             }).then(() => {
                 this.accountError = false;
+
+                this.$emit('frw-redirect', 'sw.first.run.wizard.index.shopware.domain');
 
                 return false;
             }).catch(() => {

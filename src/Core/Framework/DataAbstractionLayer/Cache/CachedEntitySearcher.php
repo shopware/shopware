@@ -7,11 +7,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
-use Shopware\Core\Framework\Logging\LogEntryDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
+use Shopware\Core\Framework\Log\LogEntryDefinition;
 use Shopware\Core\Framework\Plugin\PluginDefinition;
-use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitDefinition;
-use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
-use Shopware\Core\Framework\Version\VersionDefinition;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeState\NumberRangeStateDefinition;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\CacheItem;
@@ -42,36 +42,18 @@ class CachedEntitySearcher implements EntitySearcherInterface
      */
     private $decorated;
 
-    /**
-     * @var bool
-     */
-    private $enabled;
-
-    /**
-     * @var int
-     */
-    private $expirationTime;
-
     public function __construct(
         EntityCacheKeyGenerator $cacheKeyGenerator,
         TagAwareAdapterInterface $cache,
-        EntitySearcherInterface $decorated,
-        bool $enabled,
-        int $expirationTime
+        EntitySearcherInterface $decorated
     ) {
         $this->cacheKeyGenerator = $cacheKeyGenerator;
         $this->cache = $cache;
         $this->decorated = $decorated;
-        $this->enabled = $enabled;
-        $this->expirationTime = $expirationTime;
     }
 
     public function search(EntityDefinition $definition, Criteria $criteria, Context $context): IdSearchResult
     {
-        if (!$this->enabled) {
-            return $this->decorated->search($definition, $criteria, $context);
-        }
-
         if (!$context->getUseCache()) {
             return $this->decorated->search($definition, $criteria, $context);
         }
@@ -98,7 +80,6 @@ class CachedEntitySearcher implements EntitySearcherInterface
 
         /* @var CacheItem $item */
         $item->tag($tags);
-        $item->expiresAfter($this->expirationTime);
 
         $this->cache->save($item);
 

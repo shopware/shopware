@@ -8,6 +8,7 @@ This file contains the generic styling for all filter items.
 .filter-panel {
     display: flex;
     flex-wrap: wrap;
+    align-content: flex-start;
     margin-bottom: 8px;
 }
 
@@ -22,6 +23,7 @@ This file contains the generic styling for all filter items.
 .filter-panel-items-container {
     display: flex;
     flex-wrap: wrap;
+    align-content: flex-start;
     margin-bottom: 8px;
     width: 100%;
 }
@@ -43,6 +45,7 @@ This file contains the generic styling for all filter items.
 
         .icon-filter-panel-item-toggle svg {
             color: $primary;
+            transform: rotate(180deg);
         }
     }
 }
@@ -158,6 +161,7 @@ This file contains the generic styling for all filter items.
 
             svg {
                 color: $primary;
+                transform: rotate(180deg);
             }
         }
     }
@@ -185,7 +189,7 @@ This file contains the generic styling for all filter items.
 .btn.filter-panel-wrapper-toggle {
     display: none;
     width: 100%;
-    border: 1px solid #399;
+    border: 1px solid $primary;
     padding: 6px;
 
     &:hover {
@@ -193,34 +197,27 @@ This file contains the generic styling for all filter items.
     }
 }
 
-.filter-panel--offcanvas-only {
+.filter-panel-offcanvas-only {
     display: none;
 }
 
-.filter-panel--offcanvas-header {
-    position: absolute;
-    margin-bottom: 2rem;
-    width: calc(100% - 4rem);
+.filter-panel-offcanvas-header {
+    height: 80px;
+    align-items: center;
+    padding: 25px;
+    display: none;
+
+    h3 {
+        margin-bottom: 0;
+    }
 }
 
 .filter-panel-offcanvas-close {
-    position: absolute;
-    top: 0;
-    right: 0;
     cursor: pointer;
+    margin-left: auto;
 }
 
 @include media-breakpoint-down(md) {
-    .filter-panel {
-        height: calc(90vh - 3rem);
-        max-height: calc(100% - 64px);
-        position: absolute;
-        top: 4rem;
-        left: 0;
-        width: 100%;
-        padding: 1rem 2rem;
-    }
-
     .btn.filter-panel-wrapper-toggle {
         display: block;
     }
@@ -228,12 +225,27 @@ This file contains the generic styling for all filter items.
     .filter-panel-wrapper {
         display: none;
     }
+}
 
-    .offcanvas {
-        padding: 25px;
+.offcanvas-filter {
+    overflow: hidden;
 
-        .filter-panel--offcanvas-only {
-            display: inherit;
-        }
+    .filter-panel-offcanvas-close {
+        display: block;
+    }
+
+    .filter-panel {
+        height: calc(100% - 80px);
+        overflow-y: auto;
+        width: 100%;
+        padding: 0 25px 25px;
+    }
+
+    .filter-panel-offcanvas-header {
+        display: flex;
+    }
+
+    .filter-panel-offcanvas-only {
+        display: inherit;
     }
 }

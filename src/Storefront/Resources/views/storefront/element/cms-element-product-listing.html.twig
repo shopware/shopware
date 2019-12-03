@@ -20,7 +20,7 @@
         {% set dataUrl = url('frontend.cms.navigation.page', { navigationId: searchResult.currentFilters.navigationId }) %}
     {% endif %}
 
-    {% set sidebar = sectionType == 'sidebar' ? true : false %}
+    {% set sidebar = sectionType == 'sidebar' %}
     {% set params = { slots: slot.id, 'no-aggregations': 1 } %}
 
     {% block element_product_listing_wrapper %}
@@ -42,17 +42,21 @@
                 <div class="cms-element-product-listing">
                     {% if searchResult.total > 0 %}
                         {% block element_product_listing_pagination_nav_actions %}
-                            <div class="cms-element-product-listing-actions">
-                                {% block element_product_listing_pagination_nav_top %}
-                                    {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
-                                        entities: searchResult,
-                                        criteria: searchResult.criteria
-                                    } %}
-                                {% endblock %}
+                            <div class="cms-element-product-listing-actions row justify-content-between">
+                                <div class="col-md-auto">
+                                    {% block element_product_listing_pagination_nav_top %}
+                                        {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
+                                            entities: searchResult,
+                                            criteria: searchResult.criteria
+                                        } %}
+                                    {% endblock %}
+                                </div>
 
-                                {% block element_product_listing_sorting %}
-                                    {% sw_include '@Storefront/storefront/component/sorting.html.twig' with { current: searchResult.sorting, sortings: searchResult.sortings } %}
-                                {% endblock %}
+                                <div class="col-md-auto">
+                                    {% block element_product_listing_sorting %}
+                                        {% sw_include '@Storefront/storefront/component/sorting.html.twig' with { current: searchResult.sorting, sortings: searchResult.sortings } %}
+                                    {% endblock %}
+                                </div>
                             </div>
                         {% endblock %}
                     {% endif %}
@@ -60,13 +64,15 @@
                     {% block element_product_listing_row %}
                         <div class="row cms-listing-row js-listing-wrapper">
                             {% if searchResult.total > 0 %}
+                                {% set boxLayout = element.translated.config.boxLayout.value %}
+                                {% set displayMode = element.translated.config.displayMode.value %}
                                 {% block element_product_listing_col %}
                                     {% for product in searchResult %}
                                         <div class="cms-listing-col {{ listingColumns }}">
                                             {% block element_product_listing_box %}
                                                 {% sw_include '@Storefront/storefront/component/product/card/box.html.twig' with {
-                                                    'layout': element.translated.config.boxLayout.value,
-                                                    'displayMode': element.translated.config.displayMode.value
+                                                    'layout': boxLayout,
+                                                    'displayMode': displayMode
                                                 } %}
                                             {% endblock %}
                                         </div>

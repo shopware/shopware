@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\System\User\Command;
 
-use Shopware\Core\Framework\Console\ShopwareStyle;
-use Shopware\Core\Framework\Provisioning\UserProvisioner;
+use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\System\User\Service\UserProvisioner;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

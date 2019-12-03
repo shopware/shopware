@@ -7,9 +7,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Language\LanguageValidator;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageValidator;
 
 class LanguageValidatorTest extends TestCase
 {
@@ -726,6 +726,20 @@ class LanguageValidatorTest extends TestCase
         $this->addLanguagesWithDefaultLocales([$a]);
 
         $this->assertDeleteViolations([$a], []);
+    }
+
+    public function testSetParentOfSystemDefaultViolation(): void
+    {
+        // *systemDefault +> UUID
+
+        $systemDefaultLanguage = [
+            'id' => Defaults::LANGUAGE_SYSTEM,
+            'parentId' => Uuid::randomHex(),
+        ];
+
+        $this->assertUpsertViolations([$systemDefaultLanguage], [
+            [LanguageValidator::VIOLATION_DEFAULT_LANGUAGE_PARENT, '/0/parentId'],
+        ]);
     }
 
     public function testDeleteEnglishViolation(): void

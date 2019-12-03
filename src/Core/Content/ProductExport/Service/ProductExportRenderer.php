@@ -10,10 +10,10 @@ use Shopware\Core\Content\ProductExport\Exception\RenderFooterException;
 use Shopware\Core\Content\ProductExport\Exception\RenderHeaderException;
 use Shopware\Core\Content\ProductExport\Exception\RenderProductException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
+use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Framework\Adapter\Twig\Exception\StringTemplateRenderingException;
+use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface;
-use Shopware\Core\Framework\Twig\Exception\StringTemplateRenderingException;
-use Shopware\Core\Framework\Twig\StringTemplateRenderer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 

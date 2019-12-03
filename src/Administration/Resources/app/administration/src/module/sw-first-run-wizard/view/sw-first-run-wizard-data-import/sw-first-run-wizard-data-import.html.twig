@@ -1,0 +1,71 @@
+{% block sw_first_run_wizard_data_import %}
+    <div class="sw-first-run-wizard-data-import">
+        <sw-container v-if="!isInstallingPlugin"
+                      columns="1fr 1fr" gap="24px 0">
+            <div class="sw-first-run-wizard-data-import__card">
+                <img class="sw-first-run-wizard-data-import__icon-demodata"
+                     :src="'/administration/static/img/first-run-wizard/plugin-demodata-set.svg' | asset">
+                <h5 class="sw-first-run-wizard-data-import__headline">{{ $tc('sw-first-run-wizard.dataImport.headlineDemoData') }}</h5>
+                <p v-html="$tc('sw-first-run-wizard.dataImport.messageDemoData')"
+                   class="sw-first-run-wizard-data-import__message"></p>
+
+                <sw-button-process v-if="notInstalled('demodata')"
+                                   variant="primary"
+                                   size="small"
+                                   :isLoading="isInstallingPlugin"
+                                   :disabled="isInstallingPlugin"
+                                   :processSuccess="pluginInstalledSuccessfully.demodata"
+                                   class="button-plugin-install"
+                                   @click="onInstall('demodata')">
+                    {{ $tc('sw-first-run-wizard.dataImport.buttonInstallDemoData') }}
+                </sw-button-process>
+                <div v-else class="plugin-status">
+                    <span class="plugin-installed">
+                        <sw-icon name="small-default-checkmark-circle" size="16"></sw-icon>
+                        {{ $tc('sw-first-run-wizard.general.pluginInstalled') }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="sw-first-run-wizard-data-import__card">
+                <img class="sw-first-run-wizard-data-import__icon-migration"
+                     :src="'/administration/static/img/first-run-wizard/plugin-migration-assistant.svg' | asset">
+                <h5 class="sw-first-run-wizard-import-data__headline">{{ $tc('sw-first-run-wizard.dataImport.headlineMigration') }}</h5>
+                <p v-html="$tc('sw-first-run-wizard.dataImport.messageMigration')"
+                   class="sw-first-run-wizard-data-import__message"></p>
+
+                <sw-button-process v-if="notInstalled('migration')"
+                                   variant="primary"
+                                   size="small"
+                                   :isLoading="isInstallingPlugin"
+                                   :disabled="isInstallingPlugin"
+                                   :processSuccess="pluginInstalledSuccessfully.migration"
+                                   class="button-plugin-install"
+                                   @click="onInstall('migration')">
+                    {{ $tc('sw-first-run-wizard.dataImport.buttonInstallMigration') }}
+                </sw-button-process>
+                <div v-else class="plugin-status">
+                    <span class="plugin-installed">
+                        <sw-icon name="small-default-checkmark-circle" size="16"></sw-icon>
+                        {{ $tc('sw-first-run-wizard.general.pluginInstalled') }}
+                    </span>
+                </div>
+            </div>
+        </sw-container>
+
+        <div v-else class="installing-plugin">
+            <sw-loader size="48"></sw-loader>
+            <p v-html="$tc('sw-first-run-wizard.dataImport.loadingMessage')"
+               class="sw-loader-info-text"></p>
+        </div>
+
+        <div v-if="installationError"
+             class="sw-first-run-wizard-plugin-installation__error">
+            <sw-alert :title="$tc('sw-first-run-wizard.error.titlePluginInstallationFailed')"
+                      variant="error"
+                      appearance="notification">
+                {{ $tc('sw-first-run-wizard.error.messagePluginInstallationFailed') }}
+            </sw-alert>
+        </div>
+    </div>
+{% endblock %}

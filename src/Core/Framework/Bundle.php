@@ -2,14 +2,17 @@
 
 namespace Shopware\Core\Framework;
 
-use Shopware\Core\Framework\Asset\AssetPackageService;
+use Shopware\Core\Framework\Adapter\Asset\AssetPackageService;
+use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
-use Shopware\Core\Framework\Filesystem\PrefixFilesystem;
 use Shopware\Core\Kernel;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\Config\Loader\DelegatingLoader;
+use Symfony\Component\Config\Loader\LoaderResolver;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\Bundle\Bundle as SymfonyBundle;
@@ -112,15 +115,21 @@ abstract class Bundle extends SymfonyBundle
         $definition->addMethodCall('addMultiple', [$this->getActionEvents()]);
     }
 
+    /**
+     * Looks for service definition files inside the `Resources/config`
+     * directory and loads either xml or yml files.
+     */
     private function registerContainerFile(ContainerBuilder $container): void
     {
-        $fileSystem = new Filesystem();
-        $containerFilePath = 'Resources/config/services.xml';
-        if (!$fileSystem->exists($this->getPath() . '/' . $containerFilePath)) {
-            return;
-        }
+        $fileLocator = new FileLocator($this->getPath());
+        $loaderResolver = new LoaderResolver([
+            new XmlFileLoader($container, $fileLocator),
+            new YamlFileLoader($container, $fileLocator),
+        ]);
+        $delegatingLoader = new DelegatingLoader($loaderResolver);
 
-        $loader = new XmlFileLoader($container, new FileLocator($this->getPath()));
-        $loader->load($containerFilePath);
+        foreach (glob($this->getPath() . '/Resources/config/services.*') as $path) {
+            $delegatingLoader->load($path);
+        }
     }
 }

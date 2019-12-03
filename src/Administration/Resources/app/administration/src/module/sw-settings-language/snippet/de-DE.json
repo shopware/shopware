@@ -6,7 +6,7 @@
     },
     "list": {
       "textHeadline": "Sprachen",
-      "textDeleteConfirm": "Bist Du sicher, dass Du die Sprache \"{name}\" löschen möchtest?",
+      "textDeleteConfirm": "Bist Du sicher, dass Du die Sprache \"{name}\" löschen möchtest? Dies löscht alle Inhalte in dieser Sprache unwiederbringlich!",
       "columnName": "Name",
       "columnLocaleName": "Lokalisierung",
       "columnIsoCode": "ISO-Code ",
@@ -39,6 +39,7 @@
       "buttonSave": "Speichern",
       "tooltipLanguageNotChoosable": "Es kann nur von einer Sprache geerbt werden, die nicht bereits selbst erbt.",
       "tooltipIsoCodeNotChoosable": "Es können nur bisher ungenutzte Sprachcodes verwendet werden.",
+      "tooltipInheritanceNotPossible": "Die System Standard Sprache kann nicht von einer anderen Sprache erben.",
       "textAlertChangeParent": "Ein Wechsel der geerbten Sprache kann gegebenenfalls zu inkonsistenten Übersetzungen führen.",
       "titleAlertChangeParent": "Achtung",
       "textIsoCodeIsInUse": "Dieser ISO-Code wird bereits verwendet.",

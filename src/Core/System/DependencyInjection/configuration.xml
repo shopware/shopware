@@ -28,6 +28,7 @@
         <service id="Shopware\Core\System\SystemConfig\SystemConfigService" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="system_config.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader" />
         </service>
     </services>
 </container>

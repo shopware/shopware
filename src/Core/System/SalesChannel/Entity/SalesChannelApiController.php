@@ -3,12 +3,12 @@
 namespace Shopware\Core\System\SalesChannel\Entity;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
-use Shopware\Core\Framework\Acl\Role\AclRoleDefinition;
-use Shopware\Core\Framework\Acl\Role\AclUserRoleDefinition;
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
+use Shopware\Core\Framework\Api\Acl\Role\AclUserRoleDefinition;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
-use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ReadProtectedException;

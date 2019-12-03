@@ -4,16 +4,16 @@
     padding: 15px;
     overflow: auto;
 
-    h4 {
-        margin-bottom: 10px !important;
-        border-bottom: 1px solid $color-steam-cloud;
+    .sw-cms-preview-form-headline {
+        margin-bottom: 10px;
+        border-bottom: 1px solid $color-gray-300;
         padding-bottom: 10px;
     }
 
     .sw-cms-preview-form-inputs {
         overflow: auto;
 
-        & > div {
+        & > .sw-cms-preview-form-input {
             width: calc(50% - 7px);
             float: left;
 
@@ -27,14 +27,14 @@
         margin-bottom: 10px;
         height: 1.7em;
         border-radius: 4px;
-        border: 1px solid $color-steam-cloud;
+        border: 1px solid $color-gray-300;
     }
 
     .sw-cms-preview-form-inputs__action {
         float: right;
         padding: 0 10px;
-        background: $color-steam-cloud;
-        color: $color-kashmir;
+        background: $color-gray-300;
+        color: $color-darkgray-200;
         text-align: center;
         font-size: 12px;
         line-height: 26px;

@@ -1,40 +1,34 @@
 {% block cms_form_select_salutation_content %}
     <div class="form-group {{ additionalClass }}">
-        <label
-            class="form-label"
-            for="form-Salutation"
-        >
-            {{ "account.personalSalutationLabel"|trans }}{% if required %} {{ "general.required"|trans }}{% endif %}
-        </label>
+        {% block cms_form_select_salutation_content_label %}
+            <label class="form-label" for="form-Salutation">
+                {{ "account.personalSalutationLabel"|trans }}{% if required %} {{ "general.required"|trans }}{% endif %}
+            </label>
+        {% endblock %}
 
-        <select
-            name="salutationId"
-            id="form-Salutation"
-            {% if required %}required="required"{% endif %}
-            class="custom-select contact-select{% if formViolations.getViolations('/salutationId') %} is-invalid{% endif %}"
-        >
-            {% if not data.get('salutationId') %}
-                <option
-                    disabled="disabled"
-                    selected="selected"
-                    value=""
-                >
-                    {{ "account.personalSalutationPlaceholder"|trans }}
-                </option>
+        {% block cms_form_select_salutation_content_select %}
+            <select name="salutationId"
+                    id="form-Salutation"
+                    {% if required %}required="required"{% endif %}
+                    class="custom-select contact-select{% if formViolations.getViolations('/salutationId') %} is-invalid{% endif %}">
+                {% if not data.get('salutationId') %}
+                    <option disabled="disabled" selected="selected" value="">
+                        {{ "account.personalSalutationPlaceholder"|trans }}
+                    </option>
+                {% endif %}
+
+                {% for salutation in element.data %}
+                    <option value="{{ salutation.id }}">
+                        {{ salutation.displayName }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            {% if formViolations.getViolations('/salutationId') is not empty %}
+                {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig'
+                    with { violationPath: '/salutationId' }
+                %}
             {% endif %}
-
-            {% for salutation in element.data %}
-                <option value="{{ salutation.id }}" >
-                    {{ salutation.displayName }}
-                </option>
-            {% endfor %}
-        </select>
-
-        {% if formViolations.getViolations('/salutationId') is not empty %}
-            {%
-                sw_include '@Storefront/storefront/utilities/form-violation.html.twig'
-                with { violationPath: '/salutationId' }
-            %}
-        {% endif %}
+        {% endblock %}
     </div>
 {% endblock %}

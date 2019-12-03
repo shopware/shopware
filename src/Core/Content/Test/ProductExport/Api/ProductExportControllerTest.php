@@ -38,18 +38,18 @@ class ProductExportControllerTest extends TestCase
         $url = sprintf('/api/v%s/_action/product-export/validate', PlatformRequest::API_VERSION);
 
         $this->getBrowser()->request('POST', $url, [
-            'sales_channel_id' => $this->getSalesChannelDomain()->getSalesChannelId(),
-            'sales_channel_domain_id' => $this->getSalesChannelDomainId(),
-            'product_stream_id' => '137b079935714281ba80b40f83f8d7eb',
-            'header_template' => '',
-            'body_template' => '{{ product.name }}',
-            'footer_template' => '',
-            'include_variants' => false,
+            'salesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
+            'salesChannelDomainId' => $this->getSalesChannelDomainId(),
+            'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
+            'headerTemplate' => '',
+            'bodyTemplate' => '{{ product.name }}',
+            'footerTemplate' => '',
+            'includeVariants' => false,
             'encoding' => 'UTF-8',
-            'file_format' => 'CSV',
-            'file_name' => 'test.csv',
-            'access_key' => 'test',
-            'currency_id' => Defaults::CURRENCY,
+            'fileFormat' => 'CSV',
+            'fileName' => 'test.csv',
+            'accessKey' => 'test',
+            'currencyId' => Defaults::CURRENCY,
         ]);
 
         static::assertEquals(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
@@ -62,18 +62,18 @@ class ProductExportControllerTest extends TestCase
         $url = sprintf('/api/v%s/_action/product-export/validate', PlatformRequest::API_VERSION);
 
         $this->getBrowser()->request('POST', $url, [
-            'sales_channel_id' => $this->getSalesChannelDomain()->getSalesChannelId(),
-            'sales_channel_domain_id' => $this->getSalesChannelDomainId(),
-            'product_stream_id' => '137b079935714281ba80b40f83f8d7eb',
-            'header_template' => '',
-            'body_template' => '{{ product.name }', // Missing closing curly brace
-            'footer_template' => '',
-            'include_variants' => false,
+            'salesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
+            'salesChannelDomainId' => $this->getSalesChannelDomainId(),
+            'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
+            'headerTemplate' => '',
+            'bodyTemplate' => '{{ product.name }', // Missing closing curly brace
+            'footerTemplate' => '',
+            'includeVariants' => false,
             'encoding' => 'UTF-8',
-            'file_format' => 'CSV',
-            'file_name' => 'test.csv',
-            'access_key' => 'test',
-            'currency_id' => Defaults::CURRENCY,
+            'fileFormat' => 'CSV',
+            'fileName' => 'test.csv',
+            'accessKey' => 'test',
+            'currencyId' => Defaults::CURRENCY,
         ]);
 
         static::assertEquals(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
@@ -84,18 +84,18 @@ class ProductExportControllerTest extends TestCase
         $url = sprintf('/api/v%s/_action/product-export/validate', PlatformRequest::API_VERSION);
 
         $this->getBrowser()->request('POST', $url, [
-            'sales_channel_id' => Uuid::randomHex(),
-            'sales_channel_domain_id' => Uuid::randomHex(),
-            'product_stream_id' => '',
-            'header_template' => '',
-            'body_template' => '',
-            'footer_template' => '',
-            'include_variants' => false,
+            'salesChannelId' => Uuid::randomHex(),
+            'salesChannelDomainId' => Uuid::randomHex(),
+            'productStreamId' => '',
+            'headerTemplate' => '',
+            'bodyTemplate' => '',
+            'footerTemplate' => '',
+            'includeVariants' => false,
             'encoding' => 'UTF-8',
-            'file_format' => 'CSV',
-            'file_name' => 'test.csv',
-            'access_key' => 'test',
-            'currency_id' => Defaults::CURRENCY,
+            'fileFormat' => 'CSV',
+            'fileName' => 'test.csv',
+            'accessKey' => 'test',
+            'currencyId' => Defaults::CURRENCY,
         ]);
 
         static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $this->getBrowser()->getResponse()->getStatusCode());

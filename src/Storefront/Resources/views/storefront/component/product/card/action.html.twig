@@ -1,4 +1,6 @@
 {% block component_product_box_action_inner %}
+    {% set id = product.id %}
+
     {% if shopware.config.core.listing.allowBuyInListing %}
         <div class="product-action">
             {% if not product.variantRestrictions %}
@@ -24,22 +26,22 @@
 
                                 {% block page_product_detail_buy_product_buy_info %}
                                     <input type="hidden"
-                                           name="lineItems[{{ product.id }}][id]"
-                                           value="{{ product.id }}">
+                                           name="lineItems[{{ id }}][id]"
+                                           value="{{ id }}">
                                     <input type="hidden"
-                                           name="lineItems[{{ product.id }}][referencedId]"
-                                           value="{{ product.id }}">
+                                           name="lineItems[{{ id }}][referencedId]"
+                                           value="{{ id }}">
                                     <input type="hidden"
-                                           name="lineItems[{{ product.id }}][type]"
+                                           name="lineItems[{{ id }}][type]"
                                            value="product">
                                     <input type="hidden"
-                                           name="lineItems[{{ product.id }}][stackable]"
+                                           name="lineItems[{{ id }}][stackable]"
                                            value="1">
                                     <input type="hidden"
-                                           name="lineItems[{{ product.id }}][removable]"
+                                           name="lineItems[{{ id }}][removable]"
                                            value="1">
                                     <input type="hidden"
-                                           name="lineItems[{{ product.id }}][quantity]"
+                                           name="lineItems[{{ id }}][quantity]"
                                            value="1">
                                 {% endblock %}
 
@@ -53,7 +55,7 @@
                 {% endblock %}
             {% else %}
                 {% block component_product_box_action_detail %}
-                    <a href="{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}"
+                    <a href="{{ seoUrl('frontend.detail.page', {'productId': id}) }}"
                        class="btn btn-block btn-light"
                        title="{{ "listing.boxProductDetails"|trans|striptags }}">
                         {{ "listing.boxProductDetails"|trans|sw_sanitize }}

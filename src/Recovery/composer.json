@@ -1,0 +1,21 @@
+{
+    "name": "shopware/recovery",
+    "description": "Recovery for Shopware",
+    "type": "library",
+    "license": "MIT",
+    "minimum-stability": "stable",
+    "require": {
+        "php": "^7.2"
+    },
+    "scripts": {
+        "pre-install-cmd": [
+            "composer install -d Common --no-interaction --optimize-autoloader --no-suggest"
+        ]
+    },
+    "config": {
+        "autoloader-suffix": "ShopwareRecovery",
+        "platform": {
+            "php": "7.2.0"
+        }
+    }
+}

@@ -52,7 +52,7 @@ class ProductExportEventListener implements EventSubscriberInterface
                 [
                     [
                         'id' => $primaryKey,
-                        'generatedAt' => null
+                        'generatedAt' => null,
                     ],
                 ],
                 $event->getContext()
@@ -66,7 +66,6 @@ class ProductExportEventListener implements EventSubscriberInterface
                     $this->fileSystem->delete($filePath);
                 }
             }
-
         }
     }
 

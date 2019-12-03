@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 class ExceptionHandlerRegistry
 {
     /**
-     * @var ExceptionHandlerInterface[]
+     * @var array
      */
     protected $exceptionHandlers = [];
 
@@ -20,24 +20,23 @@ class ExceptionHandlerRegistry
 
     public function add(ExceptionHandlerInterface $exceptionHandler): void
     {
-        $this->exceptionHandlers[] = $exceptionHandler;
+        $this->exceptionHandlers[$exceptionHandler->getPriority()][] = $exceptionHandler;
     }
 
     public function matchException(\Exception $e, WriteCommand $command): ?\Exception
     {
-        foreach ($this->getExceptionHandlers() as $exceptionHandler) {
-            $innerException = $exceptionHandler->matchException($e, $command);
-            if ($innerException instanceof \Exception) {
-                return $innerException;
+        foreach ($this->getExceptionHandlers() as $priorityExceptionHandlers) {
+            foreach ($priorityExceptionHandlers as $exceptionHandler) {
+                $innerException = $exceptionHandler->matchException($e, $command);
+                if ($innerException instanceof \Exception) {
+                    return $innerException;
+                }
             }
         }
 
         return null;
     }
 
-    /**
-     * @return ExceptionHandlerInterface[]
-     */
     public function getExceptionHandlers(): array
     {
         return $this->exceptionHandlers;

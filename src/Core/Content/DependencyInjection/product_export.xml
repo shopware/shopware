@@ -13,9 +13,9 @@
         </service>
 
         <service id="Shopware\Core\Content\ProductExport\Service\ProductExportRenderer">
-            <argument type="service" id="Shopware\Core\Framework\Twig\StringTemplateRenderer"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\ProductExport\Service\ProductExporter" public="true">
@@ -37,7 +37,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportValidator"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
-            <argument type="service" id="Shopware\Core\Framework\Translation\Translator"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="string">%product_export.read_buffer_size%</argument>
@@ -69,7 +69,7 @@
             <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportFileHandler"/>
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportRenderer"/>
-            <argument type="service" id="Shopware\Core\Framework\Translation\Translator"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>

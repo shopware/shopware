@@ -4,10 +4,10 @@ namespace Shopware\Storefront\Framework\Routing;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Statement;
+use Shopware\Core\Content\Seo\SeoResolverInterface;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
-use Shopware\Core\Framework\Seo\SeoResolverInterface;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;

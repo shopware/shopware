@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Term;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;

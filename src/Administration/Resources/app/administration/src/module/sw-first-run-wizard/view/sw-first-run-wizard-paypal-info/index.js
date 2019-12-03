@@ -6,7 +6,7 @@ const { Component } = Shopware;
 Component.register('sw-first-run-wizard-paypal-info', {
     template,
 
-    inject: ['addNextCallback', 'storeService', 'pluginService'],
+    inject: ['storeService', 'pluginService'],
 
     data() {
         return {
@@ -23,8 +23,44 @@ Component.register('sw-first-run-wizard-paypal-info', {
 
     methods: {
         createdComponent() {
-            this.addNextCallback(this.activatePayPalAndRedirect);
+            this.updateButtons();
+            this.setTitle();
             this.installPromise = this.installPayPal();
+        },
+
+        setTitle() {
+            this.$emit('frw-set-title', this.$tc('sw-first-run-wizard.paypalInfo.modalTitle'));
+        },
+
+        updateButtons() {
+            const buttonConfig = [
+                {
+                    key: 'back',
+                    label: this.$tc('sw-first-run-wizard.general.buttonBack'),
+                    position: 'left',
+                    variant: null,
+                    action: 'sw.first.run.wizard.index.mailer.selection',
+                    disabled: false
+                },
+                {
+                    key: 'skip',
+                    label: this.$tc('sw-first-run-wizard.general.buttonSkip'),
+                    position: 'right',
+                    variant: null,
+                    action: 'sw.first.run.wizard.index.plugins',
+                    disabled: false
+                },
+                {
+                    key: 'configure',
+                    label: this.$tc('sw-first-run-wizard.general.buttonNextPayPalInfo'),
+                    position: 'right',
+                    variant: 'primary',
+                    action: this.activatePayPalAndRedirect.bind(this),
+                    disabled: false
+                }
+            ];
+
+            this.$emit('buttons-update', buttonConfig);
         },
 
         installPayPal() {

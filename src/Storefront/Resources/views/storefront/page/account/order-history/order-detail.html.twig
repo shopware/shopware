@@ -50,7 +50,7 @@
                                                 {% endblock %}
 
                                                 {% block page_account_order_item_detail_date_value %}
-                                                    <dd class="col-6 col-md-7">{{ order.orderDateTime|localizeddate('short', 'none', app.request.locale) }}</dd>
+                                                    <dd class="col-6 col-md-7">{{ order.orderDateTime|format_date('short', locale=app.request.locale) }}</dd>
                                                 {% endblock %}
                                             {% endblock %}
 

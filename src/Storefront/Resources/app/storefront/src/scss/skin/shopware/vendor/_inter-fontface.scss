@@ -6,7 +6,59 @@ Import of Inter font vendor.
 https://rsms.me/inter/
 */
 
-@import '~vendor/Inter-3.5/inter.css';
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-display: fallback;
+    src: url('#{$asset-path}/font/Inter-Regular.woff2') format('woff2'),
+        url('#{$asset-path}/font/Inter-Regular.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: italic;
+    font-weight: 400;
+    font-display: fallback;
+    src: url('#{$asset-path}/font/Inter-Italic.woff2') format('woff2'),
+        url('#{$asset-path}/font/Inter-Italic.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 600;
+    font-display: fallback;
+    src: url('#{$asset-path}/font/Inter-SemiBold.woff2') format('woff2'),
+        url('#{$asset-path}/font/Inter-SemiBold.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: italic;
+    font-weight: 600;
+    font-display: fallback;
+    src: url('#{$asset-path}/font/Inter-SemiBoldItalic.woff2') format('woff2'),
+        url('#{$asset-path}/font/Inter-SemiBoldItalic.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 700;
+    font-display: fallback;
+    src: url('#{$asset-path}/font/Inter-Bold.woff2') format('woff2'),
+        url('#{$asset-path}/font/Inter-Bold.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: italic;
+    font-weight: 700;
+    font-display: fallback;
+    src: url('#{$asset-path}/font/Inter-BoldItalic.woff2') format('woff2'),
+        url('#{$asset-path}/font/Inter-BoldItalic.woff') format('woff');
+}
 
 // https://rsms.me/inter/#features/cvXX
 body {

@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask;
 
-use Shopware\Core\Framework\ScheduledTask\ScheduledTask;
-
 class RequeueDeadMessagesTask extends ScheduledTask
 {
     public static function getTaskName(): string

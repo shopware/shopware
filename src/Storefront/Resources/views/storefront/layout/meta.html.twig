@@ -1,5 +1,5 @@
 {% block layout_head_inner %}
-    {% set metaDescription = page.metaInformation.metaDescription|striptags|trim|truncate(shopware.config.seo.descriptionMaxLength) %}
+    {% set metaDescription = page.metaInformation.metaDescription|striptags|trim|u.truncate(shopware.config.seo.descriptionMaxLength ?? 160) %}
     {% set metaTitle = page.metaInformation.metaTitle|striptags|trim %}
     {% set metaKeywords = page.metaInformation.metaKeywords|striptags|trim %}
 
@@ -11,7 +11,7 @@
 
             {% block layout_head_meta_tags_viewport %}
                 <meta name="viewport"
-                      content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no">
+                      content="width=device-width, initial-scale=1, shrink-to-fit=no">
             {% endblock %}
 
             {% block layout_head_meta_tags_general %}

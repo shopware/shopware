@@ -6,7 +6,7 @@
     },
     "list": {
       "textHeadline": "Languages",
-      "textDeleteConfirm": "Are you sure you want to delete the language \"{name}\"?",
+      "textDeleteConfirm": "Are you sure you want to delete the language \"{name}\"? This will delete all content in this language and can not be undone!",
       "columnName": "Name",
       "columnLocaleName": "Locale",
       "columnIsoCode": "ISO Code ",
@@ -39,6 +39,7 @@
       "buttonSave": "Save",
       "tooltipLanguageNotChoosable": "You cannot use a language which is already inheriting from another language.",
       "tooltipIsoCodeNotChoosable": "You can only select locales that are not in use already.",
+      "tooltipInheritanceNotPossible": "The system default language can not inherit from another language.",
       "textAlertChangeParent": "Changing the parent language can lead to inconsistencies in your translations.",
       "titleAlertChangeParent": "Be aware",
       "textIsoCodeIsInUse": "This ISO code is already in use.",

@@ -20,13 +20,15 @@ class UnpackStep
     private $source;
 
     /**
-     * @param string $source
-     * @param string $destinationDir
+     * @var bool
      */
-    public function __construct($source, $destinationDir)
+    private $testMode;
+
+    public function __construct(string $source, $destinationDir, bool $testMode = false)
     {
         $this->source = $source;
         $this->destinationDir = rtrim($destinationDir, '/') . '/';
+        $this->testMode = $testMode;
     }
 
     /**
@@ -38,6 +40,14 @@ class UnpackStep
     {
         $fs = new Filesystem();
         $requestTime = time();
+
+        // TestMode
+        if ($this->testMode === true && $offset >= 90) {
+            return new FinishResult(100, 100);
+        } elseif ($this->testMode === true) {
+            return new ValidResult($offset + 10, 100);
+        }
+        // TestMode
 
         try {
             $source = new Zip($this->source);

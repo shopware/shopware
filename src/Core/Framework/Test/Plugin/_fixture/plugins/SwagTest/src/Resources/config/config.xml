@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
+
+    <card>
+        <title>Configuration</title>
+        <title lang="de-DE">Konfiguration</title>
+        <input-field type="int">
+            <name>intField</name>
+            <label>Test field with default value</label>
+            <defaultValue>7</defaultValue>
+        </input-field>
+        <input-field type="text">
+            <name>textFieldWithoutDefault</name>
+            <label>Test field without default value</label>
+        </input-field>
+        <input-field type="text">
+            <name>textField</name>
+            <label>Test field with default value</label>
+            <defaultValue>string</defaultValue>
+        </input-field>
+        <input-field type="text">
+            <name>textFieldNull</name>
+            <label>Test field with default value null</label>
+            <defaultValue>null</defaultValue>
+        </input-field>
+        <input-field type="bool">
+            <name>switchField</name>
+            <label>Test field with default value</label>
+            <defaultValue>false</defaultValue>
+        </input-field>
+        <input-field type="float">
+            <name>floatField</name>
+            <label>Test field with default value</label>
+            <defaultValue>0.349831239840912348</defaultValue>
+        </input-field>
+    </card>
+</config>

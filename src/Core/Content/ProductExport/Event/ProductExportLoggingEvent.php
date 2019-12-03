@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
-use Shopware\Core\Framework\Logging\LogAwareBusinessEventInterface;
+use Shopware\Core\Framework\Log\LogAwareBusinessEventInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class ProductExportLoggingEvent extends Event implements BusinessEventInterface, LogAwareBusinessEventInterface

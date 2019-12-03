@@ -3,27 +3,31 @@
 {% block component_filter_multi_select_list_item %}
     <li class="filter-multi-select-list-item filter-property-select-list-item">
         {% if displayType == 'color' or displayType == 'media' %}
+            {% set color = element.colorHexCode %}
+            {% set media = element.media.url %}
+            {% set name = element.translated.name %}
+            {% set id = element.id %}
 
             {% block component_filter_property_select_preview %}
                 <span class="filter-property-select-preview"
-                      title="{{ element.translated.name }}"
-                      {% if displayType == 'color' and element.colorHexCode %}
-                      style="background: {{ element.colorHexCode }}"
+                      title="{{ name }}"
+                      {% if displayType == 'color' and color %}
+                      style="background: {{ color }}"
                       {% endif %}
-                      {% if displayType == 'media' and element.media.url %}
-                      style="background-image: url('{{ element.media.url }}')"
+                      {% if displayType == 'media' and media %}
+                      style="background-image: url('{{ media }}')"
                       {% endif %}>
 
                     {% block component_filter_property_select_checkox_input %}
                         <input type="checkbox"
                                class="filter-property-select-checkbox filter-multi-select-checkbox"
-                               id="{{ element.id }}"
-                               data-label="{{ element.translated.name }}"
-                               {% if displayType == 'color' and element.colorHexCode %}
-                               data-preview-hex="{{ element.colorHexCode }}"
+                               id="{{ id }}"
+                               data-label="{{ name }}"
+                               {% if displayType == 'color' and color %}
+                               data-preview-hex="{{ color }}"
                                {% endif %}
-                               {% if displayType == 'media' and element.media.url %}
-                               data-preview-image-url="{{ element.media.url }}"
+                               {% if displayType == 'media' and media %}
+                               data-preview-image-url="{{ media }}"
                                {% endif %}>
                     {% endblock %}
 
@@ -39,9 +43,9 @@
 
             {% if not hideTitle %}
                 {% block component_filter_property_select_preview_list_item_label_element %}
-                    <label class="filter-multi-select-item-label" for="{{ element.id }}">
+                    <label class="filter-multi-select-item-label" for="{{ id }}">
                         {% block component_filter_property_select_preview_list_item_label %}
-                            {{ element.translated.name }}
+                            {{ name }}
                         {% endblock %}
                     </label>
                 {% endblock %}

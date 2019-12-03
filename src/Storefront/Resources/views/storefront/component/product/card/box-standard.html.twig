@@ -1,5 +1,9 @@
 {% block component_product_box %}
     {% if product %}
+        {% set name = product.translated.name %}
+        {% set id = product.id %}
+        {% set cover = product.cover.media %}
+
         <div class="card product-box box-{{ layout }}">
             {% block component_product_box_content %}
                 <div class="card-body">
@@ -21,14 +25,14 @@
                                 {% set displayMode = 'cover' %}
                             {% endif %}
 
-                            <a href="{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}"
-                               title="{{ product.translated.name }}"
+                            <a href="{{ seoUrl('frontend.detail.page', {'productId': id}) }}"
+                               title="{{ name }}"
                                class="product-image-link is-{{ displayMode }}">
-                                {% if product.cover.media.url %}
+                                {% if cover.url %}
                                     {% set attributes = {
                                         'class': 'product-image is-'~displayMode,
-                                        'alt': (product.cover.media.translated.alt ?: ''),
-                                        'title': (product.cover.media.translated.title ?: '')
+                                        'alt': (cover.translated.alt ?: name),
+                                        'title': (cover.translated.title ?: name)
                                     } %}
 
                                     {% if displayMode == 'cover' or displayMode == 'contain' %}
@@ -36,7 +40,7 @@
                                     {% endif %}
 
                                     {% sw_thumbnails 'product-image-thumbnails' with {
-                                        media: product.cover.media,
+                                        media: cover,
                                         sizes: {
                                             'xs': '501px',
                                             'sm': '315px',
@@ -72,10 +76,10 @@
                             {% endblock %}
 
                             {% block component_product_box_name %}
-                                <a href="{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}"
+                                <a href="{{ seoUrl('frontend.detail.page', {'productId': id}) }}"
                                    class="product-name"
-                                   title="{{ product.translated.name }}">
-                                    {{ product.translated.name }}
+                                   title="{{ name }}">
+                                    {{ name }}
                                 </a>
                             {% endblock %}
 

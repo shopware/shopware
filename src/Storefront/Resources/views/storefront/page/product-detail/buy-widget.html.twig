@@ -50,7 +50,7 @@
 
             {% block page_product_detail_rich_snippets_release_date %}
                 <meta itemprop="releaseDate"
-                      content="{{ page.product.releaseDate|localizeddate('short', 'none', app.request.locale) }}"/>
+                      content="{{ page.product.releaseDate|format_date('short', locale=app.request.locale) }}"/>
             {% endblock %}
         {% endblock %}
 

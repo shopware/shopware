@@ -17,10 +17,16 @@ class DownloadStep
      */
     private $destination;
 
-    public function __construct(Version $version, string $destination)
+    /**
+     * @var bool
+     */
+    private $testMode;
+
+    public function __construct(Version $version, string $destination, bool $testMode = false)
     {
         $this->version = $version;
         $this->destination = $destination;
+        $this->testMode = $testMode;
     }
 
     /**
@@ -28,6 +34,12 @@ class DownloadStep
      */
     public function run(int $offset): object
     {
+        if ($this->testMode === true && $offset >= 90) {
+            return new FinishResult(100, 100);
+        } elseif ($this->testMode === true) {
+            return new ValidResult($offset + 10, 100);
+        }
+
         if (is_file($this->destination) && filesize($this->destination) > 0) {
             return new FinishResult($offset, $this->version->size);
         }

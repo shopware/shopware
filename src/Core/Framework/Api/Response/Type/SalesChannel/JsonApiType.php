@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Api\Response\Type\SalesChannel;
 
+use Shopware\Core\Framework\Api\Context\ContextSource;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Api\Response\Type\Api;
-use Shopware\Core\Framework\Context\ContextSource;
-use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Symfony\Component\HttpFoundation\Request;
 
 class JsonApiType extends Api\JsonApiType

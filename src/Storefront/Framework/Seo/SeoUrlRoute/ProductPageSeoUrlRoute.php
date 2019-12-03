@@ -8,16 +8,16 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlExtractIdResult;
+use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
+use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
+use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\Seo\SeoUrlRoute\SeoUrlExtractIdResult;
-use Shopware\Core\Framework\Seo\SeoUrlRoute\SeoUrlMapping;
-use Shopware\Core\Framework\Seo\SeoUrlRoute\SeoUrlRouteConfig;
-use Shopware\Core\Framework\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Framework\Seo\SeoTemplateReplacementVariable;
 

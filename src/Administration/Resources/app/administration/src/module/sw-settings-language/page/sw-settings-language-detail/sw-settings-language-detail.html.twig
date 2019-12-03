@@ -67,9 +67,10 @@
                                             id="inherit"
                                             class="sw-settings-language-detail__select-parent"
                                             :criteria="parentLanguageCriteria"
+                                            :disabled="isSystemDefaultLanguageId"
                                             :label="$tc('sw-settings-language.detail.labelParent')"
                                             :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
-                                            :helpText="$tc('sw-settings-language.detail.tooltipLanguageNotChoosable')"
+                                            :helpText="inheritanceTooltipText"
                                             @change="onInputLanguage"
                                             v-model="language.parentId"
                                             entity="language">

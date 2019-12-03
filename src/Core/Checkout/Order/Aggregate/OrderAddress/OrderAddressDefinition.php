@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
@@ -77,7 +78,7 @@ class OrderAddressDefinition extends EntityDefinition
             new ManyToOneAssociationField('countryState', 'country_state_id', CountryStateDefinition::class, 'id', false),
             (new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, 'id', false))->setFlags(new RestrictDelete()),
             new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, 'id', false),
-            (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_order_address_id', 'id'))->setFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_order_address_id', 'id'))->setFlags(new CascadeDelete()),
         ]);
     }
 }

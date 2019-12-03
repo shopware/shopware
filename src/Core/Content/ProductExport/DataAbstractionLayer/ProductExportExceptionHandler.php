@@ -22,4 +22,9 @@ class ProductExportExceptionHandler implements ExceptionHandlerInterface
 
         return null;
     }
+
+    public function getPriority(): int
+    {
+        return ExceptionHandlerInterface::PRIORITY_DEFAULT;
+    }
 }

@@ -10,6 +10,7 @@
         <directory name="vendor/shopware/platform/src"/>
         <ignoreFiles>
             <directory name="vendor"/>
+            <directory name="vendor/shopware/platform/src/Recovery" />
         </ignoreFiles>
     </projectFiles>
 

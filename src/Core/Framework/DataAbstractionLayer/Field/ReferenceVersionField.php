@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ReferenceVersionFieldSerializer;
-use Shopware\Core\Framework\Version\VersionDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 
 class ReferenceVersionField extends FkField
 {

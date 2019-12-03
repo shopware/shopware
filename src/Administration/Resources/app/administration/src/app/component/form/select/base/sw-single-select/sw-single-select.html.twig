@@ -44,13 +44,14 @@
             {% block sw_single_select_base_results %}
                 <template #results-list>
                     {% block sw_single_select_base_results_slot %}
-                        <sw-select-result-list :options="visibleResults"
-                                                :isLoading="isLoading"
-                                                ref="resultsList"
-                                                :emptyMessage="$tc('global.sw-single-select.messageNoResults', 0, { term: searchTerm })"
-                                                :focusEl="$refs.swSelectInput"
-                                                @paginate="$emit('paginate')"
-                                                @item-select="setValue">
+                        <sw-select-result-list ref="resultsList"
+                                               :popoverConfig="popoverConfig"
+                                               :options="visibleResults"
+                                               :isLoading="isLoading"
+                                               :emptyMessage="$tc('global.sw-single-select.messageNoResults', 0, { term: searchTerm })"
+                                               :focusEl="$refs.swSelectInput"
+                                               @paginate="$emit('paginate')"
+                                               @item-select="setValue">
                             {% block sw_single_select_base_results_list %}
                                 {% block sw_single_select_base_results_list_before %}
                                     <template #before-item-list>

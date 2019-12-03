@@ -83,6 +83,22 @@ Options are used to configure your `<input-field>`.
 **Every `<input-field>` has to start with the `<name>` element.**
 After the `<name>` element you can configure any of the other options mentioned above.
 
+### defaultValue
+
+Add the `defaultValue` option to your `<input-field>` to define a default value for it.
+This value will be imported into the database on installing and updating the plugin.
+We use [Symfony\Component\Config\Util\XmlUtils](https://github.com/symfony/config/blob/master/Util/XmlUtils.php#L215) for casting the values into the correct PHP types.
+
+Below you'll find an example how to use this option.
+
+```xml
+<input-field type="text">
+    <name>textField</name>
+    <label>Test field with default value</label>
+    <defaultValue>test</defaultValue>
+</input-field>
+```
+
 ### disabled
 
 You can add the `<disabled>` option to any of your `<input-field>` elements to disable it.

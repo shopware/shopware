@@ -29,7 +29,7 @@ class ThemeCreateCommand extends Command
     {
         $this
             ->addArgument('theme-name', InputArgument::OPTIONAL, 'Theme name')
-            ->setDescription('Creates a plugin skeleton');
+            ->setDescription('Creates a theme skeleton');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -171,6 +171,11 @@ EOL;
 {
   "name": "#name#",
   "author": "Shopware AG",
+  "views": [
+     "@Storefront",
+     "@Plugins",
+     "@#name#"
+  ],
   "style": [
     "@Storefront",
     "app/storefront/src/scss/base.scss"

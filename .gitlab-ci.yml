@@ -51,6 +51,10 @@ default:
 # Stage: Static analysis
 
 Javascript analysis:
+    only:
+        refs:
+            - merge_requests
+            - master
     stage: Static analysis
     before_script: []
     script:
@@ -64,6 +68,10 @@ Javascript analysis:
             junit: src/Administration/Resources/app/administration/eslint.junit.xml
 
 PHP analysis:
+    only:
+        refs:
+            - merge_requests
+            - master
     stage: Static analysis
     services:
         -   name: mysql:5.7
@@ -128,6 +136,10 @@ PHP analysis:
             junit: development/build/artifacts/phpunit.junit.xml
 
 PHP 7.2:
+    only:
+        refs:
+            - merge_requests
+            - master
     extends: .phpunit_base
     image: shopware/development:7.2
     stage: unit
@@ -139,6 +151,10 @@ PHP 7.2:
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
 
 PHP 7.3:
+    only:
+        refs:
+            - merge_requests
+            - master
     extends: .phpunit_base
     image: shopware/development:7.3
     stage: unit
@@ -149,8 +165,11 @@ PHP 7.3:
             alias: elasticsearch
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
 
-.PHP 7.4: # disabled until available
-    allow_failure: true
+PHP 7.4:
+    only:
+        refs:
+            - merge_requests
+            - master
     extends: .phpunit_base
     image: shopware/development:7.4
     stage: unit
@@ -162,6 +181,10 @@ PHP 7.3:
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
 
 MySQL 5.7:
+    only:
+        refs:
+            - merge_requests
+            - master
     extends: .phpunit_base
     stage: unit
     services:
@@ -172,6 +195,10 @@ MySQL 5.7:
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
 
 MySQL 8.0:
+    only:
+        refs:
+            - merge_requests
+            - master
     extends: .phpunit_base
     stage: unit
     services:
@@ -184,6 +211,10 @@ MySQL 8.0:
 
 
 MariaDB 10.3:
+    only:
+        refs:
+            - merge_requests
+            - master
     extends: .phpunit_base
     stage: unit
     services:
@@ -195,6 +226,10 @@ MariaDB 10.3:
 
 
 MariaDB 10.4:
+    only:
+        refs:
+            - merge_requests
+            - master
     extends: .phpunit_base
     stage: unit
     services:
@@ -206,6 +241,10 @@ MariaDB 10.4:
 
 
 Administration (Jest):
+    only:
+        refs:
+            - merge_requests
+            - master
     stage: unit
     needs: [Javascript analysis]
     services:
@@ -221,6 +260,10 @@ Administration (Jest):
             junit: development/build/artifacts/administration.junit.xml
 
 Storefront (Jest):
+    only:
+        refs:
+            - merge_requests
+            - master
     stage: unit
     needs: [Javascript analysis]
     variables:
@@ -293,53 +336,80 @@ Storefront (Jest):
         - docker rm -f cypress
 
 General (Storefront):
+    only:
+        - merge_requests
+        - master
     <<: *e2e_definition
     script: *storefront_definition
     needs: [Storefront (Jest)]
 
 Content (Mixed):
+    only:
+        - merge_requests
+        - master
     <<: *e2e_definition
     script: *mixed_definition
     variables:
         TEST_DIRECTORY: e2e-Administration/cypress/integration/content/**/*
 
 Catalogues  (Mixed):
+    only:
+        - merge_requests
+        - master
     <<: *e2e_definition
     script: *mixed_definition
     variables:
         TEST_DIRECTORY: e2e-Administration/cypress/integration/catalogue/**/*
 
 Customers (Mixed):
+    only:
+        - merge_requests
+        - master
     <<: *e2e_definition
     script: *mixed_definition
     variables:
         TEST_DIRECTORY: e2e-Administration/cypress/integration/customer/**/*
 
 Media and Marketing (Mixed):
+    only:
+        - merge_requests
+        - master
     <<: *e2e_definition
     script: *mixed_definition
     variables:
         TEST_DIRECTORY: e2e-Administration/cypress/integration/media-marketing/**/*
 
 General (Administration):
+    only:
+        - merge_requests
+        - master
     <<: *e2e_definition
     script: *administration_definition
     variables:
         TEST_DIRECTORY: e2e-Administration/cypress/integration/general/**/*
 
 Orders (Administration):
+    only:
+        - merge_requests
+        - master
     <<: *e2e_definition
     script: *administration_definition
     variables:
         TEST_DIRECTORY: e2e-Administration/cypress/integration/order/**/*
 
 Rules and Product Groups (Administration):
+    only:
+        - merge_requests
+        - master
     <<: *e2e_definition
     script: *administration_definition
     variables:
         TEST_DIRECTORY: e2e-Administration/cypress/integration/rule-product-stream/**/*
 
 Settings (Administration):
+    only:
+        - merge_requests
+        - master
     <<: *e2e_definition
     script: *administration_definition
     variables:
@@ -348,6 +418,13 @@ Settings (Administration):
 # Stage: build
 
 Component Library:
+    only:
+        refs:
+            - merge_requests
+            - master
+        changes:
+            - src/Administration/*
+            - src/Storefront/*
     stage: Build
     image: node:10.8
     before_script: []
@@ -371,9 +448,14 @@ Component Library:
 # Stage: Generate docs
 
 Generating docs:
+    only:
+        refs:
+            - merge_requests
+            - master
+        changes:
+            - src/Docs/Resources/current/*
     stage: Generate docs
     dependencies: []
-    needs: []
     services:
         -   name: docker:18.09.7-dind
             alias: docker

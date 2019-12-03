@@ -5,9 +5,10 @@
     {% endblock %}
 
     {% block component_product_box_rich_snippets_gtin13 %}
-        {% if product.ean %}
+        {% set ean = product.ean %}
+        {% if ean %}
             <meta itemprop="gtin13"
-                  content="{{ product.ean }}"/>
+                  content="{{ ean }}"/>
         {% endif %}
     {% endblock %}
 

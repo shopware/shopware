@@ -12,7 +12,7 @@ class PasswordField extends Field implements StorageAware
     private $storageName;
 
     /**
-     * @var int
+     * @var string|int|null
      */
     private $algorithm;
 
@@ -21,7 +21,10 @@ class PasswordField extends Field implements StorageAware
      */
     private $hashOptions;
 
-    public function __construct(string $storageName, string $propertyName, int $algorithm = PASSWORD_DEFAULT, array $hashOptions = [])
+    /**
+     * @param string|int $algorithm
+     */
+    public function __construct(string $storageName, string $propertyName, $algorithm = PASSWORD_DEFAULT, array $hashOptions = [])
     {
         parent::__construct($propertyName);
         $this->storageName = $storageName;
@@ -34,7 +37,12 @@ class PasswordField extends Field implements StorageAware
         return $this->storageName;
     }
 
-    public function getAlgorithm(): int
+    /**
+     * since php 7.4 the algorithms are identified as string -> https://wiki.php.net/rfc/password_registry#backward_incompatible_changes
+     *
+     * @return int|string|null
+     */
+    public function getAlgorithm()
     {
         return $this->algorithm;
     }

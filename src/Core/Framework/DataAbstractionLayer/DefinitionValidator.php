@@ -13,9 +13,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -87,6 +90,12 @@ class DefinitionValidator
 
     private const GENERIC_FK_FIELDS = [
         'seo_url.foreignKey',
+    ];
+
+    private const DELETE_FLAG_TO_ACTION_MAPPING = [
+        CascadeDelete::class => ['CASCADE'],
+        RestrictDelete::class => ['RESTRICT', null, false],
+        SetNullOnDelete::class => ['SET NULL'],
     ];
 
     /**
@@ -614,6 +623,8 @@ class DefinitionValidator
             }
         }
 
+        $associationViolations = $this->validateForeignKeyOnDeleteBehaviour($definition, $association, $reference, $associationViolations);
+
         return $associationViolations;
     }
 
@@ -688,6 +699,8 @@ class DefinitionValidator
                 $violations[$mapping->getClass()][] = sprintf('Missing reference version field for definition %s in mapping definition %s', $reference->getClass(), $mapping->getClass());
             }
         }
+
+        $violations = $this->validateForeignKeyOnDeleteBehaviour($definition, $association, $reference, $violations);
 
         $reverse = $reference->getFields()->filter(function (Field $field) use ($definition, $association) {
             return $field instanceof ManyToManyAssociationField
@@ -958,5 +971,48 @@ class DefinitionValidator
         }
 
         return [sprintf('Missing parent definition in aggregate definition %s', $definition->getClass())];
+    }
+
+    /**
+     * @param OneToManyAssociationField|ManyToManyAssociationField $association
+     */
+    private function validateForeignKeyOnDeleteBehaviour(EntityDefinition $definition, AssociationField $association, EntityDefinition $reference, array $associationViolations): array
+    {
+        $manager = $this->connection->getSchemaManager();
+
+        if ($association->getFlag(CascadeDelete::class)
+            || $association->getFlag(RestrictDelete::class)
+            || $association->getFlag(SetNullOnDelete::class)) {
+            $fks = $manager->listTableForeignKeys($reference->getEntityName());
+
+            foreach ($fks as $fk) {
+                if ($fk->getForeignTableName() !== $definition->getEntityName() || !\in_array($association->getReferenceField(), $fk->getLocalColumns(), true)) {
+                    continue;
+                }
+
+                /** @var Flag $deleteFlag */
+                $deleteFlag = $association->getFlag(CascadeDelete::class)
+                    ?? $association->getFlag(RestrictDelete::class)
+                    ?? $association->getFlag(SetNullOnDelete::class);
+
+                if (\in_array($fk->onDelete(), self::DELETE_FLAG_TO_ACTION_MAPPING[\get_class($deleteFlag)], true)) {
+                    continue;
+                }
+
+                $associationViolations[$definition->getClass()][] = sprintf(
+                    'ForeignKey "%s" on entity "%s" has wrong OnDelete behaviour, behaviour should be "%s",'
+                    . 'because Association "%s" on entity "%s" defined flag "%s", got "%s" instead.',
+                    $fk->getName(),
+                    $reference->getEntityName(),
+                    self::DELETE_FLAG_TO_ACTION_MAPPING[\get_class($deleteFlag)][0],
+                    $association->getPropertyName(),
+                    $definition->getEntityName(),
+                    \get_class($deleteFlag),
+                    $fk->onDelete()
+                );
+            }
+        }
+
+        return $associationViolations;
     }
 }

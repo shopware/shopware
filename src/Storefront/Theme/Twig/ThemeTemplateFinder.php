@@ -2,65 +2,73 @@
 
 namespace Shopware\Storefront\Theme\Twig;
 
-use Shopware\Core\Framework\Twig\TemplateFinder;
-use Shopware\Storefront\Framework\ThemeInterface;
-use Shopware\Storefront\Theme\StorefrontPluginRegistry;
-use Twig\Error\LoaderError;
+use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\SalesChannelRequest;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
 
-class ThemeTemplateFinder extends TemplateFinder
+class ThemeTemplateFinder extends TemplateFinder implements EventSubscriberInterface
 {
     /**
-     * @var string|null
+     * @var ThemeInheritanceBuilderInterface
      */
-    private $activeThemeName;
+    private $inheritanceBuilder;
 
-    /**
-     * @var string|null
-     */
-    private $activeThemeBaseName;
-
-    /**
-     * @throws LoaderError
-     */
-    public function find(
-        string $template,
-        $ignoreMissing = false,
-        ?string $startAt = null,
-        ?string $activeThemeName = null,
-        ?string $activeThemeBaseName = null
-    ): string {
-        if ($activeThemeName !== null) {
-            $this->activeThemeName = $activeThemeName;
-        }
-        if ($activeThemeBaseName !== null) {
-            $this->activeThemeBaseName = $activeThemeBaseName;
-        }
-
-        return parent::find($template, $ignoreMissing, $startAt);
+    public function __construct(
+        Environment $twig,
+        FilesystemLoader $loader,
+        string $cacheDir,
+        ThemeInheritanceBuilderInterface $inheritanceBuilder
+    ) {
+        parent::__construct($twig, $loader, $cacheDir);
+        $this->inheritanceBuilder = $inheritanceBuilder;
     }
 
-    protected function filterBundles(array $bundles)
+    public static function getSubscribedEvents()
     {
-        $prefilteredBundles = parent::filterBundles($bundles);
-        $postfilteredBundles = [];
+        return [
+            KernelEvents::REQUEST => 'requestEvent',
+        ];
+    }
 
-        foreach ($prefilteredBundles as $bundle) {
-            $kernelBundles = $this->kernel->getBundles();
-            $bundleClass = null;
-            if (array_key_exists($bundle, $kernelBundles)) {
-                $bundleClass = $this->kernel->getBundle($bundle);
-            }
-            if (
-                $bundleClass === null
-                || !($bundleClass instanceof ThemeInterface)
-                || $bundle === StorefrontPluginRegistry::BASE_THEME_NAME
-                || $this->activeThemeName === $bundle
-                || $this->activeThemeBaseName === $bundle
-            ) {
-                $postfilteredBundles[] = $bundle;
-            }
+    public function requestEvent(RequestEvent $event): void
+    {
+        $request = $event->getRequest();
+
+        $themes = $this->detectedThemes($request);
+
+        if (empty($themes)) {
+            return;
         }
 
-        return $postfilteredBundles;
+        $this->bundles = $this->inheritanceBuilder->build($this->bundles, $themes);
+    }
+
+    private function detectedThemes(Request $request): array
+    {
+        // detect active themes of request
+        $theme = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_NAME);
+        if (!$theme) {
+            return [];
+        }
+
+        $themes = [
+            $theme => true,
+        ];
+
+        $theme = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME);
+        if ($theme) {
+            $themes[$theme] = true;
+        }
+
+        if (!isset($themes['Storefront'])) {
+            $themes['Storefront'] = true;
+        }
+
+        return $themes;
     }
 }

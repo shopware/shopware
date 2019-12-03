@@ -7,6 +7,7 @@ use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Store\Services\OpenSSLVerifier;
 use Shopware\Core\Framework\Update\Exception\UpdateApiSignatureValidationException;
 use Shopware\Core\Framework\Update\Struct\Version;
+use Shopware\Core\Framework\Update\VersionFactory;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
@@ -60,7 +61,7 @@ final class ApiClient
         $this->shopwareUpdateEnabled = $shopwareUpdateEnabled;
     }
 
-    public function checkForUpdates(): Version
+    public function checkForUpdates(bool $testMode = false): Version
     {
         if (!$this->shopwareUpdateEnabled) {
             return new Version();
@@ -72,14 +73,16 @@ final class ApiClient
             return $cacheItem->get();
         }
 
+        if ($testMode === true) {
+            return VersionFactory::createTestVersion();
+        }
         $response = $this->client->get('/v1/release/update?' . http_build_query($this->getUpdateOptions()));
 
         $this->verifyResponseSignature($response);
 
         $data = json_decode((string) $response->getBody(), true);
 
-        $version = new Version();
-        $version->assign($data);
+        $version = VersionFactory::create($data);
 
         $cacheItem->set($version);
 

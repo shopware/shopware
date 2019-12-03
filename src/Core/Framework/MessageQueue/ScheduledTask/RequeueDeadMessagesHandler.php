@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\MessageQueue\ScheduledTask;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\MessageQueue\DeadMessage\RequeueDeadMessagesService;
-use Shopware\Core\Framework\ScheduledTask\ScheduledTaskHandler;
 
 class RequeueDeadMessagesHandler extends ScheduledTaskHandler
 {

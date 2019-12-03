@@ -31,7 +31,7 @@
         <monolog:handler
             name="business_event_handler"
             type="service"
-            id="Shopware\Core\Framework\Logging\Monolog\DoctrineSQLHandler">
+            id="Shopware\Core\Framework\Log\Monolog\DoctrineSQLHandler">
             <monolog:channels>
                 <monolog:channel>business_events</monolog:channel>
             </monolog:channels>
@@ -42,7 +42,7 @@
         <service id="templating.loader.wrapped" alias="templating.loader"/>
 
         <!-- Asset -->
-        <service id="Shopware\Core\Framework\Asset\AssetPackageService" public="true">
+        <service id="Shopware\Core\Framework\Adapter\Asset\AssetPackageService" public="true">
             <argument type="service" id="assets.packages"/>
         </service>
 
@@ -64,7 +64,7 @@
             <argument>%shopware.slug.config%</argument>
         </service>
 
-        <service id="Shopware\Core\Framework\Provisioning\UserProvisioner">
+        <service id="Shopware\Core\System\User\Service\UserProvisioner">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
@@ -105,7 +105,7 @@
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Framework\PersonalData\CleanPersonalDataCommand">
+        <service id="Shopware\Core\Framework\Demodata\PersonalData\CleanPersonalDataCommand">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="customer.repository"/>
 
@@ -161,19 +161,19 @@
         </service>
 
         <!-- Translation -->
-        <service id="Shopware\Core\Framework\Translation\Translator"
+        <service id="Shopware\Core\Framework\Adapter\Translation\Translator"
                  decorates="translator">
-            <argument type="service" id="Shopware\Core\Framework\Translation\Translator.inner"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator.inner"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="translator.formatter"/>
-            <argument type="service" id="Shopware\Core\Framework\Snippet\SnippetService"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\SnippetService"/>
             <argument type="service" id="language.repository"/>
 
             <tag name="monolog.logger"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Translation\TranslatorCacheInvalidate">
+        <service id="Shopware\Core\Framework\Adapter\Translation\TranslatorCacheInvalidate">
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 
@@ -181,91 +181,94 @@
         </service>
 
         <!-- Snippets -->
-        <service id="Shopware\Core\Framework\Snippet\SnippetService">
+        <service id="Shopware\Core\System\Snippet\SnippetService">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\Snippet\Files\SnippetFileCollection"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Files\SnippetFileCollection"/>
             <argument type="service" id="snippet.repository"/>
             <argument type="service" id="snippet_set.repository"/>
             <argument type="service" id="sales_channel_domain.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\Snippet\Filter\SnippetFilterFactory"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Filter\SnippetFilterFactory"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Snippet\Api\SnippetController" public="true">
-            <argument type="service" id="Shopware\Core\Framework\Snippet\SnippetService"/>
-            <argument type="service" id="Shopware\Core\Framework\Snippet\Files\SnippetFileCollection"/>
+        <service id="Shopware\Core\System\Snippet\Api\SnippetController" public="true">
+            <argument type="service" id="Shopware\Core\System\Snippet\SnippetService"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Files\SnippetFileCollection"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Snippet\Files\SnippetFileCollection" public="true">
+        <service id="Shopware\Core\System\Snippet\Files\SnippetFileCollection" public="true">
             <argument type="tagged" tag="shopware.snippet.file"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Snippet\Filter\SnippetFilterFactory" public="true">
+        <service id="Shopware\Core\System\Snippet\Filter\SnippetFilterFactory" public="true">
             <argument type="tagged" tag="shopware.snippet.filter"/>
         </service>
 
         <!--SnippetFilters-->
-        <service id="Shopware\Core\Framework\Snippet\Filter\AuthorFilter">
+        <service id="Shopware\Core\System\Snippet\Filter\AuthorFilter">
             <tag name="shopware.snippet.filter"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Snippet\Filter\AddedFilter">
+        <service id="Shopware\Core\System\Snippet\Filter\AddedFilter">
             <tag name="shopware.snippet.filter"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Snippet\Filter\EditedFilter">
+        <service id="Shopware\Core\System\Snippet\Filter\EditedFilter">
             <tag name="shopware.snippet.filter"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Snippet\Filter\EmptySnippetFilter">
+        <service id="Shopware\Core\System\Snippet\Filter\EmptySnippetFilter">
             <tag name="shopware.snippet.filter"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Snippet\Filter\NamespaceFilter">
+        <service id="Shopware\Core\System\Snippet\Filter\NamespaceFilter">
             <tag name="shopware.snippet.filter"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Snippet\Filter\TermFilter">
+        <service id="Shopware\Core\System\Snippet\Filter\TermFilter">
             <tag name="shopware.snippet.filter"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Snippet\Filter\TranslationKeyFilter">
+        <service id="Shopware\Core\System\Snippet\Filter\TranslationKeyFilter">
             <tag name="shopware.snippet.filter"/>
         </service>
 
         <!-- Twig -->
-        <service id="Shopware\Core\Framework\Twig\TemplateFinder" public="true">
+        <service id="Shopware\Core\Framework\Adapter\Twig\TemplateFinder" public="true">
             <argument type="service" id="twig"/>
             <argument type="service" id="twig.loader"/>
-            <argument type="service" id="kernel"/>
+            <argument>%kernel.cache_dir%</argument>
+            <call method="registerBundles">
+                <argument type="service" id="kernel" />
+            </call>
         </service>
 
-        <service id="Shopware\Core\Framework\Twig\InheritanceExtension">
-            <argument type="service" id="Shopware\Core\Framework\Twig\TemplateFinder"/>
+        <service id="Shopware\Core\Framework\Adapter\Twig\InheritanceExtension">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateFinder"/>
             <tag name="twig.extension"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Twig\FeatureFlagExtension">
+        <service id="Shopware\Core\Framework\Adapter\Twig\FeatureFlagExtension">
             <tag name="twig.extension"/>
         </service>
 
-        <service class="Twig_Extensions_Extension_Intl" id="twig.extension.intl">
+        <service class="Twig\Extra\Intl\IntlExtension" id="twig.extension.intl">
             <tag name="twig.extension"/>
         </service>
 
-        <service class="Twig_Extensions_Extension_Text" id="twig.extension.text">
+        <service class="Twig\Extra\String\StringExtension" id="twig.extension.string">
             <tag name="twig.extension"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Twig\InstanceOfExtension">
+        <service id="Shopware\Core\Framework\Adapter\Twig\InstanceOfExtension">
             <tag name="twig.extension"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Twig\Filter\CurrencyFilter">
+        <service id="Shopware\Core\Framework\Adapter\Twig\Filter\CurrencyFilter">
             <argument type="service" id="Shopware\Core\System\Currency\CurrencyFormatter"/>
             <tag name="twig.extension"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Twig\StringTemplateRenderer">
+        <service id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer">
             <argument type="service" id="twig"/>
         </service>
 
@@ -308,17 +311,17 @@
         </service>
 
         <!-- Logging -->
-        <service id="Shopware\Core\Framework\Logging\LoggingService">
+        <service id="Shopware\Core\Framework\Log\LoggingService">
             <argument>%kernel.environment%</argument>
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="monolog.logger.business_events"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Logging\Monolog\DoctrineSQLHandler">
+        <service id="Shopware\Core\Framework\Log\Monolog\DoctrineSQLHandler">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Logging\LogEntryDefinition">
+        <service id="Shopware\Core\Framework\Log\LogEntryDefinition">
             <tag name="shopware.entity.definition" entity="log_entry"/>
         </service>
 
@@ -331,7 +334,7 @@
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Cache\CacheClearer">
+        <service id="Shopware\Core\Framework\Adapter\Cache\CacheClearer">
             <argument type="collection">
                 <argument type="service" id="cache.object" />
                 <argument type="service" id="cache.http" />

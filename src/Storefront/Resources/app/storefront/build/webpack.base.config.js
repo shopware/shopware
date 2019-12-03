@@ -33,6 +33,12 @@ const output = {
 };
 
 /**
+ * Option to disable ESLint during storefront build process.
+ * @type {boolean}
+ */
+const eslintDisable = (process.env.ESLINT_DISABLE === 'true');
+
+/**
  * Webpack module configuration and how them will be treated
  * https://webpack.js.org/configuration/module
  * @type {{rules: *[]}}
@@ -47,13 +53,13 @@ const modules = {
                     loader: 'babel-loader',
                     options: babelrc,
                 },
-                {
+                (eslintDisable ? {} : {
                     loader: 'eslint-loader',
                     options: {
                         configFile: utils.getPath('.eslintrc.js'),
                         fix: true,
                     },
-                },
+                }),
             ],
         },
         {

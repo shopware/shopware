@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductPrice;
 
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
-use Shopware\Core\Framework\Pricing\PriceRuleEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceRuleEntity;
 
 class ProductPriceEntity extends PriceRuleEntity
 {

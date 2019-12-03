@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
-use Shopware\Core\Framework\Acl\Resource\AclResourceDefinition;
+use Shopware\Core\Framework\Api\Acl\Resource\AclResourceDefinition;
 
 class UpdateCommand extends WriteCommand implements ChangeSetAware
 {

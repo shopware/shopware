@@ -8,113 +8,72 @@ Component.register('sw-first-run-wizard-modal', {
 
     inject: ['firstRunWizardService'],
 
-    provide() {
+    metaInfo() {
         return {
-            addNextCallback: this.addNextCallback
+            title: this.title
         };
-    },
-
-    props: {
-        title: {
-            type: String,
-            required: true,
-            default: 'unknown title'
-        }
     },
 
     data() {
         return {
-            nextCallback: null,
+            title: 'No title defined',
+            buttonConfig: [],
             stepVariant: 'info',
             currentStep: {
                 name: '',
                 variant: 'large',
-                navigationIndex: 0,
-                next: false,
-                skip: false,
-                back: false,
-                finish: false
+                navigationIndex: 0
             },
             stepper: {
                 welcome: {
                     name: 'sw.first.run.wizard.index.welcome',
                     variant: 'large',
-                    navigationIndex: 0,
-                    next: 'sw.first.run.wizard.index.demodata',
-                    install: false,
-                    skip: false,
-                    back: false,
-                    finish: false
+                    navigationIndex: 0
                 },
-                demodata: {
-                    name: 'sw.first.run.wizard.index.demodata',
+                'data-import': {
+                    name: 'sw.first.run.wizard.index.data-import',
                     variant: 'large',
-                    navigationIndex: 1,
-                    next: false,
-                    install: 'sw.first.run.wizard.index.paypal.info',
-                    skip: 'sw.first.run.wizard.index.paypal.info',
-                    back: false,
-                    finish: false
+                    navigationIndex: 1
+                },
+                'mailer.selection': {
+                    name: 'sw.first.run.wizard.index.mailer.selection',
+                    variant: 'large',
+                    navigationIndex: 2
+                },
+                'mailer.smtp': {
+                    name: 'sw.first.run.wizard.index.mailer.setup',
+                    variant: 'large',
+                    navigationIndex: 2
                 },
                 'paypal.info': {
                     name: 'sw.first.run.wizard.index.paypal.info',
                     variant: 'large',
-                    navigationIndex: 2,
-                    next: 'sw.first.run.wizard.index.paypal.credentials',
-                    install: false,
-                    skip: 'sw.first.run.wizard.index.plugins',
-                    back: 'sw.first.run.wizard.index.demodata',
-                    finish: false
+                    navigationIndex: 3
                 },
                 'paypal.credentials': {
                     name: 'sw.first.run.wizard.index.paypal.credentials',
                     variant: 'large',
-                    navigationIndex: 2,
-                    next: 'sw.first.run.wizard.index.plugins',
-                    install: false,
-                    skip: 'sw.first.run.wizard.index.plugins',
-                    back: 'sw.first.run.wizard.index.paypal.info',
-                    finish: false
+                    navigationIndex: 3
                 },
                 plugins: {
                     name: 'sw.first.run.wizard.index.plugins',
                     variant: 'large',
-                    navigationIndex: 3,
-                    next: 'sw.first.run.wizard.index.shopware.account',
-                    install: false,
-                    skip: false,
-                    back: 'sw.first.run.wizard.index.paypal.info',
-                    finish: false
+                    navigationIndex: 4
                 },
                 'shopware.account': {
                     name: 'sw.first.run.wizard.index.shopware.account',
                     variant: 'large',
-                    navigationIndex: 4,
-                    next: 'sw.first.run.wizard.index.shopware.domain',
-                    install: false,
-                    skip: 'sw.first.run.wizard.index.finish',
-                    back: 'sw.first.run.wizard.index.plugins',
-                    finish: false
+                    navigationIndex: 5
                 },
                 'shopware.domain': {
                     name: 'sw.first.run.wizard.index.shopware.domain',
                     variant: 'large',
-                    navigationIndex: 4,
-                    next: 'sw.first.run.wizard.index.finish',
-                    install: false,
-                    skip: false,
-                    back: 'sw.first.run.wizard.index.shopware.account',
-                    finish: false
+                    navigationIndex: 5
                 },
                 finish: {
                     name: 'sw.first.run.wizard.index.finish',
                     variant: 'large',
-                    navigationIndex: 5,
-                    next: false,
-                    install: false,
-                    skip: false,
-                    back: 'sw.first.run.wizard.index.shopware.account',
-                    finish: true
+                    navigationIndex: 6
                 }
             }
         };
@@ -141,24 +100,11 @@ Component.register('sw-first-run-wizard-modal', {
             return navigationIndex !== 0;
         },
 
-        nextVisible() {
-            return !!this.currentStep.next;
-        },
-
-        installable() {
-            return !!this.currentStep.install;
-        },
-
-        backVisible() {
-            return !!this.currentStep.back;
-        },
-
-        skipable() {
-            return !!this.currentStep.skip;
-        },
-
-        finishable() {
-            return !!this.currentStep.finish;
+        buttons() {
+            return {
+                right: this.buttonConfig.filter((button) => button.position === 'right'),
+                left: this.buttonConfig.filter((button) => button.position === 'left')
+            };
         },
 
         stepIndex() {
@@ -173,12 +119,12 @@ Component.register('sw-first-run-wizard-modal', {
 
         stepInitialItemVariants() {
             const navigationSteps = [
-                ['disabled', 'disabled', 'disabled', 'disabled'],
-                ['info', 'disabled', 'disabled', 'disabled'],
-                ['success', 'info', 'disabled', 'disabled'],
-                ['success', 'success', 'info', 'disabled'],
-                ['success', 'success', 'success', 'info'],
-                ['success', 'success', 'success', 'success']
+                ['disabled', 'disabled', 'disabled', 'disabled', 'disabled'],
+                ['info', 'disabled', 'disabled', 'disabled', 'disabled'],
+                ['success', 'info', 'disabled', 'disabled', 'disabled'],
+                ['success', 'success', 'info', 'disabled', 'disabled'],
+                ['success', 'success', 'success', 'info', 'disabled'],
+                ['success', 'success', 'success', 'success', 'disabled']
             ];
             const { navigationIndex } = this.currentStep;
 
@@ -209,74 +155,36 @@ Component.register('sw-first-run-wizard-modal', {
             this.firstRunWizardService.setFRWStart();
         },
 
-        onNext() {
-            const { next } = this.currentStep;
+        updateButtons(buttonConfig) {
+            this.buttonConfig = buttonConfig;
+        },
 
-            let callbackPromise = Promise.resolve(false);
-
-            if (this.nextCallback !== null && typeof this.nextCallback === 'function') {
-                callbackPromise = this.nextCallback.call();
+        onButtonClick(action) {
+            if (typeof action === 'string') {
+                this.redirect(action);
+                return;
             }
 
-            callbackPromise.then((abort) => {
-                if (!abort) {
-                    this.redirect(next);
-                }
-            });
-        },
-
-        onInstall() {
-            const { install } = this.currentStep;
-
-            let callbackPromise = Promise.resolve(false);
-
-            if (this.nextCallback !== null && typeof this.nextCallback === 'function') {
-                callbackPromise = this.nextCallback.call();
+            if (typeof action !== 'function') {
+                return;
             }
 
-            callbackPromise.then((abort) => {
-                if (!abort) {
-                    this.redirect(install);
-                }
-            });
-        },
-
-        onSkip() {
-            const { skip } = this.currentStep;
-
-            this.redirect(skip);
-        },
-
-        onBack() {
-            const { back } = this.currentStep;
-
-            this.redirect(back);
-        },
-
-        onFinish() {
-            let callbackPromise = Promise.resolve(false);
-
-            if (this.nextCallback !== null && typeof this.nextCallback === 'function') {
-                callbackPromise = this.nextCallback.call();
-            }
-
-            callbackPromise.then((abort) => {
-                if (!abort) {
-                    this.firstRunWizardService.setFRWFinish()
-                        .then(() => {
-                            document.location.href = document.location.origin + document.location.pathname;
-                        });
-                }
-            });
+            action.call();
         },
 
         redirect(routeName) {
-            this.nextCallback = null;
             this.$router.push({ name: routeName });
         },
 
-        addNextCallback(fs) {
-            this.nextCallback = fs;
+        setTitle(title) {
+            this.title = title;
+        },
+
+        finishFRW() {
+            this.firstRunWizardService.setFRWFinish()
+                .then(() => {
+                    document.location.href = document.location.origin + document.location.pathname;
+                });
         }
     }
 });

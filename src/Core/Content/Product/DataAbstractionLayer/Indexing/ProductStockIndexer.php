@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\Order\OrderEvents;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Cache\CacheClearer;
+use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -168,7 +168,7 @@ class ProductStockIndexer implements IndexerInterface, EventSubscriberInterface
 
                 continue;
             }
-            if ($command->hasField('referenced_id') || $command->hasField('product_id')) {
+            if ($command->hasField('referenced_id') || $command->hasField('product_id') || $command->hasField('quantity')) {
                 $command->requestChangeSet();
 
                 continue;
@@ -199,7 +199,7 @@ class ProductStockIndexer implements IndexerInterface, EventSubscriberInterface
                 continue;
             }
 
-            if (!$changeSet->hasChanged('referenced_id')) {
+            if (!$changeSet->hasChanged('referenced_id') && !$changeSet->hasChanged('quantity')) {
                 continue;
             }
 

@@ -7,7 +7,7 @@ use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEvent;
-use Shopware\Core\Framework\Logging\LoggingService;
+use Shopware\Core\Framework\Log\LoggingService;
 use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
 use Shopware\Core\Framework\Test\Logging\Event\LogAwareTestBusinessEvent;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;

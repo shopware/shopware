@@ -4,11 +4,11 @@
       "mainMenuItemGeneral": "Ersteinrichtungs-Assistent",
       "buttonNext": "Weiter",
       "buttonSkip": "Überspringen",
-      "buttonNextDemoData": "Installieren",
       "buttonNextPayPalInfo": "Konfigurieren",
       "buttonBack": "Zurück",
       "buttonInstall": "Installieren",
       "buttonFinish": "Fertig",
+      "buttonConfigureLater": "Später einstellen",
       "pluginInstalled": "Installiert"
     },
     "welcome": {
@@ -21,19 +21,33 @@
       "cancelLanguageSwitch": "Abbrechen",
       "switchLanguageMessage": "Das Sprach-Plugin \"{pluginName}\" wurde erfolgreich installiert. Möchtest du die Spache der Benutzeroberfläche ändern?"
     },
-    "demodata": {
-      "modalTitle": "Demodaten installieren",
-      "headlineDemodata": "Demodaten",
-      "messageDemodata": "Nutze optional die Möglichkeit und statte Deinen Shop mit Demodaten aus.<br><br>Bitte beachte: Die Demodaten dienen nur zu Testzwecken. Du solltest sie nicht in einer Produktivumgebung anwenden.",
-      "loadingMessage": "Installiere Demodaten<br>Es könnte eine Weile dauern...",
-      "installationWarning": {
-        "headline": "Achtung",
-        "message": "Die Demodaten wurden bereits installiert. Eine erneute Installation könnte Deine individuellen Daten überschreiben.",
-        "cancel": "Abbrechen",
-        "forceInstall": "Trotzdem installieren"
-      }
+    "dataImport": {
+      "modalTitle": "Dein Start mit Shopware 6",
+      "headlineDemoData": "Demodaten benutzen",
+      "messageDemoData": "Statte Deinen Shop mit Demodaten aus, um Shopware 6 ausgiebig zu erkunden. (Die Demodaten dienen nur zu Testzwecken.)",
+      "buttonInstallDemoData": "Demodaten installieren",
+      "headlineMigration": "Eigenen Shop migrieren",
+      "messageMigration": "Der Migrations-Assistent hilft Dir, Dein Shopsystem mit Shopware 6 zu verbinden und vorhandene Daten zu übertragen.",
+      "buttonInstallMigration": "Migrations-Assistenten installieren",
+      "loadingMessage": "Installiere Plugin<br>Es könnte eine Weile dauern..."
+    },
+    "mailerSelection": {
+      "headline": "Aufbau der E-Mail-Kommunikation",
+      "modalTitle": "Mailer-Einstellungen",
+      "description": "Die Kommunikation mit den Kunden ist ein Schlüsselfaktor im täglichen E-Commerce. Daher sollte das Mailingsystem so früh wie möglich eingerichtet werden.",
+      "chooseSubline": "Wählen Sie Ihren bevorzugten E-Mail-Agenten aus.",
+      "localOption": "Lokalen E-Mail-Agenten verwenden",
+      "localOptionHelptext": "Diese Option verwendet den Standard-Mailer Ihres Systems (Sendmail).  Stellen Sie sicher, dass Sendmail funktioniert und in Ihrer eigenen Hosting-Umgebung verfügbar ist.",
+      "localOptionSubline": "(Sendmail)",
+      "smtpOption": "Eigenen SMTP-Server konfigurieren",
+      "configurationNote": "Mailing-Konfigurationen können später bearbeitet werden.",
+      "buttonConfigure": "Konfigurieren"
+    },
+    "mailerSmtp": {
+      "headline": "SMTP Server"
     },
     "paypalInfo": {
+      "modalTitle": "PayPal einrichten",
       "headline": "Jetzt vorintegriert in Shopware mit noch einfacherer und schnellerer Aktivierung der beliebtesten Zahlarten*",
       "paymethod": {
         "paypal": "PayPal",
@@ -49,6 +63,7 @@
     },
     "recommendedPlugins": {
       "headline": "Unsere Empfehlungen",
+      "modalTitle": "Plugins",
       "message": "Hier findet Du eine Auswahl an sinnvollen Erweiterungen für Deinen Shop. Wähle zunächst eine Region aus, die für Dich relevant ist. Danach kannst Du durch verschiedene Kategorien stöbern.",
       "availableInRegion": "Verfügbar in Region",
       "category": "Kategorie",
@@ -57,6 +72,7 @@
     },
     "shopwareAccount": {
       "headline": "Shopware Account",
+      "modalTitle": "Shopware",
       "message": "Melde Dich jetzt mit Deiner Shopware ID an. Dadurch erhälst Du Zugriff auf Deine gekauften Plugins und Lizenzen.<br><br>Mit Deiner Shopware ID kannst Du Dich in weitere Shopware-Plattformen wie z. B. den <a href=\"https://store.shopware.com/\" class=\"external-link\" target=\"_blank\">Community Store</a>, <a href=\"https://forum.shopware.com\" class=\"external-link\" target=\"_blank\">das Forum</a> oder Deinen persönlichen <a href=\"https://account.shopware.com\" class=\"external-link\" target=\"_blank\">Shopware-Account</a> einloggen.",
       "registerAccountText": "Du hast noch keine Shopware ID? Dann registriere Dich direkt",
       "registerAccountHere": "hier",
@@ -87,10 +103,13 @@
       "titleLoginDataInvalid": "Fehler",
       "messageLoginDataInvalid": "Login Daten sind unvollständig.",
       "titlePayPalInstallationFailed": "Fehler",
-      "messagePayPalInstallationFailed": "PayPal Konfiguration fehlgeschlagen"
+      "messagePayPalInstallationFailed": "PayPal Konfiguration fehlgeschlagen",
+      "titlePluginInstallationFailed": "Fehler",
+      "messagePluginInstallationFailed": "Plugin Installation fehlgeschlagen"
     },
     "stepItemTitle": {
-      "demodata": "Demodaten",
+      "dataImport": "Daten Import",
+      "mailer": "Mailer-Einstellungen",
       "setupPaypal": "PayPal einrichten",
       "plugins": "Plugins",
       "shopware": "Shopware"

@@ -116,7 +116,7 @@ describe('Language: Test crud operations', () => {
 
         cy.get('.sw-modal__body').should('be.visible');
         cy.get('.sw-modal__body')
-            .contains('Are you sure you want to delete this item?');
+            .contains(/Are you sure you want to delete the language ".*"\? This will delete all content in this language and can not be undone!/);
         cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 

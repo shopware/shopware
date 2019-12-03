@@ -13,7 +13,10 @@ class ClassNamespaceTest extends TestCase
         $basePath = __DIR__ . '/../../../';
         $basePathParts = explode('/', $basePath);
 
-        $phpFiles = (new Finder())->files()->in($basePath)->name('*.php')->getIterator();
+        $phpFiles = (new Finder())->files()
+            ->in($basePath)
+            ->exclude('Recovery')
+            ->name('*.php')->getIterator();
 
         $errors = [];
         foreach ($phpFiles as $file) {

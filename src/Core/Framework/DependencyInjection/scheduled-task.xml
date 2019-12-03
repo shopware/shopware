@@ -5,48 +5,48 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="Shopware\Core\Framework\ScheduledTask\ScheduledTaskDefinition">
+        <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition">
             <tag name="shopware.entity.definition" entity="scheduled_task"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ScheduledTask\Scheduler\TaskScheduler">
+        <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler">
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="messenger.bus.shopware"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ScheduledTask\Registry\TaskRegistry">
+        <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry">
             <argument type="tagged" tag="shopware.scheduled.task" />
             <argument type="service" id="scheduled_task.repository"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ScheduledTask\Subscriber\PluginLifecycleSubscriber">
-            <argument type="service" id="Shopware\Core\Framework\ScheduledTask\Registry\TaskRegistry"/>
+        <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Subscriber\PluginLifecycleSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry"/>
             <argument type="service" id="cache.messenger.restart_workers_signal" />
 
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ScheduledTask\MessageQueue\RegisterScheduledTaskHandler">
-            <argument type="service" id="Shopware\Core\Framework\ScheduledTask\Registry\TaskRegistry"/>
+        <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\MessageQueue\RegisterScheduledTaskHandler">
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry"/>
 
             <tag name="messenger.message_handler"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ScheduledTask\Command\RegisterScheduledTasksCommand">
-            <argument type="service" id="Shopware\Core\Framework\ScheduledTask\Registry\TaskRegistry"/>
+        <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Command\RegisterScheduledTasksCommand">
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry"/>
 
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ScheduledTask\Command\ScheduledTaskRunner">
-            <argument type="service" id="Shopware\Core\Framework\ScheduledTask\Scheduler\TaskScheduler"/>
+        <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Command\ScheduledTaskRunner">
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler"/>
             <argument type="service" id="cache.messenger.restart_workers_signal" />
 
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ScheduledTask\Api\ScheduledTaskController" public="true">
-            <argument type="service" id="Shopware\Core\Framework\ScheduledTask\Scheduler\TaskScheduler"/>
+        <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Api\ScheduledTaskController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

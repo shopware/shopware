@@ -3,9 +3,10 @@
 namespace Shopware\Storefront\Test;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Twig\InheritanceExtension;
+use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Twig\InheritanceExtension;
-use Shopware\Core\Framework\Twig\TemplateFinder;
+use Shopware\Core\Kernel;
 use Shopware\Storefront\Test\fixtures\BundleFixture;
 use Symfony\Component\Filesystem\Filesystem;
 use Twig\Cache\CacheInterface;
@@ -42,22 +43,16 @@ class TwigSwExtendsTest extends TestCase
 
     public function testMultipleInheritance(): void
     {
-        $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
-        $loader->addPath(__DIR__ . '/fixtures/Storefront/Resources/views', 'Storefront');
-        $twig = new Environment($loader, [
-            'cache' => $this->cache,
+        [$twig, $templateFinder] = $this->createFinder([
+            new BundleFixture('Storefront', __DIR__ . '/fixtures/Storefront/'),
+            new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1'),
+            new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2'),
         ]);
 
-        $templateFinder = new TemplateFinder($twig, $loader, $this->getContainer()->get('kernel'));
-        $bundlePlugin1 = new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1');
-        $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2');
-        $templateFinder->addBundle($bundlePlugin1);
-        $templateFinder->addBundle($bundlePlugin2);
-        $twig->addExtension(new InheritanceExtension($templateFinder));
-        $twig->getExtension(InheritanceExtension::class)->getFinder();
+        $templatePath = $templateFinder->find('@Storefront/storefront/frontend/base.html.twig');
 
-        $templatePath = $templateFinder->find('storefront/frontend/base.html.twig');
         $template = $twig->loadTemplate($templatePath);
+
         static::assertSame('Base/TestPlugin1/TestPlugin2', $template->render([]));
     }
 
@@ -65,57 +60,33 @@ class TwigSwExtendsTest extends TestCase
     {
         static::markTestSkipped('Twig cache is not invalidated');
 
-        $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
-        $loader->addPath(__DIR__ . '/fixtures/Storefront/Resources/views', 'Storefront');
-        $twig = new Environment($loader, [
-            'cache' => $this->cache,
+        [$twig, $templateFinder] = $this->createFinder([
+            new BundleFixture('Storefront', __DIR__ . '/fixtures/Storefront/'),
+            new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1'),
+            new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2'),
         ]);
 
-        $bundlePlugin1 = new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1');
-        $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2');
-
-        $templateFinder = new TemplateFinder($twig, $loader, $this->getContainer()->get('kernel'));
-        $templateFinder->addBundle($bundlePlugin1);
-        $templateFinder->addBundle($bundlePlugin2);
-        $twig->addExtension(new InheritanceExtension($templateFinder));
-        $twig->getExtension(InheritanceExtension::class)->getFinder();
-
-        $templatePath = $templateFinder->find('frontend/base.html.twig');
+        $templatePath = $templateFinder->find('storefront/frontend/base.html.twig');
         $template = $twig->loadTemplate($templatePath);
         static::assertSame('Base/TestPlugin1/TestPlugin2', $template->render([]));
 
-        $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
-        $loader->addPath(__DIR__ . '/fixtures/Storefront/Resources/views', 'Storefront');
-        $twig = new Environment($loader, [
-            'cache' => $this->cache,
+        [$twig, $templateFinder] = $this->createFinder([
+            new BundleFixture('Storefront', __DIR__ . '/fixtures/Storefront/'),
+            new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2'),
         ]);
 
-        $templateFinder = new TemplateFinder($twig, $loader, $this->getContainer()->get('kernel'));
-        $templateFinder->addBundle($bundlePlugin2);
-        $twig->addExtension(new InheritanceExtension($templateFinder));
-        $twig->getExtension(InheritanceExtension::class)->getFinder();
-
-        $templatePath = $templateFinder->find('frontend/base.html.twig');
+        $templatePath = $templateFinder->find('storefront/frontend/base.html.twig');
         $template = $twig->loadTemplate($templatePath);
         static::assertSame('Base/TestPlugin2', $template->render([]));
     }
 
     public function testPluginExtendsOtherPlugin(): void
     {
-        $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
-        $loader->addPath(__DIR__ . '/fixtures/Storefront/Resources/views', 'Storefront');
-        $twig = new Environment($loader, [
-            'cache' => $this->cache,
+        [$twig, $templateFinder] = $this->createFinder([
+            new BundleFixture('Storefront', __DIR__ . '/fixtures/Storefront/'),
+            new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1'),
+            new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2'),
         ]);
-
-        $templateFinder = new TemplateFinder($twig, $loader, $this->getContainer()->get('kernel'));
-        $bundlePlugin1 = new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1');
-        $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2');
-        // order is  important for this test. 2 needs to be loaded before 1
-        $templateFinder->addBundle($bundlePlugin2);
-        $templateFinder->addBundle($bundlePlugin1);
-        $twig->addExtension(new InheritanceExtension($templateFinder));
-        $twig->getExtension(InheritanceExtension::class)->getFinder();
 
         $templatePath = $templateFinder->find('@TestPlugin1/storefront/frontend/new_template.html.twig');
         $template = $twig->loadTemplate($templatePath);
@@ -126,28 +97,41 @@ class TwigSwExtendsTest extends TestCase
 
     public function testExtendWithLoop(): void
     {
-        $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
-        $loader->addPath(__DIR__ . '/fixtures/Storefront/Resources/views', 'Storefront');
-        $twig = new Environment($loader, [
-            'cache' => $this->cache,
+        [$twig, $templateFinder] = $this->createFinder([
+            new BundleFixture('Storefront', __DIR__ . '/fixtures/Storefront/'),
+            new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1'),
+            new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2'),
         ]);
 
-        $templateFinder = new TemplateFinder($twig, $loader, $this->getContainer()->get('kernel'));
-        $bundlePlugin1 = new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1');
-        $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2');
         // order is  important for this test. 2 needs to be loaded before 1
-        $templateFinder->addBundle($bundlePlugin2);
-        $templateFinder->addBundle($bundlePlugin1);
-        $twig->addExtension(new InheritanceExtension($templateFinder));
-        $twig->getExtension(InheritanceExtension::class)->getFinder();
-
         $templatePath = $templateFinder->find('@Storefront/storefront/frontend/testExtendWithLoop/loop.html.twig');
         $template = $twig->loadTemplate($templatePath);
 
         $template->render([]);
         static::assertSame(
-            'storefront-B-Astorefront-B-Astorefront-B-Astorefront-B-Astorefront-B-Astorefront-B-A',
+            '-s21-s21-s21-s21-s21-s21',
             $template->render([])
         );
+    }
+
+    private function createFinder(array $bundles): array
+    {
+        $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
+
+        $twig = new Environment($loader, ['cache' => $this->cache]);
+
+        $templateFinder = new TemplateFinder($twig, $loader, $this->cacheDir);
+
+        $kernel = $this->createMock(Kernel::class);
+        $kernel->expects(static::any())
+            ->method('getBundles')
+            ->willReturn($bundles);
+
+        $templateFinder->registerBundles($kernel);
+
+        $twig->addExtension(new InheritanceExtension($templateFinder));
+        $twig->getExtension(InheritanceExtension::class)->getFinder();
+
+        return [$twig, $templateFinder];
     }
 }

@@ -12,7 +12,6 @@
 
         <service id="Shopware\Storefront\Theme\ThemeCompiler">
             <argument type="service" id="shopware.filesystem.public"/>
-            <argument type="service" id="filesystem" />
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileResolver" />
             <argument>%kernel.cache_dir%</argument>
             <argument>%kernel.debug%</argument>
@@ -129,12 +128,25 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface"
+                 class="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilder">
+            <argument type="service" id="kernel"/>
+        </service>
+
         <!-- Twig -->
         <service id="Shopware\Storefront\Theme\Twig\ThemeTemplateFinder" public="true"
-                 decorates="Shopware\Core\Framework\Twig\TemplateFinder">
+                 decorates="Shopware\Core\Framework\Adapter\Twig\TemplateFinder">
+
             <argument type="service" id="twig"/>
             <argument type="service" id="twig.loader"/>
-            <argument type="service" id="kernel"/>
+            <argument>%kernel.cache_dir%</argument>
+            <argument type="service" id="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface"/>
+
+            <call method="registerBundles">
+                <argument type="service" id="kernel" />
+            </call>
+
+            <tag name="kernel.event_subscriber" />
         </service>
 
         <service id="Shopware\Storefront\Theme\Subscriber\FirstRunWizardSubscriber">

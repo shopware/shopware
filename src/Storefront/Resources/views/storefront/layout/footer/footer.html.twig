@@ -7,9 +7,10 @@
                 <div class="col-md-4 footer-column js-footer-column">
                     {% block layout_footer_navigation_hotline_headline %}
                         <div class="footer-column-headline footer-headline js-footer-column-headline js-collapse-footer-column-trigger"
-                            data-target="#collapseFooterHotline"
-                            aria-expanded="true"
-                            aria-controls="collapseFooterHotline">
+                             id="collapseFooterHotlineTitle"
+                             data-target="#collapseFooterHotline"
+                             aria-expanded="true"
+                             aria-controls="collapseFooterHotline">
                             {{ 'footer.serviceHotlineHeadline'|trans|sw_sanitize }}
                             {% block layout_footer_navigation_hotline_icons %}
                                 <div class="footer-column-toggle">
@@ -27,7 +28,7 @@
                     {% block layout_footer_navigation_hotline_content %}
                         <div id="collapseFooterHotline"
                              class="footer-column-content collapse js-footer-column-content footer-contact"
-                             aria-labelledby="headingOne">
+                             aria-labelledby="collapseFooterHotlineTitle">
                             <div class="footer-column-content-inner">
                                 <p class="footer-contact-hotline">
                                     {{ 'footer.serviceHotline'|trans|sw_sanitize }}
@@ -47,7 +48,7 @@
                         <div class="col-md-4 footer-column js-footer-column">
                             {% block layout_footer_navigation_information_headline %}
                                 <div class="footer-column-headline footer-headline js-collapse-footer-column-trigger"
-                                     data-target="#collapseFooter{{ loop.index }}"
+                                     data-target="#collapseFooterTitle{{ loop.index }}"
                                      aria-expanded="true"
                                      aria-controls="collapseFooter{{ loop.index }}">
 
@@ -68,7 +69,7 @@
                             {% block layout_footer_navigation_information_content %}
                                 <div id="collapseFooter{{ loop.index }}"
                                      class="footer-column-content collapse js-footer-column-content"
-                                     aria-labelledby="headingThree">
+                                     aria-labelledby="collapseFooterTitle{{ loop.index }}">
                                     <div class="footer-column-content-inner">
                                         {% block layout_footer_navigation_information_links %}
                                             <ul class="list-unstyled">

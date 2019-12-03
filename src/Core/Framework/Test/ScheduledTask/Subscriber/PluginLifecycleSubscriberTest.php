@@ -4,10 +4,10 @@ namespace Shopware\Core\Framework\Test\ScheduledTask\Subscriber;
 
 use Google\Auth\Cache\MemoryCacheItemPool;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\Subscriber\PluginLifecycleSubscriber;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
-use Shopware\Core\Framework\ScheduledTask\Registry\TaskRegistry;
-use Shopware\Core\Framework\ScheduledTask\Subscriber\PluginLifecycleSubscriber;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
 class PluginLifecycleSubscriberTest extends TestCase

@@ -111,8 +111,8 @@ class BundleConfigDumper implements EventSubscriberInterface
         $absolutePath = $bundle->getPath() . '/' . $path;
 
         return file_exists($absolutePath . '/main.ts') ? $path . '/main.ts'
-            : file_exists($absolutePath . '/main.js') ? $path . '/main.js'
-            : null;
+            : (file_exists($absolutePath . '/main.js') ? $path . '/main.js'
+            : null);
     }
 
     private function getWebpackConfig(Bundle $bundle, string $componentPath): ?string

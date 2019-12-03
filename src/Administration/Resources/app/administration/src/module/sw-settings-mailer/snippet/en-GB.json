@@ -1,0 +1,52 @@
+{
+  "sw-settings-mailer": {
+    "general": {
+      "mainMenuItemGeneral": "Mailer",
+      "textHeadline": "Mailer",
+      "buttonSave": "Save"
+    },
+    "mailer-configuration": {
+      "card-title": "Mailer configuration",
+      "agent": "Preferred email agent",
+      "local-agent": "Local email agent",
+      "local-helptext": "This option uses your system‘s default mailer (Sendmail). Make sure Sendmail works and is available in your own hosting environment.",
+      "smtp-server": "SMTP Server"
+    },
+    "first-configuration": {
+      "headline": "Establishing email communication",
+      "description": "Communicating with customers is a key factor in everyday ecommerce. Consequently, setting up a mailing scheme should be crossed out from your list as soon as possible."
+    },
+    "card-smtp": {
+      "host": "Host",
+      "host-placeholder": "Fill in your host...",
+      "port": "Port",
+      "port-placeholder": "Fill in your port...",
+      "username": "Username",
+      "username-placeholder": "Fill in your username...",
+      "password": "Password",
+      "password-placeholder": "Fill in your password...",
+      "encryption": "Encryption",
+      "encryption-placeholder": "Select encryption method...",
+      "authentication": "Authentication method",
+      "authentication-placeholder": "Select authentication method...",
+      "sender-address": "Sender address",
+      "sender-address-placeholder": "Fill in a valid email address...",
+      "delivery-address": "Delivery address",
+      "delivery-address-placeholder": "Fill in a valid email address...",
+      "delivery-address-helptext": "All outgoing email will also be sent to this address. Set this for testing purposes only.",
+      "disable-delivery": "Disable delivery"
+    },
+    "encryption": {
+      "no-encryption": "No encryption",
+      "ssl": "SSL",
+      "tls": "TLS"
+    },
+    "authentication": {
+      "no-authentication": "No authentication",
+      "plain": "Plain",
+      "login": "Login",
+      "cram-md5": "Cram MD5"
+    }
+  }
+}
+

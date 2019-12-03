@@ -4,11 +4,11 @@ namespace Shopware\Core\Framework\Test\Seo;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Seo\SeoResolver;
+use Shopware\Core\Content\Seo\SeoResolverInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Seo\SeoResolver;
-use Shopware\Core\Framework\Seo\SeoResolverInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 

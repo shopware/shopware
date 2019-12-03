@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Test\Snippet\Filter;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Snippet\Filter\AddedFilter;
+use Shopware\Core\System\Snippet\Filter\AddedFilter;
 
 class AddedFilterTest extends TestCase
 {

@@ -21,8 +21,8 @@ $sw-select-result-color-icon: darken($color-light-gray, 20%);
 $sw-select-color-error: $color-crimson;
 $sw-select-disabled-color-background: $color-light-gray;
 $sw-select-disabled-color-text: lighten($color-gutenberg, 40%);
-$sw-select-transition-results: all ease-in-out .2s;
-$sw-select-transition-result-icon: all ease-in-out .15s;
+$sw-select-transition-results: all ease-in-out 0.2s;
+$sw-select-transition-result-icon: all ease-in-out 0.15s;
 
 .sw-select {
     outline: none;
@@ -146,7 +146,7 @@ $sw-select-transition-result-icon: all ease-in-out .15s;
     }
 
     .sw-select__load-more-list-item-label {
-        color: $sw-select-color-text-default-item
+        color: $sw-select-color-text-default-item;
     }
 
     .is--clickAble .sw-label {
@@ -286,7 +286,6 @@ $sw-select-transition-result-icon: all ease-in-out .15s;
     }
 
     &.is--disabled {
-        pointer-events: none;
         color: $sw-select-disabled-color-text;
 
         .sw-select__inner {

@@ -42,7 +42,7 @@ Repository Split:
 
         # split repositories
         - >
-            for pkg in Administration Docs Storefront Core Elasticsearch; do
+            for pkg in Administration Docs Storefront Core Elasticsearch Recovery; do
               echo "Splitting ${pkg}"
               SHA1=`./splitsh-lite --prefix=src/$pkg/ --target=refs/heads/$pkg`
               git remote set-url origin https://bot:${PERSONAL_TOKEN}@gitlab.shopware.com/shopware/6/product/many-repositories/$(echo $pkg | awk '{print tolower($0)}').git

@@ -19,6 +19,7 @@
       "updateStarted": "Update Prozess wurde gestartet",
       "downloadFailed": "Download-Prozess ist fehlgeschlagen",
       "unpackFailed": "Entpack-Prozess ist fehlgeschlagen",
+      "deactivationFailed": "Deaktivieren der Plugins fehlgeschlagen",
       "alreadyUpToDate": "Du bist bereits auf dem aktuellsten Stand"
     },
     "infos": {

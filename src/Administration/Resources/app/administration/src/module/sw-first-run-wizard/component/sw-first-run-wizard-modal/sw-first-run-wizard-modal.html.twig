@@ -13,7 +13,10 @@
                              :itemVariant="stepVariant"
                              :initialItemVariants="stepInitialItemVariants">
                                 <sw-step-item>
-                                    {{ $tc('sw-first-run-wizard.stepItemTitle.demodata') }}
+                                    {{ $tc('sw-first-run-wizard.stepItemTitle.dataImport') }}
+                                </sw-step-item>
+                                <sw-step-item>
+                                    {{ $tc('sw-first-run-wizard.stepItemTitle.mailer') }}
                                 </sw-step-item>
                                 <sw-step-item>
                                     {{ $tc('sw-first-run-wizard.stepItemTitle.setupPaypal') }}
@@ -30,7 +33,11 @@
 
                     {% block sw_first_run_wizard_modal_content_page %}
                         <div class="sw-first-run-wizard-modal-content__page">
-                            <router-view></router-view>
+                            <router-view @buttons-update="updateButtons"
+                                         @frw-redirect="redirect"
+                                         @frw-set-title="setTitle"
+                                         @frw-finish="finishFRW">
+                            </router-view>
                         </div>
                     {% endblock %}
                 </sw-container>
@@ -42,33 +49,26 @@
                 <div class="sw-first-run-wizard-modal__footer">
                     {% block sw_first_run_wizard_modal_footer_left %}
                         <div class="footer-left">
-                            <sw-button v-if="backVisible" size="small" @click="onBack">
-                                {{ $tc('sw-first-run-wizard.general.buttonBack') }}
+                            <sw-button v-for="button in buttons.left"
+                                        :key="button.key"
+                                        @click="onButtonClick(button.action)"
+                                        :variant="button.variant"
+                                        :disabled="button.disabled"
+                                        size="small">
+                                        {{ button.label }}
                             </sw-button>
                         </div>
                     {% endblock %}
 
                     {% block sw_first_run_wizard_modal_footer_right %}
                         <div class="footer-right">
-                            <sw-button v-if="skipable" class="skip-button" size="small" @click="onSkip">
-                                    {{ $tc('sw-first-run-wizard.general.buttonSkip') }}
-                            </sw-button>
-                            <sw-button v-if="nextVisible" size="small" variant="primary" @click="onNext">
-                                <template v-if="currentStep.name === 'sw.first.run.wizard.index.demodata'">
-                                    {{ $tc('sw-first-run-wizard.general.buttonNextDemoData') }}
-                                </template>
-                                <template v-else-if="currentStep.name === 'sw.first.run.wizard.index.paypal.info'">
-                                    {{ $tc('sw-first-run-wizard.general.buttonNextPayPalInfo') }}
-                                </template>
-                                <template v-else>
-                                    {{ $tc('sw-first-run-wizard.general.buttonNext') }}
-                                </template>
-                            </sw-button>
-                            <sw-button v-if="installable" size="small" variant="primary" @click="onInstall">
-                                {{ $tc('sw-first-run-wizard.general.buttonInstall') }}
-                            </sw-button>
-                            <sw-button v-if="finishable" size="small" variant="primary" @click="onFinish">
-                                {{ $tc('sw-first-run-wizard.general.buttonFinish') }}
+                            <sw-button v-for="button in buttons.right"
+                                       :key="button.key"
+                                       @click="onButtonClick(button.action)"
+                                       :variant="button.variant"
+                                       :disabled="button.disabled"
+                                       size="small">
+                                {{ button.label }}
                             </sw-button>
                         </div>
                     {% endblock %}

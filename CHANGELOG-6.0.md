@@ -68,6 +68,12 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Moved all rule specific components to `src/app/components/rule`
     * Added error handling for multiple errors per request
     * Replaced `repository.sync` with a request against the `sync` endpoint. The former behavior of `sync` ist now available as `repository.saveAll`
+    * We splitted the component `sw-sales-channel-modal` up into two additional components `sw-sales-channel-modal-detail` and `sw-sales-channel-modal-grid`
+    * `sw-sales-channel-detail-base` got refactored based on a new design, the domain management was moved to a new component
+    * Created a new component `sw-sales-channel-detail-domains` which handles the domain management of a sales channel now
+    * `sw-entity-single-select` fires a new event called `option-select` which provides the selected entity and  as the payload
+    * Added mailer settings in the settings page
+    * Added mailer settings in the first run wizard
    
 * Core
     * Added DAL support for multi primary keys.
@@ -104,11 +110,12 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
         - These services are now available in `\Shopware\Core\Framework\Plugin::activate` and `\Shopware\Core\Framework\Plugin::deactivate`
         - `\Shopware\Core\Framework\Plugin::deactivate` is now always called before `\Shopware\Core\Framework\Plugin::uninstall`
     * Renamed container service id `shopware.cache` to `cache.object` 
-    * Added new function to `\Shopware\Core\Framework\Cache\CacheClearer`. Please use this service to invalidate or delete cache items.
+    * Added new function to `\Shopware\Core\Framework\Adapter\Cache\CacheClearer`. Please use this service to invalidate or delete cache items.
     * We did some refactoring on how we use `WriteConstraintsViolationExceptions`.
     It's path `property` should now point to the object that is inspected by an validator while the `propertyPath` property in `WriteConstraint` objects should only point to the invalid property. 
     For more information read the updated "write command validation" article in the docs.
     * Added new function `\Shopware\Core\Framework\Migration\MigrationStep::registerIndexer`. This method registers an indexer that needs to run (after the update). See `\Shopware\Core\Migration\Migration1570684913ScheduleIndexer` for an example.
+    * Added the `extractInheritableAttributes()` function to the `\Shopware\Core\Framework\Routing\RequestTransformerInterface`
     
 * Storefront
     * Changed the default storefront script path in `Bundle` to `Resources/dist/storefront/js`
@@ -123,6 +130,8 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added twig helper function `seoUrl` that returns a seo url if possible, otherwise just calls `url`. 
     * Deprecated twig helper functions `productUrl` and `navigationUrl`, use `seoUrl` instead.
     * Added ErrorPage, ErrorpageLoader and ErrorPageLoaderEvent which is used in the `ErrorController` to load the CMS error layout if a 404 layout is assigned.
+    * Added an option to disable eslint for storefront:build
+    * Removed abandoned TwigExtensions in favor of  Twig Core Extra extensions
 
 **Removals**
 
@@ -189,9 +198,11 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
       * The event emits two values: the actual selection and the selection count of the `sw-data-grid`.
       * `change-selection` should be preferred over `select-item` if you are interested in the selection itself and not in a specific item that was selected.
     * Added custom fields to categories 
+    * `v-popover` directive accepts a config object now which allows to activate / deactivate the directive on the fly, define the target element and if the popover element should be resized to the size of the origin element 
     * Updated Symfony Dependencies to version `4.4.0`.    
     * Added cms block `form`
     * Added component `sw-select-number-field` for select options with numeric values
+    * Added installation opportunity of Migration-Plugin into FirstRunWizard
 * Core
     * Moved the seo module from the storefront into the core.
     * Switched the execution condition of `\Shopware\Core\Framework\Migration\MigrationStep::addBackwardTrigger()` and `\Shopware\Core\Framework\Migration\MigrationStep::addForwardTrigger()` to match the execution conditions in the methods documentation.
@@ -286,14 +297,36 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Moved `Shopware\Core\Content\Newsletter\SalesChannelNewsletterController` to `Shopware\Core\Content\Newsletter\SalesChannel\SalesChannelNewsletterController`
     * The MigrationController and MediaFolderController now return StatusCode 204 without content on successful requests
     * Renamed `\Shopware\Core\Framework\Api\Converter\ConverterService` to `\Shopware\Core\Framework\Api\Converter\ApiVersionConverter`
-    * Added `\Shopware\Core\Framework\PersonalData\CleanPersonalDataCommand` to removing personal data by the cli command: "bin/console database:clean-personal-data"
+    * Added `\Shopware\Core\Framework\Demodata\PersonalData\CleanPersonalDataCommand` to removing personal data by the cli command: "bin/console database:clean-personal-data"
         * use the command with the argument "guests" to remove guests without orders
         * use the command with the argument "carts" to remove canceled carts
         * use the command with the option "--all" to remove both of them.
         * with the option "--days" it is possible to remove the data which is same old and older than the given number of days
     * Updated Symfony dependencies to version `4.4.0`.    
     * We removed the `\Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface`, use `\Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand` instead
+    * The sitemap generator now uses the `cache.system` pool instead of `serializer.mapping.cache.symfony`
     * Added sales channel type `product_comparison` for generating file exports of dynamic product groups 
+    * We moved the namespace Shopware\Core\Framework\Acl to Shopware\Core\Framework\Api\Acl
+    * We moved the namespace Shopware\Core\Framework\CustomField to Shopware\Core\System\CustomField
+    * We moved the namespace Shopware\Core\Framework\Language to Shopware\Core\System\Language
+    * We moved the namespace Shopware\Core\Framework\Snippet to Shopware\Core\System\Snippet
+    * We moved the namespace Shopware\Core\Framework\Doctrine to Shopware\Core\Framework\DataAbstractionLayer\Doctrine
+    * We moved the namespace Shopware\Core\Framework\Pricing to Shopware\Core\Framework\DataAbstractionLayer\Pricing
+    * We moved the namespace Shopware\Core\Framework\Version to Shopware\Core\Framework\DataAbstractionLayer\Version
+    * We moved the namespace Shopware\Core\Framework\Faker to Shopware\Core\Framework\Demodata\Faker
+    * We moved the namespace Shopware\Core\Framework\PersonalData to Shopware\Core\Framework\Demodata\PersonalData
+    * We moved the namespace Shopware\Core\Framework\Logging to Shopware\Core\Framework\Log
+    * We moved the namespace Shopware\Core\Framework\ScheduledTask to Shopware\Core\Framework\MessageQueue\ScheduledTask
+    * We moved the namespace Shopware\Core\Framework\Twig to Shopware\Core\Framework\Adapter\Twig
+    * We moved the namespace Shopware\Core\Framework\Asset to Shopware\Core\Framework\Adapter\Asset
+    * We moved the namespace Shopware\Core\Framework\Console to Shopware\Core\Framework\Adapter\Console
+    * We moved the namespace Shopware\Core\Framework\Cache to Shopware\Core\Framework\Adapter\Cache
+    * We moved the namespace Shopware\Core\Framework\Filesystem to Shopware\Core\Framework\Adapter\Filesystem
+    * We moved the namespace Shopware\Core\Framework\Translation to Shopware\Core\Framework\Adapter\Translation
+    * We moved the namespace Shopware\Core\Framework\Seo to Shopware\Core\Content\Seo
+    * We moved the namespace Shopware\Core\Framework\Context to Shopware\Core\Framework\Api\Context
+    * We moved the namespace Shopware\Core\Content\DeliveryTime to Shopware\Core\System\DeliveryTime
+    * We moved the Shopware\Core\System\User\Service\UserProvisioner to Shopware\Core\System\User\Service\UserProvisioner
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain
@@ -311,6 +344,23 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * The filter plugin moves to the offcanvas when the user is in mobile view
     * Updated Symfony Dependencies to version `4.4.0`.    
     * Added the `referencePrice` of a product to the `offcanvas cart` and the `ajax-search`
+    * The default cache time for the theme config now uses the lifetime of the cache pool instead of 1 hour
+    * The `theme.json` can now also define the order of the templates. For this you can use the `views` parameter:
+        ```json
+        {
+            "views": [
+                 "@Storefront",
+                 "@Plugins",
+                 "@SwagCustomizedProduct",
+                 "@MyTheme",
+                 "@SwagPayPal"
+            ]
+        }
+      ```
+    * Added the `async` Attribute to the main `<script>` tag.
+    * The `src/Storefront/Resources/app/storefront/src/main.js` now uses the `readystatechange` event to initialize all JavaScript plugins.
+    * Introduced new SCSS variable `$font-weight-semibold` with the value of `600`.
+    * Added `fallbackImageTitle` variable to `src/Storefront/Resources/views/storefront/element/cms-element-image-gallery.html.twig` to add fallback values to the images `alt` and `title` attribute if the media object itself has no `alt` or `title` defined.
 * Elasticsearch
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.
         * You can set them with a parameter.yml too.
@@ -341,9 +391,43 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
         - Example for nested sub entities: Writing a `order_delivery_position` entity now also dispatches a `order_delivery.written` and a `order.written` event
     * Dropped `additionalText` column of product entity, use `metaDescription` instead
     * Removed `EntityExistence $existence` parameter from `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getDefaults` as it is not necessary anymore
+    * Removed configuration `shopware.entity_cache` in favor of the symfony cache pool `cache.object` configuration.
+    * Removed the `voku/stop-words` package
+    * Removed the `SearchFilterInterface` and `StopWordFilter`, which were not used anywhere 
 * Storefront
     * Removed `\Shopware\Storefront\Framework\Cache\CacheWarmer\Navigation\NavigationRouteMessage`
     * Removed `\Shopware\Storefront\Framework\Cache\CacheWarmer\Product\ProductRouteMessage`
     * Removed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmerSender`
     * Removed `\Shopware\Storefront\Framework\Cache\CacheWarmer\IteratorMessage`
     * Removed `\Shopware\Storefront\Framework\Cache\CacheWarmer\IteratorMessageHandler`
+    * Removed unused font variants:
+        * Removed vendor css file for the "Inter" font face: `src/Storefront/Resources/app/storefront/vendor/Inter-3.5/inter.css`. The font file imports can now be found in `src/Storefront/Resources/app/storefront/src/scss/skin/shopware/vendor/_inter-fontface.scss`.
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-Black.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-Black.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-BlackItalic.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-BlackItalic.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-ExtraBold.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-ExtraBold.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-ExtraBoldItalic.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-ExtraBoldItalic.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-ExtraLight-BETA.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-ExtraLight-BETA.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-ExtraLightItalic-BETA.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-ExtraLightItalic-BETA.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-Light-BETA.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-Light-BETA.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-LightItalic-BETA.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-LightItalic-BETA.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-Medium.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-Medium.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-MediumItalic.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-Medium.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-MediumItalic.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-MediumItalic.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-Thin-BETA.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-Thin-BETA.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-ThinItalic-BETA.woff`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-ThinItalic-BETA.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-italic.var.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-upright.var.woff2`
+        * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter.var.woff2`

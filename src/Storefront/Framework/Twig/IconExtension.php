@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Twig;
 
-use Shopware\Core\Framework\Twig\TemplateFinder;
+use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Storefront\Framework\Twig\TokenParser\IconTokenParser;
 use Twig\Extension\AbstractExtension;
 

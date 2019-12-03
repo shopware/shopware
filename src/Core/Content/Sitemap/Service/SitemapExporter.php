@@ -3,11 +3,11 @@
 namespace Shopware\Core\Content\Sitemap\Service;
 
 use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Exception\UrlProviderNotFound;
 use Shopware\Core\Content\Sitemap\Provider\UrlProviderInterface;
 use Shopware\Core\Content\Sitemap\Struct\SitemapGenerationResult;
-use Shopware\Core\Framework\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -26,7 +26,7 @@ class SitemapExporter implements SitemapExporterInterface
     private $systemConfigService;
 
     /**
-     * @var array|\IteratorAggregate
+     * @var UrlProviderInterface[]
      */
     private $urlProvider;
 
@@ -45,13 +45,10 @@ class SitemapExporter implements SitemapExporterInterface
      */
     private $seoUrlPlaceholderHandler;
 
-    /**
-     * @param \IteratorAggregate<int, UrlProviderInterface> $urlProvider
-     */
     public function __construct(
         SitemapWriterInterface $sitemapWriter,
         SystemConfigService $systemConfigService,
-        \IteratorAggregate $urlProvider,
+        iterable $urlProvider,
         CacheItemPoolInterface $cache,
         int $batchSize,
         SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler
@@ -138,7 +135,6 @@ class SitemapExporter implements SitemapExporterInterface
             return $this->getNextUrlProvider($provider);
         }
 
-        /** @var UrlProviderInterface $urlProvider */
         foreach ($this->urlProvider as $urlProvider) {
             if ($urlProvider->getName() === $provider) {
                 return $urlProvider;
@@ -157,7 +153,6 @@ class SitemapExporter implements SitemapExporterInterface
         }
 
         $getNext = false;
-        /** @var UrlProviderInterface $urlProvider */
         foreach ($this->urlProvider as $urlProvider) {
             if ($getNext === true) {
                 return $urlProvider;

@@ -5,8 +5,8 @@ namespace Shopware\Core\Framework\Test\Plugin;
 use Composer\IO\NullIO;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
@@ -140,7 +140,7 @@ class PluginServiceTest extends TestCase
 
         $this->pluginService->refreshPlugins($this->context, new NullIO());
         $pluginCollection = $this->pluginRepo->search(new Criteria(), $this->context)->getEntities();
-        static::assertCount(1, $pluginCollection);
+        static::assertCount(2, $pluginCollection);
         /** @var PluginEntity $plugin */
         $plugin = $pluginCollection->first();
 

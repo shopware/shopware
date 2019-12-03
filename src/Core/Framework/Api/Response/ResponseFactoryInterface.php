@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\Api\Response;
 
+use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Context\ContextSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;

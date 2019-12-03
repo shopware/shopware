@@ -24,10 +24,10 @@ describe('Sales Channel: Test crud operations', () => {
         }).as('saveData');
 
         // Open sales channel creation
-        cy.get('.sw-admin-menu__headline').contains('Sales channel');
+        cy.get('.sw-admin-menu__headline').contains('Sales Channel');
 
         cy.get('.sw-admin-menu__headline-action').click();
-        cy.get('.sw-sales-channel-modal__title').contains('Add sales channel');
+        cy.get('.sw-sales-channel-modal__title').contains('Add Sales Channel');
         cy.get(`${page.elements.gridRow}--0 .sw-sales-channel-modal-grid__item-name`).click();
         cy.get('.sw-sales-channel-modal__title').contains('Storefront - details');
         cy.get('.sw-sales-channel-modal__add-sales-channel-action').click();

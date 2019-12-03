@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
-use Shopware\Core\Framework\Pricing\CalculatedListingPrice;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CalculatedListingPrice;
 
 class SalesChannelProductEntity extends ProductEntity
 {

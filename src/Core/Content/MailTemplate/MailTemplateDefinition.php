@@ -53,6 +53,7 @@ class MailTemplateDefinition extends EntityDefinition
             (new TranslatedField('subject'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new TranslatedField('contentHtml'),
             new TranslatedField('contentPlain'),
+            new TranslatedField('customFields'),
 
             (new TranslationsAssociationField(MailTemplateTranslationDefinition::class, 'mail_template_id'))->addFlags(new Required()),
             (new OneToManyAssociationField('salesChannels', MailTemplateSalesChannelDefinition::class, 'mail_template_id', 'id'))->addFlags(new CascadeDelete()),

@@ -9,7 +9,7 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
     <div class="card__body is--align-center">
 
         <div class="welcome-illustration">
-            <img src="<?= $baseUrl; ?>../recovery/assets/common/images/welcome.svg" alt="">
+            <img src="<?= $baseUrl; ?>../assets/common/images/welcome.svg" alt="">
         </div>
 
         <div class="welcome-container">
@@ -30,7 +30,7 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
 
             <div class="select-wrapper language">
                 <img class="language-flag"
-                     src="<?= $baseUrl; ?>../recovery/assets/common/images/flags/<?= $selectedLanguage; ?>.png"
+                     src="<?= $baseUrl; ?>../assets/common/images/flags/<?= $selectedLanguage; ?>.png"
                      alt="<?= $selectedLanguage; ?>">
                 <select id="language" name="language" class="language-selection">
                     <?php foreach ($languages as $language): ?>

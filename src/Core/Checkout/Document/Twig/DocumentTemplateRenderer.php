@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Checkout\Document\Twig;
 
+use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Context;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -27,11 +29,21 @@ class DocumentTemplateRenderer
      */
     private $translator;
 
-    public function __construct(TemplateFinder $templateFinder, Environment $twig, Translator $translator)
-    {
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    public function __construct(
+        TemplateFinder $templateFinder,
+        Environment $twig,
+        Translator $translator,
+        EventDispatcherInterface $eventDispatcher
+    ) {
         $this->templateFinder = $templateFinder;
         $this->twig = $twig;
         $this->translator = $translator;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -58,6 +70,10 @@ class DocumentTemplateRenderer
                 $context
             );
         }
+
+        $documentTemplateRendererParameterEvent = new DocumentTemplateRendererParameterEvent($parameters);
+        $this->eventDispatcher->dispatch($documentTemplateRendererParameterEvent);
+        $parameters['extensions'] = $documentTemplateRendererParameterEvent->getExtensions();
 
         $rendered = $this->twig->render($view, $parameters);
 

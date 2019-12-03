@@ -51,6 +51,7 @@ class ProductExportValidatorTest extends TestCase
 
         $criteria = new Criteria([$productExportId]);
         $criteria->addAssociation('salesChannelDomain.language');
+        $criteria->addAssociation('salesChannel');
 
         /** @var ProductExportEntity $productExport */
         $productExport = $this->repository->search($criteria, $this->context)->first();
@@ -66,6 +67,7 @@ class ProductExportValidatorTest extends TestCase
 
         $criteria = new Criteria([$productExportId]);
         $criteria->addAssociation('salesChannelDomain.language');
+        $criteria->addAssociation('salesChannel');
 
         $productExport = $this->repository->search($criteria, $this->context)->first();
         $productExport->setFooterTemplate('');

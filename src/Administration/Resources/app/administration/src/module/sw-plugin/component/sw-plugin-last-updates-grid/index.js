@@ -1,16 +1,15 @@
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-plugin-last-updates-grid.html.twig';
 import './sw-plugin-last-updates-grid.scss';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
+
 
 Component.register('sw-plugin-last-updates-grid', {
     template,
 
     mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-        Mixin.getByName('plugin-error-handler')
+        Mixin.getByName('notification')
     ],
 
     props: {
@@ -24,6 +23,8 @@ Component.register('sw-plugin-last-updates-grid', {
     data() {
         return {
             limit: 25,
+            total: 0,
+            page: 1,
             lastUpdates: [],
             isLoading: false,
             disableRouteParams: false
@@ -31,8 +32,49 @@ Component.register('sw-plugin-last-updates-grid', {
     },
 
     computed: {
-        pluginsStore() {
-            return StateDeprecated.getStore('plugin');
+        pluginRepository() {
+            return Shopware.Service('repositoryFactory').create('plugin');
+        },
+
+        pluginCriteria() {
+            const criteria = new Criteria(this.page, this.limit);
+            criteria.addFilter(Criteria.not(
+                'AND',
+                [
+                    Criteria.equals('plugin.changelog', null),
+                    Criteria.range('upgradedAt', { lt: this.filterDate })
+                ]
+            ));
+
+            return criteria;
+        },
+
+        filterDate() {
+            const date = new Date();
+            date.setDate(date.getDate() - 7);
+
+            return date;
+        },
+
+        context() {
+            return Shopware.Context.api;
+        },
+
+        lastUpdatesColumns() {
+            return [{
+                property: 'name',
+                label: this.$tc('sw-plugin.list.columnPlugin'),
+                align: 'center',
+                width: 'auto'
+            }, {
+                property: 'changelog',
+                label: this.$tc('sw-plugin.list.columnChangelog')
+
+            }, {
+                property: 'version',
+                width: 'auto',
+                align: 'center'
+            }];
         }
     },
 
@@ -40,49 +82,22 @@ Component.register('sw-plugin-last-updates-grid', {
         this.createdComponent();
     },
 
-    watch: {
-        '$root.$i18n.locale'() {
-            this.getList();
-        }
-    },
-
     methods: {
         createdComponent() {
-            this.$root.$on('updates-refresh', (total) => {
-                if (total) {
-                    return;
-                }
-                this.getList();
+            this.isLoading = true;
+            this.getList().finally(() => {
+                this.isLoading = false;
             });
         },
 
         getList() {
             this.isLoading = true;
 
-            const params = this.getListingParams();
-
-            this.pluginsStore.getList(params).then((response) => {
-                this.lastUpdates = response.items;
-                this.total = response.total;
-                this.isLoading = false;
-            }).catch((exception) => {
-                this.handleErrorResponse(exception);
+            return this.pluginRepository.search(this.pluginCriteria, this.context).then((searchresult) => {
+                this.lastUpdates = searchresult;
+                this.total = searchresult.total;
                 this.isLoading = false;
             });
-        },
-
-        getListingParams() {
-            const filterDate = new Date();
-            filterDate.setDate(filterDate.getDate() - 7);
-
-            return {
-                limit: this.limit,
-                sortBy: 'upgradedAt',
-                sortDirection: 'DESC',
-                criteria: CriteriaFactory.range('upgradedAt', {
-                    gte: filterDate
-                })
-            };
         },
 
         getLatestChangelog(plugin) {

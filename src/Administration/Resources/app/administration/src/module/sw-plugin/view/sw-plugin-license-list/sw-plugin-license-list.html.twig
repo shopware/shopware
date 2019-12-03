@@ -12,100 +12,74 @@
         {% block sw_plugin_license_list_content %}
             <sw-card :isLoading="isLoading || pageLoading">
                 {% block sw_plugin_license_list_grid %}
-                    <template slot="grid">
-                        <sw-grid v-show="isLoading || total"
-                                 :items="licenses"
-                                 :sortBy="sortBy"
-                                 :sortDirection="sortDirection"
-                                 :selectable="false"
-                                 @sort-column="onSortColumn"
-                                 table>
+                    <template #grid>
+                        <sw-data-grid v-show="isLoading || total"
+                                      :dataSource="licenses"
+                                      :columns="licensesColumns"
+                                      :showSelection="false"
+                                      :showActions="false"
+                                      :sortBy="sortBy"
+                                      :sortDirection="sortDirection"
+                                      :compactMode="false">
 
-                            {% block sw_plugin_license_list_grid_slots %}
-                                <template slot="columns" slot-scope="{ item }">
+                            <template #column-name=" { item }">
+                                {% block sw_plugin_license_list_grid_columns_name_label %}
+                                    <sw-plugin-table-entry :iconPath="item.iconPath"
+                                                           :title="item.name"
+                                                           :subtitle="item.producerName">
+                                    </sw-plugin-table-entry>
+                                {% endblock %}
+                            </template>
 
-                                    {% block sw_plugin_license_list_grid_columns_name %}
-                                        <sw-grid-column flex="minmax(100px, 1fr)"
-                                                        :label="$tc('sw-plugin.license-list.columnName')"
-                                                        dataIndex="name">
-                                            {% block sw_plugin_license_list_grid_columns_name_label %}
-                                                <sw-plugin-table-entry :iconPath="item.iconPath" :title="item.name"
-                                                                       :subtitle="item.producerName">
-                                                </sw-plugin-table-entry>
+                            <template #column-creationDate="{ item }">
+                                {% block sw_plugin_license_list_grid_columns_creation_date_label %}
+                                    {{ item.creationDate | date }}
+                                {% endblock %}
+                            </template>
+
+                            <template #column-type="{ item }">
+                                {% block sw_plugin_license_list_grid_columns_type_label %}
+                                    {{  item.type.name }}
+                                {% endblock %}
+                            </template>
+
+                            <template #column-expirationDate="{ item }">
+                                {% block sw_plugin_license_list_grid_columns_expiration_date_label %}
+                                    {{ getExpirationDate(item) | date }}
+                                {% endblock %}
+                            </template>
+
+                            <template #column-availableVersion="{ item }">
+                                {% block sw_plugin_license_list_grid_columns_actions_context %}
+                                    <div class="context">
+                                        <div>
+                                            {% block sw_plugin_license_list_grid_columns_actions_context_download %}
+                                                <sw-button v-if="!item.installed && item.availableVersion"
+                                                           variant="ghost"
+                                                           size="small"
+                                                           @click="downloadPlugin(item.technicalPluginName)">
+                                                    {{ $tc('sw-plugin.general.downloadButton') }}
+                                                </sw-button>
                                             {% endblock %}
-                                        </sw-grid-column>
-                                    {% endblock %}
 
-                                    {% block sw_plugin_license_list_grid_columns_creation_date %}
-                                        <sw-grid-column flex="minmax(80px, 130px)"
-                                                        :label="$tc('sw-plugin.license-list.columnCreationDate')"
-                                                        dataIndex="creationDate">
-                                            {% block sw_plugin_license_list_grid_columns_creation_date_label %}
-                                                {{ item.creationDate | date }}
+                                            {% block sw_plugin_license_list_grid_columns_actions_context_update %}
+                                                <sw-button v-if="item.installed && item.updateAvailable"
+                                                           variant="ghost"
+                                                           size="small"
+                                                           @click="downloadPlugin(item.technicalPluginName, true)">
+                                                    {{ $tc('sw-plugin.updates.updateButton') }}
+                                                </sw-button>
                                             {% endblock %}
-                                        </sw-grid-column>
-                                    {% endblock %}
-
-                                    {% block sw_plugin_license_list_grid_columns_type %}
-                                        <sw-grid-column flex="minmax(80px, 150px)"
-                                                        :label="$tc('sw-plugin.license-list.columnType')"
-                                                        dataIndex="type.name">
-                                        {% block sw_plugin_license_list_grid_columns_type_label %}
-                                            {{ $tc('sw-plugin.license-list.labelType_' + item.type.name) }}
+                                        </div>
+                                        {% block sw_plugin_license_list_grid_columns_actions_context_version %}
+                                            <span v-if="item.availableVersion" class="version">
+                                                {{ $tc('sw-plugin.general.version') }} {{ item.availableVersion }}
+                                            </span>
                                         {% endblock %}
-                                        </sw-grid-column>
-                                    {% endblock %}
-
-                                    {% block sw_plugin_license_list_grid_columns_expiration_date %}
-                                        <sw-grid-column flex="minmax(80px, 120px)"
-                                                        :label="$tc('sw-plugin.license-list.columnExpirationDate')"
-                                                        dataIndex="expirationDate">
-                                            {% block sw_plugin_license_list_grid_columns_expiration_date_label %}
-                                                <template v-if="item.expirationDate">
-                                                    {{ item.expirationDate | date }}
-                                                </template>
-                                                <template v-if="item.subscription">
-                                                    {{ item.subscription.expirationDate | date }}
-                                                </template>
-                                                <template v-if="!item.expirationDate && !item.subscription">
-                                                    -
-                                                </template>
-                                            {% endblock %}
-                                        </sw-grid-column>
-                                    {% endblock %}
-
-                                    {% block sw_plugin_license_list_grid_columns_actions %}
-                                        <sw-grid-column flex="minmax(100px, 140px)"
-                                                        align="right">
-                                            {% block sw_plugin_license_list_grid_columns_actions_context %}
-                                                <div class="context">
-                                                    <div>
-                                                        {% block sw_plugin_license_list_grid_columns_actions_context_download %}
-                                                            <sw-button v-if="!item.installed && item.availableVersion" variant="ghost" size="small"
-                                                                       @click="downloadPlugin(item.technicalPluginName)">
-                                                                {{ $tc('sw-plugin.general.downloadButton') }}
-                                                            </sw-button>
-                                                        {% endblock %}
-                                                        {% block sw_plugin_license_list_grid_columns_actions_context_update %}
-                                                            <sw-button v-if="item.installed && item.updateAvailable" variant="ghost"
-                                                                       size="small"
-                                                                       @click="downloadPlugin(item.technicalPluginName, true)">
-                                                                {{ $tc('sw-plugin.updates.updateButton') }}
-                                                            </sw-button>
-                                                        {% endblock %}
-                                                    </div>
-                                                    {% block sw_plugin_license_list_grid_columns_actions_context_version %}
-                                                        <span v-if="item.availableVersion" class="version">
-                                                            {{ $tc('sw-plugin.general.version') }} {{ item.availableVersion }}
-                                                        </span>
-                                                    {% endblock %}
-                                                </div>
-                                            {% endblock %}
-                                        </sw-grid-column>
-                                    {% endblock %}
-                                </template>
-                            {% endblock %}
-                        </sw-grid>
+                                    </div>
+                                {% endblock %}
+                            </template>
+                        </sw-data-grid>
                     </template>
                 {% endblock %}
 
@@ -124,10 +98,7 @@
                 {% endblock %}
 
                 {% block sw_plugin_license_list_card_login_modal %}
-                    <sw-plugin-store-login v-if="showLoginModal"
-                                           @login-abort="loginAbort"
-                                           @login-success="loginSuccess">
-                    </sw-plugin-store-login>
+                    <sw-plugin-store-login v-if="showLoginModal" @close-modal="closeLoginModal"></sw-plugin-store-login>
                 {% endblock %}
             </sw-card>
         {% endblock %}

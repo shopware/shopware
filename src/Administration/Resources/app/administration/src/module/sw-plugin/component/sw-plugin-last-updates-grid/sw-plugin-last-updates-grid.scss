@@ -22,6 +22,21 @@
 
     }
 
+    .sw-data-grid.sw-plugin-last-updates__grid,
+    .sw-data-grid.sw-plugin-last-updates__grid.is--compact {
+        border-radius: $border-radius-default;
+
+        .sw-data-grid__cell-content {
+            height: auto;
+        }
+
+        .sw-data-grid__cell--changelog .sw-data-grid__cell-content {
+            white-space: normal;
+            word-wrap: break-word;
+            display: block;
+        }
+    }
+
     .sw-plugin-last-updates-grid__version {
         font-size: $font-size-small;
         color: $color-gray;

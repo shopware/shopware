@@ -203,6 +203,8 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added cms block `form`
     * Added component `sw-select-number-field` for select options with numeric values
     * Added installation opportunity of Migration-Plugin into FirstRunWizard
+    * integrated repository based data handling in plugin manager
+    * replaced `sw-grid` with `sw-data-grid` components in plugin manager
 * Core
     * Moved the seo module from the storefront into the core.
     * Switched the execution condition of `\Shopware\Core\Framework\Migration\MigrationStep::addBackwardTrigger()` and `\Shopware\Core\Framework\Migration\MigrationStep::addForwardTrigger()` to match the execution conditions in the methods documentation.

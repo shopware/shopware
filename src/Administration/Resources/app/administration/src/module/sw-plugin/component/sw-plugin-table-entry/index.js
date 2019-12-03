@@ -30,7 +30,9 @@ Component.register('sw-plugin-table-entry', {
         licenseInformation: {
             type: Array,
             required: false,
-            default: []
+            default() {
+                return [];
+            }
         }
     },
 

@@ -27,13 +27,27 @@
 
     }
 
+    .sw-data-grid.sw-plugin-updates-grid__grid,
+    .sw-data-grid.sw-plugin-updates-grid__grid.is--compact {
+        border-radius: $border-radius-default;
+
+        .sw-data-grid__cell-content {
+            height: auto;
+        }
+
+        .sw-data-grid__cell--changelog .sw-data-grid__cell-content {
+            white-space: normal;
+            word-wrap: break-word;
+        }
+    }
+
     .sw-plugin-updates-grid__update-context {
         display: flex;
         flex-direction: column;
-        align-items: flex-end;
 
         .sw-loader {
             position: unset;
+            background: none;
 
             .sw-loader__container {
                 display: inherit;

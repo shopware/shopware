@@ -1,13 +1,13 @@
 {% block sw_plugin_config %}
 <sw-page class="sw-plugin-config">
     {% block sw_plugin_config_header %}
-        <template slot="smart-bar-header">
+        <template #smart-bar-header>
             <h2>{{ namespace }}</h2>
         </template>
     {% endblock %}
 
     {% block sw_plugin_config_actions %}
-        <template slot="smart-bar-actions">
+        <template #smart-bar-actions>
             {% block sw_plugin_config_actions_abort %}
                 <sw-button :routerLink="{ name: 'sw.plugin.index' }">
                     {{ $tc('sw-plugin-config.buttonCancel') }}
@@ -22,15 +22,19 @@
         </template>
     {% endblock %}
 
-    {% block sw_plugin_config_content %}
-    <sw-card-view slot="content">
-        {% block sw_system_config %}
-            <sw-system-config :domain="domain"
-                              salesChannelSwitchable
-                              ref="systemConfig">
-            </sw-system-config>
+
+    <template #content>
+        {% block sw_plugin_config_content %}
+            <sw-card-view>
+                {% block sw_system_config %}
+                <sw-system-config :domain="domain"
+                                  salesChannelSwitchable
+                                  :salesChannelId="salesChannelId"
+                                  ref="systemConfig">
+                </sw-system-config>
+                {% endblock %}
+            </sw-card-view>
         {% endblock %}
-    </sw-card-view>
-    {% endblock %}
+    </template>
 </sw-page>
 {% endblock %}

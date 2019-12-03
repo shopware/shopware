@@ -1,7 +1,7 @@
 import template from './sw-plugin-license-list.html.twig';
 import './sw-plugin-license-list.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, State } = Shopware;
 
 Component.register('sw-plugin-license-list', {
     template,
@@ -9,9 +9,7 @@ Component.register('sw-plugin-license-list', {
     inject: ['storeService'],
 
     mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-        Mixin.getByName('plugin-error-handler')
+        Mixin.getByName('notification')
     ],
 
     props: {
@@ -26,34 +24,47 @@ Component.register('sw-plugin-license-list', {
         return {
             licenses: [],
             isLoading: false,
-            showLoginModal: false,
-            isLoggedIn: false
+            showLoginModal: false
         };
     },
 
-    watch: {
-        '$root.$i18n.locale'() {
-            this.getList();
+    computed: {
+        isLoggedIn() {
+            return State.get('swPlugin').loginStatus;
+        },
+
+        licensesColumns() {
+            return [{
+                property: 'name',
+                label: this.$tc('sw-plugin.license-list.columnName'),
+                type: 'Text'
+            }, {
+                property: 'creationDate',
+                label: this.$tc('sw-plugin.license-list.columnCreationDate'),
+                type: 'Date'
+            }, {
+                property: 'type',
+                label: this.$tc('sw-plugin.license-list.columnType')
+            }, {
+                property: 'expirationDate',
+                label: this.$tc('sw-plugin.license-list.columnExpirationDate')
+            }, {
+                property: 'availableVersion',
+                align: 'center'
+            }];
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
-    destroyed() {
-        this.destroyedComponent();
+    watch: {
+        isLoggedIn: {
+            immediate: true,
+            handler() {
+                return this.getList();
+            }
+        }
     },
 
     methods: {
-        createdComponent() {
-            this.$root.$on('plugin-logout', this.getList);
-        },
-
-        destroyedComponent() {
-            this.$root.$off('plugin-logout', this.getList);
-        },
-
         downloadPlugin(pluginName, update = false) {
             this.storeService.downloadPlugin(pluginName).then(() => {
                 if (update) {
@@ -68,21 +79,32 @@ Component.register('sw-plugin-license-list', {
                     });
                 }
                 this.getList();
-                this.$root.$emit('last-updates-refresh');
             });
         },
 
+        getExpirationDate(license) {
+            if (license.expirationDate) {
+                return license.expirationDate;
+            }
+
+            if (license.subscription && license.subscription.expirationDate) {
+                return license.subscription.expirationDate;
+            }
+
+            return null;
+        },
+
         getList() {
+            if (!this.isLoggedIn) {
+                return Promise.resolve();
+            }
+
             this.total = 0;
             this.isLoading = true;
-            this.storeService.getLicenseList().then((response) => {
-                this.licenses = response.items;
-                this.total = response.total;
-                this.isLoading = false;
-                this.isLoggedIn = true;
+            return this.storeService.getLicenseList().then(({ items, total }) => {
+                this.licenses = items;
+                this.total = total;
             }).catch((exception) => {
-                this.isLoading = false;
-                this.isLoggedIn = false;
                 if (exception.response && exception.response.data && exception.response.data.errors) {
                     const unauthorized = exception.response.data.errors.find((error) => {
                         return parseInt(error.code, 10) === 401 || error.code === 'FRAMEWORK__STORE_TOKEN_IS_MISSING';
@@ -91,6 +113,8 @@ Component.register('sw-plugin-license-list', {
                         this.openLoginModal();
                     }
                 }
+            }).finally(() => {
+                this.isLoading = false;
             });
         },
 
@@ -98,13 +122,7 @@ Component.register('sw-plugin-license-list', {
             this.showLoginModal = true;
         },
 
-        loginSuccess() {
-            this.showLoginModal = false;
-            this.getList();
-            this.$root.$emit('plugin-login');
-        },
-
-        loginAbort() {
+        closeLoginModal() {
             this.showLoginModal = false;
         }
     }

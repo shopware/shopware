@@ -1,20 +1,31 @@
 import template from './sw-plugin-manager.html.twig';
 import './sw-plugin-manager.scss';
 
-const { Component } = Shopware;
+const { Component, Mixin, State } = Shopware;
 
 Component.register('sw-plugin-manager', {
     template,
 
-    inject: ['storeService', 'pluginService'],
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     data() {
         return {
             searchTerm: '',
-            availableUpdates: 0,
-            storeAvailable: true,
-            isLoading: false
+            isLoading: false,
+            unsubscribeStore: null
         };
+    },
+
+    computed: {
+        availableUpdates() {
+            return State.get('swPlugin').availableUpdates;
+        },
+
+        storeAvailable() {
+            return State.get('swPlugin').storeAvailable;
+        }
     },
 
     metaInfo() {
@@ -25,6 +36,11 @@ Component.register('sw-plugin-manager', {
 
     created() {
         this.createdComponent();
+        this.unsubscribeStore = State.subscribe(this.showErrorNotification);
+    },
+
+    beforeDestroy() {
+        this.unsubscribeStore();
     },
 
     methods: {
@@ -33,32 +49,45 @@ Component.register('sw-plugin-manager', {
         },
 
         createdComponent() {
-            this.fetchAvailableUpdates();
+            this.isLoading = true;
 
-            this.$root.$on('updates-refresh', (total) => {
-                if (total) {
-                    this.availableUpdates = total;
-                    return;
-                }
-                this.fetchAvailableUpdates();
-            });
-
-            this.storeService.ping().then(() => {
-                this.storeAvailable = true;
-            }).catch(() => {
-                this.storeAvailable = false;
-            });
-        },
-
-        fetchAvailableUpdates() {
-            this.storeService.getUpdateList().then((updates) => {
-                this.availableUpdates = updates.total;
+            return State.dispatch('swPlugin/pingStore').then(() => {
+                return State.dispatch('swPlugin/fetchAvailableUpdates');
+            }).catch((e) => {
+                throw e;
+            }).finally(() => {
+                this.isLoading = false;
             });
         },
 
         reloadPluginListing() {
-            this.$root.$emit('force-refresh');
             this.$router.push({ name: 'sw.plugin.index.list' });
+        },
+
+        showErrorNotification({ type, payload }) {
+            if (type !== 'swPlugin/pluginErrorsMapped') {
+                return;
+            }
+
+            payload.forEach((error) => {
+                if (error.parameters) {
+                    this.showApiNotification(error);
+                    return;
+                }
+                this.createNotificationError({
+                    title: this.$tc(error.title),
+                    message: this.$tc(error.message)
+                });
+            });
+        },
+
+        showApiNotification(error) {
+            const docLink = this.$tc('sw-plugin.errors.messageToTheShopwareDocumentation', 0, error.parameters);
+            this.createNotificationError({
+                title: error.title,
+                message: `${error.message} ${docLink}`,
+                autoClose: false
+            });
         }
     }
 });

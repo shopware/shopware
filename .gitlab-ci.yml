@@ -103,7 +103,7 @@ PHP analysis:
     stage: unit
     needs: [PHP analysis]
     services:
-        -   name: mysql:5.7
+        -   name: mariadb:10.3
             alias: mysql
         -   name: elastic/elasticsearch:7.1.1
             alias: elasticsearch
@@ -145,7 +145,7 @@ PHP 7.2:
     image: shopware/development:7.2
     stage: unit
     services:
-        -   name: mysql:5.7
+        -   name: mariadb:10.3
             alias: mysql
         -   name: elastic/elasticsearch:7.1.1
             alias: elasticsearch
@@ -159,6 +159,7 @@ PHP 7.3:
     extends: .phpunit_base
     image: shopware/development:7.3
     stage: unit
+    when: manual
     services:
         -   name: mysql:5.7
             alias: mysql
@@ -174,6 +175,7 @@ PHP 7.4:
     extends: .phpunit_base
     image: shopware/development:7.4
     stage: unit
+    when: manual
     services:
         -   name: mysql:5.7
             alias: mysql
@@ -188,6 +190,7 @@ MySQL 5.7:
             - master
     extends: .phpunit_base
     stage: unit
+    when: manual
     services:
         -   name: mysql:5.7
             alias: mysql
@@ -202,25 +205,11 @@ MySQL 8.0:
             - master
     extends: .phpunit_base
     stage: unit
+    when: manual
     services:
         -   name: mysql:8.0
             alias: mysql
             command: ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-authentication-plugin=mysql_native_password"]
-        -   name: elastic/elasticsearch:7.1.1
-            alias: elasticsearch
-            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
-
-
-MariaDB 10.3:
-    only:
-        refs:
-            - merge_requests
-            - master
-    extends: .phpunit_base
-    stage: unit
-    services:
-        -   name: mariadb:10.3
-            alias: mysql
         -   name: elastic/elasticsearch:7.1.1
             alias: elasticsearch
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
@@ -233,6 +222,7 @@ MariaDB 10.4:
             - master
     extends: .phpunit_base
     stage: unit
+    when: manual
     services:
         -   name: mariadb:10.4
             alias: mysql

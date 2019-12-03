@@ -29,7 +29,7 @@ describe('Currency: Test crud operations', () => {
         cy.get('a[href="#/sw/settings/currency/create"]').click();
 
         // Create currency
-        cy.get('input[name=sw-field--currency-name]').typeAndCheck('Dukaten');
+        cy.get('input[name=sw-field--currency-name]').typeAndCheck('0000 Dukaten');
         cy.get('input[name=sw-field--currency-isoCode]').type('D');
         cy.get('input[name=sw-field--currency-shortName]').type('D');
         cy.get('input[name=sw-field--currency-symbol]').type('D¥');
@@ -93,11 +93,11 @@ describe('Currency: Test crud operations', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--3`
+            `${page.elements.dataGridRow}--8`
         );
         cy.get('.sw-modal__body').should('be.visible');
         cy.get('.sw-modal__body')
-            .contains('Are you sure you want to delete the currency "Yen"?');
+            .contains('Are you sure you want to delete the currency "ZZ Yen"?');
         cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
 
         // Verify deletion
@@ -106,6 +106,6 @@ describe('Currency: Test crud operations', () => {
         });
 
         cy.get(page.elements.modal).should('not.exist');
-        cy.get(`${page.elements.dataGridRow}--3 ${page.elements.currencyColumnName}`).should('not.exist');
+        cy.get(`${page.elements.dataGridRow}--8 ${page.elements.currencyColumnName}`).should('not.exist');
     });
 });

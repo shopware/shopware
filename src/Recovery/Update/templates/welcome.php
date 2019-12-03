@@ -14,7 +14,7 @@ echo $renderer->fetch('_header.php', ['tab' => 'start']); ?>
 
         <div class="select-wrapper language">
             <img class="language-flag"
-                 src="<?= $baseUrl; ?>../recovery/assets/common/images/flags/<?= $selectedLanguage; ?>.png"
+                 src="<?= $baseUrl; ?>../assets/common/images/flags/<?= $selectedLanguage; ?>.png"
                  alt="<?= $selectedLanguage; ?>">
             <select name="language" id="language" class="language-selection">
                 <option value="de"<?php if ($selectedLanguage === 'de') : ?> selected="selected"<?php endif; ?>>

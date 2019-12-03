@@ -43,8 +43,8 @@ class CurrencyRepositoryTest extends TestCase
         $recordB = Uuid::randomHex();
 
         $records = [
-            ['id' => $recordA, 'decimalPrecision' => 2, 'name' => 'match', 'isoCode' => 'USD', 'shortName' => 'test', 'factor' => 1, 'symbol' => 'A'],
-            ['id' => $recordB, 'decimalPrecision' => 2, 'name' => 'not', 'isoCode' => 'EUR', 'shortName' => 'match', 'factor' => 1, 'symbol' => 'A'],
+            ['id' => $recordA, 'decimalPrecision' => 2, 'name' => 'match', 'isoCode' => 'FOO', 'shortName' => 'test', 'factor' => 1, 'symbol' => 'A'],
+            ['id' => $recordB, 'decimalPrecision' => 2, 'name' => 'not', 'isoCode' => 'BAR', 'shortName' => 'match', 'factor' => 1, 'symbol' => 'A'],
         ];
 
         $this->currencyRepository->create($records, Context::createDefaultContext());
@@ -83,7 +83,7 @@ class CurrencyRepositoryTest extends TestCase
         $recordA = Uuid::randomHex();
 
         $records = [
-            ['id' => $recordA, 'decimalPrecision' => 2, 'name' => 'match', 'isoCode' => 'USD', 'shortName' => 'test', 'factor' => 1, 'symbol' => 'A'],
+            ['id' => $recordA, 'decimalPrecision' => 2, 'name' => 'match', 'isoCode' => 'FOO', 'shortName' => 'test', 'factor' => 1, 'symbol' => 'A'],
         ];
 
         $this->currencyRepository->create($records, $context);

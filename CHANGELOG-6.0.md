@@ -210,6 +210,8 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * integrated repository based data handling in plugin manager
     * replaced `sw-grid` with `sw-data-grid` components in plugin manager
     * Remote address anonymization is now configurable in the settings at the Login / Registration module
+    * We added error handling for delete requests. Since delete errors affect the whole entity it is not possible to store the error under a specific path. For this reason we provide a new getter `getErrorsForEntity` available through the State.
+    * The object returned from Shopware.State.getters.getEntityError should always be treated read only.
 * Core
     * Moved the seo module from the storefront into the core.
     * Switched the execution condition of `\Shopware\Core\Framework\Migration\MigrationStep::addBackwardTrigger()` and `\Shopware\Core\Framework\Migration\MigrationStep::addForwardTrigger()` to match the execution conditions in the methods documentation.

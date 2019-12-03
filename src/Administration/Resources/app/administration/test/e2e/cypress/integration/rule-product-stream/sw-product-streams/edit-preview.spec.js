@@ -67,8 +67,8 @@ describe('Dynamic product groups: Test dynamic product group preview', () => {
         cy.get('.sw-product-stream-modal-preview').within(() => {
             cy.get('.sw-modal__header').contains('Preview (0)').should('be.visible');
             cy.get('.sw-data-grid .sw-data-grid__row--0').should('not.exist');
-            cy.get('.sw-modal__close').click();
             cy.get('.sw-empty-state').should('be.visible');
+            cy.get('.sw-modal__close').click();
         });
     });
 });

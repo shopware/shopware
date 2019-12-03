@@ -261,8 +261,12 @@ export default class Repository {
 
         const url = `${this.route}/${id}`;
         return this.httpClient.delete(url, { headers })
-            .catch((error) => {
-                return this.errorResolver.handleDeleteError(error, this.entityName, id);
+            .catch((errorResponse) => {
+                const errors = errorResponse.response.data.errors.map((error) => {
+                    return { error, id, entityName: this.entityName };
+                });
+
+                return this.errorResolver.handleDeleteError(errors);
             });
     }
 
@@ -296,12 +300,17 @@ export default class Repository {
             }
             return Promise.resolve();
         }).catch((errorResponse) => {
-            const errors = this.getSyncErrors(errorResponse);
+            const syncResult = errorResponse.response.data.data[this.entityName].result;
 
-            this.errorResolver.handleWriteErrors(
-                { errors },
-                payload
-            );
+            const errors = syncResult.reduce((acc, currentResult, index) => {
+                if (currentResult.errors) {
+                    currentResult.errors.forEach((error) => {
+                        acc.push({ error, entityName: this.entityName, id: ids[index] });
+                    });
+                }
+                return acc;
+            }, []);
+            this.errorResolver.handleDeleteError(errors);
             throw errorResponse;
         });
     }

@@ -35,14 +35,18 @@ class VuexErrorStore {
         };
 
         this.getters = {
-            getApiErrorFromPath: (state) => (entityName, id, path) => {
+            getErrorsForEntity: (state) => (entityName, id) => {
                 const entityStorage = state.api[entityName];
                 if (!entityStorage) {
                     return null;
                 }
 
+                return entityStorage[id] || null;
+            },
+
+            getApiErrorFromPath: (state, getters) => (entityName, id, path) => {
                 return path.reduce((store, next) => {
-                    if (store === null || typeof store === 'undefined') {
+                    if (store === null) {
                         return null;
                     }
 
@@ -50,7 +54,7 @@ class VuexErrorStore {
                         return store[next];
                     }
                     return null;
-                }, entityStorage[id]);
+                }, getters.getErrorsForEntity(entityName, id));
             },
 
             getApiError: (state, getters) => (entity, field) => {

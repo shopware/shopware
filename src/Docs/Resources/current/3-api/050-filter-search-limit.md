@@ -107,6 +107,66 @@ The result can therefore be restricted to certain ids using the parameter `ids`.
 }
 ```
 
+
+## Source
+In the response of a search or get request, all fields of an entity are returned by default. 
+However, it is also possible to minimize the response size by only returning certain fields via Api.
+
+```json
+{
+    "limit": 1,
+    "source": [
+    	"id", 
+    	"name", 
+    	"tax", 
+    	"prices.quantityStart",
+    	"prices.price.gross",
+    	"manufacturer.id", 
+    	"manufacturer.name"
+    ],
+    "associations": {
+    	"prices": {}
+    }
+}
+```
+
+```json
+{
+    "total": 60,
+    "data": [
+        {
+            "id": "077383cc3c88489a834bca551441ff82",
+            "name": "Small Copper Information Plantation",
+            "tax": {
+                "taxRate": 19,
+                "name": "19%",
+                "products": null,
+                "customFields": null,
+                "rules": null,
+                "_uniqueIdentifier": "7f33ed96986f4169ac542c3bd9b4da6f",
+                "versionId": null,
+                "translated": [],
+                "createdAt": "2019-12-03T09:41:17+00:00",
+                "updatedAt": null,
+                "extensions": {},
+                "id": "7f33ed96986f4169ac542c3bd9b4da6f"
+            },
+            "prices": [
+                {
+                    "price": [
+                        {
+                            "gross": 511
+                        }
+                    ],
+                    "quantityStart": 1
+                }
+            ]
+        }
+    ]
+}
+```
+
+
 ## Term
 The API provides an integrated full text search that is pre-configured per entity. 
 To filter the result by a search term the `term` parameter can be used. 
@@ -138,7 +198,7 @@ In addition to filtering, a score is calculated for each entry to determine how 
                     "_score": "125"
                 }
             }
-        }
+        },
         {
             "id": "a262879fa0e44abdad773973aca227da",
             "name": "Synergistic Granite Lancelot Boil Cream",
@@ -1094,7 +1154,6 @@ The following example performs three searches, each with the same aggregation:
     }
 }
 ```
-
 
 ## Associations
 When entities are queried via the API, the entities contain only a minimal data set. This includes all data stored in the table of the entity itself, the translation of the current language and all many to one associations marked with `autoload = true`.

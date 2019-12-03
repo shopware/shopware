@@ -78,7 +78,14 @@ class JsonEntityEncoder
     {
         $filtered = [];
 
+        if (empty($decoded)) {
+            return $decoded;
+        }
+
         foreach ($properties as $property => $nested) {
+            if (!array_key_exists($property, $decoded)) {
+                continue;
+            }
             $value = $decoded[$property];
             if ($nested === true) {
                 $filtered[$property] = $value;

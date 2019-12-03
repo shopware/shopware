@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Language\LanguageEntity;
+use Shopware\Core\System\Language\LanguageEntity;
 
 class ProductSearchKeywordEntity extends Entity
 {

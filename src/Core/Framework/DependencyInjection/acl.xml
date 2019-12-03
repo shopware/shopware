@@ -5,12 +5,12 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
-        <parameter key="acl_privilege_list" type="constant">Shopware\Core\Framework\Acl\Resource\AclResourceDefinition::PRIVILEGE_LIST</parameter>
-        <parameter key="acl_privilege_detail" type="constant">Shopware\Core\Framework\Acl\Resource\AclResourceDefinition::PRIVILEGE_DETAIL</parameter>
-        <parameter key="acl_privilege_create" type="constant">Shopware\Core\Framework\Acl\Resource\AclResourceDefinition::PRIVILEGE_CREATE</parameter>
-        <parameter key="acl_privilege_update" type="constant">Shopware\Core\Framework\Acl\Resource\AclResourceDefinition::PRIVILEGE_UPDATE</parameter>
-        <parameter key="acl_privilege_assign" type="constant">Shopware\Core\Framework\Acl\Resource\AclResourceDefinition::PRIVILEGE_ASSIGN</parameter>
-        <parameter key="acl_privilege_delete" type="constant">Shopware\Core\Framework\Acl\Resource\AclResourceDefinition::PRIVILEGE_DELETE</parameter>
+        <parameter key="acl_privilege_list" type="constant">Shopware\Core\Framework\Api\Acl\Resource\AclResourceDefinition::PRIVILEGE_LIST</parameter>
+        <parameter key="acl_privilege_detail" type="constant">Shopware\Core\Framework\Api\Acl\Resource\AclResourceDefinition::PRIVILEGE_DETAIL</parameter>
+        <parameter key="acl_privilege_create" type="constant">Shopware\Core\Framework\Api\Acl\Resource\AclResourceDefinition::PRIVILEGE_CREATE</parameter>
+        <parameter key="acl_privilege_update" type="constant">Shopware\Core\Framework\Api\Acl\Resource\AclResourceDefinition::PRIVILEGE_UPDATE</parameter>
+        <parameter key="acl_privilege_assign" type="constant">Shopware\Core\Framework\Api\Acl\Resource\AclResourceDefinition::PRIVILEGE_ASSIGN</parameter>
+        <parameter key="acl_privilege_delete" type="constant">Shopware\Core\Framework\Api\Acl\Resource\AclResourceDefinition::PRIVILEGE_DELETE</parameter>
 
         <parameter key="acl_resource_privileges" type="collection">
             <parameter key="%acl_privilege_list%" type="collection">
@@ -37,20 +37,20 @@
     </parameters>
 
     <services>
-        <service id="Shopware\Core\Framework\Acl\Resource\AclResourceDefinition">
+        <service id="Shopware\Core\Framework\Api\Acl\Resource\AclResourceDefinition">
             <tag name="shopware.entity.definition" entity="acl_resource"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Acl\Role\AclRoleDefinition">
+        <service id="Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition">
             <tag name="shopware.entity.definition" entity="acl_role"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Acl\Role\AclUserRoleDefinition">
+        <service id="Shopware\Core\Framework\Api\Acl\Role\AclUserRoleDefinition">
             <tag name="shopware.entity.definition" entity="user_role_acl"/>
             <tag name="shopware.entity.acl"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Acl\Resource\AclPermissionValidator">
+        <service id="Shopware\Core\Framework\Api\Acl\Resource\AclPermissionValidator">
             <tag name="kernel.event_subscriber"/>
         </service>
     </services>

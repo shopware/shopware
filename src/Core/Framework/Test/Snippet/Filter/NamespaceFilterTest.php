@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Test\Snippet\Filter;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Snippet\Filter\NamespaceFilter;
+use Shopware\Core\System\Snippet\Filter\NamespaceFilter;
 
 class NamespaceFilterTest extends TestCase
 {

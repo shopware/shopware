@@ -3,6 +3,9 @@
 namespace Shopware\Core\Framework\Test\Routing;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Context\ContextSource;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -24,7 +27,7 @@ class RouteScopeListenerTest extends TestCase
     {
         $listener = $this->getContainer()->get(RouteScopeListener::class);
 
-        $request = $this->createRequest('/api', 'api', new Context\AdminApiSource(null, null));
+        $request = $this->createRequest('/api', 'api', new AdminApiSource(null, null));
 
         $event = $this->createEvent($request);
 
@@ -37,7 +40,7 @@ class RouteScopeListenerTest extends TestCase
     {
         $listener = $this->getContainer()->get(RouteScopeListener::class);
 
-        $request = $this->createRequest('/api', 'api', new Context\AdminApiSource(null, null));
+        $request = $this->createRequest('/api', 'api', new AdminApiSource(null, null));
 
         $event = $this->createEvent($request);
         $event->setController([$this->getContainer()->get('web_profiler.controller.profiler'), 'panelAction']);
@@ -49,7 +52,7 @@ class RouteScopeListenerTest extends TestCase
     {
         $listener = $this->getContainer()->get(RouteScopeListener::class);
 
-        $request = $this->createRequest('/api', 'api', new Context\AdminApiSource(null, null));
+        $request = $this->createRequest('/api', 'api', new AdminApiSource(null, null));
         $request->attributes->remove(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE);
 
         $event = $this->createEvent($request);
@@ -63,7 +66,7 @@ class RouteScopeListenerTest extends TestCase
         $stack = $this->getContainer()->get(RequestStack::class);
         $listener = $this->getContainer()->get(RouteScopeListener::class);
 
-        $request = $this->createRequest('/api', 'api', new Context\AdminApiSource(null, null));
+        $request = $this->createRequest('/api', 'api', new AdminApiSource(null, null));
 
         $stack->push($request);
         $event = $this->createEvent($request);
@@ -76,7 +79,7 @@ class RouteScopeListenerTest extends TestCase
         $stack = $this->getContainer()->get(RequestStack::class);
         $listener = $this->getContainer()->get(RouteScopeListener::class);
 
-        $request = $this->createRequest('/api', 'api', new Context\SalesChannelApiSource(Uuid::randomHex()));
+        $request = $this->createRequest('/api', 'api', new SalesChannelApiSource(Uuid::randomHex()));
 
         $stack->push($request);
         $event = $this->createEvent($request);
@@ -90,8 +93,8 @@ class RouteScopeListenerTest extends TestCase
         $stack = $this->getContainer()->get(RequestStack::class);
         $listener = $this->getContainer()->get(RouteScopeListener::class);
 
-        $requestMaster = $this->createRequest('/api', 'api', new Context\AdminApiSource(null, null));
-        $requestSub = $this->createRequest('/api', 'api', new Context\SalesChannelApiSource(Uuid::randomHex()));
+        $requestMaster = $this->createRequest('/api', 'api', new AdminApiSource(null, null));
+        $requestSub = $this->createRequest('/api', 'api', new SalesChannelApiSource(Uuid::randomHex()));
 
         $stack->push($requestMaster);
         $stack->push($requestSub);
@@ -111,7 +114,7 @@ class RouteScopeListenerTest extends TestCase
         );
     }
 
-    private function createRequest(string $route, string $scopeName, Context\ContextSource $source): Request
+    private function createRequest(string $route, string $scopeName, ContextSource $source): Request
     {
         $request = Request::create($route);
 

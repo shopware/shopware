@@ -4,11 +4,11 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\CustomField\CustomFieldService;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
+use Shopware\Core\System\CustomField\CustomFieldService;
 
 class CustomFieldsAccessorBuilder extends JsonFieldAccessorBuilder
 {

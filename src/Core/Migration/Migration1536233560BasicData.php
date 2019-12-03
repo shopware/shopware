@@ -18,16 +18,16 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DebitPayment;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\InvoicePayment;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Content\Newsletter\NewsletterEvents;
 use Shopware\Core\Content\Newsletter\NewsletterSubscriptionServiceInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
-use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 
 class Migration1536233560BasicData extends MigrationStep
 {

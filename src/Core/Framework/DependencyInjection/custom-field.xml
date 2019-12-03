@@ -6,26 +6,26 @@
 
     <services>
 
-        <service id="Shopware\Core\Framework\CustomField\CustomFieldDefinition">
+        <service id="Shopware\Core\System\CustomField\CustomFieldDefinition">
             <tag name="shopware.entity.definition" entity="custom_field"/>
         </service>
 
-        <service id="Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition">
+        <service id="Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition">
             <tag name="shopware.entity.definition" entity="custom_field_set"/>
         </service>
 
-        <service id="Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationDefinition">
+        <service id="Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationDefinition">
             <tag name="shopware.entity.definition" entity="custom_field_set_relation"/>
         </service>
 
-        <service id="Shopware\Core\Framework\CustomField\Api\CustomFieldSetActionController" public="true">
+        <service id="Shopware\Core\System\CustomField\Api\CustomFieldSetActionController" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <call method="setContainer">
                 <argument type="service" id="service_container" />
             </call>
         </service>
 
-        <service id="Shopware\Core\Framework\CustomField\CustomFieldService">
+        <service id="Shopware\Core\System\CustomField\CustomFieldService">
             <argument type="service" id="custom_field.repository"/>
 
             <tag name="kernel.event_subscriber"/>

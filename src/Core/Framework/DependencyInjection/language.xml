@@ -5,34 +5,34 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="Shopware\Core\Framework\Language\LanguageDefinition">
+        <service id="Shopware\Core\System\Language\LanguageDefinition">
             <tag name="shopware.entity.definition" entity="language"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Language\SalesChannel\SalesChannelLanguageDefinition">
+        <service id="Shopware\Core\System\Language\SalesChannel\SalesChannelLanguageDefinition">
             <tag name="shopware.sales_channel.entity.definition" entity="language"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Language\LanguageValidator">
+        <service id="Shopware\Core\System\Language\LanguageValidator">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Language\LanguageLoader">
+        <service id="Shopware\Core\System\Language\LanguageLoader">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Language\CachedLanguageLoader" decorates="Shopware\Core\Framework\Language\LanguageLoader">
-            <argument type="service" id="Shopware\Core\Framework\Language\CachedLanguageLoader.inner"/>
+        <service id="Shopware\Core\System\Language\CachedLanguageLoader" decorates="Shopware\Core\System\Language\LanguageLoader">
+            <argument type="service" id="Shopware\Core\System\Language\CachedLanguageLoader.inner"/>
             <argument type="service" id="cache.object"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Language\TranslationValidator">
+        <service id="Shopware\Core\System\Language\TranslationValidator">
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Language\LanguageExceptionHandler">
+        <service id="Shopware\Core\System\Language\LanguageExceptionHandler">
             <tag name="shopware.dal.exception_handler"/>
         </service>
     </services>

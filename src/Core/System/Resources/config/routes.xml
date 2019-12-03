@@ -5,6 +5,8 @@
         https://symfony.com/schema/routing/routing-1.0.xsd">
 
     <import resource="../../User/Api/**/*Controller.php" type="annotation" />
+    <import resource="../../Snippet/**/*Controller.php" type="annotation" />
+    <import resource="../../CustomField/**/*Controller.php" type="annotation" />
     <import resource="../../SystemConfig/**/*Controller.php" type="annotation" />
     <import resource="../../NumberRange/**/*Controller.php" type="annotation" />
     <import resource="../../SalesChannel/SalesChannel/**/*Controller.php" type="annotation" />

@@ -210,7 +210,7 @@ This field does not have any parameters and is an extension to the `FkField`. It
 
 - `version_id` as the storage name
 - `versionId` as the property name
-- `Shopware\Core\Framework\Version\VersionDefinition` as the reference class
+- `Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition` as the reference class
 
 It also implies the following flags:
 

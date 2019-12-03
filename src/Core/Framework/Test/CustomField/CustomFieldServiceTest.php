@@ -4,8 +4,6 @@ namespace Shopware\Core\Framework\Test\CustomField;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\CustomField\CustomFieldService;
-use Shopware\Core\Framework\CustomField\CustomFieldTypes;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
@@ -16,6 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomField\CustomFieldService;
+use Shopware\Core\System\CustomField\CustomFieldTypes;
 
 class CustomFieldServiceTest extends TestCase
 {

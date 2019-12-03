@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory;
 
-use Shopware\Core\Framework\Context\SalesChannelApiSource;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;

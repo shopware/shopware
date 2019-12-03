@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Test\Filesystem\Adapter;
 
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Memory\MemoryAdapter;
-use Shopware\Core\Framework\Filesystem\Adapter\AdapterFactoryInterface;
+use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AdapterFactoryInterface;
 
 class MemoryAdapterFactory implements AdapterFactoryInterface
 {

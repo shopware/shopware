@@ -457,7 +457,7 @@ It's not that much of a deal though, so don't worry.
 #### Adding SnippetFiles
 
 Adding snippets via plugins works by registering services via the DI container tag `shopware.snippet.file`.
-Those services implement the `Shopware\Core\Framework\Snippet\Files\SnippetFileInterface` interface, which needs five methods to be implemented:
+Those services implement the `Shopware\Core\System\Snippet\Files\SnippetFileInterface` interface, which needs five methods to be implemented:
 - `getName`: Return the name of the snippet file as a string here. Using this name, you can access the translations later. By default, you can return `storefront.en-GB` here.
 - `getPath`: Each SnippetFile class has to point to a `.json` file, which actually contains the translations. Return the path to this file here.
 - `getIso`: Return the ISO string of the supported locale here. This is important, because the `Translator` collects every snippet file with this locale and merges them to generate the snippet catalogue used by the storefront. 
@@ -475,7 +475,7 @@ Having implemented all methods mentioned above, your `SnippetFile_en_GB.php` sho
 
 namespace Swag\BundleExample\Resources\snippet\en_GB;
 
-use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
+use Shopware\Core\System\Snippet\Files\SnippetFileInterface;
 
 class SnippetFile_en_GB implements SnippetFileInterface
 {

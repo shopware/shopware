@@ -4,12 +4,12 @@ namespace Shopware\Core\Framework\Test\Seo\SeoUrlTemplate;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition;
+use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition;
-use Shopware\Core\Framework\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;

@@ -10,8 +10,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Pricing\Price;
-use Shopware\Core\Framework\Pricing\PriceRuleEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceRuleEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInterface

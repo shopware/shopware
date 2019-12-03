@@ -7,8 +7,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Language\LanguageEntity;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
+use Shopware\Core\System\Language\LanguageEntity;
 
 class CurrencyFormatter
 {

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Language\LanguageDefinition;
+use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationDefinition;
 
 class LanguageExtension implements EntityExtensionInterface

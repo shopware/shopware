@@ -140,7 +140,7 @@ class NavigationController extends StorefrontController
 
 ## Cache invalidation system
 The cache invalidation is realized like the entity cache via tags. For this purpose, the `\Shopware\Storefront\Framework\Cache\CacheStore` reacts to the data in the response.
-All entities that have been loaded into the template will be considered for the cache invalidation. The cache is then invalidated via `\Shopware\Core\Framework\Cache\CacheClearer::invalidateTags`.
+All entities that have been loaded into the template will be considered for the cache invalidation. The cache is then invalidated via `\Shopware\Core\Framework\Adapter\Cache\CacheClearer::invalidateTags`.
 
 ## How to change the cache storage
 The standard shopware http cache can be exchanged or reconfigured in several ways. The standard cache comes with an `adapter.filesystem`. The configuration can be found in the `platform/src/Core/Framework/Resources/config/packages/framework.yaml` file.

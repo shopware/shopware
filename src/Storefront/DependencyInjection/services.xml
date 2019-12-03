@@ -20,7 +20,7 @@
 
             <argument type="service" id="Shopware\Storefront\Framework\Routing\RequestTransformer.inner" />
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\Seo\SeoResolver"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoResolver"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\Router" decorates="router">
@@ -43,12 +43,12 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Twig\IconExtension">
-            <argument type="service" id="Shopware\Core\Framework\Twig\TemplateFinder"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateFinder"/>
             <tag name="twig.extension"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Twig\ThumbnailExtension">
-            <argument type="service" id="Shopware\Core\Framework\Twig\TemplateFinder"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateFinder"/>
 
             <tag name="twig.extension"/>
         </service>

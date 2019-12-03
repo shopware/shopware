@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 
-use Shopware\Core\Framework\Context\AdminApiSource;
-use Shopware\Core\Framework\Context\SalesChannelApiSource;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 
 class ReadProtected extends Flag
 {

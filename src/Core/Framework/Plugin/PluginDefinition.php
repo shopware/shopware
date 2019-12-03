@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\Plugin;
 
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
-use Shopware\Core\Framework\Context\AdminApiSource;
-use Shopware\Core\Framework\Context\SalesChannelApiSource;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;

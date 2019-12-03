@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Acl\Resource\AclResourceDefinition;
+use Shopware\Core\Framework\Api\Acl\Resource\AclResourceDefinition;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionException;
 use Shopware\Core\Framework\Api\Exception\InvalidVersionNameException;

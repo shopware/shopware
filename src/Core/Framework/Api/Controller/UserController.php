@@ -3,10 +3,10 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use League\OAuth2\Server\Exception\OAuthServerException;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Context\AdminApiSource;
-use Shopware\Core\Framework\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;

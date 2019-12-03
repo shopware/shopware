@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Snippet\Mock;
 
-use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
+use Shopware\Core\System\Snippet\Files\SnippetFileInterface;
 
 class MockSnippetFile implements SnippetFileInterface
 {

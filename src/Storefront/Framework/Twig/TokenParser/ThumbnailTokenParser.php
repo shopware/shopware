@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Twig\TokenParser;
 
-use Shopware\Core\Framework\Twig\Node\SwInclude;
+use Shopware\Core\Framework\Adapter\Twig\Node\SwInclude;
 use Twig\Node\Expression\ArrayExpression;
 use Twig\Node\Expression\ConstantExpression;
 use Twig\Parser;

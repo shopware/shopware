@@ -2,7 +2,7 @@
 
 namespace SwagTest;
 
-use Shopware\Core\Framework\ScheduledTask\ScheduledTask;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
 class SwagTestTask extends ScheduledTask
 {

@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\TranslationFieldResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TranslatedFieldSerializer;
-use Shopware\Core\Framework\Language\LanguageDefinition;
+use Shopware\Core\System\Language\LanguageDefinition;
 
 class TranslatedField extends Field
 {

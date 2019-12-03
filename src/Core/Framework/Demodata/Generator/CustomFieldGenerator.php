@@ -5,13 +5,13 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Faker\Generator;
-use Shopware\Core\Framework\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
-use Shopware\Core\Framework\CustomField\CustomFieldTypes;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
+use Shopware\Core\System\CustomField\CustomFieldTypes;
 
 class CustomFieldGenerator implements DemodataGeneratorInterface
 {

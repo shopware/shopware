@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Media\Commands;
 
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
-use Shopware\Core\Framework\Console\ShopwareStyle;
+use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;

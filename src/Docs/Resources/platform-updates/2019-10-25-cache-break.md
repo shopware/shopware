@@ -26,4 +26,4 @@ framework:
 ```
 
 Since there can be multiple cache pools that work with tags, it is important to invalidate all these pools as well. 
-For this you can use the `\Shopware\Core\Framework\Cache\CacheClearer::invalidateTags` function. The service can be injected normally via the DI container.
+For this you can use the `\Shopware\Core\Framework\Adapter\Cache\CacheClearer::invalidateTags` function. The service can be injected normally via the DI container.

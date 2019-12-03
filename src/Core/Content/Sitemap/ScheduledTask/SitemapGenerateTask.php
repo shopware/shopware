@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Sitemap\ScheduledTask;
 
-use Shopware\Core\Framework\ScheduledTask\ScheduledTask;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
 class SitemapGenerateTask extends ScheduledTask
 {

@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\VersionFieldSerializer;
-use Shopware\Core\Framework\Version\VersionDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 
 class VersionField extends FkField
 {

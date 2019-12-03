@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\FeatureFlag\Command;
 
-use Shopware\Core\Framework\Console\ShopwareStyle;
+use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;

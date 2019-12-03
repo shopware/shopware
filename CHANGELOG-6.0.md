@@ -108,7 +108,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
         - These services are now available in `\Shopware\Core\Framework\Plugin::activate` and `\Shopware\Core\Framework\Plugin::deactivate`
         - `\Shopware\Core\Framework\Plugin::deactivate` is now always called before `\Shopware\Core\Framework\Plugin::uninstall`
     * Renamed container service id `shopware.cache` to `cache.object` 
-    * Added new function to `\Shopware\Core\Framework\Cache\CacheClearer`. Please use this service to invalidate or delete cache items.
+    * Added new function to `\Shopware\Core\Framework\Adapter\Cache\CacheClearer`. Please use this service to invalidate or delete cache items.
     * We did some refactoring on how we use `WriteConstraintsViolationExceptions`.
     It's path `property` should now point to the object that is inspected by an validator while the `propertyPath` property in `WriteConstraint` objects should only point to the invalid property. 
     For more information read the updated "write command validation" article in the docs.
@@ -294,7 +294,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Moved `Shopware\Core\Content\Newsletter\SalesChannelNewsletterController` to `Shopware\Core\Content\Newsletter\SalesChannel\SalesChannelNewsletterController`
     * The MigrationController and MediaFolderController now return StatusCode 204 without content on successful requests
     * Renamed `\Shopware\Core\Framework\Api\Converter\ConverterService` to `\Shopware\Core\Framework\Api\Converter\ApiVersionConverter`
-    * Added `\Shopware\Core\Framework\PersonalData\CleanPersonalDataCommand` to removing personal data by the cli command: "bin/console database:clean-personal-data"
+    * Added `\Shopware\Core\Framework\Demodata\PersonalData\CleanPersonalDataCommand` to removing personal data by the cli command: "bin/console database:clean-personal-data"
         * use the command with the argument "guests" to remove guests without orders
         * use the command with the argument "carts" to remove canceled carts
         * use the command with the option "--all" to remove both of them.
@@ -303,6 +303,27 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * We removed the `\Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface`, use `\Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand` instead
     * The sitemap generator now uses the `cache.system` pool instead of `serializer.mapping.cache.symfony`
     * Added sales channel type `product_comparison` for generating file exports of dynamic product groups 
+    * We moved the namespace Shopware\Core\Framework\Acl to Shopware\Core\Framework\Api\Acl
+    * We moved the namespace Shopware\Core\Framework\CustomField to Shopware\Core\System\CustomField
+    * We moved the namespace Shopware\Core\Framework\Language to Shopware\Core\System\Language
+    * We moved the namespace Shopware\Core\Framework\Snippet to Shopware\Core\System\Snippet
+    * We moved the namespace Shopware\Core\Framework\Doctrine to Shopware\Core\Framework\DataAbstractionLayer\Doctrine
+    * We moved the namespace Shopware\Core\Framework\Pricing to Shopware\Core\Framework\DataAbstractionLayer\Pricing
+    * We moved the namespace Shopware\Core\Framework\Version to Shopware\Core\Framework\DataAbstractionLayer\Version
+    * We moved the namespace Shopware\Core\Framework\Faker to Shopware\Core\Framework\Demodata\Faker
+    * We moved the namespace Shopware\Core\Framework\PersonalData to Shopware\Core\Framework\Demodata\PersonalData
+    * We moved the namespace Shopware\Core\Framework\Logging to Shopware\Core\Framework\Log
+    * We moved the namespace Shopware\Core\Framework\ScheduledTask to Shopware\Core\Framework\MessageQueue\ScheduledTask
+    * We moved the namespace Shopware\Core\Framework\Twig to Shopware\Core\Framework\Adapter\Twig
+    * We moved the namespace Shopware\Core\Framework\Asset to Shopware\Core\Framework\Adapter\Asset
+    * We moved the namespace Shopware\Core\Framework\Console to Shopware\Core\Framework\Adapter\Console
+    * We moved the namespace Shopware\Core\Framework\Cache to Shopware\Core\Framework\Adapter\Cache
+    * We moved the namespace Shopware\Core\Framework\Filesystem to Shopware\Core\Framework\Adapter\Filesystem
+    * We moved the namespace Shopware\Core\Framework\Translation to Shopware\Core\Framework\Adapter\Translation
+    * We moved the namespace Shopware\Core\Framework\Seo to Shopware\Core\Content\Seo
+    * We moved the namespace Shopware\Core\Framework\Context to Shopware\Core\Framework\Api\Context
+    * We moved the namespace Shopware\Core\Content\DeliveryTime to Shopware\Core\System\DeliveryTime
+    * We moved the Shopware\Core\System\User\Service\UserProvisioner to Shopware\Core\System\User\Service\UserProvisioner
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain

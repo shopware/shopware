@@ -2,7 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework\Command;
 
-use Shopware\Core\Framework\Console\ShopwareStyle;
+use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
 use Shopware\Elasticsearch\Framework\Indexing\EntityIndexer;
 use Symfony\Component\Console\Command\Command;

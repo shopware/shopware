@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Theme\Twig;
 
-use Shopware\Core\Framework\Twig\TemplateFinder;
+use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;

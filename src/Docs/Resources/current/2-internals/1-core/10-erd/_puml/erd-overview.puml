@@ -22,15 +22,15 @@ skinparam backgroundColor #FFFFFF
 
 ' entities
 
-Table(ShopwareCoreFrameworkLogging, "Shopware\Core\Framework\Logging\n(__EMPTY__)") {
+Table(ShopwareCoreFrameworkLogging, "Shopware\Core\Framework\Log\n(__EMPTY__)") {
    log_entry Table
 }
-Table(ShopwareCoreFrameworkAcl, "Shopware\Core\Framework\Acl\n(__EMPTY__)") {
+Table(ShopwareCoreFrameworkAcl, "Shopware\Core\Framework\Api\Acl\n(__EMPTY__)") {
    acl_resource Table
    acl_role Table
    acl_user_role Table
 }
-Table(ShopwareCoreFrameworkCustomField, "Shopware\Core\Framework\CustomField\n(Custom Fields/EAV)") {
+Table(ShopwareCoreFrameworkCustomField, "Shopware\Core\System\CustomField\n(Custom Fields/EAV)") {
    custom_field Table
    custom_field_set Table
    custom_field_set_relation Table
@@ -46,13 +46,13 @@ Table(ShopwareCoreFrameworkPlugin, "Shopware\Core\Framework\Plugin\n(Plugins)") 
    plugin Table
    plugin_translation Table
 }
-Table(ShopwareCoreFrameworkScheduledTask, "Shopware\Core\Framework\ScheduledTask\n(Scheduled messages)") {
+Table(ShopwareCoreFrameworkScheduledTask, "Shopware\Core\Framework\MessageQueue\ScheduledTask\n(Scheduled messages)") {
    scheduled_task Table
 }
-Table(ShopwareCoreFrameworkLanguage, "Shopware\Core\Framework\Language\n(Languages)") {
+Table(ShopwareCoreFrameworkLanguage, "Shopware\Core\System\Language\n(Languages)") {
    language Table
 }
-Table(ShopwareCoreFrameworkSeo, "Shopware\Core\Framework\Seo\n(__EMPTY__)") {
+Table(ShopwareCoreFrameworkSeo, "Shopware\Core\Content\Seo\n(__EMPTY__)") {
    seo_url Table
    seo_url_template Table
    main_category Table
@@ -83,7 +83,7 @@ Table(ShopwareCoreSystemLocale, "Shopware\Core\System\Locale\n(Locales)") {
    locale Table
    locale_translation Table
 }
-Table(ShopwareCoreFrameworkSnippet, "Shopware\Core\Framework\Snippet\n(Custom placeholder translations)") {
+Table(ShopwareCoreFrameworkSnippet, "Shopware\Core\System\Snippet\n(Custom placeholder translations)") {
    snippet_set Table
    snippet Table
 }
@@ -162,7 +162,7 @@ Table(ShopwareCoreContentProduct, "Shopware\Core\Content\Product\n(Products)") {
    product_category_tree Table
    product_visibility Table
 }
-Table(ShopwareCoreContentDeliveryTime, "Shopware\Core\Content\DeliveryTime\n(Delivery time)") {
+Table(ShopwareCoreContentDeliveryTime, "Shopware\Core\System\DeliveryTime\n(Delivery time)") {
    delivery_time Table
    delivery_time_translation Table
 }

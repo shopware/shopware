@@ -3,6 +3,10 @@
 namespace Shopware\Core\Framework\Test\Routing;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Context\ContextSource;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -17,24 +21,24 @@ class ApiRouteScopeTest extends TestCase
     public function provideAllowedData()
     {
         return [
-            [new Context\AdminApiSource(null, null), true],
-            [new Context\AdminApiSource(null, null), false],
-            [new Context\SystemSource(), false],
+            [new AdminApiSource(null, null), true],
+            [new AdminApiSource(null, null), false],
+            [new SystemSource(), false],
         ];
     }
 
     public function provideForbiddenData()
     {
         return [
-            [new Context\SalesChannelApiSource(Uuid::randomHex()), true],
-            [new Context\SystemSource(), true],
+            [new SalesChannelApiSource(Uuid::randomHex()), true],
+            [new SystemSource(), true],
         ];
     }
 
     /**
      * @dataProvider provideAllowedData
      */
-    public function testAllowedCombinations(Context\ContextSource $source, bool $authRequired): void
+    public function testAllowedCombinations(ContextSource $source, bool $authRequired): void
     {
         $scope = $this->getContainer()->get(ApiRouteScope::class);
 
@@ -49,7 +53,7 @@ class ApiRouteScopeTest extends TestCase
     /**
      * @dataProvider provideForbiddenData
      */
-    public function testForbiddenCombinations(Context\ContextSource $source, bool $authRequired): void
+    public function testForbiddenCombinations(ContextSource $source, bool $authRequired): void
     {
         $scope = $this->getContainer()->get(ApiRouteScope::class);
 

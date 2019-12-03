@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Storefront\Framework\Twig;
 
-use Shopware\Core\Framework\Twig\TemplateFinder;
+use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Storefront\Framework\Twig\TokenParser\ThumbnailTokenParser;
 use Twig\Extension\AbstractExtension;
 

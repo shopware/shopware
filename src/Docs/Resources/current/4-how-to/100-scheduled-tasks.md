@@ -52,7 +52,7 @@ Here's the mentioned example `ScheduledTask` file in `<plugin root>/src/Schedule
 
 namespace Swag\ScheduledTaskPlugin\ScheduledTask;
 
-use Shopware\Core\Framework\ScheduledTask\ScheduledTask;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
 class MyTask extends ScheduledTask
 {
@@ -76,7 +76,7 @@ Following will be the respective task handler:
 
 namespace Swag\ScheduledTaskPlugin\ScheduledTask;
 
-use Shopware\Core\Framework\ScheduledTask\ScheduledTaskHandler;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 
 class MyTaskHandler extends ScheduledTaskHandler
 {

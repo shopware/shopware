@@ -5,13 +5,12 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="Shopware\Core\Framework\Snippet\Aggregate\SnippetSet\SnippetSetDefinition">
+        <service id="Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetDefinition">
             <tag name="shopware.entity.definition" entity="snippet_set"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Snippet\SnippetDefinition">
+        <service id="Shopware\Core\System\Snippet\SnippetDefinition">
             <tag name="shopware.entity.definition" entity="snippet"/>
         </service>
     </services>
-</container>                
-                
+</container>

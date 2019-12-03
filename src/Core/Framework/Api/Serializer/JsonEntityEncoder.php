@@ -86,8 +86,18 @@ class JsonEntityEncoder
                 continue;
             }
 
-            if (is_array($nested) && is_array($value)) {
+            if (!is_array($nested) || !is_array($value)) {
+                continue;
+            }
+
+            if (!isset($value[0])) {
                 $filtered[$property] = $this->filterSource($nested, $value);
+
+                continue;
+            }
+
+            foreach ($value as $loop) {
+                $filtered[$property][] = $this->filterSource($nested, $loop);
             }
         }
 

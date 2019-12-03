@@ -125,7 +125,6 @@ PluginManager.register('FilterPropertySelect', FilterPropertySelectPlugin, '[dat
 PluginManager.register('FilterRating', FilterRatingPlugin, '[data-filter-rating]');
 PluginManager.register('ListingPagination', ListingPaginationPlugin, '[data-listing-pagination]');
 PluginManager.register('ListingSorting', ListingSortingPlugin, '[data-listing-sorting]');
-PluginManager.register('RatingSystemPlugin', RatingSystemPlugin, '[data-rating-system]');
 PluginManager.register('CrossSelling', CrossSellingPlugin, '[data-cross-selling]');
 PluginManager.register('DatePicker', DatePickerPlugin, '[data-date-picker]');
 PluginManager.register('FormCmsHandler', FormCmsHandlerPlugin, '.cms-element-form form');

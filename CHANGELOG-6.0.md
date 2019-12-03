@@ -201,6 +201,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * `v-popover` directive accepts a config object now which allows to activate / deactivate the directive on the fly, define the target element and if the popover element should be resized to the size of the origin element 
     * Updated Symfony Dependencies to version `4.4.0`.    
     * Added cms block `form`
+    * Added component `sw-select-number-field` for select options with numeric values
     * Added installation opportunity of Migration-Plugin into FirstRunWizard
 * Core
     * Moved the seo module from the storefront into the core.
@@ -304,6 +305,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Updated Symfony dependencies to version `4.4.0`.    
     * We removed the `\Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface`, use `\Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand` instead
     * The sitemap generator now uses the `cache.system` pool instead of `serializer.mapping.cache.symfony`
+    * Added sales channel type `product_comparison` for generating file exports of dynamic product groups 
     * We moved the namespace Shopware\Core\Framework\Acl to Shopware\Core\Framework\Api\Acl
     * We moved the namespace Shopware\Core\Framework\CustomField to Shopware\Core\System\CustomField
     * We moved the namespace Shopware\Core\Framework\Language to Shopware\Core\System\Language

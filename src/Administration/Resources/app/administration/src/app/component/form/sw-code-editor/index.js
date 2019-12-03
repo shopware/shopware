@@ -1,8 +1,5 @@
 import Ace from 'ace-builds/src-noconflict/ace';
-import {
-    setCompleters,
-    textCompleter
-} from 'ace-builds/src-noconflict/ext-language_tools';
+import { setCompleters, textCompleter } from 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/mode-twig';
 import template from './sw-code-editor.html.twig';
 import './sw-code-editor.scss';
@@ -100,7 +97,7 @@ Component.register('sw-code-editor', {
     watch: {
         value(value) {
             if (value !== null && value !== this.editor.getValue()) {
-                this.editor.setValue(value);
+                this.editor.setValue(value, 1);
             }
         },
 

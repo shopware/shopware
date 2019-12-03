@@ -15,7 +15,7 @@
                         class="sw-sales-channel-detail__save-action"
                         :isLoading="isLoading"
                         :processSuccess="isSaveSuccessful"
-                        :disabled="isLoading"
+                        :disabled="isLoading || productComparison.invalidFileName"
                         variant="primary"
                         @process-finish="saveFinish"
                         v-tooltip.bottom="tooltipSave"
@@ -53,14 +53,36 @@
                         {% endblock %}
 
                         {%  block sw_sales_channel_detail_content_tab_theme %}{% endblock %}
+
+                        {%  block sw_sales_channel_detail_content_tab_product_comparison %}
+                            <sw-tabs-item v-if="isProductComparison && !isLoading"
+                                          :route="{ name: 'sw.sales.channel.detail.productComparison', params: { id: $route.params.id } }"
+                                          :title="$tc('sw-sales-channel.detail.tabProductComparison')"
+                                          >
+                                {{ $tc('sw-sales-channel.detail.tabProductComparison') }}
+                            </sw-tabs-item>
+                        {% endblock %}
                     </sw-tabs>
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_content_view %}
                     <router-view :salesChannel="salesChannel"
+                                 :productExport="productExport"
+                                 :storefrontSalesChannelCriteria="storefrontSalesChannelCriteria"
                                  :customFieldSets="customFieldSets"
                                  :isLoading="isLoading"
-                                 :key="$route.params.id">
+                                 :productComparisonAccessUrl="productComparison.productComparisonAccessUrl"
+                                 :key="$route.params.id"
+                                 :templateOptions="productComparison.templateOptions"
+                                 :showTemplateModal="productComparison.showTemplateModal"
+                                 :templateName="productComparison.templateName"
+                                 @template-selected="onTemplateSelected"
+                                 @access-key-changed="generateAccessUrl"
+                                 @domain-changed="generateAccessUrl"
+                                 @invalid-file-name="setInvalidFileName(true)"
+                                 @valid-file-name="setInvalidFileName(false)"
+                                 @template-modal-close="onTemplateModalClose"
+                                 @template-modal-confirm="onTemplateModalConfirm">
                     </router-view>
                 {% endblock %}
             </sw-card-view>

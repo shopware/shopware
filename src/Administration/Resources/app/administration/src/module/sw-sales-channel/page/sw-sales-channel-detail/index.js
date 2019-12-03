@@ -7,7 +7,8 @@ Component.register('sw-sales-channel-detail', {
     template,
 
     inject: [
-        'repositoryFactory'
+        'repositoryFactory',
+        'exportTemplateService'
     ],
 
     mixins: [
@@ -24,7 +25,17 @@ Component.register('sw-sales-channel-detail', {
             salesChannel: null,
             isLoading: false,
             customFieldSets: [],
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
+            productComparison: {
+                newProductExport: null,
+                productComparisonAccessUrl: null,
+                invalidFileName: false,
+                templateOptions: [],
+                templates: null,
+                templateName: null,
+                showTemplateModal: false,
+                selectedTemplate: null
+            }
         };
     },
 
@@ -39,8 +50,32 @@ Component.register('sw-sales-channel-detail', {
             return this.placeholder(this.salesChannel, 'name');
         },
 
+        productExport() {
+            if (this.salesChannel && this.salesChannel.productExports.first()) {
+                return this.salesChannel.productExports.first();
+            }
+
+            if (this.productComparison.newProductExport) {
+                return this.productComparison.newProductExport;
+            }
+
+            this.productComparison.newProductExport = this.productExportRepository.create(Shopware.Context.api);
+            this.productComparison.newProductExport.interval = 0;
+            this.productComparison.newProductExport.generateByCronjob = false;
+
+            return this.productComparison.newProductExport;
+        },
+
         isStoreFront() {
             return this.salesChannel.typeId === Defaults.storefrontSalesChannelTypeId;
+        },
+
+        isProductComparison() {
+            if (!this.salesChannel) {
+                return this.$route.params.typeId === Defaults.productComparisonTypeId;
+            }
+
+            return this.salesChannel.typeId === Defaults.productComparisonTypeId;
         },
 
         salesChannelRepository() {
@@ -49,6 +84,16 @@ Component.register('sw-sales-channel-detail', {
 
         customFieldRepository() {
             return this.repositoryFactory.create('custom_field_set');
+        },
+
+        productExportRepository() {
+            return this.repositoryFactory.create('product_export');
+        },
+
+        storefrontSalesChannelCriteria() {
+            const criteria = new Criteria();
+
+            return criteria.addFilter(Criteria.equals('typeId', Defaults.storefrontSalesChannelTypeId));
         },
 
         tooltipSave() {
@@ -74,6 +119,7 @@ Component.register('sw-sales-channel-detail', {
     methods: {
         createdComponent() {
             this.loadEntityData();
+            this.loadProductExportTemplates();
         },
 
         loadEntityData() {
@@ -93,6 +139,20 @@ Component.register('sw-sales-channel-detail', {
             this.loadCustomFieldSets();
         },
 
+
+        loadSalesChannel() {
+            this.isLoading = true;
+            this.salesChannelRepository
+                .get(this.$route.params.id, Shopware.Context.api, this.getLoadSalesChannelCriteria())
+                .then((entity) => {
+                    this.salesChannel = entity;
+                    if (this.isProductComparison) {
+                        this.generateAccessUrl();
+                    }
+                    this.isLoading = false;
+                });
+        },
+
         getLoadSalesChannelCriteria() {
             const criteria = new Criteria();
 
@@ -103,6 +163,9 @@ Component.register('sw-sales-channel-detail', {
             criteria.addAssociation('domains');
             criteria.addAssociation('languages');
 
+            criteria.addAssociation('productExports');
+            criteria.addAssociation('productExports.salesChannelDomain.salesChannel');
+
             criteria.addAssociation('domains.language');
             criteria.addAssociation('domains.snippetSet');
             criteria.addAssociation('domains.currency');
@@ -110,16 +173,39 @@ Component.register('sw-sales-channel-detail', {
             return criteria;
         },
 
-        loadSalesChannel() {
-            const criteria = this.getLoadSalesChannelCriteria();
+        onTemplateSelected(templateName) {
+            if (this.productComparison.templates === null || this.productComparison.templates[templateName] === undefined) {
+                return;
+            }
 
-            this.isLoading = true;
-            return this.salesChannelRepository
-                .get(this.$route.params.id, Context.api, criteria)
-                .then((entity) => {
-                    this.salesChannel = entity;
-                    this.isLoading = false;
-                });
+            this.productComparison.selectedTemplate = this.productComparison.templates[templateName];
+            const contentChanged = Object.keys(this.productComparison.selectedTemplate).some((value) => {
+                return this.productExport[value] !== this.productComparison.selectedTemplate[value];
+            });
+
+            if (!contentChanged) {
+                return;
+            }
+
+            this.productComparison.showTemplateModal = true;
+        },
+
+        onTemplateModalClose() {
+            this.productComparison.selectedTemplate = null;
+            this.productComparison.templateName = null;
+            this.productComparison.showTemplateModal = false;
+        },
+
+        onTemplateModalConfirm() {
+            Object.keys(this.productComparison.selectedTemplate).forEach((value) => {
+                this.productExport[value] = this.productComparison.selectedTemplate[value];
+            });
+            this.onTemplateModalClose();
+
+            this.createNotificationInfo({
+                title: this.$tc('sw-sales-channel.detail.productComparison.templates.message.template-applied-title'),
+                message: this.$tc('sw-sales-channel.detail.productComparison.templates.message.template-applied-message')
+            });
         },
 
         loadCustomFieldSets() {
@@ -136,14 +222,37 @@ Component.register('sw-sales-channel-detail', {
                 });
         },
 
+        generateAccessUrl() {
+            if (!this.productExport.salesChannelDomain) {
+                this.productComparison.productComparisonAccessUrl = '';
+                return;
+            }
+
+            const salesChannelDomainUrl = this.productExport.salesChannelDomain.url.replace(/\/+$/g, '');
+            this.productComparison.productComparisonAccessUrl =
+                `${salesChannelDomainUrl}/export/${this.productExport.accessKey}/${this.productExport.fileName}`;
+        },
+
+        loadProductExportTemplates() {
+            this.productComparison.templateOptions = Object.values(this.exportTemplateService.getProductExportTemplateRegistry());
+            this.productComparison.templates = this.exportTemplateService.getProductExportTemplateRegistry();
+        },
+
         saveFinish() {
             this.isSaveSuccessful = false;
+        },
+
+        setInvalidFileName(invalidFileName) {
+            this.productComparison.invalidFileName = invalidFileName;
         },
 
         onSave() {
             this.isLoading = true;
 
             this.isSaveSuccessful = false;
+            if (this.isProductComparison && this.salesChannel.productExports.length === 0) {
+                this.salesChannel.productExports.add(this.productExport);
+            }
 
             this.salesChannelRepository
                 .save(this.salesChannel, Context.api)

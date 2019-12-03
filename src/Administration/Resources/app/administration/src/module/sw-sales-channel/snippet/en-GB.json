@@ -24,6 +24,10 @@
       "buttonCreateNewApiKeys": "Create new API key",
       "tabBase": "General",
       "tabTheme": "Theme",
+      "tabProductComparison": "Template",
+      "titleProductComparisonTemplate": "Template",
+      "titleProductComparisonPreview": "Preview",
+      "titleProductComparisonPreviewErrors": "Errors during generation",
       "labelAccessKeyField": "API access key",
       "titleAPIError": "Error",
       "messageAPIError": "Unable to generate API access key.",
@@ -86,7 +90,90 @@
       "columnDomainUrl": "URL",
       "columnDomainLanguage": "Language",
       "columnDomainSnippetSet": "Snippet set",
-      "columnDomainCurrency": "Currency"
+      "columnDomainCurrency": "Currency",
+      "productComparison": {
+        "inputHeaderLabel": "Header row",
+        "inputBodyLabel": "Product row",
+        "inputFooterLabel": "Footer row",
+        "buttonTestLabel": "Test template",
+        "buttonPreviewLabel": "Generate preview",
+        "settings": "Product export",
+        "fileName": "Filename",
+        "placeholderFileName": "shopware.csv",
+        "lastGenerationLabel": "Last generated at: ",
+        "notYetGenerated": "This export has not been generated yet.",
+        "encoding": "Encoding",
+        "placeholderSelectEncoding": "Please select an encoding...",
+        "fileFormat": "File format",
+        "placeholderSelectFileFormat": "Please select a file format...",
+        "accessKey": "Access key",
+        "accessUrl": "Export URL",
+        "buttonCreateNewAccessKey": "Create new access key",
+        "productStream": "Dynamic product group",
+        "fileFormatLabels": {
+          "csv": "CSV",
+          "xml": "XML"
+        },
+        "includeVariants": "Include variants",
+        "interval": "Interval",
+        "generateByCronjob": "Generate via scheduler",
+        "notificationTitleValidateSuccessful": "Validation successful",
+        "notificationMessageValidateSuccessful": "No errors occurred",
+        "notificationTitleValidateError": "Validation failed",
+        "notificationTitlePreviewError": "Preview failed",
+        "intervalLabels": {
+          "0": "Live",
+          "120": "2 minutes",
+          "300": "5 minutes",
+          "600": "10 minutes",
+          "900": "15 minutes",
+          "1800": "30 minutes",
+          "3600": "1 hour",
+          "7200": "2 hours",
+          "14400": "4 hours",
+          "28800": "8 hours",
+          "43200": "12 hours",
+          "86400": "1 day",
+          "172800": "2 days",
+          "259200": "3 days",
+          "345600": "4 days",
+          "432000": "5 days",
+          "518400": "6 days",
+          "604800": "1 week"
+        },
+        "storefront": "Storefront Sales Channel",
+        "storefrontDomain": "Storefront domain",
+        "storefrontDomainLanguage": {
+          "label": "Language",
+          "help": "Automatically selected from sales channel domain"
+        },
+        "storefrontDomainCurrency": {
+          "label": "Currency"
+        },
+        "storefrontSalesChannelCustomerGroup": {
+          "label": "Customer Group",
+          "help": "Automatically selected from sales channel"
+        },
+        "titleAccessKeyChanged": "Access key changed",
+        "messageAccessKeyChanged": "The access key and the changed export URL are only active after saving the sales channel.",
+        "templates": {
+          "label": "Template",
+          "placeholderSelectTemplate": "Do not use a template",
+          "template-label": {
+            "billiger-de": "billiger.de (CSV)",
+            "idealo": "idealo.de (CSV)",
+            "google-product-search-de": "Google Shopping (XML)"
+          },
+          "modal-title": "Apply template",
+          "modal-message": "When you apply the template, existing data in this sales channel will be overwritten. Both the settings and the template tabs will be adjusted.",
+          "modal-confirm": "Apply template",
+          "modal-cancel": "Cancel",
+          "message": {
+            "template-applied-title": "Template applied",
+            "template-applied-message": "The data from the template has been applied. Please save the sales channel to save the changes."
+          }
+        }
+      }
     }
   }
 }

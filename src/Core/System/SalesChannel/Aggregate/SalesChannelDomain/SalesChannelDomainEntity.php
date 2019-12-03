@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain;
 
+use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -62,6 +63,11 @@ class SalesChannelDomainEntity extends Entity
      * @var array|null
      */
     protected $customFields;
+
+    /**
+     * @var ProductExportCollection|null
+     */
+    protected $productExports;
 
     public function getUrl(): string
     {
@@ -161,5 +167,15 @@ class SalesChannelDomainEntity extends Entity
     public function setCustomFields(?array $customFields): void
     {
         $this->customFields = $customFields;
+    }
+
+    public function getProductExports(): ?ProductExportCollection
+    {
+        return $this->productExports;
+    }
+
+    public function setProductExports(?ProductExportCollection $productExports): void
+    {
+        $this->productExports = $productExports;
     }
 }

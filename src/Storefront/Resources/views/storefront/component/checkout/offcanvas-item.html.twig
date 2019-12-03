@@ -59,11 +59,11 @@
                                             <a href="{{ seoUrl('frontend.detail.page', {'productId': lineItem.referencedId}) }}"
                                                class="cart-item-label"
                                                title="{{ lineItem.label }}">
-                                                {{ lineItem.quantity }}{{ "checkout.quantityTimes"|trans|sw_sanitize }} {{ lineItem.label|truncate(60) }}
+                                                {{ lineItem.quantity }}{{ "checkout.quantityTimes"|trans|sw_sanitize }} {{ lineItem.label|u.truncate(60) }}
                                             </a>
                                         {% else %}
                                             <div class="cart-item-label">
-                                                {{ lineItem.label|truncate(60) }}
+                                                {{ lineItem.label|u.truncate(60) }}
                                             </div>
                                         {% endif  %}
                                     </div>

@@ -251,11 +251,11 @@
             <tag name="twig.extension"/>
         </service>
 
-        <service class="Twig_Extensions_Extension_Intl" id="twig.extension.intl">
+        <service class="Twig\Extra\Intl\IntlExtension" id="twig.extension.intl">
             <tag name="twig.extension"/>
         </service>
 
-        <service class="Twig_Extensions_Extension_Text" id="twig.extension.text">
+        <service class="Twig\Extra\String\StringExtension" id="twig.extension.string">
             <tag name="twig.extension"/>
         </service>
 

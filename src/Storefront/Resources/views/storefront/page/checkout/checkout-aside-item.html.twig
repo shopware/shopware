@@ -46,7 +46,7 @@
                 <div class="col-8 checkout-aside-item-data">
                     {% block page_checkout_aside_item_title %}
                         <div class="checkout-aside-item-title">
-                            {{ lineItem.label|truncate(60) }}
+                            {{ lineItem.label|u.truncate(60) }}
                         </div>
                     {% endblock %}
 

@@ -27,7 +27,7 @@
                       href="http://schema.org/PreOrder"/>
                 <p class="delivery-information">
                     <span class="delivery-status-indicator bg-warning"></span>
-                    {{ "general.deliveryShipping"|trans|sw_sanitize }} {{ product.releaseDate|localizeddate('long', 'none', app.request.locale) }}
+                    {{ "general.deliveryShipping"|trans|sw_sanitize }} {{ product.releaseDate|format_date('long', locale=app.request.locale) }}
                 </p>
             {% endblock %}
 

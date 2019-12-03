@@ -153,7 +153,7 @@
                             {% block document_side_info_date %}
                                 <tr>
                                     <td>
-                                        {{ 'document.date'|trans({'%date%': config.documentDate|localizeddate('medium', 'none', locale)})|sw_sanitize }}
+                                        {{ 'document.date'|trans({'%date%': config.documentDate|format_date('medium', locale=locale)})|sw_sanitize }}
                                     </td>
                                 </tr>
                             {% endblock %}
@@ -167,14 +167,14 @@
                             {% block document_side_info_order_number %}
                                 <tr>
                                     <td>
-                                        {{ 'document.orderNumber'|trans({'%orderNumber%': order.orderNumber | truncate(10)})|sw_sanitize }}
+                                        {{ 'document.orderNumber'|trans({'%orderNumber%': order.orderNumber | u.truncate(10)})|sw_sanitize }}
                                     </td>
                                 </tr>
                             {% endblock %}
                             {% block document_side_info_order_date %}
                                 <tr>
                                     <td>
-                                        {{ 'document.orderDate'|trans({'%orderDate%': order.orderDateTime|localizeddate('medium', 'none', locale)})|sw_sanitize }}
+                                        {{ 'document.orderDate'|trans({'%orderDate%': order.orderDateTime|format_date('medium', locale=locale)})|sw_sanitize }}
                                     </td>
                                 </tr>
                             {% endblock %}
@@ -242,7 +242,7 @@
                                             {% endblock %}
 
                                             {% block document_line_item_table_row_product_number %}
-                                                <td>{{ lineItem.payload.productNumber | truncate(10) }}</td>
+                                                <td>{{ lineItem.payload.productNumber | u.truncate(10) }}</td>
                                             {% endblock %}
 
                                             {% block document_line_item_table_row_label %}

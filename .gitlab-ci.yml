@@ -47,6 +47,7 @@ default:
             fi
         - cp -v dev-ops/gitlab/.psh.yaml.override .
         - /entrypoint supervisord > /dev/null 2>&1 &
+    interruptible: true
 
 # Stage: Static analysis
 
@@ -480,6 +481,7 @@ RIPS security:
         - wget https://github.com/rips/rips-cli/releases/download/3.2.0/rips-cli.phar -O /usr/bin/rips-cli
         - chmod 755 /usr/bin/rips-cli
         - rips-cli rips:scan:start -p . -t critical:0 -a ${RIPS_APP_ID} --progress
+    interruptible: false
 
 # Stage: deploy
 
@@ -499,6 +501,7 @@ RIPS security:
             --revision="$CI_COMMIT_SHA"
             --format=php-clover
             development/build/artifacts/phpunit.clover.xml
+    interruptible: false
 
 Upload Component Library:
     stage: Deploy
@@ -513,3 +516,4 @@ Upload Component Library:
         - cd build/artifacts/component-library
         - aws s3 sync --delete --acl public-read . s3://shopware-ui-component-library-docs/
         - aws cloudfront create-invalidation --distribution-id E18U17118IAC82 --paths "/*"
+    interruptible: false

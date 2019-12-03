@@ -162,6 +162,8 @@ Component.register('sw-many-to-many-assignment-card', {
         },
 
         entityCollection() {
+            this.selectedIds = this.entityCollection.getIds();
+
             if (!this.localMode) {
                 this.paginateGrid();
                 return;

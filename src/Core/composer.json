@@ -106,7 +106,7 @@
         "twig/intl-extra": "2.12.2",
         "twig/string-extra": "2.12.2",
         "twig/twig": "2.12.2",
-        "zircote/swagger-php": "3.0.2"
+        "zircote/swagger-php": "3.0.3"
     },
     "require-dev": {
         "ext-tokenizer": "*",

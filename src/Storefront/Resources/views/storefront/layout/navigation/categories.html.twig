@@ -4,23 +4,28 @@
     {% if not level %}
         {% set level = 0 %}
     {% endif %}
+    {% set activeId = page.header.navigation.active.id %}
 
     <div class="{% if level == 0 %}row {% endif %}navigation-flyout-categories is-level-{{ level }}">
         {% for treeItem in navigationTree %}
+            {% set id = treeItem.category.id %}
+            {% set name = treeItem.category.translated.name %}
+            {% set link = treeItem.category.externalLink %}
+
             {% block layout_navigation_categories_item %}
                 <div class="{% if level == 0 %}{% if navigationMedia %}col-4 {% else %}col-3 {% endif %}{% endif %}navigation-flyout-col">
                     {% block layout_navigation_categories_item_link %}
                         {% if treeItem.category.type == 'folder' %}
                             <div class="nav-item nav-link navigation-flyout-link is-level-{{ level }}"
-                                 title="{{ treeItem.category.translated.name }}">
-                                <span itemprop="name">{{ treeItem.category.translated.name }}</span>
+                                 title="{{ name }}">
+                                <span itemprop="name">{{ name }}</span>
                             </div>
                         {% else %}
-                            <a class="nav-item nav-link navigation-flyout-link is-level-{{ level }}{% if treeItem.category.id is same as(page.header.navigation.active.id) %} active{% endif %}"
-                               href="{% if treeItem.category.externalLink %}{{ treeItem.category.externalLink }}{% else %}{{ seoUrl('frontend.navigation.page', { navigationId: treeItem.category.id }) }}{% endif %}"
+                            <a class="nav-item nav-link navigation-flyout-link is-level-{{ level }}{% if id is same as(activeId) %} active{% endif %}"
+                               href="{% if link %}{{ link }}{% else %}{{ seoUrl('frontend.navigation.page', { navigationId: id }) }}{% endif %}"
                                itemprop="url"
-                               title="{{ treeItem.category.translated.name }}">
-                                <span itemprop="name">{{ treeItem.category.translated.name }}</span>
+                               title="{{ name }}">
+                                <span itemprop="name">{{ name }}</span>
                             </a>
                         {% endif %}
                     {% endblock %}

@@ -1,15 +1,16 @@
 {% block component_product_box_price_info %}
+    {% set purchaseUnit = product.purchaseUnit %}
     <div class="product-price-info">
         {% block component_product_box_price_unit %}
             <p class="product-price-unit">
                 {# Price is based on the purchase unit #}
                 {% block component_product_box_price_purchase_unit %}
-                    {% if product.purchaseUnit and product.purchaseUnit != 0 %}
+                    {% if purchaseUnit and purchaseUnit != 0 %}
                         <span class="product-unit-label">
                             {{ "listing.boxUnitLabel"|trans|sw_sanitize }}
                         </span>
                         <span class="price-unit-content">
-                            {{ product.purchaseUnit }} {{ product.unit.name }}
+                            {{ purchaseUnit }} {{ product.unit.name }}
                         </span>
                     {% endif %}
                 {% endblock %}

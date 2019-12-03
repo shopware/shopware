@@ -64,13 +64,15 @@
                     {% block element_product_listing_row %}
                         <div class="row cms-listing-row js-listing-wrapper">
                             {% if searchResult.total > 0 %}
+                                {% set boxLayout = element.translated.config.boxLayout.value %}
+                                {% set displayMode = element.translated.config.displayMode.value %}
                                 {% block element_product_listing_col %}
                                     {% for product in searchResult %}
                                         <div class="cms-listing-col {{ listingColumns }}">
                                             {% block element_product_listing_box %}
                                                 {% sw_include '@Storefront/storefront/component/product/card/box.html.twig' with {
-                                                    'layout': element.translated.config.boxLayout.value,
-                                                    'displayMode': element.translated.config.displayMode.value
+                                                    'layout': boxLayout,
+                                                    'displayMode': displayMode
                                                 } %}
                                             {% endblock %}
                                         </div>

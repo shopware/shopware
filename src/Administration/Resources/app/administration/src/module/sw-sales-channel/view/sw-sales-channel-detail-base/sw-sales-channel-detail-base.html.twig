@@ -366,21 +366,23 @@
                     </sw-field>
                 {% endblock %}
 
+                {% block sw_sales_channel_detail_base_general_input_product_comparison_interval %}
+                    <sw-select-number-field
+                        :label="$tc('sw-sales-channel.detail.productComparison.interval')"
+                        :options="getIntervalOptions"
+                        v-model="productExport.interval"
+                        @change="changeInterval">
+                    </sw-select-number-field>
+                {% endblock %}
+
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_generate_by_cronjob %}
                     <sw-field
                         type="switch"
                         bordered
                         :label="$tc('sw-sales-channel.detail.productComparison.generateByCronjob')"
+                        :disabled="disableGenerateByCronjob"
                         v-model="productExport.generateByCronjob">
                     </sw-field>
-                {% endblock %}
-
-                {% block sw_sales_channel_detail_base_general_input_product_comparison_interval %}
-                    <sw-select-number-field
-                        :label="$tc('sw-sales-channel.detail.productComparison.interval')"
-                        :options="getIntervalOptions"
-                        v-model="productExport.interval">
-                    </sw-select-number-field>
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_last_generation %}

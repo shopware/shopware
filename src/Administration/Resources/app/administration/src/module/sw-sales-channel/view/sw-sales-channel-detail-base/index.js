@@ -78,7 +78,8 @@ Component.register('sw-sales-channel-detail-base', {
             storefrontDomains: [],
             selectedStorefrontSalesChannel: null,
             invalidFileName: false,
-            isFileNameChecking: false
+            isFileNameChecking: false,
+            disableGenerateByCronjob: false
         };
     },
 
@@ -427,6 +428,14 @@ Component.register('sw-sales-channel-detail-base', {
                 this.invalidFileName = true;
                 this.isFileNameChecking = false;
             });
-        }, 500)
+        }, 500),
+
+        changeInterval() {
+            this.disableGenerateByCronjob = this.productExport.interval === 0;
+
+            if (this.disableGenerateByCronjob) {
+                this.productExport.generateByCronjob = false;
+            }
+        }
     }
 });

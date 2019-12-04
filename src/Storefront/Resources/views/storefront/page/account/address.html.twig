@@ -24,7 +24,8 @@
                                                class="btn btn-light"
                                                data-address-editor="true"
                                                data-address-editor-options='{
-                                                    "changeBilling": true
+                                                    "changeBilling": true,
+                                                    "csrfToken": "{{ sw_csrf("frontend.account.addressbook", {"mode": "token"}) }}"
                                                 }'>
                                                 {{ "account.overviewChangeBilling"|trans|sw_sanitize }}
                                             </a>
@@ -64,7 +65,8 @@
                                                class="btn btn-light"
                                                data-address-editor="true"
                                                data-address-editor-options='{
-                                                    "changeShipping": true
+                                                    "changeShipping": true,
+                                                    "csrfToken": "{{ sw_csrf("frontend.account.addressbook", {"mode": "token"}) }}"
                                                 }'>
                                                 {{ "account.overviewChangeShipping"|trans|sw_sanitize }}
                                             </a>

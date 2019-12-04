@@ -1,0 +1,36 @@
+{% block sw_ip_multi_select %}
+    <sw-select-base class="sw-multi-ip-select"
+                    :isLoading="isLoading"
+                    v-bind="$attrs"
+                    v-on="$listeners">
+        {% block sw_ip_multi_select_base %}
+            {% block sw_ip_multi_select_base_selection %}
+                <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse }">
+                    {% block sw_ip_multi_select_base_selection_slot %}
+                        <sw-select-selection-list
+                            :selections="objectValues"
+                            ref="selectionList"
+                            @item-remove="remove"
+                            @last-item-delete="removeLastItem"
+                            @search-term-change="onSearchTermChange"
+                            labelProperty="value"
+                            valueProperty="value"
+                            v-bind="{ size, placeholder, searchTerm }">
+                            {% block sw_ip_multi_select_base_selection_list %}
+                                {% block sw_ip_multi_select_base_selection_list_label %}
+                                    <template #label-property="{ item, index, labelProperty, valueProperty }">
+                                        {% block sw_ip_multi_select_base_selection_list_label_inner %}
+                                            <slot name="selection-label-property" v-bind="{ item, index, labelProperty, valueProperty}">
+                                                {{ getKey(item, labelProperty) }}
+                                            </slot>
+                                        {% endblock %}
+                                    </template>
+                                {% endblock %}
+                            {% endblock %}
+                        </sw-select-selection-list>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+        {% endblock %}
+    </sw-select-base>
+{% endblock %}

@@ -146,9 +146,11 @@ Component.register('sw-sales-channel-detail', {
                 .get(this.$route.params.id, Shopware.Context.api, this.getLoadSalesChannelCriteria())
                 .then((entity) => {
                     this.salesChannel = entity;
-                    if (this.isProductComparison) {
-                        this.generateAccessUrl();
+
+                    if (!this.salesChannel.maintenanceIpWhitelist) {
+                        this.salesChannel.maintenanceIpWhitelist = [];
                     }
+
                     this.isLoading = false;
                 });
         },

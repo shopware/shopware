@@ -52,7 +52,7 @@ class CmsController extends StorefrontController
     }
 
     /**
-     * Route for stand alone cms pages
+     * Route for cms data (used in XmlHttpRequest)
      *
      * @HttpCache()
      * @Route("/widgets/cms/{id}", name="frontend.cms.page", methods={"GET", "POST"}, defaults={"id"=null, "XmlHttpRequest"=true})

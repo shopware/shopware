@@ -10,11 +10,13 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Storefront\Controller\ErrorController;
+use Shopware\Storefront\Controller\MaintenanceController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -47,17 +49,24 @@ class StorefrontSubscriber implements EventSubscriberInterface
      */
     private $kernelDebug;
 
+    /**
+     * @var MaintenanceController
+     */
+    private $maintenanceController;
+
     public function __construct(
         RequestStack $requestStack,
         RouterInterface $router,
         ErrorController $errorController,
         SalesChannelContextServiceInterface $contextService,
+        MaintenanceController $maintenanceController,
         bool $kernelDebug
     ) {
         $this->requestStack = $requestStack;
         $this->router = $router;
         $this->errorController = $errorController;
         $this->contextService = $contextService;
+        $this->maintenanceController = $maintenanceController;
         $this->kernelDebug = $kernelDebug;
     }
 
@@ -66,6 +75,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         return [
             KernelEvents::REQUEST => [
                 ['startSession', 40],
+                ['maintenanceResolver'],
             ],
             KernelEvents::EXCEPTION => [
                 ['showHtmlExceptionResponse', -100],
@@ -81,6 +91,46 @@ class StorefrontSubscriber implements EventSubscriberInterface
                 'updateSession',
             ],
         ];
+    }
+
+    public function maintenanceResolver(RequestEvent $event): void
+    {
+        $master = $this->requestStack->getMasterRequest();
+        if (!$master || !$master->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
+            return;
+        }
+
+        $request = $event->getRequest();
+        $route = $request->attributes->get('_route');
+
+        if ($route && mb_strpos($route, 'frontend.maintenance') !== false) {
+            return;
+        }
+
+        if ($request->isXmlHttpRequest()) {
+            return;
+        }
+
+        $salesChannelMaintenance = $request->attributes
+            ->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE);
+        if (!$salesChannelMaintenance) {
+            return;
+        }
+
+        $currentIp = $request->server->get('REMOTE_ADDR');
+
+        $maintenanceWhiteList = $request->attributes
+            ->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST);
+        if ($maintenanceWhiteList) {
+            $maintenanceWhiteList = json_decode($maintenanceWhiteList, true);
+
+            if (in_array($currentIp, $maintenanceWhiteList, true)) {
+                return;
+            }
+        }
+
+        $redirect = new RedirectResponse($this->router->generate('frontend.maintenance.page'));
+        $event->setResponse($redirect);
     }
 
     public function startSession(): void
@@ -225,17 +275,14 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     private function setSalesChannelContext(ExceptionEvent $event): void
     {
-        $request = $event->getRequest();
-
-        $contextToken = $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        $salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+        $contextToken = $event->getRequest()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        $salesChannelId = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
 
         $context = $this->contextService->get(
             $salesChannelId,
             $contextToken,
-            $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID)
+            $event->getRequest()->headers->get(PlatformRequest::HEADER_LANGUAGE_ID)
         );
-
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+        $event->getRequest()->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
     }
 }

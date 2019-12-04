@@ -120,6 +120,16 @@ class SalesChannelEntity extends Entity
     protected $active;
 
     /**
+     * @var bool
+     */
+    protected $maintenance;
+
+    /**
+     * @var string
+     */
+    protected $maintenanceIpWhitelist;
+
+    /**
      * @var SalesChannelTypeEntity|null
      */
     protected $type;
@@ -427,6 +437,26 @@ class SalesChannelEntity extends Entity
     public function setActive(bool $active): void
     {
         $this->active = $active;
+    }
+
+    public function isMaintenance(): bool
+    {
+        return $this->maintenance;
+    }
+
+    public function setMaintenance(bool $maintenance): void
+    {
+        $this->maintenance = $maintenance;
+    }
+
+    public function getMaintenanceIpWhitelist(): ?string
+    {
+        return $this->maintenanceIpWhitelist;
+    }
+
+    public function setMaintenanceIpWhitelist(?string $maintenanceIpWhitelist): void
+    {
+        $this->maintenanceIpWhitelist = $maintenanceIpWhitelist;
     }
 
     public function getCurrency(): ?CurrencyEntity

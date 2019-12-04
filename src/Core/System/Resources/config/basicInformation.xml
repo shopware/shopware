@@ -92,6 +92,16 @@
         </component>
 
         <component name="sw-cms-page-select">
+            <name>imprintPage</name>
+            <entity>cms_page</entity>
+            <pageType>page</pageType>
+            <label>Shop page layout assignment for imprint</label>
+            <label lang="de-DE">Shopseiten-Layout Zuweisung für Impressum</label>
+            <placeholder>Select layout</placeholder>
+            <placeholder lang="de-DE">Layout auswählen</placeholder>
+        </component>
+
+        <component name="sw-cms-page-select">
             <name>404Page</name>
             <entity>cms_page</entity>
             <pageType>page</pageType>
@@ -99,6 +109,16 @@
             <label lang="de-DE">Shopseiten-Layout für fehlende Seiten (404: Seite nicht gefunden)</label>
             <placeholder>Assign layout...</placeholder>
             <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
+        </component>
+
+        <component name="sw-cms-page-select">
+            <name>maintenancePage</name>
+            <entity>cms_page</entity>
+            <pageType>page</pageType>
+            <label>Shop page layout assignment for maintenance</label>
+            <label lang="de-DE">Shopseiten-Layout Zuweisung für Wartungen</label>
+            <placeholder>Select layout</placeholder>
+            <placeholder lang="de-DE">Layout auswählen</placeholder>
         </component>
     </card>
 </config>

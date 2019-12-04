@@ -8,7 +8,6 @@ class FeatureFlagGenerator
 <?php declare(strict_types=1);
 
 namespace %s {
-
     use PHPUnit\Framework\TestCase;
     use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
 
@@ -26,7 +25,7 @@ namespace %s {
 
     function if%sCall($object, string $methodName, ...$arguments): void
     {
-        $closure = function () use ($methodName, $arguments) {
+        $closure = function () use ($methodName, $arguments): void {
             $this->{$methodName}(...$arguments);
         };
 

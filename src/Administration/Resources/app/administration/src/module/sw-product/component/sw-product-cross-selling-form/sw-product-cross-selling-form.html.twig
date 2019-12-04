@@ -39,7 +39,8 @@
                 {% block sw_prduct_cross_selling_form_sort_field %}
                     <sw-select-field
                         :label="$tc('sw-product.crossselling.inputCrossSellingSorting')"
-                        v-model="crossSelling.sortBy">
+                        :value="sortingConCat"
+                        @change="onSortingChanged">
                         <option v-for="option in sortingTypes"
                                 :key="option.value"
                                 :value="option.value">

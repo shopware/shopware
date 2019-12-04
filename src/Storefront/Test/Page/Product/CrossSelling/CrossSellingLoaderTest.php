@@ -58,6 +58,7 @@ class CrossSellingLoaderTest extends TestCase
             'sortBy' => ProductCrossSellingDefinition::SORT_BY_PRICE,
             'sortDirection' => FieldSorting::ASCENDING,
             'active' => true,
+            'limit' => 3,
             'productStreamId' => $this->createProductStream(),
         ]];
 
@@ -141,7 +142,7 @@ class CrossSellingLoaderTest extends TestCase
         $taxId = Uuid::randomHex();
         $products = [];
 
-        for ($i = 0; $i < 3; ++$i) {
+        for ($i = 0; $i < 5; ++$i) {
             $products[] = $this->getProductData(null, $manufacturerId, $taxId);
         }
 

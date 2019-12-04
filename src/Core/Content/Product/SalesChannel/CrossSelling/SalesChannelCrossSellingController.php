@@ -162,7 +162,7 @@ class SalesChannelCrossSellingController extends AbstractController
 
         $criteria = new Criteria();
         $criteria->addFilter(...$filters)
-            ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT)
+            ->setLimit($crossSelling->getLimit())
             ->addSorting($crossSelling->getSorting());
 
         return $this->productRepository->search($criteria, $context);

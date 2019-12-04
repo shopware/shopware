@@ -123,9 +123,11 @@ Component.register('sw-product-detail', {
             criteria.getAssociation('seoUrls')
                 .addFilter(Criteria.equals('isCanonical', true));
 
+            criteria.getAssociation('crossSellings')
+                .addSorting(Criteria.sort('position', 'ASC'));
+
             criteria
                 .addAssociation('categories')
-                .addAssociation('crossSellings')
                 .addAssociation('visibilities.salesChannel')
                 .addAssociation('options')
                 .addAssociation('configuratorSettings.option')

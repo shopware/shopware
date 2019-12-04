@@ -298,7 +298,7 @@
       "inputCrossSellingTitlePlaceholder": "Wähle einen Titel ...",
       "inputCrossSellingPositionPlaceholder": "Wähle eine Position ...",
       "inputCrossSellingProductStreamPlaceholder": "Wähle eine Produktgruppe ...",
-      "popularitySortingType": "Beliebtheit",
+      "inputCrossSellingLimit": "Anzahl der Produkte",
       "priceAscendingSortingType": "Preis, aufsteigend",
       "priceDescendingSortingType": "Preis",
       "nameSortingType": "Name",

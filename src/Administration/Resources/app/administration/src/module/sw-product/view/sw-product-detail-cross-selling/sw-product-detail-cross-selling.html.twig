@@ -1,0 +1,42 @@
+{% block sw_product_detail_cross_selling %}
+    <div class="sw-product-detail-cross-selling">
+
+        {% block sw_product_detail_cross_selling_items %}
+            <ul v-if="product.crossSellings && product.crossSellings.length > 0" class="sw-product-detail-cross-selling__cross-selling-list">
+                <sw-product-cross-selling-form
+                    v-for="item in product.crossSellings"
+                    :key="item.id"
+                    :crossSelling="item">
+                </sw-product-cross-selling-form>
+            </ul>
+        {% endblock %}
+
+        {% block sw_product_detail_empty_state %}
+            <sw-card class="sw-product-detail-cross-selling__empty-state" v-else>
+                <template>
+                    <div class="sw-product-detail-cross-selling__empty-state-inner">
+                        <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+
+                        <div class="sw-product-detail-cross-selling__empty-state-inner--label">
+                            <p>{{ $tc('sw-product.crossselling.emptyStateDescription') }}</p>
+                        </div>
+
+                        {% block sw_product_detail_empty_state_cross_selling_add %}
+                            <sw-button variant="ghost" @click="onAddCrossSelling" :disabled="false">
+                                {{ $tc('sw-product.crossselling.buttonAddCrossSelling') }}
+                            </sw-button>
+                        {% endblock %}
+                    </div>
+                </template>
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_product_detail_cross_selling_add %}
+            <sw-card v-if="product.crossSellings && product.crossSellings.length > 0" slot="content" hero>
+                <sw-button variant="ghost" @click="onAddCrossSelling" :disabled="false">
+                    {{ $tc('sw-product.crossselling.buttonAddCrossSelling') }}
+                </sw-button>
+            </sw-card>
+        {% endblock %}
+    </div>
+{% endblock %}

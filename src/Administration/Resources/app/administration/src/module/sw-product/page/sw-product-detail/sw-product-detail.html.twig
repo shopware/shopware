@@ -91,6 +91,16 @@
                                 {{ $tc('sw-product.detail.tabVariation') }}
                             </sw-tabs-item>
                         {% endblock %}
+
+                        {% block sw_product_detail_content_tabs_cross_selling %}
+                            <sw-tabs-item
+                                v-if="!isChild"
+                                class="sw-product-detail__tab-cross-selling"
+                                :route="{ name: 'sw.product.detail.crossSelling', params: { id: $route.params.id } }"
+                                :title="$tc('sw-product.detail.tabCrossSelling')">
+                                {{ $tc('sw-product.detail.tabCrossSelling') }}
+                            </sw-tabs-item>
+                        {% endblock %}
                     </sw-tabs>
                 {% endblock %}
 

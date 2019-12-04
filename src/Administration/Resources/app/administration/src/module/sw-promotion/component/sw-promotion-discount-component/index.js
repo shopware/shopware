@@ -404,7 +404,6 @@ Component.register('sw-promotion-discount-component', {
                 return response.data;
             });
         }
-
     }
 
 });

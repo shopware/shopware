@@ -178,6 +178,7 @@
       "tabGeneral": "General",
       "tabAdvancedPrices": "Advanced pricing",
       "tabVariation": "Variant generator",
+      "tabCrossSelling": "Cross Selling",
       "tabProperties": "Property assignment",
       "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Product \"{name}\" has been saved.",
@@ -283,6 +284,31 @@
         "save": "Save",
         "useForListing": "Display in listings"
       }
+    },
+    "crossselling": {
+      "cardTitleCrossSelling": "Cross selling",
+      "emptyStateNoOptionsTitle": "Keine Optionen vorhanden.",
+      "emptyStateNoOptionsDescription": "Du musst erst Optionen und Eigenschaften erstellen, um diese hier zuordnen zu können.",
+      "buttonAddCrossSelling": "Add new cross selling group",
+      "buttonDeleteCrossSelling": "Delete",
+      "inputCrossSellingTitle": "Title",
+      "inputCrossSellingActive": "Active",
+      "inputCrossSellingPosition": "Position",
+      "inputCrossSellingSorting": "Sorting",
+      "inputCrossSellingProductStream": "Product group",
+      "inputCrossSellingTitlePlaceholder": "Select a title...",
+      "inputCrossSellingPositionPlaceholder": "Select a position...",
+      "popularitySortingType": "Popularity",
+      "priceAscendingSortingType": "Price, ascending",
+      "priceDescendingSortingType": "Price",
+      "nameSortingType": "Name",
+      "releaseDateSortingType": "Release date",
+      "deleteConfirmTitle": "Delete cross selling",
+      "deleteConfirmText": "Are you sure you want to delete the cross selling group?",
+      "deleteButtonCancel": "Cancel",
+      "deleteButtonDelete": "Delete",
+      "linkOpenStreamPreview": "Open preview",
+      "emptyStateDescription": "This product has no cross selling configured yet."
     }
   }
 }

@@ -125,6 +125,7 @@ Component.register('sw-product-detail', {
 
             criteria
                 .addAssociation('categories')
+                .addAssociation('crossSellings')
                 .addAssociation('visibilities.salesChannel')
                 .addAssociation('options')
                 .addAssociation('configuratorSettings.option')
@@ -387,25 +388,28 @@ Component.register('sw-product-detail', {
         },
 
         onSaveFinished(response) {
-            const seoUrls = Shopware.State.getters['swSeoUrl/getNewOrModifiedUrls']();
-            const defaultSeoUrl = Shopware.State.get('swSeoUrl').defaultSeoUrl;
-
             const updatePromises = [];
-            if (seoUrls) {
-                seoUrls.forEach(seoUrl => {
-                    if (!seoUrl.seoPathInfo) {
-                        seoUrl.seoPathInfo = defaultSeoUrl.seoPathInfo;
-                        seoUrl.isModified = false;
-                    } else {
-                        seoUrl.isModified = true;
-                    }
 
-                    updatePromises.push(this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId));
-                });
-            }
+            if (Shopware.State.list().includes('swSeoUrl')) {
+                const seoUrls = Shopware.State.getters['swSeoUrl/getNewOrModifiedUrls']();
+                const defaultSeoUrl = Shopware.State.get('swSeoUrl').defaultSeoUrl;
 
-            if (response === 'empty' && seoUrls.length > 0) {
-                response = 'success';
+                if (seoUrls) {
+                    seoUrls.forEach(seoUrl => {
+                        if (!seoUrl.seoPathInfo) {
+                            seoUrl.seoPathInfo = defaultSeoUrl.seoPathInfo;
+                            seoUrl.isModified = false;
+                        } else {
+                            seoUrl.isModified = true;
+                        }
+
+                        updatePromises.push(this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId));
+                    });
+                }
+
+                if (response === 'empty' && seoUrls.length > 0) {
+                    response = 'success';
+                }
             }
 
             Promise.all(updatePromises).then(() => {

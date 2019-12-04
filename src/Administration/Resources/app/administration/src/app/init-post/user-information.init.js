@@ -17,7 +17,7 @@ export default function initializeUserContext() {
             const data = response.data;
             delete data.password;
 
-            Shopware.State.commit('adminUser/setCurrentUser', data);
+            Shopware.State.commit('setCurrentUser', data);
             initializeUserNotifications();
             resolve();
         }).catch(() => {

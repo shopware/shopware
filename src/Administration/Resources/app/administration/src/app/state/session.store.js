@@ -3,9 +3,9 @@ const debug = Shopware.Utils.debug;
 
 export default {
     state: {
-        languageId: '',
-        locales: [],
-        currentLocale: null
+        currentUser: null,
+        languageId: '', // move me to session/currentLanguageId
+        currentLocale: null // move me to session/currentLanguageId
     },
 
     getters: {
@@ -26,38 +26,41 @@ export default {
     },
 
     actions: {
-        setAdminLocale({ commit }, locale) {
+        setAdminLocale({ commit, rootState }, locale) {
+            console.log('setAdminLocale', locale);
+            const locales = rootState.system.locales;
             const loginService = Shopware.Service('loginService');
 
             if (!loginService.isLoggedIn()) {
-                commit('setAdminLocale', { locale, languageId: '' });
+                commit('setAdminLocale', { locales, locale, languageId: '' });
                 return;
             }
 
             const localeToLanguageService = Shopware.Service('localeToLanguageService');
             localeToLanguageService.localeToLanguage(locale).then((languageId) => {
-                commit('setAdminLocale', { locale, languageId });
+                commit('setAdminLocale', { locales, locale, languageId });
             });
         }
     },
 
     mutations: {
-        registerAdminLocale(state, locale) {
-            if (state.locales.find((l) => l === locale)) {
-                return;
-            }
-
-            state.locales.push(locale);
+        setCurrentUser(state, user) {
+            state.currentUser = user;
         },
 
-        setAdminLocale(state, { locale, languageId }) {
-            if (!state.locales.find((l) => l === locale)) {
-                debug.warn('AdminLocaleStore', `Locale ${locale} not registered at store`);
+        removeCurrentUser(state) {
+            state.currentUser = null;
+        },
+
+        setAdminLocale(state, { locales, locale, languageId }) {
+            if (!locales.find((l) => l === locale)) {
+                debug.warn('SessionStore', `Locale ${locale} not registered at store`);
                 return;
             }
 
             state.languageId = languageId;
             state.currentLocale = locale;
+
             Application.getContainer('factory').locale.storeCurrentLocale(state.currentLocale);
         }
     }

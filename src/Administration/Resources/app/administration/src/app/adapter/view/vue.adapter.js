@@ -309,7 +309,7 @@ export default class VueAdapter extends ViewAdapter {
 
         store.subscribe(({ type }, state) => {
             if (type === 'setAdminLocale') {
-                i18n.locale = state.adminLocale.currentLocale;
+                i18n.locale = state.session.currentLocale;
             }
         });
 

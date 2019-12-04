@@ -89,11 +89,11 @@ Component.register('sw-plugin-list', {
         },
 
         currentLocale() {
-            return Shopware.State.get('adminLocale').currentLocale;
+            return Shopware.State.get('session').currentLocale;
         },
 
         languageId() {
-            return Shopware.State.get('adminLocale').languageId;
+            return Shopware.State.get('session').languageId;
         },
 
         sorting: {

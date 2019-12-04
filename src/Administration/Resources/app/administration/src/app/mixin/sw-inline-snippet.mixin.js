@@ -4,7 +4,7 @@ const types = Shopware.Utils.types;
 Mixin.register('sw-inline-snippet', {
     computed: {
         swInlineSnippetLocale() {
-            return Shopware.State.get('adminLocale').currentLocale;
+            return Shopware.State.get('system').currentLocale;
         },
         swInlineSnippetFallbackLocale() {
             return Shopware.Context.app.fallbackLocale;

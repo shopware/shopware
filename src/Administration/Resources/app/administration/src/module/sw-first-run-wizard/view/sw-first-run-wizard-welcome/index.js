@@ -38,7 +38,7 @@ Component.register('sw-first-run-wizard-welcome', {
         },
 
         languageId() {
-            return Shopware.State.get('adminLocale').languageId;
+            return Shopware.State.get('session').languageId;
         },
 
         localeRepository() {
@@ -117,7 +117,7 @@ Component.register('sw-first-run-wizard-welcome', {
         },
 
         getLanguagePlugins() {
-            const language = Shopware.State.get('adminLocale').currentLocale;
+            const language = Shopware.State.get('session').currentLocale;
 
             this.languagePluginService.getPlugins({
                 language

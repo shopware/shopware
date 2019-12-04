@@ -23,8 +23,11 @@ const outsideClasses = {
 const defaultConfig = {
     active: false,
     targetSelector: '',
-    resizeWidth: false
+    resizeWidth: false,
+    style: {}
 };
+
+const customStylingBlacklist = ['width', 'position', 'top', 'left', 'right', 'bottom'];
 
 Directive.register('popover', {
     inserted(element, binding, vnode) {
@@ -128,6 +131,15 @@ function setElementPosition(element, refElement, config) {
         targetElement = originElement.closest(config.targetSelector);
         targetPosition = targetElement.getBoundingClientRect();
     }
+
+    // set custom inline element styling
+    Object.entries(config.style).forEach(([key, value]) => {
+        if (customStylingBlacklist.includes(key)) {
+            return;
+        }
+
+        element.style[key] = value;
+    });
 
     // add inline styling
     element.style.position = 'absolute';

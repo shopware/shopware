@@ -1,9 +1,6 @@
 import './extension/sw-settings-index';
 import './page/sw-settings-units';
 
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
-
 const { Module } = Shopware;
 
 Module.register('sw-settings-units', {
@@ -15,11 +12,6 @@ Module.register('sw-settings-units', {
     icon: 'default-action-settings',
     favicon: 'icon-module-settings.png',
     entity: 'units',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

@@ -17,9 +17,6 @@ import './component/sw-order-inline-field';
 import './component/sw-order-user-card';
 import './component/sw-order-document-card';
 
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
-
 const { Module } = Shopware;
 
 Module.register('sw-order', {
@@ -33,11 +30,6 @@ Module.register('sw-order', {
     icon: 'default-shopping-paper-bag',
     favicon: 'icon-module-orders.png',
     entity: 'order',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

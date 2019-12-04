@@ -3,9 +3,6 @@ import './page/sw-settings-user-list';
 import './page/sw-settings-user-detail';
 import './page/sw-settings-user-create';
 
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
-
 const { Module } = Shopware;
 
 Module.register('sw-settings-user', {
@@ -19,11 +16,6 @@ Module.register('sw-settings-user', {
     icon: 'default-action-settings',
     favicon: 'icon-module-settings.png',
     entity: 'user',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         list: {

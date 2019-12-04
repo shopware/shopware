@@ -1,7 +1,5 @@
 import './extension/sw-settings-index';
 import './page/sw-settings-login-registration';
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
 
 const { Module } = Shopware;
 
@@ -15,11 +13,6 @@ Module.register('sw-settings-login-registration', {
     color: '#9AA8B5',
     icon: 'default-action-settings',
     favicon: 'icon-module-settings.png',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

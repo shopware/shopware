@@ -1,9 +1,6 @@
 import './page/sw-manufacturer-list';
 import './page/sw-manufacturer-detail';
 
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
-
 const { Module } = Shopware;
 
 Module.register('sw-manufacturer', {
@@ -17,11 +14,6 @@ Module.register('sw-manufacturer', {
     icon: 'default-symbol-products',
     favicon: 'icon-module-products.png',
     entity: 'product_manufacturer',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

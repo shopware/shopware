@@ -4,9 +4,6 @@ import './page/sw-theme-manager-list';
 import './component/sw-theme-list-item/';
 import './component/sw-theme-modal/';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
-
 const { Module } = Shopware;
 
 Module.register('sw-theme-manager', {
@@ -19,11 +16,6 @@ Module.register('sw-theme-manager', {
     icon: 'default-symbol-content',
     favicon: 'icon-module-content.png',
     entity: 'theme',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

@@ -2,9 +2,6 @@ import './extension/sw-settings-index';
 import './page/sw-settings-language-list';
 import './page/sw-settings-language-detail';
 
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
-
 const { Module } = Shopware;
 
 Module.register('sw-settings-language', {
@@ -16,11 +13,6 @@ Module.register('sw-settings-language', {
     icon: 'default-action-settings',
     favicon: 'icon-module-settings.png',
     entity: 'language',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

@@ -2,9 +2,6 @@ import './extension/sw-settings-index';
 import './page/sw-settings-rule-list';
 import './page/sw-settings-rule-detail';
 
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
-
 const { Module } = Shopware;
 
 Module.register('sw-settings-rule', {
@@ -16,11 +13,6 @@ Module.register('sw-settings-rule', {
     icon: 'default-action-settings',
     favicon: 'icon-module-settings.png',
     entity: 'rule',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

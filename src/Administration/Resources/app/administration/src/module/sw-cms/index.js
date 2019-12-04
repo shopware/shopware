@@ -10,9 +10,6 @@ import './page/sw-cms-list';
 import './page/sw-cms-detail';
 import './page/sw-cms-create';
 
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
-
 const { Module } = Shopware;
 
 Module.register('sw-cms', {
@@ -24,11 +21,6 @@ Module.register('sw-cms', {
     icon: 'default-symbol-content',
     favicon: 'icon-module-content.png',
     entity: 'cms_page',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

@@ -127,10 +127,15 @@ Component.register('sw-profile-index', {
         },
 
         loadLanguages() {
+            const factoryContainer = Shopware.Application.getContainer('factory');
+            const localeFactory = factoryContainer.locale;
+            const registeredLocales = Array.from(localeFactory.getLocaleRegistry().keys());
+
             const languageCriteria = new Criteria();
             languageCriteria.addAssociation('locale');
             languageCriteria.addSorting(Criteria.sort('locale.name', 'ASC'));
             languageCriteria.addSorting(Criteria.sort('locale.territory', 'ASC'));
+            languageCriteria.addFilter(Criteria.equalsAny('locale.code', registeredLocales));
             languageCriteria.limit = 500;
 
             return this.languageRepository.search(languageCriteria, Shopware.Context.api).then((result) => {
@@ -244,8 +249,16 @@ Component.register('sw-profile-index', {
             this.userRepository.save(this.user, Shopware.Context.api).then(() => {
                 this.$refs.mediaSidebarItem.getList();
 
-                this.localeRepository.get(this.user.localeId, Shopware.Context.api).then(({ code }) => {
+                this.localeRepository.get(this.user.localeId, Shopware.Context.api).then(async ({ code }) => {
                     Shopware.State.dispatch('setAdminLocale', code);
+
+                    const factoryContainer = Shopware.Application.getContainer('factory');
+                    const localeFactory = factoryContainer.locale;
+                    const snippetService = Shopware.Service('snippetService');
+
+                    if (snippetService) {
+                        await snippetService.getSnippets(localeFactory);
+                    }
                 });
 
                 this.oldPassword = '';

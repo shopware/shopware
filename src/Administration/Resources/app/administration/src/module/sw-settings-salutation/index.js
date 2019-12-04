@@ -2,9 +2,6 @@ import './extension/sw-settings-index';
 import './page/sw-settings-salutation-list';
 import './page/sw-settings-salutation-detail';
 
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
-
 const { Module } = Shopware;
 
 Module.register('sw-settings-salutation', {
@@ -18,11 +15,6 @@ Module.register('sw-settings-salutation', {
     icon: 'default-action-settings',
     favicon: 'icon-module-settings.png',
     entity: 'salutation',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

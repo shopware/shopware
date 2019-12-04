@@ -9,9 +9,6 @@ import './page/sw-category-detail';
 import './view/sw-category-detail-base';
 import './view/sw-category-detail-cms';
 
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
-
 const { Module } = Shopware;
 
 Module.register('sw-category', {
@@ -25,11 +22,6 @@ Module.register('sw-category', {
     icon: 'default-package-closed',
     favicon: 'icon-module-products.png',
     entity: 'category',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

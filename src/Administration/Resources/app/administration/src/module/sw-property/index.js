@@ -1,6 +1,3 @@
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
-
 import './page/sw-property-list';
 import './page/sw-property-detail';
 import './page/sw-property-create';
@@ -21,11 +18,6 @@ Module.register('sw-property', {
     icon: 'default-symbol-products',
     favicon: 'icon-module-products.png',
     entity: 'property',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

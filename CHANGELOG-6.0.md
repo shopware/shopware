@@ -75,7 +75,8 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * you can now set a sales channel in a maintenance mode. You can choose the layout or use our default layout. You can also use the ip-whitelist to bypass the maintenance mode. The Imprint and Privacy Policy from Settings > Basic Information are linked in the maintenance page footer if you specified a layout.
     * Added mailer settings in the settings page
     * Added mailer settings in the first run wizard
-   
+    * Now snippets are retrieved asynchronously to improve performance
+
 * Core
     * Added DAL support for multi primary keys.
     * Added API endpoints for translation definitions

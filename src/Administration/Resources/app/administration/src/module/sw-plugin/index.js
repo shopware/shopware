@@ -14,9 +14,6 @@ import './component/sw-plugin-config';
 
 import swPluginState from './state/plugin.store';
 
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
-
 const { Module, State } = Shopware;
 State.registerModule('swPlugin', swPluginState);
 
@@ -31,11 +28,6 @@ Module.register('sw-plugin', {
     icon: 'default-action-settings',
     favicon: 'icon-module-settings.png',
     entity: 'plugin',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

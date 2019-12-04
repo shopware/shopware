@@ -1,7 +1,5 @@
 import './page/sw-dashboard-index';
 import './component/sw-dashboard-external-link';
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
 
 const { Module } = Shopware;
 
@@ -15,11 +13,6 @@ Module.register('sw-dashboard', {
     color: '#6AD6F0',
     icon: 'default-device-dashboard',
     favicon: 'icon-module-dashboard.png',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

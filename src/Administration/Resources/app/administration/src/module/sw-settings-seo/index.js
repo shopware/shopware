@@ -4,8 +4,6 @@ import './component/sw-seo-main-category';
 
 import './extension/sw-settings-index';
 import './page/sw-settings-seo';
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
 
 const { Module } = Shopware;
 
@@ -18,11 +16,6 @@ Module.register('sw-settings-seo', {
     icon: 'default-action-settings',
     favicon: 'icon-module-settings.png',
     entity: 'seo',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

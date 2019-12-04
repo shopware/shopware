@@ -1,9 +1,6 @@
 import './page/sw-review-list';
 import './page/sw-review-detail';
 
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
-
 const { Module } = Shopware;
 
 Module.register('sw-review', {
@@ -16,11 +13,6 @@ Module.register('sw-review', {
     icon: 'default-symbol-products',
     favicon: 'icon-module-products.png',
     entity: 'product_review',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

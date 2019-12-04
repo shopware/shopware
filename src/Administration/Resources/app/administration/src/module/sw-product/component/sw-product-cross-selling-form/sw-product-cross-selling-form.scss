@@ -2,7 +2,11 @@
 
 .product-detail-cross-selling-form {
     .sw-product-detail-cross-selling__context-button {
-        float: right;
+        display: flex;
+
+        .sw-context-button {
+            margin-left: auto;
+        }
     }
 
     .sw-field .sw-field__help-text {

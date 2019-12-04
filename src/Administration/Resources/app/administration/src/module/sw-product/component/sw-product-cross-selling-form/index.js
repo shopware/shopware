@@ -116,6 +116,10 @@ Component.register('sw-product-cross-selling-form', {
         },
 
         openModalPreview() {
+            if (this.previewDisabled) {
+                return;
+            }
+
             this.loadStreamPreview();
             this.showModalPreview = true;
         },

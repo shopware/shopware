@@ -9,10 +9,11 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Storefront\Framework\Media\Exception\FileTypeNotAllowedException;
-use Shopware\Storefront\Framework\Media\StorefrontUploadService;
+use Shopware\Storefront\Framework\Media\StorefrontMediaUploader;
+use Shopware\Storefront\Framework\Media\StorefrontMediaValidatorRegistry;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class StorefrontUploadServiceTest extends TestCase
+class StorefrontMediaUploaderTest extends TestCase
 {
     use KernelTestBehaviour;
 
@@ -101,11 +102,12 @@ class StorefrontUploadServiceTest extends TestCase
         return new UploadedFile(self::FIXTURE_DIR . '/' . $filename, $filename);
     }
 
-    private function getUploadService(): StorefrontUploadService
+    private function getUploadService(): StorefrontMediaUploader
     {
-        return new StorefrontUploadService(
+        return new StorefrontMediaUploader(
             $this->getContainer()->get(MediaService::class),
-            $this->getContainer()->get(FileSaver::class)
+            $this->getContainer()->get(FileSaver::class),
+            $this->getContainer()->get(StorefrontMediaValidatorRegistry::class)
         );
     }
 

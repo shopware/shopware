@@ -79,9 +79,22 @@
             <argument>%storefront.csrf.mode%</argument>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Media\StorefrontUploadService">
+        <service id="Shopware\Storefront\Framework\Media\StorefrontMediaUploader">
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Media\StorefrontMediaValidatorRegistry"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Media\StorefrontMediaValidatorRegistry" public="true">
+            <argument type="tagged" tag="storefront.media.upload.validator" />
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Media\Validator\StorefrontMediaImageValidator">
+            <tag name="storefront.media.upload.validator" />
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Media\Validator\StorefrontMediaDocumentValidator">
+            <tag name="storefront.media.upload.validator" />
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\StorefrontSubscriber">

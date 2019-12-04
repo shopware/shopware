@@ -132,12 +132,23 @@
       "labelLastEditedBy":"Last edited by",
       "labelSystemUser":"System",
       "labelSelectStatePlaceholder":"Select a status...",
-      "labelSelectStateButton":"Update status",
+      "labelSelectStateButton":"Update status and send email",
       "headlineErrorStateChange":"Error",
       "labelErrorStateChange":"An error occured while updating the status. Additional information:",
       "labelErrorNoAction":"Current status invalid.",
       "labelNoTransactionState": "No transaction yet",
       "labelNoDeliveryState": "No Delivery yet"
+    },
+    "assignMailTemplateCard": {
+        "cardTitle": "Assign email template",
+        "headline": "No email template assigned to this order status, please assign one.",
+        "placeholderAssignMailTemplate": "Assign an email template...",
+        "alertHeadline": "Hint",
+        "alertMessage": "This assignment affects all following orders received through this sales channel.",
+        "buttonCreateMailTemplate": "Create email template",
+        "buttonAssignMailTemplate": "Assign email template",
+        "gridColumnType": "Type",
+        "gridColumnDescription": "Description"
     },
     "documentCard": {
       "searchBarPlaceholder": "Search all documents...",

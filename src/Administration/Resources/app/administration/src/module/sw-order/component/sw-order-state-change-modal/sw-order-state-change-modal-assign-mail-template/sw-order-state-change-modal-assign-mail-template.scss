@@ -1,0 +1,55 @@
+@import "~scss/variables";
+
+.sw-order-state-change-modal-assign-mail-template {
+    .sw-order-state-change-modal-assign-mail-template__wrapper {
+        min-height: 320px;
+        display: flex;
+        flex-direction: column;
+
+        .sw-order-state-change-modal-assign-mail-template__entity-listing {
+            position: initial;
+        }
+
+        .sw-order-state-change-modal-assign-mail-template__button {
+            margin-left: 10px;
+        }
+    }
+
+    .sw-order-state-change-modal-assign-mail-template__paragraph {
+        margin-bottom: 24px;
+        font-size: $font-size-small;
+        color: $color-gray;
+
+        .is--bold {
+            display: block;
+            font-weight: 600;
+            color: $color-gutenberg;
+        }
+    }
+
+    .sw-card {
+        margin: 0 0 20px 0;
+
+        .sw-card__content {
+            padding: 0;
+        }
+    }
+
+    &__button-wrapper {
+        margin-top: auto;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    &__radio-button-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+    }
+
+    &__radio-button {
+        transform: translate(20%, 20%);
+    }
+}

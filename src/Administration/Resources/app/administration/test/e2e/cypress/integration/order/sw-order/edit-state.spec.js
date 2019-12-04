@@ -69,7 +69,7 @@ describe('Order: Test order state', () => {
                 type: 'order',
                 signal: 'danger',
                 call: 'cancel'
-            });
+            }, false);
         });
 
         cy.get(page.elements.smartBarBack).click();
@@ -198,7 +198,8 @@ describe('Order: Test order state', () => {
             type: 'order',
             scope: 'history-card',
             call: 'cancel'
-        });
+        }, false);
+
         page.checkOrderHistoryEntry({
             stateTitle: 'Cancelled',
             type: 'order',
@@ -212,7 +213,7 @@ describe('Order: Test order state', () => {
             type: 'payment',
             scope: 'history-card',
             call: 'remind'
-        });
+        }, false);
         page.checkOrderHistoryEntry({
             stateTitle: 'Reminded',
             type: 'payment',
@@ -226,7 +227,7 @@ describe('Order: Test order state', () => {
             type: 'order',
             scope: 'history-card',
             call: 'reopen'
-        });
+        }, false);
         page.checkOrderHistoryEntry({
             stateTitle: 'Open',
             type: 'order',
@@ -239,7 +240,7 @@ describe('Order: Test order state', () => {
             type: 'order',
             scope: 'history-card',
             call: 'process'
-        });
+        }, false);
         page.checkOrderHistoryEntry({
             stateTitle: 'In progress',
             type: 'order',
@@ -253,7 +254,7 @@ describe('Order: Test order state', () => {
             type: 'order',
             scope: 'history-card',
             call: 'complete'
-        });
+        }, false);
         page.checkOrderHistoryEntry({
             stateTitle: 'Done',
             type: 'order',
@@ -267,7 +268,7 @@ describe('Order: Test order state', () => {
             type: 'payment',
             scope: 'history-card',
             call: 'pay'
-        });
+        }, false);
         page.checkOrderHistoryEntry({
             stateTitle: 'Paid',
             type: 'payment',

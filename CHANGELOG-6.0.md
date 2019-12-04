@@ -204,6 +204,8 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added cms block `form`
     * Added component `sw-select-number-field` for select options with numeric values
     * Added installation opportunity of Migration-Plugin into FirstRunWizard
+    * Added `sw-order-state-change-modal-assign-mail-template` component inside `sw-order-state-change-modal`
+    * Moved `sw-order-document-card` in `sw-order-state-change-modal` into seperate component
     * integrated repository based data handling in plugin manager
     * replaced `sw-grid` with `sw-data-grid` components in plugin manager
     * Remote address anonymization is now configurable in the settings at the Login / Registration module

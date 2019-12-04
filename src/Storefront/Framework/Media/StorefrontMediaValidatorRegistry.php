@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Media;
 
-use Shopware\Storefront\Framework\Media\Exception\FileTypeNotAllowedException;
+use Shopware\Storefront\Framework\Media\Exception\MediaValidatorMissingException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class StorefrontMediaValidatorRegistry
@@ -27,7 +27,7 @@ class StorefrontMediaValidatorRegistry
         }
 
         if (empty($filtered)) {
-            throw new FileTypeNotAllowedException($file->getMimeType(), $type);
+            throw new MediaValidatorMissingException($type);
         }
 
         foreach ($filtered as $validator) {

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Storefront\Framework\Media\Exception\FileTypeNotAllowedException;
+use Shopware\Storefront\Framework\Media\Exception\MediaValidatorMissingException;
 use Shopware\Storefront\Framework\Media\StorefrontMediaUploader;
 use Shopware\Storefront\Framework\Media\StorefrontMediaValidatorRegistry;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -75,26 +76,13 @@ class StorefrontMediaUploaderTest extends TestCase
         $this->getUploadService()->upload($file, 'test', 'images', Context::createDefaultContext());
     }
 
-    public function testUploadAny(): void
+    public function testUploadUnknownType(): void
     {
+        $this->expectException(MediaValidatorMissingException::class);
+        $this->expectExceptionMessage((new MediaValidatorMissingException('notExistingType'))->getMessage());
+
         $file = $this->getUploadFixture('image.png');
-        $result = $this->getUploadService()->upload($file, 'test', 'notExistingType/Filter', Context::createDefaultContext());
-
-        $repo = $this->getContainer()->get('media.repository');
-        static::assertEquals(1, $repo->search(new Criteria([$result]), Context::createDefaultContext())->getTotal());
-        $this->removeMedia($result);
-    }
-
-    public function testUploadAnyFailIllegalFileType(): void
-    {
-        $this->expectException(FileTypeNotAllowedException::class);
-        $this->expectExceptionMessage((new FileTypeNotAllowedException(
-            'application/vnd.ms-excel',
-            'files'
-        ))->getMessage());
-
-        $file = $this->getUploadFixture('empty.xls');
-        $this->getUploadService()->upload($file, 'test', 'notExistingType/Filter', Context::createDefaultContext());
+        $this->getUploadService()->upload($file, 'test', 'notExistingType', Context::createDefaultContext());
     }
 
     private function getUploadFixture(string $filename): UploadedFile

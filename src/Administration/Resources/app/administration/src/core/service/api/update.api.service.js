@@ -54,9 +54,11 @@ class UpdateService extends ApiService {
 
     deactivatePlugins(offset, pluginDeactivationStrategy = '') {
         const headers = this.getBasicHeaders();
+        const actionUrlPart = `/_action/${this.getApiBasePath()}`;
+        const offsetParam = `offset=${offset}&deactivationFilter=${pluginDeactivationStrategy}`;
 
         return this.httpClient
-            .get(`/_action/${this.getApiBasePath()}/deactivate-plugins?offset=${offset}&deactivationFilter=${pluginDeactivationStrategy}`, { headers })
+            .get(`${actionUrlPart}/deactivate-plugins?${offsetParam}`, { headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });

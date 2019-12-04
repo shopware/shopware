@@ -37,7 +37,7 @@ describe('Product: Check cross selling integration', () => {
             });
     });
 
-    it('@package @catalogue: add cross selling stream to product und verify in storefront', () => {
+    it('@package @catalogue: add cross selling stream to product', () => {
         const page = new ProductStreamObject();
 
         // Request we want to wait for later
@@ -90,7 +90,7 @@ describe('Product: Check cross selling integration', () => {
 
         cy.contains(
             `.sw-product-detail-cross-selling__empty-state ${page.elements.ghostButton}`,
-            'Add new cross selling group'
+            'Add new cross selling'
         ).should('be.visible').click();
         cy.get('.product-detail-cross-selling-form').should('be.visible');
 

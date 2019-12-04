@@ -98,7 +98,7 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
         $catalog = $this->translator->getCatalogue($locale);
 
         $fallbackLocale = $this->getFallbackLocale();
-        if ($catalog->getLocale() !== $fallbackLocale) {
+        if (mb_strpos($catalog->getLocale(), $fallbackLocale) !== 0) {
             $catalog->addFallbackCatalogue($this->translator->getCatalogue($fallbackLocale));
         }
 
@@ -244,6 +244,6 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
 
         $defaultLanguage = $this->languageRepository->search($criteria, Context::createDefaultContext())->get(Defaults::LANGUAGE_SYSTEM);
 
-        return $this->fallbackLocale = $defaultLanguage->getLocale()->getCode();
+        return $this->fallbackLocale = mb_substr($defaultLanguage->getLocale()->getCode(), 0, 2);
     }
 }

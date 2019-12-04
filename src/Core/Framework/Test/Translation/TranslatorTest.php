@@ -100,6 +100,35 @@ class TranslatorTest extends TestCase
         );
     }
 
+    public function testSymfonyDefaultTranslationFallback(): void
+    {
+        $catalogue = $this->translator->getCatalogue('en');
+        static::assertEquals('en_GB', $catalogue->getFallbackCatalogue()->getLocale());
+
+        $catalogue = $this->translator->getCatalogue('en_GB');
+        static::assertEquals('en', $catalogue->getFallbackCatalogue()->getLocale());
+
+        $catalogue = $this->translator->getCatalogue('en-GB');
+        $fallback = $catalogue->getFallbackCatalogue();
+        static::assertEquals('en_GB', $fallback->getLocale());
+        static::assertEquals('en', $fallback->getFallbackCatalogue()->getLocale());
+
+        $catalogue = $this->translator->getCatalogue('de');
+        $fallback = $catalogue->getFallbackCatalogue();
+        static::assertEquals('en', $fallback->getLocale());
+        static::assertEquals('en_GB', $fallback->getFallbackCatalogue()->getLocale());
+
+        $catalogue = $this->translator->getCatalogue('de_DE');
+        $fallback = $catalogue->getFallbackCatalogue();
+        static::assertEquals('en', $fallback->getLocale());
+        static::assertEquals('en_GB', $fallback->getFallbackCatalogue()->getLocale());
+
+        $catalogue = $this->translator->getCatalogue('de-DE');
+        $fallback = $catalogue->getFallbackCatalogue();
+        static::assertEquals('en', $fallback->getLocale());
+        static::assertEquals('en_GB', $fallback->getFallbackCatalogue()->getLocale());
+    }
+
     public function testDeleteSnippet(): void
     {
         $snippetRepository = $this->getContainer()->get('snippet.repository');

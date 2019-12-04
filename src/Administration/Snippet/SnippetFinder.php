@@ -49,7 +49,7 @@ class SnippetFinder implements SnippetFinderInterface
     {
         $finder = (new Finder())
             ->files()
-            ->in(__DIR__ . '/../Resources/app/administration/src/')
+            ->in(__DIR__ . '/../../*/Resources/app/administration/src/')
             ->ignoreUnreadableDirs();
 
         if ($locale) {
@@ -80,7 +80,7 @@ class SnippetFinder implements SnippetFinderInterface
             $snippets[] = json_decode(file_get_contents($file), true) ?? [];
         }
 
-        $snippets = array_merge(...$snippets);
+        $snippets = array_merge_recursive(...$snippets);
 
         ksort($snippets);
 

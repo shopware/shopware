@@ -64,9 +64,17 @@
                 {% endblock %}
 
                 {% block page_product_detail_tabs %}
-                        <div class="product-detail-tabs">
-                            {% sw_include '@Storefront/storefront/page/product-detail/tabs.html.twig' %}
-                        </div>
+                    <div class="product-detail-tabs">
+                        {% sw_include '@Storefront/storefront/page/product-detail/tabs.html.twig' %}
+                    </div>
+                {% endblock %}
+
+                {% block page_product_detail_cross_selling %}
+                    <div class="product-detail-tabs product-detail-cross-selling">
+                        {% sw_include '@Storefront/storefront/page/product-detail/cross-selling/tabs.html.twig' with {
+                            crossSellings: page.crossSellings
+                        } only %}
+                    </div>
                 {% endblock %}
             {% endblock %}
         </div>

@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Storefront\Page\Page;
+use Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoaderResult;
 use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
 
 class ProductPage extends Page
@@ -35,6 +36,11 @@ class ProductPage extends Page
      * @var PropertyGroupOptionCollection
      */
     protected $selectedOptions;
+
+    /**
+     * @var CrossSellingLoaderResult
+     */
+    protected $crossSellings;
 
     public function getProduct(): SalesChannelProductEntity
     {
@@ -84,5 +90,15 @@ class ProductPage extends Page
     public function setSelectedOptions(PropertyGroupOptionCollection $selectedOptions): void
     {
         $this->selectedOptions = $selectedOptions;
+    }
+
+    public function getCrossSellings(): CrossSellingLoaderResult
+    {
+        return $this->crossSellings;
+    }
+
+    public function setCrossSellings(CrossSellingLoaderResult $crossSellings): void
+    {
+        $this->crossSellings = $crossSellings;
     }
 }

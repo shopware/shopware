@@ -1,0 +1,93 @@
+{% block page_product_detail_cross_selling_tabs_inner %}
+    <div class="card card-tabs" data-cross-selling="true">
+        {% block page_product_detail_cross_selling_tabs_navigation %}
+            <div class="card-header product-detail-tab-navigation product-cross-selling-tab-navigation">
+                {% block page_product_detail_cross_selling_tabs_navigation_container %}
+                    <ul class="nav nav-tabs product-detail-tab-navigation-list"
+                        id="product-detail-cross-selling-tabs"
+                        role="tablist">
+                        {% for item in crossSellings %}
+                            {% set id = item.crossSelling.id %}
+                            {% if item.crossSelling.active %}
+                                <li class="nav-item">
+                                    <a class="nav-link product-detail-tab-navigation-link{% if loop.first %} active{% endif %}"
+                                       id="cs-{{ id }}-tab"
+                                       data-toggle="tab"
+                                       href="#cs-{{ id }}-tab-pane"
+                                       role="tab"
+                                       aria-controls="cs-{{ id }}-tab-pane"
+                                       aria-selected="true">
+                                        {{ item.crossSelling.translated.name }}
+                                        <span class="product-detail-tab-navigation-icon">
+                                            {% sw_icon 'arrow-medium-right' style {'pack':'solid'} %}
+                                        </span>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block page_product_detail_cross_selling_tabs_content %}
+            <div class="product-detail-tabs-content card-body">
+                {% block page_product_detail_cross_selling_tabs_content_container %}
+                    <div class="tab-content">
+                        {% for item in crossSellings %}
+                            {% set id = item.crossSelling.id %}
+                            {% if item.crossSelling.active %}
+                                <div class="tab-pane fade show{% if loop.first %} active{% endif %}"
+                                     id="cs-{{ id }}-tab-pane"
+                                     role="tabpanel"
+                                     aria-labelledby="cs-{{ id }}-tab">
+                                        {% set config = {
+                                            'title': {
+                                                'value': item.crossSelling.name
+                                            },
+                                            'border': {
+                                                'value': false
+                                            },
+                                            'rotate': {
+                                                'value': false
+                                            },
+                                            'products': {
+                                                'value': item.getProducts()
+                                            },
+                                            'boxLayout': {
+                                                'value': 'standard'
+                                            },
+                                            'elMinWidth': {
+                                                'value': '300px'
+                                            },
+                                            'navigation': {
+                                                'value': true
+                                            },
+                                            'displayMode': {
+                                                'value': 'minimal'
+                                            },
+                                            'verticalAlign': {
+                                                'value': 'top'
+                                            },
+                                        } %}
+
+                                        {% sw_include "@Storefront/storefront/element/cms-element-product-slider.html.twig" with {
+                                            sliderConfig: config,
+                                            element: {
+                                                'data': {
+                                                    'products': {
+                                                        elements: item.getProducts()
+                                                    }
+                                                },
+                                                type: 'product-slider'
+                                            }
+                                        } only %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -177,6 +177,14 @@
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition"/>
             <argument type="service" id="Shopware\Storefront\Page\Product\ProductLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Product\Review\ProductReviewLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoader"/>
+        </service>
+
+        <service id="Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoader">
+            <argument type="service" id="product_cross_selling.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
+            <argument type="service" id="sales_channel.product.repository"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader">

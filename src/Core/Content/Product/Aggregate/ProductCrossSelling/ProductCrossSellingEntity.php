@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
 class ProductCrossSellingEntity extends Entity
 {
@@ -160,5 +161,10 @@ class ProductCrossSellingEntity extends Entity
     public function setTranslations(?ProductCrossSellingTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getSorting(): FieldSorting
+    {
+        return new FieldSorting($this->sortBy, $this->sortDirection);
     }
 }

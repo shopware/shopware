@@ -27,9 +27,6 @@ import './view/sw-product-detail-cross-selling';
 import './page/sw-product-list';
 import './page/sw-product-detail';
 
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
-
 const { Module } = Shopware;
 
 Module.register('sw-product', {
@@ -43,11 +40,6 @@ Module.register('sw-product', {
     icon: 'default-symbol-products',
     favicon: 'icon-module-products.png',
     entity: 'product',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

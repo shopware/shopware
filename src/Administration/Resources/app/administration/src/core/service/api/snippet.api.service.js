@@ -47,6 +47,32 @@ class SnippetApiService extends ApiService {
                 return ApiService.handleResponse(response);
             });
     }
+
+    /**
+     * Get snippets
+     *
+     * @returns {Promise<T>}
+     */
+    getSnippets(localeFactory) {
+        const headers = this.getBasicHeaders();
+        const locale = Shopware.State.get('adminLocale').currentLocale || localeFactory.getLastKnownLocale();
+
+        return this.httpClient
+            .get(`/_admin/snippets?locale=${locale}`, {
+                headers
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            }).then((allSnippets) => {
+                const registry = localeFactory.getLocaleRegistry();
+
+                Object.entries(allSnippets).forEach(([localeKey, snippets]) => {
+                    const fnName = (registry.has(localeKey) ? 'extend' : 'register');
+
+                    localeFactory[fnName](localeKey, snippets);
+                });
+            });
+    }
 }
 
 export default SnippetApiService;

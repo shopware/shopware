@@ -6,8 +6,6 @@ import './component/sw-price-rule-modal';
 import './component/sw-settings-shipping-price-matrices';
 import './component/sw-settings-shipping-price-matrix';
 
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
 
 const { Module } = Shopware;
 
@@ -20,11 +18,6 @@ Module.register('sw-settings-shipping', {
     icon: 'default-action-settings',
     favicon: 'icon-module-settings.png',
     entity: 'shipping_method',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

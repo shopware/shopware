@@ -10,9 +10,6 @@ import './component/sw-settings-tax-rule-type-individual-states-cell';
 import './component/sw-settings-tax-rule-type-zip-code-cell';
 import './component/sw-settings-tax-rule-type-zip-code-range-cell';
 
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
-
 const { Module } = Shopware;
 
 Module.register('sw-settings-tax', {
@@ -24,11 +21,6 @@ Module.register('sw-settings-tax', {
     icon: 'default-action-settings',
     favicon: 'icon-module-settings.png',
     entity: 'tax',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

@@ -14,9 +14,6 @@ import './component/sw-custom-field-type-date';
 import './component/sw-custom-field-type-checkbox';
 import './component/sw-custom-field-type-text-editor';
 
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
-
 const { Module } = Shopware;
 
 Module.register('sw-settings-custom-field', {
@@ -28,11 +25,6 @@ Module.register('sw-settings-custom-field', {
     icon: 'default-action-settings',
     favicon: 'icon-module-settings.png',
     entity: 'custom-field-set',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

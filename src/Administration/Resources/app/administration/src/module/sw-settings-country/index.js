@@ -4,9 +4,6 @@ import './page/sw-settings-country-detail';
 import './page/sw-settings-country-create';
 import './component/sw-country-state-detail';
 
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
-
 const { Module } = Shopware;
 
 Module.register('sw-settings-country', {
@@ -18,11 +15,6 @@ Module.register('sw-settings-country', {
     icon: 'default-action-settings',
     favicon: 'icon-module-settings.png',
     entity: 'country',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

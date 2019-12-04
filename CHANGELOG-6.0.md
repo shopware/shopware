@@ -74,7 +74,8 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * `sw-entity-single-select` fires a new event called `option-select` which provides the selected entity and  as the payload
     * Added mailer settings in the settings page
     * Added mailer settings in the first run wizard
-   
+    * Now snippets are retrieved asynchronously to improve performance
+
 * Core
     * Added DAL support for multi primary keys.
     * Added API endpoints for translation definitions

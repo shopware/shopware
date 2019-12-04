@@ -15,9 +15,6 @@ import './component/sw-media-breadcrumbs';
 import './component/sw-media-library';
 import './component/sw-media-modal';
 
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
-
 const { Module } = Shopware;
 
 Module.register('sw-media', {
@@ -31,11 +28,6 @@ Module.register('sw-media', {
     icon: 'default-object-image',
     favicon: 'icon-module-content.png',
     entity: 'media',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

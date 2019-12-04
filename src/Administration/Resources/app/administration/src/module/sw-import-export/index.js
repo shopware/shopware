@@ -7,8 +7,6 @@ import './component/sw-import-export-log-modal';
 import './component/sw-import-export-profile-csv-mapping-modal';
 import './component/sw-import-export-progress';
 import { NEXT733 } from 'src/flag/feature_next733';
-import deDE from './snippet/de_DE.json';
-import enGB from './snippet/en_GB.json';
 
 const { Module } = Shopware;
 
@@ -23,11 +21,6 @@ Module.register('sw-import-export', {
     color: '#f198e4',
     icon: 'default-device-database',
     entity: 'import_export_profile',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

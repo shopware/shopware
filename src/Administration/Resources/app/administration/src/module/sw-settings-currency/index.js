@@ -2,9 +2,6 @@ import './extension/sw-settings-index';
 import './page/sw-settings-currency-list';
 import './page/sw-settings-currency-detail';
 
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
-
 const { Module } = Shopware;
 
 Module.register('sw-settings-currency', {
@@ -16,11 +13,6 @@ Module.register('sw-settings-currency', {
     icon: 'default-action-settings',
     favicon: 'icon-module-settings.png',
     entity: 'currency',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

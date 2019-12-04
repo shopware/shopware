@@ -10,8 +10,6 @@ import './component/sw-customer-address-form';
 import './component/sw-customer-address-form-options';
 import './component/sw-customer-default-addresses';
 import './component/sw-customer-card';
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
 
 const { Module } = Shopware;
 
@@ -26,11 +24,6 @@ Module.register('sw-customer', {
     icon: 'default-avatar-multiple',
     favicon: 'icon-module-customers.png',
     entity: 'customer',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

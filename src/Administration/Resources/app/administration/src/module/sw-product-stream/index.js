@@ -5,9 +5,6 @@ import './component/sw-product-stream-value';
 import './component/sw-product-stream-modal-preview';
 import './component/sw-product-stream-filter';
 
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
-
 const { Module } = Shopware;
 
 Module.register('sw-product-stream', {
@@ -21,11 +18,6 @@ Module.register('sw-product-stream', {
     icon: 'default-symbol-products',
     favicon: 'icon-module-products.png',
     entity: 'product_stream',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

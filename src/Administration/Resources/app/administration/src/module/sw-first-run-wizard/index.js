@@ -16,9 +16,6 @@ import './view/sw-first-run-wizard-shopware-account';
 import './view/sw-first-run-wizard-shopware-domain';
 import './view/sw-first-run-wizard-finish';
 
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
-
 const { Module } = Shopware;
 
 Module.register('sw-first-run-wizard', {
@@ -29,11 +26,6 @@ Module.register('sw-first-run-wizard', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#F19D12',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

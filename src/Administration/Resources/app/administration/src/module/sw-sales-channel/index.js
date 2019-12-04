@@ -15,9 +15,6 @@ import './view/sw-sales-channel-detail-product-comparison-preview';
 import './service/export-template.service';
 import './product-export-templates';
 
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
-
 const { Module } = Shopware;
 
 Module.register('sw-sales-channel', {
@@ -30,11 +27,6 @@ Module.register('sw-sales-channel', {
     color: '#14D7A5',
     icon: 'default-device-server',
     entity: 'sales_channel',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         detail: {

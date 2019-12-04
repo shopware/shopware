@@ -1,6 +1,3 @@
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
-
 import './component/sw-promotion-rule-select';
 import './component/sw-promotion-sales-channel-select';
 
@@ -31,11 +28,6 @@ Module.register('sw-promotion', {
     icon: 'default-package-gift',
     favicon: 'icon-module-marketing.png',
     entity: 'promotion',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

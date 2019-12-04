@@ -1,8 +1,6 @@
 import './extension/sw-settings-index';
 import './component/sw-settings-mailer-smtp';
 import './page/sw-settings-mailer';
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
 
 Shopware.Module.register('sw-settings-mailer', {
     type: 'core',
@@ -12,11 +10,6 @@ Shopware.Module.register('sw-settings-mailer', {
     color: '#9AA8B5',
     icon: 'default-communication-envelope',
     favicon: 'icon-module-settings.png',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

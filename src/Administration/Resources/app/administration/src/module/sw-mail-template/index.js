@@ -6,8 +6,6 @@ import './page/sw-mail-template-create';
 import './page/sw-mail-template-index';
 import './page/sw-mail-header-footer-detail';
 import './page/sw-mail-header-footer-create';
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
 
 const { Module } = Shopware;
 
@@ -22,11 +20,6 @@ Module.register('sw-mail-template', {
     icon: 'default-action-settings',
     favicon: 'icon-module-settings.png',
     entity: 'mail_template',
-
-    snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB
-    },
 
     routes: {
         index: {

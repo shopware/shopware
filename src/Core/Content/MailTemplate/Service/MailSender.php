@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\MailTemplate\Service;
 
 use Shopware\Core\Content\MailTemplate\Exception\MailTransportFailedException;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class MailSender
 {
@@ -11,9 +12,15 @@ class MailSender
      */
     private $swiftMailer;
 
-    public function __construct(\Swift_Mailer $swiftMailer)
+    /**
+     * @var SystemConfigService
+     */
+    private $configService;
+
+    public function __construct(\Swift_Mailer $swiftMailer, SystemConfigService $configService)
     {
         $this->swiftMailer = $swiftMailer;
+        $this->configService = $configService;
     }
 
     /**
@@ -22,6 +29,16 @@ class MailSender
     public function send(\Swift_Message $message): void
     {
         $failedRecipients = [];
+
+        $disabled = $this->configService->get('core.mailerSettings.disableDelivery');
+        if ($disabled) {
+            return;
+        }
+
+        $deliveryAddress = $this->configService->get('core.mailerSettings.deliveryAddress');
+        if ($deliveryAddress) {
+            $message->setTo([$deliveryAddress]);
+        }
 
         $this->swiftMailer->send($message, $failedRecipients);
 

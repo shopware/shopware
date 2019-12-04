@@ -27,7 +27,6 @@ export default {
 
     actions: {
         setAdminLocale({ commit, rootState }, locale) {
-            console.log('setAdminLocale', locale);
             const locales = rootState.system.locales;
             const loginService = Shopware.Service('loginService');
 

@@ -58,7 +58,7 @@ class StateMachineEntity extends Entity
         return $this->historyEntries;
     }
 
-    public function setHistoryEntries(?StateMachineHistoryCollection $historyEntries): void
+    public function setHistoryEntries(StateMachineHistoryCollection $historyEntries): void
     {
         $this->historyEntries = $historyEntries;
     }

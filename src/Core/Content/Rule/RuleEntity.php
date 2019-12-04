@@ -173,7 +173,7 @@ class RuleEntity extends Entity
         return $this->paymentMethods;
     }
 
-    public function setPaymentMethods(?PaymentMethodCollection $paymentMethods): void
+    public function setPaymentMethods(PaymentMethodCollection $paymentMethods): void
     {
         $this->paymentMethods = $paymentMethods;
     }
@@ -233,7 +233,7 @@ class RuleEntity extends Entity
         return $this->promotionDiscounts;
     }
 
-    public function setPromotionDiscounts(?PromotionDiscountCollection $promotionDiscounts): void
+    public function setPromotionDiscounts(PromotionDiscountCollection $promotionDiscounts): void
     {
         $this->promotionDiscounts = $promotionDiscounts;
     }
@@ -243,7 +243,7 @@ class RuleEntity extends Entity
         return $this->promotionSetGroups;
     }
 
-    public function setPromotionSetGroups(?PromotionSetGroupCollection $promotionSetGroups): void
+    public function setPromotionSetGroups(PromotionSetGroupCollection $promotionSetGroups): void
     {
         $this->promotionSetGroups = $promotionSetGroups;
     }
@@ -271,7 +271,7 @@ class RuleEntity extends Entity
      * Sets a list of all promotions where this rule should be
      * used as Persona Condition
      */
-    public function setPersonaPromotions(?PromotionCollection $personaPromotions): void
+    public function setPersonaPromotions(PromotionCollection $personaPromotions): void
     {
         $this->personaPromotions = $personaPromotions;
     }
@@ -289,7 +289,7 @@ class RuleEntity extends Entity
      * Sets a list of all promotions where this rule should be
      * used as Order Condition.
      */
-    public function setOrderPromotions(?PromotionCollection $orderPromotions): void
+    public function setOrderPromotions(PromotionCollection $orderPromotions): void
     {
         $this->orderPromotions = $orderPromotions;
     }
@@ -307,7 +307,7 @@ class RuleEntity extends Entity
      * Sets a list of all promotions where this rule should be
      * used as Cart Condition.
      */
-    public function setCartPromotions(?PromotionCollection $cartPromotions): void
+    public function setCartPromotions(PromotionCollection $cartPromotions): void
     {
         $this->cartPromotions = $cartPromotions;
     }

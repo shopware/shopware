@@ -90,7 +90,7 @@ class ScheduledTaskEntity extends Entity
         return $this->deadMessages;
     }
 
-    public function setDeadMessages(?DeadMessageCollection $deadMessages): void
+    public function setDeadMessages(DeadMessageCollection $deadMessages): void
     {
         $this->deadMessages = $deadMessages;
     }

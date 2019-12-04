@@ -157,7 +157,7 @@ class ShippingMethodEntity extends Entity
         return $this->translations;
     }
 
-    public function setTranslations(?ShippingMethodTranslationCollection $translations): void
+    public function setTranslations(ShippingMethodTranslationCollection $translations): void
     {
         $this->translations = $translations;
     }

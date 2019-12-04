@@ -61,7 +61,7 @@ class TaxRuleTypeEntity extends Entity
         return $this->rules;
     }
 
-    public function setRules(?TaxRuleCollection $rules): void
+    public function setRules(TaxRuleCollection $rules): void
     {
         $this->rules = $rules;
     }
@@ -71,7 +71,7 @@ class TaxRuleTypeEntity extends Entity
         return $this->translations;
     }
 
-    public function setTranslations(?TaxRuleTypeTranslationCollection $translations): void
+    public function setTranslations(TaxRuleTypeTranslationCollection $translations): void
     {
         $this->translations = $translations;
     }

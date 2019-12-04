@@ -522,7 +522,7 @@ class CategoryEntity extends Entity
         return $this->mainCategories;
     }
 
-    public function setMainCategories(?MainCategoryCollection $mainCategories): void
+    public function setMainCategories(MainCategoryCollection $mainCategories): void
     {
         $this->mainCategories = $mainCategories;
     }
@@ -562,7 +562,7 @@ class CategoryEntity extends Entity
         return $this->seoUrls;
     }
 
-    public function setSeoUrls(?SeoUrlCollection $seoUrls): void
+    public function setSeoUrls(SeoUrlCollection $seoUrls): void
     {
         $this->seoUrls = $seoUrls;
     }

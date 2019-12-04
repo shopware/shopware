@@ -407,7 +407,7 @@ class ProductEntity extends Entity
         return $this->productReviews;
     }
 
-    public function setProductReviews(?ProductReviewCollection $productReviews): void
+    public function setProductReviews(ProductReviewCollection $productReviews): void
     {
         $this->productReviews = $productReviews;
     }
@@ -1113,7 +1113,7 @@ class ProductEntity extends Entity
         return $this->mainCategories;
     }
 
-    public function setMainCategories(?MainCategoryCollection $mainCategories): void
+    public function setMainCategories(MainCategoryCollection $mainCategories): void
     {
         $this->mainCategories = $mainCategories;
     }
@@ -1133,7 +1133,7 @@ class ProductEntity extends Entity
         return $this->seoUrls;
     }
 
-    public function setSeoUrls(?SeoUrlCollection $seoUrls): void
+    public function setSeoUrls(SeoUrlCollection $seoUrls): void
     {
         $this->seoUrls = $seoUrls;
     }
@@ -1143,7 +1143,7 @@ class ProductEntity extends Entity
         return $this->orderLineItems;
     }
 
-    public function setOrderLineItems(?OrderLineItemCollection $orderLineItems): void
+    public function setOrderLineItems(OrderLineItemCollection $orderLineItems): void
     {
         $this->orderLineItems = $orderLineItems;
     }

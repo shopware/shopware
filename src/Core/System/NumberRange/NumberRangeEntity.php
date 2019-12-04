@@ -163,7 +163,7 @@ class NumberRangeEntity extends Entity
         return $this->translations;
     }
 
-    public function setTranslations(?NumberRangeTranslationCollection $translations): void
+    public function setTranslations(NumberRangeTranslationCollection $translations): void
     {
         $this->translations = $translations;
     }
@@ -173,7 +173,7 @@ class NumberRangeEntity extends Entity
         return $this->numberRangeSalesChannels;
     }
 
-    public function setNumberRangeSalesChannels(?NumberRangeSalesChannelCollection $numberRangeSalesChannels): void
+    public function setNumberRangeSalesChannels(NumberRangeSalesChannelCollection $numberRangeSalesChannels): void
     {
         $this->numberRangeSalesChannels = $numberRangeSalesChannels;
     }

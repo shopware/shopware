@@ -96,7 +96,7 @@ class PromotionSetGroupEntity extends Entity
         return $this->setGroupRules;
     }
 
-    public function setSetGroupRules(?RuleCollection $setGroupRules): void
+    public function setSetGroupRules(RuleCollection $setGroupRules): void
     {
         $this->setGroupRules = $setGroupRules;
     }

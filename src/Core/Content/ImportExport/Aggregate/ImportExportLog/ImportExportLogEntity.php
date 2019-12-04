@@ -155,26 +155,6 @@ class ImportExportLogEntity extends Entity
         $this->userId = $userId;
     }
 
-    public function getCreatedAt(): \DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
-    }
-
     public function getProfile(): ?ImportExportProfileEntity
     {
         return $this->profile;

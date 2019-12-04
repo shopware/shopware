@@ -72,7 +72,7 @@ class NumberRangeTypeEntity extends Entity
         return $this->numberRanges;
     }
 
-    public function setNumberRanges(?NumberRangeCollection $numberRanges): void
+    public function setNumberRanges(NumberRangeCollection $numberRanges): void
     {
         $this->numberRanges = $numberRanges;
     }
@@ -92,7 +92,7 @@ class NumberRangeTypeEntity extends Entity
         return $this->translations;
     }
 
-    public function setTranslations(?NumberRangeTypeTranslationCollection $translations): void
+    public function setTranslations(NumberRangeTypeTranslationCollection $translations): void
     {
         $this->translations = $translations;
     }

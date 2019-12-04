@@ -93,7 +93,7 @@ class DocumentTypeEntity extends Entity
         return $this->documentBaseConfigs;
     }
 
-    public function setDocumentBaseConfigs(?DocumentBaseConfigCollection $documentBaseConfigs): void
+    public function setDocumentBaseConfigs(DocumentBaseConfigCollection $documentBaseConfigs): void
     {
         $this->documentBaseConfigs = $documentBaseConfigs;
     }
@@ -103,7 +103,7 @@ class DocumentTypeEntity extends Entity
         return $this->documentBaseConfigSalesChannels;
     }
 
-    public function setDocumentBaseConfigSalesChannels(?DocumentBaseConfigSalesChannelCollection $documentBaseConfigSalesChannels): void
+    public function setDocumentBaseConfigSalesChannels(DocumentBaseConfigSalesChannelCollection $documentBaseConfigSalesChannels): void
     {
         $this->documentBaseConfigSalesChannels = $documentBaseConfigSalesChannels;
     }

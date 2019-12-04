@@ -105,7 +105,7 @@ class SalutationEntity extends Entity
         return $this->customers;
     }
 
-    public function setCustomers(?CustomerCollection $customers): void
+    public function setCustomers(CustomerCollection $customers): void
     {
         $this->customers = $customers;
     }
@@ -115,7 +115,7 @@ class SalutationEntity extends Entity
         return $this->customerAddresses;
     }
 
-    public function setCustomerAddresses(?CustomerAddressCollection $customerAddresses): void
+    public function setCustomerAddresses(CustomerAddressCollection $customerAddresses): void
     {
         $this->customerAddresses = $customerAddresses;
     }
@@ -125,7 +125,7 @@ class SalutationEntity extends Entity
         return $this->orderCustomers;
     }
 
-    public function setOrderCustomers(?OrderCustomerCollection $orderCustomers): void
+    public function setOrderCustomers(OrderCustomerCollection $orderCustomers): void
     {
         $this->orderCustomers = $orderCustomers;
     }
@@ -135,7 +135,7 @@ class SalutationEntity extends Entity
         return $this->orderAddresses;
     }
 
-    public function setOrderAddresses(?OrderAddressCollection $orderAddresses): void
+    public function setOrderAddresses(OrderAddressCollection $orderAddresses): void
     {
         $this->orderAddresses = $orderAddresses;
     }

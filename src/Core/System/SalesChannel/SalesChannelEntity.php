@@ -564,7 +564,7 @@ class SalesChannelEntity extends Entity
         return $this->domains;
     }
 
-    public function setDomains(?SalesChannelDomainCollection $domains): void
+    public function setDomains(SalesChannelDomainCollection $domains): void
     {
         $this->domains = $domains;
     }
@@ -674,7 +674,7 @@ class SalesChannelEntity extends Entity
         return $this->numberRangeSalesChannels;
     }
 
-    public function setNumberRangeSalesChannels(?NumberRangeSalesChannelCollection $numberRangeSalesChannels): void
+    public function setNumberRangeSalesChannels(NumberRangeSalesChannelCollection $numberRangeSalesChannels): void
     {
         $this->numberRangeSalesChannels = $numberRangeSalesChannels;
     }
@@ -734,7 +734,7 @@ class SalesChannelEntity extends Entity
         return $this->productReviews;
     }
 
-    public function setProductReviews(?ProductReviewCollection $productReviews): void
+    public function setProductReviews(ProductReviewCollection $productReviews): void
     {
         $this->productReviews = $productReviews;
     }
@@ -744,7 +744,7 @@ class SalesChannelEntity extends Entity
         return $this->seoUrls;
     }
 
-    public function setSeoUrls(?SeoUrlCollection $seoUrls): void
+    public function setSeoUrls(SeoUrlCollection $seoUrls): void
     {
         $this->seoUrls = $seoUrls;
     }
@@ -754,7 +754,7 @@ class SalesChannelEntity extends Entity
         return $this->seoUrlTemplates;
     }
 
-    public function setSeoUrlTemplates(?SeoUrlTemplateCollection $seoUrlTemplates): void
+    public function setSeoUrlTemplates(SeoUrlTemplateCollection $seoUrlTemplates): void
     {
         $this->seoUrlTemplates = $seoUrlTemplates;
     }
@@ -764,7 +764,7 @@ class SalesChannelEntity extends Entity
         return $this->mainCategories;
     }
 
-    public function setMainCategories(?MainCategoryCollection $mainCategories): void
+    public function setMainCategories(MainCategoryCollection $mainCategories): void
     {
         $this->mainCategories = $mainCategories;
     }
@@ -790,7 +790,7 @@ class SalesChannelEntity extends Entity
         return $this->productExports;
     }
 
-    public function setProductExports(?ProductExportCollection $productExports): void
+    public function setProductExports(ProductExportCollection $productExports): void
     {
         $this->productExports = $productExports;
     }

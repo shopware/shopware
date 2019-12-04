@@ -257,7 +257,7 @@ class PromotionEntity extends Entity
         return $this->setgroups;
     }
 
-    public function setSetgroups(?PromotionSetGroupCollection $setgroups): void
+    public function setSetgroups(PromotionSetGroupCollection $setgroups): void
     {
         $this->setgroups = $setgroups;
     }
@@ -323,7 +323,7 @@ class PromotionEntity extends Entity
      * Sets the list of individual codes
      * for this promotion.
      */
-    public function setIndividualCodes(?PromotionIndividualCodeCollection $individualCodes): void
+    public function setIndividualCodes(PromotionIndividualCodeCollection $individualCodes): void
     {
         $this->individualCodes = $individualCodes;
     }
@@ -342,7 +342,7 @@ class PromotionEntity extends Entity
      * Sets a list of permitted sales channels for this promotion.
      * Only customers within these channels are allowed to use this promotion.
      */
-    public function setSalesChannels(?PromotionSalesChannelCollection $salesChannels): void
+    public function setSalesChannels(PromotionSalesChannelCollection $salesChannels): void
     {
         $this->salesChannels = $salesChannels;
     }
@@ -388,7 +388,7 @@ class PromotionEntity extends Entity
      * Sets what products are affected by the applied
      * order conditions for this promotion.
      */
-    public function setOrderRules(?RuleCollection $orderRules): void
+    public function setOrderRules(RuleCollection $orderRules): void
     {
         $this->orderRules = $orderRules;
     }
@@ -426,7 +426,7 @@ class PromotionEntity extends Entity
      * Sets what "personas" are allowed
      * to use this promotion.
      */
-    public function setPersonaRules(?RuleCollection $personaRules): void
+    public function setPersonaRules(RuleCollection $personaRules): void
     {
         $this->personaRules = $personaRules;
     }
@@ -445,7 +445,7 @@ class PromotionEntity extends Entity
      * Sets the customers that have explicit access to this promotion.
      * This should be configured within the persona settings of the promotion.
      */
-    public function setPersonaCustomers(?CustomerCollection $customers): void
+    public function setPersonaCustomers(CustomerCollection $customers): void
     {
         $this->personaCustomers = $customers;
     }
@@ -463,7 +463,7 @@ class PromotionEntity extends Entity
      * Sets what products are affected by the applied
      * cart conditions for this promotion.
      */
-    public function setCartRules(?RuleCollection $cartRules): void
+    public function setCartRules(RuleCollection $cartRules): void
     {
         $this->cartRules = $cartRules;
     }

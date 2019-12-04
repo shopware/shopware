@@ -457,7 +457,7 @@ class OrderEntity extends Entity
         return $this->documents;
     }
 
-    public function setDocuments(?DocumentCollection $documents): void
+    public function setDocuments(DocumentCollection $documents): void
     {
         $this->documents = $documents;
     }

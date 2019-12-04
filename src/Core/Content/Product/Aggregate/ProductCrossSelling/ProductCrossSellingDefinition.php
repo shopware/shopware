@@ -57,6 +57,7 @@ class ProductCrossSellingDefinition extends EntityDefinition
             'sortBy' => self::SORT_BY_PRICE,
             'sortDirection' => FieldSorting::ASCENDING,
             'active' => false,
+            'limit' => 24,
         ];
     }
 
@@ -69,6 +70,7 @@ class ProductCrossSellingDefinition extends EntityDefinition
             new StringField('sort_by', 'sortBy'),
             new StringField('sort_direction', 'sortDirection'),
             new BoolField('active', 'active'),
+            new IntField('limit', 'limit', 0),
 
             (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new Required()),
             (new ReferenceVersionField(ProductDefinition::class))->addFlags(new Required()),

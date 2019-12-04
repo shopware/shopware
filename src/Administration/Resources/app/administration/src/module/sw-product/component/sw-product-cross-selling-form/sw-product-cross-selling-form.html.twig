@@ -45,19 +45,29 @@
                         </option>
                     </sw-select-field>
                 {% endblock %}
+
+                {% block sw_prduct_cross_selling_form_product_stream_field %}
+                    <sw-entity-single-select
+                        entity="product_stream"
+                        class="sw-select-cross-selling__select-product-stream"
+                        id="manufacturerId"
+                        required
+                        :label="$tc('sw-product.crossselling.inputCrossSellingProductStream')"
+                        :placeholder="$tc('sw-product.crossselling.inputCrossSellingProductStreamPlaceholder')"
+                        v-model="crossSelling.productStreamId">
+                    </sw-entity-single-select>
+                {% endblock %}
+
+                {% block sw_prduct_cross_selling_form_limit_field %}
+                    <sw-number-field
+                        numberType="int"
+                        :label="$tc('sw-product.crossselling.inputCrossSellingLimit')"
+                        v-model="crossSelling.limit">
+                    </sw-number-field>
+                {% endblock %}
             </sw-container>
 
-            {% block sw_prduct_cross_selling_form_product_stream_field %}
-                <sw-entity-single-select
-                    entity="product_stream"
-                    class="sw-select-cross-selling__select-product-stream"
-                    id="manufacturerId"
-                    required
-                    :label="$tc('sw-product.crossselling.inputCrossSellingProductStream')"
-                    :placeholder="$tc('sw-product.crossselling.inputCrossSellingProductStreamPlaceholder')"
-                    v-model="crossSelling.productStreamId">
-                </sw-entity-single-select>
-            {% endblock %}
+
 
             {% block sw_prduct_cross_selling_form_active_field %}
                 <div class="sw-product-cross-selling-form__switches">

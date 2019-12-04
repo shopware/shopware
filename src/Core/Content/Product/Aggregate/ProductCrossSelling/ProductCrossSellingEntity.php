@@ -34,6 +34,11 @@ class ProductCrossSellingEntity extends Entity
     protected $sortDirection;
 
     /**
+     * @var int
+     */
+    protected $limit;
+
+    /**
      * @var bool
      */
     protected $active;
@@ -111,6 +116,16 @@ class ProductCrossSellingEntity extends Entity
     public function setActive(bool $active): void
     {
         $this->active = $active;
+    }
+
+    public function getLimit(): int
+    {
+        return $this->limit;
+    }
+
+    public function setLimit(int $limit): void
+    {
+        $this->limit = $limit;
     }
 
     public function getProductId(): string

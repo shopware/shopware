@@ -369,6 +369,8 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added `fallbackImageTitle` variable to `src/Storefront/Resources/views/storefront/element/cms-element-image-gallery.html.twig` to add fallback values to the images `alt` and `title` attribute if the media object itself has no `alt` or `title` defined.
     * Added `cookie-configuration` plugin for displaying a cookie configuration menu 
     * Added global event `CookieConfiguration_Update` for updating the cookie preference
+    * Moved `src/Storefront/Resources/app/storefront/src/plugin/cookie-permission/cookie-permission.plugin.js` to `src/Storefront/Resources/app/storefront/src/plugin/cookie/cookie-permission.plugin.js`
+    * Moved `src/Storefront/Resources/views/storefront/layout/cookie-permission.html.twig` to `src/Storefront/Resources/views/storefront/layout/cookie/cookie-permission.html.twig`
 * Elasticsearch
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.
         * You can set them with a parameter.yml too.

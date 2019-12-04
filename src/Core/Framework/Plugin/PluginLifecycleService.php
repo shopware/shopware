@@ -27,6 +27,7 @@ use Shopware\Core\Framework\Plugin\Event\PluginPreDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreInstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
+use Shopware\Core\Framework\Plugin\Exception\PluginBaseClassNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
@@ -427,6 +428,11 @@ class PluginLifecycleService
     {
         /** @var Plugin|ContainerAwareTrait $baseClass */
         $baseClass = $this->pluginCollection->get($pluginBaseClassString);
+
+        if ($baseClass === null) {
+            throw new PluginBaseClassNotFoundException($pluginBaseClassString);
+        }
+
         // set container because the plugin has not been initialized yet and therefore has no container set
         $baseClass->setContainer($this->container);
 

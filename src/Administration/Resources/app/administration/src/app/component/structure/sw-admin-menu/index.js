@@ -3,7 +3,6 @@ import './sw-admin-menu.scss';
 
 const { Component, StateDeprecated, Mixin } = Shopware;
 const { dom } = Shopware.Utils;
-const { mapState } = Shopware.Component.getComponentHelper();
 
 /**
  * @private
@@ -34,9 +33,9 @@ Component.register('sw-admin-menu', {
     },
 
     computed: {
-        ...mapState('adminUser', [
-            'currentUser'
-        ]),
+        currentUser() {
+            return Shopware.State.get('session').currentUser;
+        },
 
         isExpanded() {
             return Shopware.State.get('adminMenu').isExpanded;
@@ -47,7 +46,7 @@ Component.register('sw-admin-menu', {
         },
 
         currentLocale() {
-            return Shopware.State.get('adminLocale').currentLocale;
+            return Shopware.State.get('session').currentLocale;
         },
 
         mainMenuEntries() {
@@ -143,7 +142,7 @@ Component.register('sw-admin-menu', {
                 const userData = response.data;
                 delete userData.password;
 
-                Shopware.State.commit('adminUser/setCurrentUser', userData);
+                Shopware.State.commit('setCurrentUser', userData);
 
                 this.isUserLoading = false;
             });
@@ -267,7 +266,7 @@ Component.register('sw-admin-menu', {
 
         onLogoutUser() {
             this.loginService.logout();
-            Shopware.State.commit('adminUser/removeCurrentUser');
+            Shopware.State.commit('session/removeCurrentUser');
             Shopware.State.commit('notification/setNotifications', {});
             Shopware.State.commit('notification/clearGrowlNotificationsForCurrentUser');
             Shopware.State.commit('notification/clearNotificationsForCurrentUser');

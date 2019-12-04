@@ -69,7 +69,7 @@ Component.register('sw-profile-index', {
         },
 
         languageId() {
-            return Shopware.State.get('adminLocale').languageId;
+            return Shopware.State.get('session').languageId;
         }
     },
 

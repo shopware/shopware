@@ -63,7 +63,7 @@ Component.register('sw-first-run-wizard-shopware-account', {
 
         testCredentials() {
             const { shopwareId, password } = this;
-            const language = Shopware.State.get('adminLocale').currentLocale;
+            const language = Shopware.State.get('session').currentLocale;
 
             return this.firstRunWizardService.checkShopwareId({
                 language,

@@ -112,7 +112,7 @@ Component.register('sw-settings-user-detail', {
         },
 
         languageId() {
-            return Shopware.State.get('adminLocale').languageId;
+            return Shopware.State.get('session').languageId;
         },
 
         tooltipSave() {

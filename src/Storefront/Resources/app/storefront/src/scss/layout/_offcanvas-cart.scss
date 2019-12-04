@@ -77,7 +77,8 @@ Extends the basic offcanvas component with additional cart styles.
     }
 }
 
-.offcanvas-cart-items {
+.offcanvas-cart-items,
+.offcanvas-summary {
     margin: $spacer 0;
 }
 
@@ -87,4 +88,27 @@ Extends the basic offcanvas component with additional cart styles.
 
 .offcanvas-cart-promotion-form {
     margin-bottom: $spacer;
+}
+
+.offcanvas-summary {
+    .js-toggle-shipping-selection {
+        text-decoration: underline;
+        font-size: 90%;
+        cursor: pointer;
+    }
+
+    .offcanvas-shipping-preference {
+        transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+        max-height: 100px;
+        height: auto;
+        visibility: visible;
+        opacity: 1;
+
+        &--hidden {
+            max-height: 0;
+            visibility: hidden;
+            opacity: 0;
+            margin: 0 !important;
+        }
+    }
 }

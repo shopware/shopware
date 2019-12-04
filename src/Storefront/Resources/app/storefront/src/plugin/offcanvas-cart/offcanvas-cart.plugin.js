@@ -18,6 +18,8 @@ export default class OffCanvasCartPlugin extends Plugin {
         cartItemSelector: '.js-cart-item',
         cartPromotionSelector: '.js-offcanvas-cart-promotion',
         offcanvasPosition: 'right',
+        shippingContainerSelector: '.offcanvas-shipping-preference',
+        shippingToggleSelector: '.js-toggle-shipping-selection',
     };
 
     init() {
@@ -44,7 +46,6 @@ export default class OffCanvasCartPlugin extends Plugin {
      */
     _registerOpenTriggerEvents() {
         const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
-
         this.el.addEventListener(event, this._onOpenOffCanvasCart.bind(this));
     }
 
@@ -98,6 +99,30 @@ export default class OffCanvasCartPlugin extends Plugin {
         }
     }
 
+    _registerUpdateShippingEvents() {
+        const { shippingContainerSelector } = this.options;
+        const select = document.querySelector(`${ shippingContainerSelector } select`);
+        if (select) {
+            select.addEventListener('input', this._onChangeShippingMethod.bind(this));
+        }
+    }
+
+    _registerToggleShippingSelection() {
+        const { shippingToggleSelector, shippingContainerSelector } = this.options;
+        const toggle = document.querySelector(shippingToggleSelector);
+
+        toggle.addEventListener('click', () => {
+            const target = document.querySelector(shippingContainerSelector);
+            const hiddenClass = 'offcanvas-shipping-preference--hidden';
+
+            if (target.classList.contains(hiddenClass)) {
+                target.classList.remove(hiddenClass);
+            } else {
+                target.classList.add(hiddenClass);
+            }
+        });
+    }
+
     /**
      * Register all needed events
      *
@@ -107,6 +132,11 @@ export default class OffCanvasCartPlugin extends Plugin {
         this._registerRemoveProductTriggerEvents();
         this._registerChangeQuantityProductTriggerEvents();
         this._registeraddPromotionTriggerEvents();
+
+        if (this._isShippingAvailable()) {
+            this._registerUpdateShippingEvents();
+            this._registerToggleShippingSelection();
+        }
 
         this.$emitter.publish('registerEvents');
     }
@@ -133,18 +163,20 @@ export default class OffCanvasCartPlugin extends Plugin {
      *
      * @param {HTMLElement} form
      * @param {string} selector
+     * @param {function} callback
      *
      * @private
      */
-    _fireRequest(form, selector) {
+    _fireRequest(form, selector, callback) {
         ElementLoadingIndicatorUtil.create(form.closest(selector));
 
+        const cb = callback ? callback.bind(this) : this._onOffCanvasOpened.bind(this, this._updateOffCanvasContent.bind(this));
         const requestUrl = DomAccess.getAttribute(form, 'action');
         const data = FormSerializeUtil.serialize(form);
 
         this.$emitter.publish('beforeFireRequest');
 
-        this.client.post(requestUrl.toLowerCase(), data, this._onOffCanvasOpened.bind(this, this._updateOffCanvasContent.bind(this)));
+        this.client.post(requestUrl.toLowerCase(), data, cb);
     }
 
     /**
@@ -218,5 +250,26 @@ export default class OffCanvasCartPlugin extends Plugin {
      */
     _updateOffCanvasContent(response) {
         OffCanvas.setContent(response, false, this._registerEvents.bind(this));
+    }
+
+    _isShippingAvailable() {
+        const { shippingContainerSelector } = this.options;
+        return !!document.querySelector(shippingContainerSelector);
+    }
+
+    _onChangeShippingMethod(event) {
+        event.preventDefault();
+
+        this.$emitter.publish('onShippingMethodChange');
+        const url = window.router['frontend.cart.offcanvas'];
+
+        const _callback = () => {
+            this.client.get(url, response => {
+                this._updateOffCanvasContent(response);
+                this._registerEvents();
+            }, 'text/html');
+        };
+
+        this._fireRequest(event.target.form, '.offcanvas-summary', _callback);
     }
 }

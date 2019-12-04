@@ -10,14 +10,22 @@
         }
 
         .tab-pane {
-            margin-top: 20px;
+            margin-top: $spacer-lg;
             display: block;
             opacity: 1;
 
             .cms-element-title {
                 display: block;
             }
+
+            p {
+                margin: 0;
+            }
         }
+    }
+
+    .card {
+        margin-top: $spacer-lg;
     }
 
     .cms-element-title {

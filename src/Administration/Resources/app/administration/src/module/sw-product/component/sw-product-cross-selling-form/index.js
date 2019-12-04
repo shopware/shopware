@@ -61,6 +61,10 @@ Component.register('sw-product-cross-selling-form', {
                 { value: 'name', label: this.$tc('sw-product.crossselling.nameSortingType') },
                 { value: 'releaseDate', label: this.$tc('sw-product.crossselling.releaseDateSortingType') }
             ];
+        },
+
+        previewDisabled() {
+            return !this.productStream;
         }
     },
 
@@ -107,6 +111,7 @@ Component.register('sw-product-cross-selling-form', {
             this.productStreamRepository.get(this.crossSelling.productStreamId, Shopware.Context.api)
                 .then((searchResult) => {
                     this.productStream = searchResult;
+                    console.log('searchResult :', searchResult);
 
                     const filterRepository = this.repositoryFactory.create(
                         this.productStream.filters.entity,
@@ -118,6 +123,7 @@ Component.register('sw-product-cross-selling-form', {
 
                     return filterRepository.search(criteria, Context.api).then((productFilter) => {
                         this.productStreamFilter = productFilter;
+                        console.log('this.productStreamFilter :', this.productStreamFilter);
                     });
                 });
         }

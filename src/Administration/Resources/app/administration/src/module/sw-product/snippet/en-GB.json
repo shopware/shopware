@@ -298,6 +298,8 @@
       "inputCrossSellingProductStream": "Product group",
       "inputCrossSellingTitlePlaceholder": "Select a title...",
       "inputCrossSellingPositionPlaceholder": "Select a position...",
+      "inputCrossSellingProductStreamPlaceholder": "Select a dynamic product group...",
+      "popularitySortingType": "Popularity",
       "inputCrossSellingLimit": "Number of products",
       "priceAscendingSortingType": "Price, ascending",
       "priceDescendingSortingType": "Price",

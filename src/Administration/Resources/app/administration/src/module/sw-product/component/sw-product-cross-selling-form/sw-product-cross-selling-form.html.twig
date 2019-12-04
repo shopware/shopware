@@ -16,12 +16,14 @@
             {% endblock %}
 
             {% block sw_prduct_cross_selling_form_title_field %}
+            <sw-container>
                 <sw-text-field
                     :label="$tc('sw-product.crossselling.inputCrossSellingTitle')"
                     required
                     :placeholder="$tc('sw-product.crossselling.inputCrossSellingTitlePlaceholder')"
                     v-model="crossSelling.name">
                 </sw-text-field>
+            </sw-container>
             {% endblock %}
 
             <sw-container columns="1fr 1fr" gap="0px 30px">
@@ -78,8 +80,10 @@
                 </div>
             {% endblock %}
             {% block sw_prduct_cross_selling_form_preview_link %}
-                <sw-container columns="1fr" justify="end" class="sw-product-price-form__links">
-                    <a @click="openModalPreview" class="sw-card__quick-link">
+                <sw-container columns="1fr" justify="end" class="sw-product-cross-selling-form__links">
+                    <a class="sw-card__quick-link"
+                       :class="{ 'is--disabled': previewDisabled }"
+                       @click.stop="openModalPreview">
                         {{ $tc('sw-product.crossselling.linkOpenStreamPreview') }}
                         <sw-icon
                             name="default-arrow-simple-right"

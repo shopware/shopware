@@ -8,7 +8,7 @@
                         role="tablist">
                         {% for item in crossSellings %}
                             {% set id = item.crossSelling.id %}
-                            {% if item.crossSelling.active %}
+                            {% if item.crossSelling.active and item.getProducts().elements %}
                                 <li class="nav-item">
                                     <a class="nav-link product-detail-tab-navigation-link{% if loop.first %} active{% endif %}"
                                        id="cs-{{ id }}-tab"
@@ -36,7 +36,7 @@
                     <div class="tab-content">
                         {% for item in crossSellings %}
                             {% set id = item.crossSelling.id %}
-                            {% if item.crossSelling.active %}
+                            {% if item.crossSelling.active and item.getProducts().elements %}
                                 <div class="tab-pane fade show{% if loop.first %} active{% endif %}"
                                      id="cs-{{ id }}-tab-pane"
                                      role="tabpanel"

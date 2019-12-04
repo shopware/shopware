@@ -385,7 +385,8 @@ function validateDrag() {
 
 function mergeConfigs(defaultConfig, binding) {
     const mergedConfig = Object.assign({}, defaultConfig);
-    if (types.isObject(binding.value) && types.isObject(binding.value.data)) {
+
+    if (types.isObject(binding.value)) {
         Object.assign(mergedConfig, binding.value);
     } else {
         Object.assign(mergedConfig, { data: binding.value });

@@ -36,7 +36,9 @@
       "titleStoreHostMissing": "Error",
       "messageStoreLicenseDomainMissing": "Login failed. Did you provide the correct license domain from your Shopware Account in \"Settings/Shopware Account\"?",
       "titleStoreNotAvailable": "Connection refused",
-      "messageStoreNotAvailable": "The Shopware Store is not available."
+      "messageStoreNotAvailable": "The Shopware Store is not available.",
+      "titlePluginBaseClassNotFound": "Error on loading the plugin",
+      "messagePluginBaseClassNotFound": "The plugin base class could not be loaded. Check your plugin composer.json regarding the class autoloading"
     },
     "fileUpload":{
       "buttonFileUpload":"Upload plugin",

@@ -213,6 +213,9 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * We added error handling for delete requests. Since delete errors affect the whole entity it is not possible to store the error under a specific path. For this reason we provide a new getter `getErrorsForEntity` available through the State.
     * The object returned from Shopware.State.getters.getEntityError should always be treated read only.
     * Added default shop page layouts for contact and newsletter form
+    * Added event `delte-item-failed` to both `sw-entity-listing` and `sw-one-to-many-listing` which is emitted if the delete request for an entity fails. The event data is an object containing a `id` and `errorResponse` property.
+    * Added block `block sw_customer_address_form_state_field` to `sw-customer-address-form` component that that contains an `sw-entity-single-select` to specify a state for addresses
+    * Added `countryState` in `sw-address`
 * Core
     * Moved the seo module from the storefront into the core.
     * Switched the execution condition of `\Shopware\Core\Framework\Migration\MigrationStep::addBackwardTrigger()` and `\Shopware\Core\Framework\Migration\MigrationStep::addForwardTrigger()` to match the execution conditions in the methods documentation.
@@ -353,6 +356,31 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
         * `\Shopware\Core\Framework\Update\Event\UpdatePostPrepareEvent` runs before the update with plugins disabled
         * `\Shopware\Core\Framework\Update\Event\UpdatePreFinishEvent` runs after the update with plugins disabled
         * `\Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent` runs after the update with plugins enabled
+    * The `\Shopware\Core\Framework\Api\Response\ResponseFactoryInterface::createListingResponse` requires now a provided criteria
+    * Changed the error code of `ConstrainViolationExeption` from `FRAMEWORK::CONSTRAINT_VIOLATION` to  `FRAMEWORK__CONSTRAINT_VIOLATION`
+
+    * Added the `protected` function `ShopwareHttpError::getCommonErrorData` which returns you the array that was usually yielded by `ShopwareHttpError::getErrors`. With the new function it is easier to extend error information before yielding it back.
+       ```php
+       // before
+       class newException extends ShopwareHttpExeption {
+         public funtion getErrors() {
+           // usually the parent function yields one element only
+           foreach(parent::getErrors() as $parentError) {
+               $parentError['someNewField'] = 'some new Data';
+               yield $parentError;
+           }
+         } 
+       }
+ 
+       // after
+       class newException extends ShopwareHttpExeption {
+         public funtion getErrors() {
+           $errorData = $this->getCommonErrorData();
+           $errorData['someNewField'] = 'some new Data';
+           yield $parentError;
+         } 
+       }
+       ```
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain
@@ -391,6 +419,13 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added global event `CookieConfiguration_Update` for updating the cookie preference
     * Moved `src/Storefront/Resources/app/storefront/src/plugin/cookie-permission/cookie-permission.plugin.js` to `src/Storefront/Resources/app/storefront/src/plugin/cookie/cookie-permission.plugin.js`
     * Moved `src/Storefront/Resources/views/storefront/layout/cookie-permission.html.twig` to `src/Storefront/Resources/views/storefront/layout/cookie/cookie-permission.html.twig`
+    * Added `CountryStateController`
+    * Added XHtmlRequest route to `/country/country-state-data`
+    * Added `CountryStateController`
+    * Added JavaScript Plugin `CountryStateSelect` that handles selectable states for selected a country
+    * Added blocks to display select to handle the state in address forms
+    * Encapsulated select inputs for country and state in a single form row
+    
 * Elasticsearch
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.
         * You can set them with a parameter.yml too.

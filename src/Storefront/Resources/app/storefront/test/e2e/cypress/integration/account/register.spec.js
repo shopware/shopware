@@ -1,12 +1,6 @@
 import AccountPageObject from '../../support/pages/account.page-object';
 
 describe('Account: Register via account menu', () => {
-    it('check if register form is present', () => {
-        const page = new AccountPageObject();
-        cy.visit('/account/login');
-        cy.get(page.elements.registerCard).should('be.visible');
-    });
-
     it('trigger validation error', () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
@@ -31,7 +25,11 @@ describe('Account: Register via account menu', () => {
         cy.get('input[name="billingAddress[street]"]').type('123 Main St');
         cy.get('input[name="billingAddress[zipcode]"]').type('9876');
         cy.get('input[name="billingAddress[city]"]').type('Anytown');
+
         cy.get('select[name="billingAddress[countryId]"]').select('USA');
+        cy.get('select[name="billingAddress[countryStateId]"').should('be.visible');
+
+        cy.get('select[name="billingAddress[countryStateId]"]').select('Ohio');
 
         cy.get(`${page.elements.registerSubmit} [type="submit"]`).click();
 

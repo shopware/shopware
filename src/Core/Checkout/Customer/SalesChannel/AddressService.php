@@ -130,7 +130,7 @@ class AddressService
             'city' => $data->get('city'),
             'zipcode' => $data->get('zipcode'),
             'countryId' => $data->get('countryId'),
-            'countryStateId' => $data->get('countryStateId'),
+            'countryStateId' => $data->get('countryStateId') ? $data->get('countryStateId') : null,
             'company' => $data->get('company'),
             'department' => $data->get('department'),
             'title' => $data->get('title'),

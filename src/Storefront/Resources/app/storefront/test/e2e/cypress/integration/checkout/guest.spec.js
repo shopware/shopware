@@ -48,7 +48,10 @@ describe(`Checkout as Guest`, () => {
         cy.get('input[name="billingAddress[street]"]').type('123 Main St');
         cy.get('input[name="billingAddress[zipcode]"]').type('9876');
         cy.get('input[name="billingAddress[city]"]').type('Anytown');
+
         cy.get('select[name="billingAddress[countryId]"]').select('USA');
+        cy.get('select[name="billingAddress[countryStateId]"]').should('be.visible');
+        cy.get('select[name="billingAddress[countryStateId]"]').select('Ohio');
 
         cy.get(`${accountPage.elements.registerSubmit} [type="submit"]`).click();
 

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Framework\Seo;
+namespace Shopware\Core\Content\Seo;
 
 class SeoTemplateReplacementVariable
 {

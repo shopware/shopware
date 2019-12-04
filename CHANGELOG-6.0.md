@@ -308,28 +308,30 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * We removed the `\Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface`, use `\Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand` instead
     * The sitemap generator now uses the `cache.system` pool instead of `serializer.mapping.cache.symfony`
     * Added sales channel type `product_comparison` for generating file exports of dynamic product groups 
-    * We moved the namespace Shopware\Core\Framework\Acl to Shopware\Core\Framework\Api\Acl
-    * We moved the namespace Shopware\Core\Framework\CustomField to Shopware\Core\System\CustomField
-    * We moved the namespace Shopware\Core\Framework\Language to Shopware\Core\System\Language
-    * We moved the namespace Shopware\Core\Framework\Snippet to Shopware\Core\System\Snippet
-    * We moved the namespace Shopware\Core\Framework\Doctrine to Shopware\Core\Framework\DataAbstractionLayer\Doctrine
-    * We moved the namespace Shopware\Core\Framework\Pricing to Shopware\Core\Framework\DataAbstractionLayer\Pricing
-    * We moved the namespace Shopware\Core\Framework\Version to Shopware\Core\Framework\DataAbstractionLayer\Version
-    * We moved the namespace Shopware\Core\Framework\Faker to Shopware\Core\Framework\Demodata\Faker
-    * We moved the namespace Shopware\Core\Framework\PersonalData to Shopware\Core\Framework\Demodata\PersonalData
-    * We moved the namespace Shopware\Core\Framework\Logging to Shopware\Core\Framework\Log
-    * We moved the namespace Shopware\Core\Framework\ScheduledTask to Shopware\Core\Framework\MessageQueue\ScheduledTask
-    * We moved the namespace Shopware\Core\Framework\Twig to Shopware\Core\Framework\Adapter\Twig
-    * We moved the namespace Shopware\Core\Framework\Asset to Shopware\Core\Framework\Adapter\Asset
-    * We moved the namespace Shopware\Core\Framework\Console to Shopware\Core\Framework\Adapter\Console
-    * We moved the namespace Shopware\Core\Framework\Cache to Shopware\Core\Framework\Adapter\Cache
-    * We moved the namespace Shopware\Core\Framework\Filesystem to Shopware\Core\Framework\Adapter\Filesystem
-    * We moved the namespace Shopware\Core\Framework\Translation to Shopware\Core\Framework\Adapter\Translation
-    * We moved the namespace Shopware\Core\Framework\Seo to Shopware\Core\Content\Seo
-    * We moved the namespace Shopware\Core\Framework\Context to Shopware\Core\Framework\Api\Context
-    * We moved the namespace Shopware\Core\Content\DeliveryTime to Shopware\Core\System\DeliveryTime
+    * We moved the namespace `Shopware\Core\Framework\Acl` to `Shopware\Core\Framework\Api\Acl`
+    * We moved the namespace `Shopware\Core\Framework\CustomField` to `Shopware\Core\System\CustomField`
+    * We moved the namespace `Shopware\Core\Framework\Language` to `Shopware\Core\System\Language`
+    * We moved the namespace `Shopware\Core\Framework\Snippet` to `Shopware\Core\System\Snippet`
+    * We moved the namespace `Shopware\Core\Framework\Doctrine` to `Shopware\Core\Framework\DataAbstractionLayer\Doctrine`
+    * We moved the namespace `Shopware\Core\Framework\Pricing` to `Shopware\Core\Framework\DataAbstractionLayer\Pricing`
+    * We moved the namespace `Shopware\Core\Framework\Version` to `Shopware\Core\Framework\DataAbstractionLayer\Version`
+    * We moved the namespace `Shopware\Core\Framework\Faker` to `Shopware\Core\Framework\Demodata\Faker`
+    * We moved the namespace `Shopware\Core\Framework\PersonalData` to `Shopware\Core\Framework\Demodata\PersonalData`
+    * We moved the namespace `Shopware\Core\Framework\Logging` to `Shopware\Core\Framework\Log`
+    * We moved the namespace `Shopware\Core\Framework\ScheduledTask` to `Shopware\Core\Framework\MessageQueue\ScheduledTask`
+    * We moved the namespace `Shopware\Core\Framework\Twig` to `Shopware\Core\Framework\Adapter\Twig`
+    * We moved the namespace `Shopware\Core\Framework\Asset` to `Shopware\Core\Framework\Adapter\Asset`
+    * We moved the namespace `Shopware\Core\Framework\Console` to `Shopware\Core\Framework\Adapter\Console`
+    * We moved the namespace `Shopware\Core\Framework\Cache` to `Shopware\Core\Framework\Adapter\Cache`
+    * We moved the namespace `Shopware\Core\Framework\Filesystem` to `Shopware\Core\Framework\Adapter\Filesystem`
+    * We moved the namespace `Shopware\Core\Framework\Translation` to `Shopware\Core\Framework\Adapter\Translation`
+    * We moved the namespace `Shopware\Core\Framework\Seo` to `Shopware\Core\Content\Seo`
+    * We moved the namespace `Shopware\Core\Framework\Context` to `Shopware\Core\Framework\Api\Context`
+    * We moved the namespace `Shopware\Core\Content\DeliveryTime` to `Shopware\Core\System\DeliveryTime`
     * We moved the Shopware\Core\System\User\Service\UserProvisioner to Shopware\Core\System\User\Service\UserProvisioner
-    * Added unique constraint for `iso_code` column in `currency` table
+    * Added unique constraint fo**r `iso_code` column in `currency` table
+    * We moved the `Shopware\Storefront\Framework\Seo\SeoTemplateReplacementVariable` to `Shopware\Core\Content\Seo\SeoTemplateReplacementVariable`
+    * We moved the `Shopware\Core\Content\ProductExport\SalesChannel\ProductExportController` to `Shopware\Storefront\Controller\ProductExportController`
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain

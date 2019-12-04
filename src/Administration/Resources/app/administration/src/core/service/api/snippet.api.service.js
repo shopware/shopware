@@ -55,7 +55,7 @@ class SnippetApiService extends ApiService {
      */
     getSnippets(localeFactory) {
         const headers = this.getBasicHeaders();
-        const locale = Shopware.State.get('adminLocale').currentLocale || localeFactory.getLastKnownLocale();
+        const locale = Shopware.State.get('session').currentLocale || localeFactory.getLastKnownLocale();
 
         return this.httpClient
             .get(`/_admin/snippets?locale=${locale}`, {

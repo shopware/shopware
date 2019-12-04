@@ -56,6 +56,8 @@
         "addToCartError": "Beim Hinzufügen zum Warenkorb ist ein Fehler aufgetreten.",
         "FRAMEWORK__INVALID_UUID": "Die gewählte Zahlungsart konnte nicht gefunden werden.",
         "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "Die gewählte Zahlungsart konnte nicht gefunden werden.",
+        "CHECKOUT__ASYNC_PAYMENT_PROCESS_INTERRUPTED": "Während der Bezahlung ist ein Fehler aufgetreten.",
+        "CHECKOUT__SYNC_PAYMENT_PROCESS_INTERRUPTED": "Während der Bezahlung ist ein Fehler aufgetreten.",
         "productNotFound": "Produkt mit der Nummer \"%number%\" konnte nicht gefunden werden.",
         "payment-method-blocked": "Die gewählte Zahlungsart %name% ist nicht verfügbar.",
         "shipping-method-blocked": "Die gewählte Versandart %name% ist nicht verfügbar.",

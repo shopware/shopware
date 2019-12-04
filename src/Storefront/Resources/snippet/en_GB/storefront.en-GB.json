@@ -56,6 +56,8 @@
         "addToCartError": "An error occurred while trying to add item(s) to the shopping cart.",
         "FRAMEWORK__INVALID_UUID": "The selected payment method does not exist.",
         "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "The selected payment method does not exist.",
+        "CHECKOUT__ASYNC_PAYMENT_PROCESS_INTERRUPTED": "An error occurred during payment.",
+        "CHECKOUT__SYNC_PAYMENT_PROCESS_INTERRUPTED": "An error occurred during payment.",
         "productNotFound": "Product \"%number%\" not found.",
         "payment-method-blocked": "Payment method %name% not available.",
         "shipping-method-blocked": "Shipping method %name% not available.",

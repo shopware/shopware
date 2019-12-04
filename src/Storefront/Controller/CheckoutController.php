@@ -166,8 +166,13 @@ class CheckoutController extends StorefrontController
             return new RedirectResponse($finishUrl);
         } catch (ConstraintViolationException $formViolations) {
         } catch (Error $blockedError) {
-        } catch (AsyncPaymentProcessException | InvalidOrderException | SyncPaymentProcessException | UnknownPaymentMethodException $e) {
-            // TODO: Handle errors which might occur during payment process
+        } catch (AsyncPaymentProcessException | SyncPaymentProcessException $e) {
+            $this->addFlash('danger', $this->trans(sprintf('error.%s', $e->getErrorCode())));
+
+            return $this->redirectToRoute('frontend.checkout.confirm.page');
+        } catch (InvalidOrderException | UnknownPaymentMethodException $e) {
+            // TODO: Handle errors which might occur during order process
+
             throw $e;
         }
 

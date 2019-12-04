@@ -129,6 +129,7 @@ class Generator extends TestCase
             $customer = (new CustomerEntity())->assign(['id' => Uuid::randomHex()]);
             $customer->setId(Uuid::randomHex());
             $customer->setGroup($currentCustomerGroup);
+            $customer->setActiveBillingAddress($shipping);
         }
 
         return new SalesChannelContext(

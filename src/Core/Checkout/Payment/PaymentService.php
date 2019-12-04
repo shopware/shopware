@@ -2,8 +2,11 @@
 
 namespace Shopware\Core\Checkout\Payment;
 
+use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
@@ -59,13 +62,25 @@ class PaymentService
      */
     private $transactionStateHandler;
 
+    /**
+     * @var OrderConverter
+     */
+    private $orderConverter;
+
+    /**
+     * @var CartService
+     */
+    private $cartService;
+
     public function __construct(
         PaymentTransactionChainProcessor $paymentProcessor,
         TokenFactoryInterface $tokenFactory,
         EntityRepositoryInterface $paymentMethodRepository,
         PaymentHandlerRegistry $paymentHandlerRegistry,
         EntityRepositoryInterface $orderTransactionRepository,
-        OrderTransactionStateHandler $transactionStateHandler
+        OrderTransactionStateHandler $transactionStateHandler,
+        OrderConverter $orderConverter,
+        CartService $cartService
     ) {
         $this->paymentProcessor = $paymentProcessor;
         $this->tokenFactory = $tokenFactory;
@@ -73,6 +88,8 @@ class PaymentService
         $this->paymentHandlerRegistry = $paymentHandlerRegistry;
         $this->orderTransactionRepository = $orderTransactionRepository;
         $this->transactionStateHandler = $transactionStateHandler;
+        $this->orderConverter = $orderConverter;
+        $this->cartService = $cartService;
     }
 
     /**
@@ -95,6 +112,7 @@ class PaymentService
             return $this->paymentProcessor->process($orderId, $dataBag, $context, $finishUrl);
         } catch (AsyncPaymentProcessException | SyncPaymentProcessException $e) {
             $this->cancelOrderTransaction($e->getOrderTransactionId(), $context->getContext());
+            $this->recoverCart($e->getOrderTransactionId(), $context);
 
             throw $e;
         }
@@ -127,6 +145,7 @@ class PaymentService
             $paymentHandler->finalize($paymentTransactionStruct, $request, $salesChannelContext);
         } catch (CustomerCanceledAsyncPaymentException | AsyncPaymentFinalizeException $e) {
             $this->cancelOrderTransaction($e->getOrderTransactionId(), $context);
+            $this->recoverCart($e->getOrderTransactionId(), $salesChannelContext);
 
             throw $e;
         }
@@ -186,5 +205,27 @@ class PaymentService
     private function cancelOrderTransaction(string $transactionId, Context $context): void
     {
         $this->transactionStateHandler->cancel($transactionId, $context);
+    }
+
+    private function recoverCart(string $transactionId, SalesChannelContext $context): void
+    {
+        $criteria = new Criteria([$transactionId]);
+        $criteria
+            ->addAssociation('order.lineItems.orderDeliveryPositions')
+            ->addAssociation('order.deliveries.positions.orderLineItem')
+            ->addAssociation('order.deliveries.shippingMethod')
+            ->addAssociation('order.deliveries.shippingOrderAddress.country')
+            ->addAssociation('order.deliveries.shippingOrderAddress.countryState')
+            ->addAssociation('order.orderCustomer.activeBillingAddress')
+            ->addAssociation('order.transactions');
+        /** @var OrderTransactionEntity|null $transaction */
+        $transaction = $this->orderTransactionRepository->search($criteria, $context->getContext())->first();
+
+        if ($transaction && $transaction->getOrder() instanceof OrderEntity) {
+            $cart = $this->orderConverter->convertToCart($transaction->getOrder(), $context->getContext());
+            $cart->setToken($context->getToken());
+            $cart->setName(CartService::SALES_CHANNEL);
+            $this->cartService->recalculate($cart, $context);
+        }
     }
 }

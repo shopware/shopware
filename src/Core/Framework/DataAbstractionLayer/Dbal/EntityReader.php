@@ -39,6 +39,7 @@ class EntityReader implements EntityReaderInterface
     use CriteriaQueryHelper;
 
     public const INTERNAL_MAPPING_STORAGE = 'internal_mapping_storage';
+    public const FOREIGN_KEYS = 'foreignKeys';
 
     /**
      * @var Connection

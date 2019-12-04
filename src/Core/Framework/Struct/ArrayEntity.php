@@ -16,6 +16,11 @@ class ArrayEntity extends Entity implements \ArrayAccess
         $this->data = $data;
     }
 
+    public function has(string $property): bool
+    {
+        return array_key_exists($property, $this->data);
+    }
+
     public function getUniqueIdentifier(): string
     {
         if (!$this->_uniqueIdentifier) {
@@ -69,6 +74,11 @@ class ArrayEntity extends Entity implements \ArrayAccess
         }
 
         return $this;
+    }
+
+    public function all()
+    {
+        return $this->data;
     }
 
     public function jsonSerialize(): array

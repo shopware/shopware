@@ -62,16 +62,16 @@ export default class ChangesetGenerator {
             let draftValue = castValueToNullIfNecessary(draft[fieldName]);
             let originValue = castValueToNullIfNecessary(origin[fieldName]);
 
-            if (field.flags.extension) {
-                draftValue = castValueToNullIfNecessary(draft.extensions[fieldName]);
-                originValue = castValueToNullIfNecessary(origin.extensions[fieldName]);
-            }
-
             if (definition.isScalarField(field)) {
                 if (draftValue !== originValue) {
                     changes[fieldName] = draftValue;
                 }
                 return;
+            }
+
+            if (field.flags.extension) {
+                draftValue = castValueToNullIfNecessary(draft.extensions[fieldName]);
+                originValue = castValueToNullIfNecessary(origin.extensions[fieldName]);
             }
 
             if (definition.isJsonField(field)) {

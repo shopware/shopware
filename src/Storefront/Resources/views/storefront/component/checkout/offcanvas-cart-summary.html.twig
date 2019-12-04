@@ -1,0 +1,87 @@
+{% block component_offcanvas_summary_content %}
+    <div class="offcanvas-summary">
+        <dl class="row offcanvas-summary-list">
+            {% block component_offcanvas_summary_total %}
+                {% block component_offcanvas_summary_total_label %}
+                    <dt class="col-7 summary-label summary-total">
+                        {{ "checkout.subtotalAmount"|trans|sw_sanitize }}
+                    </dt>
+                {% endblock %}
+
+                {% block component_offcanvas_summary_total_value %}
+                    <dd class="col-5 summary-value summary-total">
+                        {{ page.cart.price.positionPrice|currency }}
+                    </dd>
+                {% endblock %}
+            {% endblock %}
+        </dl>
+
+        {% if page.cart.deliveries is defined %}
+
+            {% set activeShipping = page.cart.deliveries.elements[0] %}
+
+            {% block component_offcanvas_summary_content_info %}
+                <div class="row offcanvas-shipping-info">
+                    <span class="col-7 shipping-label shipping-cost">
+                        <strong>{{ "checkout.summaryShipping"|trans|sw_sanitize }}</strong>
+
+                        <small {% if page.shippingMethods|length %}class="js-toggle-shipping-selection"{% endif %}>
+                            ({{ activeShipping.shippingMethod.translated.name }})
+                        </small>
+                    </span>
+
+                    <span class="col-5 shipping-value shipping-cost">
+                        + {{ activeShipping.shippingCosts.totalPrice|currency }}
+                    </span>
+                </div>
+            {% endblock %}
+
+            {% block component_offcanvas_summary_content_shipping %}
+                {% if page.shippingMethods|length %}
+                    <div class="offcanvas-shipping-preference mb-2 mt-2 offcanvas-shipping-preference--hidden">
+                        <form
+                            action="{{ path('frontend.checkout.configure') }}"
+                            name="confirmShippingForm"
+                            data-form-csrf-handler="true"
+                            method="post">
+                            {% block page_checkout_confirm_shipping_form_csrf %}
+                                {{ sw_csrf('frontend.checkout.configure') }}
+                            {% endblock %}
+
+                            <input type="hidden" name="forwardTo" value="frontend.cart.offcanvas">
+
+                            {% block component_offcanvas_summary_content_shipping_select %}
+
+                                <select class="custom-select mt-2 col-12" name="shippingMethodId">
+                                    <option disabled>{{ "checkout.confirmChangeShipping"|trans|sw_sanitize }}</option>
+
+                                    {% for shippingMethod in page.shippingMethods %}
+                                        <option
+                                            value="{{ shippingMethod.id }}"
+                                            {% if shippingMethod.id is same as(activeShipping.shippingMethod.id) %}selected="selected"{% endif %} >
+                                            {{ shippingMethod.translated.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+
+                            {% endblock %}
+                        </form>
+                    </div>
+                {% endif %}
+            {% endblock %}
+
+        {% endif %}
+    </div>
+
+    {% block component_offcanvas_summary_tax_info %}
+        <p class="offcanvas-cart-tax">
+            <small>
+                {% if page.cart.price.taxStatus == "gross" %}
+                    {{ "general.grossTaxInformation"|trans|sw_sanitize }}
+                {% else %}
+                    {{ "general.netTaxInformation"|trans|sw_sanitize }}
+                {% endif %}
+            </small>
+        </p>
+    {% endblock %}
+{% endblock %}

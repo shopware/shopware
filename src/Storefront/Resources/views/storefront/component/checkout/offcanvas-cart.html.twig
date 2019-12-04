@@ -61,34 +61,7 @@
 
             {% if isCartNotEmpty %}
                 {% block component_offcanvas_summary %}
-                    <div class="offcanvas-summary">
-                        <dl class="row offcanvas-summary-list">
-                            {% block component_offcanvas_summary_total %}
-                                {% block component_offcanvas_summary_total_label %}
-                                    <dt class="col-7 summary-label summary-total">
-                                        {{ "checkout.subtotalAmount"|trans|sw_sanitize }}
-                                    </dt>
-                                {% endblock %}
-
-                                {% block component_offcanvas_summary_total_value %}
-                                    <dd class="col-5 summary-value summary-total">
-                                        {{ page.cart.price.positionPrice|currency }}
-                                    </dd>
-                                {% endblock %}
-                            {% endblock %}
-                        </dl>
-                    </div>
-                    {% block component_offcanvas_summary_tax_info %}
-                        <p class="offcanvas-cart-tax">
-                            <small>
-                                {% if page.cart.price.taxStatus == "gross" %}
-                                    {{ "general.grossTaxInformation"|trans|sw_sanitize }}
-                                {% else %}
-                                    {{ "general.netTaxInformation"|trans|sw_sanitize }}
-                                {% endif %}
-                            </small>
-                        </p>
-                    {% endblock %}
+                    {% sw_include '@Storefront/storefront/component/checkout/offcanvas-cart-summary.html.twig' %}
                 {% endblock %}
             {% endif %}
 

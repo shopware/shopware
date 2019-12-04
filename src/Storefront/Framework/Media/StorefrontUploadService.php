@@ -135,7 +135,7 @@ class StorefrontUploadService
     {
         foreach ($allowedMimeTypes as $fileEndings => $mime) {
             if (in_array($file->getExtension(), explode('|', $fileEndings), true)) {
-                $mimeTypes = $allowedMimeTypes[$fileEndings];
+                $mimeTypes = $mime;
                 if (
                     (is_string($mimeTypes) && $file->getMimeType() === $mimeTypes)
                     || (is_array($mimeTypes) && in_array($file->getMimeType(), $mimeTypes, true))

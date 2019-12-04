@@ -26,7 +26,12 @@ class ClassNamespaceTest extends TestCase
 
             $parts = $this->extractProductionNamespaceParts($file, $basePathParts);
 
-            $namespace = rtrim('namespace Shopware\\' . implode('\\', $parts), '\\');
+            $path = implode('\\', $parts);
+            if (mb_strpos($path, 'Recovery') === 0) {
+                continue;
+            }
+
+            $namespace = rtrim('namespace Shopware\\' . $path, '\\');
 
             if (mb_strpos($file->getContents(), $namespace) === false) {
                 $relativePath = str_replace($basePath, '', $file->getPathname());
@@ -60,6 +65,11 @@ class ClassNamespaceTest extends TestCase
     {
         $parts = explode('/', (string) $file);
         $parts = \array_slice($parts, \count($basePathParts) - 1);
+
+        if ($parts && in_array($parts[0], ['recovery', 'core', 'storefront', 'administration', 'elasticsearch'], true)) {
+            $parts[0] = ucfirst($parts[0]);
+        }
+
         $parts = array_filter($parts);
 
         array_pop($parts);

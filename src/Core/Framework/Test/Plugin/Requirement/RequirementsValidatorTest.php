@@ -76,16 +76,14 @@ class RequirementsValidatorTest extends TestCase
         } catch (RequirementStackException $exception) {
         }
 
-        $messages = [];
+        $packages = [];
         static::assertInstanceOf(RequirementStackException::class, $exception);
         foreach ($exception->getRequirements() as $requirement) {
-            $messages[] = $requirement->getMessage();
+            $packages[] = $requirement->getParameters()['requirement'];
         }
 
-        static::assertContains(
-            'Required plugin/package "shopware/platform ^12.34" does not match installed version 9999999-dev.',
-            $messages
-        );
+        static::assertContains('shopware/platform', $packages);
+        static::assertContains('test/not-installed', $packages);
     }
 
     public function testValidateRequirementsMissing(): void

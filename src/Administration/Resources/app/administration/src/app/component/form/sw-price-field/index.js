@@ -83,6 +83,12 @@ Component.register('sw-price-field', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        disableSuffix: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

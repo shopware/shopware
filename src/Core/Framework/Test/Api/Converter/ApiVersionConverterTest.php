@@ -61,6 +61,7 @@ class ApiVersionConverterTest extends TestCase
         $deprecatedDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
 
         $result = $jsonApiEncoder->encode(
+            new Criteria(),
             $deprecatedDefinition,
             $this->getDeprecatedEntity(),
             'http://localhost',
@@ -83,6 +84,7 @@ class ApiVersionConverterTest extends TestCase
         $deprecatedDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
 
         $result = $jsonApiEncoder->encode(
+            new Criteria(),
             $deprecatedDefinition,
             $this->getDeprecatedEntity(),
             'http://localhost',
@@ -105,6 +107,7 @@ class ApiVersionConverterTest extends TestCase
         $deprecatedDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
 
         $result = $jsonEntityEncoder->encode(
+            new Criteria(),
             $deprecatedDefinition,
             $this->getDeprecatedEntity(),
             'http://localhost',
@@ -125,6 +128,7 @@ class ApiVersionConverterTest extends TestCase
         $deprecatedDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
 
         $result = $jsonEntityEncoder->encode(
+            new Criteria(),
             $deprecatedDefinition,
             $this->getDeprecatedEntity(),
             'http://localhost',

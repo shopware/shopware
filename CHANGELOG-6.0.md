@@ -338,6 +338,9 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added `\Shopware\Core\Framework\DataAbstractionLayer\Field\RemoteAddressField` to store remote address data
     * Added `\Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\RemoteAddressFieldSerializer` to check for the ip anonymous settings and anonymize the addresses if set
     * Added new `core_mailer` service which should be used to send mails. 
+    * We added the `source` parameter for all entity api requests. This parameter allows to filter the returned fields.
+    * The `\Shopware\Core\Framework\Api\Response\ResponseFactoryInterface::createDetailResponse` requires now a provided criteria
+    * The `\Shopware\Core\Framework\Api\Response\ResponseFactoryInterface::createListingResponse` requires now a provided criteria 
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain

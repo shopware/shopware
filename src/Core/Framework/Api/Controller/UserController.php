@@ -57,7 +57,7 @@ class UserController extends AbstractController
             throw OAuthServerException::invalidCredentials();
         }
 
-        return $responseFactory->createDetailResponse($user, $this->userDefinition, $request, $context);
+        return $responseFactory->createDetailResponse(new Criteria(), $user, $this->userDefinition, $request, $context);
     }
 
     /**

@@ -103,6 +103,10 @@ class RequestCriteriaBuilder
             }
         }
 
+        if (isset($payload['source'])) {
+            $criteria->setSource($payload['source']);
+        }
+
         if (isset($payload['filter'])) {
             $this->addFilter($definition, $payload, $criteria, $searchException);
         }

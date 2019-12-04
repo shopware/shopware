@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,7 +32,7 @@ class JsonType extends JsonFactoryBase
         return $contentType === 'application/json' && $origin instanceof AdminApiSource;
     }
 
-    public function createDetailResponse(Entity $entity, EntityDefinition $definition, Request $request, Context $context, bool $setLocationHeader = false): Response
+    public function createDetailResponse(Criteria $criteria, Entity $entity, EntityDefinition $definition, Request $request, Context $context, bool $setLocationHeader = false): Response
     {
         $headers = [];
         if ($setLocationHeader) {
@@ -39,6 +40,7 @@ class JsonType extends JsonFactoryBase
         }
 
         $decoded = $this->encoder->encode(
+            $criteria,
             $definition,
             $entity,
             $this->getApiBaseUrl($request),
@@ -52,9 +54,10 @@ class JsonType extends JsonFactoryBase
         return new JsonResponse($response, JsonResponse::HTTP_OK, $headers);
     }
 
-    public function createListingResponse(EntitySearchResult $searchResult, EntityDefinition $definition, Request $request, Context $context): Response
+    public function createListingResponse(Criteria $criteria, EntitySearchResult $searchResult, EntityDefinition $definition, Request $request, Context $context): Response
     {
         $decoded = $this->encoder->encode(
+            $criteria,
             $definition,
             $searchResult->getEntities(),
             $this->getApiBaseUrl($request),

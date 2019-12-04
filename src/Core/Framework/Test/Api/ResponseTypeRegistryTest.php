@@ -206,7 +206,7 @@ class ResponseTypeRegistryTest extends TestCase
         $this->setVersionHack($request, $version);
         $this->setOrigin($request, $context);
 
-        return $this->getFactory($request)->createDetailResponse($category, $definition, $request, $context, $setLocationHeader);
+        return $this->getFactory($request)->createDetailResponse(new Criteria(), $category, $definition, $request, $context, $setLocationHeader);
     }
 
     private function getListResponse($context, $id, $path, $version = '', $accept): Response
@@ -214,14 +214,15 @@ class ResponseTypeRegistryTest extends TestCase
         $category = $this->getTestCategory($id);
 
         $col = new EntityCollection([$category]);
-        $searchResult = new EntitySearchResult(1, $col, null, new Criteria(), $context);
+        $criteria = new Criteria();
+        $searchResult = new EntitySearchResult(1, $col, null, $criteria, $context);
 
         $definition = $this->getContainer()->get(CategoryDefinition::class);
         $request = Request::create($path, 'GET', [], [], [], ['HTTP_ACCEPT' => $accept]);
         $this->setVersionHack($request, $version);
         $this->setOrigin($request, $context);
 
-        return $this->getFactory($request)->createListingResponse($searchResult, $definition, $request, $context);
+        return $this->getFactory($request)->createListingResponse($criteria, $searchResult, $definition, $request, $context);
     }
 
     private function getTestCategory($id): CategoryEntity

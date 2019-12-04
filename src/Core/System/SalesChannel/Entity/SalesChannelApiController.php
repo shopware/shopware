@@ -124,7 +124,7 @@ class SalesChannelApiController
             throw new ResourceNotFoundException($definition->getEntityName(), ['id' => $id]);
         }
 
-        return $responseFactory->createDetailResponse($result->get($id), $definition, $request, $context->getContext());
+        return $responseFactory->createDetailResponse($criteria, $result->get($id), $definition, $request, $context->getContext());
     }
 
     public function search(Request $request, SalesChannelContext $context, string $entity, ResponseFactoryInterface $responseFactory): Response
@@ -144,7 +144,7 @@ class SalesChannelApiController
 
         $result = $repository->search($criteria, $context);
 
-        return $responseFactory->createListingResponse($result, $definition, $request, $context->getContext());
+        return $responseFactory->createListingResponse($criteria, $result, $definition, $request, $context->getContext());
     }
 
     private function urlToSnakeCase(string $name): string

@@ -211,7 +211,8 @@ Core
     * Warning: Do not replace `Shopware\Core\Framework\Context` with `Shopware\Core\Framework\Api\Context`, this would replace the `Framework\Context.php` usage.
  * Added unique constraint for `iso_code` column of `currency` table. The migration can fail if there are already duplicate `iso_codes` in the table
  * Replace `mailer` usage with `core_mailer` in your service definitions. 
-
+ * If you call `\Shopware\Core\Framework\Api\Response\ResponseFactoryInterface::createDetailResponse` or `\Shopware\Core\Framework\Api\Response\ResponseFactoryInterface::createListingResponse` in your plugin, the first parameter to be passed now is the `Criteria` object with which the data was loaded.
+ 
 Administration
 --------------
 

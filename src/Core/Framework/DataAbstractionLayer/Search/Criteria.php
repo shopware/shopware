@@ -28,6 +28,11 @@ class Criteria extends Struct
     public const TOTAL_COUNT_MODE_NEXT_PAGES = 2;
 
     /**
+     * @var array|null
+     */
+    protected $source;
+
+    /**
      * @var FieldSorting[]
      */
     protected $sorting = [];
@@ -467,6 +472,16 @@ class Criteria extends Struct
         $this->groupFields = [];
 
         return $this;
+    }
+
+    public function getSource(): ?array
+    {
+        return $this->source;
+    }
+
+    public function setSource(?array $source): void
+    {
+        $this->source = $source;
     }
 
     private function collectFields(array $parts): array

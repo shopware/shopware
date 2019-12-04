@@ -279,6 +279,11 @@ class CustomerEntity extends Entity
      */
     protected $productReviews;
 
+    /**
+     * @var string|null
+     */
+    protected $remoteAddress;
+
     public function __toString()
     {
         return $this->getFirstName() . ' ' . $this->getLastName();
@@ -793,5 +798,15 @@ class CustomerEntity extends Entity
     public function setCampaignCode(?string $campaignCode): void
     {
         $this->campaignCode = $campaignCode;
+    }
+
+    public function getRemoteAddress(): ?string
+    {
+        return $this->remoteAddress;
+    }
+
+    public function setRemoteAddress(?string $remoteAddress): void
+    {
+        $this->remoteAddress = $remoteAddress;
     }
 }

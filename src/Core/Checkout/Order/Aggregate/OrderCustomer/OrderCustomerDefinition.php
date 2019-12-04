@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\RemoteAddressField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -68,6 +69,7 @@ class OrderCustomerDefinition extends EntityDefinition
             new OneToOneAssociationField('order', 'order_id', 'id', OrderDefinition::class, false),
             (new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, 'id', false))->addFlags(new SetNullOnDelete(), new SearchRanking(0.5), new ReadProtected(SalesChannelApiSource::class)),
             new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, 'id', false),
+            new RemoteAddressField('remote_address', 'remoteAddress'),
         ]);
     }
 }

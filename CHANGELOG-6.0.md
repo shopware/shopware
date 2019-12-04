@@ -205,6 +205,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added installation opportunity of Migration-Plugin into FirstRunWizard
     * integrated repository based data handling in plugin manager
     * replaced `sw-grid` with `sw-data-grid` components in plugin manager
+    * Remote address anonymization is now configurable in the settings at the Login / Registration module
 * Core
     * Moved the seo module from the storefront into the core.
     * Switched the execution condition of `\Shopware\Core\Framework\Migration\MigrationStep::addBackwardTrigger()` and `\Shopware\Core\Framework\Migration\MigrationStep::addForwardTrigger()` to match the execution conditions in the methods documentation.
@@ -329,9 +330,12 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * We moved the namespace `Shopware\Core\Framework\Context` to `Shopware\Core\Framework\Api\Context`
     * We moved the namespace `Shopware\Core\Content\DeliveryTime` to `Shopware\Core\System\DeliveryTime`
     * We moved the Shopware\Core\System\User\Service\UserProvisioner to Shopware\Core\System\User\Service\UserProvisioner
-    * Added unique constraint fo**r `iso_code` column in `currency` table
+    * Added unique constraint for `iso_code` column in `currency` table
     * We moved the `Shopware\Storefront\Framework\Seo\SeoTemplateReplacementVariable` to `Shopware\Core\Content\Seo\SeoTemplateReplacementVariable`
     * We moved the `Shopware\Core\Content\ProductExport\SalesChannel\ProductExportController` to `Shopware\Storefront\Controller\ProductExportController`
+    * Added `\Shopware\Core\Checkout\Customer\Subscriber\CustomerRemoteAddressSubscriber` to store remote addresses and updating the remote address data in the customer table
+    * Added `\Shopware\Core\Framework\DataAbstractionLayer\Field\RemoteAddressField` to store remote address data
+    * Added `\Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\RemoteAddressFieldSerializer` to check for the ip anonymous settings and anonymize the addresses if set
     * Added new `core_mailer` service which should be used to send mails. 
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures

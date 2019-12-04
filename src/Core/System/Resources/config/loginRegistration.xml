@@ -12,6 +12,12 @@
         </input-field>
 
         <input-field type="bool">
+            <name>customerIpAddressesNotAnonymously</name>
+            <label>Store customer IP addresses not anonymously</label>
+            <label lang="de-DE">Kunden-IP-Adressen nicht anonym speichern</label>
+        </input-field>
+
+        <input-field type="bool">
             <name>showTitleField</name>
             <label>Show title</label>
             <label lang="de-DE">Titel anzeigen</label>

@@ -117,27 +117,13 @@ class StorefrontUploadService
             return false;
         }
 
-        if (getimagesize($file->getFilename())['mime'] !== $file->getMimeType()) {
-            return false;
-        }
-
-        try {
-            $image = new \Imagick($file->getFilename());
-            $imageProfiles = $image->getImageProfiles('icc');
-            $image->stripImage();
-            $image->setImageProfile('icc', $imageProfiles['icc']);
-            $image->writeImages($file->getFilename(), true);
-        } catch (\ImagickException $e) {
-            return false;
-        }
-
-        return true;
+        return !(getimagesize($file->getPath() . '/' . $file->getFileName())['mime'] !== $file->getMimeType());
     }
 
     private function checkValidFile(UploadedFile $file): void
     {
         if ($file->isValid()) {
-            throw new UploadException();
+            throw new UploadException($file->getErrorMessage());
         }
 
         if (preg_match('/.+\.ph(p([3457s]|-s)?|t|tml)/', $file->getFilename())) {

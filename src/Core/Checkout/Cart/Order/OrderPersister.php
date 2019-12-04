@@ -55,7 +55,7 @@ class OrderPersister implements OrderPersisterInterface
         $order = $this->converter->convertToOrder($cart, $context, new OrderConversionContext());
 
         $context->getContext()->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($order): void {
-            $this->orderRepository->create([$order], $context);
+            $this->orderRepository->upsert([$order], $context);
         });
 
         return $order['id'];

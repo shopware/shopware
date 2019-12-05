@@ -76,13 +76,16 @@
                                         {% block layout_footer_navigation_information_links %}
                                             <ul class="list-unstyled">
                                                 {% for treeItem in root.children %}
+                                                    {% set category = reeItem.category %}
+                                                    {% set name = category.translated.name %}
+                                                    {% set externalLink = category.externalLink %}
                                                     {% block layout_footer_navigation_information_link_item %}
                                                         <li class="footer-link-item">
                                                             {% block layout_footer_navigation_information_link %}
                                                                 <a class="footer-link"
-                                                                   href="{% if treeItem.category.externalLink %}{{ treeItem.category.externalLink }}{% else %}{{ seoUrl('frontend.navigation.page', { navigationId: treeItem.category.id }) }}{% endif %}"
-                                                                   title="{{ treeItem.category.translated.name }}">
-                                                                    {{ treeItem.category.translated.name }}
+                                                                   href="{% if externalLink %}{{ externalLink }}{% else %}{{ seoUrl('frontend.navigation.page', { navigationId: category.id }) }}{% endif %}"
+                                                                   title="{{ name }}">
+                                                                    {{ name }}
                                                                 </a>
                                                             {% endblock %}
                                                         </li>

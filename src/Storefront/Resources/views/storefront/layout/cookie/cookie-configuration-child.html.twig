@@ -1,16 +1,17 @@
 {% if child.cookie is not empty and child.hidden is not same as(true) %}
+    {% set cookie = child.cookie %}
     <div class="offcanvas-cookie-entry custom-control custom-checkbox">
         <input
             type="checkbox"
             class="custom-control-input"
-            id="cookie_{{ child.cookie }}"
+            id="cookie_{{ cookie }}"
             {% if isRequired %}
                 checked="checked"
                 disabled="disabled"
                 data-cookie-required="true"
             {% endif %}
-            {% if child.cookie %}
-                data-cookie="{{ child.cookie }}"
+            {% if cookie %}
+                data-cookie="{{ cookie }}"
             {% endif %}
             {% if child.value %}
                 data-cookie-value="{{ child.value }}"
@@ -19,9 +20,9 @@
                 data-cookie-expiration="{{ child.expiration }}"
             {% endif %}>
         <label
-            for="cookie_{{ child.cookie }}"
+            for="cookie_{{ cookie }}"
             class="custom-control-label">
-            {{ child.snippet_name ? child.snippet_name|trans|sw_sanitize : child.cookie }}
+            {{ child.snippet_name ? child.snippet_name|trans|sw_sanitize : cookie }}
         </label>
 
 

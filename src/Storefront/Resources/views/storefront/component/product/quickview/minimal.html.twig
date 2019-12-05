@@ -1,4 +1,7 @@
 {% block component_product_quickview_minimal %}
+    {% set name = page.product.translated.name %}
+    {% set manufacturer = page.product.manufacturer %}
+
     <div class="quickview-minimal-container">
         {% block component_product_quickview_minimal_top %}
             <div class="row quickview-minimal-top">
@@ -29,9 +32,9 @@
                         {% block component_product_quickview_minimal_product_name %}
                             <a href="{{ seoUrl('frontend.detail.page', {'productId': page.product.id}) }}"
                                target="_blank"
-                               title="{{ page.product.translated.name }}"
+                               title="{{ name }}"
                                class="h4 quickview-minimal-product-name">
-                                {{ page.product.translated.name }}
+                                {{ name }}
                             </a>
                         {% endblock %}
 
@@ -42,17 +45,17 @@
                         {% endblock %}
 
                         {% block component_product_quickview_minimal_product_manufacturer %}
-                            {% if page.product.manufacturer %}
-                                <a href="{{ page.product.manufacturer.link }}"
+                            {% if manufacturer %}
+                                <a href="{{ manufacturer.link }}"
                                    target="_blank"
-                                   title="{{ page.product.manufacturer.translated.name }}"
+                                   title="{{ manufacturer.translated.name }}"
                                    class="quickview-minimal-product-manufacturer">
-                                    {% if page.product.manufacturer.media %}
-                                        <img src="{{ page.product.manufacturer.media.url }}"
+                                    {% if manufacturer.media %}
+                                        <img src="{{ manufacturer.media.url }}"
                                              class="quickview-minimal-product-manufacturer-logo"
-                                             alt="{{ page.product.manufacturer.translated.name }}"/>
+                                             alt="{{ manufacturer.translated.name }}"/>
                                     {% else %}
-                                        {{ page.product.manufacturer.translated.name }}
+                                        {{ manufacturer.translated.name }}
                                     {% endif %}
                                 </a>
                             {% endif %}

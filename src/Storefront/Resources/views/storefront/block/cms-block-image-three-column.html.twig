@@ -1,10 +1,11 @@
 {% block block_image_three_column %}
     {% set columns = 3 %}
+    {% set id = element.id %}
 
     {% block block_image_three_column_left %}
         {% set element = block.slots.getSlot('left') %}
 
-        <div class="col-md-4" data-cms-element-id="{{ element.id }}">
+        <div class="col-md-4" data-cms-element-id="{{ id }}">
             {% block block_image_three_column_left_inner %}
                 {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
             {% endblock %}
@@ -14,7 +15,7 @@
     {% block block_image_three_column_center %}
         {% set element = block.slots.getSlot('center') %}
 
-        <div class="col-md-4" data-cms-element-id="{{ element.id }}">
+        <div class="col-md-4" data-cms-element-id="{{ id }}">
             {% block block_image_three_column_center_inner %}
                 {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
             {% endblock %}
@@ -23,8 +24,8 @@
 
     {% block block_image_three_column_right %}
         {% set element = block.slots.getSlot('right') %}
-        
-        <div class="col-md-4" data-cms-element-id="{{ element.id }}">
+
+        <div class="col-md-4" data-cms-element-id="{{ id }}">
             {% block block_image_three_column_right_inner %}
                 {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
             {% endblock %}

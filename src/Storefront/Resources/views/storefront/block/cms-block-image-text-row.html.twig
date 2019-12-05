@@ -1,12 +1,13 @@
 {% block block_image_text_row %}
     {% set columns = 3 %}
+    {% set id = element.id %}
 
     {% block block_image_text_row_left %}
         <div class="col-md-4">
             {% block block_image_text_row_left_image %}
                 {% set element = block.slots.getSlot('left-image') %}
 
-                <div data-cms-element-id="{{ element.id }}">
+                <div data-cms-element-id="{{ id }}">
                     {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
                 </div>
             {% endblock %}
@@ -14,7 +15,7 @@
             {% block block_image_text_row_left_text %}
                 {% set element = block.slots.getSlot('left-text') %}
 
-                <div data-cms-element-id="{{ element.id }}">
+                <div data-cms-element-id="{{ id }}">
                     {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
                 </div>
             {% endblock %}
@@ -26,7 +27,7 @@
             {% block block_image_text_row_center_image %}
                 {% set element = block.slots.getSlot('center-image') %}
 
-                <div data-cms-element-id="{{ element.id }}">
+                <div data-cms-element-id="{{ id }}">
                     {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
                 </div>
             {% endblock %}
@@ -34,7 +35,7 @@
             {% block block_image_text_row_center_text %}
                 {% set element = block.slots.getSlot('center-text') %}
 
-                <div data-cms-element-id="{{ element.id }}">
+                <div data-cms-element-id="{{ id }}">
                     {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
                 </div>
             {% endblock %}
@@ -46,7 +47,7 @@
             {% block block_image_text_row_right_image %}
                 {% set element = block.slots.getSlot('right-image') %}
 
-                <div data-cms-element-id="{{ element.id }}">
+                <div data-cms-element-id="{{ id }}">
                     {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
                 </div>
             {% endblock %}
@@ -54,7 +55,7 @@
             {% block block_image_text_row_right_text %}
                 {% set element = block.slots.getSlot('right-text') %}
 
-                <div data-cms-element-id="{{ element.id }}">
+                <div data-cms-element-id="{{ id }}">
                     {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
                 </div>
             {% endblock %}

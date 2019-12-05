@@ -235,7 +235,8 @@ class PaymentServiceTest extends TestCase
             null,
             null,
             null,
-            (new PaymentMethodEntity())->assign(['id' => $paymentMethodId])
+            (new PaymentMethodEntity())->assign(['id' => $paymentMethodId]),
+            $this->getAvailableShippingMethod()
         );
     }
 

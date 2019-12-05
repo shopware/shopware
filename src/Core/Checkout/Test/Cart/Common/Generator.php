@@ -90,6 +90,7 @@ class Generator extends TestCase
             $country = new CountryEntity();
             $country->setId('5cff02b1029741a4891c430bcd9e3603');
             $country->setTaxFree(false);
+            $country->setShippingAvailable(true);
             $country->setName('Germany');
         }
         if (!$state) {
@@ -129,7 +130,8 @@ class Generator extends TestCase
             $customer = (new CustomerEntity())->assign(['id' => Uuid::randomHex()]);
             $customer->setId(Uuid::randomHex());
             $customer->setGroup($currentCustomerGroup);
-            $customer->setActiveBillingAddress($shipping);
+            $customer->setDefaultBillingAddress($shipping);
+            $customer->setDefaultShippingAddress($shipping);
         }
 
         return new SalesChannelContext(

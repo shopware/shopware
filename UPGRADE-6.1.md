@@ -792,6 +792,8 @@ SHOPWARE_HTTP_DEFAULT_TTL=7200
     * Use `u.wordwrap` and `u.truncate` instead of the `wordwrap` and `truncate` filter.
     * Use the `format_date` or `format_datetime` filter instead of the `localizeddate` filter
     * Take a look here for more information: https://github.com/twigphp/Twig-extensions
+* Removed the contact and newsletter page 
+    * Use the default shop page layouts for `contact` and `newsletter pages` instead and assign it in the `settings` under `basic information`.
 * We split the `Storefront/Resources/views/storefront/layout/navigation/offcanvas/navigation.html.twig` template into smaller templates. If you have extended this template you should check if the blocks are still correctly overwritten. If this is not the case, you have to extend the smaller template file into which the block was moved. 
  
 

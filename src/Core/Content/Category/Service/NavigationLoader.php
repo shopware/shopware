@@ -2,17 +2,22 @@
 
 namespace Shopware\Core\Content\Category\Service;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Event\NavigationLoadedEvent;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -34,56 +39,54 @@ class NavigationLoader
      */
     private $eventDispatcher;
 
-    public function __construct(SalesChannelRepositoryInterface $repository, EventDispatcherInterface $eventDispatcher)
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    public function __construct(Connection $connection, SalesChannelRepositoryInterface $repository, EventDispatcherInterface $eventDispatcher)
     {
         $this->categoryRepository = $repository;
         $this->treeItem = new TreeItem(null, []);
         $this->eventDispatcher = $eventDispatcher;
+        $this->connection = $connection;
     }
 
     /**
-     * Returns the full category tree. The provided active id will be marked as selected
+     * Returns the first two levels of the category tree, as well as all parents of the active category
+     * and the active categories first level of children.
+     * The provided active id will be marked as selected
      *
      * @throws CategoryNotFoundException
      * @throws InconsistentCriteriaIdsException
      */
     public function load(string $activeId, SalesChannelContext $context, string $rootId): Tree
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new MultiFilter(MultiFilter::CONNECTION_OR, [
-                new EqualsFilter('id', $activeId),
-                new EqualsFilter('parentId', $rootId),
-            ])
-        );
-        $criteria->addAssociation('media');
+        $metaInfo = $this->getCategoryMetaInfo($activeId, $rootId);
 
-        /** @var CategoryCollection $rootLevel */
-        $rootLevel = $this->categoryRepository->search($criteria, $context)->getEntities();
-
-        $active = $rootLevel->get($activeId);
-        if (!$active) {
+        $active = $this->getMetaInfoById($activeId, $metaInfo);
+        if (!$this->isCategoryChildOfRootCategory($activeId, $active['path'], $rootId)) {
             throw new CategoryNotFoundException($activeId);
         }
 
-        if (!$this->isCategoryChildOfRootCategory($active, $rootId)) {
-            throw new CategoryNotFoundException($activeId);
+        $root = $this->getMetaInfoById($rootId, $metaInfo);
+
+        // Load the first two levels without using the activeId in the query, so this can be cached
+        $firstTwoLevels = $this->loadLevels($rootId, (int) $root['level'], $context);
+
+        $childIds = $this->getChildIds($activeId, $rootId, $metaInfo);
+
+        // Fetch all parents and first-level children of the active category, if they're not already fetched
+        $missing = $this->getMissingIds($activeId, $active['path'], $childIds, $firstTwoLevels);
+        if (!empty($missing)) {
+            $missingCategories = $this->loadMissingCategories($missing, $context);
+
+            foreach ($missingCategories as $category) {
+                $firstTwoLevels->add($category);
+            }
         }
 
-        $ids = $rootLevel->getIds();
-        $ids = array_flip($ids);
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('parentId', $ids));
-
-        /** @var CategoryCollection $secondLevel */
-        $secondLevel = $this->categoryRepository->search($criteria, $context)->getEntities();
-
-        foreach ($secondLevel as $category) {
-            $rootLevel->add($category);
-        }
-
-        $navigation = $this->getTree($rootId, $rootLevel, $active);
+        $navigation = $this->getTree($rootId, $firstTwoLevels, $firstTwoLevels->get($activeId));
 
         $event = new NavigationLoadedEvent($navigation, $context);
 
@@ -188,20 +191,95 @@ class NavigationLoader
         return $items;
     }
 
-    private function isCategoryChildOfRootCategory(CategoryEntity $active, string $rootId): bool
+    private function isCategoryChildOfRootCategory(string $activeId, ?string $path, string $rootId): bool
     {
-        if ($rootId === $active->getId()) {
+        if ($rootId === $activeId) {
             return true;
         }
 
-        if ($active->getPath() === null) {
+        if ($path === null) {
             return false;
         }
 
-        if (mb_strpos($active->getPath(), '|' . $rootId . '|') !== false) {
+        if (mb_strpos($path, '|' . $rootId . '|') !== false) {
             return true;
         }
 
         return false;
+    }
+
+    private function loadMissingCategories(array $missingIds, SalesChannelContext $context): CategoryCollection
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new EqualsAnyFilter('id', $missingIds)
+        )
+        ->addAssociation('media');
+
+        /** @var CategoryCollection $missing */
+        $missing = $this->categoryRepository->search($criteria, $context)->getEntities();
+
+        return $missing;
+    }
+
+    private function loadLevels(string $rootId, int $rootLevel, SalesChannelContext $context): CategoryCollection
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new ContainsFilter('path', '|' . $rootId . '|'),
+            new RangeFilter('level', [
+                RangeFilter::GT => $rootLevel,
+                RangeFilter::LTE => $rootLevel + 2,
+            ])
+        )
+        ->addAssociation('media');
+
+        /** @var CategoryCollection $firstTwoLevels */
+        $firstTwoLevels = $this->categoryRepository->search($criteria, $context)->getEntities();
+
+        return $firstTwoLevels;
+    }
+
+    private function getCategoryMetaInfo(string $activeId, string $rootId)
+    {
+        $result = $this->connection->fetchAll('
+            SELECT LOWER(HEX(`id`)), `path`, `level`
+            FROM `category`
+            WHERE `id` = :activeId OR `parent_id` = :activeId OR `id` = :rootId
+        ', ['activeId' => Uuid::fromHexToBytes($activeId), 'rootId' => Uuid::fromHexToBytes($rootId)]);
+
+        if (!$result) {
+            throw new CategoryNotFoundException($activeId);
+        }
+
+        return FetchModeHelper::groupUnique($result);
+    }
+
+    private function getMetaInfoById(string $id, $metaInfo): array
+    {
+        if (!array_key_exists($id, $metaInfo)) {
+            throw new CategoryNotFoundException($id);
+        }
+
+        return $metaInfo[$id];
+    }
+
+    private function getMissingIds(string $activeId, ?string $path, array $childIds, CategoryCollection $alreadyLoaded): array
+    {
+        $parentIds = array_filter(explode('|', $path ?? ''));
+
+        $haveToBeIncluded = array_merge($childIds, $parentIds, [$activeId]);
+        $included = $alreadyLoaded->getIds();
+        $included = array_flip($included);
+
+        return array_diff($haveToBeIncluded, $included);
+    }
+
+    private function getChildIds(string $activeId, string $rootId, array $metaInfo): array
+    {
+        unset($metaInfo[$rootId]);
+        unset($metaInfo[$activeId]);
+
+        return array_keys($metaInfo);
     }
 }

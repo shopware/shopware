@@ -23,8 +23,9 @@
         </service>
 
         <service id="Shopware\Core\Content\Category\Service\NavigationLoader">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="sales_channel.category.repository"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
     </services>
-</container>                
+</container>

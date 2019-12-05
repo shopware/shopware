@@ -155,7 +155,7 @@ Below you"ll find an example.
 ```
 
 Each `<options>` element must contain at least one `<option>` element.
-Each `<option>` element must contain at least one `<value>` and one `<label>` element.
+Each `<option>` element must contain at least one `<id>` and one `<label>` element.
 As you can see above, `<label>` elements are translatable via the `lang` attribute.
 
 ### Label, placeholder and help text

@@ -247,6 +247,7 @@
         overflow: hidden;
         color: $color-gutenberg;
         background: $color-white;
+        font-size: 14px;
         left: 0;
         right: 88px;
         height: 64px;
@@ -304,8 +305,6 @@
         &.is--selected {
             .sw-data-grid__cell {
                 background-color: $color-cadet-blue;
-                border-top: 1px solid $color-shopware-blue;
-                border-bottom: 1px solid $color-shopware-blue;
             }
         }
     }

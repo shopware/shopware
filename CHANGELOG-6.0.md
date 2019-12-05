@@ -345,7 +345,13 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added new `core_mailer` service which should be used to send mails. 
     * We added the `source` parameter for all entity api requests. This parameter allows to filter the returned fields.
     * The `\Shopware\Core\Framework\Api\Response\ResponseFactoryInterface::createDetailResponse` requires now a provided criteria
-    * The `\Shopware\Core\Framework\Api\Response\ResponseFactoryInterface::createListingResponse` requires now a provided criteria 
+    * The `\Shopware\Core\Framework\Api\Response\ResponseFactoryInterface::createListingResponse` requires now a provided criteria
+    * Removed `\Shopware\Core\Framework\Update\Event\UpdateFinishedEvent`
+    * Added new events:
+        * `\Shopware\Core\Framework\Update\Event\UpdatePrePrepareEvent` runs before the update with plugins enabled
+        * `\Shopware\Core\Framework\Update\Event\UpdatePostPrepareEvent` runs before the update with plugins disabled
+        * `\Shopware\Core\Framework\Update\Event\UpdatePreFinishEvent` runs after the update with plugins disabled
+        * `\Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent` runs after the update with plugins enabled
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain

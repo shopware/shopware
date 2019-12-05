@@ -212,6 +212,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Remote address anonymization is now configurable in the settings at the Login / Registration module
     * We added error handling for delete requests. Since delete errors affect the whole entity it is not possible to store the error under a specific path. For this reason we provide a new getter `getErrorsForEntity` available through the State.
     * The object returned from Shopware.State.getters.getEntityError should always be treated read only.
+    * Added default shop page layouts for contact and newsletter form
 * Core
     * Moved the seo module from the storefront into the core.
     * Switched the execution condition of `\Shopware\Core\Framework\Migration\MigrationStep::addBackwardTrigger()` and `\Shopware\Core\Framework\Migration\MigrationStep::addForwardTrigger()` to match the execution conditions in the methods documentation.
@@ -454,3 +455,5 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
         * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-italic.var.woff2`
         * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-upright.var.woff2`
         * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter.var.woff2`
+    * Removed `ContactPageController` and the `contact page`
+    * Removed `newsletter page` and its route `/newsletter`

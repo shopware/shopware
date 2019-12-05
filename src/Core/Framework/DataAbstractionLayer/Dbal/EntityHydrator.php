@@ -112,6 +112,9 @@ class EntityHydrator
         $mappingStorage = new ArrayEntity([]);
         $entity->addExtension(EntityReader::INTERNAL_MAPPING_STORAGE, $mappingStorage);
 
+        $foreignKeys = new ArrayEntity([]);
+        $entity->addExtension(EntityReader::FOREIGN_KEYS, $foreignKeys);
+
         /** @var Field $field */
         foreach ($fields as $field) {
             $propertyName = $field->getPropertyName();
@@ -187,7 +190,12 @@ class EntityHydrator
             }
 
             $decoded = $field->getSerializer()->decode($field, $value);
-            $entity->assign([$propertyName => $decoded]);
+
+            if ($field->is(Extension::class)) {
+                $foreignKeys->set($propertyName, $decoded);
+            } else {
+                $entity->assign([$propertyName => $decoded]);
+            }
         }
 
         //write object cache key to prevent multiple hydration for the same entity

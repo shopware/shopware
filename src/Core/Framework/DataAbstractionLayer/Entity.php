@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\Struct;
 
 class Entity extends Struct
@@ -105,5 +106,29 @@ class Entity extends Struct
     public function setUpdatedAt(\DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function jsonSerialize(): array
+    {
+        $data = parent::jsonSerialize();
+
+        if (!$this->hasExtension('foreignKeys')) {
+            return $data;
+        }
+
+        $extension = $this->getExtension('foreignKeys');
+
+        if (!$extension instanceof ArrayEntity) {
+            return $data;
+        }
+
+        foreach ($extension->all() as $key => $value) {
+            if (array_key_exists($key, $data)) {
+                continue;
+            }
+            $data[$key] = $value;
+        }
+
+        return $data;
     }
 }

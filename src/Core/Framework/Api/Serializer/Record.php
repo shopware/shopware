@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\Serializer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 
 class Record implements \JsonSerializable
 {
@@ -151,6 +152,18 @@ class Record implements \JsonSerializable
 
         foreach ($this->attributes as $key => $_relationship) {
             $this->attributes[$key] = $data[$key] ?? null;
+        }
+
+        if ($entity->hasExtension('foreignKeys')) {
+            /** @var ArrayEntity $extension */
+            $extension = $entity->getExtension('foreignKeys');
+
+            foreach ($extension->jsonSerialize() as $property => $value) {
+                if (array_key_exists($property, $this->attributes)) {
+                    continue;
+                }
+                $this->attributes[$property] = $value;
+            }
         }
 
         foreach ($this->relationships as $key => &$relationship) {

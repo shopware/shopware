@@ -54,13 +54,23 @@ class Entity extends Struct
 
     public function get(string $property)
     {
-        if (!$this->has($property)) {
-            throw new \InvalidArgumentException(
-                sprintf('Property %s do not exist in class %s', $property, static::class)
-            );
+        if ($this->has($property)) {
+            return $this->$property;
         }
 
-        return $this->$property;
+        if ($this->hasExtension($property)) {
+            return $this->getExtension($property);
+        }
+
+        /** @var Entity|null $extension */
+        $extension = $this->getExtension('foreignKeys');
+        if ($extension && $extension instanceof self && $extension->has($property)) {
+            return $extension->get($property);
+        }
+
+        throw new \InvalidArgumentException(
+            sprintf('Property %s do not exist in class %s', $property, static::class)
+        );
     }
 
     public function has(string $property): bool

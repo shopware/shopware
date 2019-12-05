@@ -62,7 +62,7 @@ class NewsletterController extends StorefrontController
     }
 
     /**
-     * @Route("/newsletter/subscribe", name="frontend.newsletter.subscribe", methods={"GET"})
+     * @Route("/newsletter-subscribe", name="frontend.newsletter.subscribe", methods={"GET"})
      */
     public function subscribeMail(SalesChannelContext $context, Request $request, QueryDataBag $queryDataBag): Response
     {

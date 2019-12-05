@@ -29,7 +29,6 @@ Component.register('sw-cms-list-item', {
                 };
             }
 
-            // TODO: or add an image for: default_preview_page
             if (this.page.locked === true && this.page.type !== 'page') {
                 return {
                     'background-image': this.defaultLayoutAsset

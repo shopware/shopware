@@ -32,7 +32,7 @@ class Migration1575010262AddCmsFormLayouts extends MigrationStep
     private function addDefaultContactFormLayout(Connection $connection, string $formType, string $formTypeDe): void
     {
         $languageEn = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        $languageDe = $this->getDeDeId($connection);
+        $languageDe = $this->getLanguageDeId($connection);
         $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
         // cms page
@@ -128,7 +128,7 @@ class Migration1575010262AddCmsFormLayouts extends MigrationStep
         }
     }
 
-    private function getDeDeId(Connection $connection): ?string
+    private function getLanguageDeId(Connection $connection): ?string
     {
         $result = $connection->fetchColumn(
             '

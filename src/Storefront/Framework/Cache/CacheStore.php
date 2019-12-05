@@ -228,7 +228,7 @@ class CacheStore implements StoreInterface
                 '%s%s%s',
                 $request->getSchemeAndHttpHost(),
                 $request->attributes->get(RequestTransformer::SALES_CHANNEL_BASE_URL),
-                $request->getPathInfo()
+                $request->attributes->get(RequestTransformer::SALES_CHANNEL_ORIGINAL_PATH_INFO)
             );
         }
 
@@ -240,7 +240,7 @@ class CacheStore implements StoreInterface
             '%s%s%s%s',
             $request->getSchemeAndHttpHost(),
             $request->attributes->get(RequestTransformer::SALES_CHANNEL_BASE_URL),
-            $request->getPathInfo(),
+            $request->attributes->get(RequestTransformer::SALES_CHANNEL_ORIGINAL_PATH_INFO),
             '?' . $params
         );
     }

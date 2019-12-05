@@ -19,6 +19,7 @@ class RequestTransformer implements RequestTransformerInterface
     public const SALES_CHANNEL_BASE_URL = 'sw-sales-channel-base-url';
     public const SALES_CHANNEL_ABSOLUTE_BASE_URL = 'sw-sales-channel-absolute-base-url';
     public const SALES_CHANNEL_RESOLVED_URI = 'resolved-uri';
+    public const SALES_CHANNEL_ORIGINAL_PATH_INFO = 'sw-original-path-info';
 
     private const INHERITABLE_ATTRIBUTE_NAMES = [
         self::SALES_CHANNEL_BASE_URL,
@@ -100,6 +101,7 @@ class RequestTransformer implements RequestTransformerInterface
 
         $absoluteBaseUrl = $this->getSchemeAndHttpHost($request) . $request->getBaseUrl();
         $baseUrl = str_replace($absoluteBaseUrl, '', $salesChannel['url']);
+        $originalPathInfo = $request->getPathInfo();
 
         $resolved = $this->resolveSeoUrl(
             $request,
@@ -149,6 +151,8 @@ class RequestTransformer implements RequestTransformerInterface
         $transformedRequest->attributes->set(self::SALES_CHANNEL_BASE_URL, $baseUrl);
         $transformedRequest->attributes->set(self::SALES_CHANNEL_ABSOLUTE_BASE_URL, rtrim($absoluteBaseUrl, '/'));
         $transformedRequest->attributes->set(self::SALES_CHANNEL_RESOLVED_URI, $resolved['pathInfo']);
+        $transformedRequest->attributes->set(self::SALES_CHANNEL_ORIGINAL_PATH_INFO, $originalPathInfo);
+
 
         $transformedRequest->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannel['salesChannelId']);
         $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST, true);

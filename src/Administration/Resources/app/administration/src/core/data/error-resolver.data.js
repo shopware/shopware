@@ -25,11 +25,15 @@ export default class ErrorResolver {
         this.addSystemErrors(writeErrors.system);
     }
 
-    handleDeleteError(errorResponse) {
-        const errors = errorResponse.response.data.errors;
+    handleDeleteError(errors) {
+        errors.forEach(({ error, entityName, id }) => {
+            const shopwareError = new this.ShopwareError(error);
+            Shopware.State.dispatch('error/addSystemError', { error: shopwareError });
 
-        errors.forEach((error) => {
-            this.errorStore.addSystemError(new this.ShopwareError(error));
+            Shopware.State.dispatch('error/addApiError', {
+                expression: `${entityName}.${id}`,
+                error: shopwareError
+            });
         });
     }
 

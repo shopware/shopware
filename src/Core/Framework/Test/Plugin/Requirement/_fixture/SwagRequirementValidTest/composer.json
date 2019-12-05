@@ -10,8 +10,7 @@
         }
     ],
     "require": {
-        "ext-json": "*",
-        "shopware/platform": "dev-master"
+        "ext-json": "*"
     },
     "extra": {
         "shopware-plugin-class": "SwagRequirement\\SwagRequirement",

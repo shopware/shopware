@@ -194,7 +194,6 @@ class KernelPluginIntegrationTest extends TestCase
             'kernel.shopware_version_revision' => self::getTestRevision(),
             'kernel.project_dir' => TEST_PROJECT_DIR,
             'kernel.plugin_dir' => TEST_PROJECT_DIR . '/custom/plugins',
-            'kernel.active_plugins' => [],
         ];
 
         $actualParameters = [];
@@ -208,18 +207,19 @@ class KernelPluginIntegrationTest extends TestCase
 
         $lifecycleService->activatePlugin($plugin, Context::createDefaultContext());
 
-        $expectedParameters['kernel.active_plugins'] = [
-            SwagTest::class => [
-                'name' => 'SwagTest',
-                'path' => TEST_PROJECT_DIR . '/platform/src/Core/Framework/Test/Plugin/_fixture/plugins/SwagTest/src',
-                'class' => SwagTest::class,
-            ],
-        ];
-
         $newActualParameters = [];
         foreach ($expectedParameters as $key => $_value) {
             $newActualParameters[$key] = $this->kernel->getContainer()->getParameter($key);
         }
+
+        $activePlugins = $this->kernel->getContainer()->getParameter('kernel.active_plugins');
+
+        static::assertIsArray($activePlugins);
+        static::assertArrayHasKey(SwagTest::class, $activePlugins);
+
+        static::assertArrayHasKey('name', $activePlugins[SwagTest::class]);
+        static::assertArrayHasKey('path', $activePlugins[SwagTest::class]);
+        static::assertArrayHasKey('class', $activePlugins[SwagTest::class]);
 
         static::assertSame($expectedParameters, $newActualParameters);
     }

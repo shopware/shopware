@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\Test;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Kernel;
 use Symfony\Component\Finder\Finder;
 
 class DeprecatedTagTest extends TestCase
@@ -21,7 +23,8 @@ class DeprecatedTagTest extends TestCase
 
     public function testAllPhpFilesInPlatformForDeprecated(): void
     {
-        $dir = $this->getContainer()->getParameter('kernel.project_dir') . '/platform';
+        $dir = dirname(KernelLifecycleManager::getClassLoader()
+                ->findFile(Kernel::class)) . '/../';
 
         $return = [];
         $finder = new Finder();

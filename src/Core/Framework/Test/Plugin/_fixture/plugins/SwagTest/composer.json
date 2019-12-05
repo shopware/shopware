@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "shopware/platform": ">=6.0"
+        "shopware/core": ">=6.0"
     },
     "extra": {
         "shopware-plugin-class": "SwagTest\\SwagTest",

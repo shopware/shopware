@@ -40,6 +40,9 @@ class SalesChannelCmsPageLoaderTest extends TestCase
     {
         $salesChannelContext = $this->createSalesChannelContext();
 
+        $firstSlotId = Uuid::randomHex();
+        $secondSlotId = Uuid::randomHex();
+
         $category = [
             'id' => Uuid::randomHex(),
             'name' => 'test category',
@@ -58,7 +61,7 @@ class SalesChannelCmsPageLoaderTest extends TestCase
                                 'position' => 0,
                                 'slots' => [
                                     [
-                                        'id' => Uuid::randomHex(),
+                                        'id' => $firstSlotId,
                                         'type' => 'text',
                                         'slot' => 'content',
                                         'config' => [
@@ -67,6 +70,12 @@ class SalesChannelCmsPageLoaderTest extends TestCase
                                                 'value' => 'initial',
                                             ],
                                         ],
+                                    ],
+                                    [
+                                        'id' => $secondSlotId,
+                                        'type' => 'text',
+                                        'slot' => 'content',
+                                        'config' => null,
                                     ],
                                 ],
                             ],
@@ -85,7 +94,7 @@ class SalesChannelCmsPageLoaderTest extends TestCase
             []
         );
 
-        static::assertGreaterThanOrEqual(1, $pages->getTotal());
+        static::assertEquals(1, $pages->getTotal());
 
         /** @var CmsPageEntity $page */
         $page = $pages->first();
@@ -94,17 +103,27 @@ class SalesChannelCmsPageLoaderTest extends TestCase
 
         static::assertEquals(
             $category['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['config'],
-            $page->getSections()->first()->getBlocks()->getSlots()->first()->getConfig()
+            $page->getSections()->first()->getBlocks()->getSlots()->get($firstSlotId)->getConfig()
         );
 
         static::assertEquals(
             $fieldConfigCollection,
-            $page->getSections()->first()->getBlocks()->getSlots()->first()->getFieldConfig()
+            $page->getSections()->first()->getBlocks()->getSlots()->get($firstSlotId)->getFieldConfig()
+        );
+
+        static::assertNull(
+            $page->getSections()->first()->getBlocks()->getSlots()->get($secondSlotId)->getConfig()
         );
 
         // overwrite in category
         $customSlotConfig = [
             $category['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['id'] => [
+                'content' => [
+                    'source' => 'static',
+                    'value' => 'overwrite',
+                ],
+            ],
+            $category['cmsPage']['sections'][0]['blocks'][0]['slots'][1]['id'] => [
                 'content' => [
                     'source' => 'static',
                     'value' => 'overwrite',
@@ -128,12 +147,17 @@ class SalesChannelCmsPageLoaderTest extends TestCase
 
         static::assertEquals(
             $customSlotConfig[$category['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['id']],
-            $page->getSections()->first()->getBlocks()->getSlots()->first()->getConfig()
+            $page->getSections()->first()->getBlocks()->getSlots()->get($firstSlotId)->getConfig()
         );
 
         static::assertEquals(
             $fieldConfigCollection,
-            $page->getSections()->first()->getBlocks()->getSlots()->first()->getFieldConfig()
+            $page->getSections()->first()->getBlocks()->getSlots()->get($firstSlotId)->getFieldConfig()
+        );
+
+        static::assertEquals(
+            $customSlotConfig[$category['cmsPage']['sections'][0]['blocks'][0]['slots'][1]['id']],
+            $page->getSections()->first()->getBlocks()->getSlots()->get($secondSlotId)->getConfig()
         );
     }
 }

@@ -120,8 +120,9 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
                 continue;
             }
 
+            $defaultConfig = $slot->getConfig() ?? [];
             $merged = array_replace_recursive(
-                $slot->getConfig(),
+                $defaultConfig,
                 $config[$slot->getId()]
             );
 

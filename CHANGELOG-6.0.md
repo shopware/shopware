@@ -381,6 +381,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
          } 
        }
        ```
+    * Fixed a bug that cms configuration could not be overridden if some default config is null.
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain

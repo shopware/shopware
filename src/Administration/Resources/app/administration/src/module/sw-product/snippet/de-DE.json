@@ -190,7 +190,7 @@
       "errorHeadline": "Fehler",
       "errorNoImage": "\"{file}\" ist kein Bild.",
       "errorMediaItemDuplicated": "Medium bereits verwendet.",
-      "coverSubline": "Vorschaubild"
+      "coverSubline": "Cover"
     },
     "advancedPrices": {
       "deletionNotPossibleTitle": "Fehler",

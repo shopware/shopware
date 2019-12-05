@@ -154,6 +154,7 @@
       "labelStreet": "Street",
       "labelCity": "City",
       "labelCountry": "Country",
+      "labelState": "State",
       "labelAdditionalAddressLine1": "Additional address line 1",
       "labelAdditionalAddressLine2": "Additional address line 2",
       "labelPhoneNumber": "Phone number",

@@ -76,8 +76,10 @@ Component.register('sw-customer-detail', {
                 .addAssociation('defaultPaymentMethod')
                 .addAssociation('lastPaymentMethod')
                 .addAssociation('defaultBillingAddress.country')
+                .addAssociation('defaultBillingAddress.countryState')
                 .addAssociation('defaultBillingAddress.salutation')
                 .addAssociation('defaultShippingAddress.country')
+                .addAssociation('defaultShippingAddress.countryState')
                 .addAssociation('defaultShippingAddress.salutation')
                 .addAssociation('tags');
 

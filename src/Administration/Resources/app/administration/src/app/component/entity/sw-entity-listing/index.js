@@ -102,6 +102,8 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             return this.repository.delete(id, this.items.context).then(() => {
                 this.resetSelection();
                 return this.doSearch();
+            }).catch((errorResponse) => {
+                this.$emit('delete-item-failed', { id, errorResponse });
             });
         },
 

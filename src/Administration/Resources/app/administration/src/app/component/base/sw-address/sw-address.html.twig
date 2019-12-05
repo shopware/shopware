@@ -57,8 +57,14 @@
                 {% endblock %}
 
                 {% block sw_address_country %}
-                    <div v-if="address.country && address.country.name" class="sw-address__country sw-address__line">
-                        {{ address.country.name }}
+                    <div class="sw-address__line">
+                        <span v-if="address.countryState && address.countryState.name">
+                            {{ address.countryState.name }},
+                        </span>
+
+                        <span v-if="address.country && address.country.name" class="sw-address__country">
+                            {{ address.country.name }}
+                        </span>
                     </div>
                 {% endblock %}
             </div>

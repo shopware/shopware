@@ -35,6 +35,7 @@
       "labelActive": "Active",
       "labelShippingAvailable": "Shipping available",
       "labelTaxFree": "Tax free",
+      "labelForceStateInRegistration": "State is required on registration",
       "placeholderName": "Enter name",
       "placeholderPosition": "1",
       "placeholderIso": "Enter alpha-2 ISO code",

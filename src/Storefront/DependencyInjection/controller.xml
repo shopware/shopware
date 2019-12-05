@@ -207,5 +207,12 @@
             </call>
             <argument type="service" id="product_export.repository"/>
         </service>
+
+        <service id="Shopware\Storefront\Controller\CountryStateController" public="true">
+            <argument type="service" id="sales_channel.country.repository"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
     </services>
 </container>

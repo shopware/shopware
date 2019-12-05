@@ -283,7 +283,9 @@
                     </div>
                 {% endif %}
             {% endblock %}
+        </div>
 
+        <div class="form-row country-and-state-form-elements" data-country-state-select="true">
             {% block component_address_form_country %}
                 <div class="form-group col-md-6">
                     {% if formViolations.getViolations("/countryId") is not empty %}
@@ -300,10 +302,11 @@
                     {% endblock %}
 
                     {% block component_address_form_country_select %}
-                        <select class="custom-select{% if violationPath %} is-invalid{% endif %}"
+                        <select class="country-select custom-select{% if violationPath %} is-invalid{% endif %}"
                                 id="{{ prefix }}AddressCountry"
                                 name="{{ prefix }}[countryId]"
-                                required="required">
+                                required="required"
+                                data-initial-country-id="{{ data.get('countryId') }}">
                             {% if not data.get('countryId') %}
                                 <option disabled="disabled"
                                         value=""
@@ -321,6 +324,34 @@
                             {% endfor %}
                         </select>
                     {% endblock %}
+                </div>
+
+                <div class="form-group col-md-6  d-none">
+                    {% if formViolations.getViolations("/countryStateId") is not empty %}
+                        {% set violationPath = "/countryStateId" %}
+                    {% elseif formViolations.getViolations("/#{prefix}/countryStateId") is not empty %}
+                        {% set violationPath = "/#{prefix}/countryStateId" %}
+                    {% endif %}
+
+                    {% block component_address_form_country_state_label %}
+                        <label class="form-label"
+                               for="{{ prefix }}AddressCountry">
+                            {{ "address.countryStateLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                        </label>
+                    {% endblock %}
+
+                    {% block component_address_form_country_state_select %}
+                        <select class="country-state-select custom-select{% if violationPath %} is-invalid{% endif %}"
+                                id="{{ prefix }}AddressCountryState"
+                                name="{{ prefix }}[countryStateId]"
+                                data-initial-country-state-id="{{ data.get('countryStateId') }}">
+                            <option value=""
+                                    selected="selected"
+                                    data-placeholder-option="true">
+                                {{ "address.countryStatePlaceholder"|trans|sw_sanitize }}
+                            </option>
+                        </select>
+                    {% endblock %}
 
                     {% block component_address_form_country_error %}
                         {% if violationPath %}
@@ -329,7 +360,9 @@
                     {% endblock %}
                 </div>
             {% endblock %}
+        </div>
 
+        <div class="form-row">
             {% block component_address_form_phone_number %}
                 {% if shopware.config.core.loginRegistration.showPhoneNumberField %}
                     <div class="form-group col-md-6">

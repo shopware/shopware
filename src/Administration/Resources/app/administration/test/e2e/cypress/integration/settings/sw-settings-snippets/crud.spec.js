@@ -62,7 +62,7 @@ describe('Snippets: Test crud operations', () => {
         cy.get(`${page.elements.dataGridRow}--0`).should('not.have.value', 'a.Woodech');
     });
 
-    it('@settings: update and read snippets', () => {
+    it.skip('@settings: update and read snippets', () => {
         const page = new SnippetPageObject();
 
         // Open snippet set

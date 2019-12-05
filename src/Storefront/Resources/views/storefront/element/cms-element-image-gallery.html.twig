@@ -17,6 +17,7 @@
         {% set navigationDots = sliderConfig.navigationDots.value %}
         {% set galleryPosition = sliderConfig.galleryPosition.value %}
         {% set verticalAlign = sliderConfig.verticalAlign.value %}
+        {% set zoomImageContainerSelector = sliderConfig.zoomImageContainerSelector.value %}
     {% endif %}
 
     {% if fallbackImageTitle is not defined %}
@@ -25,6 +26,21 @@
 
     {# @var mediaItems \Shopware\Core\Content\Media\MediaCollection #}
     {% set imageCount = mediaItems|length %}
+
+    {% set magnifierOptions = [] %}
+
+    {% if magnifierOverGallery %}
+        {% set magnifierOptions = magnifierOptions|merge({
+            'magnifierOverGallery': true,
+            'cursorType': 'crosshair'
+        }) %}
+    {% endif %}
+
+    {% if zoomImageContainerSelector %}
+        {% set magnifierOptions = magnifierOptions|merge({
+            'zoomImageContainerSelector': zoomImageContainerSelector
+        }) %}
+    {% endif %}
 
     <div class="cms-element-{{ element.type }}{% if displayMode == "standard" and verticalAlign %} has-vertical-alignment{% endif %}">
         {% block element_image_gallery_alignment %}
@@ -36,12 +52,9 @@
                     <div class="row gallery-slider-row{% if imageCount == 1 %} is-single-image{% endif %} js-gallery-zoom-modal-container"
                             {% if zoom %}
                                 data-magnifier="true"
-                                {% if magnifierOverGallery %}
-                                    data-magnifier-options='{
-                                    "magnifierOverGallery": true,
-                                    "cursorType": "crosshair"
-                                }'
-                                {% endif %}
+                            {% endif %}
+                            {% if magnifierOptions|length > 0 %}
+                                data-magnifier-options='{{ magnifierOptions|json_encode|raw }}'
                             {% endif %}
                             {% if imageCount > 1 %}
                                 data-gallery-slider="true"

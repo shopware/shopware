@@ -109,6 +109,15 @@ class ThemeFileResolver
                 continue;
             }
 
+            if ($filepath === '@StorefrontBootstrap') {
+                $resolvedFiles->add(new File(
+                    __DIR__ . '/../Resources/app/storefront/src/scss/base.scss',
+                    ['vendor' => __DIR__ . '/../Resources/app/storefront/vendor']
+                ));
+
+                continue;
+            }
+
             // Resolve @ dependencies
             $name = mb_substr($filepath, 1);
             $configuration = $configurationCollection->getByTechnicalName($name);

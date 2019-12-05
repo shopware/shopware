@@ -29,7 +29,18 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     *
 
 * Storefront	
-    *
+    * The `theme.json` now supports a new option for the `style` files. The placeholder `@StorefrontBootstrap` gives you the ability to use the Bootstrap SCSS without the Shopware Storefront "skin":
+        ```json
+        {
+             "style": [
+                  "@StorefrontBootstrap",
+                  "app/storefront/src/scss/base.scss"
+             ]
+        }
+         ```
+        * The `@StorefrontBootstrap` placeholder also includes the SCSS variables from your `theme.json`.
+        * Please beware that this option is only available for the `style` section.
+        * You can only use either `@StorefrontBootstrap` or `@Storefront`. They should not be used at the same time. The `@Storefront` bundle includes the Bootstrap SCSS already.
 
 **Removals**
 

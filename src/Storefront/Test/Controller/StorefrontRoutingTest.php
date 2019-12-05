@@ -15,12 +15,12 @@ class StorefrontRoutingTest extends TestCase
     use IntegrationTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
-    public function testForwardFromNewsletterToHomePage(): void
+    public function testForwardFromAddPromotionToHomePage(): void
     {
         $response = $this->request(
             'POST',
-            'newsletter',
-            $this->tokenize('frontend.newsletter.register.handle', [
+            '/checkout/promotion/add',
+            $this->tokenize('frontend.checkout.promotion.add', [
                 'forwardTo' => 'frontend.home.page',
             ])
         );
@@ -32,12 +32,12 @@ class StorefrontRoutingTest extends TestCase
         static::assertSame(200, $response->getStatusCode());
     }
 
-    public function testForwardFromNewsletterToApiFails(): void
+    public function testForwardFromAddPromotionToApiFails(): void
     {
         $response = $this->request(
             'POST',
-            'newsletter',
-            $this->tokenize('frontend.newsletter.register.handle', [
+            '/checkout/promotion/add',
+            $this->tokenize('frontend.checkout.promotion.add', [
                 'forwardTo' => 'api.action.user.user-recovery.hash',
                 'forwardParameters' => json_encode(['version' => 1]),
             ])

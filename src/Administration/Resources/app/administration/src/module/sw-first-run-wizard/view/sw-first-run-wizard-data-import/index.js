@@ -30,6 +30,7 @@ Component.register('sw-first-run-wizard-data-import', {
             isPluginAlreadyInstalled: false,
             isInstallingPlugin: false,
             installationError: false,
+            pluginError: null,
             pluginInstalledSuccessfully: {
                 demodata: false,
                 migration: false
@@ -104,9 +105,13 @@ Component.register('sw-first-run-wizard-data-import', {
 
                     return false;
                 })
-                .catch(() => {
+                .catch((error) => {
                     this.isInstallingPlugin = false;
                     this.installationError = true;
+
+                    if (error.response && error.response.data && error.response.data.errors) {
+                        this.pluginError = error.response.data.errors.pop();
+                    }
 
                     return true;
                 });

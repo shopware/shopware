@@ -61,10 +61,10 @@
 
         <div v-if="installationError"
              class="sw-first-run-wizard-plugin-installation__error">
-            <sw-alert :title="$tc('sw-first-run-wizard.error.titlePluginInstallationFailed')"
+            <sw-alert :title="pluginError.title"
                       variant="error"
                       appearance="notification">
-                {{ $tc('sw-first-run-wizard.error.messagePluginInstallationFailed') }}
+                {{ pluginError.detail }}
             </sw-alert>
         </div>
     </div>

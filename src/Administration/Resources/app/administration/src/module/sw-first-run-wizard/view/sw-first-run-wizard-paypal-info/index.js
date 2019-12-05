@@ -12,6 +12,7 @@ Component.register('sw-first-run-wizard-paypal-info', {
         return {
             isInstallingPlugin: false,
             pluginInstallationFailed: false,
+            pluginError: null,
             pluginName: 'SwagPayPal',
             installPromise: Promise.resolve()
         };
@@ -82,9 +83,13 @@ Component.register('sw-first-run-wizard-paypal-info', {
                 document.location.href = url;
 
                 return Promise.resolve(true);
-            }).catch(() => {
+            }).catch((error) => {
                 this.isInstallingPlugin = false;
                 this.pluginInstallationFailed = true;
+
+                if (error.response && error.response.data && error.response.data.errors) {
+                    this.pluginError = error.response.data.errors.pop();
+                }
 
                 return true;
             });

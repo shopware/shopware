@@ -450,7 +450,7 @@
         "informationHeadline": "Information",
         "newsletterHeadline": "Newsletter",
         "serviceHotline": "Support and counselling via: <a href=\"tel:+49180000000\">0180 - 000000</a> Mon-Fri, 9 am - 5 pm",
-        "serviceContactLink": "Or via our <a href=\"%link%\" title=\"contact form\">contact form</a>",
+        "serviceContactLink": "Or via our <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"contact form\">contact form</a>.",
         "newsletterInput": "Your email address",
         "newsletter": "Subscribe to our regular newsletter now and stay tuned on the latest products and special offers.",
         "includeVat": "* All prices incl. value added tax",

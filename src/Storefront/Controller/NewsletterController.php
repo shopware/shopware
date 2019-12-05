@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Newsletter\Register\NewsletterRegisterPageLoader;
 use Shopware\Storefront\Page\Newsletter\Subscribe\NewsletterSubscribePageLoader;
@@ -63,48 +62,7 @@ class NewsletterController extends StorefrontController
     }
 
     /**
-     * @Route("/newsletter", name="frontend.newsletter.register.page", methods={"GET"})
-     */
-    public function index(SalesChannelContext $context, Request $request): Response
-    {
-        $page = $this->newsletterRegisterPageLoader->load($request, $context);
-
-        return $this->renderStorefront('@Storefront/storefront/page/newsletter/index.html.twig', ['page' => $page]);
-    }
-
-    /**
-     * @Route("/newsletter", name="frontend.newsletter.register.handle", methods={"POST"})
-     */
-    public function handle(Request $request, SalesChannelContext $context, RequestDataBag $requestDataBag): Response
-    {
-        $subscribe = $requestDataBag->get('option') === 'subscribe';
-
-        try {
-            if ($subscribe) {
-                $this->newsletterService->subscribe($requestDataBag, $context);
-
-                $this->addFlash('success', $this->trans('newsletter.subscriptionPersistedSuccess'));
-                $this->addFlash('info', $this->trans('newsletter.subscriptionPersistedInfo'));
-            } else {
-                $this->newsletterService->unsubscribe($requestDataBag, $context);
-
-                $this->addFlash('success', $this->trans('newsletter.subscriptionRevokeSuccess'));
-            }
-        } catch (ConstraintViolationException $exception) {
-            foreach ($exception->getViolations() as $violation) {
-                $this->addFlash('danger', $violation->getMessage());
-            }
-        } catch (\Exception $exception) {
-            if ($subscribe) {
-                $this->addFlash('danger', $this->trans('error.message-default'));
-            }
-        }
-
-        return $this->createActionResponse($request);
-    }
-
-    /**
-     * @Route("/newsletter/subscribe", name="frontend.newsletter.subscribe", methods={"GET"})
+     * @Route("/newsletter-subscribe", name="frontend.newsletter.subscribe", methods={"GET"})
      */
     public function subscribeMail(SalesChannelContext $context, Request $request, QueryDataBag $queryDataBag): Response
     {

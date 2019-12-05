@@ -120,5 +120,25 @@
             <placeholder>Select layout</placeholder>
             <placeholder lang="de-DE">Layout auswählen</placeholder>
         </component>
+
+        <component name="sw-cms-page-select">
+            <name>contactPage</name>
+            <entity>cms_page</entity>
+            <pageType>page</pageType>
+            <label>Shop page layout for contact pages</label>
+            <label lang="de-DE">Shopseiten-Layout für Kontaktseiten</label>
+            <placeholder>Assign layout...</placeholder>
+            <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
+        </component>
+
+        <component name="sw-cms-page-select">
+            <name>newsletterPage</name>
+            <entity>cms_page</entity>
+            <pageType>page</pageType>
+            <label>Shop page layout for newsletter pages</label>
+            <label lang="de-DE">Shopseiten-Layout für Newsletterseiten</label>
+            <placeholder>Assign layout...</placeholder>
+            <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
+        </component>
     </card>
 </config>

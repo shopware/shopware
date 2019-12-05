@@ -297,7 +297,7 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
                 hash('sha1', $data['email']),
                 $data['hash'],
             ],
-            '/newsletter/subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%'
+            '/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%'
         );
 
         return $url;

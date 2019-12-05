@@ -450,7 +450,7 @@
         "informationHeadline": "Informationen",
         "newsletterHeadline": "Newsletter",
         "serviceHotline": "Unterstützung und Beratung unter: <a href=\"tel:+49180000000\">0180 - 000000</a> Mo-Fr, 09:00 - 17:00 Uhr",
-        "serviceContactLink": "Oder über unser <a href=\"%link%\" title=\"Kontaktformular\">Kontaktformular</a>",
+        "serviceContactLink": "Oder über unser <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Kontaktformular\">Kontaktformular</a>.",
         "newsletterInput": "Ihre E-Mail-Adresse",
         "newsletter": "Abonnieren Sie jetzt einfach unseren regelmäßig erscheinenden Newsletter und Sie werden stets unter den Ersten sein, über neue Produkte und Angebote informiert werden.",
         "includeVat": "* Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a href=\"#\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders beschrieben",

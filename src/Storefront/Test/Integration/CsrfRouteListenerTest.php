@@ -52,7 +52,7 @@ class CsrfRouteListenerTest extends TestCase
 
     public function testPostRequestWithoutCsrfTokenShouldFail(): void
     {
-        $this->client->request('POST', 'http://localhost/newsletter');
+        $this->client->request('POST', 'http://localhost/widgets/account/newsletter');
         $statusCode = $this->client->getResponse()->getStatusCode();
         static::assertSame(Response::HTTP_FORBIDDEN, $statusCode);
     }
@@ -61,13 +61,13 @@ class CsrfRouteListenerTest extends TestCase
     {
         $token = $this->getContainer()
             ->get('security.csrf.token_manager')
-            ->getToken('frontend.newsletter.register.handle')
+            ->getToken('frontend.account.newsletter')
             ->getValue();
 
-        $this->client->request('POST', 'http://localhost/newsletter', ['_csrf_token' => $token]);
+        $this->client->request('POST', 'http://localhost/widgets/account/newsletter', ['_csrf_token' => $token]);
         $statusCode = $this->client->getResponse()->getStatusCode();
 
-        static::assertSame(Response::HTTP_OK, $statusCode);
+        static::assertSame(Response::HTTP_FOUND, $statusCode);
     }
 
     protected function getContainer(): ContainerInterface

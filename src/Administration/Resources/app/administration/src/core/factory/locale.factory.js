@@ -149,27 +149,25 @@ function getLastKnownLocale() {
  * @returns {String}
  */
 function getBrowserLanguage() {
-    const languages = getBrowserLanguages();
-    const shortLanguageCodes = languages.map((language) => {
-        const lang = language.split('-')[0];
-        return lang.toLowerCase();
+    const shortLanguageCodes = new Map();
+    localeRegistry.forEach((messages, locale) => {
+        const lang = locale.split('-')[0];
+        shortLanguageCodes.set(lang.toLowerCase(), locale);
     });
 
     let matchedLanguage = null;
 
-    languages.forEach((language) => {
-        const shortLanguageCode = language.split('-')[0];
-
-        if (!matchedLanguage && shortLanguageCodes.includes(shortLanguageCode)) {
+    getBrowserLanguages().forEach((language) => {
+        if (!matchedLanguage && localeRegistry.has(language)) {
             matchedLanguage = language;
+        }
+
+        if (!matchedLanguage && shortLanguageCodes.has(language)) {
+            matchedLanguage = shortLanguageCodes.get(language);
         }
     });
 
-    if (!matchedLanguage) {
-        matchedLanguage = defaultLocale;
-    }
-
-    return matchedLanguage;
+    return matchedLanguage || defaultLocale;
 }
 
 /**

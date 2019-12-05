@@ -22,7 +22,9 @@ Component.register('sw-product-cross-selling-form', {
             showDeleteModal: false,
             showModalPreview: false,
             productStream: null,
-            productStreamFilter: []
+            productStreamFilter: [],
+            sortBy: 'name',
+            sortDirection: 'ASC'
         };
     },
 
@@ -56,11 +58,30 @@ Component.register('sw-product-cross-selling-form', {
         },
 
         sortingTypes() {
-            return [
-                { value: 'price', label: this.$tc('sw-product.crossselling.priceDescendingSortingType') },
-                { value: 'name', label: this.$tc('sw-product.crossselling.nameSortingType') },
-                { value: 'releaseDate', label: this.$tc('sw-product.crossselling.releaseDateSortingType') }
-            ];
+            return [{
+                label: this.$tc('sw-product.crossselling.priceDescendingSortingType'),
+                value: 'price:DESC'
+            }, {
+                label: this.$tc('sw-product.crossselling.priceAscendingSortingType'),
+                value: 'price:ASC'
+            }, {
+                label: this.$tc('sw-product.crossselling.nameSortingType'),
+                value: 'name:ASC'
+            }, {
+                label: this.$tc('sw-product.crossselling.releaseDateDescendingSortingType'),
+                value: 'releaseDate:DESC'
+            }, {
+                label: this.$tc('sw-product.crossselling.releaseDateAscendingSortingType'),
+                value: 'releaseDate:ASC'
+            }];
+        },
+
+        previewDisabled() {
+            return !this.productStream;
+        },
+
+        sortingConCat() {
+            return `${this.crossSelling.sortBy}:${this.crossSelling.sortDirection}`;
         }
     },
 
@@ -95,6 +116,10 @@ Component.register('sw-product-cross-selling-form', {
         },
 
         openModalPreview() {
+            if (this.previewDisabled) {
+                return;
+            }
+
             this.loadStreamPreview();
             this.showModalPreview = true;
         },
@@ -120,6 +145,10 @@ Component.register('sw-product-cross-selling-form', {
                         this.productStreamFilter = productFilter;
                     });
                 });
+        },
+
+        onSortingChanged(value) {
+            [this.crossSelling.sortBy, this.crossSelling.sortDirection] = value.split(':');
         }
     }
 });

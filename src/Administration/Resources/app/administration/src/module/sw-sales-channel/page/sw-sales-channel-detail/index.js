@@ -236,7 +236,9 @@ Component.register('sw-sales-channel-detail', {
         },
 
         loadProductExportTemplates() {
-            this.productComparison.templateOptions = Object.values(this.exportTemplateService.getProductExportTemplateRegistry());
+            this.productComparison.templateOptions = Object.values(
+                this.exportTemplateService.getProductExportTemplateRegistry()
+            );
             this.productComparison.templates = this.exportTemplateService.getProductExportTemplateRegistry();
         },
 

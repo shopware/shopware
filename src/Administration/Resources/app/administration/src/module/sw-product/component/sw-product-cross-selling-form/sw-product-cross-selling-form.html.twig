@@ -37,7 +37,8 @@
                 {% block sw_prduct_cross_selling_form_sort_field %}
                     <sw-select-field
                         :label="$tc('sw-product.crossselling.inputCrossSellingSorting')"
-                        v-model="crossSelling.sortBy">
+                        :value="sortingConCat"
+                        @change="onSortingChanged">
                         <option v-for="option in sortingTypes"
                                 :key="option.value"
                                 :value="option.value">
@@ -50,7 +51,7 @@
                     <sw-entity-single-select
                         entity="product_stream"
                         class="sw-select-cross-selling__select-product-stream"
-                        id="manufacturerId"
+                        id="sw-field--crossSelling-product-group"
                         required
                         :label="$tc('sw-product.crossselling.inputCrossSellingProductStream')"
                         :placeholder="$tc('sw-product.crossselling.inputCrossSellingProductStreamPlaceholder')"
@@ -78,8 +79,10 @@
                 </div>
             {% endblock %}
             {% block sw_prduct_cross_selling_form_preview_link %}
-                <sw-container columns="1fr" justify="end" class="sw-product-price-form__links">
-                    <a @click="openModalPreview" class="sw-card__quick-link">
+                <sw-container columns="1fr" justify="end" class="sw-product-cross-selling-form__links">
+                    <a class="sw-card__quick-link"
+                       :class="{ 'is--disabled': previewDisabled }"
+                       @click="openModalPreview">
                         {{ $tc('sw-product.crossselling.linkOpenStreamPreview') }}
                         <sw-icon
                             name="default-arrow-simple-right"

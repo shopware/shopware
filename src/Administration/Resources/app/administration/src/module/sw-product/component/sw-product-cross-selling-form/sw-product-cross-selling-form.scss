@@ -2,7 +2,11 @@
 
 .product-detail-cross-selling-form {
     .sw-product-detail-cross-selling__context-button {
-        float: right;
+        display: flex;
+
+        .sw-context-button {
+            margin-left: auto;
+        }
     }
 
     .sw-field .sw-field__help-text {
@@ -19,7 +23,7 @@
         }
     }
 
-    .sw-product-price-form__links {
+    .sw-product-cross-selling-form__links {
         .sw-card__quick-link:first-child {
             margin-top: 0;
         }
@@ -28,6 +32,12 @@
             transition: color 0.3s ease;
             cursor: pointer;
             margin-top: 16px;
+
+            &.is--disabled {
+                cursor: not-allowed;
+                color: $color-gray-500;
+                pointer-events: none;
+            }
         }
     }
 }

@@ -35,10 +35,10 @@
             </sw-container>
             <div v-if="pluginInstallationFailed"
                  class="sw-first-run-wizard-paypal__error">
-                <sw-alert :title="$tc('sw-first-run-wizard.error.titlePayPalInstallationFailed')"
+                <sw-alert :title="pluginError.title"
                  variant="error"
                  appearance="notification">
-                    {{ $tc('sw-first-run-wizard.error.messagePayPalInstallationFailed') }}
+                    {{ pluginError.detail }}
                 </sw-alert>
             </div>
             <div class="disclaimer">

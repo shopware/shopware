@@ -100,14 +100,6 @@
       "roadmapLabel": "Roadmap",
       "roadmapUrl": "https://www.shopware.com/en/roadmap/"
     },
-    "error": {
-      "titleLoginDataInvalid": "Error",
-      "messageLoginDataInvalid": "Login data incomplete.",
-      "titlePayPalInstallationFailed": "Error",
-      "messagePayPalInstallationFailed": "PayPal configuration failed",
-      "titlePluginInstallationFailed": "Error",
-      "messagePluginInstallationFailed": "Plugin installation failed"
-    },
     "stepItemTitle": {
       "dataImport": "Data import",
       "mailer": "Mailer configuration",

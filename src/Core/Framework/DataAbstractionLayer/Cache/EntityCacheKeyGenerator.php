@@ -21,18 +21,12 @@ use Shopware\Core\System\Language\LanguageDefinition;
 class EntityCacheKeyGenerator
 {
     /**
-     * @var LanguageDefinition
-     */
-    private $languageDefinition;
-
-    /**
      * @var string
      */
     private $cacheHash;
 
-    public function __construct(LanguageDefinition $languageDefinition, string $cacheHash)
+    public function __construct(string $cacheHash)
     {
-        $this->languageDefinition = $languageDefinition;
         $this->cacheHash = $cacheHash;
     }
 
@@ -106,9 +100,9 @@ class EntityCacheKeyGenerator
     /**
      * Defines the tag for a single entity. Used for invalidation if this entity is written
      */
-    public function getEntityTag(string $id, EntityDefinition $definition): string
+    public function getEntityTag(string $id, string $entityName): string
     {
-        $keys = [$definition->getEntityName(), $id];
+        $keys = [$entityName, $id];
 
         return implode('-', $keys);
     }
@@ -155,10 +149,10 @@ class EntityCacheKeyGenerator
     {
         $associations = $definition->getFields()->filterInstance(AssociationField::class);
 
-        $keys = [$this->getEntityTag($entity->getUniqueIdentifier(), $definition)];
+        $keys = [$this->getEntityTag($entity->getUniqueIdentifier(), $definition->getEntityName())];
 
         foreach ($context->getLanguageIdChain() as $languageId) {
-            $keys[] = $this->getEntityTag($languageId, $this->languageDefinition);
+            $keys[] = $this->getEntityTag($languageId, LanguageDefinition::ENTITY_NAME);
         }
 
         $translationDefinition = $definition->getTranslationDefinition();

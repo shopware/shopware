@@ -6,16 +6,24 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Statement;
 use Shopware\Core\Content\Seo\SeoResolverInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
+use Shopware\Storefront\Theme\ThemeDefinition;
+use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Cache\ItemInterface;
 use TrueBV\Punycode;
 
 class RequestTransformer implements RequestTransformerInterface
 {
+    public const REQUEST_TRANSFORMER_CACHE_KEY = 'request_transformer_domains';
     public const SALES_CHANNEL_BASE_URL = 'sw-sales-channel-base-url';
     public const SALES_CHANNEL_ABSOLUTE_BASE_URL = 'sw-sales-channel-absolute-base-url';
     public const SALES_CHANNEL_RESOLVED_URI = 'resolved-uri';
@@ -72,15 +80,29 @@ class RequestTransformer implements RequestTransformerInterface
      */
     private $resolver;
 
+    /**
+     * @var TagAwareAdapterInterface
+     */
+    private $cache;
+
+    /**
+     * @var EntityCacheKeyGenerator
+     */
+    private $cacheKeyGenerator;
+
     public function __construct(
         RequestTransformerInterface $decorated,
         Connection $connection,
-        SeoResolverInterface $resolver
+        SeoResolverInterface $resolver,
+        TagAwareAdapterInterface $cache,
+        EntityCacheKeyGenerator $cacheKeyGenerator
     ) {
         $this->connection = $connection;
         $this->decorated = $decorated;
         $this->resolver = $resolver;
         $this->punycode = new Punycode();
+        $this->cache = $cache;
+        $this->cacheKeyGenerator = $cacheKeyGenerator;
     }
 
     public function transform(Request $request): Request
@@ -214,39 +236,7 @@ class RequestTransformer implements RequestTransformerInterface
 
     private function findSalesChannel(Request $request): ?array
     {
-        /** @var Statement $statement */
-        $statement = $this->connection->createQueryBuilder()
-            ->select([
-                'CONCAT(TRIM(TRAILING "/" FROM domain.url), "/") `key`',
-                'CONCAT(TRIM(TRAILING "/" FROM domain.url), "/") url',
-                'LOWER(HEX(domain.id)) id',
-                'LOWER(HEX(sales_channel.id)) salesChannelId',
-                'LOWER(HEX(sales_channel.type_id)) typeId',
-                'sales_channel.maintenance maintenance',
-                'sales_channel.maintenance_ip_whitelist maintenanceIpWhitelist',
-                'LOWER(HEX(domain.snippet_set_id)) snippetSetId',
-                'LOWER(HEX(domain.currency_id)) currencyId',
-                'LOWER(HEX(domain.language_id)) languageId',
-                'snippet_set.iso as locale',
-                'LOWER(HEX(theme.id)) themeId',
-                'theme.technical_name as themeName',
-                'parentTheme.technical_name as parentThemeName',
-            ])->from('sales_channel')
-            ->innerJoin('sales_channel', 'sales_channel_domain', 'domain', 'domain.sales_channel_id = sales_channel.id')
-            ->innerJoin('domain', 'snippet_set', 'snippet_set', 'snippet_set.id = domain.snippet_set_id')
-            ->leftJoin(
-                'sales_channel',
-                'theme_sales_channel',
-                'theme_sales_channel',
-                'sales_channel.id = theme_sales_channel.sales_channel_id'
-            )
-            ->leftJoin('theme_sales_channel', 'theme', 'theme', 'theme_sales_channel.theme_id = theme.id')
-            ->leftJoin('theme', 'theme', 'parentTheme', 'theme.parent_theme_id = parentTheme.id')
-            ->where('sales_channel.type_id = UNHEX(:typeId)')
-            ->andWhere('sales_channel.active')
-            ->setParameter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT)
-            ->execute();
-        $domains = FetchModeHelper::groupUnique($statement->fetchAll());
+        $domains = $this->fetchDomains();
 
         if (empty($domains)) {
             return null;
@@ -332,5 +322,75 @@ class RequestTransformer implements RequestTransformerInterface
     private function containsBaseUrl(string $seoPathInfo, string $baseUrl): bool
     {
         return !empty($baseUrl) && mb_strpos($seoPathInfo, $baseUrl) === 0;
+    }
+
+    private function fetchDomains(): array
+    {
+        $item = $this->cache->getItem(self::REQUEST_TRANSFORMER_CACHE_KEY);
+
+        if ($item->isHit() && $item->get()) {
+            return $item->get();
+        }
+
+        /** @var Statement $statement */
+        $statement = $this->connection->createQueryBuilder()
+            ->select(
+                [
+                    'CONCAT(TRIM(TRAILING "/" FROM domain.url), "/") `key`',
+                    'CONCAT(TRIM(TRAILING "/" FROM domain.url), "/") url',
+                    'LOWER(HEX(domain.id)) id',
+                    'LOWER(HEX(sales_channel.id)) salesChannelId',
+                    'LOWER(HEX(sales_channel.type_id)) typeId',
+                    'LOWER(HEX(domain.snippet_set_id)) snippetSetId',
+                    'LOWER(HEX(domain.currency_id)) currencyId',
+                    'LOWER(HEX(domain.language_id)) languageId',
+                    'LOWER(HEX(theme.id)) themeId',
+                    'sales_channel.maintenance maintenance',
+                    'sales_channel.maintenance_ip_whitelist maintenanceIpWhitelist',
+                    'snippet_set.iso as locale',
+                    'theme.technical_name as themeName',
+                    'parentTheme.technical_name as parentThemeName',
+                ]
+            )->from('sales_channel')
+            ->innerJoin('sales_channel', 'sales_channel_domain', 'domain', 'domain.sales_channel_id = sales_channel.id')
+            ->innerJoin('domain', 'snippet_set', 'snippet_set', 'snippet_set.id = domain.snippet_set_id')
+            ->leftJoin('sales_channel', 'theme_sales_channel', 'theme_sales_channel', 'sales_channel.id = theme_sales_channel.sales_channel_id')
+            ->leftJoin('theme_sales_channel', 'theme', 'theme', 'theme_sales_channel.theme_id = theme.id')
+            ->leftJoin('theme', 'theme', 'parentTheme', 'theme.parent_theme_id = parentTheme.id')
+            ->where('sales_channel.type_id = UNHEX(:typeId)')
+            ->andWhere('sales_channel.active')
+            ->setParameter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT)
+            ->execute();
+
+        $domains = FetchModeHelper::groupUnique($statement->fetchAll());
+
+        $tags = [
+            SalesChannelDefinition::ENTITY_NAME . '.id',
+            SalesChannelDefinition::ENTITY_NAME . '.type_id',
+            SalesChannelDefinition::ENTITY_NAME . '.maintenance',
+            SalesChannelDefinition::ENTITY_NAME . '.maintenance_ip_whitelist',
+            SalesChannelDomainDefinition::ENTITY_NAME . '.id',
+            SalesChannelDomainDefinition::ENTITY_NAME . '.url',
+            SalesChannelDomainDefinition::ENTITY_NAME . '.snippet_set_id',
+            SalesChannelDomainDefinition::ENTITY_NAME . '.currency_id',
+            SalesChannelDomainDefinition::ENTITY_NAME . '.language_id',
+            SnippetSetDefinition::ENTITY_NAME . '.iso',
+            ThemeDefinition::ENTITY_NAME . '.id',
+            ThemeDefinition::ENTITY_NAME . '.technical_name',
+        ];
+
+        foreach ($domains as $domain) {
+            $tags[] = $this->cacheKeyGenerator->getEntityTag($domain['salesChannelId'], SalesChannelDefinition::ENTITY_NAME);
+            $tags[] = $this->cacheKeyGenerator->getEntityTag($domain['id'], SalesChannelDomainDefinition::ENTITY_NAME);
+        }
+        $tags = array_unique($tags);
+
+        $item->set($domains);
+        if ($item instanceof ItemInterface) {
+            $item->tag($tags);
+        }
+        $this->cache->save($item);
+
+        return $domains;
     }
 }

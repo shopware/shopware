@@ -130,7 +130,7 @@ class MediaThumbnailIndexer implements IndexerInterface, EventSubscriberInterfac
         $medias = $this->mediaRepository->search($criteria, $context);
         foreach ($medias as $media) {
             $cacheIds[] = $this->cacheKeyGenerator
-                ->getEntityTag($media->getId(), $this->mediaRepository->getDefinition());
+                ->getEntityTag($media->getId(), MediaDefinition::ENTITY_NAME);
 
             $this->connection->update(
                 $this->mediaRepository->getDefinition()->getEntityName(),

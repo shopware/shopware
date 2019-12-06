@@ -196,7 +196,7 @@ SQL;
 
         $tags = [];
         foreach ($productIds as $productId) {
-            $tags[] = $this->cacheKeyGenerator->getEntityTag(Uuid::fromBytesToHex($productId), $this->productDefinition);
+            $tags[] = $this->cacheKeyGenerator->getEntityTag(Uuid::fromBytesToHex($productId), ProductDefinition::ENTITY_NAME);
         }
         $this->cache->invalidateTags($tags);
     }

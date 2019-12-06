@@ -374,7 +374,7 @@ WHERE product.id IN (:ids);
     {
         $tags = [];
         foreach ($ids as $id) {
-            $tags[] = $this->cacheKeyGenerator->getEntityTag($id, $this->definition);
+            $tags[] = $this->cacheKeyGenerator->getEntityTag($id, ProductDefinition::ENTITY_NAME);
         }
 
         $tags[] = $this->cacheKeyGenerator->getFieldTag($this->definition, 'id');

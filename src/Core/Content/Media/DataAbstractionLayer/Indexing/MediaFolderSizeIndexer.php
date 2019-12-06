@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Media\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfigurationMediaThumbnailSize\MediaFolderConfigurationMediaThumbnailSizeDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
@@ -111,7 +112,7 @@ class MediaFolderSizeIndexer implements IndexerInterface
         $configs = $this->folderConfigRepository->search($criteria, $context);
         foreach ($configs as $config) {
             $cacheIds[] = $this->cacheKeyGenerator
-                ->getEntityTag($config->getId(), $this->folderConfigRepository->getDefinition());
+                ->getEntityTag($config->getId(), MediaFolderConfigurationDefinition::ENTITY_NAME);
 
             $this->connection->update(
                 $this->folderConfigRepository->getDefinition()->getEntityName(),

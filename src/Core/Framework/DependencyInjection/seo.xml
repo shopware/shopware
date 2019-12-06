@@ -79,6 +79,8 @@
 
         <service id="Shopware\Core\Content\Seo\SeoResolver" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
         </service>
 
         <service id="Shopware\Core\Content\Seo\Api\SeoActionController" public="true">

@@ -202,7 +202,7 @@ class ProductListingPriceIndexer implements IndexerInterface
                 ]
             );
 
-            $tags[] = $this->cacheKeyGenerator->getEntityTag($productId, $this->productDefinition);
+            $tags[] = $this->cacheKeyGenerator->getEntityTag($productId, ProductDefinition::ENTITY_NAME);
         }
 
         $this->cache->invalidateTags($tags);

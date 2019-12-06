@@ -188,7 +188,7 @@ class TreeIndexer implements IndexerInterface
         $updatedIds = $this->updateRecursive($parent, $definition, $context);
 
         $tags = array_map(function ($id) use ($definition) {
-            return $this->cacheKeyGenerator->getEntityTag($id, $definition);
+            return $this->cacheKeyGenerator->getEntityTag($id, $definition->getEntityName());
         }, $updatedIds);
 
         $this->cache->invalidateTags($tags);

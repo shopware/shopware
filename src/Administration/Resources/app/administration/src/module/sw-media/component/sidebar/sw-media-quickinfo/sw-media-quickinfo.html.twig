@@ -12,7 +12,7 @@
                 :title="$tc('sw-media.sidebar.sections.actions')"
                 :expandOnLoading="true">
 
-                <template slot="content">
+                <template #content>
                     {% block sw_media_quickinfo_quickactions_content %}
                         <ul class="sw-media-sidebar__quickactions-list">
                             {% block sw_media_quickinfo_quickactions_replace %}
@@ -76,7 +76,7 @@
                 :title="$tc('sw-media.sidebar.sections.preview')">
 
                 {% block sw_media_quickinfo_preview_content %}
-                    <template slot="content">
+                    <template #content>
                         <div>
                             {% block sw_media_quickinfo_preview_item %}
                                 <sw-media-preview class="sw-media-quickinfo__media-preview" :source="item.id" :showControls="true" :useThumbnails="false">
@@ -95,8 +95,8 @@
                 :title="$tc('sw-media.sidebar.sections.metadata')">
 
                 {% block sw_media_quickinfo_metadata_content %}
-                    <template slot="content">
-                         <dl class="sw-media-sidebar__metadata-list">
+                    <template #content>
+                        <dl class="sw-media-sidebar__metadata-list">
                              {% block sw_media_quickinfo_metadata_content_base %}
                                  <sw-media-quickinfo-metadata-item
                                      class="sw-media-quickinfo-metadata-name"
@@ -167,23 +167,27 @@
                                  </sw-media-quickinfo-metadata-item>
                              {% endblock %}
 
-                             <template v-if="item.mediaType.name === 'IMAGE'">
-                                 {% block sw_media_quickinfo_metadata_content_image %}
-                                     <sw-media-quickinfo-metadata-item
-                                         v-if="item.metaData.width"
-                                         class="sw-media-quickinfo-metadata-width"
-                                         :label-name="$tc('sw-media.sidebar.metadata.width')">
-                                         {{ item.metaData.width }}px
-                                     </sw-media-quickinfo-metadata-item>
+                            <template v-if="item.metaData">
+                                {% block sw_media_quickinfo_metadata_specific_meta_data %}
+                                     <template v-if="item.mediaType.name === 'IMAGE'">
+                                         {% block sw_media_quickinfo_metadata_content_image %}
+                                             <sw-media-quickinfo-metadata-item
+                                                 v-if="item.metaData.width"
+                                                 class="sw-media-quickinfo-metadata-width"
+                                                 :label-name="$tc('sw-media.sidebar.metadata.width')">
+                                                 {{ item.metaData.width }}px
+                                             </sw-media-quickinfo-metadata-item>
 
-                                     <sw-media-quickinfo-metadata-item
-                                         v-if="item.metaData.height"
-                                         class="sw-media-quickinfo-metadata-height"
-                                         :label-name="$tc('sw-media.sidebar.metadata.height')">
-                                         {{ item.metaData.height }}px
-                                     </sw-media-quickinfo-metadata-item>
+                                             <sw-media-quickinfo-metadata-item
+                                                 v-if="item.metaData.height"
+                                                 class="sw-media-quickinfo-metadata-height"
+                                                 :label-name="$tc('sw-media.sidebar.metadata.height')">
+                                                 {{ item.metaData.height }}px
+                                             </sw-media-quickinfo-metadata-item>
+                                         {% endblock %}
+                                     </template>
                                  {% endblock %}
-                             </template>
+                            </template>
                         </dl>
                     </template>
                 {% endblock %}
@@ -200,7 +204,7 @@
                 :expandOnLoading="true"
                 :title="$tc('sw-media.sidebar.sections.usage')">
 
-                <template slot="content">
+                <template #content>
                     <sw-media-quickinfo-usage :item="item"></sw-media-quickinfo-usage>
                 </template>
             </sw-media-collapse>

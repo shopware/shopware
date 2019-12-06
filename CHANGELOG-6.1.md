@@ -88,7 +88,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Updated `dompurify` to `2.0.7` in the `administration` package
     * Updated `cypress-select-tests` to `1.4.1` in the `administration/e2e` package
     * Updated `copy-webpack-plugin` to `5.1.1` in the `common/webpack-plugin` package
-    
+    * Added new Block `sw_media_quickinfo_metadata_specific_meta_data` to sw-media-quickinfo that is only rendered if metadata could be fetched for uploaded media. This also gives you easier access to extend the metadata section for specific file types.
 * Core    
 	* We did some refactoring on how we use `WriteConstraintsViolationExceptions`.	
         It's path `property` should now point to the object that is inspected by an validator while the `propertyPath` property in `WriteConstraint` objects should only point to the invalid property. 	

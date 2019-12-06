@@ -50,18 +50,12 @@ class NavigationLoader
     public function load(string $activeId, SalesChannelContext $context, string $rootId): Tree
     {
         $criteria = new Criteria();
-        $criteria->addFilter(
-            new MultiFilter(MultiFilter::CONNECTION_OR, [
-                new EqualsFilter('id', $activeId),
-                new EqualsFilter('parentId', $rootId),
-            ])
-        );
         $criteria->addAssociation('media');
 
         /** @var CategoryCollection $rootLevel */
-        $rootLevel = $this->categoryRepository->search($criteria, $context)->getEntities();
+        $categories = $this->categoryRepository->search($criteria, $context)->getEntities();
 
-        $active = $rootLevel->get($activeId);
+        $active = $categories->get($activeId);
         if (!$active) {
             throw new CategoryNotFoundException($activeId);
         }
@@ -70,20 +64,7 @@ class NavigationLoader
             throw new CategoryNotFoundException($activeId);
         }
 
-        $ids = $rootLevel->getIds();
-        $ids = array_flip($ids);
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('parentId', $ids));
-
-        /** @var CategoryCollection $secondLevel */
-        $secondLevel = $this->categoryRepository->search($criteria, $context)->getEntities();
-
-        foreach ($secondLevel as $category) {
-            $rootLevel->add($category);
-        }
-
-        $navigation = $this->getTree($rootId, $rootLevel, $active);
+        $navigation = $this->getTree($rootId, $categories, $active);
 
         $event = new NavigationLoadedEvent($navigation, $context);
 

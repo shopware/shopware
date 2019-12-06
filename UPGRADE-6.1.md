@@ -243,6 +243,11 @@ Core
            return $validation;              
        }
     ```
+ * We will change the `\Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator::getEntityTag` signature from
+    * Before: `public function getEntityTag(string $id, EntityDefinition $definition): string`
+    * After:  `public function getEntityTag(string $id, string $entityName): string`
+    * If you called this function, simply replace the second function parameter to your entity name
+    * Currently both ways are supported. The `string $entityName` type hint will be added with `v6.3.0`
 
 Administration
 --------------

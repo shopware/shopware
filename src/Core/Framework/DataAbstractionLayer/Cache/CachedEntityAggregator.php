@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Cache;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\BucketAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
@@ -51,6 +52,9 @@ class CachedEntityAggregator implements EntityAggregatorInterface
 
         // collect all names of aggregations to compare which are not loaded from cache
         $names = array_map(function (Aggregation $aggregation) {
+            // filter aggregations are stripped when the result get cached
+            $aggregation = $this->removeFilterAggregation($aggregation);
+
             return $aggregation->getName();
         }, $criteria->getAggregations());
 
@@ -66,7 +70,9 @@ class CachedEntityAggregator implements EntityAggregatorInterface
         $clone->resetAggregations();
 
         foreach ($fallback as $name) {
-            $clone->addAggregation($criteria->getAggregation($name));
+            $aggregation = $this->getAggregation($criteria, $name);
+
+            $clone->addAggregation($aggregation);
         }
 
         //load from persistent layer
@@ -131,5 +137,53 @@ class CachedEntityAggregator implements EntityAggregatorInterface
         }
 
         return $aggregations->get($aggregation->getName());
+    }
+
+    private function removeFilterAggregation(Aggregation $aggregation): Aggregation
+    {
+        if ($aggregation instanceof FilterAggregation) {
+            return $this->removeFilterAggregation($aggregation->getAggregation());
+        }
+
+        return $aggregation;
+    }
+
+    private function getAggregation(Criteria $criteria, string $name)
+    {
+        $aggregation = $criteria->getAggregation($name);
+        if ($aggregation) {
+            return $aggregation;
+        }
+
+        foreach ($criteria->getAggregations() as $aggregation) {
+            if (!$aggregation instanceof BucketAggregation) {
+                continue;
+            }
+
+            if ($this->isNestedAggregation($aggregation, $name)) {
+                return $aggregation;
+            }
+        }
+
+        return null;
+    }
+
+    private function isNestedAggregation(BucketAggregation $aggregation, string $name): bool
+    {
+        $nested = $aggregation->getAggregation();
+
+        if (!$nested) {
+            return false;
+        }
+
+        if ($nested->getName() === $name) {
+            return true;
+        }
+
+        if ($nested instanceof BucketAggregation) {
+            return $this->isNestedAggregation($nested, $name);
+        }
+
+        return false;
     }
 }

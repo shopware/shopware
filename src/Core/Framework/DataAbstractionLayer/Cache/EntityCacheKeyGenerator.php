@@ -99,10 +99,19 @@ class EntityCacheKeyGenerator
 
     /**
      * Defines the tag for a single entity. Used for invalidation if this entity is written
+     *
+     * @param string|EntityDefinition $entityName
      */
-    public function getEntityTag(string $id, string $entityName): string
+    public function getEntityTag(string $id, $entityName): string
     {
-        $keys = [$entityName, $id];
+        if ($entityName instanceof EntityDefinition) {
+            $entity = $entityName->getEntityName();
+            @trigger_error('Providing an entity definition to `getEntityTag` is deprecated since 6.1, please provide the entity name instead. String type hint will be added in 6.3', E_USER_DEPRECATED);
+        } else {
+            $entity = $entityName;
+        }
+
+        $keys = [$entity, $id];
 
         return implode('-', $keys);
     }

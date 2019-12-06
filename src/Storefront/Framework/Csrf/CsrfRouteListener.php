@@ -110,8 +110,11 @@ class CsrfRouteListener implements EventSubscriberInterface
         } else {
             $intent = 'ajax';
         }
-
-        if (!$this->csrfTokenManager->isTokenValid(new CsrfToken($intent, $submittedCSRFToken))) {
+        $csrfCookies = $request->cookies->get('csrf', []);
+        if (
+            (!isset($csrfCookies[$intent]) || $csrfCookies[$intent] !== $submittedCSRFToken)
+            && !$this->csrfTokenManager->isTokenValid(new CsrfToken($intent, $submittedCSRFToken))
+        ) {
             if ($request->isXmlHttpRequest()) {
                 $this->session->getFlashBag()->add('danger', $this->translator->trans('error.message-403-ajax'));
             } else {

@@ -4,20 +4,20 @@ namespace Shopware\Storefront\Framework\Routing;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
+use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Storefront\Controller\ErrorController;
-use Shopware\Storefront\Controller\MaintenanceController;
+use Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
-use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouterInterface;
@@ -50,24 +50,24 @@ class StorefrontSubscriber implements EventSubscriberInterface
     private $kernelDebug;
 
     /**
-     * @var MaintenanceController
+     * @var CsrfPlaceholderHandler
      */
-    private $maintenanceController;
+    private $csrfPlaceholderHandler;
 
     public function __construct(
         RequestStack $requestStack,
         RouterInterface $router,
         ErrorController $errorController,
         SalesChannelContextServiceInterface $contextService,
-        MaintenanceController $maintenanceController,
+        CsrfPlaceholderHandler $csrfPlaceholderHandler,
         bool $kernelDebug
     ) {
         $this->requestStack = $requestStack;
         $this->router = $router;
         $this->errorController = $errorController;
         $this->contextService = $contextService;
-        $this->maintenanceController = $maintenanceController;
         $this->kernelDebug = $kernelDebug;
+        $this->csrfPlaceholderHandler = $csrfPlaceholderHandler;
     }
 
     public static function getSubscribedEvents(): array
@@ -84,11 +84,12 @@ class StorefrontSubscriber implements EventSubscriberInterface
             KernelEvents::CONTROLLER => [
                 ['preventPageLoadingFromXmlHttpRequest', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE],
             ],
-            KernelEvents::RESPONSE => [
-                ['setCanonicalUrl'],
-            ],
             CustomerLoginEvent::class => [
                 'updateSession',
+            ],
+            BeforeSendResponseEvent::class => [
+                ['replaceCsrfToken'],
+                ['setCanonicalUrl'],
             ],
         ];
     }
@@ -261,7 +262,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         throw new AccessDeniedHttpException('PageController can\'t be requested via XmlHttpRequest.');
     }
 
-    public function setCanonicalUrl(ResponseEvent $event): void
+    public function setCanonicalUrl(BeforeSendResponseEvent $event): void
     {
         if (!$event->getResponse()->isSuccessful()) {
             return;
@@ -271,6 +272,13 @@ class StorefrontSubscriber implements EventSubscriberInterface
             $canonical = sprintf('<%s>; rel="canonical"', $canonical);
             $event->getResponse()->headers->set('Link', $canonical);
         }
+    }
+
+    public function replaceCsrfToken(BeforeSendResponseEvent $event): void
+    {
+        $event->setResponse(
+            $this->csrfPlaceholderHandler->replaceCsrfToken($event->getResponse())
+        );
     }
 
     private function setSalesChannelContext(ExceptionEvent $event): void

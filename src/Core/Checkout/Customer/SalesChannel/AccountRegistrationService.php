@@ -318,23 +318,7 @@ class AccountRegistrationService
 
     private function mapBillingAddress(DataBag $billing, Context $context): array
     {
-        $billingAddress = $billing->only(
-            'firstName',
-            'lastName',
-            'salutationId',
-            'title',
-            'street',
-            'zipcode',
-            'city',
-            'company',
-            'department',
-            'vatId',
-            'countryStateId',
-            'countryId',
-            'additionalAddressLine1',
-            'additionalAddressLine2',
-            'phoneNumber'
-        );
+        $billingAddress = $this->mapAddressData($billing);
 
         $event = new DataMappingEvent($billing, $billingAddress, $context);
         $this->eventDispatcher->dispatch($event, CustomerEvents::MAPPING_REGISTER_ADDRESS_BILLING);
@@ -344,22 +328,7 @@ class AccountRegistrationService
 
     private function mapShippingAddress(DataBag $shipping, Context $context): array
     {
-        $shippingAddress = $shipping->only(
-            'firstName',
-            'lastName',
-            'salutationId',
-            'street',
-            'zipcode',
-            'city',
-            'company',
-            'department',
-            'vatId',
-            'countryStateId',
-            'countryId',
-            'additionalAddressLine1',
-            'additionalAddressLine2',
-            'phoneNumber'
-        );
+        $shippingAddress = $this->mapAddressData($shipping);
 
         $event = new DataMappingEvent($shipping, $shippingAddress, $context);
         $this->eventDispatcher->dispatch($event, CustomerEvents::MAPPING_REGISTER_ADDRESS_SHIPPING);
@@ -433,5 +402,31 @@ class AccountRegistrationService
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $validation;
+    }
+
+    private function mapAddressData(DataBag $addressData): array
+    {
+        $mappedData = $addressData->only(
+            'firstName',
+            'lastName',
+            'salutationId',
+            'street',
+            'zipcode',
+            'city',
+            'company',
+            'department',
+            'vatId',
+            'countryStateId',
+            'countryId',
+            'additionalAddressLine1',
+            'additionalAddressLine2',
+            'phoneNumber'
+        );
+
+        if (isset($mappedData['countryStateId']) && $mappedData['countryStateId'] === '') {
+            $mappedData['countryStateId'] = null;
+        }
+
+        return $mappedData;
     }
 }

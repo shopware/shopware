@@ -43,7 +43,7 @@ class ContainerProvider implements ServiceProviderInterface
         $container['install.language'] = '';
 
         $container['shopware.version'] = static function () {
-            return trim(file_get_contents(__DIR__ . '/../data/version'));
+            return trim(file_get_contents(SW_PATH . '/public/recovery/install/data/version'));
         };
 
         $container['slim.app'] = static function ($c) {

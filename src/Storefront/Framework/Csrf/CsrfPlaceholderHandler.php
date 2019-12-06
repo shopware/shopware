@@ -49,7 +49,7 @@ class CsrfPlaceholderHandler
             '/' . self::CSRF_PLACEHOLDER . '(?<intent>[^#]*)#/',
             function ($matches) use ($response) {
                 $token = $this->getToken($matches['intent']);
-                $response->headers->setCookie(new Cookie('csrf[' . $matches['intent'] . ']', $token));
+                $response->headers->setCookie(Cookie::create('csrf[' . $matches['intent'] . ']', $token));
 
                 return $token;
             },

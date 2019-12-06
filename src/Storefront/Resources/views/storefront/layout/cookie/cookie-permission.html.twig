@@ -9,7 +9,7 @@
                     <div class="col cookie-permission-content">
                         {{ "cookie.message"|trans({
                             '%url%': path('frontend.cms.page', { id: shopware.config.core.basicInformation.shippingPaymentInfoPage })
-                        })|raw|sw_sanitize }}
+                        })|raw }}
                     </div>
                 {% endblock %}
 

@@ -425,6 +425,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added JavaScript Plugin `CountryStateSelect` that handles selectable states for selected a country
     * Added blocks to display select to handle the state in address forms
     * Encapsulated select inputs for country and state in a single form row
+    * Added `StorefrontMediaUploader` to handle file uploads in the storefront and validate them using `StorefrontValidationRegistry` and `StorefrontMediaValidatorInterface`
     
 * Elasticsearch
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.

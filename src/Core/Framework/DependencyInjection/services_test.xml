@@ -29,6 +29,10 @@
             <tag name="shopware.payment.method.sync"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Test\Payment\Handler\AsyncTestExceptionPaymentHandler">
+            <tag name="shopware.payment.method.async"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Test\Filesystem\Adapter\MemoryAdapterFactory">
             <tag name="shopware.filesystem.factory"/>
         </service>

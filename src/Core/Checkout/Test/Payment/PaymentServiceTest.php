@@ -3,14 +3,17 @@
 namespace Shopware\Core\Checkout\Test\Payment;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory;
+use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
@@ -18,15 +21,19 @@ use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Checkout\Test\Payment\Handler\AsyncTestExceptionPaymentHandler;
 use Shopware\Core\Checkout\Test\Payment\Handler\AsyncTestPaymentHandler;
 use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,11 +41,17 @@ use Symfony\Component\HttpFoundation\Request;
 class PaymentServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use TaxAddToSalesChannelTestBehaviour;
 
     /**
      * @var PaymentService
      */
     private $paymentService;
+
+    /**
+     * @var CartService
+     */
+    private $cartService;
 
     /**
      * @var JWTFactory
@@ -49,6 +62,11 @@ class PaymentServiceTest extends TestCase
      * @var EntityRepositoryInterface
      */
     private $orderRepository;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $productRepository;
 
     /**
      * @var EntityRepositoryInterface
@@ -75,15 +93,23 @@ class PaymentServiceTest extends TestCase
      */
     private $stateMachineRegistry;
 
+    /**
+     * @var SalesChannelContextFactory
+     */
+    private $salesChannelContextFactory;
+
     protected function setUp(): void
     {
         $this->paymentService = $this->getContainer()->get(PaymentService::class);
+        $this->cartService = $this->getContainer()->get(CartService::class);
         $this->tokenFactory = $this->getContainer()->get(JWTFactory::class);
         $this->orderRepository = $this->getContainer()->get('order.repository');
+        $this->productRepository = $this->getContainer()->get('product.repository');
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->orderTransactionRepository = $this->getContainer()->get('order_transaction.repository');
         $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
         $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
+        $this->salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $this->context = Context::createDefaultContext();
     }
 
@@ -164,6 +190,61 @@ class PaymentServiceTest extends TestCase
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
         static::assertNull($this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext));
+    }
+
+    public function testRecoverCartAfterPaymentError(): void
+    {
+        $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $paymentMethodId = $this->createPaymentMethod($this->context, AsyncTestExceptionPaymentHandler::class);
+        $customerId = $this->createCustomer($this->context);
+        $productId = Uuid::randomHex();
+        $this->createProduct($productId, $salesChannelContext);
+        $orderId = $this->createOrderWithProductLineItem($customerId, $paymentMethodId, $productId, $this->context);
+        $this->createTransaction($orderId, $paymentMethodId, $this->context);
+
+        $this->expectException(AsyncPaymentProcessException::class);
+        try {
+            $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(['fail' => 1]), $salesChannelContext);
+        } catch (AsyncPaymentProcessException $e) {
+            $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
+            static::assertEquals(1, $cart->getLineItems()->count());
+            static::assertEquals($productId, $cart->getLineItems()->first()->getReferencedId());
+
+            throw $e;
+        }
+    }
+
+    public function testRecoverCartAfterPaymentCancelation(): void
+    {
+        $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $paymentMethodId = $this->createPaymentMethod($this->context, AsyncTestExceptionPaymentHandler::class);
+        $customerId = $this->createCustomer($this->context);
+        $productId = Uuid::randomHex();
+        $this->createProduct($productId, $salesChannelContext);
+        $orderId = $this->createOrderWithProductLineItem($customerId, $paymentMethodId, $productId, $this->context);
+        $transactionId = $this->createTransaction($orderId, $paymentMethodId, $this->context);
+
+        $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
+
+        $transaction = JWTFactoryTest::createTransaction();
+        $transaction->setId($transactionId);
+        $transaction->setPaymentMethodId($paymentMethodId);
+        $transaction->setOrderId($orderId);
+
+        $token = $this->tokenFactory->generateToken($transaction, 'testFinishUrl');
+        $request = new Request();
+
+        $this->expectException(CustomerCanceledAsyncPaymentException::class);
+
+        try {
+            $this->paymentService->finalizeTransaction($token, $request, $salesChannelContext);
+        } catch (CustomerCanceledAsyncPaymentException $e) {
+            $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
+            static::assertEquals(1, $cart->getLineItems()->count());
+            static::assertEquals($productId, $cart->getLineItems()->first()->getReferencedId());
+
+            throw $e;
+        }
     }
 
     public function testFinalizeTransactionWithInvalidToken(): void
@@ -311,6 +392,87 @@ class PaymentServiceTest extends TestCase
         return $orderId;
     }
 
+    private function createOrderWithProductLineItem(
+        string $customerId,
+        string $paymentMethodId,
+        string $productId,
+        Context $context
+    ): string {
+        $orderId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
+        $stateId = $this->stateMachineRegistry->getInitialState(OrderStates::STATE_MACHINE, $context)->getId();
+
+        $order = [
+            'id' => $orderId,
+            'orderNumber' => 'some-number',
+            'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
+            'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            'orderCustomer' => [
+                'customerId' => $customerId,
+                'email' => 'test@example.com',
+                'salutationId' => $this->getValidSalutationId(),
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+            ],
+            'stateId' => $stateId,
+            'paymentMethodId' => $paymentMethodId,
+            'currencyId' => Defaults::CURRENCY,
+            'currencyFactor' => 1.0,
+            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'billingAddressId' => $addressId,
+            'addresses' => [
+                [
+                    'id' => $addressId,
+                    'salutationId' => $this->getValidSalutationId(),
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Ebbinghoff 10',
+                    'zipcode' => '48624',
+                    'city' => 'Schöppingen',
+                    'countryId' => $this->getValidCountryId(),
+                ],
+            ],
+            'lineItems' => [
+                [
+                    'identifier' => Uuid::randomHex(),
+                    'referencedId' => $productId,
+                    'label' => 'some line item',
+                    'price' => [
+                        'unitPrice' => 1,
+                        'totalPrice' => 1,
+                        'quantity' => 1,
+                        'taxRules' => [
+                            [
+                                'taxRate' => 19,
+                                'extensions' => [],
+                                'percentage' => 100,
+                            ],
+                        ],
+                        'referencePrice' => null,
+                        'calculatedTaxes' => [
+                            [
+                                'tax' => 0,
+                                'price' => 0,
+                                'taxRate' => 19,
+                                'extensions' => [],
+                            ],
+                        ],
+                    ],
+                    'quantity' => 1,
+                    'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
+                ],
+            ],
+            'deliveries' => [],
+            'context' => '{}',
+            'payload' => '{}',
+        ];
+
+        $this->orderRepository->upsert([$order], $context);
+
+        return $orderId;
+    }
+
     private function createCustomer(Context $context): string
     {
         $customerId = Uuid::randomHex();
@@ -365,5 +527,25 @@ class PaymentServiceTest extends TestCase
         $this->paymentMethodRepository->upsert([$payment], $context);
 
         return $id;
+    }
+
+    private function createProduct(string $productId, SalesChannelContext $salesChannelContext): string
+    {
+        $product = [
+            'id' => $productId,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'name' => 'Test',
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+            'manufacturer' => ['id' => Uuid::randomHex(), 'name' => 'test'],
+            'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'with id'],
+            'visibilities' => [
+                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
+        ];
+        $this->addTaxDataToSalesChannel($salesChannelContext, $product['tax']);
+        $this->productRepository->upsert([$product], $salesChannelContext->getContext());
+
+        return $product['id'];
     }
 }

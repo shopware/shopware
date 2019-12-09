@@ -80,7 +80,7 @@
                                                         <li class="footer-link-item">
                                                             {% block layout_footer_navigation_information_link %}
                                                                 <a class="footer-link"
-                                                                   href="{{ seoUrl('frontend.navigation.page', { navigationId: treeItem.category.id }) }}"
+                                                                   href="{% if treeItem.category.externalLink %}{{ treeItem.category.externalLink }}{% else %}{{ seoUrl('frontend.navigation.page', { navigationId: treeItem.category.id }) }}{% endif %}"
                                                                    title="{{ treeItem.category.translated.name }}">
                                                                     {{ treeItem.category.translated.name }}
                                                                 </a>
@@ -168,7 +168,7 @@
                                 {% block layout_footer_service_menu_item %}
                                     <li class="footer-service-menu-item">
                                         <a class="footer-service-menu-link"
-                                           href="{{ seoUrl('frontend.navigation.page', { navigationId: serviceMenuItem.id }) }}"
+                                           href="{% if serviceMenuItem.externalLink %}{{ serviceMenuItem.externalLink }}{% else %}{{ seoUrl('frontend.navigation.page', { navigationId: serviceMenuItem.id }) }}{% endif %}"
                                            title="{{ serviceMenuItem.translated.name }}">
                                             {{ serviceMenuItem.translated.name }}
                                         </a>

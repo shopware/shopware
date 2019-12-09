@@ -199,7 +199,7 @@
       "advancedPricesNotExisting": "Für dieses Produkt existieren noch keine erweiterten Preise.",
       "columnFrom": "Von",
       "columnTo": "Bis",
-      "selectRule": "Regel auswählen ..."
+      "selectRule": "Bedingungs-Regel auswählen ..."
     },
     "properties": {
       "cardTitleProperties": "Eigenschaften",

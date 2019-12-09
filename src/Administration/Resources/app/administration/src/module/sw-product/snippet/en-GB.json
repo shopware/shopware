@@ -200,7 +200,7 @@
       "advancedPricesNotExisting": "No advanced prices available for this product yet.",
       "columnFrom": "Quantity from...",
       "columnTo": "to...",
-      "selectRule": "Select rule..."
+      "selectRule": "Select a conditional rule..."
     },
     "properties": {
       "cardTitleProperties": "Available properties",

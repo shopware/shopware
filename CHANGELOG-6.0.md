@@ -113,6 +113,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Removed `Criteria.value` use `Criteria.terms` instead
     * Removed `Criteria.valueCount` use `Criteria.terms` instead
     * Removed `Criteria.addAssociationPath` use `Criteria.addAssociation` instead
+    * Deprecated `sw_product_detail_prices_price_card_price_group_empty_state_rule_select` twig block will be completely removed in the next minor version.
 * Core
     * Removed `\Shopware\Core\Checkout\Customer\SalesChannel\AddressService::getCountryList` function
     * Removed `\Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria`

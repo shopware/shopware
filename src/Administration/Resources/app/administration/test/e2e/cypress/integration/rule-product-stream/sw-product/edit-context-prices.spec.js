@@ -85,8 +85,8 @@ describe('Product: Editing context prices', () => {
             .should('be.visible');
 
         // Add rule to second price rule group
-        cy.get(`${priceGroup}-1 .sw-product-detail-context-prices__empty-state ${emptySelectRule}`)
-            .typeSingleSelect('Sunday sales', `${priceGroup}-1 .sw-product-detail-context-prices__empty-state ${emptySelectRule}`);
+        cy.get(`${priceGroup}-1 .sw-product-detail-context-prices__toolbar .sw-product-detail-context-prices__toolbar-selection`)
+            .typeSingleSelect('Sunday sales', `${priceGroup}-1 .sw-product-detail-context-prices__toolbar-selection`);
 
         // Save price rule groups
         cy.get(page.elements.productSaveAction).click();

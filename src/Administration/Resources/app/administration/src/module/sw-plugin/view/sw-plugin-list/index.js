@@ -274,6 +274,14 @@ Component.register('sw-plugin-list', {
             this.$router.push({ name: 'sw.plugin.settings', params: { namespace: plugin.name } });
         },
 
+        onPluginDescription(plugin) {
+            this.$router.push({ name: 'sw.plugin.description',
+                params: {
+                    namespace: plugin.name,
+                    description: plugin.description
+                } });
+        },
+
         getList() {
             this.isLoading = true;
 

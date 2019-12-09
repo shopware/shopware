@@ -102,6 +102,7 @@
       "deactivated": "Deaktiviert",
       "activated": "Aktiviert",
       "config": "Konfiguration",
+      "description": "Beschreibung",
       "tooltipActivationDisabled": "Du kannst nur installierte Plugins aktivieren."
     },
     "license-list":{
@@ -137,6 +138,10 @@
     "buttonCancel": "Abbrechen",
     "titleSaveSuccess": "Konfiguration gespeichert",
     "messageSaveSuccess": "Die Konfiguration wurde erfolgreich gespeichert.",
-    "titleSaveError": "Fehler beim Speichern der Konfiguration"
+    "titleSaveError": "Fehler beim Speichern der Konfiguration",
+  },
+  "sw-plugin-description": {
+    "buttonBack": "Zurück"
+
   }
 }

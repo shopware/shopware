@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Plugin\PluginDefinition;
@@ -39,7 +40,7 @@ class PluginTranslationDefinition extends EntityTranslationDefinition
     {
         return new FieldCollection([
             (new StringField('label', 'label'))->addFlags(new Required()),
-            new LongTextField('description', 'description'),
+            new LongTextWithHtmlField('description', 'description'),
             new StringField('manufacturer_link', 'manufacturerLink'),
             new StringField('support_link', 'supportLink'),
             new JsonField('changelog', 'changelog'),

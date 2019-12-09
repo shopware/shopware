@@ -11,6 +11,7 @@ import './component/sw-plugin-last-updates-grid';
 import './component/sw-plugin-table-entry';
 import './extension/sw-settings-index';
 import './component/sw-plugin-config';
+import './component/sw-plugin-description';
 
 import swPluginState from './state/plugin.store';
 
@@ -79,6 +80,22 @@ Module.register('sw-plugin', {
             props: {
                 default(route) {
                     return { namespace: route.params.namespace };
+                }
+            }
+        },
+        description: {
+            component: 'sw-plugin-description',
+            path: 'description/:namespace',
+            meta: {
+                parentPath: 'sw.plugin.index'
+            },
+
+            props: {
+                default(route) {
+                    return {
+                        namespace: route.params.namespace,
+                        description: route.params.description
+                    };
                 }
             }
         }

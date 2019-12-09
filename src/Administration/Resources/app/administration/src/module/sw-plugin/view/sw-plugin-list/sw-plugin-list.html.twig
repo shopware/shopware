@@ -92,6 +92,15 @@
                                             {{ $tc('sw-plugin.list.config') }}
                                         </sw-context-menu-item>
                                     {% endblock %}
+
+                                    {% block sw_plugin_list_grid_columns_actions_description %}
+                                        <sw-context-menu-item
+                                            v-if="item.description"
+                                            @click="onPluginDescription(item)">
+
+                                            {{ $tc('sw-plugin.list.description') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
                                 </template>
 
                                 {% block sw_plugin_list_grid_columns_actions_uninstall %}

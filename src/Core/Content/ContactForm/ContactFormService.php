@@ -95,7 +95,7 @@ class ContactFormService
 
     private function validateContactForm(DataBag $data, SalesChannelContext $context): void
     {
-        $definition = $this->contactFormValidationService->buildCreateValidation($context->getContext());
+        $definition = $this->contactFormValidationService->buildCreateValidation($context);
         $violations = $this->validator->getViolations($data->all(), $definition);
 
         if ($violations->count() > 0) {

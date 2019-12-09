@@ -119,7 +119,7 @@ class AddressService
         }
 
         $accountType = $data->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
-        $definition = $this->getValidationDefinition($accountType, $isCreate, $context->getContext());
+        $definition = $this->getValidationDefinition($accountType, $isCreate, $context);
         $this->validator->validate(array_merge(['id' => $id], $data->all()), $definition);
 
         $addressData = [
@@ -212,7 +212,7 @@ class AddressService
         return $address;
     }
 
-    private function getValidationDefinition(string $accountType, bool $isCreate, Context $context): DataValidationDefinition
+    private function getValidationDefinition(string $accountType, bool $isCreate, SalesChannelContext $context): DataValidationDefinition
     {
         if ($isCreate) {
             $validation = $this->addressValidationService->buildCreateValidation($context);
@@ -224,7 +224,7 @@ class AddressService
             $validation->add('company', new NotBlank());
         }
 
-        $validationEvent = new BuildValidationEvent($validation, $context);
+        $validationEvent = new BuildValidationEvent($validation, $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $validation;

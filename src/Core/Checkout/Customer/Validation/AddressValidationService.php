@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\ValidationServiceInterface;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -21,7 +22,7 @@ class AddressValidationService implements ValidationServiceInterface
         $this->systemConfigService = $systemConfigService;
     }
 
-    public function buildCreateValidation(Context $context): DataValidationDefinition
+    public function buildCreateValidation(SalesChannelContext $context): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('address.create');
 
@@ -30,22 +31,22 @@ class AddressValidationService implements ValidationServiceInterface
         return $definition;
     }
 
-    public function buildUpdateValidation(Context $context): DataValidationDefinition
+    public function buildUpdateValidation(SalesChannelContext $context): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('address.update');
 
         $this->buildCommonValidation($definition, $context)
-            ->add('id', new NotBlank(), new EntityExists(['context' => $context, 'entity' => 'customer_address']));
+            ->add('id', new NotBlank(), new EntityExists(['context' => $context->getContext(), 'entity' => 'customer_address']));
 
         return $definition;
     }
 
-    private function buildCommonValidation(DataValidationDefinition $definition, Context $context): DataValidationDefinition
+    private function buildCommonValidation(DataValidationDefinition $definition, SalesChannelContext $context): DataValidationDefinition
     {
         $definition
-            ->add('salutationId', new EntityExists(['entity' => 'salutation', 'context' => $context]))
-            ->add('countryId', new EntityExists(['entity' => 'country', 'context' => $context]))
-            ->add('countryStateId', new EntityExists(['entity' => 'country_state', 'context' => $context]))
+            ->add('salutationId', new EntityExists(['entity' => 'salutation', 'context' => $context->getContext()]))
+            ->add('countryId', new EntityExists(['entity' => 'country', 'context' => $context->getContext()]))
+            ->add('countryStateId', new EntityExists(['entity' => 'country_state', 'context' => $context->getContext()]))
             ->add('salutationId', new NotBlank())
             ->add('firstName', new NotBlank())
             ->add('lastName', new NotBlank())

@@ -6,16 +6,17 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\ValidationServiceInterface;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class ContactFormValidationService implements ValidationServiceInterface
 {
-    public function buildCreateValidation(Context $context): DataValidationDefinition
+    public function buildCreateValidation(SalesChannelContext $context): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('contact_form.create');
 
-        $definition->add('salutationId', new NotBlank(), new EntityExists(['entity' => 'salutation', 'context' => $context]))
+        $definition->add('salutationId', new NotBlank(), new EntityExists(['entity' => 'salutation', 'context' => $context->getContext()]))
             ->add('firstName', new NotBlank())
             ->add('lastName', new NotBlank())
             ->add('email', new NotBlank(), new Email())
@@ -26,7 +27,7 @@ class ContactFormValidationService implements ValidationServiceInterface
         return $definition;
     }
 
-    public function buildUpdateValidation(Context $context): DataValidationDefinition
+    public function buildUpdateValidation(SalesChannelContext $context): DataValidationDefinition
     {
         return $this->buildCreateValidation($context);
     }

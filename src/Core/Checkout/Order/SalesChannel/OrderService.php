@@ -52,7 +52,7 @@ class OrderService
      */
     public function createOrder(DataBag $data, SalesChannelContext $context): string
     {
-        $this->validateOrderData($data, $context->getContext());
+        $this->validateOrderData($data, $context);
 
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
@@ -62,7 +62,7 @@ class OrderService
     /**
      * @throws ConstraintViolationException
      */
-    private function validateOrderData(DataBag $data, Context $context): void
+    private function validateOrderData(DataBag $data, SalesChannelContext $context): void
     {
         $definition = $this->getOrderCreateValidationDefinition($context);
         $violations = $this->dataValidator->getViolations($data->all(), $definition);
@@ -72,11 +72,11 @@ class OrderService
         }
     }
 
-    private function getOrderCreateValidationDefinition(Context $context): DataValidationDefinition
+    private function getOrderCreateValidationDefinition(SalesChannelContext $context): DataValidationDefinition
     {
         $validation = $this->orderValidationService->buildCreateValidation($context);
 
-        $validationEvent = new BuildValidationEvent($validation, $context);
+        $validationEvent = new BuildValidationEvent($validation, $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $validation;

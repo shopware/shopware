@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\ValidationServiceInterface;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
@@ -32,7 +33,7 @@ class CustomerProfileValidationService implements ValidationServiceInterface
         $this->systemConfigService = $systemConfigService;
     }
 
-    public function buildCreateValidation(Context $context): DataValidationDefinition
+    public function buildCreateValidation(SalesChannelContext $context): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('customer.profile.create');
 
@@ -41,7 +42,7 @@ class CustomerProfileValidationService implements ValidationServiceInterface
         return $definition;
     }
 
-    public function buildUpdateValidation(Context $context): DataValidationDefinition
+    public function buildUpdateValidation(SalesChannelContext $context): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('customer.profile.update');
 
@@ -50,10 +51,10 @@ class CustomerProfileValidationService implements ValidationServiceInterface
         return $definition;
     }
 
-    private function addConstraints(DataValidationDefinition $definition, Context $context): void
+    private function addConstraints(DataValidationDefinition $definition, SalesChannelContext $context): void
     {
         $definition
-            ->add('salutationId', new NotBlank(), new EntityExists(['entity' => $this->salutationDefinition->getEntityName(), 'context' => $context]))
+            ->add('salutationId', new NotBlank(), new EntityExists(['entity' => $this->salutationDefinition->getEntityName(), 'context' => $context->getContext()]))
             ->add('firstName', new NotBlank())
             ->add('lastName', new NotBlank());
 

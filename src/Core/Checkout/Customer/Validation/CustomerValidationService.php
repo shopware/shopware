@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer\Validation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\ValidationServiceInterface;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -23,7 +24,7 @@ class CustomerValidationService implements ValidationServiceInterface
         $this->profileValidation = $profileValidation;
     }
 
-    public function buildCreateValidation(Context $context): DataValidationDefinition
+    public function buildCreateValidation(SalesChannelContext $context): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('customer.create');
 
@@ -36,7 +37,7 @@ class CustomerValidationService implements ValidationServiceInterface
         return $definition;
     }
 
-    public function buildUpdateValidation(Context $context): DataValidationDefinition
+    public function buildUpdateValidation(SalesChannelContext $context): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('customer.update');
 

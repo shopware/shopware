@@ -175,7 +175,7 @@ class AccountService
 
     public function saveProfile(DataBag $data, SalesChannelContext $context): void
     {
-        $validation = $this->customerProfileValidationService->buildUpdateValidation($context->getContext());
+        $validation = $this->customerProfileValidationService->buildUpdateValidation($context);
 
         $this->dispatchValidationEvent($validation, $context->getContext());
 

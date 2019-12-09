@@ -36,6 +36,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceDefinitionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\RemoteAddressField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -102,7 +103,7 @@ EOL;
         $default = '';
 
         $nullable = 'NULL';
-        if ($field->is(Required::class)) {
+        if ($field->is(Required::class) && !$field instanceof UpdatedAtField) {
             $nullable = 'NOT NULL';
         }
 
@@ -159,6 +160,11 @@ EOL;
 
             case $field instanceof TreeLevelField:
                 $type = 'INT';
+
+                break;
+
+            case $field instanceof RemoteAddressField:
+                $type = 'VARCHAR(255)';
 
                 break;
 

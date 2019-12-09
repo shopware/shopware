@@ -198,6 +198,12 @@
             <tag name="shopware.pathname.strategy"/>
         </service>
 
+        <service id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PhysicalFilenamePathnameStrategy">
+            <argument type="service" id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PlainPathnameStrategy"/>
+
+            <tag name="shopware.pathname.strategy"/>
+        </service>
+
         <service id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PlainPathnameStrategy">
             <tag name="shopware.pathname.strategy"/>
         </service>

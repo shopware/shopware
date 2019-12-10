@@ -194,9 +194,7 @@ class AddressService
             throw new InvalidUuidException($addressId);
         }
 
-        if (!$context->getCustomer()) {
-            throw new CustomerNotLoggedInException();
-        }
+        $this->validateCustomerIsLoggedIn($context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $addressId));

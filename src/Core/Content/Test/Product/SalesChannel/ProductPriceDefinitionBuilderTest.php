@@ -885,6 +885,38 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $this->assertPriceDefinition($definition, 8, 20);
     }
 
+    public function testBuildPriceDefinitionWithCurrencySpecificPrice(): void
+    {
+        $salesChannelContext = $this->createSalesChannelContext([SalesChannelContextService::CURRENCY_ID => $this->currencyId]);
+
+        $tax = (new TaxEntity())->assign(['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 10]);
+        $this->addTaxEntityToSalesChannel($salesChannelContext, $tax);
+
+        $product = (new ProductEntity())->assign([
+            'id' => Uuid::randomHex(),
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'price' => new PriceCollection([
+                new Price(Defaults::CURRENCY, 7, 10, false),
+                new Price($this->currencyId, 9, 12, false),
+            ]),
+            'taxId' => $tax->getId(),
+            'name' => 'test',
+        ]);
+
+        $definition = $this->priceDefinitionBuilder->build($product, $salesChannelContext)->getPrice();
+        $this->assertPriceDefinition($definition, 12, 1);
+
+        $definition = $this->priceDefinitionBuilder->build($product, $salesChannelContext)->getFrom();
+        $this->assertPriceDefinition($definition, 12, 1);
+
+        $definition = $this->priceDefinitionBuilder->build($product, $salesChannelContext)->getTo();
+        $this->assertPriceDefinition($definition, 12, 1);
+
+        $definition = $this->priceDefinitionBuilder->build($product, $salesChannelContext)->getQuantityPrice();
+        $this->assertPriceDefinition($definition, 12, 1);
+    }
+
     private function createSalesChannelContext(array $options = []): SalesChannelContext
     {
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);

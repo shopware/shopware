@@ -243,4 +243,12 @@ class LineItemTest extends TestCase
         $this->expectException(InvalidChildQuantityException::class);
         $lineItem->addChild($child);
     }
+
+    public function testLineItemGetAndSetPayloadValue(): void
+    {
+        $lineItem = new LineItem('abc', 'type', null, 5);
+        $lineItem->setPayloadValue('test', 2);
+
+        static::assertEquals(2, $lineItem->getPayloadValue('test'));
+    }
 }

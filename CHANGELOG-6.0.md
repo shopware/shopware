@@ -427,7 +427,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added blocks to display select to handle the state in address forms
     * Encapsulated select inputs for country and state in a single form row
     * Added `StorefrontMediaUploader` to handle file uploads in the storefront and validate them using `StorefrontValidationRegistry` and `StorefrontMediaValidatorInterface`
-    
+    * Removed return type from `\Shopware\Core\Checkout\Cart\LineItem\LineItem::getPayloadValue()` 
 * Elasticsearch
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.
         * You can set them with a parameter.yml too.

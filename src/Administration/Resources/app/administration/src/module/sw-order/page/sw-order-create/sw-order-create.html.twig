@@ -1,0 +1,38 @@
+{% block sw_order_create %}
+    <sw-page class="sw-order-create">
+        {% block sw_order_create_smart_bar_header %}
+            <template #smart-bar-header>
+                {% block sw_order_create_smart_bar_header_title %}
+                    <h2>
+                        {% block sw_order_create_smart_bar_header_title_text %}
+                            {{ $tc('sw-order.create.textNewOrder') }}
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_order_create_smart_bar_actions %}
+            <template #smart-bar-actions>
+                {% block sw_order_create_smart_bar_actions_slot %}
+                    {% block sw_order_create_smart_bar_actions_cancel %}
+                        <sw-button @click="onCancelOrder">
+                            {{ $tc('sw-order.create.buttonCancelOrder') }}
+                        </sw-button>
+                    {% endblock %}
+                    {% block sw_order_create_smart_bar_actions_add %}
+                        <sw-button variant="primary" @click="onSaveOrder">
+                            {{ $tc('sw-order.create.buttonSaveOrder') }}
+                        </sw-button>
+                    {% endblock %}
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_order_create_content %}
+            <template #content>
+                <router-view></router-view>
+            </template>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

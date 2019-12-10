@@ -1,0 +1,39 @@
+{% block sw_order_create %}
+    <sw-card-view>
+        {% block sw_order_create_details %}
+            <sw-card :title="$tc('sw-order.createBase.labelDetailsCard')">
+                <template #grid type="row" class="sw-order-user-card">
+                    <sw-container>
+                        <sw-card-section>
+                            {% block sw_order_create_details_header %}
+                                <sw-order-create-details-header
+                                    :customer="customer"
+                                    :orderDate="orderDate"
+                                    @on-select-existing-customer="onSelectExistingCustomer"
+                                    @on-add-new-customer="onAddNewCustomer">
+                                </sw-order-create-details-header>
+                            {% endblock %}
+                            {% block sw_order_create_details_body %}
+                                <sw-order-create-details-body
+                                    :customer="customer"
+                                    :isCustomerActive="isCustomerActive"
+                                    @on-edit-billing-address="onEditBillingAddress"
+                                    @on-edit-shipping-address="onEditShippingAddress">
+                                </sw-order-create-details-body>
+                            {% endblock %}
+                        </sw-card-section>
+                        <sw-card-section secondary divider="top">
+                            {% block sw_order_create_details_footer %}
+                                <sw-order-create-details-footer
+                                    :customer="customer"
+                                    :isCustomerActive="isCustomerActive"
+                                    :cart="cart">
+                                </sw-order-create-details-footer>
+                            {% endblock %}
+                        </sw-card-section>
+                    </sw-container>
+                </template>
+            </sw-card>
+        {% endblock %}
+    </sw-card-view>
+{% endblock %}

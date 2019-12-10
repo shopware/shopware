@@ -1,6 +1,8 @@
 import './page/sw-order-list';
 import './page/sw-order-detail';
+import './page/sw-order-create';
 import './view/sw-order-detail-base';
+import './view/sw-order-create-base';
 import './component/sw-order-line-items-grid';
 import './component/sw-order-delivery-metadata';
 import './component/sw-order-product-select';
@@ -16,8 +18,13 @@ import './component/sw-order-state-select';
 import './component/sw-order-inline-field';
 import './component/sw-order-user-card';
 import './component/sw-order-document-card';
+import './component/sw-order-create-details-header';
+import './component/sw-order-create-details-body';
+import './component/sw-order-create-details-footer';
+import swOrderState from './state/order.store';
 
-const { Module } = Shopware;
+const { Module, State } = Shopware;
+State.registerModule('swOrder', swOrderState);
 
 Module.register('sw-order', {
     type: 'core',
@@ -37,6 +44,23 @@ Module.register('sw-order', {
                 default: 'sw-order-list'
             },
             path: 'index'
+        },
+
+        create: {
+            component: 'sw-order-create',
+            path: 'create',
+            redirect: {
+                name: 'sw.order.create.base'
+            },
+            children: {
+                base: {
+                    component: 'sw-order-create-base',
+                    path: 'base',
+                    meta: {
+                        parentPath: 'sw.order.index'
+                    }
+                }
+            }
         },
 
         detail: {

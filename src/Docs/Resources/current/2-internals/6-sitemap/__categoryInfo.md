@@ -1,7 +1,7 @@
 [titleEn]: <>(Sitemap)
 
 Shopware generates a default sitemap which is compressed and cached in the file system. To support shops
-with a lot of products and categories the sitemap is splitted into multiple files can be generated in the background.
+with a lot of products and categories the sitemap is splitted into multiple files and can be generated in the background.
 
 # sitemap generation
 
@@ -12,13 +12,15 @@ You can customize the generation of the sitemap via the administration, a config
 In the administration you can define the cache time of the sitemap. If that timespan has exceeded, a new
 sitemap is generated. Also you can define the method to create a new sitemap.
 
-### scheduled task
+### scheduled
 With this method the sitemap will be auto generated with a scheduled task on a regular base and stored in the file system.
 
 ### live
-This method creates a new sitemap everytime it is requested.
+This method creates a sitemap upon request, if one of the following conditions is true:
+- there isn't a sitemap yet
+- the sitemap cache needs a refresh 
 
-### manual
+### manually
 You have to generate the sitemap via command line on your own:
 
 ```
@@ -70,6 +72,4 @@ sitemap:
 ### extending the sitemap generation
 If you create content with a plugin and want it to appear in the sitemap, you can create a service which implements the `Shopware\Core\Content\Sitemap\UrlProviderInterface`
 and tag it with the `shopware.sitemap_url_provider` tag.
-When a new sitemap is generated it will be loaded and has to return an array of `Shopware\Core\Content\Sitemap\Struct\Url` objects
-
-
+When a new sitemap is generated it will be loaded and has to return a `Shopware\Core\Content\Sitemap\Struct\UrlResult`.

@@ -230,7 +230,7 @@ class ProductDefinition extends EntityDefinition
 
             //association for keyword mapping for search algorithm
             (new OneToManyAssociationField('searchKeywords', ProductSearchKeywordDefinition::class, 'product_id'))
-                ->addFlags(new CascadeDelete(), new Inherited(), new ReadProtected(SalesChannelApiSource::class)),
+                ->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
 
             (new OneToManyAssociationField('productReviews', ProductReviewDefinition::class, 'product_id'))
                 ->addFlags(new CascadeDelete()),

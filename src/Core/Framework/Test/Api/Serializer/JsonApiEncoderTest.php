@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\SerializationFixture;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicStruct;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicWithExtension;
+use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicWithToManyExtension;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicWithToManyRelationships;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicWithToOneRelationship;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestCollectionWithSelfReference;
@@ -110,6 +111,33 @@ class JsonApiEncoderTest extends TestCase
         // check that empty "links" object is an object and not array: https://jsonapi.org/format/#document-links
         static::assertStringNotContainsString('"links":[]', $actual);
         static::assertStringContainsString('"links":{}', $actual);
+
+        static::assertEquals($fixture->getAdminJsonApiFixtures(), json_decode($actual, true));
+    }
+
+    /**
+     * Not possible with dataprovider
+     * as we have to manipulate the container, but the dataprovider run before all tests
+     */
+    public function testEncodeStructWithToManyExtension(): void
+    {
+        $this->registerDefinition(ExtendableDefinition::class, ExtendedDefinition::class);
+        $extendableDefinition = new ExtendableDefinition();
+        $extendableDefinition->addExtension(new AssociationExtension());
+
+        $extendableDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+        $fixture = new TestBasicWithToManyExtension();
+
+        $encoder = $this->getContainer()->get(JsonApiEncoder::class);
+        $actual = $encoder->encode(new Criteria(), $extendableDefinition, $fixture->getInput(), SerializationFixture::API_BASE_URL, SerializationFixture::API_VERSION);
+
+        // check that empty "links" object is an object and not array: https://jsonapi.org/format/#document-links
+        static::assertStringNotContainsString('"links":[]', $actual);
+        static::assertStringContainsString('"links":{}', $actual);
+
+        // check that empty "attributes" object is an object and not array: https://jsonapi.org/format/#document-resource-object-attributes
+        static::assertStringNotContainsString('"attributes":[]', $actual);
+        static::assertStringContainsString('"attributes":{}', $actual);
 
         static::assertEquals($fixture->getAdminJsonApiFixtures(), json_decode($actual, true));
     }

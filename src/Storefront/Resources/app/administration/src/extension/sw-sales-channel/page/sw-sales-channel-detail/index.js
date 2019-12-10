@@ -11,10 +11,6 @@ Component.override('sw-sales-channel-detail', {
 
             criteria.addAssociation('themes');
 
-            criteria.addAssociation('domains.language');
-            criteria.addAssociation('domains.snippetSet');
-            criteria.addAssociation('domains.currency');
-
             return criteria;
         }
     }

@@ -7,7 +7,6 @@ variables:
     GIT_STRATEGY: clone
 
 stages:
-    - Static analysis
     - unit
     - E2E
     - Build
@@ -49,15 +48,13 @@ default:
         - /entrypoint supervisord > /dev/null 2>&1 &
     interruptible: true
 
-# Stage: Static analysis
-
 Javascript analysis:
     only:
         refs:
             - merge_requests
             - master
             - "6.1"
-    stage: Static analysis
+    stage: unit
     before_script: []
     script:
         - cd src/Administration/Resources
@@ -75,7 +72,7 @@ PHP analysis:
             - merge_requests
             - master
             - "6.1"
-    stage: Static analysis
+    stage: unit
     services:
         -   name: mysql:5.7
             alias: mysql
@@ -103,7 +100,6 @@ PHP analysis:
 
 .phpunit_base:
     stage: unit
-    needs: [PHP analysis]
     services:
         -   name: mariadb:10.3
             alias: mysql
@@ -246,7 +242,6 @@ Administration (Jest):
             - master
             - "6.1"
     stage: unit
-    needs: [Javascript analysis]
     services:
         -   name: mariadb:10.3
             alias: mysql
@@ -266,7 +261,6 @@ Storefront (Jest):
             - master
             - "6.1"
     stage: unit
-    needs: [Javascript analysis]
     variables:
         PROJECT_ROOT: $CI_PROJECT_DIR/development
     services:

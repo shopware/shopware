@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ContactForm\Validation;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\ValidationServiceInterface;

@@ -71,7 +71,7 @@ class ContactFormService
         }
 
         if (empty($receivers)) {
-            $receivers[] = $this->systemConfigService->get('core.basicInformation.email');
+            $receivers[] = $this->systemConfigService->get('core.basicInformation.email', $context->getSalesChannel()->getId());
         }
 
         $this->validateContactForm($data, $context);

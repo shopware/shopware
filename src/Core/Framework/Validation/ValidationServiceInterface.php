@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Validation;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 interface ValidationServiceInterface

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\Validation;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\ValidationServiceInterface;
@@ -58,7 +57,8 @@ class CustomerProfileValidationService implements ValidationServiceInterface
             ->add('firstName', new NotBlank())
             ->add('lastName', new NotBlank());
 
-        if ($this->systemConfigService->get('core.loginRegistration.showBirthdayField') && $this->systemConfigService->get('core.loginRegistration.birthdayFieldRequired')) {
+        if ($this->systemConfigService->get('core.loginRegistration.showBirthdayField', $context->getSalesChannel()->getId())
+            && $this->systemConfigService->get('core.loginRegistration.birthdayFieldRequired', $context->getSalesChannel()->getId())) {
             $definition
                 ->add('birthdayDay', new GreaterThanOrEqual(['value' => 1]), new LessThanOrEqual(['value' => 31]))
                 ->add('birthdayMonth', new GreaterThanOrEqual(['value' => 1]), new LessThanOrEqual(['value' => 12]))

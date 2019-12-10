@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -78,6 +79,49 @@ class AccountRegistrationServiceTest extends TestCase
 
         static::assertTrue($mailEventDidRun, 'The mail.sent Event did not run');
         static::assertTrue($customerEventDidRun, 'The "' . CustomerRegisterEvent::class . '" Event did not run');
+    }
+
+    public function testRegisterWithSalesChannelSpecificConfig(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+
+        $this->createSalesChannel(['id' => $salesChannelId]);
+        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), $salesChannelId);
+
+        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfigService->set('core.loginRegistration.additionalAddressField1Required', false);
+        $systemConfigService->set('core.loginRegistration.showAdditionalAddressField1', false);
+        $systemConfigService->set('core.loginRegistration.additionalAddressField1Required', true, $salesChannelId);
+        $systemConfigService->set('core.loginRegistration.showAdditionalAddressField1', true, $salesChannelId);
+
+        $systemConfigService->set('core.loginRegistration.additionalAddressField2Required', false);
+        $systemConfigService->set('core.loginRegistration.showAdditionalAddressField2', false);
+        $systemConfigService->set('core.loginRegistration.additionalAddressField2Required', true, $salesChannelId);
+        $systemConfigService->set('core.loginRegistration.showAdditionalAddressField2', true, $salesChannelId);
+
+        $customerRegisterData = new DataBag();
+        $customerRegisterData->add($this->getCustomerRegisterData());
+        $customerRegisterData->get('billingAddress')->remove('additionalAddressLine1');
+        $customerRegisterData->get('billingAddress')->remove('additionalAddressLine2');
+        $customerRegisterData->get('shippingAddress')->remove('additionalAddressLine1');
+        $customerRegisterData->get('shippingAddress')->remove('additionalAddressLine2');
+
+        $exceptionWasThrown = false;
+
+        try {
+            $this->accountRegistrationService->register($customerRegisterData, false, $salesChannelContext);
+        } catch (ConstraintViolationException $e) {
+            $exceptionWasThrown = true;
+
+            static::assertEquals(4, $e->getViolations()->count());
+            static::assertEquals(1, $e->getViolations('/billingAddress/additionalAddressLine1')->count());
+            static::assertEquals(1, $e->getViolations('/billingAddress/additionalAddressLine2')->count());
+            static::assertEquals(1, $e->getViolations('/shippingAddress/additionalAddressLine1')->count());
+            static::assertEquals(1, $e->getViolations('/shippingAddress/additionalAddressLine2')->count());
+        }
+
+        static::assertTrue($exceptionWasThrown);
     }
 
     public function testRegisterWithDoubleOptIn(): void

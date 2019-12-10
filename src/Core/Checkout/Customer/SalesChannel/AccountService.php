@@ -529,7 +529,7 @@ class AccountService
     {
         $definition = new DataValidationDefinition('customer.password.update');
 
-        $minPasswordLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength');
+        $minPasswordLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannel()->getId());
 
         $definition->add('newPassword', new NotBlank(), new Length(['min' => $minPasswordLength]), new EqualTo(['propertyPath' => 'newPasswordConfirm']));
 
@@ -706,7 +706,7 @@ class AccountService
     {
         $definition = new DataValidationDefinition('customer.password.update');
 
-        $minPasswordLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength');
+        $minPasswordLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannel()->getId());
 
         $definition
             ->add('newPassword', new NotBlank(), new Length(['min' => $minPasswordLength]), new EqualTo(['propertyPath' => 'newPasswordConfirm']))

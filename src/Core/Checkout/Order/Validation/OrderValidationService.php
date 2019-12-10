@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order\Validation;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\ValidationServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;

@@ -378,7 +378,9 @@ class AccountRegistrationService
     private function getCreateAddressValidationDefinition(string $accountType, bool $isBillingAddress, SalesChannelContext $context): DataValidationDefinition
     {
         $validation = $this->addressValidationService->buildCreateValidation($context);
-        if ($isBillingAddress && $accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection')) {
+        if ($isBillingAddress
+            && $accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
+            && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection', $context->getSalesChannel()->getId())) {
             $validation->add('company', new NotBlank());
         }
 
@@ -393,7 +395,7 @@ class AccountRegistrationService
         $validation = $this->accountValidationService->buildCreateValidation($context);
 
         if (!$isGuest) {
-            $minLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength');
+            $minLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannel()->getId());
             $validation->add('password', new NotBlank(), new Length(['min' => $minLength]));
             $validation->add('email', new CustomerEmailUnique(['context' => $context->getContext()]));
         }

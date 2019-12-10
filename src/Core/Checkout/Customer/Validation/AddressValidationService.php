@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\Validation;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\ValidationServiceInterface;
@@ -55,15 +54,18 @@ class AddressValidationService implements ValidationServiceInterface
             ->add('city', new NotBlank())
             ->add('countryId', new NotBlank());
 
-        if ($this->systemConfigService->get('core.loginRegistration.showAdditionalAddressField1') && $this->systemConfigService->get('core.loginRegistration.additionalAddressField1Required')) {
+        if ($this->systemConfigService->get('core.loginRegistration.showAdditionalAddressField1', $context->getSalesChannel()->getId())
+            && $this->systemConfigService->get('core.loginRegistration.additionalAddressField1Required', $context->getSalesChannel()->getId())) {
             $definition->add('additionalAddressLine1', new NotBlank());
         }
 
-        if ($this->systemConfigService->get('core.loginRegistration.showAdditionalAddressField2') && $this->systemConfigService->get('core.loginRegistration.additionalAddressField2Required')) {
+        if ($this->systemConfigService->get('core.loginRegistration.showAdditionalAddressField2', $context->getSalesChannel()->getId())
+            && $this->systemConfigService->get('core.loginRegistration.additionalAddressField2Required', $context->getSalesChannel()->getId())) {
             $definition->add('additionalAddressLine2', new NotBlank());
         }
 
-        if ($this->systemConfigService->get('core.loginRegistration.showPhoneNumberField') && $this->systemConfigService->get('core.loginRegistration.phoneNumberFieldRequired')) {
+        if ($this->systemConfigService->get('core.loginRegistration.showPhoneNumberField', $context->getSalesChannel()->getId())
+            && $this->systemConfigService->get('core.loginRegistration.phoneNumberFieldRequired', $context->getSalesChannel()->getId())) {
             $definition->add('phoneNumber', new NotBlank());
         }
 

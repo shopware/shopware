@@ -9,8 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -20,8 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AddressControllerTest extends TestCase
 {
-    use KernelTestBehaviour;
-    use BasicTestDataBehaviour;
+    use IntegrationTestBehaviour;
 
     /**
      * @var EntityRepositoryInterface

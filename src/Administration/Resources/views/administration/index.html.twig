@@ -6,7 +6,7 @@
     <title>
         Shopware Administration (c) shopware AG
     </title>
-    {% set baseUrl = app.getRequest().baseUrl %}
+    {% set baseUrl = app.getRequest().basePath %}
 
     {% block administration_favicons %}
         <link rel="apple-touch-icon" sizes="180x180" href="{{ baseUrl }}{{ asset('static/img/favicon/apple-touch-icon.png', '@Administration') }}">

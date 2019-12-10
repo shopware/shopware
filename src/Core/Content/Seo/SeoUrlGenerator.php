@@ -54,23 +54,16 @@ class SeoUrlGenerator
      */
     private $definitionRegistry;
 
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
-
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         Slugify $slugify,
-        RouterInterface $router,
-        RequestStack $requestStack
+        RouterInterface $router
     ) {
         $this->definitionRegistry = $definitionRegistry;
 
         $this->router = $router;
 
         $this->initTwig($slugify);
-        $this->requestStack = $requestStack;
     }
 
     /**
@@ -133,9 +126,7 @@ class SeoUrlGenerator
 
     private function generate(SeoUrlRouteInterface $seoUrlRoute, SeoUrlRouteConfig $config, array $salesChannels, EntityCollection $entities): iterable
     {
-        $request = $this->requestStack->getMasterRequest();
-
-        $basePath = $request ? $request->getBasePath() : '';
+        $baseUrl = $this->router->getContext()->getBaseUrl();
 
         /** @var Entity $entity */
         foreach ($entities as $entity) {
@@ -152,7 +143,7 @@ class SeoUrlGenerator
 
                 $mapping = $seoUrlRoute->getMapping($entity, $salesChannel);
                 $pathInfo = $this->router->generate($config->getRouteName(), $mapping->getInfoPathContext());
-                $pathInfo = $this->removePrefix($pathInfo, $basePath);
+                $pathInfo = $this->removePrefix($pathInfo, $baseUrl);
 
                 $copy->setPathInfo($pathInfo);
 

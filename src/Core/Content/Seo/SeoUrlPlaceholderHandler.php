@@ -26,25 +26,17 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
      */
     private $seoUrlRepository;
 
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
-
-    public function __construct(RequestStack $requestStack, Router $router, SalesChannelRepositoryInterface $seoUrlRepository)
+    public function __construct(Router $router, SalesChannelRepositoryInterface $seoUrlRepository)
     {
         $this->router = $router;
         $this->seoUrlRepository = $seoUrlRepository;
-        $this->requestStack = $requestStack;
     }
 
     public function generate($name, $parameters = []): string
     {
         $path = $this->router->generate($name, $parameters, Router::ABSOLUTE_PATH);
 
-        $request = $this->requestStack->getMasterRequest();
-        $basePath = $request ? $request->getBasePath() : '';
-        $path = $this->removePrefix($path, $basePath);
+        $path = $this->removePrefix($path, $this->router->getContext()->getBaseUrl());
 
         return self::DOMAIN_PLACEHOLDER . $path . '#';
     }

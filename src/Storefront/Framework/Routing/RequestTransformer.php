@@ -98,8 +98,14 @@ class RequestTransformer implements RequestTransformerInterface
             throw new SalesChannelMappingException($request->getUri());
         }
 
-        $absoluteBaseUrl = $this->getSchemeAndHttpHost($request) . $request->getBaseUrl();
-        $baseUrl = str_replace($absoluteBaseUrl, '', $salesChannel['url']);
+        $originalBaseUrl = $request->getBaseUrl();
+        $absoluteBaseUrl = $this->getSchemeAndHttpHost($request) . $originalBaseUrl;
+        $baseUrl = parse_url($salesChannel['url'], PHP_URL_PATH) ?? '';
+        if ($originalBaseUrl !== '') {
+            if (strpos($baseUrl, $originalBaseUrl) === 0) {
+                $baseUrl = substr($baseUrl, strlen($originalBaseUrl));
+            }
+        }
 
         $resolved = $this->resolveSeoUrl(
             $request,

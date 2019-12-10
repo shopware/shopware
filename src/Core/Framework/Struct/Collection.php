@@ -73,7 +73,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
         return array_map($closure, $this->elements);
     }
 
-    public function reduce(\Closure $closure, $initial = null): array
+    public function reduce(\Closure $closure, $initial = null)
     {
         return array_reduce($this->elements, $closure, $initial);
     }

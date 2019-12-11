@@ -137,9 +137,15 @@ Component.register('sw-order-state-change-modal-assign-mail-template', {
         fillValues() {
             const searchTerm = this.searchTerm;
             const criteria = this.mailTemplateSelectionCriteria().setLimit(10);
+            const fallBackCriteria = new Criteria();
+
+            fallBackCriteria.addAssociation('mailTemplateType');
 
             if (searchTerm) {
                 criteria.addFilter(
+                    Criteria.contains('description', searchTerm)
+                );
+                fallBackCriteria.addFilter(
                     Criteria.contains('description', searchTerm)
                 );
             }
@@ -156,6 +162,14 @@ Component.register('sw-order-state-change-modal-assign-mail-template', {
                 this.total = items.total;
                 this.mailTemplates = items;
                 this.isLoading = false;
+            }).finally(() => {
+                if (!this.total) {
+                    this.mailTemplateRepository.search(fallBackCriteria, Shopware.Context.api).then((items) => {
+                        this.total = items.total;
+                        this.mailTemplates = items;
+                        this.isLoading = false;
+                    });
+                }
             });
         },
 

@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\Category\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\Service\NavigationLoader;
@@ -155,6 +156,20 @@ class NavigationLoaderTest extends TestCase
         $tree = $this->navigationLoader->load($category1_1_1_1Id, Generator::createSalesChannelContext(), $this->rootId);
 
         static::assertNotNull($tree->getChildren($category1_1_1Id));
+    }
+
+    public function testLoadRootLevelsAreCached(): void
+    {
+        CountingEntitySearcher::resetCount();
+        CountingEntityReader::resetCount();
+        $this->createCategoryTree();
+
+        $this->navigationLoader->load($this->category1_1Id, Generator::createSalesChannelContext(), $this->rootId);
+
+        $this->navigationLoader->load($this->category2_1Id, Generator::createSalesChannelContext(), $this->rootId);
+
+        static::assertEquals(1, CountingEntityReader::getReadOperationCount(CategoryDefinition::ENTITY_NAME));
+        static::assertEquals(0, CountingEntitySearcher::getSearchOperationCount(CategoryDefinition::ENTITY_NAME));
     }
 
     private function createSimpleTree(): array

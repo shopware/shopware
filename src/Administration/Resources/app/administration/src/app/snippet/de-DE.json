@@ -429,7 +429,8 @@
         "timeRangeRule": "Zeitraum",
         "weightOfCartRule": "Warenkorb Gewicht",
         "dayOfWeekRule": "Wochentag",
-        "lineItemTagRule": "Positionen mit Tag"
+        "lineItemTagRule": "Positionen mit Tag",
+        "lineItemPropertyRule": "Positionen mit Eigenschaften"
       }
     },
     "sw-product-image": {

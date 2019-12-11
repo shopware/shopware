@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block single_cms_page_body %}
-    <body class="is-ctl-{{ controllerName|lower }} is-act-{{ controllerAction|lower }}">
+    <body class="{% block base_body_classes %}is-ctl-{{ controllerName|lower }} is-act-{{ controllerAction|lower }}{% endblock %}">
         {% block single_cms_page_body_inner %}
             {% block single_cms_page_noscript %}
                 <noscript class="noscript-main">

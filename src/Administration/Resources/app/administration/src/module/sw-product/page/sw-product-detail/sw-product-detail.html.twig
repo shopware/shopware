@@ -45,6 +45,16 @@
         {% block sw_product_detail_content %}
             <sw-card-view slot="content">
 
+                {% block sw_product_detail_content_top %}
+                    <router-link
+                        :to="{ name: 'sw.product.detail.variants', params: { id: product.parentId } }"
+                        v-if="isChild"
+                        class="sw-card__back-link">
+                            <sw-icon name="default-arrow-simple-left" small></sw-icon>
+                            {{ $tc('sw-product.general.backToParent') }}
+                    </router-link>
+                {% endblock %}
+
                 {% block sw_product_detail_content_language_info %}
                     <sw-language-info
                             :entityDescription="placeholder(product, 'name', $tc('sw-product.detail.textHeadline'))"

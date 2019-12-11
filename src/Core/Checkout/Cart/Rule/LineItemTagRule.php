@@ -37,21 +37,21 @@ class LineItemTagRule extends Rule
 
     public function match(RuleScope $scope): bool
     {
-        if (!$scope instanceof LineItemScope) {
+        if ($scope instanceof LineItemScope) {
+            return $this->lineItemMatches($scope->getLineItem());
+        }
+
+        if (!$scope instanceof CartRuleScope) {
             return false;
         }
 
-        $identifiers = $this->extractTagIds($scope->getLineItem());
-
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                return !empty(array_intersect($identifiers, $this->identifiers));
-            case self::OPERATOR_NEQ:
-                return empty(array_intersect($identifiers, $this->identifiers));
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
+        foreach ($scope->getCart()->getLineItems() as $lineItem) {
+            if ($this->lineItemMatches($lineItem)) {
+                return true;
+            }
         }
+
+        return false;
     }
 
     public function getConstraints(): array
@@ -62,12 +62,26 @@ class LineItemTagRule extends Rule
         ];
     }
 
+    private function lineItemMatches(LineItem $lineItem): bool
+    {
+        $identifiers = $this->extractTagIds($lineItem);
+
+        switch ($this->operator) {
+            case self::OPERATOR_EQ:
+                return !empty(array_intersect($identifiers, $this->identifiers));
+            case self::OPERATOR_NEQ:
+                return empty(array_intersect($identifiers, $this->identifiers));
+            default:
+                throw new UnsupportedOperatorException($this->operator, self::class);
+        }
+    }
+
     private function extractTagIds(LineItem $lineItem): array
     {
-        if (!$lineItem->hasPayloadValue('tags')) {
+        if (!$lineItem->hasPayloadValue('tagIds')) {
             return [];
         }
 
-        return $lineItem->getPayload()['tags'];
+        return $lineItem->getPayload()['tagIds'];
     }
 }

@@ -320,6 +320,7 @@
         "label": "YouTube-Video"
       },
       "form": {
+        "label": "Formular",
         "config": {
           "label": {
             "receiverEmail": "Empfängeraddressen",

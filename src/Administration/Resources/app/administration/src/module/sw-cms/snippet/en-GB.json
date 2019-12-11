@@ -319,6 +319,7 @@
         "label": "YouTube video"
       },
       "form": {
+        "label": "Form",
         "config": {
           "label": {
             "receiverEmail": "Receiver addresses",

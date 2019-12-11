@@ -459,7 +459,7 @@ Generating docs:
             - master
             - "6.1"
         changes:
-            - src/Docs/Resources/current/*
+            - src/Docs/*
     stage: Generate docs
     dependencies: []
     services:

@@ -285,9 +285,7 @@ Component.register('sw-cms-detail', {
         },
 
         updateDataMapping() {
-            console.log('mapping');
             const mappingEntity = this.cmsPageTypeSettings.entity;
-            console.log(mappingEntity);
 
             if (!mappingEntity) {
                 Shopware.State.commit('cmsPageState/removeCurrentMappingEntity');

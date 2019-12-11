@@ -104,6 +104,25 @@ class JsonEntityEncoderTest extends TestCase
         static::assertEquals($fixture->getAdminJsonFixtures(), $actual);
     }
 
+    /**
+     * Not possible with dataprovider
+     * as we have to manipulate the container, but the dataprovider run before all tests
+     */
+    public function testEncodeStructWithToManyExtension(): void
+    {
+        $this->registerDefinition(ExtendableDefinition::class, ExtendedDefinition::class);
+        $extendableDefinition = new ExtendableDefinition();
+        $extendableDefinition->addExtension(new AssociationExtension());
+
+        $extendableDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+        $fixture = new TestBasicWithExtension();
+
+        $encoder = $this->getContainer()->get(JsonEntityEncoder::class);
+        $actual = $encoder->encode(new Criteria(), $extendableDefinition, $fixture->getInput(), SerializationFixture::API_BASE_URL, SerializationFixture::API_VERSION);
+
+        static::assertEquals($fixture->getAdminJsonFixtures(), $actual);
+    }
+
     public function testEncodeWithSourceField(): void
     {
         $case = new TestEncodeWithSourceFields();

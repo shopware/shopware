@@ -131,6 +131,11 @@ class Record implements \JsonSerializable
             $vars['links'] = new \stdClass();
         }
 
+        // if attributes are empty it should be decoded as empty object instead of empty array: https://jsonapi.org/format/#document-resource-object-attributes
+        if (count($vars['attributes']) === 0) {
+            $vars['attributes'] = new \stdClass();
+        }
+
         return $vars;
     }
 

@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block error_maintenance_body %}
-    <body class="{% block base_body_classes %}is-ctl-{{ controllerName|lower }} is-act-{{ controllerAction|lower }}{% endblock %}">
+    <body class="{% block error_maintenance_body_classes %}is-ctl-{{ controllerName|lower }} is-act-{{ controllerAction|lower }}{% endblock %}">
         {% block error_maintenance_body_inner %}
             {% block error_maintenance_noscript %}
                 <noscript class="noscript-main">

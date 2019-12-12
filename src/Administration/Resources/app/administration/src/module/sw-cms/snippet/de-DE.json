@@ -481,6 +481,11 @@
         "youtubeVideo": {
           "label": "YouTube-Video"
         }
+      },
+      "form": {
+        "form": {
+          "label": "Formular"
+        }
       }
     },
     "components": {

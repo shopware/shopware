@@ -24,7 +24,8 @@ Component.register('sw-plugin-license-list', {
         return {
             licenses: [],
             isLoading: false,
-            showLoginModal: false
+            showLoginModal: false,
+            total: 0
         };
     },
 
@@ -99,7 +100,6 @@ Component.register('sw-plugin-license-list', {
                 return Promise.resolve();
             }
 
-            this.total = 0;
             this.isLoading = true;
             return this.storeService.getLicenseList().then(({ items, total }) => {
                 this.licenses = items;

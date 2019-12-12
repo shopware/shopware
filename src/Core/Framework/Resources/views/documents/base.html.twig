@@ -242,7 +242,11 @@
                                             {% endblock %}
 
                                             {% block document_line_item_table_row_product_number %}
-                                                <td>{{ lineItem.payload.productNumber | u.truncate(10) }}</td>
+                                                {% if lineItem.payload.productNumber %}
+                                                    <td>{{ lineItem.payload.productNumber | u.truncate(10) }}</td>
+                                                {% else %}
+                                                    <td></td>
+                                                {% endif %}
                                             {% endblock %}
 
                                             {% block document_line_item_table_row_label %}

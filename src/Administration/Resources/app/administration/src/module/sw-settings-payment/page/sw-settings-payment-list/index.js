@@ -103,8 +103,8 @@ Component.register('sw-settings-payment-list', {
                 .catch(() => {
                     this.getList();
                     this.createNotificationError({
-                        title: this.$tc('sw-settings-payment.detail.titleSaveError'),
-                        message: this.$tc('sw-settings-payment.detail.messageSaveError')
+                        title: this.$tc('global.default.error'),
+                        message: this.$tc('global.notification.unspecifiedSaveErrorMessage')
                     });
                 });
         }, 800),

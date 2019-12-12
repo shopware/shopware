@@ -10,31 +10,31 @@
       "agent": "Bevorzugter E-Mail-Agent",
       "local-agent": "Lokaler E-Mail-Agent",
       "local-helptext": "Es wird der Standard-Mailer (Sendmail) Deines Systems verwendet. Stelle sicher, dass Sendmail in Deiner Host-Umgebung verfügbar ist und funktioniert.",
-      "smtp-server": "SMTP Server"
+      "smtp-server": "SMTP-Server"
     },
     "first-configuration": {
-      "headline": "Erstellung der E-Mail Kommunikation",
-      "description": "Die Kommunikation mit den Kunden ist ein Schlüsselfaktor im täglichen E-Commerce. Daher sollte die Einrichtung eines Mailingsystems so schnell wie möglich aus Ihrer Liste gestrichen werden."
+      "headline": "E-Mail-Kommunikation einrichten",
+      "description": "Die Kommunikation mit den Kunden ist ein Schlüsselfaktor im täglichen E-Commerce. Daher sollte die Einrichtung eines Mailingsystems so schnell wie möglich von Deiner Liste gestrichen werden."
     },
     "card-smtp": {
       "host": "Host",
-      "host-placeholder": "Host eingeben ...",
+      "host-placeholder": "Host-Namen eingeben ...",
       "port": "Port",
-      "port-placeholder": "Port eingeben ...",
+      "port-placeholder": "Port-Nummer eingeben ...",
       "username": "Benutzername",
-      "username-placeholder": "Benutzername eingeben ...",
+      "username-placeholder": "Gib Deinen Benutzernamen ein ...",
       "password": "Passwort",
-      "password-placeholder": "Passwort eingeben ...",
+      "password-placeholder": "Gib ein Passwort ein ...",
       "encryption": "Verschlüsselungsmethode",
       "encryption-placeholder": "Verschlüsselungsmethode auswählen ...",
       "authentication": "Authentifizierungsmethode",
       "authentication-placeholder": "Authentifizierungsmethode auswählen ...",
-      "sender-address": "Sender-Adresse",
-      "sender-address-placeholder": "Bitte eine valide Email eingeben ...",
+      "sender-address": "Absender-Adresse",
+      "sender-address-placeholder": "Gib eine E-Mail-Adresse ein, auf die Du Zugriff hast...",
       "delivery-address": "Empfänger-Adresse",
-      "delivery-address-placeholder": "Bitte eine valide Email eingeben ...",
-      "delivery-address-helptext": "Alle ausgehenden E-Mails werden ebenfalls an diese Adresse gesendet. Stellen Sie dies nur zu Testzwecken ein.",
-      "disable-delivery": "Versand deaktivieren"
+      "delivery-address-placeholder": "Gib eine E-Mail-Adresse für Testzwecke ein ...",
+      "delivery-address-helptext": "Alle ausgehenden E-Mails werden ebenfalls an diese Adresse gesendet. Diese Funktion dient nur zu Testzwecken.",
+      "disable-delivery": "E-Mail-Versand (vorrübergehend) deaktivieren"
     },
     "encryption": {
       "no-encryption": "Keine Verschlüsselung",

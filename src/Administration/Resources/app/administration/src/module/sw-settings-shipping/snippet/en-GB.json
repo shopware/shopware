@@ -34,6 +34,7 @@
       "labelName": "Name",
       "labelActive": "Active",
       "labelDeliveryTime": "Delivery time",
+      "placeholderDeliveryTime": "Search delivery times...",
       "placeholderName": "Enter name...",
       "placeholderDescription": "Enter description...",
       "labelDescription": "Description",
@@ -42,6 +43,7 @@
       "labelSetRules": "Select rules",
       "labelBasicInfo": "Basic information",
       "topRule": "Availability",
+      "placeholderTopRule": "Search or create availability rule...",
       "labelLogoUpload": "Upload logo"
     },
     "constants": {
@@ -50,7 +52,7 @@
       "lineItemCount": "Line item count"
     },
     "priceMatrix": {
-      "placeholderName": "Price matrix",
+      "titleCard": "Price matrix",
       "noRestriction": "Unrestricted",
       "addNewRule": "Add new rule",
       "addNewPriceRule": "Add pricing level",

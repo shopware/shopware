@@ -3,7 +3,7 @@
         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
     <card>
         <title>Mailer settings</title>
-        <title lang="de-DE">Mailer Einstellungen</title>
+        <title lang="de-DE">Mailer-Einstellungen</title>
 
         <input-field type="single-select">
             <name>emailAgent</name>
@@ -11,12 +11,12 @@
                 <option>
                     <id>local</id>
                     <name>Local email agent</name>
-                    <name lang="de-DE">Lokaler Email Agent</name>
+                    <name lang="de-DE">Lokaler Email-Agent</name>
                 </option>
                 <option>
                     <id>smtp</id>
                     <name>SMTP server</name>
-                    <name lang="de-DE">SMTP Server</name>
+                    <name lang="de-DE">SMTP-Server</name>
                 </option>
             </options>
             <label>Authentication</label>
@@ -27,32 +27,32 @@
             <name>host</name>
             <label>Host</label>
             <label lang="de-DE">Host</label>
-            <placeholder>Fill in your host</placeholder>
-            <placeholder lang="de-DE">Host eingeben</placeholder>
+            <placeholder>Fill in host name...</placeholder>
+            <placeholder lang="de-DE">Host-Namen eingeben ...</placeholder>
         </input-field>
 
         <input-field>
             <name>port</name>
             <label>Port</label>
             <label lang="de-DE">Port</label>
-            <placeholder>Fill in your port</placeholder>
-            <placeholder lang="de-DE">Port eingeben</placeholder>
+            <placeholder>Fill in port number...</placeholder>
+            <placeholder lang="de-DE">Port-Nummer eingeben ...</placeholder>
         </input-field>
 
         <input-field>
             <name>username</name>
             <label>Username</label>
             <label lang="de-DE">Benutzername</label>
-            <placeholder>Fill in your username</placeholder>
-            <placeholder lang="de-DE">Benutzername eingeben</placeholder>
+            <placeholder>Fill in username...</placeholder>
+            <placeholder lang="de-DE">Benutzernamen eingeben ...</placeholder>
         </input-field>
 
         <input-field>
             <name>password</name>
             <label>Password</label>
             <label lang="de-DE">Passwort</label>
-            <placeholder>Fill in your password</placeholder>
-            <placeholder lang="de-DE">Passwort eingeben</placeholder>
+            <placeholder>Fill in password...</placeholder>
+            <placeholder lang="de-DE">Passwort eingeben ...</placeholder>
         </input-field>
 
         <input-field type="single-select">
@@ -66,12 +66,12 @@
                 <option>
                     <id>ssl</id>
                     <name>SSL encryption</name>
-                    <name lang="de-DE">SSL Verschlüsselung</name>
+                    <name lang="de-DE">SSL-Verschlüsselung</name>
                 </option>
                 <option>
                     <id>tsl</id>
                     <name>TLS encryption</name>
-                    <name lang="de-DE">TLS Verschlüsselung</name>
+                    <name lang="de-DE">TLS-Verschlüsselung</name>
                 </option>
             </options>
             <label>Encryption</label>
@@ -94,7 +94,7 @@
                 <option>
                     <id>login</id>
                     <name>Login authentication</name>
-                    <name lang="de-DE">Login Authentifizierung</name>
+                    <name lang="de-DE">Login-Authentifizierung</name>
                 </option>
                 <option>
                     <id>cram-md5</id>
@@ -109,23 +109,23 @@
         <input-field>
             <name>senderAddress</name>
             <label>Sender address</label>
-            <label lang="de-DE">Sender-Adresse</label>
-            <placeholder>Fill in a valid email address</placeholder>
-            <placeholder lang="de-DE">Eine valide Email Adresse eingeben</placeholder>
+            <label lang="de-DE">Absender-Adresse</label>
+            <placeholder>Fill in a valid email address...</placeholder>
+            <placeholder lang="de-DE">Eine valide Email-Adresse eingeben ...</placeholder>
         </input-field>
 
         <input-field>
             <name>deliveryAddress</name>
             <label>Delivery address</label>
             <label lang="de-DE">Delivery address</label>
-            <placeholder>Fill in a valid email address</placeholder>
-            <placeholder lang="de-DE">Eine valide Email Adresse eingeben</placeholder>
+            <placeholder>Fill in a valid email address...</placeholder>
+            <placeholder lang="de-DE">Eine valide Email-Adresse eingeben ...</placeholder>
         </input-field>
 
         <input-field type="bool">
             <name>disableDelivery</name>
-            <label>Disable delivery</label>
-            <label lang="de-DE">Versand deaktivieren</label>
+            <label>Disable email delivery (temporarily)</label>
+            <label lang="de-DE">E-Mail-Versand (temporär) deaktivieren</label>
         </input-field>
     </card>
 </config>

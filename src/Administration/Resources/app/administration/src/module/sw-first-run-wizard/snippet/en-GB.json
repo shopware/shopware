@@ -92,7 +92,7 @@
       "message": "Your Shopware 6 {edition} is now verified.",
       "messageNotLicensed": "Your Shopware 6 is now prepared.",
       "headlineUsefulLinks": "Useful Links",
-      "loadingMessage": "Restarting Application<br>This may take a while...",
+      "loadingMessage": "Restarting application<br>This may take a while...",
       "documentationLabel": "Documentation",
       "documentationUrl": "https://docs.shopware.com/en",
       "forumLabel": "Forum",

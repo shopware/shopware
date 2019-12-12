@@ -16,7 +16,7 @@
       "treeHeadSelected": "{count} selected",
       "emptyStateHeadline": "No category selected",
       "actions": {
-        "actionsDisabledInLanguage": "Categories can only be created in the default language",
+        "actionsDisabledInLanguage": "Categories can only be created in the default language.",
         "createSub": "New subcategory",
         "createBefore": "New category before",
         "createAfter": "New category after"
@@ -30,7 +30,7 @@
       "general": {
         "categoryNameLabel": "Name",
         "headlineInformationCard": "General",
-        "isCategoryActiveLabel": "Category is active",
+        "isCategoryActiveLabel": "Category active",
         "useAsLink": "Use as link",
         "labelCategoryTags": "Tags",
         "types": {

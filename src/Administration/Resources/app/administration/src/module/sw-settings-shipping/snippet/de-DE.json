@@ -35,6 +35,7 @@
       "labelDescription": "Beschreibung",
       "labelActive": "Aktiv",
       "labelDeliveryTime": "Lieferzeit",
+      "placeholderDeliveryTime": "Durchsuche Lieferzeiten ...",
       "placeholderName": "Namen eingeben ...",
       "placeholderDescription": "Beschreibung eingeben ...",
       "buttonCancel": "Abbrechen",
@@ -42,6 +43,7 @@
       "labelSetRules": "Regel auswählen",
       "labelBasicInfo": "Basisinformation",
       "topRule": "Verfügbarkeitsregel",
+      "placeholderTopRule": "Suche oder erstelle Verfügbarkeitsregel ...",
       "labelLogoUpload": "Logo hochladen"
     },
     "constants": {
@@ -50,7 +52,7 @@
       "lineItemCount": "Anzahl Produkte"
     },
     "priceMatrix": {
-      "placeholderName": "Preismatrix",
+      "titleCard": "Preismatrix",
       "noRestriction": "Keine Einschränkungen",
       "addNewRule": "Neue Regel erstellen",
       "addNewPriceRule": "Neue Preisregel hinzufügen",

@@ -6,6 +6,7 @@ Below you'll find a list of each command and its usage.
 
 | Command           | Arguments | Options                         | Usage                                                                  |
 |-------------------|-----------|---------------------------------|------------------------------------------------------------------------|
+| plugin:create     | name      | N/A                             | Creates a skeleton Plugin with the given name
 | plugin:install    | plugins   | activate, reinstall, clearCache | Installs, re-installs and activates one or multiple plugins            |
 | plugin:uninstall  | plugins   | keep-user-data, clearCache      | Uninstalls one or multiple plugins                                     |
 | plugin:activate   | plugins   | clearCache                      | Activates one or multiple installed plugins                            |
@@ -24,6 +25,14 @@ Alternatively you can run the command `bin/console cache:clear`
 ## Examples
 
 Below you'll find some examples for you to become more familiar with these commands.
+
+```
+$ ./bin/console plugin:create YourPluginName
+```
+*Plugin create command*
+
+The first command will create a plugin skeleton with the given `Name`.
+The Plugin skeleton will be found in the `/custom/plugins/` directory. 
 
 ```
 $ ./bin/console plugin:list

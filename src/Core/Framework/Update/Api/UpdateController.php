@@ -20,7 +20,6 @@ use Shopware\Core\Framework\Update\Steps\DeactivatePluginsStep;
 use Shopware\Core\Framework\Update\Steps\DownloadStep;
 use Shopware\Core\Framework\Update\Steps\ErrorResult;
 use Shopware\Core\Framework\Update\Steps\FinishResult;
-use Shopware\Core\Framework\Update\Steps\ReactivatePluginsStep;
 use Shopware\Core\Framework\Update\Steps\UnpackStep;
 use Shopware\Core\Framework\Update\Steps\ValidResult;
 use Shopware\Core\Framework\Update\Struct\Version;
@@ -279,7 +278,7 @@ class UpdateController extends AbstractController
     public function finish(string $token, int $version, Request $request, Context $context): Response
     {
         $offset = $request->query->getInt('offset');
-
+        $oldVersion = (string) $this->systemConfig->get(self::UPDATE_PREVIOUS_VERSION_KEY);
         if ($offset === 0) {
             if (!$token) {
                 return $this->redirectToRoute('administration.index');
@@ -289,44 +288,18 @@ class UpdateController extends AbstractController
             if (!$dbUpdateToken || $token !== $dbUpdateToken) {
                 return $this->redirectToRoute('administration.index');
             }
-            $oldVersion = (string) $this->systemConfig->get(self::UPDATE_PREVIOUS_VERSION_KEY);
 
             $_unusedPreviousSetting = ignore_user_abort(true);
 
             $this->eventDispatcher->dispatch(new UpdatePreFinishEvent($context, $oldVersion, $this->shopwareVersion));
         }
 
-        if ($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION || $_ENV['APP_ENV'] === 'test') {
-            $newVersion = VersionFactory::createTestVersion();
-        } else {
-            $newVersion = VersionFactory::create(['version' => $this->shopwareVersion]);
-        }
+        // reboot with plugins
+        $container = $this->rebootWithPlugins();
+        $container->get('event_dispatcher')
+            ->dispatch(new UpdatePostFinishEvent($context, $oldVersion, $this->shopwareVersion));
 
-        $deactivatePluginStep = new ReactivatePluginsStep(
-            $newVersion,
-            $this->pluginCompatibility,
-            $this->pluginLifecycleService,
-            $this->systemConfig,
-            $context
-        );
-
-        $result = $deactivatePluginStep->run($offset);
-
-        if ($result instanceof FinishResult || $result->getOffset() === $offset) {
-            $oldVersion = (string) $this->systemConfig->get(self::UPDATE_PREVIOUS_VERSION_KEY);
-            // reboot with plugins
-            $container = $this->rebootWithPlugins();
-            $container->get('event_dispatcher')->dispatch(new UpdatePostFinishEvent($context, $oldVersion,
-                $this->shopwareVersion));
-
-            return $this->redirectToRoute('administration.index');
-        }
-
-        return $this->redirectToRoute('api.custom.updateapi.finish', [
-            'token' => $this->systemConfig->get(self::UPDATE_TOKEN_KEY),
-            'offset' => $result->getOffset(),
-            'version' => $version,
-        ]);
+        return $this->redirectToRoute('administration.index');
     }
 
     private function rebootKernelWithoutPlugins(): ContainerInterface

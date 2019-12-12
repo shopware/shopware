@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Csrf;
 
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
@@ -46,8 +47,11 @@ class CsrfPlaceholderHandler
         // https://regex101.com/r/fefx3V/1
         $content = preg_replace_callback(
             '/' . self::CSRF_PLACEHOLDER . '(?<intent>[^#]*)#/',
-            function ($matches) {
-                return $this->getToken($matches['intent']);
+            function ($matches) use ($response) {
+                $token = $this->getToken($matches['intent']);
+                $response->headers->setCookie(Cookie::create('csrf[' . $matches['intent'] . ']', $token));
+
+                return $token;
             },
             $content
         );

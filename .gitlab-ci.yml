@@ -7,7 +7,6 @@ variables:
     GIT_STRATEGY: clone
 
 stages:
-    - Static analysis
     - unit
     - E2E
     - Build
@@ -49,14 +48,13 @@ default:
         - /entrypoint supervisord > /dev/null 2>&1 &
     interruptible: true
 
-# Stage: Static analysis
-
 Javascript analysis:
     only:
         refs:
             - merge_requests
             - master
-    stage: Static analysis
+            - "6.1"
+    stage: unit
     before_script: []
     script:
         - cd src/Administration/Resources
@@ -73,7 +71,8 @@ PHP analysis:
         refs:
             - merge_requests
             - master
-    stage: Static analysis
+            - "6.1"
+    stage: unit
     services:
         -   name: mysql:5.7
             alias: mysql
@@ -101,7 +100,6 @@ PHP analysis:
 
 .phpunit_base:
     stage: unit
-    needs: [PHP analysis]
     services:
         -   name: mariadb:10.3
             alias: mysql
@@ -141,6 +139,7 @@ PHP 7.2:
         refs:
             - merge_requests
             - master
+            - "6.1"
     extends: .phpunit_base
     image: shopware/development:7.2
     stage: unit
@@ -156,6 +155,7 @@ PHP 7.3:
         refs:
             - merge_requests
             - master
+            - "6.1"
     extends: .phpunit_base
     image: shopware/development:7.3
     stage: unit
@@ -172,6 +172,7 @@ PHP 7.4:
         refs:
             - merge_requests
             - master
+            - "6.1"
     extends: .phpunit_base
     image: shopware/development:7.4
     stage: unit
@@ -188,6 +189,7 @@ MySQL 5.7:
         refs:
             - merge_requests
             - master
+            - "6.1"
     extends: .phpunit_base
     stage: unit
     when: manual
@@ -203,6 +205,7 @@ MySQL 8.0:
         refs:
             - merge_requests
             - master
+            - "6.1"
     extends: .phpunit_base
     stage: unit
     when: manual
@@ -220,6 +223,7 @@ MariaDB 10.4:
         refs:
             - merge_requests
             - master
+            - "6.1"
     extends: .phpunit_base
     stage: unit
     when: manual
@@ -236,8 +240,8 @@ Administration (Jest):
         refs:
             - merge_requests
             - master
+            - "6.1"
     stage: unit
-    needs: [Javascript analysis]
     services:
         -   name: mariadb:10.3
             alias: mysql
@@ -255,8 +259,8 @@ Storefront (Jest):
         refs:
             - merge_requests
             - master
+            - "6.1"
     stage: unit
-    needs: [Javascript analysis]
     variables:
         PROJECT_ROOT: $CI_PROJECT_DIR/development
     services:
@@ -330,6 +334,7 @@ General (Storefront):
     only:
         - merge_requests
         - master
+        - "6.1"
     <<: *e2e_definition
     script: *storefront_definition
     needs: [Storefront (Jest)]
@@ -338,6 +343,7 @@ Content (Mixed):
     only:
         - merge_requests
         - master
+        - "6.1"
     <<: *e2e_definition
     script: *mixed_definition
     variables:
@@ -347,6 +353,7 @@ Catalogues  (Mixed):
     only:
         - merge_requests
         - master
+        - "6.1"
     <<: *e2e_definition
     script: *mixed_definition
     variables:
@@ -356,6 +363,7 @@ Customers (Mixed):
     only:
         - merge_requests
         - master
+        - "6.1"
     <<: *e2e_definition
     script: *mixed_definition
     variables:
@@ -365,6 +373,7 @@ Media and Marketing (Mixed):
     only:
         - merge_requests
         - master
+        - "6.1"
     <<: *e2e_definition
     script: *mixed_definition
     variables:
@@ -374,6 +383,7 @@ General (Administration):
     only:
         - merge_requests
         - master
+        - "6.1"
     <<: *e2e_definition
     script: *administration_definition
     variables:
@@ -383,6 +393,7 @@ Orders (Administration):
     only:
         - merge_requests
         - master
+        - "6.1"
     <<: *e2e_definition
     script: *administration_definition
     variables:
@@ -392,6 +403,7 @@ Rules and Product Groups (Administration):
     only:
         - merge_requests
         - master
+        - "6.1"
     <<: *e2e_definition
     script: *administration_definition
     variables:
@@ -401,6 +413,7 @@ Settings (Administration):
     only:
         - merge_requests
         - master
+        - "6.1"
     <<: *e2e_definition
     script: *administration_definition
     variables:
@@ -413,6 +426,7 @@ Component Library:
         refs:
             - merge_requests
             - master
+            - "6.1"
         changes:
             - src/Administration/*
             - src/Storefront/*
@@ -443,8 +457,9 @@ Generating docs:
         refs:
             - merge_requests
             - master
+            - "6.1"
         changes:
-            - src/Docs/Resources/current/*
+            - src/Docs/*
     stage: Generate docs
     dependencies: []
     services:
@@ -466,6 +481,7 @@ RIPS security:
     allow_failure: true
     only:
         - master
+        - "6.1"
     script:
         - apk add --no-cache libzip-dev && docker-php-ext-configure zip --with-libzip=/usr/include && docker-php-ext-install zip
         - wget https://github.com/rips/rips-cli/releases/download/3.2.0/rips-cli.phar -O /usr/bin/rips-cli
@@ -482,6 +498,7 @@ RIPS security:
     before_script: []
     only:
         - master
+        - "6.1"
     dependencies:
         - PHPUnit (MySQL)
     script:
@@ -499,6 +516,7 @@ Upload Component Library:
     before_script: []
     only:
         - master
+        - "6.1"
     dependencies:
         - Component Library
     script:

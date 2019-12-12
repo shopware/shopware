@@ -358,7 +358,7 @@ function buildSuperRegistry(config) {
 }
 
 function updateSuperRegistry(superRegistry, methodName, method, methodOrComputed, config) {
-    const superCallPattern = /(this|_this2)\.\$super/g;
+    const superCallPattern = /\.\$super/g;
     const methodString = method.toString();
     const hasSuperCall = superCallPattern.test(methodString);
 

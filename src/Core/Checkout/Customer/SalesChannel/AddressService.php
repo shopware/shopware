@@ -111,7 +111,7 @@ class AddressService
         $this->validateCustomerIsLoggedIn($context);
 
         if ($id = $data->get('id')) {
-            $this->validateAddressId((string) $id, $context)->getId();
+            $this->validateAddressId((string) $id, $context);
             $isCreate = false;
         } else {
             $id = Uuid::randomHex();
@@ -194,12 +194,16 @@ class AddressService
             throw new InvalidUuidException($addressId);
         }
 
+        $this->validateCustomerIsLoggedIn($context);
+
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('address.id', $addressId));
-        $criteria->addFilter(new EqualsFilter('address.customer_id', $context->getCustomer()->getId()));
+        $criteria->addFilter(new EqualsFilter('id', $addressId));
+        $criteria->addFilter(new EqualsFilter('customerId', $context->getCustomer()->getId()));
 
         /** @var CustomerAddressEntity|null $address */
-        $address = $this->customerAddressRepository->search(new Criteria([$addressId]), $context->getContext())->get($addressId);
+        $address = $this->customerAddressRepository
+            ->search($criteria, $context->getContext())
+            ->get($addressId);
 
         if (!$address) {
             throw new AddressNotFoundException($addressId);

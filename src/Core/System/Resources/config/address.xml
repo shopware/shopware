@@ -7,8 +7,8 @@
 
         <input-field type="bool">
             <name>showZipcodeInFrontOfCity</name>
-            <label>Display zipcode in front of city</label>
-            <label lang="de-DE">Postleitzahl vor der Stadt anzeigen</label>
+            <label>Put zip code in front of city name.</label>
+            <label lang="de-DE">Postleitzahl dem Stadtnamen voranstellen.</label>
         </input-field>
     </card>
 </config>

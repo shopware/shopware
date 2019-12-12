@@ -76,7 +76,7 @@ class ReactivatePluginsStep
 
             try {
                 $this->pluginLifecycleService->activatePlugin($plugin, $this->context);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $failed[$plugin->getId()] = $e->getMessage();
             } finally {
                 $deactivatedPlugins = array_diff($deactivatedPlugins, [$plugin->getId()]);

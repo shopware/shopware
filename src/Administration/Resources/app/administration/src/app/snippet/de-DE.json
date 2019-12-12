@@ -14,11 +14,13 @@
       "error": "Fehler",
       "save": "Speichern",
       "success": "Erfolg",
+      "info": "Info",
       "yes": "Ja",
       "no": "Nein"
     },
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",
+      "unspecifiedSaveErrorMessage": "Ein Fehler ist aufgetreten.",
       "notificationSaveSuccessMessage": "Die Entität \"{entityName}\" wurde erfolgreich gespeichert."
     },
     "notification-center": {

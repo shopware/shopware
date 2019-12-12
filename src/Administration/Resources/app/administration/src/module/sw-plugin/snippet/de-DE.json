@@ -36,7 +36,9 @@
       "titleStoreHostMissing": "Fehler",
       "messageStoreLicenseDomainMissing": "Um Dich erfolgreich anmelden zu können, musst Du zunächst in \"Einstellungen/Shopware Account\" Deine Lizenzdomain angeben.",
       "titleStoreNotAvailable": "Verbindung gescheitert",
-      "messageStoreNotAvailable": "Der Shopware Store ist nicht erreichbar."
+      "messageStoreNotAvailable": "Der Shopware Store ist nicht erreichbar.",
+      "titlePluginBaseClassNotFound": "Fehler beim Laden des Plugins",
+      "messagePluginBaseClassNotFound": "Der Plugineinstiegspunkt konnte nicht geladen werden. Stelle sicher, dass die Basisklasse korrekt geladen werden kann."
     },
     "fileUpload":{
       "buttonFileUpload":"Plugin hochladen",

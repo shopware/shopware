@@ -76,13 +76,11 @@ class Migration1575010262AddCmsFormLayouts extends MigrationStep
         $block = [
             'id' => Uuid::randomBytes(),
             'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
-            'cms_page_id' => $page['id'],
             'cms_section_id' => $section['id'],
             'locked' => 1,
             'position' => 1,
             'type' => 'form',
             'name' => $name,
-            'sizing_mode' => 'boxed',
             'margin_top' => '20px',
             'margin_bottom' => '20px',
             'margin_left' => '20px',
@@ -118,8 +116,10 @@ class Migration1575010262AddCmsFormLayouts extends MigrationStep
         $slotTranslationData['language_id'] = $languageEn;
         $slotTranslations[] = $slotTranslationData;
 
-        $slotTranslationData['language_id'] = $languageDe;
-        $slotTranslations[] = $slotTranslationData;
+        if ($languageDe !== null) {
+            $slotTranslationData['language_id'] = $languageDe;
+            $slotTranslations[] = $slotTranslationData;
+        }
 
         $connection->insert('cms_slot', $slot);
 

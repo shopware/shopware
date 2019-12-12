@@ -201,7 +201,18 @@ class ProductSearchKeywordIndexer implements IndexerInterface
             return;
         }
 
-        $this->update($products->getIds(), $event->getContext());
+        $ids = $products->getIds();
+
+        $children = $this->connection->fetchAll(
+            'SELECT LOWER(HEX(id)) as id FROM product WHERE parent_id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($ids)],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+        $children = array_column($children, 'id');
+
+        $ids = array_unique(array_merge($children, $ids));
+
+        $this->update($ids, $event->getContext());
     }
 
     public function update(array $ids, Context $context): void

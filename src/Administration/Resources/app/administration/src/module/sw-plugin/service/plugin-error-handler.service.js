@@ -29,6 +29,10 @@ const errorCodes = {
     FRAMEWORK__STORE_NOT_AVAILABLE: new StoreError(
         'sw-plugin.errors.titleStoreNotAvailable',
         'sw-plugin.errors.messageStoreNotAvailable'
+    ),
+    FRAMEWORK__PLUGIN_BASE_CLASS_NOT_FOUND: new StoreError(
+        'sw-plugin.errors.titlePluginBaseClassNotFound',
+        'sw-plugin.errors.messagePluginBaseClassNotFound'
     )
 };
 

@@ -16,12 +16,18 @@ class Migration1571724915MultipleTrackingCodesInOrderDelivery extends MigrationS
     {
         $connection->executeQuery('
             ALTER TABLE `order_delivery`
-            ADD COLUMN `tracking_codes` JSON NOT NULL AFTER `shipping_method_id`,
+            ADD COLUMN `tracking_codes` JSON NULL AFTER `shipping_method_id`,
             ADD CONSTRAINT `json.order_delivery.tracking_codes` CHECK (JSON_VALID(`tracking_codes`));
         ');
+
         $connection->executeQuery('
             UPDATE `order_delivery`
             SET `tracking_codes` = IF(`tracking_code` IS NULL OR `tracking_code` = "", JSON_ARRAY(), JSON_ARRAY(`tracking_code`));
+        ');
+
+        $connection->executeQuery('
+            ALTER TABLE `order_delivery`
+            MODIFY COLUMN `tracking_codes` JSON NOT NULL
         ');
     }
 

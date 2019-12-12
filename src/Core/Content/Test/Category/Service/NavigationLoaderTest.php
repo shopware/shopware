@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\Test\Category\Service;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\Service\NavigationLoader;
@@ -73,6 +75,7 @@ class NavigationLoaderTest extends TestCase
     public function testTreeBuilderWithSimpleTree(): void
     {
         $loader = new NavigationLoader(
+            $this->createMock(Connection::class),
             $this->createMock(SalesChannelRepository::class),
             $this->createMock(EventDispatcher::class)
         );
@@ -128,6 +131,45 @@ class NavigationLoaderTest extends TestCase
 
         static::expectException(CategoryNotFoundException::class);
         $this->navigationLoader->load($this->rootId, Generator::createSalesChannelContext(), $this->category1Id);
+    }
+
+    public function testLoadDeepNestedTree(): void
+    {
+        $category1_1_1Id = Uuid::randomHex();
+        $category1_1_1_1Id = Uuid::randomHex();
+
+        $this->createCategoryTree();
+        $this->repository->upsert([
+            [
+                'id' => $category1_1_1Id,
+                'parentId' => $this->category1_1Id,
+                'name' => 'category 1.1.1',
+                'children' => [
+                    [
+                        'id' => $category1_1_1_1Id,
+                        'name' => 'category 1.1.1.1',
+                    ],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $tree = $this->navigationLoader->load($category1_1_1_1Id, Generator::createSalesChannelContext(), $this->rootId);
+
+        static::assertNotNull($tree->getChildren($category1_1_1Id));
+    }
+
+    public function testLoadRootLevelsAreCached(): void
+    {
+        CountingEntitySearcher::resetCount();
+        CountingEntityReader::resetCount();
+        $this->createCategoryTree();
+
+        $this->navigationLoader->load($this->category1_1Id, Generator::createSalesChannelContext(), $this->rootId);
+
+        $this->navigationLoader->load($this->category2_1Id, Generator::createSalesChannelContext(), $this->rootId);
+
+        static::assertEquals(1, CountingEntityReader::getReadOperationCount(CategoryDefinition::ENTITY_NAME));
+        static::assertEquals(0, CountingEntitySearcher::getSearchOperationCount(CategoryDefinition::ENTITY_NAME));
     }
 
     private function createSimpleTree(): array

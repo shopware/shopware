@@ -7,30 +7,41 @@
 
         <input-field>
             <name>code</name>
-            <label>Update-Code</label>
+            <label>Update code</label>
             <label lang="de-DE">Update-Code</label>
         </input-field>
-        <input-field type="single-select">
+        <input-field type="single-select" >
             <name>channel</name>
+            <helpText>
+                Right now there is only one active update channel. When that changes, you will be able to select any available channel here.
+            </helpText>
+            <helpText lang="de-DE">
+                Derzeit gibt es nur einen aktiven Update-Channel. Sobald sich das ändert, kannst Du verfügbare Channels hier auswählen.
+            </helpText>
+            <disabled>true</disabled>
             <required>true</required>
-            <label>Update-Channel</label>
+            <label>Update channel</label>
             <label lang="de-DE">Update-Channel</label>
             <options>
                 <option>
                     <id>beta</id>
                     <name>Beta</name>
+                    <name lang="de-DE">Beta</name>
                 </option>
                 <option>
                     <id>ea</id>
-                    <name>Early Access</name>
+                    <name>Early access</name>
+                    <name lang="de-DE">Early Access</name>
                 </option>
                 <option>
                     <id>rc</id>
                     <name>Release candidate</name>
+                    <name lang="de-DE">Release Candidate</name>
                 </option>
                 <option>
                     <id>stable</id>
                     <name>Stable</name>
+                    <name lang="de-DE">Stable</name>
                 </option>
             </options>
         </input-field>

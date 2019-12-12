@@ -9,7 +9,7 @@
   "dependencies": {
     "@shopware/webpack-copy-after-build": "1.0.0",
     "app-module-path": "2.2.0",
-    "copy-webpack-plugin": "5.0.4",
+    "copy-webpack-plugin": "5.1.1",
     "webpack-merge": "4.2.1"
   }
 }

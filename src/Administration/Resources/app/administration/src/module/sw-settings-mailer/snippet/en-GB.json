@@ -10,7 +10,7 @@
       "agent": "Preferred email agent",
       "local-agent": "Local email agent",
       "local-helptext": "This option uses your system‘s default mailer (Sendmail). Make sure Sendmail works and is available in your own hosting environment.",
-      "smtp-server": "SMTP Server"
+      "smtp-server": "SMTP server"
     },
     "first-configuration": {
       "headline": "Establishing email communication",
@@ -18,23 +18,23 @@
     },
     "card-smtp": {
       "host": "Host",
-      "host-placeholder": "Fill in your host...",
+      "host-placeholder": "Fill in host name...",
       "port": "Port",
-      "port-placeholder": "Fill in your port...",
+      "port-placeholder": "Fill in port number...",
       "username": "Username",
       "username-placeholder": "Fill in your username...",
       "password": "Password",
-      "password-placeholder": "Fill in your password...",
+      "password-placeholder": "Fill in a password...",
       "encryption": "Encryption",
       "encryption-placeholder": "Select encryption method...",
       "authentication": "Authentication method",
       "authentication-placeholder": "Select authentication method...",
       "sender-address": "Sender address",
-      "sender-address-placeholder": "Fill in a valid email address...",
+      "sender-address-placeholder": "Fill in an email address you have access to...",
       "delivery-address": "Delivery address",
-      "delivery-address-placeholder": "Fill in a valid email address...",
-      "delivery-address-helptext": "All outgoing email will also be sent to this address. Set this for testing purposes only.",
-      "disable-delivery": "Disable delivery"
+      "delivery-address-placeholder": "Fill in an email address for testing purposes...",
+      "delivery-address-helptext": "All outgoing email will be sent to the targeted recipient address and also to this address. For testing purposes only.",
+      "disable-delivery": "Disable email delivery (temporarily)"
     },
     "encryption": {
       "no-encryption": "No encryption",

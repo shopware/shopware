@@ -41,7 +41,7 @@
                 <option>
                     <id>stable</id>
                     <name>Stable</name>
-                    <name lang="de-DE">Sicher</name>
+                    <name lang="de-DE">Stable</name>
                 </option>
             </options>
         </input-field>

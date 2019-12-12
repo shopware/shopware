@@ -30,7 +30,7 @@
       "authentication": "Authentifizierungsmethode",
       "authentication-placeholder": "Authentifizierungsmethode auswählen ...",
       "sender-address": "Absender-Adresse",
-      "sender-address-placeholder": "Gib eine E-Mail-Adresse ein, auf die Du Zugriff hast...",
+      "sender-address-placeholder": "Gib eine E-Mail-Adresse ein, auf die Du Zugriff hast ...",
       "delivery-address": "Empfänger-Adresse",
       "delivery-address-placeholder": "Gib eine E-Mail-Adresse für Testzwecke ein ...",
       "delivery-address-helptext": "Alle ausgehenden E-Mails werden ebenfalls an diese Adresse gesendet. Diese Funktion dient nur zu Testzwecken.",

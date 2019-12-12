@@ -216,6 +216,10 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added event `delte-item-failed` to both `sw-entity-listing` and `sw-one-to-many-listing` which is emitted if the delete request for an entity fails. The event data is an object containing a `id` and `errorResponse` property.
     * Added block `block sw_customer_address_form_state_field` to `sw-customer-address-form` component that that contains an `sw-entity-single-select` to specify a state for addresses
     * Added `countryState` in `sw-address`
+    * Updated `nuxt` to `2.10.2` in the `nuxt-component-library` package
+    * Updated `dompurify` to `2.0.7` in the `administration` package
+    * Updated `cypress-select-tests` to `1.4.1` in the `administration/e2e` package
+    * Updated `copy-webpack-plugin` to `5.1.1` in the `common/webpack-plugin` package
 * Core
     * Moved the seo module from the storefront into the core.
     * Switched the execution condition of `\Shopware\Core\Framework\Migration\MigrationStep::addBackwardTrigger()` and `\Shopware\Core\Framework\Migration\MigrationStep::addForwardTrigger()` to match the execution conditions in the methods documentation.
@@ -430,6 +434,9 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added `StorefrontMediaUploader` to handle file uploads in the storefront and validate them using `StorefrontValidationRegistry` and `StorefrontMediaValidatorInterface`
     * Removed return type from `\Shopware\Core\Checkout\Cart\LineItem\LineItem::getPayloadValue()` 
     * Fixed external category links in footer and service navigation
+    * Updated `copy-webpack-plugin` to `5.1.1` in the `storefront` package
+    * Updated `terser-webpack-plugin` to `2.2.3` in the `storefront` package
+    
 * Elasticsearch
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.
         * You can set them with a parameter.yml too.

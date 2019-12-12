@@ -43,7 +43,7 @@
         "babel-plugin-require-context-hook": "1.0.0",
         "bottlejs": "1.7.2",
         "copy-webpack-plugin": "5.0.4",
-        "dompurify": "1.0.11",
+        "dompurify": "2.0.7",
         "eslint-friendly-formatter": "4.0.1",
         "flatpickr": "4.6.3",
         "lodash": "4.17.15",

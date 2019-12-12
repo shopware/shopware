@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorInterface
@@ -229,8 +230,8 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         $lineItem->replacePayload([
             'isCloseout' => $product->getIsCloseout(),
             'customFields' => $product->getCustomFields(),
-            'createdAt' => $product->getCreatedAt(),
-            'releaseDate' => $product->getReleaseDate(),
+            'createdAt' => $product->getCreatedAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'releaseDate' => $product->getReleaseDate() ? $product->getReleaseDate()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
             'isNew' => $product->isNew(),
             'markAsTopseller' => $product->getMarkAsTopseller(),
             'purchasePrice' => $product->getPurchasePrice(),

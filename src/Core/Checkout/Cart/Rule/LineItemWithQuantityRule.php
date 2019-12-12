@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -41,42 +42,21 @@ class LineItemWithQuantityRule extends Rule
      */
     public function match(RuleScope $scope): bool
     {
-        if (!$scope instanceof LineItemScope) {
+        if ($scope instanceof LineItemScope) {
+            return $this->lineItemMatches($scope->getLineItem());
+        }
+
+        if (!$scope instanceof CartRuleScope) {
             return false;
         }
 
-        if ($scope->getLineItem()->getId() !== $this->id) {
-            return false;
-        }
-
-        if ($this->quantity !== null) {
-            $quantity = $scope->getLineItem()->getQuantity();
-
-            switch ($this->operator) {
-                case self::OPERATOR_GTE:
-                    return $quantity >= $this->quantity;
-
-                case self::OPERATOR_LTE:
-                    return $quantity <= $this->quantity;
-
-                case self::OPERATOR_GT:
-                    return $quantity > $this->quantity;
-
-                case self::OPERATOR_LT:
-                    return $quantity < $this->quantity;
-
-                case self::OPERATOR_EQ:
-                    return $quantity === $this->quantity;
-
-                case self::OPERATOR_NEQ:
-                    return $quantity !== $this->quantity;
-
-                default:
-                    throw new UnsupportedOperatorException($this->operator, self::class);
+        foreach ($scope->getCart()->getLineItems() as $lineItem) {
+            if ($this->lineItemMatches($lineItem)) {
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
 
     public function getConstraints(): array
@@ -103,5 +83,41 @@ class LineItemWithQuantityRule extends Rule
     public function getName(): string
     {
         return 'cartLineItemWithQuantity';
+    }
+
+    private function lineItemMatches(LineItem $lineItem): bool
+    {
+        if ($lineItem->getId() !== $this->id) {
+            return false;
+        }
+
+        if ($this->quantity === null) {
+            return true;
+        }
+
+        $quantity = $lineItem->getQuantity();
+
+        switch ($this->operator) {
+            case self::OPERATOR_GTE:
+                return $quantity >= $this->quantity;
+
+            case self::OPERATOR_LTE:
+                return $quantity <= $this->quantity;
+
+            case self::OPERATOR_GT:
+                return $quantity > $this->quantity;
+
+            case self::OPERATOR_LT:
+                return $quantity < $this->quantity;
+
+            case self::OPERATOR_EQ:
+                return $quantity === $this->quantity;
+
+            case self::OPERATOR_NEQ:
+                return $quantity !== $this->quantity;
+
+            default:
+                throw new UnsupportedOperatorException($this->operator, self::class);
+        }
     }
 }

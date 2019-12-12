@@ -188,7 +188,7 @@ class LineItemTagRuleTest extends TestCase
         $tagIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
 
         $rule = (new LineItemTagRule())->assign(['operator' => Rule::OPERATOR_EQ, 'identifiers' => $tagIds]);
-        $lineItem = (new LineItem('id', 'product'))->replacePayload(['tags' => $tagIds]);
+        $lineItem = (new LineItem('id', 'product'))->replacePayload(['tagIds' => $tagIds]);
 
         $ruleScope = new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class));
 
@@ -201,7 +201,7 @@ class LineItemTagRuleTest extends TestCase
         $tagIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
 
         $rule = (new LineItemTagRule())->assign(['operator' => Rule::OPERATOR_EQ, 'identifiers' => $tagIds]);
-        $lineItem = (new LineItem('id', 'product'))->replacePayload(['tags' => [$tagIds[0]]]);
+        $lineItem = (new LineItem('id', 'product'))->replacePayload(['tagIds' => [$tagIds[0]]]);
 
         $ruleScope = new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class));
 
@@ -214,7 +214,7 @@ class LineItemTagRuleTest extends TestCase
         $tagIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
 
         $rule = (new LineItemTagRule())->assign(['operator' => Rule::OPERATOR_NEQ, 'identifiers' => $tagIds]);
-        $lineItem = (new LineItem('id', 'product'))->replacePayload(['tags' => [$tagIds[0]]]);
+        $lineItem = (new LineItem('id', 'product'))->replacePayload(['tagIds' => [$tagIds[0]]]);
 
         $ruleScope = new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class));
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -35,36 +36,21 @@ class LineItemUnitPriceRule extends Rule
      */
     public function match(RuleScope $scope): bool
     {
-        if (!$scope instanceof LineItemScope) {
+        if ($scope instanceof LineItemScope) {
+            return $this->lineItemMatches($scope->getLineItem());
+        }
+
+        if (!$scope instanceof CartRuleScope) {
             return false;
         }
 
-        $unitPrice = $scope->getLineItem()->getPrice()->getUnitPrice();
-
-        $this->amount = (float) $this->amount;
-
-        switch ($this->operator) {
-            case self::OPERATOR_GTE:
-                return FloatComparator::greaterThanOrEquals($unitPrice, $this->amount);
-
-            case self::OPERATOR_LTE:
-                return FloatComparator::lessThanOrEquals($unitPrice, $this->amount);
-
-            case self::OPERATOR_GT:
-                return FloatComparator::greaterThan($unitPrice, $this->amount);
-
-            case self::OPERATOR_LT:
-                return FloatComparator::lessThan($unitPrice, $this->amount);
-
-            case self::OPERATOR_EQ:
-                return FloatComparator::equals($unitPrice, $this->amount);
-
-            case self::OPERATOR_NEQ:
-                return FloatComparator::notEquals($unitPrice, $this->amount);
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
+        foreach ($scope->getCart()->getLineItems() as $lineItem) {
+            if ($this->lineItemMatches($lineItem)) {
+                return true;
+            }
         }
+
+        return false;
     }
 
     public function getConstraints(): array
@@ -90,5 +76,39 @@ class LineItemUnitPriceRule extends Rule
     public function getName(): string
     {
         return 'cartLineItemUnitPrice';
+    }
+
+    private function lineItemMatches(LineItem $lineItem): bool
+    {
+        if (!$lineItem->getPrice()) {
+            return false;
+        }
+
+        $unitPrice = $lineItem->getPrice()->getUnitPrice();
+
+        $this->amount = (float) $this->amount;
+
+        switch ($this->operator) {
+            case self::OPERATOR_GTE:
+                return FloatComparator::greaterThanOrEquals($unitPrice, $this->amount);
+
+            case self::OPERATOR_LTE:
+                return FloatComparator::lessThanOrEquals($unitPrice, $this->amount);
+
+            case self::OPERATOR_GT:
+                return FloatComparator::greaterThan($unitPrice, $this->amount);
+
+            case self::OPERATOR_LT:
+                return FloatComparator::lessThan($unitPrice, $this->amount);
+
+            case self::OPERATOR_EQ:
+                return FloatComparator::equals($unitPrice, $this->amount);
+
+            case self::OPERATOR_NEQ:
+                return FloatComparator::notEquals($unitPrice, $this->amount);
+
+            default:
+                throw new UnsupportedOperatorException($this->operator, self::class);
+        }
     }
 }

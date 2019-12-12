@@ -70,7 +70,7 @@ Component.register('sw-field-copyable', {
 
         notificationSuccess() {
             this.createNotificationInfo({
-                title: this.$tc('global.default.success'),
+                title: this.$tc('global.default.info'),
                 message: this.$tc('global.sw-field.notification.notificationCopySuccessMessage')
             });
         },

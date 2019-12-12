@@ -99,13 +99,14 @@
                         </sw-container>
 
                         {% block sw_settings_shipping_detail_base_content_field_delivery_time %}
-                            <sw-select :store="deliveryTimeStore"
-                                       :label="$tc('sw-settings-shipping.detail.labelDeliveryTime')"
-                                       v-model="shippingMethod.deliveryTimeId"
+                            <sw-select v-model="shippingMethod.deliveryTimeId"
+                                       class="sw-settings-shipping-detail__delivery-time"
                                        id="deliveryTime"
-                                       required
                                        sortField="unit,name"
-                                       class="sw-settings-shipping-detail__delivery-time">
+                                       :store="deliveryTimeStore"
+                                       :label="$tc('sw-settings-shipping.detail.labelDeliveryTime')"
+                                       :placeholder="$tc('sw-settings-shipping.detail.placeholderDeliveryTime')"
+                                       required>
                             </sw-select>
                         {% endblock %}
 

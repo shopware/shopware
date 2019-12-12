@@ -17,10 +17,5 @@
             <label lang="de-DE">Lieferzeit im Warenkorb anzeigen</label>
         </input-field>
 
-        <input-field type="bool">
-            <name>showInstockInfo</name>
-            <label>Display instock info</label>
-            <label lang="de-DE">Infos über Warenbestand anzeigen</label>
-        </input-field>
     </card>
 </config>

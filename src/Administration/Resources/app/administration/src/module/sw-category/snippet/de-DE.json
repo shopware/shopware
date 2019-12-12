@@ -16,7 +16,7 @@
       "treeHeadSelected": "{count} selektiert",
       "emptyStateHeadline": "Keine Kategorie ausgewählt",
       "actions": {
-        "actionsDisabledInLanguage": "Kategorien können nur in der Standardsprache erstellt werden",
+        "actionsDisabledInLanguage": "Kategorien können nur in der Standardsprache erstellt werden.",
         "createSub": "Neue Subkategorie",
         "createBefore": "Neue Kategorie davor",
         "createAfter": "Neue Kategorie danach"
@@ -38,7 +38,7 @@
           "page": "Kategorie",
           "folder": "Strukturkategorie",
           "link": "Benutzerdefinierter Link",
-          "help": "Eine Strukturkategorie ist nicht selbst aufrufbar, sondern dient lediglich der Gliederung."
+          "help": "Eine Strukturkategorie ist selbst nicht aufrufbar, sie dient lediglich der Gliederung."
         }
       },
       "entry-point": {
@@ -85,7 +85,7 @@
         "example": "Beispiel:",
         "internalExampleText": "/meine-kategorie",
         "externalDesc": "Um externe Links zu setzen, füge die komplette Webadresse ein:",
-        "internalDesc": "Wenn Du einen internen Link setzen möchtest, füge nur den Pfad ein der auf die Domain folgt:",
+        "internalDesc": "Wenn Du einen internen Link setzen möchtest, füge nur den Pfad ein, der auf die Domain folgt:",
         "linkLabel": "Linkziel"
       },
       "products": {

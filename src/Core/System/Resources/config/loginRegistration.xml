@@ -119,27 +119,5 @@
             <label lang="de-DE">Adresszusatzzeile 1 als Pflichtfeld behandeln</label>
         </input-field>
 
-        <input-field type="single-select">
-            <name>registrationCaptcha</name>
-            <options>
-                <option>
-                    <id>none</id>
-                    <name>No Captcha</name>
-                    <name lang="de-DE">Kein Captcha</name>
-                </option>
-                <option>
-                    <id>default</id>
-                    <name>Default (Numbers / Letters)</name>
-                    <name lang="de-DE">Standard (Zahlen / Buchstaben)</name>
-                </option>
-                <option>
-                    <id>honeypot</id>
-                    <name>Honeypot (invisible)</name>
-                    <name lang="de-DE">Honeypot (unsichtbar)</name>
-                </option>
-            </options>
-            <label>Use captcha in registration</label>
-            <label lang="de-DE">Captcha in Registrierung verwenden</label>
-        </input-field>
     </card>
 </config>

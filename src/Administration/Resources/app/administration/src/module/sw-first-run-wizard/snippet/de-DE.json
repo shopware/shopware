@@ -19,7 +19,7 @@
       "switchLanguageModalTitle": "Wähle die Sprache der Benutzeroberfläche",
       "confirmLanguageSwitch": "Sprache wechseln",
       "cancelLanguageSwitch": "Abbrechen",
-      "switchLanguageMessage": "Das Sprach-Plugin \"{pluginName}\" wurde erfolgreich installiert. Möchtest du die Spache der Benutzeroberfläche ändern?"
+      "switchLanguageMessage": "Das Sprach-Plugin \"{pluginName}\" wurde erfolgreich installiert. Möchtest Du die Sprache der Benutzeroberfläche ändern?"
     },
     "dataImport": {
       "modalTitle": "Dein Start mit Shopware 6",
@@ -29,22 +29,22 @@
       "headlineMigration": "Eigenen Shop migrieren",
       "messageMigration": "Der Migrations-Assistent hilft Dir, Dein Shopsystem mit Shopware 6 zu verbinden und vorhandene Daten zu übertragen.",
       "buttonInstallMigration": "Migrations-Assistenten installieren",
-      "loadingMessage": "Installiere Plugin<br>Es könnte eine Weile dauern..."
+      "loadingMessage": "Installiere Plugin<br>Das könnte eine Weile dauern ..."
     },
     "mailerSelection": {
-      "headline": "Aufbau der E-Mail-Kommunikation",
+      "headline": "Einrichtung der E-Mail-Kommunikation",
       "modalTitle": "Mailer-Einstellungen",
-      "description": "Die Kommunikation mit den Kunden ist ein Schlüsselfaktor im täglichen E-Commerce. Daher sollte das Mailingsystem so früh wie möglich eingerichtet werden.",
-      "chooseSubline": "Wählen Sie Ihren bevorzugten E-Mail-Agenten aus.",
+      "description": "Die Kommunikation mit Kunden ist ein Schlüsselfaktor im täglichen E-Commerce. Daher solltest Du Dein Mailingsystem so früh wie möglich einrichten.",
+      "chooseSubline": "Wähle Deinen bevorzugten E-Mail-Agenten aus.",
       "localOption": "Lokalen E-Mail-Agenten verwenden",
-      "localOptionHelptext": "Diese Option verwendet den Standard-Mailer Ihres Systems (Sendmail).  Stellen Sie sicher, dass Sendmail funktioniert und in Ihrer eigenen Hosting-Umgebung verfügbar ist.",
+      "localOptionHelptext": "Diese Option verwendet den Standard-Mailer Deines Systems (Sendmail).  Stelle sicher, dass Sendmail funktioniert und in Deiner eigenen Hosting-Umgebung grundsätzlich verfügbar ist.",
       "localOptionSubline": "(Sendmail)",
       "smtpOption": "Eigenen SMTP-Server konfigurieren",
-      "configurationNote": "Mailing-Konfigurationen können später bearbeitet werden.",
+      "configurationNote": "Alle Mailing-Konfigurationen können auch später noch bearbeitet werden.",
       "buttonConfigure": "Konfigurieren"
     },
     "mailerSmtp": {
-      "headline": "SMTP Server"
+      "headline": "SMTP-Server"
     },
     "paypalInfo": {
       "modalTitle": "PayPal einrichten",
@@ -59,7 +59,7 @@
       "disclaimerLineTwo": "** vorbehaltlich einer positiven Risikoprüfung von PayPal"
     },
     "paypalInstall": {
-      "loadingMessage": "PayPal wird konfiguriert<br>Das könnte einen Moment dauern..."
+      "loadingMessage": "PayPal wird konfiguriert<br>Das könnte einen Moment dauern ..."
     },
     "recommendedPlugins": {
       "headline": "Unsere Empfehlungen",
@@ -83,8 +83,8 @@
     "shopwareDomain": {
       "headline": "Verifiziere Deine Domain",
       "message": "Mit welcher Domain willst Du diesen Shop verknüpfen? Wähle die entsprechende Domain aus oder lege eine neue an.",
-      "labelCreateDomain": "Erstelle eine neue Shop Domain",
-      "testEnvironment": "Test Umgebung"
+      "labelCreateDomain": "Erstelle eine neue Shop-Domain",
+      "testEnvironment": "Test-Umgebung"
     },
     "finish": {
       "headlineAllDone": "Herzlichen Glückwunsch!",
@@ -100,7 +100,7 @@
       "roadmapUrl": "https://www.shopware.com/de/roadmap/"
     },
     "stepItemTitle": {
-      "dataImport": "Daten Import",
+      "dataImport": "Daten-Import",
       "mailer": "Mailer-Einstellungen",
       "setupPaypal": "PayPal einrichten",
       "plugins": "Plugins",

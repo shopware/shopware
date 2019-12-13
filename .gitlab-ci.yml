@@ -469,7 +469,6 @@ Generating docs:
         - docker build -t shopware-plattform-plantuml dev-ops/docs/docker/plantuml/.
         - sh ./dev-ops/docs/scripts/render_puml.sh platform/src/Docs/Resources/current
         - ./psh.phar init-composer
-        - php dev-ops/docs/scripts/dumpPlatformUpdates.php
         - php dev-ops/docs/scripts/convertMarkdownToDocs.php convert -i platform/src/Docs/Resources/current/ -o build/docs -u /shopware-platform-dev -s
 
 # Stage: security

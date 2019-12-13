@@ -46,7 +46,7 @@
     },
     "filter": {
         "sortByNameAscending": "Name aufsteigend",
-        "sortByNameDescending": "Name abesteigend",
+        "sortByNameDescending": "Name absteigend",
         "sortByPriceAscending": "Preis aufsteigend",
         "sortByPriceDescending": "Preis absteigend"
     }

@@ -41,6 +41,10 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
 
         $slops = $this->slop($tokens);
 
+        if (empty($slops['normal'])) {
+            return new SearchPattern(new SearchTerm($word));
+        }
+
         $matches = $this->fetchKeywords($context, $slops);
 
         $combines = $this->permute($tokens);

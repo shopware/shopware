@@ -37,7 +37,7 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier"/>
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
@@ -63,8 +63,8 @@
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventDispatcher"/>
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="sales_channel_domain.repository"/>
         </service>
@@ -72,23 +72,32 @@
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService">
             <argument type="service" id="country.repository" />
             <argument type="service" id="customer_address.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Customer\Validation\AddressValidationService">
+        <service id="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
+        <service id="Shopware\Core\Checkout\Customer\Validation\AddressValidationService" alias="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory">
+            <deprecated>tag:v6.3.0: The "%alias_id%" service is deprecated and will be removed in 6.3.0. Use "Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory" instead</deprecated>
+        </service>
 
-        <service id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationService">
+        <service id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory">
             <argument type="service" id="Shopware\Core\System\Salutation\SalutationDefinition"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
+        <service id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationService" alias="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory">
+            <deprecated>tag: v6.3.0: The "%alias_id%" service is deprecated and will be removed in 6.3.0. Use "Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory" instead</deprecated>
+        </service>
 
-        <service id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationService">
-            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationService"/>
+        <service id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory">
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory"/>
+        </service>
+        <service id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationService" alias="Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory">
+            <deprecated>tag: v6.3.0: The "%alias_id%" service is deprecated and will be removed in 6.3.0. Use "Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory" instead</deprecated>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUniqueValidator">

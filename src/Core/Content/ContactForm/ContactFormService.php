@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
+use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\Framework\Validation\ValidationServiceInterface;
@@ -17,9 +18,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class ContactFormService
 {
     /**
-     * @var ValidationServiceInterface
+     * @var ValidationServiceInterface|DataValidationFactoryInterface
      */
-    private $contactFormValidationService;
+    private $contactFormValidationFactory;
 
     /**
      * @var DataValidator
@@ -41,14 +42,17 @@ class ContactFormService
      */
     private $cmsSlotRepository;
 
+    /**
+     * @param ValidationServiceInterface|DataValidationFactoryInterface $contactFormValidationFactory
+     */
     public function __construct(
-        ValidationServiceInterface $contactFormValidationService,
+        $contactFormValidationFactory,
         DataValidator $validator,
         EventDispatcherInterface $eventDispatcher,
         SystemConfigService $systemConfigService,
         EntityRepositoryInterface $cmsSlotRepository
     ) {
-        $this->contactFormValidationService = $contactFormValidationService;
+        $this->contactFormValidationFactory = $contactFormValidationFactory;
         $this->validator = $validator;
         $this->eventDispatcher = $eventDispatcher;
         $this->systemConfigService = $systemConfigService;
@@ -95,7 +99,11 @@ class ContactFormService
 
     private function validateContactForm(DataBag $data, SalesChannelContext $context): void
     {
-        $definition = $this->contactFormValidationService->buildCreateValidation($context);
+        if ($this->contactFormValidationFactory instanceof DataValidationFactoryInterface) {
+            $definition = $this->contactFormValidationFactory->create($context);
+        } else {
+            $definition = $this->contactFormValidationFactory->buildCreateValidation($context->getContext());
+        }
         $violations = $this->validator->getViolations($data->all(), $definition);
 
         if ($violations->count() > 0) {

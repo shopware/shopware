@@ -215,6 +215,23 @@ Core
  * We changed the type hint of `Shopware\Core\Framework\Validation\ValidationServiceInterface::buildCreateValidation` and `Shopware\Core\Framework\Validation\ValidationServiceInterface::buildUpdateValidation` to `SalesChannelContext`
  * Replace `\Shopware\Core\Framework\Plugin::getExtraBundles` with `\Shopware\Core\Framework\Plugin::getAdditionalBundles`. Dont use both.
  
+ * If you update your decoration implementations of `\Shopware\Core\Framework\Validation\ValidationServiceInterface` to  `\Shopware\Core\Framework\Validation\DataValidationFactoryInterface` make sure to still implement the old interface
+    and when calling the inner implementation please make sure to check if the inner implementation already supports the interface, like
+    ```php
+       public function createValidation(SalesChannelContext $context): DataValidationDefinition
+       {
+           if ($this->inner instanceof DataValidationFactoryInterface) {
+               $validation = $this->inner->create($context);
+           } else {
+               $validation = $this->inner->buildCreateValidation($context->getContext());
+           }
+   
+           $this->modifyValidation($validation);
+   
+           return $validation;              
+       }
+    ```
+
 Administration
 --------------
 

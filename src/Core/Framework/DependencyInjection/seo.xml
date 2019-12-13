@@ -88,7 +88,7 @@
             <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPersister"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry"/>
-            <argument type="service" id="Shopware\Core\Content\Seo\Validation\SeoUrlValidationService"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\Validation\SeoUrlValidationFactory"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
@@ -99,7 +99,8 @@
             </call>
         </service>
 
-        <service id="Shopware\Core\Content\Seo\Validation\SeoUrlValidationService"/>
+        <service id="Shopware\Core\Content\Seo\Validation\SeoUrlValidationFactory"/>
+        <service id="Shopware\Core\Content\Seo\Validation\SeoUrlValidationService" alias="Shopware\Core\Content\Seo\Validation\SeoUrlValidationFactory"/>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\Extension\SeoUrlFunctionExtension">
             <argument type="service" id="twig.extension.routing"/>

@@ -2,11 +2,14 @@
 
 namespace Shopware\Core\Framework\Validation;
 
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Framework\Context;
 
+/**
+ * @deprecated tag:v6.3.0 use the DataValidationFactoryInterface instead
+ */
 interface ValidationServiceInterface
 {
-    public function buildCreateValidation(SalesChannelContext $context): DataValidationDefinition;
+    public function buildCreateValidation(Context $context): DataValidationDefinition;
 
-    public function buildUpdateValidation(SalesChannelContext $context): DataValidationDefinition;
+    public function buildUpdateValidation(Context $context): DataValidationDefinition;
 }

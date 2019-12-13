@@ -3,12 +3,13 @@
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Checkout\Order\Validation\OrderValidationService;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
+use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\Framework\Validation\ValidationServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -20,9 +21,9 @@ class OrderService
     private $dataValidator;
 
     /**
-     * @var OrderValidationService
+     * @var ValidationServiceInterface|DataValidationFactoryInterface
      */
-    private $orderValidationService;
+    private $orderValidationFactory;
 
     /**
      * @var EventDispatcherInterface
@@ -34,14 +35,17 @@ class OrderService
      */
     private $cartService;
 
+    /**
+     * @param ValidationServiceInterface|DataValidationFactoryInterface $orderValidationFactory
+     */
     public function __construct(
         DataValidator $dataValidator,
-        OrderValidationService $orderValidationService,
+        $orderValidationFactory,
         EventDispatcherInterface $eventDispatcher,
         CartService $cartService
     ) {
         $this->dataValidator = $dataValidator;
-        $this->orderValidationService = $orderValidationService;
+        $this->orderValidationFactory = $orderValidationFactory;
         $this->eventDispatcher = $eventDispatcher;
         $this->cartService = $cartService;
     }
@@ -73,7 +77,11 @@ class OrderService
 
     private function getOrderCreateValidationDefinition(SalesChannelContext $context): DataValidationDefinition
     {
-        $validation = $this->orderValidationService->buildCreateValidation($context);
+        if ($this->orderValidationFactory instanceof DataValidationFactoryInterface) {
+            $validation = $this->orderValidationFactory->create($context);
+        } else {
+            $validation = $this->orderValidationFactory->buildCreateValidation($context->getContext());
+        }
 
         $validationEvent = new BuildValidationEvent($validation, $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());

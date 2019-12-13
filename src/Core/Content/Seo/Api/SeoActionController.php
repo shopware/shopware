@@ -10,7 +10,7 @@ use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\TemplateGroup;
-use Shopware\Core\Content\Seo\Validation\SeoUrlValidationService;
+use Shopware\Core\Content\Seo\Validation\SeoUrlDataValidationFactoryInterface;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -56,7 +56,7 @@ class SeoActionController extends AbstractController
     private $seoUrlPersister;
 
     /**
-     * @var SeoUrlValidationService
+     * @var SeoUrlDataValidationFactoryInterface
      */
     private $seoUrlValidator;
 
@@ -85,7 +85,7 @@ class SeoActionController extends AbstractController
         SeoUrlPersister $seoUrlPersister,
         DefinitionInstanceRegistry $definitionRegistry,
         SeoUrlRouteRegistry $seoUrlRouteRegistry,
-        SeoUrlValidationService $seoUrlValidation,
+        SeoUrlDataValidationFactoryInterface $seoUrlValidation,
         DataValidator $validator,
         EntityRepositoryInterface $salesChannelRepository,
         RequestCriteriaBuilder $requestCriteriaBuilder,
@@ -188,8 +188,7 @@ class SeoActionController extends AbstractController
             throw new SeoUrlRouteNotFoundException($seoUrl->get('routeName') ?? '');
         }
 
-        $this->seoUrlValidator->setSeoUrlRouteConfig($seoUrlRoute->getConfig());
-        $validation = $this->seoUrlValidator->buildUpdateValidation($context);
+        $validation = $this->seoUrlValidator->buildValidation($context, $seoUrlRoute->getConfig());
 
         $seoUrlData = $seoUrl->all();
         $this->validator->validate($seoUrlData, $validation);

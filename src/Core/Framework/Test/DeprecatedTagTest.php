@@ -19,6 +19,7 @@ class DeprecatedTagTest extends TestCase
      */
     private $whiteList = [
         'Test/',
+        'node_modules/',
     ];
 
     public function testAllPhpFilesInPlatformForDeprecated(): void
@@ -37,27 +38,43 @@ class DeprecatedTagTest extends TestCase
             $finder->notPath($path);
         }
 
-        foreach ($finder->getIterator() as $file) {
-            if ($this->hasDeprecatedMethodWithFalseOrNoTag($file->getPathname())) {
-                $return[] = $file->getPathname();
+        foreach ($finder->getIterator() as $phpFile) {
+            if ($this->hasDeprecationFalseOrNoTag('@deprecated', $phpFile->getPathname())) {
+                $return[] = $phpFile->getPathname();
+            }
+        }
+
+        $finder = new Finder();
+        $finder->in($dir)
+            ->files()
+            ->name('*.xml')
+            ->contains('<deprecated>');
+
+        foreach ($this->whiteList as $path) {
+            $finder->notPath($path);
+        }
+
+        foreach ($finder->getIterator() as $xmlFile) {
+            if ($this->hasDeprecationFalseOrNoTag('\<deprecated\>', $xmlFile->getPathname())) {
+                $return[] = $xmlFile->getPathname();
             }
         }
 
         static::assertEquals([], $return, print_r($return, true));
     }
 
-    private function hasDeprecatedMethodWithFalseOrNoTag(string $file): bool
+    private function hasDeprecationFalseOrNoTag(string $deprecatedPrefix, string $file): bool
     {
         $content = file_get_contents($file);
         $matches = [];
-        $pattern = '/@deprecated(?!\stag\:)/';
+        $pattern = '/' . $deprecatedPrefix . '(?!\s?tag\:)/';
         preg_match($pattern, $content, $matches);
 
         if (!empty(array_filter($matches))) {
             return true;
         }
 
-        $pattern = '/@deprecated\stag\:v{1}([0-9,\.]{2,5})/';
+        $pattern = '/' . $deprecatedPrefix . '\s?tag\:v{1}([0-9,\.]{2,5})/';
         preg_match_all($pattern, $content, $matches);
 
         $matches = $matches[1];

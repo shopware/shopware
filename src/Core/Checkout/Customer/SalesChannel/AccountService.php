@@ -21,7 +21,6 @@ use Shopware\Core\Checkout\Customer\Exception\InactiveCustomerException;
 use Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches;
-use Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationService;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
@@ -38,8 +37,10 @@ use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
+use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\Framework\Validation\ValidationServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -92,9 +93,9 @@ class AccountService
     private $legacyPasswordVerifier;
 
     /**
-     * @var CustomerProfileValidationService
+     * @var ValidationServiceInterface|DataValidationFactoryInterface
      */
-    private $customerProfileValidationService;
+    private $customerProfileValidationFactory;
 
     /**
      * @var EntityRepositoryInterface
@@ -111,6 +112,9 @@ class AccountService
      */
     private $router;
 
+    /**
+     * @param ValidationServiceInterface|DataValidationFactoryInterface $customerProfileValidationBuilder
+     */
     public function __construct(
         EntityRepositoryInterface $customerAddressRepository,
         EntityRepositoryInterface $customerRepository,
@@ -118,7 +122,7 @@ class AccountService
         SalesChannelContextPersister $contextPersister,
         EventDispatcherInterface $eventDispatcher,
         DataValidator $validator,
-        CustomerProfileValidationService $customerProfileValidationService,
+        $customerProfileValidationBuilder,
         LegacyPasswordVerifier $legacyPasswordVerifier,
         EntityRepositoryInterface $paymentMethodRepository,
         SystemConfigService $systemConfigService,
@@ -131,7 +135,7 @@ class AccountService
         $this->eventDispatcher = $eventDispatcher;
         $this->validator = $validator;
         $this->legacyPasswordVerifier = $legacyPasswordVerifier;
-        $this->customerProfileValidationService = $customerProfileValidationService;
+        $this->customerProfileValidationFactory = $customerProfileValidationBuilder;
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->systemConfigService = $systemConfigService;
         $this->router = $router;
@@ -175,7 +179,11 @@ class AccountService
 
     public function saveProfile(DataBag $data, SalesChannelContext $context): void
     {
-        $validation = $this->customerProfileValidationService->buildUpdateValidation($context);
+        if ($this->customerProfileValidationFactory instanceof DataValidationFactoryInterface) {
+            $validation = $this->customerProfileValidationFactory->update($context);
+        } else {
+            $validation = $this->customerProfileValidationFactory->buildUpdateValidation($context->getContext());
+        }
 
         $this->dispatchValidationEvent($validation, $context->getContext());
 

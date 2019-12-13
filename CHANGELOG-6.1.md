@@ -262,7 +262,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
        ```	
     * Fixed a bug that cms configuration could not be overridden if some default config is null.	
     * We added a check to `lineItem.payload.productNumber` before calling the twig truncate function	
-
+    * Fixed a bug in storefront search that occurred when keywords such as \0\0 were entered.
 * Storefront	
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures	
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain	

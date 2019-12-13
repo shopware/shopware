@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
-use Shopware\Core\Content\MailTemplate\Service\MailService;
+use Shopware\Core\Content\MailTemplate\Service\MailServiceInterface;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -43,7 +43,7 @@ class OrderActionController extends AbstractController
     private $mailTemplateRepository;
 
     /**
-     * @var MailService
+     * @var MailServiceInterface
      */
     private $mailService;
 
@@ -72,7 +72,7 @@ class OrderActionController extends AbstractController
         EntityRepositoryInterface $orderRepository,
         EntityRepositoryInterface $mailTemplateRepository,
         EntityRepositoryInterface $documentRepository,
-        MailService $mailService,
+        MailServiceInterface $mailService,
         DocumentService $documentService,
         ApiVersionConverter $apiVersionConverter,
         StateMachineDefinition $stateMachineDefinition

@@ -11,9 +11,14 @@ use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Log\LogAwareBusinessEventInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class MailSentEvent extends Event implements BusinessEventInterface, LogAwareBusinessEventInterface
+class MailBeforeSendEvent extends Event implements BusinessEventInterface, LogAwareBusinessEventInterface
 {
-    public const EVENT_NAME = 'mail.sent';
+    public const EVENT_NAME = 'mail.before.send';
+
+    /**
+     * @var array
+     */
+    private $data;
 
     /**
      * @var Context
@@ -21,34 +26,22 @@ class MailSentEvent extends Event implements BusinessEventInterface, LogAwareBus
     private $context;
 
     /**
-     * @var string
-     */
-    private $subject;
-
-    /**
      * @var array
      */
-    private $contents;
+    private $templateData;
 
-    /**
-     * @var array
-     */
-    private $recipients;
-
-    public function __construct(string $subject, array $recipients, array $contents, Context $context)
+    public function __construct(array $data, Context $context, array $templateData = [])
     {
-        $this->subject = $subject;
-        $this->recipients = $recipients;
-        $this->contents = $contents;
+        $this->data = $data;
         $this->context = $context;
+        $this->templateData = $templateData;
     }
 
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('subject', new ScalarValueType(ScalarValueType::TYPE_STRING))
-            ->add('contents', new ScalarValueType(ScalarValueType::TYPE_STRING))
-            ->add('recipients', new ArrayType(new ScalarValueType(ScalarValueType::TYPE_STRING)));
+            ->add('data', new ArrayType(new ScalarValueType(ScalarValueType::TYPE_STRING)))
+            ->add('templateData', new ArrayType(new ScalarValueType(ScalarValueType::TYPE_STRING)));
     }
 
     public function getName(): string
@@ -56,24 +49,19 @@ class MailSentEvent extends Event implements BusinessEventInterface, LogAwareBus
         return self::EVENT_NAME;
     }
 
-    public function getContext(): Context
+    public function getData(): Context
+    {
+        return $this->data;
+    }
+
+    public function getContext(): string
     {
         return $this->context;
     }
 
-    public function getSubject(): string
+    public function getTemplateData(): array
     {
-        return $this->subject;
-    }
-
-    public function getContents(): array
-    {
-        return $this->contents;
-    }
-
-    public function getRecipients(): array
-    {
-        return $this->recipients;
+        return $this->templateData;
     }
 
     public function getLogData(): array

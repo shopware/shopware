@@ -4,6 +4,8 @@ namespace Shopware\Core\Content\MailTemplate\Service;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailAfterCreateMessageEvent;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSendEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
@@ -74,8 +76,8 @@ class MailService
     public function __construct(
         DataValidator $dataValidator,
         StringTemplateRenderer $templateRenderer,
-        MessageFactory $messageFactory,
-        MailSender $mailSender,
+        MessageFactoryInterface $messageFactory,
+        MailSenderInterface $mailSender,
         EntityRepositoryInterface $mediaRepository,
         SalesChannelDefinition $salesChannelDefinition,
         EntityRepositoryInterface $salesChannelRepository,
@@ -97,6 +99,9 @@ class MailService
 
     public function send(array $data, Context $context, array $templateData = []): ?\Swift_Message
     {
+        $mailSentEvent = new MailBeforeSendEvent($data, $context, $templateData);
+        $this->eventDispatcher->dispatch($mailSentEvent);
+
         $definition = $this->getValidationDefinition($context);
         $this->dataValidator->validate($data, $definition);
 
@@ -169,6 +174,13 @@ class MailService
             $binAttachments
         );
 
+        $mailSentEvent = new MailAfterCreateMessageEvent($data, $message, $context);
+        $this->eventDispatcher->dispatch($mailSentEvent);
+
+        if ($mailSentEvent->isPropagationStopped()) {
+            return null;
+        }
+
         $this->mailSender->send($message);
 
         $mailSentEvent = new MailSentEvent($data['subject'], $recipients, $contents, $context);
@@ -184,7 +196,7 @@ class MailService
      *
      * @return array e.g. ['text/plain' => '{{foobar}}', 'text/html' => '<h1>{{foobar}}</h1>']
      */
-    public function buildContents(array $data, ?SalesChannelEntity $salesChannel): array
+    private function buildContents(array $data, ?SalesChannelEntity $salesChannel): array
     {
         if ($salesChannel && $mailHeaderFooter = $salesChannel->getMailHeaderFooter()) {
             return [

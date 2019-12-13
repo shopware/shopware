@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\MailTemplate\Service;
 
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
-class MailerFactory
+class MailerFactory implements MailerFactoryInterface
 {
     /** @deprecated tag:v6.3.0 use createTransport to build a transport layer instead */
     public function create(SystemConfigService $configService, \Swift_Mailer $mailer): \Swift_Mailer

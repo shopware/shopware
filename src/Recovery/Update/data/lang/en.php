@@ -22,6 +22,13 @@ return [
     'select_language_de' => 'Deutsch',
     'select_language_en' => 'English',
     'select_language_nl' => 'Nederlands',
+    'select_language_it' => 'Italiano',
+    'select_language_fr' => 'Français',
+    'select_language_es' => 'Español',
+    'select_language_pt' => 'Português',
+    'select_language_pl' => 'Polski',
+    'select_language_cz' => 'Czech',
+    'select_language_sv' => 'Swedish',
 
     'noaccess_title' => 'Access denied',
     'noaccess_info' => 'Please add your IP address "<strong>%s</strong>" to the <strong>%s</strong> file to enable access.',

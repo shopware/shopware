@@ -1,0 +1,33 @@
+{# @var navigation \Shopware\Core\Content\Category\Tree\Tree #}
+{% set activeId = navigation.active.id %}
+{% set isRoot = activeId == context.salesChannel.navigationCategoryId %}
+{% set children = navigation.children(activeId) %}
+
+{% set active = navigation.active %}
+
+{% block layout_navigation_offcanvas_navigation_categories %}
+    <div class="navigation-offcanvas-container js-navigation-offcanvas">
+        <div class="navigation-offcanvas-overlay-content js-navigation-offcanvas-overlay-content">
+            {% if not isRoot %}
+                {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/show-all-link.html.twig' %}
+
+                {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/active-item-link.html.twig' with { item: active } %}
+
+                {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/back-link.html.twig' with { item: active } %}
+            {% else %}
+                {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/general-headline.html.twig' %}
+            {% endif %}
+
+            <ul class="list-unstyled navigation-offcanvas-list">
+                {% if not isRoot %}
+                    {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/show-active-link.html.twig' with { item: active } %}
+                {% endif %}
+
+                {# @var item \Shopware\Core\Content\Category\Tree\TreeItem #}
+                {% for item in children.tree %}
+                    {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/item-link.html.twig' with { item: item, activeId: activeId } %}
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}

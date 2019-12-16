@@ -1,0 +1,16 @@
+<a class="nav-item nav-link is-back-link navigation-offcanvas-link js-navigation-offcanvas-link"
+   href="{{ path('frontend.menu.offcanvas', { 'navigationId': item.parentId}) }}"
+   itemprop="url"
+   title="{{ "general.back"|trans|striptags }}">
+    {% block layout_navigation_offcanvas_navigation_category_back_link_text %}
+        <span class="navigation-offcanvas-link-icon js-navigation-offcanvas-loading-icon">
+            {% block layout_utilities_offcanvas_close_icon %}
+                {% sw_icon 'arrow-medium-left' style { 'pack':'solid', 'size': 'sm' } %}
+            {% endblock %}
+        </span>
+
+        <span itemprop="name">
+            {{ "general.back"|trans|sw_sanitize }}
+        </span>
+    {% endblock %}
+</a>

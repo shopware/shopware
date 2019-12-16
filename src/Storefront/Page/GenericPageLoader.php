@@ -68,40 +68,42 @@ class GenericPageLoader
     {
         $page = new Page();
 
-        if (!$request->isXmlHttpRequest()) {
-            $page->setHeader(
-                $this->headerLoader->load($request, $salesChannelContext)
-            );
-
-            $page->setFooter(
-                $this->footerLoader->load($request, $salesChannelContext)
-            );
-
-            $shippingMethodsCriteria = (new Criteria())
-                ->addFilter(new EqualsFilter('active', true))
-                ->addAssociation('media');
-            /** @var ShippingMethodCollection $shippingMethods */
-            $shippingMethods = $this->shippingMethodsRepository->search($shippingMethodsCriteria, $salesChannelContext)->getEntities();
-            $page->setSalesChannelShippingMethods($shippingMethods);
-
-            $paymentMethodsCriteria = (new Criteria())
-                ->addFilter(new EqualsFilter('active', true))
-                ->addAssociation('media');
-
-            /** @var PaymentMethodCollection $paymentMethods */
-            $paymentMethods = $this->paymentMethodsRepository->search($paymentMethodsCriteria, $salesChannelContext)->getEntities();
-            $paymentMethods->sort(function (PaymentMethodEntity $a, PaymentMethodEntity $b) {
-                return $a->getPosition() <=> $b->getPosition();
-            });
-
-            $page->setSalesChannelPaymentMethods($paymentMethods);
-            $page->setMetaInformation((new MetaInformation())->assign([
-                'revisit' => '15 days',
-                'robots' => 'index,follow',
-                'xmlLang' => $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE),
-                'metaTitle' => $this->systemConfigService->get('core.basicInformation.shopName'),
-            ]));
+        if ($request->isXmlHttpRequest()) {
+            return $page;
         }
+        $page->setHeader(
+            $this->headerLoader->load($request, $salesChannelContext)
+        );
+
+        $page->setFooter(
+            $this->footerLoader->load($request, $salesChannelContext)
+        );
+
+        $shippingMethodsCriteria = (new Criteria())
+            ->addFilter(new EqualsFilter('active', true))
+            ->addAssociation('media');
+
+        /** @var ShippingMethodCollection $shippingMethods */
+        $shippingMethods = $this->shippingMethodsRepository->search($shippingMethodsCriteria, $salesChannelContext)->getEntities();
+        $page->setSalesChannelShippingMethods($shippingMethods);
+
+        $paymentMethodsCriteria = (new Criteria())
+            ->addFilter(new EqualsFilter('active', true))
+            ->addAssociation('media');
+
+        /** @var PaymentMethodCollection $paymentMethods */
+        $paymentMethods = $this->paymentMethodsRepository->search($paymentMethodsCriteria, $salesChannelContext)->getEntities();
+        $paymentMethods->sort(function (PaymentMethodEntity $a, PaymentMethodEntity $b) {
+            return $a->getPosition() <=> $b->getPosition();
+        });
+
+        $page->setSalesChannelPaymentMethods($paymentMethods);
+        $page->setMetaInformation((new MetaInformation())->assign([
+            'revisit' => '15 days',
+            'robots' => 'index,follow',
+            'xmlLang' => $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE),
+            'metaTitle' => $this->systemConfigService->get('core.basicInformation.shopName'),
+        ]));
 
         return $page;
     }

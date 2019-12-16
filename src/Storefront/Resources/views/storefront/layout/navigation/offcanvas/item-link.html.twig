@@ -1,0 +1,28 @@
+{% set isActive = item.category.id == activeId %}
+{% set hasChildren = item.category.childCount > 0 %}
+{% set url = seoUrl('frontend.navigation.page', { navigationId: item.category.id }) %}
+{% set name = item.category.translated.name %}
+
+<li class="navigation-offcanvas-list-item">
+    {% block layout_navigation_offcanvas_navigation_categories_list_category_item_link %}
+        <a class="navigation-offcanvas-link nav-item nav-link{% if isActive %} active{% endif %}{% if hasChildren %} js-navigation-offcanvas-link{% endif %}"
+           href="{{ url }}"
+            {% if hasChildren %}
+                data-href="{{ path('frontend.menu.offcanvas', {'navigationId': item.category.id}) }}"
+            {% endif %}
+           itemprop="url"
+           title="{{ name }}">
+            {% block layout_navigation_offcanvas_navigation_categories_list_category_item_link_text %}
+                <span itemprop="name">{{ name }}</span>
+                {% if hasChildren %}
+                    {% block layout_navigation_offcanvas_navigation_categories_list_category_item_link_icon %}
+                        <span
+                            class="navigation-offcanvas-link-icon js-navigation-offcanvas-loading-icon">
+                            {% sw_icon 'arrow-medium-right' style { 'pack':'solid', 'size': 'sm' } %}
+                        </span>
+                    {% endblock %}
+                {% endif %}
+            {% endblock %}
+        </a>
+    {% endblock %}
+</li>

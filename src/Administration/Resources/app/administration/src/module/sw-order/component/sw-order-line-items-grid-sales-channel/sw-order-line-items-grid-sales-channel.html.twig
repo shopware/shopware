@@ -1,0 +1,217 @@
+{% block sw_order_line_items_grid_sales_channel %}
+    <sw-container type="row" class="sw-order-line-items-grid-sales-channel">
+
+        {% block sw_order_line_items_grid_sales_channel_actions %}
+            <sw-container class="sw-order-line-items-grid-sales-channel__actions-container"
+                          columns="1fr auto" gap="16px">
+
+                {% block sw_order_line_items_grid_sales_channel_header %}
+
+                    {% block sw_order_line_items_grid_sales_channel_line_item_filter %}
+                        <div align="left">
+                            <sw-card-filter :placeholder="$tc('sw-order.createBase.placeholderSearchBarItem')"></sw-card-filter>
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_order_line_items_grid_sales_channel_create_actions_button_group %}
+                        <div align="right">
+                            <sw-button-group>
+
+                                {% block sw_order_line_items_grid_sales_channel_add_existing_product %}
+                                    <sw-button variant="ghost"
+                                               size="small"
+                                               @click="onInsertExistingItem"
+                                               :disabled="!isCustomerActive">
+                                        {{ $tc('sw-order.createBase.buttonAddProduct') }}
+                                    </sw-button>
+                                {% endblock %}
+
+                                {% block sw_order_line_items_grid_sales_channel_create_actions_dropdown %}
+                                    <sw-context-button>
+                                        <template #button>
+                                            <sw-button variant="ghost"
+                                                       size="small"
+                                                       square
+                                                       :disabled="!isCustomerActive">
+                                                <sw-icon name="small-arrow-small-down" decorative></sw-icon>
+                                            </sw-button>
+                                        </template>
+
+                                        {% block sw_order_line_items_grid_sales_channel_create_actions_dropdown_menu %}
+                                            <sw-context-menu-item disabled>
+                                                {{ $tc('sw-order.createBase.buttonAddBlankProduct') }}
+                                            </sw-context-menu-item>
+                                            <sw-context-menu-item disabled>
+                                                {{ $tc('sw-order.createBase.buttonAddCredit') }}
+                                            </sw-context-menu-item>
+                                        {% endblock %}
+                                    </sw-context-button>
+                                {% endblock %}
+                            </sw-button-group>
+                        </div>
+                    {% endblock %}
+
+                {% endblock %}
+            </sw-container>
+        {% endblock %}
+
+        {% block sw_order_line_items_grid_sales_channel_grid %}
+            {% block sw_order_line_items_grid_sales_channel_grid_no_items %}
+                <div v-if="cartLineItems.length === 0" class="sw-order-line-items-grid-sales-channel__empty-container">
+                    <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                    <p>{{ $tc('sw-order.createBase.messageEmptyItem') }}</p>
+                </div>
+            {% endblock %}
+
+            {% block sw_order_line_items_grid_sales_channel_grid_item_table %}
+                <sw-data-grid v-else
+                              :dataSource="cartLineItems"
+                              :columns="getLineItemColumns"
+                              :fullPage="false"
+                              :showSettings="false"
+                              showSelection
+                              :showActions="true"
+                              :isLoading="isLoading"
+                              :allowColumnEdit="false"
+                              allowInlineEdit
+                              :compactMode="false"
+                              identifier="sw-order-line-item-grid-sales-channel"
+                              class="sw-order-line-items-grid-sales-channel__data-grid"
+                              @inline-edit-cancel="onInlineEditCancel"
+                              @inline-edit-save="onInlineEditSave"
+                              @selection-change="onSelectionChanged">
+
+                    {% block sw_order_line_items_grid_sales_channel_grid_columns %}
+                        {% block sw_order_line_items_grid_sales_channel_grid_columns_label %}
+                            <template #column-label="{ item, isInlineEdit}">
+                                {% block sw_order_line_items_grid_sales_channel_grid_columns_label_inline_edit %}
+                                    <sw-order-product-select v-if="isInlineEdit"
+                                                             :item="item"
+                                                             :displayProductSelection="itemCreatedFromProduct(item.id)">
+                                    </sw-order-product-select>
+                                {% endblock %}
+
+                                {% block sw_order_line_items_grid_sales_channel_grid_columns_label_link %}
+                                    <router-link v-else-if="!isInlineEdit && item.type === 'product'"
+                                                 :title="$tc('sw-order.createBase.contextMenuShowProduct')"
+                                                 :to="{ name: 'sw.product.detail', params: { id: item.id } }">
+                                        {% block sw_order_line_items_grid_sales_channel_columns_name_label %}
+                                        {{ item.label }}
+                                        {% endblock %}
+                                    </router-link>
+                                {% endblock %}
+
+                                {% block sw_order_line_items_grid_sales_channel_grid_columns_label_content %}
+                                    <template v-else>
+                                        {{ item.label }}
+                                    </template>
+                                {% endblock %}
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_order_line_items_grid_sales_channel_grid_columns_unit_price %}
+                            <template #column-unitPrice="{ item, isInlineEdit}">
+
+                                {% block sw_order_line_items_grid_sales_channel_grid_columns_unit_price_inline_edit %}
+                                    <sw-field v-if="isInlineEdit && !itemCreatedFromProduct(item.id)"
+                                              type="number"
+                                              v-model="item.priceDefinition.price"
+                                              placeholder="0"
+                                              size="small">
+                                    </sw-field>
+                                {% endblock %}
+
+                                {% block sw_order_line_items_grid_sales_channel_grid_columns_unit_price_content %}
+                                    <template v-else>
+                                        {{ item.price.unitPrice | currency(currency.shortName) }}
+                                    </template>
+                                {% endblock %}
+
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_order_line_items_grid_sales_channel_grid_columns_total_price %}
+                            <template #column-totalPrice="{ item }">
+                                {% block sw_order_line_items_grid_sales_channel_grid_columns_total_price_content %}
+                                    {{ item.price.totalPrice | currency(currency.shortName) }}
+                                {% endblock %}
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_order_line_items_grid_sales_channel_grid_columns_quantity %}
+                            <template #column-quantity="{ item, isInlineEdit }">
+
+                                {% block sw_order_line_items_grid_sales_channel_grid_columns_quantity_inline_edit %}
+                                    <sw-field v-if="isInlineEdit"
+                                              v-model="item.quantity"
+                                              type="number"
+                                              :min="1"
+                                              size="small"
+                                              placeholder=0>
+                                    </sw-field>
+                                {% endblock %}
+
+                                {% block sw_order_line_items_grid_sales_channel_grid_columns_quantity_content %}
+                                    <template v-else>
+                                        {{ item.quantity }}
+                                    </template>
+                                {% endblock %}
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_order_line_items_grid_sales_channel_grid_columns_tax %}
+                            <template #column-tax="{ item, isInlineEdit }">
+
+                                {% block sw_order_line_items_grid_sales_channel_grid_columns_tax_inline_edit %}
+                                    <sw-field v-if="isInlineEdit &&
+                                                !itemCreatedFromProduct(item.id) &&
+                                                item.priceDefinition &&
+                                                item.priceDefinition.taxRules"
+                                              type="number"
+                                              v-model="item.priceDefinition.taxRules[0].taxRate"
+                                              key="order-line-item-tax-edit-default"
+                                              size="small"
+                                              placeholder="0">
+                                    </sw-field>
+                                {% endblock %}
+
+                                {% block sw_order_line_items_grid_sales_channel_grid_columns_tax_content %}
+                                    <template v-else-if="item.price && item.price.taxRules.length">
+                                        {{ item.price.taxRules[0].taxRate }} %
+                                    </template>
+                                {% endblock %}
+
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_order_line_items_grid_sales_channel_grid_actions %}
+                            <template #actions="{ item }">
+                                {% block sw_order_line_items_grid_sales_channel_grid_actions_show %}
+                                <sw-context-menu-item :disabled="item.type !== 'product'"
+                                                      icon="default-eye-open"
+                                                      :routerLink="{ name: 'sw.product.detail', params: { id: item.id } }">
+                                    {% block sw_order_line_items_grid_sales_channel_grid_actions_show_label %}
+                                        {{ $tc('sw-order.createBase.contextMenuShowProduct') }}
+                                    {% endblock %}
+                                </sw-context-menu-item>
+                                {% endblock %}
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_order_line_items_grid_sales_channel_bulk_actions %}
+                            <template #bulk>
+                                {% block sw_order_line_items_grid_sales_channel_bulk_actions_delete %}
+                                    <a class="link link-danger" @click="onDeleteSelectedItems">
+                                        {{ $tc('global.default.delete') }}
+                                    </a>
+                                {% endblock %}
+                            </template>
+                        {% endblock %}
+
+                    {% endblock %}
+                </sw-data-grid>
+            {% endblock %}
+
+        {% endblock %}
+    </sw-container>
+{% endblock %}

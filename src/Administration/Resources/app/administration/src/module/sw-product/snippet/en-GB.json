@@ -271,7 +271,8 @@
         "cancel": "Cancel",
         "save": "Save",
         "searchPlaceholder": "Search groups and properties...",
-        "singleRestrictionAddTitle": "Add restriction"
+        "singleRestrictionAddTitle": "Add restriction",
+        "surchargeNotice": "Changes to the surcharges won't take affect to already generated variants. Please use the variants detail page to change the price of already generated variants."
       },
       "deliveryModal": {
         "modalHeadline": "Storefront presentation",

@@ -1,83 +1,87 @@
 {% block sw_product_variants_configurator_prices %}
     <div class="sw-product-variants-configurator-prices">
-        {% block sw_product_variants_configurator_prices_groups %}
-            <div class="sw-product-variants-configurator-prices__groups">
-                <ul>
-                    <li v-for="group in selectedGroups"
-                        :key="group.id"
-                        @click="activeGroup = group"
-                        class="sw-product-variants-configurator-prices__groupElement"
-                        :class="{'is--selected': activeGroup.id == group.id}">
-                        <sw-icon name="multicolor-folder-breadcrumbs" size="16px" multicolor></sw-icon>
-                        {{ group.translated.name }}
-                    </li>
-                </ul>
-            </div>
-        {% endblock %}
+        <sw-alert class="sw-product-variants-configurator-prices__alert" variant="info">
+            {{ $tc('sw-product.variations.configuratorModal.surchargeNotice') }}
+        </sw-alert>
+        <div class="sw-product-variants-configurator-prices__table">
+            {% block sw_product_variants_configurator_prices_groups %}
+                <div class="sw-product-variants-configurator-prices__groups">
+                    <ul>
+                        <li v-for="group in selectedGroups"
+                            :key="group.id"
+                            @click="activeGroup = group"
+                            class="sw-product-variants-configurator-prices__groupElement"
+                            :class="{'is--selected': activeGroup.id == group.id}">
+                            <sw-icon name="multicolor-folder-breadcrumbs" size="16px" multicolor></sw-icon>
+                            {{ group.translated.name }}
+                        </li>
+                    </ul>
+                </div>
+            {% endblock %}
 
-        {% block sw_product_variants_configurator_prices_prices %}
-            <div class="sw-product-variants-configurator-prices__prices">
-                {% block sw_product_variants_configurator_prices_search %}
-                    <div class="sw-product-variants-configurator-prices__search">
-                        {% block sw_product_variants_configurator_prices_search_field %}
-                            <sw-simple-search-field
-                                size="small"
-                                variant="form"
-                                v-model="term"
-                                :placeholder="$tc('sw-product.variations.configuratorModal.searchPlaceholder')">
-                            </sw-simple-search-field>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
+            {% block sw_product_variants_configurator_prices_prices %}
+                <div class="sw-product-variants-configurator-prices__prices">
+                    {% block sw_product_variants_configurator_prices_search %}
+                        <div class="sw-product-variants-configurator-prices__search">
+                            {% block sw_product_variants_configurator_prices_search_field %}
+                                <sw-simple-search-field
+                                    size="small"
+                                    variant="form"
+                                    v-model="term"
+                                    :placeholder="$tc('sw-product.variations.configuratorModal.searchPlaceholder')">
+                                </sw-simple-search-field>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
 
-                {% block sw_product_variants_configurator_prices_grid_wrapper %}
-                    <div class="sw-product-variants-configurator-prices__grid-wrapper">
-                        {% block sw_product_variants_configurator_prices_data_grid %}
-                            <sw-data-grid
-                                    v-if="optionsForGroup.length"
-                                    :data-source="optionsForGroup"
-                                    :showSelection="false"
-                                    :columns="optionColumns"
-                                    showSettings
-                                    fullPage>
+                    {% block sw_product_variants_configurator_prices_grid_wrapper %}
+                        <div class="sw-product-variants-configurator-prices__grid-wrapper">
+                            {% block sw_product_variants_configurator_prices_data_grid %}
+                                <sw-data-grid
+                                        v-if="optionsForGroup.length"
+                                        :data-source="optionsForGroup"
+                                        :showSelection="false"
+                                        :columns="optionColumns"
+                                        showSettings
+                                        fullPage>
 
-                                {% block sw_product_variants_configurator_prices_column_name %}
-                                    <template slot="column-name" slot-scope="{ item, isInlineEdit, compact }">
-                                        {{ item.internalOption ? item.internalOption.name : item.option.name }}
-                                    </template>
-                                {% endblock %}
+                                    {% block sw_product_variants_configurator_prices_column_name %}
+                                        <template slot="column-name" slot-scope="{ item, isInlineEdit, compact }">
+                                            {{ item.internalOption ? item.internalOption.name : item.option.name }}
+                                        </template>
+                                    {% endblock %}
 
-                                {% block sw_product_variants_configurator_prices_column_currency %}
-                                    <template
-                                            v-for="currency in currenciesList"
-                                            :slot="`column-currency.${currency.id}`"
-                                            slot-scope="{ item, isInlineEdit, compact }">
+                                    {% block sw_product_variants_configurator_prices_column_currency %}
+                                        <template
+                                                v-for="currency in currenciesList"
+                                                :slot="`column-currency.${currency.id}`"
+                                                slot-scope="{ item, isInlineEdit, compact }">
 
-                                        <sw-product-variants-price-field
-                                                :price="getCurrencyOfOption(item, currency.id)"
-                                                :taxRate="product.taxId"
-                                                :currency="currency"
-                                                compact>
-                                        </sw-product-variants-price-field>
-                                    </template>
-                                {% endblock %}
+                                            <sw-product-variants-price-field
+                                                    :price="getCurrencyOfOption(item, currency.id)"
+                                                    :taxRate="product.taxId"
+                                                    :currency="currency"
+                                                    compact>
+                                            </sw-product-variants-price-field>
+                                        </template>
+                                    {% endblock %}
 
-                                {% block sw_product_variants_configurator_prices_actions %}
-                                    <template slot="actions" slot-scope="{ item }">
-                                        {% block sw_product_variants_configurator_prices_actions_items %}
-                                            <sw-context-menu-item variant="danger" @click="resetSurcharges(item, true)">
-                                                {{ $tc('sw-product.variations.configuratorModal.resetSurcharges') }}
-                                            </sw-context-menu-item>
-                                        {% endblock %}
-                                    </template>
-                                {% endblock %}
-                            </sw-data-grid>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-            </div>
-        {% endblock %}
-
+                                    {% block sw_product_variants_configurator_prices_actions %}
+                                        <template slot="actions" slot-scope="{ item }">
+                                            {% block sw_product_variants_configurator_prices_actions_items %}
+                                                <sw-context-menu-item variant="danger" @click="resetSurcharges(item, true)">
+                                                    {{ $tc('sw-product.variations.configuratorModal.resetSurcharges') }}
+                                                </sw-context-menu-item>
+                                            {% endblock %}
+                                        </template>
+                                    {% endblock %}
+                                </sw-data-grid>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </div>
         {% block sw_product_variants_configurator_prices_loader %}
             <sw-loader v-if="isLoading"></sw-loader>
         {% endblock %}

@@ -330,6 +330,13 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * You can now disable the lint plugin by setting `ESLINT_DISABLE` environment variable to `'true'`.
       * Run `APP_URL="<your url>" PLATFORM_ROOT=/app/ ESLINT_DISABLE=true npm run hot` in Storefront js folder
     * The Lint plugin can only be disabled in hot reload mode.
+    * We extended setup of the `storefront:hot-proxy`
+      * The proxy now points to your app url's host instead of `localhost` which means that the url only differs in the port.
+      * The port is now replaced in both regular page requests and XHtmlRequests.
+      * The proxy's port is now configurable.
+        * Using psh: just override the `STOREFRONT_PROXY_PORT` constant (this will also map the port for docker setup)
+        * Using npm: run `APP_URL="<your url>" STOREFRONT_PROXY_PORT=<some port> PROJECT_ROOT=<path to your root folder>/ npm run hot-proxy` from the storefronts js directory.
+      * The default port is still port 9998.
 * Elasticsearch	
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.
         * You can set them with a parameter.yml too.

@@ -41,6 +41,13 @@ class OrderLineItemCollection extends EntityCollection
         });
     }
 
+    public function sortByPosition(): void
+    {
+        $this->sort(function (OrderLineItemEntity $a, OrderLineItemEntity $b) {
+            return $a->getPosition() > $b->getPosition();
+        });
+    }
+
     protected function getExpectedClass(): string
     {
         return OrderLineItemEntity::class;

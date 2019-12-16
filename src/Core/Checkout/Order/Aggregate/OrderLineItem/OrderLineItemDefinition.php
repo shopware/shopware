@@ -48,6 +48,13 @@ class OrderLineItemDefinition extends EntityDefinition
         return OrderLineItemEntity::class;
     }
 
+    public function getDefaults(): array
+    {
+        return [
+            'position' => 1,
+        ];
+    }
+
     protected function getParentDefinitionClass(): ?string
     {
         return OrderDefinition::class;
@@ -79,6 +86,7 @@ class OrderLineItemDefinition extends EntityDefinition
             new BoolField('good', 'good'),
             new BoolField('removable', 'removable'),
             new BoolField('stackable', 'stackable'),
+            (new IntField('position', 'position'))->addFlags(new Required()),
 
             (new CalculatedPriceField('price', 'price'))->setFlags(new Required()),
             new PriceDefinitionField('price_definition', 'priceDefinition'),

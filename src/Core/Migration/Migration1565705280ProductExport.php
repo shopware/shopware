@@ -59,7 +59,7 @@ class Migration1565705280ProductExport extends MigrationStep
 
     private function createSalesChannelType(Connection $connection): void
     {
-        $salesChannelTypeId = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON);
+        $salesChannelTypeId = Uuid::fromHexToBytes('ed535e5722134ac1aa6524f73e26881b');
 
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
         $languageDE = $this->getDeDeLanguageId($connection);

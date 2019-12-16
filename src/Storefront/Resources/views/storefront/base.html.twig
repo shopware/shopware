@@ -48,7 +48,7 @@
         {% block base_offcanvas_navigation %}
             <div class="d-none js-navigation-offcanvas-initial-content">
                 {% block base_offcanvas_navigation_inner %}
-                    {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/navigation.html.twig' %}
+                    {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/navigation.html.twig' with { navigation: page.header.navigation } %}
                 {% endblock %}
             </div>
         {% endblock %}

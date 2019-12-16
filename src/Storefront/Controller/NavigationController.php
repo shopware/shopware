@@ -62,6 +62,6 @@ class NavigationController extends StorefrontController
     {
         $page = $this->offcanvasLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/storefront/layout/navigation/offcanvas/navigation.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/storefront/layout/navigation/offcanvas/navigation-pagelet.html.twig', ['page' => $page]);
     }
 }

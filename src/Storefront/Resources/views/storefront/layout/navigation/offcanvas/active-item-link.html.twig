@@ -1,0 +1,11 @@
+{% block layout_navigation_offcanvas_navigation_category_headline %}
+    <a class="nav-item nav-link navigation-offcanvas-headline"
+       href="{{ seoUrl('frontend.navigation.page', { 'navigationId': item.parentId}) }}"
+       itemprop="url">
+        {% block layout_navigation_offcanvas_navigation_category_headline_text %}
+            <span itemprop="name">
+                {{ item.translated.name }}
+            </span>
+        {% endblock %}
+    </a>
+{% endblock %}

@@ -99,15 +99,20 @@ class NavigationLoaderTest extends TestCase
     {
         $this->createCategoryTree();
 
-        $tree = $this->navigationLoader->load($this->category1Id, Generator::createSalesChannelContext(), $this->category1Id);
+        $context = Generator::createSalesChannelContext();
+        $context->getSalesChannel()->setNavigationCategoryId($this->rootId);
+
+        $tree = $this->navigationLoader->load($this->category1Id, $context, $this->category1Id);
         static::assertInstanceOf(Tree::class, $tree);
     }
 
     public function testLoadChildOfRootCategory(): void
     {
         $this->createCategoryTree();
+        $context = Generator::createSalesChannelContext();
+        $context->getSalesChannel()->setNavigationCategoryId($this->rootId);
 
-        $tree = $this->navigationLoader->load($this->category1_1Id, Generator::createSalesChannelContext(), $this->category1Id);
+        $tree = $this->navigationLoader->load($this->category1_1Id, $context, $this->category1Id);
         static::assertInstanceOf(Tree::class, $tree);
     }
 
@@ -115,6 +120,22 @@ class NavigationLoaderTest extends TestCase
     {
         static::expectException(CategoryNotFoundException::class);
         $this->navigationLoader->load(Uuid::randomHex(), Generator::createSalesChannelContext(), Uuid::randomHex());
+    }
+
+    public function testLoadNotChildOfRootCategoryThrowsException(): void
+    {
+        $this->createCategoryTree();
+
+        static::expectException(CategoryNotFoundException::class);
+        $this->navigationLoader->load($this->category2_1Id, Generator::createSalesChannelContext(), $this->category1Id);
+    }
+
+    public function testLoadParentOfRootCategoryThrowsException(): void
+    {
+        $this->createCategoryTree();
+
+        static::expectException(CategoryNotFoundException::class);
+        $this->navigationLoader->load($this->rootId, Generator::createSalesChannelContext(), $this->category1Id);
     }
 
     public function testLoadDeepNestedTree(): void
@@ -137,7 +158,10 @@ class NavigationLoaderTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $tree = $this->navigationLoader->load($category1_1_1_1Id, Generator::createSalesChannelContext(), $this->rootId);
+        $context = Generator::createSalesChannelContext();
+        $context->getSalesChannel()->setNavigationCategoryId($this->rootId);
+
+        $tree = $this->navigationLoader->load($category1_1_1_1Id, $context, $this->rootId);
 
         static::assertNotNull($tree->getChildren($category1_1_1Id));
     }
@@ -148,9 +172,12 @@ class NavigationLoaderTest extends TestCase
         CountingEntityReader::resetCount();
         $this->createCategoryTree();
 
-        $this->navigationLoader->load($this->category1_1Id, Generator::createSalesChannelContext(), $this->rootId);
+        $context = Generator::createSalesChannelContext();
+        $context->getSalesChannel()->setNavigationCategoryId($this->rootId);
 
-        $this->navigationLoader->load($this->category2_1Id, Generator::createSalesChannelContext(), $this->rootId);
+        $this->navigationLoader->load($this->category1_1Id, $context, $this->rootId);
+
+        $this->navigationLoader->load($this->category2_1Id, $context, $this->rootId);
 
         static::assertEquals(1, CountingEntityReader::getReadOperationCount(CategoryDefinition::ENTITY_NAME));
         static::assertEquals(0, CountingEntitySearcher::getSearchOperationCount(CategoryDefinition::ENTITY_NAME));

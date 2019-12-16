@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
@@ -68,22 +67,25 @@ class NavigationLoader
 
         $root = $this->getMetaInfoById($rootId, $metaInfo);
 
-        // Load the first two levels without using the activeId in the query, so this can be cached
-        $firstTwoLevels = $this->loadLevels($rootId, (int) $root['level'], $context);
+        // validate the provided category is part of the sales channel
+        $this->validate($activeId, $active['path'], $context);
 
-        $childIds = $this->getChildIds($activeId, $rootId, $metaInfo);
+        $isChild = $this->isChildCategory($activeId, $active['path'], $rootId);
 
-        // Fetch all parents and first-level children of the active category, if they're not already fetched
-        $missing = $this->getMissingIds($activeId, $active['path'], $childIds, $firstTwoLevels);
-        if (!empty($missing)) {
-            $missingCategories = $this->loadMissingCategories($missing, $context);
-
-            foreach ($missingCategories as $category) {
-                $firstTwoLevels->add($category);
-            }
+        // If the provided activeId is not part of the rootId, a fallback to the rootId must be made here.
+        // The passed activeId is therefore part of another navigation and must therefore not be loaded.
+        // The availability validation has already been done in the `validate` function.
+        if (!$isChild) {
+            $activeId = $rootId;
         }
 
-        $navigation = $this->getTree($rootId, $firstTwoLevels, $firstTwoLevels->get($activeId));
+        // Load the first two levels without using the activeId in the query, so this can be cached
+        $categories = $this->loadLevels($rootId, (int) $root['level'], $context);
+
+        // if the active category is part of the provided root id, we have to load the children and the parents of the active id
+        $categories = $this->loadChildren($activeId, $context, $rootId, $metaInfo, $categories);
+
+        $navigation = $this->getTree($rootId, $categories, $categories->get($activeId));
 
         $event = new NavigationLoadedEvent($navigation, $context);
 
@@ -100,23 +102,21 @@ class NavigationLoader
      */
     public function loadLevel(string $categoryId, SalesChannelContext $context): Tree
     {
-        $active = $this->loadActive($categoryId, $context);
+        $active = $this->loadCategories([$categoryId], $context)
+            ->get($categoryId);
+
+        if (!$active) {
+            throw new CategoryNotFoundException($categoryId);
+        }
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('visible', true));
-        $criteria->addFilter(new MultiFilter(
-            MultiFilter::CONNECTION_OR,
-            [
-                new EqualsFilter('category.id', $categoryId),
-                new EqualsFilter('category.parentId', $categoryId),
-            ]
-        ));
+        $criteria->addFilter(new EqualsFilter('category.parentId', $categoryId));
 
         /** @var CategoryCollection $categories */
         $categories = $this->categoryRepository->search($criteria, $context)->getEntities();
-        $parentId = $categories->get($categoryId)->getParentId();
+        $categories->add($active);
 
-        $navigation = $this->getTree($parentId, $categories, $active);
+        $navigation = $this->getTree($active->getId(), $categories, $active);
 
         $event = new NavigationLoadedEvent($navigation, $context);
 
@@ -125,28 +125,11 @@ class NavigationLoader
         return $event->getNavigation();
     }
 
-    private function getTree(?string $parentId, CategoryCollection $categories, CategoryEntity $active): Tree
+    private function getTree(?string $parentId, CategoryCollection $categories, ?CategoryEntity $active): Tree
     {
         $tree = $this->buildTree($parentId, $categories->getElements());
 
         return new Tree($active, $tree);
-    }
-
-    /**
-     * @throws CategoryNotFoundException
-     * @throws InconsistentCriteriaIdsException
-     */
-    private function loadActive(string $activeId, SalesChannelContext $context): CategoryEntity
-    {
-        $criteria = new Criteria([$activeId]);
-        $criteria->addAssociation('media');
-
-        $active = $this->categoryRepository->search($criteria, $context)->first();
-        if (!$active) {
-            throw new CategoryNotFoundException($activeId);
-        }
-
-        return $active;
     }
 
     /**
@@ -188,13 +171,11 @@ class NavigationLoader
         return $items;
     }
 
-    private function loadMissingCategories(array $missingIds, SalesChannelContext $context): CategoryCollection
+    private function loadCategories(array $ids, SalesChannelContext $context): CategoryCollection
     {
         $criteria = new Criteria();
-        $criteria->addFilter(
-            new EqualsAnyFilter('id', $missingIds)
-        )
-        ->addAssociation('media');
+        $criteria->addFilter(new EqualsAnyFilter('id', $ids));
+        $criteria->addAssociation('media');
 
         /** @var CategoryCollection $missing */
         $missing = $this->categoryRepository->search($criteria, $context)->getEntities();
@@ -211,8 +192,9 @@ class NavigationLoader
                 RangeFilter::GT => $rootLevel,
                 RangeFilter::LTE => $rootLevel + 2,
             ])
-        )
-        ->addAssociation('media');
+        );
+
+        $criteria->addAssociation('media');
 
         /** @var CategoryCollection $firstTwoLevels */
         $firstTwoLevels = $this->categoryRepository->search($criteria, $context)->getEntities();
@@ -220,7 +202,7 @@ class NavigationLoader
         return $firstTwoLevels;
     }
 
-    private function getCategoryMetaInfo(string $activeId, string $rootId)
+    private function getCategoryMetaInfo(string $activeId, string $rootId): array
     {
         $result = $this->connection->fetchAll('
             SELECT LOWER(HEX(`id`)), `path`, `level`
@@ -244,6 +226,28 @@ class NavigationLoader
         return $metaInfo[$id];
     }
 
+    private function loadChildren(string $activeId, SalesChannelContext $context, string $rootId, array $metaInfo, CategoryCollection $categories): CategoryCollection
+    {
+        $active = $this->getMetaInfoById($activeId, $metaInfo);
+
+        unset($metaInfo[$rootId]);
+        unset($metaInfo[$activeId]);
+
+        $childIds = array_keys($metaInfo);
+
+        // Fetch all parents and first-level children of the active category, if they're not already fetched
+        $missing = $this->getMissingIds($activeId, $active['path'], $childIds, $categories);
+        if (empty($missing)) {
+            return $categories;
+        }
+
+        $categories->merge(
+            $this->loadCategories($missing, $context)
+        );
+
+        return $categories;
+    }
+
     private function getMissingIds(string $activeId, ?string $path, array $childIds, CategoryCollection $alreadyLoaded): array
     {
         $parentIds = array_filter(explode('|', $path ?? ''));
@@ -255,11 +259,37 @@ class NavigationLoader
         return array_diff($haveToBeIncluded, $included);
     }
 
-    private function getChildIds(string $activeId, string $rootId, array $metaInfo): array
+    private function validate(string $activeId, ?string $path, SalesChannelContext $context): void
     {
-        unset($metaInfo[$rootId]);
-        unset($metaInfo[$activeId]);
+        $ids = array_filter([
+            $context->getSalesChannel()->getFooterCategoryId(),
+            $context->getSalesChannel()->getServiceCategoryId(),
+            $context->getSalesChannel()->getNavigationCategoryId(),
+        ]);
 
-        return array_keys($metaInfo);
+        foreach ($ids as $id) {
+            if ($this->isChildCategory($activeId, $path, $id)) {
+                return;
+            }
+        }
+
+        throw new CategoryNotFoundException($activeId);
+    }
+
+    private function isChildCategory(string $activeId, ?string $path, string $rootId): bool
+    {
+        if ($rootId === $activeId) {
+            return true;
+        }
+
+        if ($path === null) {
+            return false;
+        }
+
+        if (mb_strpos($path, '|' . $rootId . '|') !== false) {
+            return true;
+        }
+
+        return false;
     }
 }

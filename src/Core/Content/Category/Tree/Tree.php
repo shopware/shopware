@@ -12,11 +12,11 @@ class Tree
     protected $tree;
 
     /**
-     * @var CategoryEntity
+     * @var CategoryEntity|null
      */
     protected $active;
 
-    public function __construct(CategoryEntity $active, array $tree)
+    public function __construct(?CategoryEntity $active, array $tree)
     {
         $this->tree = $tree;
         $this->active = $active;
@@ -43,32 +43,30 @@ class Tree
         $this->tree = $tree;
     }
 
-    public function getActive(): CategoryEntity
+    public function getActive(): ?CategoryEntity
     {
         return $this->active;
     }
 
-    public function setActive(CategoryEntity $active): void
+    public function setActive(?CategoryEntity $active): void
     {
         $this->active = $active;
     }
 
     public function getChildren(string $categoryId): ?Tree
     {
-        if ($this->active->getId() === $categoryId) {
-            return new Tree(
-                $this->active,
-                [new TreeItem($this->active, $this->tree)]
-            );
-        }
-
         $match = $this->find($categoryId, $this->tree);
 
-        if (!$match) {
-            return null;
+        if ($match) {
+            return new Tree($match->getCategory(), $match->getChildren());
         }
 
-        return new Tree($match->getCategory(), [$match]);
+        // active id is not part of $this->tree? active id is root or used as first level
+        if ($this->active && $this->active->getId() === $categoryId) {
+            return $this;
+        }
+
+        return null;
     }
 
     /**

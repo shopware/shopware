@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -38,16 +39,23 @@ class NavigationPageLoader
      */
     private $categoryDefinition;
 
+    /**
+     * @var SalesChannelRepositoryInterface
+     */
+    private $categoryRepository;
+
     public function __construct(
         SalesChannelCmsPageLoaderInterface $cmsPageLoader,
         GenericPageLoader $genericLoader,
         EventDispatcherInterface $eventDispatcher,
-        EntityDefinition $categoryDefinition
+        EntityDefinition $categoryDefinition,
+        SalesChannelRepositoryInterface $categoryRepository
     ) {
         $this->cmsPageLoader = $cmsPageLoader;
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->categoryDefinition = $categoryDefinition;
+        $this->categoryRepository = $categoryRepository;
     }
 
     /**
@@ -61,8 +69,9 @@ class NavigationPageLoader
         $page = $this->genericLoader->load($request, $context);
         $page = NavigationPage::createFrom($page);
 
-        /** @var CategoryEntity $category */
-        $category = $page->getHeader()->getNavigation()->getActive();
+        $navigationId = $request->get('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
+
+        $category = $this->loadCategory($navigationId, $context);
 
         $pageId = $category->getCmsPageId();
 
@@ -99,5 +108,19 @@ class NavigationPageLoader
         $metaInformation->setMetaTitle((string) $metaTitle);
 
         $metaInformation->setMetaKeywords((string) $category->getKeywords());
+    }
+
+    private function loadCategory(string $categoryId, SalesChannelContext $context): CategoryEntity
+    {
+        $criteria = new Criteria([$categoryId]);
+        $criteria->addAssociation('media');
+
+        $category = $this->categoryRepository->search($criteria, $context)->get($categoryId);
+
+        if (!$category) {
+            throw new CategoryNotFoundException($categoryId);
+        }
+
+        return $category;
     }
 }

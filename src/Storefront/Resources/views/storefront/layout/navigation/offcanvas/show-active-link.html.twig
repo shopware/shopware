@@ -1,0 +1,15 @@
+{% set name = item.translated.name %}
+<li class="navigation-offcanvas-list-item">
+    {% block layout_navigation_offcanvas_navigation_categories_list_current_category_item_link %}
+        <a class="nav-item nav-link navigation-offcanvas-link is-current-category"
+           href="{{ seoUrl('frontend.navigation.page', { navigationId: item.id }) }}"
+           itemprop="url"
+           title="{{ name }}">
+            {% block layout_navigation_offcanvas_navigation_categories_list_current_category_item_text %}
+                <span itemprop="name">
+                    {{ "general.showCategory"|trans({"%category%": name})|sw_sanitize }}
+                </span>
+            {% endblock %}
+        </a>
+    {% endblock %}
+</li>

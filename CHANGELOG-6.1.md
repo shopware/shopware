@@ -312,7 +312,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed external category links in footer and service navigation
     * Updated `copy-webpack-plugin` to `5.1.1` in the `storefront` package
     * Updated `terser-webpack-plugin` to `2.2.3` in the `storefront` package    	
-
+    * We have refactored the file `Storefront/Resources/views/storefront/layout/navigation/offcanvas/navigation.html.twig. It was split into smaller template files. 
 * Elasticsearch	
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.	
         * You can set them with a parameter.yml too.	

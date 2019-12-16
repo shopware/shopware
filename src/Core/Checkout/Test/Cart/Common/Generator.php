@@ -55,6 +55,7 @@ class Generator extends TestCase
         if ($salesChannel === null) {
             $salesChannel = new SalesChannelEntity();
             $salesChannel->setId('ffa32a50e2d04cf38389a53f8d6cd594');
+            $salesChannel->setNavigationCategoryId(Uuid::randomHex());
         }
 
         $currency = $currency ?: (new CurrencyEntity())->assign([

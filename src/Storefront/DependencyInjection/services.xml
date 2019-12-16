@@ -141,6 +141,7 @@
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Category\CategoryDefinition"/>
+            <argument type="service" id="sales_channel.category.repository"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Navigation\Error\ErrorPageLoader">

@@ -117,22 +117,6 @@ class NavigationLoaderTest extends TestCase
         $this->navigationLoader->load(Uuid::randomHex(), Generator::createSalesChannelContext(), Uuid::randomHex());
     }
 
-    public function testLoadNotChildOfRootCategoryThrowsException(): void
-    {
-        $this->createCategoryTree();
-
-        static::expectException(CategoryNotFoundException::class);
-        $this->navigationLoader->load($this->category2_1Id, Generator::createSalesChannelContext(), $this->category1Id);
-    }
-
-    public function testLoadParentOfRootCategoryThrowsException(): void
-    {
-        $this->createCategoryTree();
-
-        static::expectException(CategoryNotFoundException::class);
-        $this->navigationLoader->load($this->rootId, Generator::createSalesChannelContext(), $this->category1Id);
-    }
-
     public function testLoadDeepNestedTree(): void
     {
         $category1_1_1Id = Uuid::randomHex();

@@ -39,7 +39,9 @@ class FooterPageletLoader
 
         $tree = null;
         if ($footerId) {
-            $tree = $this->navigationLoader->load($footerId, $salesChannelContext, $footerId);
+            $navigationId = $request->get('navigationId', $footerId);
+
+            $tree = $this->navigationLoader->load($navigationId, $salesChannelContext, $footerId);
         }
 
         $page = new FooterPagelet($tree);

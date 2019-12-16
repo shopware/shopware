@@ -65,9 +65,6 @@ class NavigationLoader
         $metaInfo = $this->getCategoryMetaInfo($activeId, $rootId);
 
         $active = $this->getMetaInfoById($activeId, $metaInfo);
-        if (!$this->isCategoryChildOfRootCategory($activeId, $active['path'], $rootId)) {
-            throw new CategoryNotFoundException($activeId);
-        }
 
         $root = $this->getMetaInfoById($rootId, $metaInfo);
 
@@ -189,23 +186,6 @@ class NavigationLoader
         }
 
         return $items;
-    }
-
-    private function isCategoryChildOfRootCategory(string $activeId, ?string $path, string $rootId): bool
-    {
-        if ($rootId === $activeId) {
-            return true;
-        }
-
-        if ($path === null) {
-            return false;
-        }
-
-        if (mb_strpos($path, '|' . $rootId . '|') !== false) {
-            return true;
-        }
-
-        return false;
     }
 
     private function loadMissingCategories(array $missingIds, SalesChannelContext $context): CategoryCollection

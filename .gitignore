@@ -73,8 +73,6 @@ src/Docs/Command/wiki.secret
 /dev-ops/check_requirements.php
 /performance/_fixtures.php
 /src/Docs/**/dist
-/src/Docs/Resources/current/1-getting-started/40-recent-updates/*
-!/src/Docs/Resources/current/1-getting-started/40-recent-updates/.gitkeep
 phpstan.neon
 
 # tests / ci

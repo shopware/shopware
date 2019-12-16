@@ -12,7 +12,10 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @deprecated tag:v6.3.0 use SeoUrlValidationFactory instead
- * @RenameService
+ * @RenameService(
+ *     deprecatedService="SeoUrlValidationService",
+ *     replacedBy="SeoUrlValidationFactory"
+ * )
  */
 class SeoUrlValidationService implements SeoUrlDataValidationFactoryInterface
 {

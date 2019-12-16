@@ -7,7 +7,10 @@ use Shopware\Core\System\Annotation\Concept\DeprecationPattern\ReplaceDecoratedI
 
 /**
  * @deprecated tag:v6.3.0 use the DataValidationFactoryInterface instead
- * @ReplaceDecoratedInterface
+ * @ReplaceDecoratedInterface(
+ *     deprecatedInterface="ValidationServiceInterface",
+ *     replacedBy="DataValidationFactoryInterface"
+ * )
  */
 interface ValidationServiceInterface
 {

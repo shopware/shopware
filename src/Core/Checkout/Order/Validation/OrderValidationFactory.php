@@ -7,11 +7,16 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\ValidationServiceInterface;
 use Shopware\Core\System\Annotation\Concept\DeprecationPattern\ReplaceDecoratedInterface;
+use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @ReplaceDecoratedInterface
+ * @ReplaceDecoratedInterface(
+ *     deprecatedInterface="ValidationServiceInterface",
+ *     replacedBy="DataValidationFactoryInterface"
+ * )
+ * @Decoratable
  */
 class OrderValidationFactory implements ValidationServiceInterface, DataValidationFactoryInterface
 {

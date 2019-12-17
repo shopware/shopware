@@ -1,6 +1,7 @@
 import template from './sw-product-visibility-select.html.twig';
 
 const { Component } = Shopware;
+const { EntityCollection } = Shopware.Data;
 const { mapState } = Shopware.Component.getComponentHelper();
 
 Component.extend('sw-product-visibility-select', 'sw-entity-multi-select', {
@@ -50,8 +51,10 @@ Component.extend('sw-product-visibility-select', 'sw-entity-multi-select', {
 
             this.$emit('item-add', item);
 
-            this.currentCollection.add(newSalesChannelAssociation);
-            this.emitChanges();
+            const changedCollection = EntityCollection.fromCollection(this.currentCollection);
+            changedCollection.add(newSalesChannelAssociation);
+
+            this.emitChanges(changedCollection);
             this.onSelectExpanded();
         }
     }

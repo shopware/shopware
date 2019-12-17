@@ -119,11 +119,7 @@ Component.register('sw-entity-multi-select', {
         },
 
         refreshCurrentCollection() {
-            this.currentCollection = this.createEmptyCollection();
-
-            this.entityCollection.forEach(entity => {
-                this.currentCollection.push(entity);
-            });
+            this.currentCollection = EntityCollection.fromCollection(this.entityCollection);
         },
 
         createEmptyCollection() {
@@ -201,10 +197,10 @@ Component.register('sw-entity-multi-select', {
             this.loadData();
         },
 
-        emitChanges() {
+        emitChanges(newCollection) {
             /** @deprecated Html select don't have an onInput event */
-            this.$emit('input', this.currentCollection);
-            this.$emit('change', this.currentCollection);
+            this.$emit('input', newCollection);
+            this.$emit('change', newCollection);
         },
 
         addItem(item) {
@@ -215,8 +211,10 @@ Component.register('sw-entity-multi-select', {
 
             this.$emit('item-add', item);
 
-            this.currentCollection.add(item);
-            this.emitChanges();
+            const newCollection = EntityCollection.fromCollection(this.currentCollection);
+            newCollection.add(item);
+
+            this.emitChanges(newCollection);
 
             this.$refs.selectionList.focus();
             this.$refs.selectionList.select();
@@ -225,8 +223,10 @@ Component.register('sw-entity-multi-select', {
         remove(item) {
             this.$emit('item-remove', item);
 
-            this.currentCollection.remove(item.id);
-            this.emitChanges();
+            const newCollection = EntityCollection.fromCollection(this.currentCollection);
+            newCollection.remove(item.id);
+
+            this.emitChanges(newCollection);
         },
 
         removeLastItem() {

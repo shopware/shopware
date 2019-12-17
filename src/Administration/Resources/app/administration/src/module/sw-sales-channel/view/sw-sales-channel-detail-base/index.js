@@ -1,4 +1,3 @@
-import { mapApiErrors } from 'src/app/service/map-errors.service';
 import template from './sw-sales-channel-detail-base.html.twig';
 import './sw-sales-channel-detail-base.scss';
 
@@ -7,6 +6,8 @@ const { Criteria } = Shopware.Data;
 const domUtils = Shopware.Utils.dom;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const utils = Shopware.Utils;
+
+const { mapApiErrors } = Component.getComponentHelper();
 
 Component.register('sw-sales-channel-detail-base', {
     template,
@@ -268,11 +269,6 @@ Component.register('sw-sales-channel-detail-base', {
 
         ...mapApiErrors('salesChannel',
             [
-                'paymentMethodId',
-                'shippingMethodId',
-                'countryId',
-                'currencyId',
-                'languageId',
                 'customerGroupId',
                 'navigationCategoryId'
             ])
@@ -309,12 +305,18 @@ Component.register('sw-sales-channel-detail-base', {
             });
         },
 
+        /**
+         * @deprecated tag:v6.3.0
+         */
         onDefaultItemAdd(item, ref, property) {
             if (!this.salesChannel[property].has(item.id)) {
                 this.salesChannel[property].push(item);
             }
         },
 
+        /**
+         * @deprecated tag:v6.3.0
+         */
         onRemoveItem(item, ref, property) {
             const defaultSelection = this.$refs[ref].singleSelection;
             if (defaultSelection !== null && item.id === defaultSelection.id) {

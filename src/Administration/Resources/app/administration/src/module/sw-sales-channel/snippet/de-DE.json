@@ -187,6 +187,9 @@
           }
         }
       }
+    },
+    "sw-sales-channel-defaults-select": {
+      "messageError": "Der Wert wird von der Domain \"%{url}\" verwendet"
     }
   }
 }

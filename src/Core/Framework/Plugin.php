@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework;
 
 use Composer\Autoload\ClassLoader;
+use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
@@ -77,9 +78,19 @@ abstract class Plugin extends Bundle
     }
 
     /**
+     * @deprecated tag:v6.3.0 Use self::getAdditionalBundles instead
+     *
      * @return Bundle[]
      */
     public function getExtraBundles(ClassLoader $classLoader): array
+    {
+        return [];
+    }
+
+    /**
+     * @return Bundle[]
+     */
+    public function getAdditionalBundles(AdditionalBundleParameters $parameters): array
     {
         return [];
     }

@@ -268,6 +268,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed a bug that cms configuration could not be overridden if some default config is null.	
     * We added a check to `lineItem.payload.productNumber` before calling the twig truncate function	
     * Fixed a bug in storefront search that occurred when keywords such as \0\0 were entered.
+    * Added a position field on the `\Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition`, used for sorting the line items
     * Change default `shopware.cdn.strategy` to the new `physical_pathname` strategy that behaves like the old `md5` strategy. For new installations the default is `id`
 * Storefront	
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures	

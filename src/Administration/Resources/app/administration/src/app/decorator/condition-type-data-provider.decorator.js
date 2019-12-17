@@ -161,5 +161,10 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.lineItemTagRule',
         scopes: ['lineItem']
     });
+    ruleConditionService.addCondition('cartLineItemProperty', {
+        component: 'sw-condition-line-item-property',
+        label: 'global.sw-condition.condition.lineItemPropertyRule',
+        scopes: ['lineItem']
+    });
     return ruleConditionService;
 });

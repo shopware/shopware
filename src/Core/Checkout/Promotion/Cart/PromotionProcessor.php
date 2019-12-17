@@ -13,7 +13,6 @@ class PromotionProcessor implements CartProcessorInterface
 {
     public const DATA_KEY = 'promotions';
     public const LINE_ITEM_TYPE = 'promotion';
-    public const CART_EXTENSION_KEY = 'cart-promotion-codes';
 
     /**
      * @var PromotionCalculator

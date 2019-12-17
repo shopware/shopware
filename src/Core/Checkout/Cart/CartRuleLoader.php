@@ -107,7 +107,7 @@ class CartRuleLoader
         } while ($recalculate);
 
         $index = 0;
-        foreach ($this->rules as $rule) {
+        foreach ($rules as $rule) {
             ++$index;
             $this->logger->debug(
                 sprintf('#%s Rule detection: %s with priority %s', $index, $rule->getName(), $rule->getPriority())

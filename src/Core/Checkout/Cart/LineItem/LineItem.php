@@ -233,7 +233,7 @@ class LineItem extends Struct
     public function getPayloadValue(string $key)
     {
         if (!$this->hasPayloadValue($key)) {
-            throw new PayloadKeyNotFoundException($key, $this->getId());
+            return null;
         }
 
         return $this->payload[$key];

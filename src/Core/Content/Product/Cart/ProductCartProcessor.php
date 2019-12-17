@@ -16,6 +16,8 @@ use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorInterface
@@ -154,7 +156,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $product = $data->get($key);
 
-        if (!$product instanceof ProductEntity) {
+        if (!$product instanceof SalesChannelProductEntity) {
             $cart->addErrors(new ProductNotFoundError($lineItem->getLabel() ?: $lineItem->getId()));
             $cart->getLineItems()->remove($lineItem->getId());
 
@@ -221,16 +223,25 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         $lineItem->setQuantityInformation($quantityInformation);
 
         $options = [];
-        $productOptions = $product->getOptions();
-        if ($productOptions !== null) {
-            $options = $productOptions->getElements();
+        if ($product->getOptions() !== null) {
+            $options = $product->getOptions()->getElements();
         }
 
         $lineItem->replacePayload([
-            'tags' => $product->getTagIds(),
-            'categories' => $product->getCategoryTree(),
-            'properties' => $product->getPropertyIds(),
+            'isCloseout' => $product->getIsCloseout(),
+            'customFields' => $product->getCustomFields(),
+            'createdAt' => $product->getCreatedAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'releaseDate' => $product->getReleaseDate() ? $product->getReleaseDate()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
+            'isNew' => $product->isNew(),
+            'markAsTopseller' => $product->getMarkAsTopseller(),
+            'purchasePrice' => $product->getPurchasePrice(),
             'productNumber' => $product->getProductNumber(),
+            'manufacturerId' => $product->getManufacturerId(),
+            'taxId' => $product->getTaxId(),
+            'tagIds' => $product->getTagIds(),
+            'categoryIds' => $product->getCategoryTree(),
+            'propertyIds' => $product->getPropertyIds(),
+            'optionIds' => $product->getOptionIds(),
             'options' => $options,
         ]);
     }

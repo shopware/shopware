@@ -28,8 +28,15 @@
                 {% for error in page.cart.errors %}
                     {% set snippetName = "error.#{error.messageKey}" %}
 
+                    {% set type = 'danger' %}
+                    {% if error.level == 20 %}
+                        {% set type = 'warning' %}
+                    {% elseif error.level == 0 %}
+                        {% set type = 'info' %}
+                    {% endif %}
+
                     {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                        type: "danger",
+                        type: type,
                         content: snippetName|trans({'%name%': error.name})|sw_sanitize
                     } %}
                 {% endfor %}

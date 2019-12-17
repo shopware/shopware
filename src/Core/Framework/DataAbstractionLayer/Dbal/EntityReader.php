@@ -186,8 +186,8 @@ class EntityReader implements EntityReaderInterface
                 continue;
             }
 
-            //self references can not be resolved, otherwise we get an endless loop
-            if (!$field instanceof ParentAssociationField && $field instanceof AssociationField && $field->getReferenceDefinition() === $definition) {
+            //self references can not be resolved if set to autoload, otherwise we get an endless loop
+            if (!$field instanceof ParentAssociationField && $field instanceof AssociationField && $field->getAutoload() && $field->getReferenceDefinition() === $definition) {
                 continue;
             }
 

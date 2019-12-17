@@ -156,7 +156,7 @@ path to your theme.json.
 
 To trigger the build process of javascript, you can call 
 ```bash
-bin/console storefront:build
+./psh.phar storefront:build
 ``` 
 
 This will compile the javascript and trigger a rebuild of the theme, so all your script and style changes

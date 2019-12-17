@@ -46,6 +46,10 @@ describe('Product: Editing context prices', () => {
         cy.get('.sw-product-detail__tab-advanced-prices')
             .click();
 
+        // Check if empty state is correctly displayed
+        cy.get('.sw-product-detail-context-prices__empty-state img').should('be.visible');
+        cy.get('.sw-product-detail-context-prices__empty-state p').should('be.visible');
+
         // Select price rule group
         cy.get(`${emptySelectRule}`)
             .typeSingleSelect('All customers', `${emptySelectRule}`);

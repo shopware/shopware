@@ -73,7 +73,6 @@
         <!-- Migration -->
         <service id="Shopware\Core\Framework\Migration\MigrationSource.core" class="Shopware\Core\Framework\Migration\MigrationSource">
             <argument type="string">core</argument>
-            <argument>%core.migration.directories%</argument>
             <tag name="shopware.migration_source"/>
         </service>
 

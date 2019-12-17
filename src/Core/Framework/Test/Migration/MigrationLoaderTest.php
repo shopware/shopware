@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 
 class MigrationLoaderTest extends TestCase
 {
@@ -47,7 +46,8 @@ class MigrationLoaderTest extends TestCase
     public function testExceptionForInvalidNames(): void
     {
         $this->expectException(UnknownMigrationSourceException::class);
-        $this->loader->collect(Uuid::randomHex());
+        $this->expectExceptionMessage('No source registered for "FOOBAR"');
+        $this->loader->collect('FOOBAR');
     }
 
     public function testTheInterface(): void

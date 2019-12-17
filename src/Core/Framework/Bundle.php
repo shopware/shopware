@@ -95,9 +95,8 @@ abstract class Bundle extends SymfonyBundle
 
     protected function addCoreMigrationPath(ContainerBuilder $container, string $path, string $namespace): void
     {
-        $directories = $container->getParameter('core.migration.directories');
-        $directories[$path] = $namespace;
-        $container->setParameter('core.migration.directories', $directories);
+        $container->getDefinition(MigrationSource::class . '.core')
+            ->addMethodCall('addDirectory', [$path, $namespace]);
     }
 
     private function registerFilesystem(ContainerBuilder $container, string $key): void

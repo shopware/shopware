@@ -45,7 +45,7 @@ class MigrationCollectionLoader
     public function collect(string $name): MigrationCollection
     {
         if (!isset($this->migrationSources[$name])) {
-            throw new UnknownMigrationSourceException('No source registered for "' . $name . '"');
+            throw new UnknownMigrationSourceException($name);
         }
 
         $source = $this->migrationSources[$name];

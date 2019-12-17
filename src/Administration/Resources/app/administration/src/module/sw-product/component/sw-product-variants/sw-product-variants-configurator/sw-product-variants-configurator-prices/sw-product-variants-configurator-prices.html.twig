@@ -47,7 +47,7 @@
 
                                     {% block sw_product_variants_configurator_prices_column_name %}
                                         <template slot="column-name" slot-scope="{ item, isInlineEdit, compact }">
-                                            {{ item.internalOption ? item.internalOption.name : item.option.name }}
+                                            {{ item.option.translated.name }}
                                         </template>
                                     {% endblock %}
 

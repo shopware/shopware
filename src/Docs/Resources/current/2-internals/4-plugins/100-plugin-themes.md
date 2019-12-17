@@ -40,7 +40,7 @@ bin/console theme:create
 Alternatively here is a step-by-step guide.
 
 If you want to create a custom theme to change the storefront, you have to create a `theme.json`
-file in the `<plugin root>/src/` folder of your plugin.
+file in the `<plugin root>/src/Resources` folder of your plugin.
 
 Basic example for `theme.json`:
 
@@ -81,28 +81,6 @@ Without these entries the storefront would be completely unstyled.
 
 Please be aware that all paths have to be relative to the theme.json 
 without leading and trailing slashes.
-
-If you want to change the location of the `theme.json`, define the method `getThemeConfigPath`
-in the plugin bootstrap file.
-
-Example:
-
-```php
-<?php declare(strict_types=1);
-
-namespace Swag\ThemeQuickStart;
-
-use Shopware\Core\Framework\Plugin;
-use Shopware\Storefront\Framework\ThemeInterface;
-
-class ThemeQuickStart extends Plugin implements ThemeInterface
-{
-        public function getThemeConfigPath(): string
-        {
-            return 'theme.json';
-        }
-}
-```
 
 Once you have created a custom theme you need to install and activate it:
 ```bash

@@ -273,6 +273,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoader::load` use `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoader::loadForProduct` instead
     * Deprecated `\Shopware\Core\Framework\Plugin::getExtraBundles`, use `getAdditionalBundles`
     * Added method `\Shopware\Core\Framework\Plugin::getAdditionalBundles` method with additional parameters compared to `getExtraBundles`, to allow loading bundles depending on other plugins/bundles and kernel parameters.
+    * Change default `shopware.cdn.strategy` to the new `physical_pathname` strategy that behaves like the old `md5` strategy. For new installations the default is `id`
+    * Fixed a bug where entities got removed by deleting default version. Deleting default version via `/api/v{version}/_action/version/{versionId}/{entity}/{entityId}` is now forbidden
 * Storefront	
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures	
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain	

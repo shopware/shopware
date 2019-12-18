@@ -91,7 +91,7 @@ export default class ImageZoomPlugin extends Plugin {
         this._zoomResetActionElement = DomAccess.querySelector(this._modal, this.options.zoomResetActionSelector);
         this._zoomOutActionElement = DomAccess.querySelector(this._modal, this.options.zoomOutActionSelector);
 
-        this._imageMaxSize = new Vector2(DomAccess.getDataAttribute(this._image, 'data-max-width'), DomAccess.getDataAttribute(this._image, 'data-max-height'));
+        this._imageMaxSize = new Vector2(this._image.naturalWidth, this._image.naturalHeight);
         this._imageSize = new Vector2(this._image.offsetWidth, this._image.offsetHeight);
         this._containerSize = new Vector2(this.el.offsetWidth, this.el.offsetHeight);
 

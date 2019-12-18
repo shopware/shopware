@@ -354,7 +354,7 @@ export default class MagnifierPlugin extends Plugin {
      * @private
      */
     _getImageDimensions(image) {
-        const { width, height } = image.dataset;
+        const { naturalWidth: width, naturalHeight: height } = image;
         return new Vector2(width, height);
     }
 

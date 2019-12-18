@@ -33,8 +33,8 @@ class OpenApiLoader
         $pathsToScan = [
             // project src
             $this->rootDir . '/src',
-            // platform
-            $this->rootDir . '/vendor/shopware/platform',
+            // platform or many repos
+            $this->rootDir . '/vendor/shopware',
             // plugins
             $this->rootDir . '/custom/plugins',
         ];

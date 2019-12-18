@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\Acl\Resource\AclResourceDefinition;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionException;
 use Shopware\Core\Framework\Api\Exception\InvalidVersionNameException;
+use Shopware\Core\Framework\Api\Exception\LiveVersionDeleteException;
 use Shopware\Core\Framework\Api\Exception\NoEntityClonedException;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
@@ -278,11 +279,16 @@ class ApiController extends AbstractController
      *
      * @throws InvalidUuidException
      * @throws InvalidVersionNameException
+     * @throws LiveVersionDeleteException
      */
     public function deleteVersion(Context $context, string $entity, string $entityId, string $versionId): JsonResponse
     {
         if ($versionId !== null && !Uuid::isValid($versionId)) {
             throw new InvalidUuidException($versionId);
+        }
+
+        if ($versionId === Defaults::LIVE_VERSION) {
+            throw new LiveVersionDeleteException();
         }
 
         if ($entityId !== null && !Uuid::isValid($entityId)) {

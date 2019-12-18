@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Exception\LiveVersionDeleteException;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -59,11 +60,11 @@ EOF;
         $namedStatement = <<<EOF
 CREATE TABLE `named` (
     `id` binary(16) NOT NULL,
-    `name` varchar(255) NOT NULL,    
-    `optional_group_id` varbinary(16) NULL,   
+    `name` varchar(255) NOT NULL,
+    `optional_group_id` varbinary(16) NULL,
     `created_at` DATETIME(3) NOT NULL,
-    `updated_at` DATETIME(3) NULL, 
-    PRIMARY KEY `id` (`id`),  
+    `updated_at` DATETIME(3) NULL,
+    PRIMARY KEY `id` (`id`),
     CONSTRAINT `fk` FOREIGN KEY (`optional_group_id`) REFERENCES `named_optional_group` (`id`) ON DELETE SET NULL
 );
 EOF;
@@ -499,6 +500,40 @@ EOF;
         );
 
         static::assertCount(0, $productRepo->search($criteria, Context::createDefaultContext()));
+    }
+
+    public function testDeleteVersionWithLiveVersion(): void
+    {
+        $id = Uuid::randomHex();
+        $browser = $this->getBrowser();
+
+        $data = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'name' => $id,
+            'tax' => ['name' => 'test', 'taxRate' => 10],
+            'manufacturer' => ['name' => 'test'],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
+        ];
+
+        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
+
+        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/version/' . Defaults::LIVE_VERSION . '/product/' . $id);
+
+        $repo = $this->getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
+        $criteria = new Criteria([$id]);
+        $criteria->addFilter(new EqualsFilter('versionId', Defaults::LIVE_VERSION));
+
+        static::assertNotNull($repo->search($criteria, Context::createDefaultContext())->getEntities()->first());
+
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode(), $response->getContent());
+
+        $content = \json_decode($response->getContent(), true);
+
+        static::assertSame((new LiveVersionDeleteException())->getErrorCode(), $content['errors'][0]['code']);
     }
 
     public function testDeleteWithoutPermission(): void

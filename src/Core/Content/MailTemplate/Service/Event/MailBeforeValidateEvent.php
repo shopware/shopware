@@ -7,14 +7,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
-use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Log\LogAwareBusinessEventInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class MailAfterCreateMessageEvent extends Event implements BusinessEventInterface, LogAwareBusinessEventInterface
+class MailBeforeValidateEvent extends Event implements BusinessEventInterface, LogAwareBusinessEventInterface
 {
-    public const EVENT_NAME = 'mail.after.create.message';
+    public const EVENT_NAME = 'mail.before.send';
 
     /**
      * @var array
@@ -22,27 +21,27 @@ class MailAfterCreateMessageEvent extends Event implements BusinessEventInterfac
     private $data;
 
     /**
-     * @var \Swift_Message
-     */
-    private $message;
-
-    /**
      * @var Context
      */
     private $context;
 
-    public function __construct(array $data, \Swift_Message $message, Context $context)
+    /**
+     * @var array
+     */
+    private $templateData;
+
+    public function __construct(array $data, Context $context, array $templateData = [])
     {
         $this->data = $data;
-        $this->message = $message;
         $this->context = $context;
+        $this->templateData = $templateData;
     }
 
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
             ->add('data', new ArrayType(new ScalarValueType(ScalarValueType::TYPE_STRING)))
-            ->add('message', new ObjectType());
+            ->add('templateData', new ArrayType(new ScalarValueType(ScalarValueType::TYPE_STRING)));
     }
 
     public function getName(): string
@@ -50,14 +49,9 @@ class MailAfterCreateMessageEvent extends Event implements BusinessEventInterfac
         return self::EVENT_NAME;
     }
 
-    public function getData(): string
+    public function getData(): array
     {
         return $this->data;
-    }
-
-    public function getMessage(): Swift_Message
-    {
-        return $this->message;
     }
 
     public function getContext(): Context
@@ -65,12 +59,16 @@ class MailAfterCreateMessageEvent extends Event implements BusinessEventInterfac
         return $this->context;
     }
 
+    public function getTemplateData(): array
+    {
+        return $this->templateData;
+    }
+
     public function getLogData(): array
     {
         return [
-            'subject' => $this->subject,
-            'recipients' => $this->recipients,
-            'contents' => $this->contents,
+            'data' => $this->data,
+            'templateData' => $this->templateData,
         ];
     }
 

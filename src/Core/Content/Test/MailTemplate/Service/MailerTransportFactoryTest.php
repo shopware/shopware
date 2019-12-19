@@ -3,17 +3,17 @@
 namespace Shopware\Core\Content\Test\MailTemplate\Service;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\MailTemplate\Service\MailerFactory;
+use Shopware\Core\Content\MailTemplate\Service\MailerTransportFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
-class MailerFactoryTest extends TestCase
+class MailerTransportFactoryTest extends TestCase
 {
     public function testFactoryWithoutConfig(): void
     {
         $original = new \Swift_NullTransport();
-        $factory = new MailerFactory();
+        $factory = new MailerTransportFactory();
 
-        $mailer = $factory->createTransport(
+        $mailer = $factory->create(
             new ConfigService([
                 'core.mailerSettings.emailAgent' => 'local',
             ]),
@@ -26,9 +26,9 @@ class MailerFactoryTest extends TestCase
     public function testFactoryWithConfig(): void
     {
         $original = new \Swift_NullTransport();
-        $factory = new MailerFactory();
+        $factory = new MailerTransportFactory();
 
-        $transport = $factory->createTransport(
+        $transport = $factory->create(
             new ConfigService([
                 'core.mailerSettings.emailAgent' => 'smtp',
                 'core.mailerSettings.host' => 'localhost',

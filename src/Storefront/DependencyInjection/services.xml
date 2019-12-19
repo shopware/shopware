@@ -383,10 +383,10 @@
             <argument type="service" id="sales_channel_domain.repository" />
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmerRegistry" />
-            <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="kernel" />
             <argument type="service" id="router" />
             <argument type="service" id="Shopware\Core\Framework\Routing\RequestTransformerInterface" />
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheIdLoader" />
 
             <tag name="messenger.message_handler"/>
         </service>

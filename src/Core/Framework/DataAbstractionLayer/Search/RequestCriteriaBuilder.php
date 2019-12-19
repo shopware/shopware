@@ -84,7 +84,12 @@ class RequestCriteriaBuilder
         $searchException = new SearchRequestException();
 
         if (isset($payload['ids'])) {
-            $ids = array_filter(explode('|', $payload['ids']));
+            if (is_string($payload['ids'])) {
+                $ids = array_filter(explode('|', $payload['ids']));
+            } else {
+                $ids = $payload['ids'];
+            }
+
             $criteria->setIds($ids);
             $criteria->setLimit(null);
         } else {

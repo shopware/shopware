@@ -404,4 +404,5 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-upright.var.woff2`	
         * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter.var.woff2`	
     * Removed `ContactPageController` and the `contact page`	
-    * Removed `newsletter page` and its route `/newsletter`    
+    * Removed `newsletter page` and its route `/newsletter`  
+    * Fixed the cookie privacy hint to use the correct link `privacyPage` instead of `shippingPaymentInfoPage` 

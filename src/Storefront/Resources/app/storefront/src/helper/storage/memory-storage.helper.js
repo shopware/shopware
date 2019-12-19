@@ -41,7 +41,7 @@ export default class MemoryStorage {
      * @returns {any}
      */
     key(index) {
-        return Object.values(this._storage)[index];
+        return Object.values(this._storage)[index] || null;
     }
 
     /**

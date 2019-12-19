@@ -21,8 +21,10 @@ export default class AjaxModalExtensionUtil {
     /**
      * Constructor.
      */
-    constructor() {
+    constructor(modalBackdrop = true) {
         this._client = new HttpClient(window.accessKey, window.contextToken);
+        this.useModalBackdrop = modalBackdrop;
+
         this._registerEvents();
     }
 
@@ -74,7 +76,7 @@ export default class AjaxModalExtensionUtil {
      */
     _openModal(response) {
         PageLoadingIndicatorUtil.remove();
-        const pseudoModal = new PseudoModalUtil(response);
+        const pseudoModal = new PseudoModalUtil(response, this.useModalBackdrop);
 
         pseudoModal.open(() => {
             PluginManager.initializePlugins();

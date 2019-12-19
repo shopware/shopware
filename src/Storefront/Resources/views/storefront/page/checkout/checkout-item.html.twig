@@ -121,8 +121,8 @@
                                                         <div class="cart-item-variants">
                                                             {% for option in lineItem.payload.options %}
                                                                 <div class="cart-item-variants-properties">
-                                                                    <div class="cart-item-variants-properties-name">{{ option.group.translated.name }}:</div>
-                                                                    <div class="cart-item-variants-properties-value">{{ option.translated.name }}</div>
+                                                                    <div class="cart-item-variants-properties-name">{{ option.group }}:</div>
+                                                                    <div class="cart-item-variants-properties-value">{{ option.option }}</div>
                                                                 </div>
                                                             {% endfor %}
                                                         </div>

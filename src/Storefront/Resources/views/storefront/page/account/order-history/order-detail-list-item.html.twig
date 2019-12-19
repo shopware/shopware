@@ -68,10 +68,17 @@
                             {% if lineItem.payload.options|length >= 1 %}
                                 <div class="order-item-variants">
                                     {% for option in lineItem.payload.options %}
-                                        <div class="order-item-variants-properties">
-                                            <div class="order-item-variants-properties-name">{{ option.group.translated.name }}:</div>
-                                            <div class="order-item-variants-properties-value">{{ option.translated.name }}</div>
-                                        </div>
+                                        {% if option.option %}
+                                            <div class="order-item-variants-properties">
+                                                <div class="order-item-variants-properties-name">{{ option.group }}:</div>
+                                                <div class="order-item-variants-properties-value">{{ option.option }}</div>
+                                            </div>
+                                        {% else %}
+                                            <div class="order-item-variants-properties">
+                                                <div class="order-item-variants-properties-name">{{ option.group.translated.name }}:</div>
+                                                <div class="order-item-variants-properties-value">{{ option.translated.name }}</div>
+                                            </div>
+                                        {% endif %}
                                     {% endfor %}
                                 </div>
                             {% endif %}

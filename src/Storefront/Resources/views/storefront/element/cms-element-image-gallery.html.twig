@@ -119,9 +119,7 @@
                                                                                 'class': 'img-fluid gallery-slider-image magnifier-image js-magnifier-image',
                                                                                 'alt': (image.translated.alt ?: fallbackImageTitle),
                                                                                 'title': (image.translated.title ?: fallbackImageTitle),
-                                                                                'data-full-image': image.url,
-                                                                                'data-width': image.metaData.width,
-                                                                                'data-height': image.metaData.height
+                                                                                'data-full-image': image.url
                                                                             } %}
 
                                                                             {% if displayMode == 'cover' or displayMode == 'contain' %}
@@ -178,9 +176,7 @@
                                                             'class': 'img-fluid gallery-slider-image magnifier-image js-magnifier-image',
                                                             'alt': (mediaItems|first.translated.alt ?: fallbackImageTitle),
                                                             'title': (mediaItems|first.translated.title ?: fallbackImageTitle),
-                                                            'data-full-image': mediaItems|first.url,
-                                                            'data-width': mediaItems|first.metaData.width,
-                                                            'data-height': mediaItems|first.metaData.height
+                                                            'data-full-image': mediaItems|first.url
                                                         } %}
 
                                                         {% if displayMode == 'cover' or displayMode == 'contain' %}
@@ -355,9 +351,7 @@
                                                                                                             attributes: {
                                                                                                                 'class': 'gallery-slider-image js-image-zoom-element',
                                                                                                                 'alt': (image.translated.alt ?: fallbackImageTitle),
-                                                                                                                'title': (image.translated.title ?: fallbackImageTitle),
-                                                                                                                'data-max-width': image.metaData.width,
-                                                                                                                'data-max-height': image.metaData.height
+                                                                                                                'title': (image.translated.title ?: fallbackImageTitle)
                                                                                                             }
                                                                                                         } %}
                                                                                                     {% endblock %}

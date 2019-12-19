@@ -309,7 +309,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added global event `CookieConfiguration_Update` for updating the cookie preference	
     * Moved `src/Storefront/Resources/app/storefront/src/plugin/cookie-permission/cookie-permission.plugin.js` to `src/Storefront/Resources/app/storefront/src/plugin/cookie/cookie-permission.plugin.js`	
     * Moved `src/Storefront/Resources/views/storefront/layout/cookie-permission.html.twig` to `src/Storefront/Resources/views/storefront/layout/cookie/cookie-permission.html.twig`	
-    * Added `CountryStateController`	
     * Added XHtmlRequest route to `/country/country-state-data`	
     * Added `CountryStateController`	
     * Added JavaScript Plugin `CountryStateSelect` that handles selectable states for selected a country	
@@ -320,10 +319,12 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed external category links in footer and service navigation
     * Updated `copy-webpack-plugin` to `5.1.1` in the `storefront` package
     * Updated `terser-webpack-plugin` to `2.2.3` in the `storefront` package    	
-    * We have refactored the file `Storefront/Resources/views/storefront/layout/navigation/offcanvas/navigation.html.twig. It was split into smaller template files. 
+    * We have refactored the file `Storefront/Resources/views/storefront/layout/navigation/offcanvas/navigation.html.twig`. It was split into smaller template files.
+    * The js plugin manager now catches errors from the plugin initialization to avoid stopping the script if only one plugin fails.
+    * We removed all dependencies to media metadata in storefront.
 * Elasticsearch	
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.	
-        * You can set them with a parameter.yml too.	
+        * You can set them with a parameter.yml too.
     * The extensions are now saved at the top level of the entities.	
     * Updated `ongr/elasticsearch-dsl` to version `7.0.0`	
     * Updated Symfony Dependencies to version `4.4.0`.   

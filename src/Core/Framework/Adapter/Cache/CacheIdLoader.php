@@ -28,12 +28,19 @@ class CacheIdLoader
             $cacheId = null;
         }
 
-        if (!is_string($cacheId)) {
-            $cacheId = Uuid::randomHex();
-            $this->write($cacheId);
+        if (is_string($cacheId)) {
+            return $cacheId;
         }
 
-        return $cacheId;
+        $cacheId = Uuid::randomHex();
+
+        try {
+            $this->write($cacheId);
+
+            return $cacheId;
+        } catch (\Exception $e) {
+            return 'live';
+        }
     }
 
     public function write(string $cacheId): void

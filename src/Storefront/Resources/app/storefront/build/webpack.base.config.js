@@ -36,7 +36,28 @@ const output = {
  * Option to disable ESLint during storefront build process.
  * @type {boolean}
  */
-const eslintDisable = (process.env.ESLINT_DISABLE === 'true');
+const { ESLINT_DISABLE = 'false', MODE = 'dev' } = process.env;
+
+const jsRules = {
+    test: /\.m?js$/,
+    exclude: /(node_modules|bower_components|vendors)/,
+    use: [
+        {
+            loader: 'babel-loader',
+            options: babelrc,
+        },
+    ],
+};
+
+if (MODE !== 'hot' || ESLINT_DISABLE !== 'true') {
+    jsRules.use.push({
+        loader: 'eslint-loader',
+        options: {
+            configFile: utils.getPath('.eslintrc.js'),
+            fix: true,
+        },
+    });
+}
 
 /**
  * Webpack module configuration and how them will be treated
@@ -45,23 +66,7 @@ const eslintDisable = (process.env.ESLINT_DISABLE === 'true');
  */
 const modules = {
     rules: [
-        {
-            test: /\.m?js$/,
-            exclude: /(node_modules|bower_components|vendors)/,
-            use: [
-                {
-                    loader: 'babel-loader',
-                    options: babelrc,
-                },
-                (eslintDisable ? {} : {
-                    loader: 'eslint-loader',
-                    options: {
-                        configFile: utils.getPath('.eslintrc.js'),
-                        fix: true,
-                    },
-                }),
-            ],
-        },
+        jsRules,
         {
             test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
             include: [

@@ -221,9 +221,15 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         $lineItem->setQuantityInformation($quantityInformation);
 
         $options = [];
-        $productOptions = $product->getOptions();
-        if ($productOptions !== null) {
-            $options = $productOptions->getElements();
+        foreach ($product->getOptions() as $option) {
+            if (!$option->getGroup()) {
+                continue;
+            }
+
+            $options[] = [
+                'group' => $option->getGroup()->getTranslation('name'),
+                'option' => $option->getTranslation('name'),
+            ];
         }
 
         $lineItem->replacePayload([

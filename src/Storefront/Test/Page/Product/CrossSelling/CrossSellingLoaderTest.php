@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -79,6 +80,41 @@ class CrossSellingLoaderTest extends TestCase
         }
     }
 
+    public function testLoadForProduct(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $productData = $this->getProductData($productId);
+        $productData['crossSellings'] = [[
+            'name' => 'Test Cross Selling',
+            'sortBy' => ProductCrossSellingDefinition::SORT_BY_PRICE,
+            'sortDirection' => FieldSorting::ASCENDING,
+            'active' => true,
+            'limit' => 3,
+            'productStreamId' => $this->createProductStream(),
+        ]];
+
+        $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
+
+        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->get($productId);
+        $result = $this->crossSellingLoader->loadForProduct($product, $this->salesChannelContext);
+
+        static::assertEquals(1, $result->count());
+
+        $element = $result->first();
+        static::assertEquals(3, $element->getTotal());
+        static::assertEquals('Test Cross Selling', $element->getCrossSelling()->getName());
+
+        $lastPrice = 0;
+        foreach ($element->getProducts() as $product) {
+            static::assertGreaterThanOrEqual($lastPrice, $product->getCurrencyPrice(Defaults::CURRENCY)->getGross());
+            $lastPrice = $product->getCurrencyPrice(Defaults::CURRENCY)->getGross();
+        }
+    }
+
+    /**
+     * Shouldn't be necessary to test for loadForProducts() as the caller has to handle sorting of cross sellings
+     */
     public function testLoadMultipleCrossSellingsOrderedByPosition(): void
     {
         $productId = Uuid::randomHex();
@@ -105,6 +141,67 @@ class CrossSellingLoaderTest extends TestCase
         $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
 
         $result = $this->crossSellingLoader->load($productId, $this->salesChannelContext);
+
+        static::assertEquals(2, $result->count());
+        foreach ($result as $index => $element) {
+            static::assertEquals($crossSellingIds[$index], $element->getCrossSelling()->getId());
+        }
+    }
+
+    /**
+     * Shouldn't be necessary to test for loadForProducts() as the caller has to handle cross selling inheritance loading
+     */
+    public function testLoadCrossSellingsForVariantInheritedByParent(): void
+    {
+        $productId = Uuid::randomHex();
+        $optionId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+
+        $crossSellingIds = [
+            Uuid::randomHex(),
+            Uuid::randomHex(),
+        ];
+        $productData = $this->getProductData($productId);
+        $productData['crossSellings'] = [[
+            'id' => $crossSellingIds[0],
+            'name' => 'First Cross Selling',
+            'position' => 1,
+            'active' => true,
+            'productStreamId' => $this->createProductStream(),
+        ], [
+            'id' => $crossSellingIds[1],
+            'name' => 'Second Cross Selling',
+            'position' => 2,
+            'active' => true,
+            'productStreamId' => $this->createProductStream(),
+        ]];
+        $productData['configuratorSettings'] = [[
+            'option' => [
+                'id' => $optionId,
+                'name' => 'Option',
+                'position' => 0,
+                'group' => [
+                    'sortingType' => 'alphanumeric',
+                    'displayType' => 'text',
+                    'name' => 'test one group',
+                ],
+            ],
+            'position' => 0,
+        ]];
+        $productData['children'] = [[
+            'id' => $variantId,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'options' => [
+                [
+                    'id' => $optionId,
+                ],
+            ],
+        ]];
+
+        $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
+
+        $result = $this->crossSellingLoader->load($variantId, $this->salesChannelContext);
 
         static::assertEquals(2, $result->count());
         foreach ($result as $index => $element) {
@@ -156,7 +253,7 @@ class CrossSellingLoaderTest extends TestCase
     {
         $price = random_int(0, 10);
 
-        return [
+        $product = [
             'id' => $id ?? Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
@@ -168,5 +265,9 @@ class CrossSellingLoaderTest extends TestCase
                 ['salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
+
+        $this->addTaxDataToSalesChannel($this->salesChannelContext, $product['tax']);
+
+        return $product;
     }
 }

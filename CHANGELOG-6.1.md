@@ -88,7 +88,12 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Updated `dompurify` to `2.0.7` in the `administration` package
     * Updated `cypress-select-tests` to `1.4.1` in the `administration/e2e` package
     * Updated `copy-webpack-plugin` to `5.1.1` in the `common/webpack-plugin` package
-    
+    * Added new Block `sw_media_quickinfo_metadata_specific_meta_data` to sw-media-quickinfo that is only rendered if metadata could be fetched for uploaded media. This also gives you easier access to extend the metadata section for specific file types.
+    * Changes to `sw-plugin-last-updates-grid`:
+      * Reorganized content of `sw-plugin-last-updates-grid`. It now displays only the empty state or grid but not both.
+      * We moved the condition when the empty state is shown to the slot access itself rather than to the `sw-empty-state` component.
+      * Added new block `sw_plugin_last_udates_card_grid_content` in `sw-plugin-last-updates-grid` to override the grid content rather than the slot access.
+
 * Core    
 	* We did some refactoring on how we use `WriteConstraintsViolationExceptions`.	
         It's path `property` should now point to the object that is inspected by an validator while the `propertyPath` property in `WriteConstraint` objects should only point to the invalid property. 	
@@ -263,7 +268,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed a bug that cms configuration could not be overridden if some default config is null.	
     * We added a check to `lineItem.payload.productNumber` before calling the twig truncate function	
     * Fixed a bug in storefront search that occurred when keywords such as \0\0 were entered.
+    * Added a position field on the `\Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition`, used for sorting the line items
     * Change default `shopware.cdn.strategy` to the new `physical_pathname` strategy that behaves like the old `md5` strategy. For new installations the default is `id`
+    * Deprecated `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoader::load` use `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoader::loadForProduct` instead
 * Storefront	
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures	
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain	

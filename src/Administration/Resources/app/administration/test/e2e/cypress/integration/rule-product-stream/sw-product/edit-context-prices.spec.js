@@ -46,6 +46,10 @@ describe('Product: Editing context prices', () => {
         cy.get('.sw-product-detail__tab-advanced-prices')
             .click();
 
+        // Check if empty state is correctly displayed
+        cy.get('.sw-product-detail-context-prices__empty-state img').should('be.visible');
+        cy.get('.sw-product-detail-context-prices__empty-state p').should('be.visible');
+
         // Select price rule group
         cy.get(`${emptySelectRule}`)
             .typeSingleSelect('All customers', `${emptySelectRule}`);
@@ -85,8 +89,8 @@ describe('Product: Editing context prices', () => {
             .should('be.visible');
 
         // Add rule to second price rule group
-        cy.get(`${priceGroup}-1 .sw-product-detail-context-prices__empty-state ${emptySelectRule}`)
-            .typeSingleSelect('Sunday sales', `${priceGroup}-1 .sw-product-detail-context-prices__empty-state ${emptySelectRule}`);
+        cy.get(`${priceGroup}-1 .sw-product-detail-context-prices__toolbar .sw-product-detail-context-prices__toolbar-selection`)
+            .typeSingleSelect('Sunday sales', `${priceGroup}-1 .sw-product-detail-context-prices__toolbar-selection`);
 
         // Save price rule groups
         cy.get(page.elements.productSaveAction).click();

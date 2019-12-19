@@ -12,7 +12,7 @@ class SnippetFileCollectionTest extends TestCase
 {
     public static function tearDownAfterClass(): void
     {
-        foreach (glob(__DIR__ . '/../_fixtures/*.json') as $mockFile) {
+        foreach (glob(__DIR__ . '/../Mock/_fixtures/*.json') as $mockFile) {
             unlink($mockFile);
         }
     }

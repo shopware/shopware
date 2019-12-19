@@ -37,23 +37,25 @@ class ThemeCreateCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $helper = $this->getHelper('question');
 
-        $name = $input->getArgument('theme-name');
+        $themeName = $input->getArgument('theme-name');
 
-        $snakeCaseName = (new CamelCaseToSnakeCaseNameConverter())->normalize($name);
-        $snakeCaseName = str_replace('_', '-', $snakeCaseName);
-
-        if (!$name) {
+        if (!$themeName) {
             $question = new Question('Please enter a theme name:');
-            $name = $helper->ask($input, $output, $question);
+            $themeName = $helper->ask($input, $output, $question);
         }
 
-        if (preg_match('/^[A-Z]\w{3,}$/', $name) !== 1) {
-            $io->error('Theme name is too short (min 4 characters), contains invalid characters or doesn\'t start with a uppercase character');
+        if (preg_match('/^[A-Za-z]\w{3,}$/', $themeName) !== 1) {
+            $io->error('Theme name is too short (min 4 characters), contains invalid characters');
 
             return 1;
         }
 
-        $directory = $this->projectDir . '/custom/plugins/' . $name;
+        $snakeCaseName = (new CamelCaseToSnakeCaseNameConverter())->normalize($themeName);
+        $snakeCaseName = str_replace('_', '-', $snakeCaseName);
+
+        $pluginName = ucfirst($themeName);
+
+        $directory = $this->projectDir . '/custom/plugins/' . $pluginName;
 
         if (file_exists($directory)) {
             $io->error(sprintf('Plugin directory %s already exists', $directory));
@@ -79,24 +81,24 @@ class ThemeCreateCommand extends Command
         }
 
         $composerFile = $directory . '/composer.json';
-        $bootstrapFile = $directory . '/src/' . $name . '.php';
+        $bootstrapFile = $directory . '/src/' . $pluginName . '.php';
         $themeConfigFile = $directory . '/src/Resources/theme.json';
 
         $composer = str_replace(
             ['#namespace#', '#class#'],
-            [$name, $name],
+            [$pluginName, $pluginName],
             $this->getComposerTemplate()
         );
 
         $bootstrap = str_replace(
             ['#namespace#', '#class#'],
-            [$name, $name],
+            [$pluginName, $pluginName],
             $this->getBootstrapTemplate()
         );
 
         $themeConfig = str_replace(
             ['#name#', '#snake-case#'],
-            [$name, $snakeCaseName],
+            [$themeName, $snakeCaseName],
             $this->getThemeConfigTemplate()
         );
 

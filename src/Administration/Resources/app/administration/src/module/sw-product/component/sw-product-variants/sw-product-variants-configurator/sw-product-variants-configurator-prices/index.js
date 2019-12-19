@@ -107,7 +107,7 @@ Component.register('sw-product-variants-configurator-prices', {
                     return false;
                 })
                 // Filter if search term matches option name
-                .filter((element) => element.option.name.toLowerCase().includes(this.term.toLowerCase()));
+                .filter((element) => element.option.translated.name.toLowerCase().includes(this.term.toLowerCase()));
         },
 
         resetSurcharges(option, force = false) {

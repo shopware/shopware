@@ -137,13 +137,13 @@ Component.register('sw-product-variants-configurator-restrictions', {
                         });
 
                         if (actualOption && actualOption.option) {
-                            acc.push(actualOption.option.name);
+                            acc.push(actualOption.option.translated.name);
                         }
                         return acc;
                     }, []);
 
                     return {
-                        group: actualGroup.name,
+                        group: actualGroup.translated.name,
                         options: optionNames
                     };
                 })

@@ -1,7 +1,9 @@
 {% block layout_head_inner %}
-    {% set metaDescription = page.metaInformation.metaDescription|striptags|trim|u.truncate(shopware.config.seo.descriptionMaxLength ?? 160) %}
-    {% set metaTitle = page.metaInformation.metaTitle|striptags|trim %}
-    {% set metaKeywords = page.metaInformation.metaKeywords|striptags|trim %}
+    {% set metaInformation = page.metaInformation %}
+    {% set basicConfig = shopware.config.core.basicInformation %}
+    {% set metaDescription = metaInformation.metaDescription|striptags|trim|u.truncate(shopware.config.seo.descriptionMaxLength ?? 160) %}
+    {% set metaTitle = metaInformation.metaTitle|striptags|trim %}
+    {% set metaKeywords = metaInformation.metaKeywords|striptags|trim %}
 
     <head>
         {% block layout_head_meta_tags %}
@@ -16,11 +18,11 @@
 
             {% block layout_head_meta_tags_general %}
                 <meta name="author"
-                      content="{{ page.metaInformation.author|striptags }}"/>
+                      content="{{ metaInformation.author|striptags }}"/>
                 <meta name="robots"
-                      content="{% block layout_head_meta_tags_robots %}{{ page.metaInformation.robots }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_robots %}{{ metaInformation.robots }}{% endblock %}"/>
                 <meta name="revisit-after"
-                      content="{{ page.metaInformation.revisit|striptags }}"/>
+                      content="{{ metaInformation.revisit|striptags }}"/>
                 <meta name="keywords"
                       content="{% block layout_head_meta_tags_keywords %}{{ metaKeywords }}{% endblock %}"/>
                 <meta name="description"
@@ -31,7 +33,7 @@
                 <meta property="og:type"
                       content="website"/>
                 <meta property="og:site_name"
-                      content="{{ shopware.config.core.basicInformation.shopName }}"/>
+                      content="{{ basicConfig.shopName }}"/>
                 <meta property="og:title"
                       content="{{ metaTitle }}"/>
                 <meta property="og:description"
@@ -42,7 +44,7 @@
                 <meta name="twitter:card"
                       content="website"/>
                 <meta name="twitter:site"
-                      content="{{ shopware.config.core.basicInformation.shopName }}"/>
+                      content="{{ basicConfig.shopName }}"/>
                 <meta name="twitter:title"
                       content="{{ metaTitle }}"/>
                 <meta name="twitter:description"
@@ -53,11 +55,11 @@
 
             {% block layout_head_meta_tags_schema_webpage %}
                 <meta itemprop="copyrightHolder"
-                      content="{{ shopware.config.core.basicInformation.shopName }}"/>
+                      content="{{ basicConfig.shopName }}"/>
                 <meta itemprop="copyrightYear"
-                      content="{{ page.metaInformation.copyrightYear|striptags }}"/>
+                      content="{{ metaInformation.copyrightYear|striptags }}"/>
                 <meta itemprop="isFamilyFriendly"
-                      content="{% if shopware.config.core.basicInformation.familyFriendly %}true{% else %}false{% endif %}"/>
+                      content="{% if basicConfig.familyFriendly %}true{% else %}false{% endif %}"/>
                 <meta itemprop="image"
                       content="{{ shopware.theme['sw-logo-desktop'] }}"/>
             {% endblock %}

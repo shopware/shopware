@@ -1,5 +1,9 @@
 {% block component_product_box_price_info %}
     {% set purchaseUnit = product.purchaseUnit %}
+    {% set listingPrice = product.calculatedListingPrice %}
+    {% set fromPrice = listingPrice.from %}
+    {% set referncePrice = product.calculatedPrice.referencePrice %}
+
     <div class="product-price-info">
         {% block component_product_box_price_unit %}
             <p class="product-price-unit">
@@ -10,19 +14,19 @@
                             {{ "listing.boxUnitLabel"|trans|sw_sanitize }}
                         </span>
                         <span class="price-unit-content">
-                            {{ purchaseUnit }} {{ product.unit.name }}
+                            {{ purchaseUnit }} {{ product.unit.translation('name') }}
                         </span>
                     {% endif %}
                 {% endblock %}
 
                 {# Unit price is based on a reference unit #}
                 {% block component_product_box_price_reference_unit %}
-                    {% if product.calculatedPrice.referencePrice is not null %}
+                    {% if referncePrice is not null %}
                         <span class="price-unit-reference">
                             {% if product.priceRange %}
-                                ({{ "listing.listingTextFrom"|trans|sw_sanitize }} {{ product.calculatedListingPrice.from.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ product.calculatedListingPrice.from.referencePrice.referenceUnit }}&nbsp;{{ product.calculatedListingPrice.from.referencePrice.unitName }})
+                                ({{ "listing.listingTextFrom"|trans|sw_sanitize }} {{ fromPrice.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ fromPrice.referencePrice.referenceUnit }}&nbsp;{{ fromPrice.referencePrice.unitName }})
                             {% else %}
-                                ({{ product.calculatedPrice.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ product.calculatedPrice.referencePrice.referenceUnit }} {{ product.calculatedPrice.referencePrice.unitName }})
+                                ({{ referncePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ referncePrice.referenceUnit }} {{ referncePrice.unitName }})
                             {% endif %}
                         </span>
                     {% endif %}
@@ -33,9 +37,9 @@
         {% block component_product_box_price %}
             <p class="product-price">
                 {% if product.priceRange %}
-                    {{ product.calculatedListingPrice.from.unitPrice|currency }}
+                    {{ fromPrice.unitPrice|currency }}
                     -
-                    {{ product.calculatedListingPrice.to.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+                    {{ listingPrice.to.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
                 {% elseif product.calculatedPrices|length == 1 %}
                     {{ product.calculatedPrices.first.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
                 {% else %}

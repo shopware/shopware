@@ -4,7 +4,7 @@ import './preview';
 
 Shopware.Service('cmsService').registerCmsElement({
     name: 'form',
-    label: 'Form',
+    label: 'sw-cms.elements.form.label',
     component: 'sw-cms-el-form',
     configComponent: 'sw-cms-el-config-form',
     previewComponent: 'sw-cms-el-preview-form',

@@ -8,42 +8,46 @@
 
         {% block sw_plugin_last_updates_card %}
             <sw-card :isLoading="isLoading || pageLoading" class="sw-card--grid">
+                <template #default v-if="!isLoading && !total">
+                    {% block sw_plugin_last_updates_card_empty_state %}
+                        <sw-empty-state :title="$tc('sw-plugin.updates.messageEmpty')"></sw-empty-state>
+                    {% endblock %}
+                </template>
+
                 {% block sw_plugin_last_updates_card_grid %}
-                    <template #grid>
-                        <sw-data-grid class="sw-plugin-last-updates__grid"
-                                      :dataSource="lastUpdates"
-                                      :columns="lastUpdatesColumns"
-                                      :showSelection="false"
-                                      :showActions="false">
-                            <template #column-name="{ item }">
-                                {% block sw_plugin_last_updates_card_grid_columns_name_label %}
-                                    <sw-plugin-table-entry
-                                        :icon="item.icon"
-                                        :title="item.label"
-                                        :subtitle="item.upgradedAt | date">
-                                    </sw-plugin-table-entry>
-                                {% endblock %}
-                            </template>
+                    <template #grid v-else>
+                        {% block sw_plugin_last_udates_card_grid_content %}
+                            <sw-data-grid class="sw-plugin-last-updates__grid"
+                                          :dataSource="lastUpdates"
+                                          :columns="lastUpdatesColumns"
+                                          :showSelection="false"
+                                          :showActions="false">
+                                <template #column-name="{ item }">
+                                    {% block sw_plugin_last_updates_card_grid_columns_name_label %}
+                                        <sw-plugin-table-entry
+                                            :icon="item.icon"
+                                            :title="item.label"
+                                            :subtitle="item.upgradedAt | date">
+                                        </sw-plugin-table-entry>
+                                    {% endblock %}
+                                </template>
 
-                            <template #column-changelog="{ item }">
-                                {% block sw_plugin_last_updates_card_grid_columns_changelog_label %}
-                                    <div v-for="changelog in getLatestChangelog(item)">
-                                        {{ changelog }}
-                                    </div>
-                                {% endblock %}
-                            </template>
+                                <template #column-changelog="{ item }">
+                                    {% block sw_plugin_last_updates_card_grid_columns_changelog_label %}
+                                        <div v-for="changelog in getLatestChangelog(item)">
+                                            {{ changelog }}
+                                        </div>
+                                    {% endblock %}
+                                </template>
 
-                            <template #column-version="{ item }">
-                                {% block sw_plugin_last_updates_card_grid_columns_version_label %}
-                                    <p class="sw-plugin-last-updates-grid__version">{{ $tc('sw-plugin.general.version') }} {{ item.version }}</p>
-                                {% endblock %}
-                            </template>
-                        </sw-data-grid>
+                                <template #column-version="{ item }">
+                                    {% block sw_plugin_last_updates_card_grid_columns_version_label %}
+                                        <p class="sw-plugin-last-updates-grid__version">{{ $tc('sw-plugin.general.version') }} {{ item.version }}</p>
+                                    {% endblock %}
+                                </template>
+                            </sw-data-grid>
+                        {% endblock %}
                     </template>
-                {% endblock %}
-
-                {% block sw_plugin_last_updates_card_empty_state %}
-                    <sw-empty-state v-if="!isLoading && !total" :title="$tc('sw-plugin.updates.messageEmpty')"></sw-empty-state>
                 {% endblock %}
             </sw-card>
         {% endblock %}

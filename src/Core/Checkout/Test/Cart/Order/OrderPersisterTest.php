@@ -64,10 +64,30 @@ class OrderPersisterTest extends TestCase
             (new LineItem('test', 'test'))
                 ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
                 ->setLabel('test')
+        )->add(
+            (new LineItem('test2', 'test'))
+                ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setLabel('test2')
         );
+        $positionByIdentifier = [
+            'test' => 1,
+            'test2' => 2,
+        ];
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->expects(static::once())->method('create');
+        $repository->expects(static::once())
+            ->method('create')
+            ->with(
+                static::callback(function (array $payload) use ($positionByIdentifier) {
+                    foreach ($payload[0]['lineItems'] as $lineItem) {
+                        if ($positionByIdentifier[$lineItem['identifier']] !== $lineItem['position']) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                })
+            );
         $order = new OrderEntity();
         $order->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(

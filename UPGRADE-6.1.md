@@ -792,6 +792,12 @@ SHOPWARE_HTTP_DEFAULT_TTL=7200
     * Use `u.wordwrap` and `u.truncate` instead of the `wordwrap` and `truncate` filter.
     * Use the `format_date` or `format_datetime` filter instead of the `localizeddate` filter
     * Take a look here for more information: https://github.com/twigphp/Twig-extensions
+* Removed the contact and newsletter page
+    * If you used the template `platform/src/Storefront/Resources/views/storefront/page/newsletter/index.html.twig` or `platform/src/Storefront/Resources/views/storefront/page/contact/index.html.twig` your changes will not work anymore. You now find them here: `platform/src/Storefront/Resources/views/storefront/element/cms-element-form`.
+    * The templates are part of the new `form cms element` that can be used in layouts. Therefore all changes in these templates are applied wherever you use the cms element.
+    * We added two `default shop page layouts` for the `contact` and `newsletter form` in the `shopping experiences` where the cms form element is used.
+    * These layouts have to be assigned in the `settings` under `basic information` for `contact pages` and `newsletter pages`.
+    * The assigned layout for `contact pages` is used in the footer `platform/src/Storefront/Resources/views/storefront/layout/footer/footer.html.twig` as modal.
 * We split the `Storefront/Resources/views/storefront/layout/navigation/offcanvas/navigation.html.twig` template into smaller templates. If you have extended this template you should check if the blocks are still correctly overwritten. If this is not the case, you have to extend the smaller template file into which the block was moved. 
  
 

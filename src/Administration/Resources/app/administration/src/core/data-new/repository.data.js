@@ -106,7 +106,7 @@ export default class Repository {
         }
 
         return this.httpClient
-            .post(`/_action/clone/${this.route}/${entityId}`, null, {
+            .post(`/_action/clone${this.route}/${entityId}`, null, {
                 headers: this.buildHeaders(context)
             })
             .then((response) => {

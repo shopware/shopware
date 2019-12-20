@@ -1,0 +1,54 @@
+{% block sw_order_create_details_header %}
+    <div class="sw-order-create-details-header">
+        {% block sw_order_create_details_header_profile %}
+            <sw-container
+                class="sw-order-user-card__container"
+                columns="80px 1fr max-content"
+                gap="0 24px">
+                {% block sw_order_create_details_header_profile_avatar %}
+                    <sw-avatar
+                        v-if="customer"
+                        size="80px"
+                        :color="$route.meta.$module.color"
+                        :firstName="customer.firstName"
+                        :lastName="customer.lastName">
+                    </sw-avatar>
+                    <sw-avatar
+                        v-else
+                        size="80px"
+                        color="#f9fafb">
+                    </sw-avatar>
+                {% endblock %}
+
+                {% block sw_order_create_details_header_profile_searching %}
+                    <div class="sw-order-user-card__metadata">
+                        <div class="sw-order-user-card__metadata-user-name">
+                            {{ $tc('sw-order.createBase.detailsHeader.textCustomer') }}
+                        </div>
+                        <sw-container columns="1fr 128px" gap="0 8px">
+                            <sw-entity-single-select
+                                size="small"
+                                entity="customer"
+                                labelProperty="firstName"
+                                v-model="customerId"
+                                :placeholder="$tc('sw-order.createBase.detailsHeader.placeholder')"
+                                @change="onSelectExistingCustomer">
+                            </sw-entity-single-select>
+                            <sw-button size="small" @click="onAddNewCustomer">
+                                {{ $tc('sw-order.createBase.detailsHeader.buttonAddNewCustomer') }}
+                            </sw-button>
+                        </sw-container>
+                    </div>
+                {% endblock %}
+
+                {% block sw_order_create_details_header_profile_summary %}
+                    <div class="sw-order-user-card__info-summary">
+                        <div class="sw-order-user-card__metadata-price">0 €</div>
+                        <div class="sw-order-user-card__metadata-item">{{ orderDate }}</div>
+                    </div>
+                {% endblock %}
+                <slot></slot>
+            </sw-container>
+        {% endblock %}
+    </div>
+{% endblock %}

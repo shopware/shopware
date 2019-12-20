@@ -50,6 +50,33 @@
         }
       }
     },
+    "create": {
+      "textNewOrder": "New order",
+      "buttonSaveOrder": "Save order",
+      "buttonCancelOrder": "Cancel"
+    },
+    "createBase": {
+      "labelDetailsCard": "Details",
+      "detailsHeader": {
+        "textCustomer": "Customer",
+        "placeholder": "Select customer...",
+        "buttonAddNewCustomer": "Add new customer"
+      },
+      "detailsBody": {
+        "labelEmail": "Email",
+        "labelPhoneNumber": "Phone number",
+        "labelBillingAddress": "Billing address",
+        "labelShippingAddress": "Shipping address",
+        "placeholder": "Select or add cusomer first..."
+      },
+      "detailsFooter": {
+        "labelSalesChannel": "Sales channel",
+        "labelPaymentMethod": "Payment method",
+        "labelShippingMethod": "Shipping method",
+        "labelOrderLanguage": "Order language",
+        "labelCurrency": "Currency"
+      }
+    },
     "detailBase": {
       "cardTitleDetails": "Details",
       "cardTitleLineItems": "Items",

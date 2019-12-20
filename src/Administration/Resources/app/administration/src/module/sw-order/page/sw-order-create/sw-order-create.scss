@@ -1,0 +1,85 @@
+@import "~scss/variables";
+
+$sw-field: '.sw-field';
+$sw-button: '.sw-button';
+$sw-order-user-card: '.sw-order-user-card';
+
+$font-weight-normal: 400;
+$font-weight-semi-bold: 600;
+
+$border-radius-hack: 100px;
+
+.sw-order-create-details-header {
+    #{$sw-order-user-card}__container {
+        margin: 0 0 32px;
+    }
+
+    #{$sw-order-user-card}__info-summary {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-end;
+        margin-left: 64px;
+    }
+}
+
+.sw-order-create-details-body {
+    &__item {
+        &:not(:first-child) {
+            margin: 24px 0 0;
+        }
+
+        #{$sw-field}__label {
+            font-weight: $font-weight-semi-bold;
+        }
+
+        textarea {
+            resize: none !important;
+        }
+    }
+
+    &__item-label {
+        display: flex;
+        margin: 0 0 8px;
+        color: $color-darkgray-200;
+        font-size: $font-size-small;
+        font-weight: $font-weight-semi-bold;
+        line-height: 16px;
+    }
+
+    &__item-label-button {
+        &#{$sw-button} {
+            @extend %customize-sw-button;
+
+            margin: 0 0 0 8px !important;
+
+            &:hover,
+            &:focus {
+                background: transparent !important;
+            }
+        }
+    }
+}
+
+.sw-order-create-details-footer {
+    &__item {
+        &:not(:first-child) {
+            margin: 16px 0 0;
+        }
+
+        #{$sw-field}__label {
+            font-weight: $font-weight-semi-bold;
+        }
+    }
+}
+
+%customize-sw-button {
+    outline: none;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: rgb(24, 158, 255);
+    font-weight: $font-weight-normal;
+    line-height: 1;
+    cursor: pointer;
+}

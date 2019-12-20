@@ -16,7 +16,8 @@
       "mainMenuItemAdd": "Produkt anlegen",
       "descriptionTextModule": "Verwaltung von Produkten.",
       "placeholderSearchBar": "Durchsuche alle Produkte ...",
-      "inheritanceModuleName": "Dieses Produkt"
+      "inheritanceModuleName": "Dieses Produkt",
+      "backToParent": "zurück zur Variantenübersicht"
     },
     "basicForm": {
       "labelTitle": "Titel",

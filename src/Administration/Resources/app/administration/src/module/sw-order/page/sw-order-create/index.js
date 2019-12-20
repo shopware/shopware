@@ -17,6 +17,10 @@ Component.register('sw-order-create', {
         }
     },
 
+    beforeCreate() {
+        State.registerModule('swOrder', swOrderState);
+    },
+
     created() {
         this.createdComponent();
     },
@@ -27,7 +31,6 @@ Component.register('sw-order-create', {
 
     methods: {
         createdComponent() {
-            this.registerModule();
             this.checkFlagActive();
         },
 
@@ -35,10 +38,6 @@ Component.register('sw-order-create', {
             this.removeCustomer();
             this.removeCartToken();
             this.unregisterModule();
-        },
-
-        registerModule() {
-            State.registerModule('swOrder', swOrderState);
         },
 
         unregisterModule() {

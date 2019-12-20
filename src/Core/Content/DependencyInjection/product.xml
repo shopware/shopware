@@ -275,6 +275,15 @@
             <tag name="shopware.sales_channel.product_listing.sorting" />
         </service>
 
+        <service id="product_listing.sorting.score" class="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSorting">
+            <argument>score</argument>
+            <argument>filter.sortByScore</argument>
+            <argument type="collection">
+                <argument key="_score">desc</argument>
+            </argument>
+            <tag name="shopware.sales_channel.product_listing.sorting" />
+        </service>
+
         <service id="Shopware\Core\Content\Product\Cart\ProductLineItemCommandValidator">
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <tag name="kernel.event_subscriber"/>

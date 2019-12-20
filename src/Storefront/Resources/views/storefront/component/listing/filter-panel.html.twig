@@ -1,5 +1,8 @@
 {% block component_filter_panel %}
-    {% set sidebar = block.sectionPosition == 'sidebar' %}
+    {% if not sidebar and block %}
+        {% deprecated 'Sidebar parameter missing, please provide bool sidebar parameter. @deprecated tag:v6.2.0' %}
+        {% set sidebar = block.sectionPosition == 'sidebar' %}
+    {% endif %}
 
     {% block component_filter_panel_header %}
         <div class="filter-panel-offcanvas-header">
@@ -11,18 +14,16 @@
         </div>
     {% endblock %}
 
+    {# @var listing \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult #}
     {% block component_filter_panel_element %}
         <div class="filter-panel{% if sidebar %} is--sidebar{% endif %}">
             {% block component_filter_panel_items_container %}
                 <div class="filter-panel-items-container">
 
                     {% block component_filter_panel_item_manufacturer %}
-
-                        {# @var listing \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult #}
-                        {% if listing.aggregations.get('manufacturer') %}
-                            {% set manufacturers = listing.aggregations.get('manufacturer') %}
-
-                            {# @var manufacturers \Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult #}
+                        {# @var manufacturers \Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult #}
+                        {% set manufacturers = listing.aggregations.get('manufacturer') %}
+                        {% if not manufacturers.entities is empty %}
                             {% sw_include '@Storefront/storefront/component/listing/filter/filter-multi-select.html.twig' with {
                                 elements: manufacturers.entities,
                                 sidebar: sidebar,
@@ -33,11 +34,10 @@
                     {% endblock %}
 
                     {% block component_filter_panel_item_properties %}
+                        {# @var properties \Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult #}
+                        {% set properties = listing.aggregations.get('properties') %}
 
-                        {# @var listing \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult #}
-                        {% if listing.aggregations.get('properties') %}
-                            {% set properties = listing.aggregations.get('properties') %}
-
+                        {% if not properties.entities is empty %}
                             {% for property in properties.entities %}
                                 {% sw_include '@Storefront/storefront/component/listing/filter/filter-property-select.html.twig' with {
                                     elements: property.options,
@@ -52,11 +52,9 @@
                     {% endblock %}
 
                     {% block component_filter_panel_item_price %}
+                        {% set price = listing.aggregations.get('price') %}
 
-                        {# @var listing \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult #}
-                        {% if listing.aggregations.get('price') %}
-                            {% set price = listing.aggregations.get('price') %}
-
+                        {% if price.min > 0 and price.max > 0 %}
                             {% sw_include '@Storefront/storefront/component/listing/filter/filter-range.html.twig' with {
                                 price: price,
                                 sidebar: sidebar,
@@ -69,9 +67,9 @@
                     {% endblock %}
 
                     {% block component_filter_panel_item_rating %}
+                        {% set rating = listing.aggregations.get('rating') %}
 
-                        {# @var listing \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult #}
-                        {% if listing.aggregations.get('rating') %}
+                        {% if not rating.buckets is empty %}
                             {% sw_include '@Storefront/storefront/component/listing/filter/filter-rating.html.twig' with {
                                 name: 'rating',
                                 displayName: 'listing.filterRatingDisplayName'|trans|sw_sanitize
@@ -80,9 +78,9 @@
                     {% endblock %}
 
                     {% block component_filter_panel_item_shipping_free %}
+                        {% set shippingFree = listing.aggregations.get('shipping-free') %}
 
-                        {# @var listing \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult #}
-                        {% if listing.aggregations.get('shipping-free') %}
+                        {% if shippingFree.max > 0 %}
                             {% sw_include '@Storefront/storefront/component/listing/filter/filter-boolean.html.twig' with {
                                 name: 'shipping-free',
                                 displayName: 'listing.filterFreeShippingDisplayName'|trans|sw_sanitize

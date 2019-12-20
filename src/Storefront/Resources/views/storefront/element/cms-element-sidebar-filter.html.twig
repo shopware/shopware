@@ -22,7 +22,8 @@
                  class="filter-panel-wrapper"
                  data-offcanvas-filter-content="true">
                 {% sw_include '@Storefront/storefront/component/listing/filter-panel.html.twig' with {
-                    listing: slot.data.listing
+                    listing: slot.data.listing,
+                    sidebar: block.sectionPosition == 'sidebar'
                 } %}
             </div>
         {% endblock %}

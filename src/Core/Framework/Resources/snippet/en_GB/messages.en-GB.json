@@ -47,6 +47,7 @@
         "sortByNameAscending": "Name, ascending",
         "sortByNameDescending": "Name, descending",
         "sortByPriceAscending": "Price, ascending",
-        "sortByPriceDescending": "Price, descending"
+        "sortByPriceDescending": "Price, descending",
+        "sortByScore": "Top results"
     }
 }

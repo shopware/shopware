@@ -492,7 +492,7 @@ class OrderEntity extends Entity
 
         /** @var OrderLineItemCollection $roots */
         $roots = $lineItems->filterByProperty('parentId', null);
-        $roots->sortByCreationDate();
+        $roots->sortByPosition();
         $this->addChildren($lineItems, $roots);
 
         return $roots;
@@ -523,7 +523,7 @@ class OrderEntity extends Entity
         foreach ($parents as $parent) {
             /** @var OrderLineItemCollection $children */
             $children = $lineItems->filterByProperty('parentId', $parent->getId());
-            $children->sortByCreationDate();
+            $children->sortByPosition();
 
             $parent->setChildren($children);
 

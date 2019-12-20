@@ -1,9 +1,15 @@
 {% block component_offcanvas_cart_item_inner %}
-    {% set isDiscount = (not lineItem.good and lineItem.price.totalPrice <= 0) %}
+    {% set price = lineItem.price %}
+    {% set isDiscount = (not lineItem.good and price.totalPrice <= 0) %}
     {% set isNested = lineItem.children.count > 0 %}
+    {% set label = lineItem.label %}
+    {% set referencedId = lineItem.referencedId %}
+    {% set type = lineItem.type %}
+    {% set quantity = lineItem.quantity %}
+    {% set id = lineItem.id %}
 
     {% block component_offcanvas_cart_item_container %}
-        <div class="cart-item cart-item-{{ lineItem.type }}{% if isDiscount %} is-discount{% endif %}{% if isNested %} is-nested{% endif %}{% if isChild %} is-child{% endif %} js-cart-item">
+        <div class="cart-item cart-item-{{ type }}{% if isDiscount %} is-discount{% endif %}{% if isNested %} is-nested{% endif %}{% if isChild %} is-child{% endif %} js-cart-item">
             <div class="row cart-item-row">
                 {% block component_offcanvas_product_image %}
                     <div class="col-auto">
@@ -22,9 +28,9 @@
                                         } %}
                                     </div>
                                 {% else %}
-                                    <a href="{{ seoUrl('frontend.detail.page', {'productId': lineItem.referencedId}) }}"
+                                    <a href="{{ seoUrl('frontend.detail.page', {'productId': referencedId}) }}"
                                        class="cart-item-img-link"
-                                       title="{{ lineItem.label }}">
+                                       title="{{ label }}">
                                         {% if lineItem.cover.url %}
                                             {% sw_thumbnails 'cart-item-img-thumbnails' with {
                                                 media: lineItem.cover,
@@ -33,8 +39,8 @@
                                                 },
                                                 attributes: {
                                                     'class': 'img-fluid cart-item-img-source',
-                                                    'alt': lineItem.label,
-                                                    'title': lineItem.label
+                                                    'alt': label,
+                                                    'title': label
                                                 }
                                             } %}
                                         {% else %}
@@ -55,15 +61,15 @@
                             <div class="cart-item-details-container">
                                 {% block component_offcanvas_product_label %}
                                     <div class="cart-item-details">
-                                        {% if lineItem.type == 'product' %}
-                                            <a href="{{ seoUrl('frontend.detail.page', {'productId': lineItem.referencedId}) }}"
+                                        {% if type == 'product' %}
+                                            <a href="{{ seoUrl('frontend.detail.page', {'productId': referencedId}) }}"
                                                class="cart-item-label"
-                                               title="{{ lineItem.label }}">
-                                                {{ lineItem.quantity }}{{ "checkout.quantityTimes"|trans|sw_sanitize }} {{ lineItem.label|u.truncate(60) }}
+                                               title="{{ label }}">
+                                                {{ quantity }}{{ "checkout.quantityTimes"|trans|sw_sanitize }} {{ label|u.truncate(60) }}
                                             </a>
                                         {% else %}
                                             <div class="cart-item-label">
-                                                {{ lineItem.label|u.truncate(60) }}
+                                                {{ label|u.truncate(60) }}
                                             </div>
                                         {% endif  %}
                                     </div>
@@ -74,8 +80,8 @@
                                         <div class="cart-item-variants">
                                             {% for option in lineItem.payload.options %}
                                                 <div class="cart-item-variants-properties">
-                                                    <div class="cart-item-variants-properties-name">{{ option.group.translated.name }}:</div>
-                                                    <div class="cart-item-variants-properties-value">{{ option.translated.name }}</div>
+                                                    <div class="cart-item-variants-properties-name">{{ option.group }}:</div>
+                                                    <div class="cart-item-variants-properties-value">{{ option.option }}</div>
                                                 </div>
                                             {% endfor %}
                                         </div>
@@ -88,7 +94,7 @@
                                             <div class="cart-item-quantity">
                                                 {% block component_offcanvas_product_quantity_form %}
                                                     {% if lineItem.quantityInformation and lineItem.stackable %}
-                                                        <form action="{{ path('frontend.checkout.line-item.change-quantity', {'id': lineItem.id}) }}"
+                                                        <form action="{{ path('frontend.checkout.line-item.change-quantity', {'id': id}) }}"
                                                               class="cart-item-quantity-container"
                                                               method="post">
 
@@ -102,11 +108,12 @@
                                                                        value="frontend.cart.offcanvas"/>
                                                             {% endblock %}
 
-                                                            {% if lineItem.quantityInformation.maxPurchase %}
-                                                                {% if lineItem.deliveryInformation.stock < lineItem.quantityInformation.maxPurchase %}
+                                                            {% set quantityInformation = lineItem.quantityInformation %}
+                                                            {% if quantityInformation.maxPurchase %}
+                                                                {% if lineItem.deliveryInformation.stock < quantityInformation.maxPurchase %}
                                                                     {% set maxQuantity = lineItem.deliveryInformation.stock %}
                                                                 {% else %}
-                                                                    {% set maxQuantity = lineItem.quantityInformation.maxPurchase %}
+                                                                    {% set maxQuantity = quantityInformation.maxPurchase %}
                                                                 {% endif %}
                                                             {% else %}
                                                                 {% set maxQuantity = shopware.config.core.cart.maxQuantity %}
@@ -114,10 +121,10 @@
 
                                                             {% block component_offcanvas_product_buy_quantity %}
                                                                 <select name="quantity"
-                                                                        class="custom-select quantity-select-{{ lineItem.id }} js-offcanvas-cart-change-quantity">
-                                                                    {% for quantity in range(lineItem.quantityInformation.minPurchase, maxQuantity, lineItem.quantityInformation.purchaseSteps) %}
+                                                                        class="custom-select quantity-select-{{ id }} js-offcanvas-cart-change-quantity">
+                                                                    {% for quantity in range(quantityInformation.minPurchase, maxQuantity, quantityInformation.purchaseSteps) %}
                                                                         <option value="{{ quantity }}"
-                                                                            {% if quantity == lineItem.quantity %} selected="selected"{% endif %}>
+                                                                            {% if quantity == quantity %} selected="selected"{% endif %}>
                                                                             {{ quantity }}
                                                                         </option>
                                                                     {% endfor %}
@@ -131,10 +138,11 @@
 
                                         {% block component_offcanvas_product_total_price %}
                                             <div class="cart-item-price">
-                                                {{ lineItem.price.totalPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
-                                                {% if lineItem.price.referencePrice is not null %}
+                                                {{ price.totalPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+                                                {% set referencePrice = price.referencePrice %}
+                                                {% if referencePrice is not null %}
                                                     <small class="cart-item-reference-price">
-                                                        ({{ lineItem.price.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ lineItem.price.referencePrice.referenceUnit }}&nbsp;{{ lineItem.price.referencePrice.unitName }})
+                                                        ({{ referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ referencePrice.referenceUnit }}&nbsp;{{ referencePrice.unitName }})
                                                     </small>
                                                 {% endif %}
                                             </div>
@@ -150,7 +158,7 @@
                     <div class="col-2 cart-item-remove">
                         {% block component_offcanvas_product_remove_form %}
                             {% if lineItem.removable %}
-                                <form action="{{ path('frontend.checkout.line-item.delete', {'id': lineItem.id}) }}"
+                                <form action="{{ path('frontend.checkout.line-item.delete', {'id': id}) }}"
                                       class="cart-item-remove js-offcanvas-cart-remove-product"
                                       method="post">
 

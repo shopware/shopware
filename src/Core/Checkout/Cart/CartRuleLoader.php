@@ -116,6 +116,7 @@ class CartRuleLoader
 
         $context->setRuleIds($rules->getIds());
 
+        // save the cart if errors exist, so the errors get persisted
         if ($cart->getErrors()->count() > 0) {
             $this->cartPersister->save($cart, $context);
         }

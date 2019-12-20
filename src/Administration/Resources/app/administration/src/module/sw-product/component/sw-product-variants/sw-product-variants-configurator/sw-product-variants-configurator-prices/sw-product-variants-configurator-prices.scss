@@ -4,9 +4,19 @@ $sw-product-variants-configurator-prices-search-background: #f8f9fa;
 $sw-product-variants-configurator-prices-search-border: $color-steam-cloud;
 
 .sw-product-variants-configurator-prices {
-    display: flex;
     height: 100%;
-    padding: 0;
+
+    .sw-product-variants-configurator-prices__alert {
+        margin-right: 8px;
+        margin-left: 8px;
+        margin-top: 8px;
+    }
+
+    .sw-product-variants-configurator-prices__table {
+        display: flex;
+        height: 100%;
+        padding: 0;
+    }
 
     .sw-product-variants-configurator-prices__groups {
         font-size: 14px;

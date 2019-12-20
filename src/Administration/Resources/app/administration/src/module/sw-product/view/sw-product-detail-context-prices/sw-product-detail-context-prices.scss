@@ -1,14 +1,21 @@
 @import "~scss/variables";
 
 .sw-product-detail-context-prices {
+    width: 100%;
+    max-width: 1330px;
+    margin: 0 auto;
+
     .sw-card.context-price {
         width: 100%;
     }
 
-    .context-prices__empty-state .sw-card__content {
-        width: 350px;
-        height: 250px;
-        position: relative;
+    .context-prices__empty-state {
+        width: 100%;
+
+        .sw-card__content {
+            min-height: 250px;
+            position: relative;
+        }
 
         .sw-loader {
             background: none;
@@ -68,7 +75,7 @@
     }
 
     .sw-product-detail-context-prices__empty-state {
-        max-width: 450px;
+        max-width: 350px;
         margin: 0 auto;
         padding: 60px 20px;
         display: flex;
@@ -76,9 +83,15 @@
         justify-content: center;
         flex-direction: column;
 
+        &-card {
+            width: 100%;
+            max-width: none;
+        }
+
         p {
+            font-size: $font-size-default;
             text-align: center;
-            margin-bottom: 20px;
+            margin: 20px 0;
         }
 
         .sw-single-select {

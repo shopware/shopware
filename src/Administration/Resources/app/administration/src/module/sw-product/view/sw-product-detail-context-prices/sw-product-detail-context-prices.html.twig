@@ -1,5 +1,5 @@
 {% block sw_product_detail_prices %}
-    <sw-container class="sw-product-detail-context-prices">
+    <sw-container rows="auto" columns="1fr" class="sw-product-detail-context-prices">
 
         {% block sw_product_detail_prices_empty_state %}
             <sw-card class="context-prices__empty-state"
@@ -156,35 +156,13 @@
 
                     {% block sw_product_detail_prices_price_card_price_group_empty_state %}
                         <div v-else class="sw-product-detail-context-prices__empty-state">
+
                             {% block sw_product_detail_prices_price_card_price_group_empty_state_warning %}
                                 <p>{{ $tc('sw-product.advancedPrices.newRuleWarning') }}</p>
                             {% endblock %}
-
-                            {% block sw_product_detail_prices_price_card_price_group_empty_state_rule_select %}
-                                <sw-entity-single-select v-if="rules.entity"
-                                                         id="rule"
-                                                         class="sw-product-detail-context-prices__empty-state-select-rule"
-                                                         :value="priceGroup.ruleId"
-                                                         :placeholder="$tc('sw-product.advancedPrices.selectRule')"
-                                                         @input="onRuleChange($event, priceGroup.ruleId)"
-                                                         :entity="rules.entity">
-                                    <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
-                                        <li is="sw-select-result"
-                                            :selected="isSelected(item)"
-                                            :disabled="!!priceRuleGroups[item.id]"
-                                            @item-select="setValue"
-                                            v-bind="{ item, index }">
-                                            <sw-highlight-text v-if="highlightSearchTerm"
-                                                               :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
-                                                               :searchTerm="searchTerm">
-                                            </sw-highlight-text>
-                                            <template v-else>
-                                                {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
-                                            </template>
-                                        </li>
-                                    </template>
-                                </sw-entity-single-select>
-                            {% endblock %}
+                            
+                            {# @deprecated tag:v6.2.0 #}
+                            {% block sw_product_detail_prices_price_card_price_group_empty_state_rule_select %}{% endblock %}
                         </div>
                     {% endblock %}
 
@@ -207,9 +185,14 @@
 
             </sw-container>
 
-            <sw-card v-else>
+            <sw-card class="sw-product-detail-context-prices__empty-state-card" v-else>
                 {% block sw_product_detail_prices_price_empty_state %}
                     <div class="sw-product-detail-context-prices__empty-state">
+                        
+                        {% block sw_product_detail_prices_empty_state_image %}
+                            <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                        {% endblock %}
+
                         {% block sw_product_detail_prices_price_empty_state_text %}
                             <p>{{ $tc('sw-product.advancedPrices.advancedPricesNotExisting') }}</p>
                         {% endblock %}

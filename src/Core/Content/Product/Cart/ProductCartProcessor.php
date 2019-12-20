@@ -224,7 +224,16 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $options = [];
         if ($product->getOptions() !== null) {
-            $options = $product->getOptions()->getElements();
+            foreach ($product->getOptions() as $option) {
+                if (!$option->getGroup()) {
+                    continue;
+                }
+
+                $options[] = [
+                    'group' => $option->getGroup()->getTranslation('name'),
+                    'option' => $option->getTranslation('name'),
+                ];
+            }
         }
 
         $lineItem->replacePayload([

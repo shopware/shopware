@@ -87,7 +87,7 @@ class Kernel extends HttpKernel
             }
         }
 
-        yield from $this->pluginLoader->getBundles();
+        yield from $this->pluginLoader->getBundles($this->getKernelParameters());
     }
 
     public function boot(): void
@@ -246,6 +246,7 @@ class Kernel extends HttpKernel
                 'kernel.shopware_version_revision' => $this->shopwareVersionRevision,
                 'kernel.plugin_dir' => $pluginDir,
                 'kernel.active_plugins' => $activePluginMeta,
+                'kernel.plugin_infos' => $this->pluginLoader->getPluginInfos(),
                 'kernel.supported_api_versions' => [1],
             ]
         );

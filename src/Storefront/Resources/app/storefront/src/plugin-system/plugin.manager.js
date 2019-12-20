@@ -200,6 +200,7 @@ class PluginManagerSingleton {
      * Initializes all plugins which are currently registered.
      */
     initializePlugins() {
+        const initializationFailures = [];
         Iterator.iterate(this.getPluginList(), (plugin, pluginName) => {
             if (pluginName) {
                 if (!this._registry.has(pluginName)) {
@@ -209,11 +210,19 @@ class PluginManagerSingleton {
                 const plugin = this._registry.get(pluginName);
                 if (plugin.has('registrations')) {
                     Iterator.iterate(plugin.get('registrations'), entry => {
-                        this._initializePlugin(plugin.get('class'), entry.selector, entry.options, plugin.get('name'));
+                        try {
+                            this._initializePlugin(plugin.get('class'), entry.selector, entry.options, plugin.get('name'));
+                        } catch (failure) {
+                            initializationFailures.push(failure);
+                        }
                     });
                 }
             }
         });
+
+        initializationFailures.forEach((failure) => {
+            console.error(failure);
+        })
     }
 
     /**

@@ -160,6 +160,7 @@ class ThumbnailService
 
         $mediaImage = $this->getImageResource($media);
         $originalImageSize = $this->getOriginalImageSize($mediaImage);
+        $originalUrl = $this->urlGenerator->getRelativeMediaUrl($media);
 
         $savedThumbnails = [];
 
@@ -178,6 +179,13 @@ class ThumbnailService
                     (new MediaThumbnailEntity())->assign(['width' => $size->getWidth(), 'height' => $size->getHeight()])
                 );
                 $this->writeThumbnail($thumbnail, $media, $url, $config->getThumbnailQuality());
+
+                $mediaFilesystem = $this->getFileSystem($media);
+                if ($originalImageSize === $thumbnailSize
+                    && $mediaFilesystem->getSize($originalUrl) < $mediaFilesystem->getSize($url)) {
+                    $mediaFilesystem->update($url, $mediaFilesystem->read($originalUrl));
+                }
+
                 $savedThumbnails[] = [
                     'width' => $size->getWidth(),
                     'height' => $size->getHeight(),
@@ -247,7 +255,7 @@ class ThumbnailService
         MediaThumbnailSizeEntity $preferredThumbnailSize,
         MediaFolderConfigurationEntity $config
     ): array {
-        if (!$config->getKeepAspectRatio()) {
+        if (!$config->getKeepAspectRatio() || $preferredThumbnailSize->getWidth() !== $preferredThumbnailSize->getHeight()) {
             return [
                 'width' => $preferredThumbnailSize->getWidth(),
                 'height' => $preferredThumbnailSize->getHeight(),

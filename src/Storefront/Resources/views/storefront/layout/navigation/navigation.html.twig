@@ -1,4 +1,5 @@
 {% block layout_main_navigation %}
+
     <div class="main-navigation"
          id="mainNavigation"
          data-flyout-menu="true">
@@ -21,27 +22,31 @@
 
                         {% block layout_main_navigation_menu_items %}
                             {% for treeItem in page.header.navigation.tree %}
+                                {% set category = treeItem.category %}
+                                {% set name = category.translated.name %}
+                                {% set categorId = category.id %}
+
                                 {% block layout_main_navigation_menu_item %}
-                                    {% if treeItem.category.type == 'folder' %}
+                                    {% if category.type == 'folder' %}
                                         <div class="nav-link main-navigation-link"
                                             {% if treeItem.children|length > 0 %}
-                                                data-flyout-menu-trigger="{{ treeItem.category.id }}"
+                                                data-flyout-menu-trigger="{{ categorId }}"
                                             {% endif %}
-                                              title="{{ treeItem.category.translated.name }}">
+                                              title="{{ name }}">
                                             <div class="main-navigation-link-text">
-                                                <span itemprop="name">{{ treeItem.category.translated.name }}</span>
+                                                <span itemprop="name">{{ name }}</span>
                                             </div>
                                         </div>
                                     {% else %}
-                                        <a class="nav-link main-navigation-link{% if treeItem.category.id is same as(page.header.navigation.active.id) %} active{% endif %}"
-                                           href="{% if treeItem.category.externalLink %}{{ treeItem.category.externalLink }}{% else %}{{ seoUrl('frontend.navigation.page', { navigationId: treeItem.category.id }) }}{% endif %}"
+                                        <a class="nav-link main-navigation-link{% if categorId is same as(page.header.navigation.active.id) %} active{% endif %}"
+                                           href="{% if category.externalLink %}{{ category.externalLink }}{% else %}{{ seoUrl('frontend.navigation.page', { navigationId: categorId }) }}{% endif %}"
                                            itemprop="url"
                                             {% if treeItem.children|length > 0 %}
-                                                data-flyout-menu-trigger="{{ treeItem.category.id }}"
+                                                data-flyout-menu-trigger="{{ categorId }}"
                                             {% endif %}
-                                           title="{{ treeItem.category.translated.name }}">
+                                           title="{{ name }}">
                                             <div class="main-navigation-link-text">
-                                                <span itemprop="name">{{ treeItem.category.translated.name }}</span>
+                                                <span itemprop="name">{{ name }}</span>
                                             </div>
                                         </a>
                                     {% endif %}

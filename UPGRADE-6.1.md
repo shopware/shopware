@@ -212,6 +212,7 @@ Core
  * Added unique constraint for `iso_code` column of `currency` table. The migration can fail if there are already duplicate `iso_codes` in the table
  * Replace `mailer` usage with `core_mailer` in your service definitions. 
  * If you call `\Shopware\Core\Framework\Api\Response\ResponseFactoryInterface::createDetailResponse` or `\Shopware\Core\Framework\Api\Response\ResponseFactoryInterface::createListingResponse` in your plugin, the first parameter to be passed now is the `Criteria` object with which the data was loaded.
+ * Replace `\Shopware\Core\Framework\Plugin::getExtraBundles` with `\Shopware\Core\Framework\Plugin::getAdditionalBundles`. Dont use both.
  
 Administration
 --------------
@@ -792,9 +793,45 @@ SHOPWARE_HTTP_DEFAULT_TTL=7200
     * Use `u.wordwrap` and `u.truncate` instead of the `wordwrap` and `truncate` filter.
     * Use the `format_date` or `format_datetime` filter instead of the `localizeddate` filter
     * Take a look here for more information: https://github.com/twigphp/Twig-extensions
+* Removed the contact and newsletter page
+    * If you used the template `platform/src/Storefront/Resources/views/storefront/page/newsletter/index.html.twig` or `platform/src/Storefront/Resources/views/storefront/page/contact/index.html.twig` your changes will not work anymore. You now find them here: `platform/src/Storefront/Resources/views/storefront/element/cms-element-form`.
+    * The templates are part of the new `form cms element` that can be used in layouts. Therefore all changes in these templates are applied wherever you use the cms element.
+    * We added two `default shop page layouts` for the `contact` and `newsletter form` in the `shopping experiences` where the cms form element is used.
+    * These layouts have to be assigned in the `settings` under `basic information` for `contact pages` and `newsletter pages`.
+    * The assigned layout for `contact pages` is used in the footer `platform/src/Storefront/Resources/views/storefront/layout/footer/footer.html.twig` as modal.
 * We split the `Storefront/Resources/views/storefront/layout/navigation/offcanvas/navigation.html.twig` template into smaller templates. If you have extended this template you should check if the blocks are still correctly overwritten. If this is not the case, you have to extend the smaller template file into which the block was moved. 
- 
+* The data format of the `lineItem.payload.options` has changed. Now there is a simple array per element with `option` and `group`. It contains the translated names of the entities. If you have changed the template `storefront/page/checkout/checkout-item.html.twig` you have to change the following: 
+    Before:
+    ```twig
+    {% block page_checkout_item_info_variants %}
+        {% if lineItem.payload.options|length >= 1 %}
+            <div class="cart-item-variants">
+                {% for option in lineItem.payload.options %}
+                    <div class="cart-item-variants-properties">
+                         <div class="cart-item-variants-properties-name">{{ option.group.translated.name }}:</div>
+                         <div class="cart-item-variants-properties-value">{{ option.translated.name }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endblock %}    
+    ``` 
 
+    After:
+    ```twig
+    {% block page_checkout_item_info_variants %}
+        {% if lineItem.payload.options|length >= 1 %}
+            <div class="cart-item-variants">
+                {% for option in lineItem.payload.options %}
+                    <div class="cart-item-variants-properties">
+                        <div class="cart-item-variants-properties-name">{{ option.group }}:</div>
+                        <div class="cart-item-variants-properties-value">{{ option.option }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endblock %}    
+    ``` 
 Elasticsearch
 -------------
 

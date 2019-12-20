@@ -580,17 +580,6 @@ class EntityExtensionTest extends TestCase
         static::assertTrue($this->getContainer()->get(ExtendableDefinition::class)->getFields()->has('extendedVersionId'));
     }
 
-    public function testICantAddReferenceVersionAsExtensionWithOutValidManyToOneAssociation(): void
-    {
-        static::expectException(\Exception::class);
-        static::expectExceptionMessage('ReferenceVersionField has no configured ManyToOneAssociationField in entity ' . ExtendableDefinition::class);
-
-        $this->registerDefinition(ExtendedDefinition::class);
-        $this->registerDefinitionWithExtensions(ExtendableDefinition::class, InvalidReferenceExtension::class);
-
-        $this->getContainer()->get(ExtendableDefinition::class)->getFields()->has('extendedVersionId');
-    }
-
     private function getPricesData($id): array
     {
         $ruleA = Uuid::randomHex();

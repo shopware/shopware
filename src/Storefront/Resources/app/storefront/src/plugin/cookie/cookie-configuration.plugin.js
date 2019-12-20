@@ -24,6 +24,7 @@ import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 import DeviceDetection from 'src/helper/device-detection.helper';
 import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
+import AjaxModalExtension from 'src/utility/modal-extension/ajax-modal-extension.util';
 
 // this event will be published via a global (document) EventEmitter
 export const COOKIE_CONFIGURATION_UPDATE = 'CookieConfiguration_Update';
@@ -51,6 +52,8 @@ export default class CookieConfiguration extends Plugin {
             active: [],
             inactive: [],
         };
+
+        this.ajaxModalExtension = null;
 
         this._registerEvents();
     }
@@ -167,6 +170,8 @@ export default class CookieConfiguration extends Plugin {
     closeOffCanvas(callback) {
         AjaxOffCanvas.close();
 
+        this.ajaxModalExtension = null;
+
         if (typeof callback === 'function') {
             callback();
         }
@@ -180,6 +185,8 @@ export default class CookieConfiguration extends Plugin {
      */
     _onOffCanvasOpened(callback) {
         this._registerOffCanvasEvents();
+
+        this.ajaxModalExtension = new AjaxModalExtension(false);
 
         this._setInitialState();
 

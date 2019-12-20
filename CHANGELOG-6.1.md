@@ -88,7 +88,12 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Updated `dompurify` to `2.0.7` in the `administration` package
     * Updated `cypress-select-tests` to `1.4.1` in the `administration/e2e` package
     * Updated `copy-webpack-plugin` to `5.1.1` in the `common/webpack-plugin` package
-    
+    * Added new Block `sw_media_quickinfo_metadata_specific_meta_data` to sw-media-quickinfo that is only rendered if metadata could be fetched for uploaded media. This also gives you easier access to extend the metadata section for specific file types.
+    * Changes to `sw-plugin-last-updates-grid`:
+      * Reorganized content of `sw-plugin-last-updates-grid`. It now displays only the empty state or grid but not both.
+      * We moved the condition when the empty state is shown to the slot access itself rather than to the `sw-empty-state` component.
+      * Added new block `sw_plugin_last_udates_card_grid_content` in `sw-plugin-last-updates-grid` to override the grid content rather than the slot access.
+
 * Core    
 	* We did some refactoring on how we use `WriteConstraintsViolationExceptions`.	
         It's path `property` should now point to the object that is inspected by an validator while the `propertyPath` property in `WriteConstraint` objects should only point to the invalid property. 	
@@ -263,6 +268,14 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed a bug that cms configuration could not be overridden if some default config is null.	
     * We added a check to `lineItem.payload.productNumber` before calling the twig truncate function	
     * Fixed a bug in storefront search that occurred when keywords such as \0\0 were entered.
+    * Added a position field on the `\Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition`, used for sorting the line items
+    * Changed default `shopware.cdn.strategy` to the new `physical_pathname` strategy that behaves like the old `md5` strategy. For new installations the default is `id`
+    * Deprecated `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoader::load` use `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoader::loadForProduct` instead
+    * Deprecated `\Shopware\Core\Framework\Plugin::getExtraBundles`, use `getAdditionalBundles`
+    * Added method `\Shopware\Core\Framework\Plugin::getAdditionalBundles` method with additional parameters compared to `getExtraBundles`, to allow loading bundles depending on other plugins/bundles and kernel parameters.
+    * Change default `shopware.cdn.strategy` to the new `physical_pathname` strategy that behaves like the old `md5` strategy. For new installations the default is `id`
+    * Fixed a bug where entities got removed by deleting default version. Deleting default version via `/api/v{version}/_action/version/{versionId}/{entity}/{entityId}` is now forbidden
+    * The data format of the `lineItem.payload.options` has changed. Now there is a simple array per element with `option` and `group`. It contains the translated names of the entities.
 * Storefront	
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures	
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain	
@@ -301,7 +314,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added global event `CookieConfiguration_Update` for updating the cookie preference	
     * Moved `src/Storefront/Resources/app/storefront/src/plugin/cookie-permission/cookie-permission.plugin.js` to `src/Storefront/Resources/app/storefront/src/plugin/cookie/cookie-permission.plugin.js`	
     * Moved `src/Storefront/Resources/views/storefront/layout/cookie-permission.html.twig` to `src/Storefront/Resources/views/storefront/layout/cookie/cookie-permission.html.twig`	
-    * Added `CountryStateController`	
     * Added XHtmlRequest route to `/country/country-state-data`	
     * Added `CountryStateController`	
     * Added JavaScript Plugin `CountryStateSelect` that handles selectable states for selected a country	
@@ -311,11 +323,16 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Removed return type from `\Shopware\Core\Checkout\Cart\LineItem\LineItem::getPayloadValue()` 	
     * Fixed external category links in footer and service navigation
     * Updated `copy-webpack-plugin` to `5.1.1` in the `storefront` package
-    * Updated `terser-webpack-plugin` to `2.2.3` in the `storefront` package    	
-    * We have refactored the file `Storefront/Resources/views/storefront/layout/navigation/offcanvas/navigation.html.twig. It was split into smaller template files. 
+    * Updated `terser-webpack-plugin` to `2.2.3` in the `storefront` package
+    * We have refactored the file `Storefront/Resources/views/storefront/layout/navigation/offcanvas/navigation.html.twig`. It was split into smaller template files.
+    * The js plugin manager now catches errors from the plugin initialization to avoid stopping the script if only one plugin fails.
+    * We removed all dependencies to media metadata in storefront.
+    * You can now disable the lint plugin by setting `ESLINT_DISABLE` environment variable to `'true'`.
+      * Run `APP_URL="<your url>" PLATFORM_ROOT=/app/ ESLINT_DISABLE=true npm run hot` in Storefront js folder
+    * The Lint plugin can only be disabled in hot reload mode.
 * Elasticsearch	
-    * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.	
-        * You can set them with a parameter.yml too.	
+    * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.
+        * You can set them with a parameter.yml too.
     * The extensions are now saved at the top level of the entities.	
     * Updated `ongr/elasticsearch-dsl` to version `7.0.0`	
     * Updated Symfony Dependencies to version `4.4.0`.   
@@ -390,4 +407,5 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-upright.var.woff2`	
         * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter.var.woff2`	
     * Removed `ContactPageController` and the `contact page`	
-    * Removed `newsletter page` and its route `/newsletter`    
+    * Removed `newsletter page` and its route `/newsletter`  
+    * Fixed the cookie privacy hint to use the correct link `privacyPage` instead of `shippingPaymentInfoPage` 

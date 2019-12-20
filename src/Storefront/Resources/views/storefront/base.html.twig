@@ -16,7 +16,7 @@
 {% endblock %}
 
 {% block base_body %}
-    <body class="is-ctl-{{ controllerName|lower }} is-act-{{ controllerAction|lower }}">
+    <body class="{% block base_body_classes %}is-ctl-{{ controllerName|lower }} is-act-{{ controllerAction|lower }}{% endblock %}">
     {% block base_body_inner %}
         {% block base_noscript %}
             <noscript class="noscript-main">
@@ -46,11 +46,13 @@
         {% endblock %}
 
         {% block base_offcanvas_navigation %}
-            <div class="d-none js-navigation-offcanvas-initial-content">
-                {% block base_offcanvas_navigation_inner %}
-                    {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/navigation.html.twig' with { navigation: page.header.navigation } %}
-                {% endblock %}
-            </div>
+            {% if page.header.navigation %}
+                <div class="d-none js-navigation-offcanvas-initial-content">
+                    {% block base_offcanvas_navigation_inner %}
+                        {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/navigation.html.twig' with { navigation: page.header.navigation } %}
+                    {% endblock %}
+                </div>
+            {% endif %}
         {% endblock %}
 
         {% block base_main %}

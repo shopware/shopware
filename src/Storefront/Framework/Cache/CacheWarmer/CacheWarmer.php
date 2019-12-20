@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Cache\CacheWarmer;
 
-use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -35,11 +35,6 @@ class CacheWarmer extends AbstractMessageHandler
     private $registry;
 
     /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @var Kernel
      */
     private $kernel;
@@ -54,22 +49,27 @@ class CacheWarmer extends AbstractMessageHandler
      */
     private $requestTransformer;
 
+    /**
+     * @var CacheIdLoader
+     */
+    private $cacheIdLoader;
+
     public function __construct(
         EntityRepositoryInterface $domainRepository,
         MessageBusInterface $bus,
         CacheRouteWarmerRegistry $registry,
-        Connection $connection,
         Kernel $kernel,
         RouterInterface $router,
-        RequestTransformerInterface $requestTransformer
+        RequestTransformerInterface $requestTransformer,
+        CacheIdLoader $cacheIdLoader
     ) {
         $this->domainRepository = $domainRepository;
         $this->bus = $bus;
         $this->registry = $registry;
-        $this->connection = $connection;
         $this->kernel = $kernel;
         $this->router = $router;
         $this->requestTransformer = $requestTransformer;
+        $this->cacheIdLoader = $cacheIdLoader;
     }
 
     public static function getHandledMessages(): iterable
@@ -82,19 +82,10 @@ class CacheWarmer extends AbstractMessageHandler
         $criteria = new Criteria();
         $domains = $this->domainRepository->search($criteria, Context::createDefaultContext());
 
+        $this->cacheIdLoader->write($cacheId);
+
         // generate all message to calculate message count
-        $messages = $this->createMessages($cacheId, $domains);
-
-        // write message count to storage for ready validation
-        $this->connection->executeUpdate(
-            'REPLACE INTO app_config (`key`, `value`) VALUES (:key, :value)',
-            ['key' => $this->getWarmUpKey($cacheId), 'value' => count($messages)]
-        );
-
-        // send messages to queue (messages handled in this class too)
-        foreach ($messages as $message) {
-            $this->bus->dispatch($message);
-        }
+        $this->createMessages($cacheId, $domains);
     }
 
     public function handle($message): void
@@ -103,17 +94,7 @@ class CacheWarmer extends AbstractMessageHandler
             return;
         }
 
-        $cacheId = $message->getCacheId();
-
-        // reduce count of messages to handle
-        $this->reduceQueueCount($cacheId);
-
         $this->callRoute($message);
-
-        // check if warm up is ready and switch cache
-        if ($this->isReady($cacheId)) {
-            $this->switchCache($cacheId);
-        }
     }
 
     private function callRoute(WarmUpMessage $message): void
@@ -129,10 +110,8 @@ class CacheWarmer extends AbstractMessageHandler
         }
     }
 
-    private function createMessages(string $cacheId, EntitySearchResult $domains): array
+    private function createMessages(string $cacheId, EntitySearchResult $domains): void
     {
-        $messages = [];
-
         /** @var SalesChannelDomainEntity $domain */
         foreach ($domains as $domain) {
             foreach ($this->registry->getWarmers() as $warmer) {
@@ -144,14 +123,12 @@ class CacheWarmer extends AbstractMessageHandler
                     $message->setCacheId($cacheId);
                     $message->setDomain($domain->getUrl());
 
-                    $messages[] = $message;
+                    $this->bus->dispatch($message);
 
                     $message = $warmer->createMessage($domain, $offset);
                 }
             }
         }
-
-        return $messages;
     }
 
     private function createHttpCacheKernel(string $cacheId): HttpCache
@@ -161,41 +138,5 @@ class CacheWarmer extends AbstractMessageHandler
         $store = $this->kernel->getContainer()->get(CacheStore::class);
 
         return new HttpCache($this->kernel, $store, null);
-    }
-
-    private function reduceQueueCount(string $cacheId): void
-    {
-        $this->connection->executeUpdate(
-            'UPDATE app_config SET `value` = `value` - 1 WHERE `key` = :key',
-            ['key' => $this->getWarmUpKey($cacheId)]
-        );
-    }
-
-    private function switchCache(string $cacheId): void
-    {
-        $this->connection->executeUpdate(
-            'UPDATE app_config SET `value` = :cacheId WHERE `key` = :key',
-            ['cacheId' => $cacheId, 'key' => 'cache-id']
-        );
-
-        $this->connection->executeUpdate(
-            'DELETE FROM app_config WHERE `key` = :key',
-            ['key' => $this->getWarmUpKey($cacheId)]
-        );
-    }
-
-    private function isReady(string $cacheId): bool
-    {
-        $count = $this->connection->fetchColumn(
-            'SELECT `value` FROM app_config WHERE `key` = :key',
-            ['key' => $this->getWarmUpKey($cacheId)]
-        );
-
-        return (int) $count <= 0;
-    }
-
-    private function getWarmUpKey(string $cacheId): string
-    {
-        return 'warm-up-' . $cacheId;
     }
 }

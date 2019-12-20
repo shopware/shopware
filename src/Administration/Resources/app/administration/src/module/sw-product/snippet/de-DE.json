@@ -199,7 +199,7 @@
       "advancedPricesNotExisting": "Für dieses Produkt existieren noch keine erweiterten Preise.",
       "columnFrom": "Von",
       "columnTo": "Bis",
-      "selectRule": "Regel auswählen ..."
+      "selectRule": "Bedingungs-Regel auswählen ..."
     },
     "properties": {
       "cardTitleProperties": "Eigenschaften",
@@ -270,7 +270,8 @@
         "cancel": "Abbrechen",
         "save": "Speichern",
         "searchPlaceholder": "Durchsuche alle Gruppen und Eigenschaften ...",
-        "singleRestrictionAddTitle": "Ausschluss hinzufügen"
+        "singleRestrictionAddTitle": "Ausschluss hinzufügen",
+        "surchargeNotice": "Änderungen an den Aufschlägen haben keine Auswirkungen auf bereits generierte Varianten. Bitte nutze die Varianten-Detail Seite um Änderungen an den Preisen vorzunehmen."
       },
       "deliveryModal": {
         "modalHeadline": "Varianten-Ausspielung",

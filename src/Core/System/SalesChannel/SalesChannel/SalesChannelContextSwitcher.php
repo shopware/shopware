@@ -90,11 +90,21 @@ class SalesChannelContextSwitcher
             new EqualsFilter('language.salesChannels.id', $context->getSalesChannel()->getId())
         );
 
+        $paymentMethodCriteria = new Criteria();
+        $paymentMethodCriteria->addFilter(
+            new EqualsFilter('payment_method.salesChannels.id', $context->getSalesChannel()->getId())
+        );
+
+        $shippingMethodCriteria = new Criteria();
+        $shippingMethodCriteria->addFilter(
+            new EqualsFilter('shipping_method.salesChannels.id', $context->getSalesChannel()->getId())
+        );
+
         $definition
             ->add(self::LANGUAGE_ID, new EntityExists(['entity' => 'language', 'context' => $context->getContext(), 'criteria' => $languageCriteria]))
             ->add(self::CURRENCY_ID, new EntityExists(['entity' => 'currency', 'context' => $context->getContext(), 'criteria' => $currencyCriteria]))
-            ->add(self::SHIPPING_METHOD_ID, new EntityExists(['entity' => 'shipping_method', 'context' => $context->getContext()]))
-            ->add(self::PAYMENT_METHOD_ID, new EntityExists(['entity' => 'payment_method', 'context' => $context->getContext()]))
+            ->add(self::SHIPPING_METHOD_ID, new EntityExists(['entity' => 'shipping_method', 'context' => $context->getContext(), 'criteria' => $shippingMethodCriteria]))
+            ->add(self::PAYMENT_METHOD_ID, new EntityExists(['entity' => 'payment_method', 'context' => $context->getContext(), 'criteria' => $paymentMethodCriteria]))
             ->add(self::BILLING_ADDRESS_ID, new EntityExists(['entity' => 'customer_address', 'context' => $context->getContext(), 'criteria' => $addressCriteria]))
             ->add(self::SHIPPING_ADDRESS_ID, new EntityExists(['entity' => 'customer_address', 'context' => $context->getContext(), 'criteria' => $addressCriteria]))
             ->add(self::COUNTRY_ID, new EntityExists(['entity' => 'country', 'context' => $context->getContext()]))

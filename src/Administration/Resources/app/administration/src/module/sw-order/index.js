@@ -21,10 +21,8 @@ import './component/sw-order-document-card';
 import './component/sw-order-create-details-header';
 import './component/sw-order-create-details-body';
 import './component/sw-order-create-details-footer';
-import swOrderState from './state/order.store';
 
-const { Module, State } = Shopware;
-State.registerModule('swOrder', swOrderState);
+const { Module } = Shopware;
 
 Module.register('sw-order', {
     type: 'core',

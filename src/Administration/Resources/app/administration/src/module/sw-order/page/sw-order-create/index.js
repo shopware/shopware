@@ -1,5 +1,6 @@
 import template from './sw-order-create.html.twig';
 import './sw-order-create.scss';
+import swOrderState from '../../state/order.store';
 
 const { Component, State } = Shopware;
 
@@ -8,7 +9,7 @@ Component.register('sw-order-create', {
 
     computed: {
         customer() {
-            return State.get('swOrder').customer || {};
+            return State.get('swOrder').customer;
         },
 
         cart() {
@@ -26,17 +27,34 @@ Component.register('sw-order-create', {
 
     methods: {
         createdComponent() {
-            if (!this.next5515) {
-                this.redirectToOrderList();
-            }
+            this.registerModule();
+            this.checkFlagActive();
         },
 
         beforeDestroyedComponent() {
             this.removeCustomer();
+            this.removeCartToken();
+            this.unregisterModule();
+        },
+
+        registerModule() {
+            State.registerModule('swOrder', swOrderState);
+        },
+
+        unregisterModule() {
+            State.unregisterModule('swOrder');
+        },
+
+        checkFlagActive() {
+            if (!this.next5515) this.redirectToOrderList();
         },
 
         removeCustomer() {
-            Shopware.State.commit('swOrder/removeCustomer');
+            State.commit('swOrder/removeCustomer');
+        },
+
+        removeCartToken() {
+            State.commit('swOrder/removeCartToken');
         },
 
         redirectToOrderList() {
@@ -44,20 +62,18 @@ Component.register('sw-order-create', {
         },
 
         onSaveOrder() {
-            State.dispatch('swOrder/saveOrder', {
-                salesChannelId: this.customer.salesChannelId,
-                contextToken: this.cart.token
-            }).then(() => {
-                this.removeCustomer();
-                this.redirectToOrderList();
-            });
+            State
+                .dispatch('swOrder/saveOrder', {
+                    salesChannelId: this.customer.salesChannelId,
+                    contextToken: this.cart.token
+                })
+                .then(() => this.redirectToOrderList());
         },
 
         onCancelOrder() {
-            State.dispatch('swOrder/cancelOrder').then(() => {
-                this.removeCustomer();
-                this.redirectToOrderList();
-            });
+            State
+                .dispatch('swOrder/cancelOrder')
+                .then(() => this.redirectToOrderList());
         }
     }
 });

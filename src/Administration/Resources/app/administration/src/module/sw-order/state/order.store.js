@@ -19,15 +19,16 @@ export default {
 
         setCartToken(state, token) {
             state.cart.token = token;
+        },
+
+        removeCartToken(state) {
+            state.cart.token = null;
         }
     },
 
     getters: {
         isCustomerActive(state) {
-            if (state.customer) {
-                return state.customer && state.customer.active;
-            }
-            return false;
+            return state.customer && state.customer.active;
         }
     },
 
@@ -44,15 +45,21 @@ export default {
         },
 
         updateCustomerContext(_, { customerId, salesChannelId, contextToken }) {
-            Shopware.Service('salesChannelContextService').updateCustomerContext(customerId, salesChannelId, contextToken);
+            Shopware
+                .Service('salesChannelContextService')
+                .updateCustomerContext(customerId, salesChannelId, contextToken);
         },
 
         updateOrderContext(_, { context, salesChannelId, contextToken }) {
-            Shopware.Service('salesChannelContextService').updateContext(context, salesChannelId, contextToken);
+            Shopware
+                .Service('salesChannelContextService')
+                .updateContext(context, salesChannelId, contextToken);
         },
 
         saveOrder(_, { salesChannelId, contextToken }) {
-            Shopware.Service('checkOutSalesChannelService').checkout(salesChannelId, contextToken);
+            Shopware
+                .Service('checkOutSalesChannelService')
+                .checkout(salesChannelId, contextToken);
         },
 
         cancelOrder() {

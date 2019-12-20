@@ -8,7 +8,7 @@ Component.register('sw-order-create-details-header', {
     props: {
         customer: {
             type: Object,
-            required: true
+            default: {}
         },
 
         orderDate: {

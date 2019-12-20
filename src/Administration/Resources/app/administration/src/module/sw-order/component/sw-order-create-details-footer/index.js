@@ -8,24 +8,39 @@ Component.register('sw-order-create-details-footer', {
     props: {
         customer: {
             type: Object,
-            required: true
+            default: {}
         },
 
         isCustomerActive: {
             type: Boolean,
-            required: true,
             default: false
         },
 
         cart: {
             type: Object,
-            required: true
+            default: {}
         }
     },
 
     computed: {
-        context() {
-            return this.customer.salesChannel;
+        context: {
+            get() {
+                return this.customer ? this.customer.salesChannel : {};
+            },
+
+            set(context) {
+                if (this.customer) this.customer.salesChannel = context;
+            }
+        },
+
+        salesChannelId: {
+            get() {
+                return this.customer ? this.customer.salesChannelId : null;
+            },
+
+            set(salesChannelId) {
+                if (this.customer) this.customer.salesChannelId = salesChannelId;
+            }
         }
     },
 
@@ -34,7 +49,7 @@ Component.register('sw-order-create-details-footer', {
             immediate: true,
             deep: true,
             handler() {
-                if (Object.entries(this.customer).length === 0) return;
+                if (this.customer === null) return;
 
                 State.dispatch('swOrder/updateOrderContext', {
                     context: this.context,

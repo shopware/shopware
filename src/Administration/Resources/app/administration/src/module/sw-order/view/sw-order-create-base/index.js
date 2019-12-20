@@ -1,6 +1,6 @@
 import template from './sw-order-create-base.html.twig';
 
-const { Component, State } = Shopware;
+const { Component, State, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-order-create-base', {
@@ -35,11 +35,11 @@ Component.register('sw-order-create-base', {
 
         orderDate() {
             const today = new Date();
-            return Shopware.Utils.format.date(today);
+            return Utils.format.date(today);
         },
 
         customer() {
-            return State.get('swOrder').customer || {};
+            return State.get('swOrder').customer;
         },
 
         isCustomerActive() {
@@ -65,19 +65,17 @@ Component.register('sw-order-create-base', {
         },
 
         onSelectExistingCustomer(customerId) {
-            this.customerRepository.get(
-                customerId,
-                Shopware.Context.api,
-                this.defaultCriteria
-            ).then((customer) => {
-                State.dispatch('swOrder/selectExistingCustomer', { customer });
+            this.customerRepository
+                .get(customerId, Shopware.Context.api, this.defaultCriteria)
+                .then((customer) => {
+                    State.dispatch('swOrder/selectExistingCustomer', { customer });
 
-                if (this.cart.token === null) {
-                    this.createCart();
-                } else {
-                    this.updateCustomerContext();
-                }
-            });
+                    if (this.cart.token === null) {
+                        this.createCart();
+                    } else if (this.customer) {
+                        this.updateCustomerContext();
+                    }
+                });
         },
 
         onAddNewCustomer() {

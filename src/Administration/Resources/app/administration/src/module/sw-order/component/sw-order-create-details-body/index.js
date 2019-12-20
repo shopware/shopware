@@ -8,13 +8,34 @@ Component.register('sw-order-create-details-body', {
     props: {
         customer: {
             type: Object,
-            required: true
+            default: {}
         },
 
         isCustomerActive: {
             type: Boolean,
-            required: true,
             default: false
+        }
+    },
+
+    computed: {
+        email: {
+            get() {
+                return this.customer ? this.customer.email : null;
+            },
+
+            set(email) {
+                if (this.customer) this.customer.email = email;
+            }
+        },
+
+        phoneNumber: {
+            get() {
+                return this.customer ? this.customer.defaultBillingAddress.phoneNumber : null;
+            },
+
+            set(phoneNumber) {
+                if (this.customer) this.customer.defaultBillingAddress.phoneNumber = phoneNumber;
+            }
         }
     },
 

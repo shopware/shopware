@@ -50,6 +50,13 @@ export default {
                 .updateCustomerContext(customerId, salesChannelId, contextToken);
         },
 
+        loadOrderContext(_, { salesChannelId, source, ...rest }) {
+            Shopware
+                .Service('salesChannelContextService')
+                .getContext(salesChannelId, source)
+                .then(response => rest.callback(response.data.data));
+        },
+
         updateOrderContext(_, { context, salesChannelId, contextToken }) {
             Shopware
                 .Service('salesChannelContextService')

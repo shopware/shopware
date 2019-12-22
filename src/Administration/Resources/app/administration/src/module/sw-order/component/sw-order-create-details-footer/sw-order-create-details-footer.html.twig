@@ -24,7 +24,13 @@
                     v-model="context.paymentMethodId"
                     :disabled="!isCustomerActive"
                     :label="$tc('sw-order.createBase.detailsFooter.labelPaymentMethod')"
-                    :placeholder="$tc('sw-order.createBase.detailsFooter.labelPaymentMethod')">
+                    :placeholder="$tc('sw-order.createBase.detailsFooter.labelPaymentMethod')"
+                    :loadDataOptions="{
+                        id: salesChannelId,
+                        source: 'payment-method',
+                        entity: 'payment_method'
+                    }"
+                    @load-data-options="loadDataOptions">
                 </sw-entity-single-select>
             {% endblock %}
 
@@ -36,7 +42,13 @@
                     v-model="context.shippingMethodId"
                     :disabled="!isCustomerActive"
                     :label="$tc('sw-order.createBase.detailsFooter.labelShippingMethod')"
-                    :placeholder="$tc('sw-order.createBase.detailsFooter.labelShippingMethod')">
+                    :placeholder="$tc('sw-order.createBase.detailsFooter.labelShippingMethod')"
+                    :loadDataOptions="{
+                        id: salesChannelId,
+                        source: 'shipping-method',
+                        entity: 'shipping_method'
+                    }"
+                    @load-data-options="loadDataOptions">
                 </sw-entity-single-select>
             {% endblock %}
         </div>
@@ -50,7 +62,13 @@
                     v-model="context.languageId"
                     :disabled="!isCustomerActive"
                     :label="$tc('sw-order.createBase.detailsFooter.labelOrderLanguage')"
-                    :placeholder="$tc('sw-order.createBase.detailsFooter.labelOrderLanguage')">
+                    :placeholder="$tc('sw-order.createBase.detailsFooter.labelOrderLanguage')"
+                    :loadDataOptions="{
+                        id: salesChannelId,
+                        source: 'language',
+                        entity: 'language'
+                    }"
+                    @load-data-options="loadDataOptions">
                 </sw-entity-single-select>
             {% endblock %}
 
@@ -62,7 +80,13 @@
                     v-model="context.currencyId"
                     :disabled="!isCustomerActive"
                     :label="$tc('sw-order.createBase.detailsFooter.labelCurrency')"
-                    :placeholder="$tc('sw-order.createBase.detailsFooter.labelCurrency')">
+                    :placeholder="$tc('sw-order.createBase.detailsFooter.labelCurrency')"
+                    :loadDataOptions="{
+                        id: salesChannelId,
+                        source: 'currency',
+                        entity: 'currency'
+                    }"
+                    @load-data-options="loadDataOptions">
                 </sw-entity-single-select>
             {% endblock %}
         </div>

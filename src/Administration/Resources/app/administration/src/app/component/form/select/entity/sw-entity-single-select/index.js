@@ -19,6 +19,10 @@ Component.register('sw-entity-single-select', {
         value: {
             required: true
         },
+        loadDataOptions: {
+            type: Object,
+            default: null
+        },
         highlightSearchTerm: {
             type: Boolean,
             required: false,
@@ -202,6 +206,30 @@ Component.register('sw-entity-single-select', {
 
         loadData() {
             this.isLoading = true;
+
+            if (this.loadDataOptions !== null && this.loadDataOptions.id !== undefined) {
+                const promise = new Promise(resolve => {
+                    this.$emit('load-data-options', {
+                        options: this.loadDataOptions,
+                        callback: data => resolve(data)
+                    });
+                });
+
+                return promise.then(data => {
+                    const result = data;
+
+                    result.source = `/${this.loadDataOptions.source}`;
+                    result.entity = this.loadDataOptions.entity;
+                    result.context = this.context;
+                    result.criteria = this.criteria;
+
+                    return result.map(item => ({ ...item, ...item.attributes }));
+                }).then(result => {
+                    this.displaySearch(result);
+                    this.isLoading = false;
+                    return result;
+                });
+            }
 
             return this.repository.search(this.criteria, this.context).then((result) => {
                 this.displaySearch(result);

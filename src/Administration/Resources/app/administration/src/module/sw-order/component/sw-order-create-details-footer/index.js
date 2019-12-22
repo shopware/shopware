@@ -58,5 +58,15 @@ Component.register('sw-order-create-details-footer', {
                 });
             }
         }
+    },
+
+    methods: {
+        loadDataOptions({ options, ...rest }) {
+            State.dispatch('swOrder/loadOrderContext', {
+                salesChannelId: options.id,
+                source: options.source,
+                ...rest
+            });
+        }
     }
 });

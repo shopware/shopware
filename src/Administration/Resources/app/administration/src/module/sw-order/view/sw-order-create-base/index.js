@@ -57,6 +57,8 @@ Component.register('sw-order-create-base', {
         },
 
         updateCustomerContext() {
+            if (this.customer === null) return;
+
             State.dispatch('swOrder/updateCustomerContext', {
                 customerId: this.customer.id,
                 salesChannelId: this.customer.salesChannelId,
@@ -72,7 +74,7 @@ Component.register('sw-order-create-base', {
 
                     if (this.cart.token === null) {
                         this.createCart();
-                    } else if (this.customer) {
+                    } else {
                         this.updateCustomerContext();
                     }
                 });

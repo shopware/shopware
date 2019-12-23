@@ -37,24 +37,27 @@ export default {
             commit('setCustomer', customer);
         },
 
-        createCart({ commit }, { salesChannelId }) {
+        createCart({ commit, dispatch }, { salesChannelId }) {
             Shopware
                 .Service('cartSalesChannelService')
                 .createCart(salesChannelId)
-                .then((response) => commit('setCartToken', response.data['sw-context-token']));
+                .then(response => {
+                    commit('setCartToken', response.data['sw-context-token']);
+                    dispatch('dispatchUpdateCustomerContext');
+                });
+        },
+
+        dispatchUpdateCustomerContext({ state }) {
+            const { customer, cart } = state;
+            Shopware
+                .Service('salesChannelContextService')
+                .updateCustomerContext(customer.id, customer.salesChannelId, cart.token);
         },
 
         updateCustomerContext(_, { customerId, salesChannelId, contextToken }) {
             Shopware
                 .Service('salesChannelContextService')
                 .updateCustomerContext(customerId, salesChannelId, contextToken);
-        },
-
-        loadOrderContext(_, { salesChannelId, source, ...rest }) {
-            Shopware
-                .Service('salesChannelContextService')
-                .getContext(salesChannelId, source)
-                .then(response => rest.callback(response.data.data));
         },
 
         updateOrderContext(_, { context, salesChannelId, contextToken }) {

@@ -97,7 +97,7 @@
       "columnDomainSnippetSet": "Snippet Set",
       "maintenanceModeTitle": "Wartungsmodus",
       "maintenanceModeDescription": "Der Wartungsmodus setzt den Vertriebskanal für Besucher unsichtbar. Allerdings können Whitelist-/beschriftete IPs weiterhin darauf zugreifen. Auf diese Weise kann man sicher mit den Daten des Verkaufskanal arbeiten und Besucher mit einem Wartungsmodusbildschirm ausschließen.",
-      "labelMaintenanceActive": "Wartungsmodus aktivieren",
+      "labelMaintenanceActive": "Wartungsmodus",
       "ipAddressWhitleListHelpText": "Füge der Whitelist IP-Adressen hinzu, um einen selektiven Zugriff auf den Shop zu ermöglichen. Du kannst bei Bedarf IPv4- und IPv6-Adressen hinzufügen.",
       "basicinformationLink": "Standard Wartungsseiten Layout hier ändern",
       "ipAddressWhitleList": "Whitelist für IP-Adressen",

@@ -1,7 +1,8 @@
 import template from './sw-order-line-items-grid-sales-channel.html.twig';
 import './sw-order-line-items-grid-sales-channel.scss';
 
-const { Component } = Shopware;
+const { Component, Utils } = Shopware;
+const { get } = Utils;
 
 Component.register('sw-order-line-items-grid-sales-channel', {
     template,
@@ -22,12 +23,16 @@ Component.register('sw-order-line-items-grid-sales-channel', {
         isCustomerActive: {
             type: Boolean,
             default: false
+        },
+
+        isLoading: {
+            type: Boolean,
+            default: false
         }
     },
 
     data() {
         return {
-            isLoading: false,
             selectedItems: {}
         };
     },
@@ -53,7 +58,7 @@ Component.register('sw-order-line-items-grid-sales-channel', {
             }, {
                 property: 'unitPrice',
                 dataIndex: 'unitPrice',
-                label: this.cart.taxStatus === 'net' ?
+                label: get(this.cart, 'price.taxStatus') === 'net' ?
                     this.$tc('sw-order.createBase.columnPriceNet') :
                     this.$tc('sw-order.createBase.columnPriceGross'),
                 allowResize: false,
@@ -71,7 +76,7 @@ Component.register('sw-order-line-items-grid-sales-channel', {
             }, {
                 property: 'totalPrice',
                 dataIndex: 'totalPrice',
-                label: this.cart.taxStatus === 'net' ?
+                label: get(this.cart, 'price.taxStatus') === 'net' ?
                     this.$tc('sw-order.createBase.columnTotalPriceNet') :
                     this.$tc('sw-order.createBase.columnTotalPriceGross'),
                 allowResize: false,
@@ -101,7 +106,7 @@ Component.register('sw-order-line-items-grid-sales-channel', {
                     // TODO: implement for custom item
                 }
             } else {
-                // TODO: implement for edit and update item
+                this.$emit('on-edit-item', item);
             }
         },
 
@@ -143,7 +148,8 @@ Component.register('sw-order-line-items-grid-sales-channel', {
         },
 
         onDeleteSelectedItems() {
-            // TODO: Implement removing items
+            const selectedItemKeys = Object.keys(this.selectedItems);
+            this.$emit('on-remove-item', selectedItemKeys);
         },
 
         itemCreatedFromProduct(id) {

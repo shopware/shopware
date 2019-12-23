@@ -31,7 +31,7 @@
 
         {% block sw_order_create_content %}
             <template #content>
-                <router-view @error="onError"></router-view>
+                <router-view @error="showError"></router-view>
             </template>
         {% endblock %}
     </sw-page>

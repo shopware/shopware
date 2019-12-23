@@ -70,7 +70,7 @@
                               :fullPage="false"
                               :showSettings="false"
                               showSelection
-                              :showActions="true"
+                              showActions
                               :isLoading="isLoading"
                               :allowColumnEdit="false"
                               allowInlineEdit
@@ -94,7 +94,8 @@
                                 {% block sw_order_line_items_grid_sales_channel_grid_columns_label_link %}
                                     <router-link v-else-if="!isInlineEdit && item.type === 'product'"
                                                  :title="$tc('sw-order.createBase.contextMenuShowProduct')"
-                                                 :to="{ name: 'sw.product.detail', params: { id: item.id } }">
+                                                 :to="{ name: 'sw.product.detail', params: { id: item.id } }"
+                                                 target="_blank">
                                         {% block sw_order_line_items_grid_sales_channel_columns_name_label %}
                                         {{ item.label }}
                                         {% endblock %}
@@ -189,7 +190,8 @@
                                 {% block sw_order_line_items_grid_sales_channel_grid_actions_show %}
                                 <sw-context-menu-item :disabled="item.type !== 'product'"
                                                       icon="default-eye-open"
-                                                      :routerLink="{ name: 'sw.product.detail', params: { id: item.id } }">
+                                                      :routerLink="{ name: 'sw.product.detail', params: { id: item.id } }"
+                                                      target="_blank">
                                     {% block sw_order_line_items_grid_sales_channel_grid_actions_show_label %}
                                         {{ $tc('sw-order.createBase.contextMenuShowProduct') }}
                                     {% endblock %}

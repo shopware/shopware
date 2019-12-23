@@ -170,7 +170,13 @@ Component.register('sw-plugin-list', {
             }).catch((e) => {
                 this.isLoading = false;
 
-                throw e;
+                const context = { message: e.response.data.errors[0].detail };
+
+                this.createNotificationError({
+                    title: this.$tc('sw-plugin.errors.titlePluginActivationFailed'),
+                    message: this.$tc('sw-plugin.errors.messagePluginActivationFailed', 0, context)
+                });
+                plugin.active = false;
             });
         },
 
@@ -187,7 +193,14 @@ Component.register('sw-plugin-list', {
             }).catch((e) => {
                 this.isLoading = false;
 
-                throw e;
+                const context = { message: e.response.data.errors[0].detail };
+
+                this.createNotificationError({
+                    title: this.$tc('sw-plugin.errors.titlePluginDeactivationFailed'),
+                    message: this.$tc('sw-plugin.errors.messagePluginDeactivationFailed', 0, context)
+                });
+
+                plugin.active = true;
             });
         },
 
@@ -203,8 +216,12 @@ Component.register('sw-plugin-list', {
                 return this.getList();
             }).catch((e) => {
                 this.isLoading = false;
+                const context = { message: e.response.data.errors[0].detail };
 
-                throw e;
+                this.createNotificationError({
+                    title: this.$tc('sw-plugin.errors.titlePluginInstallationFailed'),
+                    message: this.$tc('sw-plugin.errors.messagePluginInstallationFailed', 0, context)
+                });
             });
         },
 
@@ -225,7 +242,12 @@ Component.register('sw-plugin-list', {
             }).catch((e) => {
                 this.isLoading = false;
 
-                throw e;
+                const context = { message: e.response.data.errors[0].detail };
+
+                this.createNotificationError({
+                    title: this.$tc('sw-plugin.errors.titlePluginUninstallationFailed'),
+                    message: this.$tc('sw-plugin.errors.messagePluginUninstallationFailed', 0, context)
+                });
             });
         },
 
@@ -241,7 +263,12 @@ Component.register('sw-plugin-list', {
             }).catch((e) => {
                 this.isLoading = false;
 
-                throw e;
+                const context = { message: e.response.data.errors[0].detail };
+
+                this.createNotificationError({
+                    title: this.$tc('sw-plugin.errors.titlePluginUpdateFailed'),
+                    message: this.$tc('sw-plugin.errors.messagePluginUpdateFailed', 0, context)
+                });
             });
         },
 

@@ -88,7 +88,7 @@ class PluginController extends AbstractController
         }
         $this->pluginService->refreshPlugins($context, new NullIO());
 
-        return new Response();
+        return new Response(null, Response::HTTP_NO_CONTENT);
     }
 
     /**

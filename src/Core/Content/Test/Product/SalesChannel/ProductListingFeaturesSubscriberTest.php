@@ -164,7 +164,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         $this->eventDispatcher->dispatch($event);
 
         $sortings = $criteria->getSorting();
-        static::assertCount(count($expectedFields), $sortings);
+        static::assertCount(count($expectedFields), $sortings, print_r($sortings, true));
 
         foreach ($sortings as $sorting) {
             static::assertArrayHasKey($sorting->getField(), $expectedFields);
@@ -176,7 +176,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     {
         return [
             [
-                [],
+                ['_score' => FieldSorting::DESCENDING],
                 new Request(),
             ],
             [
@@ -184,7 +184,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 new Request(['sort' => 'name-asc']),
             ],
             [
-                [],
+                ['_score' => FieldSorting::DESCENDING],
                 new Request(['sort' => 'unknown']),
             ],
             [

@@ -58,4 +58,23 @@ class SearchController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/storefront/layout/header/search-suggest.html.twig', ['page' => $page]);
     }
+
+    /**
+     * @HttpCache()
+     *
+     * Route to load the listing filters
+     *
+     * @RouteScope(scopes={"storefront"})
+     * @Route("/widgets/search/{search}", name="widgets.search.pagelet", methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true})
+     *
+     * @throws MissingRequestParameterException
+     */
+    public function pagelet(Request $request, SalesChannelContext $context): Response
+    {
+        $request->request->set('no-aggregations', true);
+
+        $page = $this->searchPageLoader->load($request, $context);
+
+        return $this->renderStorefront('@Storefront/storefront/page/search/search-pagelet.html.twig', ['page' => $page]);
+    }
 }

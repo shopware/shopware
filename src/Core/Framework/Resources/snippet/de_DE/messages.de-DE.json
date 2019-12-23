@@ -48,6 +48,7 @@
         "sortByNameAscending": "Name aufsteigend",
         "sortByNameDescending": "Name abesteigend",
         "sortByPriceAscending": "Preis aufsteigend",
-        "sortByPriceDescending": "Preis absteigend"
+        "sortByPriceDescending": "Preis absteigend",
+        "sortByScore": "Beste Ergebnisse"
     }
 }

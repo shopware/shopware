@@ -1,0 +1,81 @@
+{% set currentPage = ((searchResult.criteria.offset + 1) / searchResult.criteria.limit )|round(0, 'ceil') %}
+{% set paginationConfig = { page: currentPage }|json_encode %}
+
+<div class="cms-element-product-listing-wrapper"
+     data-listing-pagination="true"
+     data-listing-pagination-options='{{ paginationConfig }}'
+     data-listing="true"
+     data-listing-options='{
+                 "sidebar": "{{ sidebar }}",
+                 "params": {{ params|json_encode }},
+                 "dataUrl": "{{ dataUrl }}",
+                 "filterUrl": "{{ filterUrl }}",
+                 "snippets": {
+                    "resetAllButtonText": "{{ 'listing.filterPanelResetAll'|trans|sw_sanitize }}"
+                 }
+             }'>
+
+    {% block element_product_listing_wrapper_content %}
+        <div class="cms-element-product-listing">
+            {% if searchResult.total > 0 %}
+                {% block element_product_listing_pagination_nav_actions %}
+                    <div class="cms-element-product-listing-actions row justify-content-between">
+                        <div class="col-md-auto">
+                            {% block element_product_listing_pagination_nav_top %}
+                                {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
+                                    entities: searchResult,
+                                    criteria: searchResult.criteria
+                                } %}
+                            {% endblock %}
+                        </div>
+
+                        <div class="col-md-auto">
+                            {% block element_product_listing_sorting %}
+                                {% sw_include '@Storefront/storefront/component/sorting.html.twig' with { current: searchResult.sorting, sortings: searchResult.sortings } %}
+                            {% endblock %}
+                        </div>
+                    </div>
+                {% endblock %}
+            {% endif %}
+
+            {% block element_product_listing_row %}
+                <div class="row cms-listing-row js-listing-wrapper">
+                    {% if searchResult.total > 0 %}
+                        {% block element_product_listing_col %}
+                            {% for product in searchResult %}
+                                <div class="cms-listing-col {{ listingColumns }}">
+                                    {% block element_product_listing_box %}
+                                        {% sw_include '@Storefront/storefront/component/product/card/box.html.twig' with {
+                                            'layout': boxLayout,
+                                            'displayMode': displayMode
+                                        } %}
+                                    {% endblock %}
+                                </div>
+                            {% endfor %}
+                        {% endblock %}
+                    {% else %}
+                        {% block element_product_listing_col_empty %}
+                            <div class="cms-listing-col col-12">
+                                {% block element_product_listing_col_empty_alert %}
+                                    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                                        type: 'info',
+                                        content: 'listing.emptyResultMessage'|trans|sw_sanitize
+                                    } %}
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    {% endif %}
+                </div>
+            {% endblock %}
+
+            {% if searchResult.total > searchResult.limit %}
+                {% block element_product_listing_pagination_nav_bottom %}
+                    {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
+                        entities: searchResult,
+                        criteria: searchResult.criteria
+                    } %}
+                {% endblock %}
+            {% endif %}
+        </div>
+    {% endblock %}
+</div>

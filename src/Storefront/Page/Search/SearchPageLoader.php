@@ -55,6 +55,7 @@ class SearchPageLoader
 
         $result = $this->searchGateway->search($request, $salesChannelContext);
 
+        $page->setListing($result);
         $page->setSearchResult(StorefrontSearchResult::createFrom($result));
 
         $page->setSearchTerm(

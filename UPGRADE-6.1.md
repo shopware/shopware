@@ -832,6 +832,25 @@ SHOPWARE_HTTP_DEFAULT_TTL=7200
         {% endif %}
     {% endblock %}    
     ``` 
+  * The following blocks moved from the `storefront/element/cms-element-product-listing.html.twig` template into the new template `storefront/component/product/listing.html.twig`. If you have overwritten one of the following blocks, you must now extend the `storefront/component/product/listing.html.twig` template instead of the `storefront/element/cms-element-product-listing.html.twig` template 
+    * `element_product_listing_wrapper_content`
+    * `element_product_listing_pagination_nav_actions`
+    * `element_product_listing_pagination_nav_top`
+    * `element_product_listing_sorting`
+    * `element_product_listing_row`
+    * `element_product_listing_col`
+    * `element_product_listing_box`
+    * `element_product_listing_col_empty`
+    * `element_product_listing_col_empty_alert`
+    * `element_product_listing_pagination_nav_bottom`
+  * The `storefront/component/listing/filter-panel.html.twig` component requires now a provided `sidebar (bool)` parameter. Please provide this parameter in the `sw_include` tag:
+    ```twig
+        {% sw_include '@Storefront/storefront/component/listing/filter-panel.html.twig' with {
+            listing: listing,
+            sidebar: true
+        } %}
+    ```
+    
 Elasticsearch
 -------------
 

@@ -276,7 +276,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Change default `shopware.cdn.strategy` to the new `physical_pathname` strategy that behaves like the old `md5` strategy. For new installations the default is `id`
     * Fixed a bug where entities got removed by deleting default version. Deleting default version via `/api/v{version}/_action/version/{versionId}/{entity}/{entityId}` is now forbidden
     * The data format of the `lineItem.payload.options` has changed. Now there is a simple array per element with `option` and `group`. It contains the translated names of the entities.
-* Storefront	
+    * We deprecated the `Shopware\Storefront\Page\Search\SearchPage::$searchResult` property, use `Shopware\Storefront\Page\Search\SearchPage::$listing` instead
+* Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures	
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain	
     * Added twig function `sw_csrf` for creating CSRF tokens	
@@ -337,6 +338,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Using psh: just override the `STOREFRONT_PROXY_PORT` constant (this will also map the port for docker setup)
         * Using npm: run `APP_URL="<your url>" STOREFRONT_PROXY_PORT=<some port> PROJECT_ROOT=<path to your root folder>/ npm run hot-proxy` from the storefronts js directory.
       * The default port is still port 9998.
+    * We implemented the new `Storefront/Resources/views/storefront/component/product/listing.html.twig` which can be included to display product listings
 * Elasticsearch	
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.
         * You can set them with a parameter.yml too.

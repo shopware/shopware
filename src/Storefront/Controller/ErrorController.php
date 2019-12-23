@@ -56,7 +56,9 @@ class ErrorController extends StorefrontController
     public function error(\Throwable $exception, Request $request, SalesChannelContext $context): Response
     {
         try {
-            $is404StatusCode = $exception instanceof HttpException && $exception->getStatusCode() === 404;
+            $is404StatusCode = $exception instanceof HttpException
+                && $exception->getStatusCode() === Response::HTTP_NOT_FOUND;
+
             if (!$is404StatusCode && !$this->flashBag->has('danger')) {
                 $this->flashBag->add('danger', $this->trans('error.message-default'));
             }
@@ -72,12 +74,13 @@ class ErrorController extends StorefrontController
                 );
             } else {
                 $errorTemplate = $this->errorTemplateResolver->resolve($exception, $request);
-                $response = $this->renderStorefront($errorTemplate->getTemplateName(), ['page' => $errorTemplate]);
 
                 if (!$request->isXmlHttpRequest()) {
                     $header = $this->headerPageletLoader->load($request, $context);
                     $errorTemplate->setHeader($header);
                 }
+
+                $response = $this->renderStorefront($errorTemplate->getTemplateName(), ['page' => $errorTemplate]);
             }
 
             if ($exception instanceof HttpException) {

@@ -23,6 +23,7 @@
                     entity="payment_method"
                     v-model="context.paymentMethodId"
                     :disabled="!isCustomerActive"
+                    :criteria="salesChannelCriteria"
                     :label="$tc('sw-order.createBase.detailsFooter.labelPaymentMethod')"
                     :placeholder="$tc('sw-order.createBase.detailsFooter.labelPaymentMethod')">
                 </sw-entity-single-select>
@@ -35,6 +36,7 @@
                     entity="shipping_method"
                     v-model="context.shippingMethodId"
                     :disabled="!isCustomerActive"
+                    :criteria="salesChannelCriteria"
                     :label="$tc('sw-order.createBase.detailsFooter.labelShippingMethod')"
                     :placeholder="$tc('sw-order.createBase.detailsFooter.labelShippingMethod')">
                 </sw-entity-single-select>
@@ -49,6 +51,7 @@
                     entity="language"
                     v-model="context.languageId"
                     :disabled="!isCustomerActive"
+                    :criteria="salesChannelCriteria"
                     :label="$tc('sw-order.createBase.detailsFooter.labelOrderLanguage')"
                     :placeholder="$tc('sw-order.createBase.detailsFooter.labelOrderLanguage')">
                 </sw-entity-single-select>
@@ -61,6 +64,7 @@
                     entity="currency"
                     v-model="context.currencyId"
                     :disabled="!isCustomerActive"
+                    :criteria="salesChannelCriteria"
                     :label="$tc('sw-order.createBase.detailsFooter.labelCurrency')"
                     :placeholder="$tc('sw-order.createBase.detailsFooter.labelCurrency')">
                 </sw-entity-single-select>

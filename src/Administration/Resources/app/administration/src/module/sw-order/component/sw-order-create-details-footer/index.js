@@ -1,6 +1,7 @@
 import template from './sw-order-create-details-footer.html.twig';
 
 const { Component, State } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-order-create-details-footer', {
     template,
@@ -41,6 +42,16 @@ Component.register('sw-order-create-details-footer', {
             set(salesChannelId) {
                 if (this.customer) this.customer.salesChannelId = salesChannelId;
             }
+        },
+
+        salesChannelCriteria() {
+            const criteria = new Criteria();
+
+            if (this.salesChannelId) {
+                criteria.addFilter(Criteria.equals('salesChannels.id', this.salesChannelId));
+            }
+
+            return criteria;
         }
     },
 

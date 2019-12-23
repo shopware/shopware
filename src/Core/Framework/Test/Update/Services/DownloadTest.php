@@ -12,25 +12,20 @@ class DownloadTest extends TestCase
 
     public function testDownloadFile(): void
     {
-        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
-        copy(__DIR__ . '/../_fixtures/test.zip', $projectDir . '/public/test.zip');
-
         $download = new Download();
 
         $tempfile = tempnam('/tmp', 'updateFile');
 
-        $appUrl = getenv('APP_URL');
         $download->downloadFile(
-            $appUrl . '/test.zip',
+            'http://assets.shopware.com/sw_logo_white.png',
             $tempfile,
-            201,
-            '424b743e97730d95de7a3fb75d690820ff7bac6d'
+            10521,
+            '5f98432a760cae72c85b1835017306bdd84e2f68'
         );
 
         static::assertFileExists($tempfile);
-        static::assertEquals(filesize(__DIR__ . '/../_fixtures/test.zip'), filesize($tempfile));
+        static::assertEquals(filesize(__DIR__ . '/../_fixtures/sw_logo_white.png'), filesize($tempfile));
 
         unlink($tempfile);
-        unlink($projectDir . '/public/test.zip');
     }
 }

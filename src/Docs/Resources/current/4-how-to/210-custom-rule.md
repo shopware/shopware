@@ -136,8 +136,7 @@ Also note the second line, which already imports your not yet existing component
 But this code is not executed yet, because it was never included or executed.
 
 Your main entry point for this purpose is your plugin's `main.js` file.
-It has to be placed into the `<plugin root>/src/Resources/app/administration` directory in order to be automatically found by Shopware 6.
-*Note: This path can be changed by overriding the [getAdministrationEntryPath()](../2-internals/4-plugins/020-plugin-base-class.md#getAdministrationEntryPath()) method of your plugin's base class.*
+It has to be placed into the `<plugin root>/src/Resources/app/administration/src` directory in order to be automatically found by Shopware 6.
 
 In there you'll simply have to import the decoration file mentioned above:
 

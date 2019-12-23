@@ -26,9 +26,8 @@ Creating a new element requires you to extend the administration.
 ### Injecting into the administration
     
 The main entry point to customize the administration via plugin is the `main.js` file.
-It has to be placed into a `<plugin root>/src/Resources/app/administration` directory in order to be automatically found by the Shopware
+It has to be placed into a `<plugin root>/src/Resources/app/administration/src` directory in order to be automatically found by the Shopware
 platform.
-*Note: This path can be changed by overriding the [getAdministrationEntryPath](./../2-internals/4-plugins/020-plugin-base-class.md#getAdministrationEntryPath) method of your plugin's base class.*
 
 Create this `main.js` file for now, it will be used later.
 

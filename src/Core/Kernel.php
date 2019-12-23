@@ -50,6 +50,11 @@ class Kernel extends HttpKernel
     protected $shopwareVersionRevision;
 
     /**
+     * @var string|null
+     */
+    protected $projectDir;
+
+    /**
      * @var bool
      */
     private $rebooting = false;
@@ -62,17 +67,25 @@ class Kernel extends HttpKernel
     /**
      * {@inheritdoc}
      */
-    public function __construct(string $environment, bool $debug, KernelPluginLoader $pluginLoader, string $cacheId, ?string $version = self::SHOPWARE_FALLBACK_VERSION)
-    {
+    public function __construct(
+        string $environment,
+        bool $debug,
+        KernelPluginLoader $pluginLoader,
+        string $cacheId,
+        ?string $version = self::SHOPWARE_FALLBACK_VERSION,
+        ?Connection $connection = null,
+        ?string $projectDir = null
+    ) {
         date_default_timezone_set('UTC');
 
         parent::__construct($environment, $debug);
-        self::$connection = null;
+        self::$connection = $connection;
 
         $this->pluginLoader = $pluginLoader;
 
         $this->parseShopwareVersion($version);
         $this->cacheId = $cacheId;
+        $this->projectDir = $projectDir;
     }
 
     public function registerBundles()
@@ -88,6 +101,15 @@ class Kernel extends HttpKernel
         }
 
         yield from $this->pluginLoader->getBundles($this->getKernelParameters());
+    }
+
+    public function getProjectDir()
+    {
+        if ($this->projectDir === null) {
+            $this->projectDir = parent::getProjectDir();
+        }
+
+        return $this->projectDir;
     }
 
     public function boot(): void

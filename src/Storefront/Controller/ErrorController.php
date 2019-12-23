@@ -56,13 +56,14 @@ class ErrorController extends StorefrontController
     public function error(\Throwable $exception, Request $request, SalesChannelContext $context): Response
     {
         try {
-            if (!$this->flashBag->has('danger')) {
+            $is404StatusCode = $exception instanceof HttpException && $exception->getStatusCode() === 404;
+            if (!$is404StatusCode && !$this->flashBag->has('danger')) {
                 $this->flashBag->add('danger', $this->trans('error.message-default'));
             }
 
             $salesChannelId = $context->getSalesChannel()->getId();
             $cmsErrorLayoutId = $this->systemConfigService->get('core.basicInformation.404Page', $salesChannelId);
-            if ($cmsErrorLayoutId && ($exception instanceof HttpException && $exception->getStatusCode() === 404)) {
+            if ($cmsErrorLayoutId && $is404StatusCode) {
                 $errorPage = $this->errorPageLoader->load((string) $cmsErrorLayoutId, $request, $context);
 
                 $response = $this->renderStorefront(

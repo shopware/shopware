@@ -73,6 +73,37 @@ $border-radius-hack: 100px;
     }
 }
 
+.sw-order-create-summary {
+    grid-template-areas: 'empty summary';
+
+    .sw-order-create-summary__data {
+        grid-area: summary;
+        font-size: 15px;
+        display: grid;
+
+        dt,
+        dd {
+            padding: 0;
+            line-height: 49px;
+            border-bottom: 1px solid $color-steam-cloud;
+            color: $color-gutenberg;
+            font-weight: normal;
+            text-align: right;
+        }
+
+        dd {
+            padding-right: 60px;
+
+            .sw-order-saveable-field {
+                transform: translateY(-50%);
+                position: relative;
+                left: 80px;
+                top: 50%;
+            }
+        }
+    }
+}
+
 %customize-sw-button {
     outline: none;
     border: 0;

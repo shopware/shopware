@@ -4,7 +4,8 @@ export default {
     state: {
         customer: null,
         cart: {
-            token: null
+            token: null,
+            lineItems: []
         }
     },
 
@@ -23,6 +24,10 @@ export default {
 
         removeCartToken(state) {
             state.cart.token = null;
+        },
+
+        setCart(state, cart) {
+            state.cart = cart;
         }
     },
 
@@ -65,6 +70,13 @@ export default {
         cancelOrder() {
             // TODO: Handle order data
             setTimeout(() => true, 1000);
+        },
+
+        addProductItem({ commit }, { salesChannelId, contextToken, productId, quantity }) {
+            return Shopware
+                .Service('cartSalesChannelService')
+                .addProduct(salesChannelId, contextToken, productId, quantity)
+                .then((response) => commit('setCart', response.data.data));
         }
     }
 };

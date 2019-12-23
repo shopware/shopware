@@ -2,10 +2,14 @@ import template from './sw-order-create.html.twig';
 import './sw-order-create.scss';
 import swOrderState from '../../state/order.store';
 
-const { Component, State } = Shopware;
+const { Component, State, Mixin } = Shopware;
 
 Component.register('sw-order-create', {
     template,
+
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     computed: {
         customer() {
@@ -73,6 +77,13 @@ Component.register('sw-order-create', {
             State
                 .dispatch('swOrder/cancelOrder')
                 .then(() => this.redirectToOrderList());
+        },
+
+        onError() {
+            this.createNotificationError({
+                title: this.$tc('sw-order.create.titleSaveError'),
+                message: this.$tc('sw-order.create.messageSaveError')
+            });
         }
     }
 });

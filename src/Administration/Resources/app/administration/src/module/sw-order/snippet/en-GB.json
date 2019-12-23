@@ -53,7 +53,9 @@
     "create": {
       "textNewOrder": "New order",
       "buttonSaveOrder": "Save order",
-      "buttonCancelOrder": "Cancel"
+      "buttonCancelOrder": "Cancel",
+      "titleSaveError": "Error",
+      "messageSaveError": "Order could not be saved."
     },
     "createBase": {
       "labelDetailsCard": "Details",
@@ -75,7 +77,29 @@
         "labelShippingMethod": "Shipping method",
         "labelOrderLanguage": "Order language",
         "labelCurrency": "Currency"
-      }
+      },
+      "cardTitleLineItems": "Items",
+      "placeholderSearchBarItem": "Search items...",
+      "labelDeleteOrderCard": "Delete order",
+      "columnProductName": "Item",
+      "columnQuantity": "Quantity",
+      "columnPriceNet": "Price (net)",
+      "columnPriceGross": "Price (gross)",
+      "columnTotalPriceNet": "Total",
+      "columnPrice": "Price",
+      "columnTotalPrice": "Total",
+      "columnTotalPriceGross": "Subtotal",
+      "columnTax": "VAT",
+      "contextMenuShowProduct": "Show product",
+      "messageEmptyItem": "No items added yet",
+      "buttonAddProduct" :"Add product",
+      "buttonAddBlankProduct" :"Add custom item",
+      "buttonAddCredit" :"Add credit",
+      "summaryLabelAmount": "Total",
+      "summaryLabelAmountWithoutTaxes": "Total excluding VAT",
+      "summaryLabelAmountTotal": "Total including VAT",
+      "summaryLabelShippingCosts": "plus shipping costs",
+      "summaryLabelTaxes": "plus {taxRate}% VAT"
     },
     "detailBase": {
       "cardTitleDetails": "Details",

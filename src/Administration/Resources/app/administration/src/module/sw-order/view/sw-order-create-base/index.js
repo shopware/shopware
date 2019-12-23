@@ -8,6 +8,22 @@ Component.register('sw-order-create-base', {
 
     inject: ['repositoryFactory'],
 
+    data() {
+        return {
+            currency: {
+                shortName: 'EUR',
+                translated: {
+                    shortName: 'EUR',
+                    name: 'Euro',
+                    customFields: []
+                }
+            },
+            delivery: [],
+            isLoading: false,
+            sortedCalculatedTaxes: []
+        };
+    },
+
     computed: {
         customerRepository() {
             return this.repositoryFactory.create('customer');
@@ -48,6 +64,10 @@ Component.register('sw-order-create-base', {
 
         cart() {
             return State.get('swOrder').cart;
+        },
+
+        cartLineItems() {
+            return this.cart.lineItems;
         }
     },
 
@@ -88,6 +108,15 @@ Component.register('sw-order-create-base', {
 
         onEditShippingAddress() {
             // TODO: Handle function
+        },
+
+        onAddProductItem(item) {
+            State.dispatch('swOrder/addProductItem', {
+                salesChannelId: this.customer.salesChannelId,
+                contextToken: this.cart.token,
+                productId: item.identifier,
+                quantity: item.quantity
+            });
         }
     }
 });

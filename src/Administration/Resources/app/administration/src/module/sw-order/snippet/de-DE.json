@@ -53,7 +53,9 @@
     "create": {
       "textNewOrder": "New order",
       "buttonSaveOrder": "Save order",
-      "buttonCancelOrder": "Cancel"
+      "buttonCancelOrder": "Cancel",
+      "titleSaveError": "Error",
+      "messageSaveError": "Order could not be saved."
     },
     "createBase": {
       "labelDetailsCard": "Details",
@@ -75,7 +77,29 @@
         "labelShippingMethod": "Shipping method",
         "labelOrderLanguage": "Order language",
         "labelCurrency": "Currency"
-      }
+      },
+      "cardTitleLineItems": "Positionen",
+      "placeholderSearchBarItem": "Search items...",
+      "labelDeleteOrderCard": "Delete order",
+      "columnProductName": "Name",
+      "columnQuantity": "Menge",
+      "columnPriceGross": "Bruttopreis",
+      "columnPrice": "Preis",
+      "columnTotalPrice": "Gesamt",
+      "columnTotalPriceGross": "Gesamt",
+      "columnTax": "Steuersatz",
+      "columnPriceNet": "Nettopreis",
+      "columnTotalPriceNet": "Gesamt",
+      "contextMenuShowProduct": "Produkt anzeigen",
+      "messageEmptyItem": "No items added yet",
+      "buttonAddProduct" :"Produkt hinzufügen",
+      "buttonAddBlankProduct" :"Leere Position hinzufügen",
+      "buttonAddCredit" :"Gutschrift hinzufügen",
+      "summaryLabelAmount": "Summe",
+      "summaryLabelAmountWithoutTaxes": "Gesamtsumme ohne MwSt.",
+      "summaryLabelAmountTotal": "Gesamtsumme inkl. MwSt.",
+      "summaryLabelShippingCosts": "Versandkosten",
+      "summaryLabelTaxes": "zzgl. {taxRate}% MwSt."
     },
     "detailBase": {
       "cardTitleDetails": "Details",

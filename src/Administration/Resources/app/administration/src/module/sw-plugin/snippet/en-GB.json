@@ -38,7 +38,17 @@
       "titleStoreNotAvailable": "Connection refused",
       "messageStoreNotAvailable": "The Shopware Store is not available.",
       "titlePluginBaseClassNotFound": "Error on loading the plugin",
-      "messagePluginBaseClassNotFound": "The plugin base class could not be loaded. Check your plugin composer.json regarding the class autoloading"
+      "messagePluginBaseClassNotFound": "The plugin base class could not be loaded. Check your plugin composer.json regarding the class autoloading",
+      "titlePluginInstallationFailed": "Plugin installation failed",
+      "messagePluginInstallationFailed": "Plugin could not be installed due to error message \"{message}\"",
+      "titlePluginUninstallationFailed": "Plugin uninstallation failed",
+      "messagePluginUninstallationFailed": "Plugin could not be uninstalled due to error message \"{message}\"",
+      "titlePluginActivationFailed": "Plugin activation failed",
+      "messagePluginActivationFailed": "Plugin could not be activated due to error message \"{message}\"",
+      "titlePluginDeactivationFailed": "Plugin deactivation failed",
+      "messagePluginDeactivationFailed": "Plugin could not be deactivated due to error message \"{message}\"",
+      "titlePluginUpdateFailed": "Plugin update failed",
+      "messagePluginUpdateFailed": "Plugin could not be updated due to error message \"{message}\""
     },
     "fileUpload":{
       "buttonFileUpload":"Upload plugin",

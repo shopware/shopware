@@ -38,7 +38,17 @@
       "titleStoreNotAvailable": "Verbindung gescheitert",
       "messageStoreNotAvailable": "Der Shopware Store ist nicht erreichbar.",
       "titlePluginBaseClassNotFound": "Fehler beim Laden des Plugins",
-      "messagePluginBaseClassNotFound": "Der Plugineinstiegspunkt konnte nicht geladen werden. Stelle sicher, dass die Basisklasse korrekt geladen werden kann."
+      "messagePluginBaseClassNotFound": "Der Plugineinstiegspunkt konnte nicht geladen werden. Stelle sicher, dass die Basisklasse korrekt geladen werden kann.",
+      "titlePluginInstallationFailed": "Plugin Installation ist fehlgeschlagen",
+      "messagePluginInstallationFailed": "Plugin konnte auf Grund der Fehlermeldung \"{message}\" nicht installiert werden",
+      "titlePluginUninstallationFailed": "Plugin Deinstallation ist fehlgeschlagen",
+      "messagePluginUninstallationFailed": "Plugin konnte auf Grund der Fehlermeldung \"{message}\" nicht deinstalliert werden",
+      "titlePluginActivationFailed": "Plugin Aktivierung ist fehlgeschlagen",
+      "messagePluginActivationFailed": "Plugin konnte auf Grund der Fehlermeldung \"{message}\" nicht aktiviert werden",
+      "titlePluginDeactivationFailed": "Plugin Deaktivierung ist fehlgeschlagen",
+      "messagePluginDeactivationFailed": "Plugin konnte auf Grund der Fehlermeldung \"{message}\" nicht deaktiviert werden",
+      "titlePluginUpdateFailed": "Plugin Update ist fehlgeschlagen",
+      "messagePluginUpdateFailed": "Plugin konnte auf Grund der Fehlermeldung \"{message}\" nicht aktualisiert werden"
     },
     "fileUpload":{
       "buttonFileUpload":"Plugin hochladen",

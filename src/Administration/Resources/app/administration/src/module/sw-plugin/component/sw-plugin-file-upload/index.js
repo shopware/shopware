@@ -2,7 +2,8 @@ import template from './sw-plugin-file-upload.html.twig';
 import './sw-plugin-file-upload.scss';
 import pluginErrorHandler from '../../service/plugin-error-handler.service';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, State } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-plugin-file-upload', {
     template,
@@ -28,10 +29,21 @@ Component.register('sw-plugin-file-upload', {
             const formData = new FormData();
             formData.append('file', files[0]);
 
+            const searchData = {
+                repository: Shopware.Service('repositoryFactory').create('plugin'),
+                criteria: new Criteria(),
+                context: {
+                    ...Shopware.Context.api,
+                    languageId: Shopware.State.get('session').languageId
+                }
+            };
+
             return this.pluginService.upload(formData).then(() => {
-                return this.createNotificationSuccess({
-                    title: this.$tc('sw-plugin.fileUpload.titleUploadSuccess'),
-                    message: this.$tc('sw-plugin.fileUpload.messageUploadSuccess')
+                State.dispatch('swPlugin/updatePluginList', searchData).then(() => {
+                    return this.createNotificationSuccess({
+                        title: this.$tc('sw-plugin.fileUpload.titleUploadSuccess'),
+                        message: this.$tc('sw-plugin.fileUpload.messageUploadSuccess')
+                    });
                 });
             }).catch((exception) => {
                 const mappedErrors = pluginErrorHandler.mapErrors(exception.response.data.errors);

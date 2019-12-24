@@ -29,6 +29,11 @@ class HttpKernel implements HttpKernelInterface
     protected static $connection;
 
     /**
+     * @var string
+     */
+    protected static $kernelClass = Kernel::class;
+
+    /**
      * @var ClassLoader|null
      */
     protected $classLoader;
@@ -166,7 +171,7 @@ class HttpKernel implements HttpKernelInterface
 
         $cacheId = (new CacheIdLoader($connection))->load();
 
-        return $this->kernel = new Kernel(
+        return $this->kernel = new static::$kernelClass(
             $this->environment,
             $this->debug,
             $pluginLoader,

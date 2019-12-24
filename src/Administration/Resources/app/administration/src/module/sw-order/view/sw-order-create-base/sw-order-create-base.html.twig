@@ -9,6 +9,8 @@
                                 <sw-order-create-details-header
                                     :customer="customer"
                                     :orderDate="orderDate"
+                                    :cartPrice="cartPrice"
+                                    :currency="currency"
                                     @on-select-existing-customer="onSelectExistingCustomer"
                                     @on-add-new-customer="onAddNewCustomer">
                                 </sw-order-create-details-header>
@@ -27,7 +29,8 @@
                                 <sw-order-create-details-footer
                                     :customer="customer"
                                     :isCustomerActive="isCustomerActive"
-                                    :cart="cart">
+                                    :cart="cart"
+                                    @loading-change="updateLoading">
                                 </sw-order-create-details-footer>
                             {% endblock %}
                         </sw-card-section>

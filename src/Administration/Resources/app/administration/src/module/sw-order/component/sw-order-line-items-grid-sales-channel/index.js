@@ -1,7 +1,7 @@
 import template from './sw-order-line-items-grid-sales-channel.html.twig';
 import './sw-order-line-items-grid-sales-channel.scss';
 
-const { Component, Utils } = Shopware;
+const { Component, Utils, State } = Shopware;
 const { get } = Utils;
 
 Component.register('sw-order-line-items-grid-sales-channel', {
@@ -141,6 +141,7 @@ Component.register('sw-order-line-items-grid-sales-channel', {
             const item = this.createNewOrderLineItem();
             item.type = '';
             this.cartLineItems.unshift(item);
+            State.commit('swOrder/setCartLineItems', this.cartLineItems);
         },
 
         onSelectionChanged(selection) {

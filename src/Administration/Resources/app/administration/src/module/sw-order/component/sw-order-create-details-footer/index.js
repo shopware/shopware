@@ -1,6 +1,6 @@
 import template from './sw-order-create-details-footer.html.twig';
 
-const { Component, State } = Shopware;
+const { Component, State, Service } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-order-create-details-footer', {
@@ -52,6 +52,10 @@ Component.register('sw-order-create-details-footer', {
             }
 
             return criteria;
+        },
+
+        currencyRepository() {
+            return Service('repositoryFactory').create('currency');
         }
     },
 
@@ -66,6 +70,20 @@ Component.register('sw-order-create-details-footer', {
                     context: this.context,
                     salesChannelId: this.customer.salesChannelId,
                     contextToken: this.cart.token
+                }).then(() => {
+                    this.currencyRepository
+                        .get(this.context.currencyId, Shopware.Context.api)
+                        .then((currency) => {
+                            State.commit('swOrder/setCurrency', currency);
+                        });
+
+                    this.$emit('loading-change', true);
+
+                    State.dispatch('swOrder/getCart', {
+                        salesChannelId: this.customer.salesChannelId,
+                        contextToken: this.cart.token
+                    })
+                        .finally(() => this.$emit('loading-change', false));
                 });
             }
         }

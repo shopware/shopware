@@ -38,10 +38,6 @@ Component.register('sw-order-line-items-grid', {
             return this.repositoryFactory.create('order_line_item');
         },
 
-        lineItemActionsEnabled() {
-            return this.selectedItems.length !== 0;
-        },
-
         orderLineItems() {
             return this.order.lineItems;
         },

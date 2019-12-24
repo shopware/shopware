@@ -194,6 +194,15 @@ AND #table#.id IN (:ids)
 #version_aware#
 SQL;
 
+        $resetTemplate = <<<SQL
+UPDATE #table# SET #table#.#storage_name# = NULL
+WHERE #table#.id IN (:ids)
+SQL;
+
+        if ($definition->isVersionAware()) {
+            $resetTemplate .= ' AND #table#.version_id = :version';
+        }
+
         $bytes = array_map(function ($id) {
             return Uuid::fromHexToBytes($id);
         }, $ids);
@@ -218,7 +227,7 @@ SQL;
             ];
 
             if ($definition->isInheritanceAware() && $association->is(Inherited::class)) {
-                $replacement['#join_column#'] = $association->getPropertyName();
+                $replacement['#join_column#'] = EntityDefinitionQueryHelper::escape($association->getPropertyName());
             }
             $versionCondition = '';
             if ($definition->isVersionAware()) {
@@ -234,6 +243,18 @@ SQL;
                 array_keys($replacement),
                 array_values($replacement),
                 $tableTemplate
+            );
+
+            $resetSql = str_replace(
+                array_keys($replacement),
+                array_values($replacement),
+                $resetTemplate
+            );
+
+            $this->connection->executeUpdate(
+                $resetSql,
+                $parameters,
+                ['ids' => Connection::PARAM_STR_ARRAY]
             );
 
             $this->connection->executeUpdate(

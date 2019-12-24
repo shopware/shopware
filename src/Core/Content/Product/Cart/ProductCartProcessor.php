@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorInterface
@@ -154,7 +155,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $product = $data->get($key);
 
-        if (!$product instanceof ProductEntity) {
+        if (!$product instanceof SalesChannelProductEntity) {
             $cart->addErrors(new ProductNotFoundError($lineItem->getLabel() ?: $lineItem->getId()));
             $cart->getLineItems()->remove($lineItem->getId());
 
@@ -220,24 +221,12 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $lineItem->setQuantityInformation($quantityInformation);
 
-        $options = [];
-        foreach ($product->getOptions() as $option) {
-            if (!$option->getGroup()) {
-                continue;
-            }
-
-            $options[] = [
-                'group' => $option->getGroup()->getTranslation('name'),
-                'option' => $option->getTranslation('name'),
-            ];
-        }
-
         $lineItem->replacePayload([
             'tags' => $product->getTagIds(),
             'categories' => $product->getCategoryTree(),
             'properties' => $product->getPropertyIds(),
             'productNumber' => $product->getProductNumber(),
-            'options' => $options,
+            'options' => $this->getOptions($product),
         ]);
     }
 
@@ -301,5 +290,27 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
 
         return $product->getAvailableStock();
+    }
+
+    private function getOptions(SalesChannelProductEntity $product): array
+    {
+        $options = [];
+
+        if (!$product->getOptions()) {
+            return $options;
+        }
+
+        foreach ($product->getOptions() as $option) {
+            if (!$option->getGroup()) {
+                continue;
+            }
+
+            $options[] = [
+                'group' => $option->getGroup()->getTranslation('name'),
+                'option' => $option->getTranslation('name'),
+            ];
+        }
+
+        return $options;
     }
 }

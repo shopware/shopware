@@ -268,6 +268,15 @@ To get the diff between two versions, go to https://github.com/shopware/platform
        ```	
     * Fixed a bug that cms configuration could not be overridden if some default config is null.	
     * We added a check to `lineItem.payload.productNumber` before calling the twig truncate function	
+    * Deprecated `\Shopware\Core\Framework\Validation\ValidationServiceInterface`, it will be removed in 6.3.0
+    * Added the interface `\Shopware\Core\Framework\Validation\DataValidationFactoryInterface` that will replace the deprecated `\Shopware\Core\Framework\Validation\ValidationServiceInterface`
+    * Removed the `\Shopware\Core\Framework\Validation\ValidationServiceInterface` from the `\Shopware\Core\Content\Seo\Validation\SeoUrlValidationService`, added the `\Shopware\Core\Content\Seo\Validation\SeoUrlDataValidationFactoryInterface` instead to allow service decoration
+    * Renamed `\Shopware\Core\Content\Seo\Validation\SeoUrlValidationService` to `\Shopware\Core\Content\Seo\Validation\SeoUrlValidationFactory`, the old serviceId is now deprecated 
+    * Renamed `\Shopware\Core\Checkout\Customer\Validation\AddressValidationService` to `\Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory`, the old serviceId is now deprecated 
+    * Renamed `\Shopware\Core\Checkout\Customer\Validation\CustomerValidationService` to `\Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory`, the old serviceId is now deprecated 
+    * Renamed `\Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationService` to `\Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory`, the old serviceId is now deprecated 
+    * Renamed `\Shopware\Core\Checkout\Order\Validation\OrderValidationService` to `\Shopware\Core\Checkout\Order\Validation\OrderValidationFactory`, the old serviceId is now deprecated 
+    * Renamed `\Shopware\Core\Content\ContactForm\Validation\ContactFormValidationService` to `\Shopware\Core\Content\ContactForm\Validation\ContactFormValidationFactory`, the old serviceId is now deprecated 
     * Fixed a bug in storefront search that occurred when keywords such as \0\0 were entered.
     * Added a position field on the `\Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition`, used for sorting the line items
     * Changed default `shopware.cdn.strategy` to the new `physical_pathname` strategy that behaves like the old `md5` strategy. For new installations the default is `id`

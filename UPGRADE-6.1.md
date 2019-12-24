@@ -212,6 +212,7 @@ Core
  * Added unique constraint for `iso_code` column of `currency` table. The migration can fail if there are already duplicate `iso_codes` in the table
  * Replace `mailer` usage with `core_mailer` in your service definitions. 
  * If you call `\Shopware\Core\Framework\Api\Response\ResponseFactoryInterface::createDetailResponse` or `\Shopware\Core\Framework\Api\Response\ResponseFactoryInterface::createListingResponse` in your plugin, the first parameter to be passed now is the `Criteria` object with which the data was loaded.
+ * We changed the type hint of `Shopware\Core\Framework\Validation\ValidationServiceInterface::buildCreateValidation` and `Shopware\Core\Framework\Validation\ValidationServiceInterface::buildUpdateValidation` to `SalesChannelContext`
  * Replace `\Shopware\Core\Framework\Plugin::getExtraBundles` with `\Shopware\Core\Framework\Plugin::getAdditionalBundles`. Dont use both.
  * We implemented the new `Shopware\Core\HttpKernel` class which simplifies the kernel initialisation. This kernel can simply initialed and can be used in your `index.php` file as follow:
     ```php
@@ -223,6 +224,23 @@ Core
     $response->send();
     ```
  
+ * If you update your decoration implementations of `\Shopware\Core\Framework\Validation\ValidationServiceInterface` to  `\Shopware\Core\Framework\Validation\DataValidationFactoryInterface` make sure to still implement the old interface
+    and when calling the inner implementation please make sure to check if the inner implementation already supports the interface, like
+    ```php
+       public function createValidation(SalesChannelContext $context): DataValidationDefinition
+       {
+           if ($this->inner instanceof DataValidationFactoryInterface) {
+               $validation = $this->inner->create($context);
+           } else {
+               $validation = $this->inner->buildCreateValidation($context->getContext());
+           }
+   
+           $this->modifyValidation($validation);
+   
+           return $validation;              
+       }
+    ```
+
 Administration
 --------------
 

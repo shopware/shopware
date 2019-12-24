@@ -213,6 +213,15 @@ Core
  * Replace `mailer` usage with `core_mailer` in your service definitions. 
  * If you call `\Shopware\Core\Framework\Api\Response\ResponseFactoryInterface::createDetailResponse` or `\Shopware\Core\Framework\Api\Response\ResponseFactoryInterface::createListingResponse` in your plugin, the first parameter to be passed now is the `Criteria` object with which the data was loaded.
  * Replace `\Shopware\Core\Framework\Plugin::getExtraBundles` with `\Shopware\Core\Framework\Plugin::getAdditionalBundles`. Dont use both.
+ * We implemented the new `Shopware\Core\HttpKernel` class which simplifies the kernel initialisation. This kernel can simply initialed and can be used in your `index.php` file as follow:
+    ```php
+    $request = Request::createFromGlobals();
+
+    $kernel = new HttpKernel($appEnv, $debug, $classLoader);
+    $response = $kernel->handle($request);
+
+    $response->send();
+    ```
  
 Administration
 --------------

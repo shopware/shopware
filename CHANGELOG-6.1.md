@@ -278,6 +278,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed a bug where entities got removed by deleting default version. Deleting default version via `/api/v{version}/_action/version/{versionId}/{entity}/{entityId}` is now forbidden
     * The data format of the `lineItem.payload.options` has changed. Now there is a simple array per element with `option` and `group`. It contains the translated names of the entities.
     * We deprecated the `Shopware\Storefront\Page\Search\SearchPage::$searchResult` property, use `Shopware\Storefront\Page\Search\SearchPage::$listing` instead
+    * We implemented the new `Shopware\Core\HttpKernel` class which simplifies the kernel initialisation.
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures	
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain	

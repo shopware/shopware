@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
-use Shopware\Core\Framework\Api\Context\AdminApiSource;
-use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -112,18 +110,15 @@ class SalesChannelProxyController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_proxy/admin/sales-channel-api/{salesChannelId}/context/customer", name="api.proxy.admin.sales-channel.context.update", methods={"PATCH"})
+     * @Route("/api/v{version}/_proxy/switch-customer", name="api.proxy.switch-customer", methods={"PATCH"})
      *
      * @throws InconsistentCriteriaIdsException
-     * @throws InvalidContextSourceException
      * @throws InvalidSalesChannelIdException
      * @throws MissingRequestParameterException
      */
-    public function assignCustomer(string $salesChannelId, Request $request, Context $context): Response
+    public function assignCustomer(Request $request, Context $context): Response
     {
-        if (!$context->getSource() instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
-        }
+        $salesChannelId = $request->request->get('salesChannelId');
 
         if (!$request->request->has(self::CUSTOMER_ID)) {
             throw new MissingRequestParameterException(self::CUSTOMER_ID);

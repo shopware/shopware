@@ -1,5 +1,12 @@
 {% block sw_order_create_details_header %}
     <div class="sw-order-create-details-header">
+        {% block sw_order_create_details_new_customer_modal %}
+            <sw-order-new-customer-modal v-if="showNewCustomerModal"
+                                         @close="onCloseNewCustomerModal"
+                                         @on-select-existing-customer="onSelectExistingCustomer">
+            </sw-order-new-customer-modal>
+        {% endblock %}
+
         {% block sw_order_create_details_header_profile %}
             <sw-container
                 class="sw-order-user-card__container"
@@ -34,7 +41,7 @@
                                 :placeholder="$tc('sw-order.createBase.detailsHeader.placeholder')"
                                 @change="onSelectExistingCustomer">
                             </sw-entity-single-select>
-                            <sw-button size="small" @click="onAddNewCustomer">
+                            <sw-button size="small" @click="onShowNewCustomerModal">
                                 {{ $tc('sw-order.createBase.detailsHeader.buttonAddNewCustomer') }}
                             </sw-button>
                         </sw-container>

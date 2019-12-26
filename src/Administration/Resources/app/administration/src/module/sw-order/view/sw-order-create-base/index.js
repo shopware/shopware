@@ -119,10 +119,6 @@ Component.register('sw-order-create-base', {
                 });
         },
 
-        onAddNewCustomer() {
-            // TODO: Handle function
-        },
-
         onEditBillingAddress() {
             // TODO: Handle function
         },

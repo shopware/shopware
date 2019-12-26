@@ -72,6 +72,11 @@
       "labelPassword": "Password",
       "helpTextPassword": "After saving the customer the password can only be changed directly by the customer.",
       "placeholderSalutation": "Select a salutation",
+      "placeholderTitle": "Enter title",
+      "placeholderFirstName": "Enter first name",
+      "placeholderLastName": "Enter last name",
+      "placeholderEmail": "Enter email",
+      "placeholderCustomerNumber": "Enter customer number",
       "placeholderCustomerGroup": "Please select a customer group",
       "placeholderSalesChannel": "Please select a sales channel",
       "placeholderPaymentMethod": "Please select a payment method",
@@ -158,7 +163,8 @@
       "labelAdditionalAddressLine1": "Additional address line 1",
       "labelAdditionalAddressLine2": "Additional address line 2",
       "labelPhoneNumber": "Phone number",
-      "labelVatId": "VAT-ID"
+      "labelVatId": "VAT-ID",
+      "labelSameBillingAddress": "Same as billing address"
     },
     "detail": {
       "buttonSave": "Save",

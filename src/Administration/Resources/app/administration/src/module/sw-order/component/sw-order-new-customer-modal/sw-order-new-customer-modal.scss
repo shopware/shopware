@@ -1,0 +1,25 @@
+@import "~scss/variables";
+
+.sw-order-new-customer-modal {
+    .sw-customer-base-form__salutation-select {
+        .sw-select {
+            .sw-select__selection {
+                padding: 0;
+            }
+        }
+
+        .sw-entity-single-select__selection-input.is--expanded {
+            overflow: hidden;
+            width: 55px;
+            white-space: nowrap;
+        }
+
+        .sw-entity-single-select__selection-text.is--placeholder {
+            text-overflow: ellipsis;
+            overflow: hidden;
+            width: 63px;
+            height: 16px;
+            white-space: nowrap;
+        }
+    }
+}

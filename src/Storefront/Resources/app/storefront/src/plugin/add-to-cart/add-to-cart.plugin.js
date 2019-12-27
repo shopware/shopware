@@ -44,7 +44,7 @@ export default class AddToCartPlugin extends Plugin {
     _formSubmit(event) {
         event.preventDefault();
 
-        const requestUrl = DomAccess.getAttribute(this._form, 'action').toLowerCase();
+        const requestUrl = DomAccess.getAttribute(this._form, 'action');
         const formData = FormSerializeUtil.serialize(this._form);
 
         this.$emitter.publish('beforeFormSubmit');

@@ -87,9 +87,9 @@ class UrlGenerator implements UrlGeneratorInterface
         return $this->getBaseUrl() . '/' . $this->getRelativeThumbnailUrl($media, $thumbnail);
     }
 
-    private function normalizeBaseUrl($baseUrl): ?string
+    private function normalizeBaseUrl(?string $baseUrl): ?string
     {
-        if (!$baseUrl) {
+        if ($baseUrl === null) {
             return null;
         }
 

@@ -144,7 +144,7 @@ class DocumentMetadata
         return '/' . implode('/', $urlParts);
     }
 
-    private function requireMetadata($key)
+    private function requireMetadata(string $key)
     {
         $metadata = $this->document->loadRawMetadata();
 

@@ -457,7 +457,7 @@ class SearchCriteriaBuilderTest extends TestCase
         static::assertEquals('/filter/2/queries/1/field', $content['errors'][5]['source']['pointer']);
     }
 
-    private function fakeHandleRequest($maxLimit = 0, array $allowedLimits = [], $params = []): Criteria
+    private function fakeHandleRequest(int $maxLimit = 0, array $allowedLimits = [], array $params = []): Criteria
     {
         $parser = $this->getContainer()->get(AggregationParser::class);
         $apiVersionConverter = $this->getContainer()->get(ApiVersionConverter::class);

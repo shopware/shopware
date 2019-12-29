@@ -63,7 +63,7 @@ class MediaEntityTest extends TestCase
         static::assertEquals(200, $persistedThumbnail->getHeight());
     }
 
-    private function getIdCriteria($mediaId): Criteria
+    private function getIdCriteria(string $mediaId): Criteria
     {
         $criteria = new Criteria();
         $criteria->setOffset(0);

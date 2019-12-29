@@ -672,7 +672,7 @@ class SalesChannelCustomerControllerTest extends TestCase
             ->get($addressId);
     }
 
-    private function serialize($data): array
+    private function serialize(CustomerEntity $data): array
     {
         $decoded = $this->serializer->normalize($data);
 
@@ -681,13 +681,13 @@ class SalesChannelCustomerControllerTest extends TestCase
         ];
     }
 
-    private function formatBirthday($day, $month, $year): \DateTimeInterface
+    private function formatBirthday(int $day, int $month, int $year): \DateTimeInterface
     {
         return new \DateTime(sprintf(
             '%s-%s-%s',
-            (int) $year,
-            (int) $month,
-            (int) $day
+            $year,
+            $month,
+            $day
         ));
     }
 

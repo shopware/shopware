@@ -131,7 +131,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         return $this->getSalesChannelDomain()->getId();
     }
 
-    private function createTestEntity($generateByCronjob = true): string
+    private function createTestEntity(bool $generateByCronjob = true): string
     {
         $this->createProductStream();
 

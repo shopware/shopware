@@ -102,7 +102,7 @@ class NumberRangeValueGeneratorTest extends TestCase
         static::assertEquals('10002', $value);
     }
 
-    private function getGenerator($pattern): NumberRangeValueGenerator
+    private function getGenerator(string $pattern): NumberRangeValueGenerator
     {
         $patternReg = $this->getContainer()->get(ValueGeneratorPatternRegistry::class);
 

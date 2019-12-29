@@ -256,7 +256,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $query->execute();
     }
 
-    private function escapeColumnKeys($payload): array
+    private function escapeColumnKeys(array $payload): array
     {
         $escaped = [];
         foreach ($payload as $key => $value) {

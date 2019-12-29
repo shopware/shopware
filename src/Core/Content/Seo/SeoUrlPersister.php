@@ -146,7 +146,7 @@ class SeoUrlPersister
             && $seoUrl['salesChannelId'] === $existing['salesChannelId'];
     }
 
-    private function findCanonicalPaths($routeName, string $languageId, array $foreignKeys): array
+    private function findCanonicalPaths(string $routeName, string $languageId, array $foreignKeys): array
     {
         $fks = Uuid::fromHexToBytesList($foreignKeys);
         $languageId = Uuid::fromHexToBytes($languageId);
@@ -205,7 +205,7 @@ class SeoUrlPersister
             ->execute();
     }
 
-    private function markAsDeleted($ids, string $dateTime): void
+    private function markAsDeleted(array $ids, string $dateTime): void
     {
         if (empty($ids)) {
             return;
@@ -221,7 +221,7 @@ class SeoUrlPersister
             ->execute();
     }
 
-    private function invalidateEntityCache($seoUrlIds = []): void
+    private function invalidateEntityCache(array $seoUrlIds = []): void
     {
         $tags = $this->cacheKeyGenerator->getSearchTags($this->seoUrlRepository->getDefinition(), new Criteria());
 

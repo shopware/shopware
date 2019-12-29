@@ -166,14 +166,14 @@ class TreeIndexer implements IndexerInterface
         return 'Swag.TreeIndexer';
     }
 
-    private function updateIds(array $ids, $definition, Context $context): void
+    private function updateIds(array $ids, EntityDefinition $definition, Context $context): void
     {
         foreach ($ids as $id) {
             $this->update($id, $definition, $context);
         }
     }
 
-    private function update(string $parentId, $definition, Context $context): void
+    private function update(string $parentId, EntityDefinition $definition, Context $context): void
     {
         $parent = $this->loadParents(
             Uuid::fromHexToBytes($parentId),
@@ -196,7 +196,7 @@ class TreeIndexer implements IndexerInterface
 
     private function updateRecursive(
         array $entity,
-        $definition,
+        EntityDefinition $definition,
         Context $context
     ): array {
         $ids[] = $this->updateTree($entity, $definition, $context);
@@ -211,7 +211,7 @@ class TreeIndexer implements IndexerInterface
 
     private function getChildren(
         array $parent,
-        $definition,
+        EntityDefinition $definition,
         Context $context
     ): array {
         $query = $this->connection->createQueryBuilder();
@@ -280,7 +280,7 @@ class TreeIndexer implements IndexerInterface
         return $path;
     }
 
-    private function loadParents(string $parentId, $definition, string $versionId): ?array
+    private function loadParents(string $parentId, EntityDefinition $definition, string $versionId): ?array
     {
         $query = $this->getEntityByIdQuery($parentId, $definition);
         $this->makeQueryVersionAware($definition, $versionId, $query);

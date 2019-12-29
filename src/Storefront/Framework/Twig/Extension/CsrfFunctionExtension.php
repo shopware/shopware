@@ -15,7 +15,7 @@ class CsrfFunctionExtension extends AbstractExtension
         ];
     }
 
-    public function createCsrfPlaceholder($intent, $parameters = []): string
+    public function createCsrfPlaceholder(string $intent, array $parameters = []): string
     {
         $mode = $parameters['mode'] ?? 'input';
 

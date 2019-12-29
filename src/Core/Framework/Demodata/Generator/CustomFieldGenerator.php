@@ -85,7 +85,7 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
         $console->progressFinish();
     }
 
-    private function randomCustomField($prefix, DemodataContext $context): array
+    private function randomCustomField(string $prefix, DemodataContext $context): array
     {
         $types = [
             CustomFieldTypes::INT,

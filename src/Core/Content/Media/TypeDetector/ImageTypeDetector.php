@@ -84,7 +84,7 @@ class ImageTypeDetector implements TypeDetectorInterface
      * We check if the file uses the extended file format, which is necessary for animated images
      * then we check if the Animation Flag is set
      */
-    private function isWebpAnimated($filename): bool
+    private function isWebpAnimated(string $filename): bool
     {
         $result = false;
         $fh = fopen($filename, 'rb');

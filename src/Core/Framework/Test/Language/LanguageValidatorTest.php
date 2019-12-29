@@ -824,7 +824,7 @@ class LanguageValidatorTest extends TestCase
         }, $expectedCodePathPairs);
     }
 
-    protected function assertInsertViolations(array $insertData, array $expectedCodePathPairs, $addDefaultTranslationCode = true): void
+    protected function assertInsertViolations(array $insertData, array $expectedCodePathPairs, bool $addDefaultTranslationCode = true): void
     {
         if ($addDefaultTranslationCode) {
             $insertData = $this->addDefaultTranslationCodes($insertData);
@@ -853,7 +853,7 @@ class LanguageValidatorTest extends TestCase
         }, $expectedCodePathPairs);
     }
 
-    protected function addLanguagesWithDefaultLocales($languages): void
+    protected function addLanguagesWithDefaultLocales(array $languages): void
     {
         $this->languageRepository->create($this->addDefaultTranslationCodes($this->addDefaultLocales($languages)), $this->defaultContext);
     }
@@ -877,14 +877,14 @@ class LanguageValidatorTest extends TestCase
         return $lang;
     }
 
-    protected function addDefaultTranslationCodes($languages)
+    protected function addDefaultTranslationCodes(array $languages)
     {
         return array_map(function ($lang) {
             return $this->addDefaultTranslationCode($lang);
         }, $languages);
     }
 
-    protected function addDefaultTranslationCode($lang)
+    protected function addDefaultTranslationCode(array $lang)
     {
         if (!isset($lang['translationCode']) && !isset($lang['translationCodeId'])) {
             $id = Uuid::randomHex();

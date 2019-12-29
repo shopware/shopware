@@ -545,7 +545,7 @@ class SeoUrlTest extends TestCase
         static::assertEquals($id, $seoUrl->getForeignKey());
     }
 
-    private function runChecks($cases, $categoryRepository, $context, $salesChannelId): void
+    private function runChecks(array $cases, EntityRepositoryInterface $categoryRepository, Context $context, string $salesChannelId): void
     {
         foreach ($cases as $case) {
             $criteria = new Criteria([$case['categoryId']]);
@@ -575,7 +575,7 @@ class SeoUrlTest extends TestCase
         }
     }
 
-    private function upsertProduct($data): EntityWrittenContainerEvent
+    private function upsertProduct(array $data): EntityWrittenContainerEvent
     {
         $defaults = [
             'productNumber' => Uuid::randomHex(),

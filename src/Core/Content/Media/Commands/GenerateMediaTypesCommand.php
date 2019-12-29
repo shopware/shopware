@@ -102,7 +102,7 @@ class GenerateMediaTypesCommand extends Command
         return $result->getTotal();
     }
 
-    private function detectMediaTypes($context): void
+    private function detectMediaTypes(Context $context): void
     {
         $criteria = $this->createCriteria();
 

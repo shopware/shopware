@@ -387,7 +387,7 @@ class SeoUrlIndexer implements IndexerInterface
         return $activeTemplateGroups;
     }
 
-    private function getLanguageIdChain($languageId): array
+    private function getLanguageIdChain(string $languageId): array
     {
         return [
             $languageId,

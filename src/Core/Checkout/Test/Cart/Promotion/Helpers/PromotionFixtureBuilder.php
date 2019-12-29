@@ -78,8 +78,13 @@ class PromotionFixtureBuilder
         return $this;
     }
 
-    public function addDiscount(string $scope, string $type, float $value, bool $considerAdvancedRules, ?float $maxValue): PromotionFixtureBuilder
-    {
+    public function addDiscount(
+        string $scope,
+        string $type,
+        float $value,
+        bool $considerAdvancedRules,
+        ?float $maxValue
+    ): PromotionFixtureBuilder {
         $data = [
             'id' => Uuid::randomHex(),
             'promotionId' => $this->promotionId,
@@ -98,7 +103,7 @@ class PromotionFixtureBuilder
         return $this;
     }
 
-    public function addSetGroup(string $packagerKey, $value, string $sorterKey): PromotionFixtureBuilder
+    public function addSetGroup(string $packagerKey, float $value, string $sorterKey): PromotionFixtureBuilder
     {
         $this->dataSetGroups[] = [
             'id' => Uuid::randomHex(),
@@ -133,7 +138,7 @@ class PromotionFixtureBuilder
             $data['useCodes'] = true;
         }
 
-        if (count($this->dataSetGroups) > 0) {
+        if (\count($this->dataSetGroups) > 0) {
             $data['useSetGroups'] = true;
         }
 
@@ -141,12 +146,12 @@ class PromotionFixtureBuilder
         $this->repoPromotions->create([$data], $this->context->getContext());
 
         // save our defined set groups
-        if (count($this->dataSetGroups) > 0) {
+        if (\count($this->dataSetGroups) > 0) {
             $this->repoSetGroups->create($this->dataSetGroups, $this->context->getContext());
         }
 
         // save our added discounts
-        if (count($this->dataDiscounts) > 0) {
+        if (\count($this->dataDiscounts) > 0) {
             $this->repoDiscounts->create($this->dataDiscounts, $this->context->getContext());
         }
     }

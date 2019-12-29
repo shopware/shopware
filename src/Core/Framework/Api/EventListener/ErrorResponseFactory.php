@@ -10,7 +10,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ErrorResponseFactory
 {
-    public function getResponseFromException(\Throwable $exception, $debug = false): Response
+    public function getResponseFromException(\Throwable $exception, bool $debug = false): Response
     {
         return new JsonResponse(
             ['errors' => $this->getErrorsFromException($exception, $debug)],
@@ -19,7 +19,7 @@ class ErrorResponseFactory
         );
     }
 
-    public function getErrorsFromException(\Throwable $exception, $debug = false): array
+    public function getErrorsFromException(\Throwable $exception, bool $debug = false): array
     {
         if ($exception instanceof ShopwareHttpException) {
             $errors = [];

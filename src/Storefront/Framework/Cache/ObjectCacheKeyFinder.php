@@ -75,7 +75,7 @@ class ObjectCacheKeyFinder
         return array_filter(array_keys(array_flip($keys)));
     }
 
-    private function getObjectKeys(Struct $item, SalesChannelContext $context, $skipContext = true): array
+    private function getObjectKeys(Struct $item, SalesChannelContext $context, bool $skipContext = true): array
     {
         if ($skipContext && $item instanceof SalesChannelContext) {
             return [];

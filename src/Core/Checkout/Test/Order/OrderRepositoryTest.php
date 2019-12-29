@@ -189,7 +189,7 @@ class OrderRepositoryTest extends TestCase
         return $customerId;
     }
 
-    private function getOrderData($orderId, $context): array
+    private function getOrderData(string $orderId, Context $context): array
     {
         $addressId = Uuid::randomHex();
         $orderLineItemId = Uuid::randomHex();

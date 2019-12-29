@@ -580,7 +580,7 @@ class EntityExtensionTest extends TestCase
         static::assertTrue($this->getContainer()->get(ExtendableDefinition::class)->getFields()->has('extendedVersionId'));
     }
 
-    private function getPricesData($id): array
+    private function getPricesData(string $id): array
     {
         $ruleA = Uuid::randomHex();
         $ruleB = Uuid::randomHex();
@@ -623,7 +623,7 @@ class EntityExtensionTest extends TestCase
         return $data;
     }
 
-    private function getCategoriesData($id): array
+    private function getCategoriesData(string $id): array
     {
         $categoryA = Uuid::randomHex();
         $categoryB = Uuid::randomHex();

@@ -206,7 +206,7 @@ class ApiVersionConverter
         $this->validateQueryField($definition, implode('.', $parts), $apiVersion, $searchException, $pointer . '/' . $fieldName);
     }
 
-    private function stripNotAllowedFields(EntityDefinition $definition, $payload, int $apiVersion): array
+    private function stripNotAllowedFields(EntityDefinition $definition, array $payload, int $apiVersion): array
     {
         foreach ($payload as $field => $_value) {
             if ($this->isFromFuture($definition->getEntityName(), $field, $apiVersion)) {

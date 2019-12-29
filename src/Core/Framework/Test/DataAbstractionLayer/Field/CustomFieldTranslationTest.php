@@ -59,7 +59,7 @@ class CustomFieldTranslationTest extends TestCase
               language_id BINARY(16) NOT NULL,
               custom_translated json DEFAULT NULL,
               created_at datetime not null,
-              updated_at datetime,              
+              updated_at datetime,
               PRIMARY KEY (`attribute_test_id`, `language_id`)
         )');
 
@@ -539,7 +539,7 @@ class CustomFieldTranslationTest extends TestCase
         static::assertSame('inherited attribute', $translated['customTranslated']['parent']);
     }
 
-    protected function addLanguage($id, $rootLanguage): void
+    protected function addLanguage(string $id, ?string $rootLanguage): void
     {
         $translationCodeId = Uuid::randomHex();
         $languageRepository = $this->getContainer()->get('language.repository');

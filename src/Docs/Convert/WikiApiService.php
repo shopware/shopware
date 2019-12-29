@@ -343,8 +343,13 @@ class WikiApiService
         return $prevEntryId;
     }
 
-    private function createCategory($titleEn, $seoEn, $titleDe, $seoDe, $parentCategoryId = 50): int
-    {
+    private function createCategory(
+        string $titleEn,
+        string $seoEn,
+        string $titleDe,
+        string $seoDe,
+        ?int $parentCategoryId = 50
+    ): int {
         $response = $this->client->post(
             '/wiki/categories',
             [
@@ -394,7 +399,7 @@ class WikiApiService
         return $responseJson['id'];
     }
 
-    private function createLocalizedVersionedArticle($seoEn, $seoDe): array
+    private function createLocalizedVersionedArticle(string $seoEn, string $seoDe): array
     {
         $response = $this->client->post(
             '/wiki/entries',
@@ -443,7 +448,7 @@ class WikiApiService
         ];
     }
 
-    private function createArticleLocale($seo, $articleLocalizationUrl, $locale): array
+    private function createArticleLocale($seo, string $articleLocalizationUrl, array $locale): array
     {
         $response = $this->client->post(
             $articleLocalizationUrl,

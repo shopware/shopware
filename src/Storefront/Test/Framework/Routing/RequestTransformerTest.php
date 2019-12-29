@@ -314,7 +314,7 @@ class RequestTransformerTest extends TestCase
         ];
     }
 
-    private function createSalesChannels($salesChannels): EntityWrittenContainerEvent
+    private function createSalesChannels(array $salesChannels): EntityWrittenContainerEvent
     {
         $salesChannels = array_map(function ($salesChannelData) {
             $defaults = [

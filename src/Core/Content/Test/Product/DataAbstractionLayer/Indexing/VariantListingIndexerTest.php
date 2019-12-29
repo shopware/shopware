@@ -106,7 +106,10 @@ class VariantListingIndexerTest extends TestCase
         static::assertCount(0, $listing);
     }
 
-    private function createProduct($listingProperties): void
+    /**
+     * @param string[] $listingProperties
+     */
+    private function createProduct(array $listingProperties): void
     {
         $this->productId = Uuid::randomHex();
 

@@ -83,7 +83,7 @@ class ConnectionProfiler implements DataCollectorInterface
         return $time;
     }
 
-    private function sanitizeQueries($queries)
+    private function sanitizeQueries(array $queries)
     {
         foreach ($queries as $i => $query) {
             $queries[$i] = $this->sanitizeQuery($query);

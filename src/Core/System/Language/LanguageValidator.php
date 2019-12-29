@@ -118,7 +118,7 @@ class LanguageValidator implements EventSubscriberInterface
     private function getInheritanceViolations(array $affectedIds): ConstraintViolationList
     {
         $statement = $this->connection->executeQuery(
-            'SELECT child.id 
+            'SELECT child.id
              FROM language child
              INNER JOIN language parent ON parent.id = child.parent_id
              WHERE (child.id IN (:ids) OR child.parent_id IN (:ids))
@@ -203,8 +203,8 @@ class LanguageValidator implements EventSubscriberInterface
         array $parameters,
         $root = null,
         ?string $propertyPath = null,
-        $invalidValue = null,
-        $code = null
+        ?string $invalidValue = null,
+        ?string $code = null
     ): ConstraintViolationInterface {
         return new ConstraintViolation(
             str_replace(array_keys($parameters), array_values($parameters), $messageTemplate),

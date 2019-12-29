@@ -6,7 +6,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 interface SeoUrlPlaceholderHandlerInterface
 {
-    public function generate($name, $parameters = []): string;
+    /**
+     * @param string $name
+     */
+    public function generate($name, array $parameters = []): string;
 
     public function replace(string $content, string $host, SalesChannelContext $context): string;
 }

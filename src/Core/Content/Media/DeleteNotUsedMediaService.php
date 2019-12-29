@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Media;
 
-use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -43,7 +43,7 @@ class DeleteNotUsedMediaService
         $criteria = $this->createFilterForNotUsedMedia($context);
 
         $ids = $this->mediaRepo->searchIds($criteria, $context)->getIds();
-        $ids = array_map(function ($id) {
+        $ids = array_map(static function ($id) {
             return ['id' => $id];
         }, $ids);
         $this->mediaRepo->delete($ids, $context);
@@ -59,8 +59,8 @@ class DeleteNotUsedMediaService
         $defaultFolderCriteria->addAssociation('folder.configuration');
 
         $iterator = new RepositoryIterator($this->defaultFolderRepo, $context, $defaultFolderCriteria);
-        /** @var MediaDefaultFolderCollection $defaultFolders */
         while ($defaultFolders = $iterator->fetch()) {
+            /** @var MediaDefaultFolderEntity $defaultFolder */
             foreach ($defaultFolders as $defaultFolder) {
                 if ($defaultFolder->getFolder()->getConfiguration()->isNoAssociation()) {
                     $criteria->addFilter(

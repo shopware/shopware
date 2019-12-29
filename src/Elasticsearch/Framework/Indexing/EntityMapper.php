@@ -100,21 +100,6 @@ class EntityMapper
             case $field instanceof IntField:
                 return ['type' => 'long'];
 
-            case $field instanceof JsonField:
-                if (empty($field->getPropertyMapping())) {
-                    return ['type' => 'object'];
-                }
-                $properties = [];
-                foreach ($field->getPropertyMapping() as $nested) {
-                    $properties[$nested->getPropertyName()] = $this->mapField($definition, $nested, $context);
-                }
-
-                return ['type' => 'object', 'properties' => $properties];
-
-            case $field instanceof LongTextField:
-            case $field instanceof LongTextWithHtmlField:
-                return ['type' => 'text'];
-
             case $field instanceof ObjectField:
                 return ['type' => 'object'];
 
@@ -131,6 +116,21 @@ class EntityMapper
                         'updatedAt' => self::DATE_FIELD,
                     ],
                 ];
+
+            case $field instanceof JsonField:
+                if (empty($field->getPropertyMapping())) {
+                    return ['type' => 'object'];
+                }
+                $properties = [];
+                foreach ($field->getPropertyMapping() as $nested) {
+                    $properties[$nested->getPropertyName()] = $this->mapField($definition, $nested, $context);
+                }
+
+                return ['type' => 'object', 'properties' => $properties];
+
+            case $field instanceof LongTextField:
+            case $field instanceof LongTextWithHtmlField:
+                return ['type' => 'text'];
 
             case $field instanceof TranslatedField:
                 $reference = EntityDefinitionQueryHelper::getTranslatedField($definition, $field);
@@ -161,7 +161,7 @@ class EntityMapper
         $properties = [];
         $translated = [];
 
-        $fields = $definition->getFields()->filter(function (Field $field) {
+        $fields = $definition->getFields()->filter(static function (Field $field) {
             return !$field instanceof AssociationField;
         });
 

@@ -11,9 +11,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollectionBuilder;
@@ -140,7 +138,6 @@ class Kernel extends HttpKernel
         // init container
         $this->initializeContainer();
 
-        /** @var Bundle|ContainerAwareTrait $bundle */
         foreach ($this->getBundles() as $bundle) {
             $bundle->setContainer($this->container);
             $bundle->boot();
@@ -250,7 +247,7 @@ class Kernel extends HttpKernel
         $activePluginMeta = [];
 
         foreach ($this->pluginLoader->getPluginInstances()->getActives() as $plugin) {
-            $class = get_class($plugin);
+            $class = \get_class($plugin);
             $activePluginMeta[$class] = [
                 'name' => $plugin->getName(),
                 'path' => $plugin->getPath(),
@@ -349,7 +346,7 @@ class Kernel extends HttpKernel
 
         [$version, $hash] = explode('@', $version);
         $version = ltrim($version, 'v');
-        $version = str_replace('+', '-', $version);
+        $version = (string) str_replace('+', '-', $version);
 
         // checks if the version is a valid version pattern
         if (!preg_match('#\d+\.\d+\.\d+(-\w+)?#', $version)) {

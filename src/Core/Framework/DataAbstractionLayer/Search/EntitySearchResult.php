@@ -33,8 +33,13 @@ class EntitySearchResult extends EntityCollection
      */
     protected $context;
 
-    public function __construct(int $total, EntityCollection $entities, ?AggregationResultCollection $aggregations, Criteria $criteria, Context $context)
-    {
+    final public function __construct(
+        int $total,
+        EntityCollection $entities,
+        ?AggregationResultCollection $aggregations,
+        Criteria $criteria,
+        Context $context
+    ) {
         $this->entities = $entities;
         $this->total = $total;
         $this->aggregations = $aggregations ?? new AggregationResultCollection();
@@ -46,24 +51,12 @@ class EntitySearchResult extends EntityCollection
 
     public function filter(\Closure $closure)
     {
-        return new static(
-            $this->total,
-            $this->entities->filter($closure),
-            $this->aggregations,
-            $this->criteria,
-            $this->context
-        );
+        return $this->createNew($this->entities->filter($closure));
     }
 
     public function slice(int $offset, ?int $length = null)
     {
-        return new static(
-            $this->total,
-            $this->entities->slice($offset, $length),
-            $this->aggregations,
-            $this->criteria,
-            $this->context
-        );
+        return $this->createNew($this->entities->slice($offset, $length));
     }
 
     public function getTotal(): int
@@ -103,5 +96,16 @@ class EntitySearchResult extends EntityCollection
         parent::add($entity);
 
         $this->entities->add($entity);
+    }
+
+    protected function createNew(iterable $elements = [])
+    {
+        return new static(
+            $this->total,
+            $elements,
+            $this->aggregations,
+            $this->criteria,
+            $this->context
+        );
     }
 }

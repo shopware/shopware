@@ -18,7 +18,6 @@ use Shopware\Core\Framework\Update\Services\ApiClient;
 use Shopware\Core\Framework\Update\Services\PluginCompatibility;
 use Shopware\Core\Framework\Update\Services\RequirementsValidator;
 use Shopware\Core\Kernel;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Container;
@@ -59,12 +58,12 @@ class UpdateControllerTest extends TestCase
         $request = new Request();
         $request->query->set('offset', 0);
 
-        $response = $updateController->finish('', PlatformRequest::API_VERSION, $request, $context);
+        $response = $updateController->finish('', $request, $context);
 
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('/admin', $response->headers->get('location'));
 
-        $response = $updateController->finish('invalid token', PlatformRequest::API_VERSION, $request, $context);
+        $response = $updateController->finish('invalid token', $request, $context);
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('/admin', $response->headers->get('location'));
     }
@@ -128,10 +127,10 @@ class UpdateControllerTest extends TestCase
         $eventDispatcherWithoutPlugins
             ->expects(static::once())
             ->method('dispatch')
-            ->with(static::callback(function ($subject) use ($previousVersion, $version) {
-                $this->assertInstanceOf(UpdatePreFinishEvent::class, $subject);
-                $this->assertSame($previousVersion, $subject->getOldVersion());
-                $this->assertSame($version, $subject->getNewVersion());
+            ->with(static::callback(static function (UpdatePreFinishEvent $subject) use ($previousVersion, $version) {
+                static::assertInstanceOf(UpdatePreFinishEvent::class, $subject);
+                static::assertSame($previousVersion, $subject->getOldVersion());
+                static::assertSame($version, $subject->getNewVersion());
 
                 return true;
             }));
@@ -141,8 +140,8 @@ class UpdateControllerTest extends TestCase
             ->method('reboot')
             ->with(
                 static::anything(),
-                static::callback(function ($pluginLoader) {
-                    $this->assertInstanceOf(DbalKernelPluginLoader::class, $pluginLoader);
+                static::callback(static function ($pluginLoader) {
+                    static::assertInstanceOf(DbalKernelPluginLoader::class, $pluginLoader);
 
                     return true;
                 })
@@ -152,10 +151,10 @@ class UpdateControllerTest extends TestCase
         $eventDispatcherWithPlugins
             ->expects(static::once())
             ->method('dispatch')
-            ->with(static::callback(function ($subject) use ($previousVersion, $version) {
-                $this->assertInstanceOf(UpdatePostFinishEvent::class, $subject);
-                $this->assertSame($previousVersion, $subject->getOldVersion());
-                $this->assertSame($version, $subject->getNewVersion());
+            ->with(static::callback(static function (UpdatePostFinishEvent $subject) use ($previousVersion, $version) {
+                static::assertInstanceOf(UpdatePostFinishEvent::class, $subject);
+                static::assertSame($previousVersion, $subject->getOldVersion());
+                static::assertSame($version, $subject->getNewVersion());
 
                 return true;
             }));
@@ -173,7 +172,7 @@ class UpdateControllerTest extends TestCase
         $request = new Request();
         $request->query->set('offset', 0);
 
-        $response = $updateController->finish($token, PlatformRequest::API_VERSION, $request, $context);
+        $response = $updateController->finish($token, $request, $context);
 
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('/admin', $response->headers->get('location'));

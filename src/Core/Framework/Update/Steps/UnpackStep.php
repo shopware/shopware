@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Update\Steps;
 
 use Shopware\Core\Framework\Update\Exception\UpdateFailedException;
-use Shopware\Core\Framework\Update\Services\Archive\Entry\Zip as ZipEntry;
 use Shopware\Core\Framework\Update\Services\Archive\Zip;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -44,7 +43,9 @@ class UnpackStep
         // TestMode
         if ($this->testMode === true && $offset >= 90) {
             return new FinishResult(100, 100);
-        } elseif ($this->testMode === true) {
+        }
+
+        if ($this->testMode === true) {
             return new ValidResult($offset + 10, 100);
         }
         // TestMode
@@ -59,7 +60,6 @@ class UnpackStep
             throw new UpdateFailedException(sprintf('Could not open update package:<br>%s', $e->getMessage()), 0, $e);
         }
 
-        /** @var ZipEntry $entry */
         while (list($position, $entry) = $source->each()) {
             $name = $entry->getName();
             $targetName = $this->destinationDir . $name;

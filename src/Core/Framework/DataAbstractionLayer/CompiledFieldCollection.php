@@ -113,7 +113,7 @@ class CompiledFieldCollection extends FieldCollection
 
     public function filterByFlag(string $flagClass): self
     {
-        $ret = $this->filter(function (Field $field) use ($flagClass) {
+        $ret = $this->filter(static function (Field $field) use ($flagClass) {
             return $field->is($flagClass);
         });
 

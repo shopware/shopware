@@ -88,6 +88,7 @@ class BundleConfigDumper implements EventSubscriberInterface
             $bundles[$bundle->getName()] = [
                 'basePath' => $path . '/',
                 'views' => ['Resources/views'],
+                'technicalName' => str_replace('_', '-', $bundle->getContainerPrefix()),
                 'administration' => [
                     'path' => 'Resources/app/administration/src',
                     'entryFilePath' => $this->getEntryFile($bundle, 'Resources/app/administration/src'),

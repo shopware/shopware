@@ -351,6 +351,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Using npm: run `APP_URL="<your url>" STOREFRONT_PROXY_PORT=<some port> PROJECT_ROOT=<path to your root folder>/ npm run hot-proxy` from the storefronts js directory.
       * The default port is still port 9998.
     * We implemented the new `Storefront/Resources/views/storefront/component/product/listing.html.twig` which can be included to display product listings
+    * Changed the naming of the method `_submitForm` to `_redirectToVariant` inside `src/Storefront/Resources/app/storefront/src/plugin/variant-switch/variant-switch.plugin.js`.
 * Elasticsearch	
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.
         * You can set them with a parameter.yml too.

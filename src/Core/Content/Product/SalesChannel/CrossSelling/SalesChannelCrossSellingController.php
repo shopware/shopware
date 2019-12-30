@@ -7,7 +7,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -46,7 +46,7 @@ class SalesChannelCrossSellingController extends AbstractController
     private $crossSellingDefinition;
 
     /**
-     * @var ProductStreamBuilder
+     * @var ProductStreamBuilderInterface
      */
     private $productStreamBuilder;
 
@@ -55,7 +55,7 @@ class SalesChannelCrossSellingController extends AbstractController
         ApiVersionConverter $apiVersionConverter,
         ProductDefinition $productDefinition,
         ProductCrossSellingDefinition $crossSellingDefinition,
-        ProductStreamBuilder $productStreamBuilder
+        ProductStreamBuilderInterface $productStreamBuilder
     ) {
         $this->productRepository = $productRepository;
         $this->apiVersionConverter = $apiVersionConverter;

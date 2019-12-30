@@ -1,7 +1,7 @@
 import './sw-entity-single-select.scss';
 import template from './sw-entity-single-select.html.twig';
 
-const { Component, Utils } = Shopware;
+const { Component, Mixin, Utils } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 const { debounce, get } = Shopware.Utils;
 
@@ -12,6 +12,10 @@ Component.register('sw-entity-single-select', {
         prop: 'value',
         event: 'change'
     },
+
+    mixins: [
+        Mixin.getByName('remove-api-error')
+    ],
 
     inject: { repositoryFactory: 'repositoryFactory' },
 

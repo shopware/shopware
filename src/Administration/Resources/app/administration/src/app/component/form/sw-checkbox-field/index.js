@@ -22,7 +22,8 @@ Component.register('sw-checkbox-field', {
     },
 
     mixins: [
-        Mixin.getByName('sw-form-field')
+        Mixin.getByName('sw-form-field'),
+        Mixin.getByName('remove-api-error')
     ],
 
     props: {

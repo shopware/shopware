@@ -30,7 +30,8 @@ Component.register('sw-radio-field', {
     },
 
     mixins: [
-        Mixin.getByName('sw-form-field')
+        Mixin.getByName('sw-form-field'),
+        Mixin.getByName('remove-api-error')
     ],
 
     props: {

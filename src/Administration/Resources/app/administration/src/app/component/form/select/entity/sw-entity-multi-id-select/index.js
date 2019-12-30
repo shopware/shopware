@@ -1,6 +1,6 @@
 import template from './sw-entity-multi-id-select.html.twig';
 
-const { Component, Context } = Shopware;
+const { Component, Context, Mixin } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
 
 Component.register('sw-entity-multi-id-select', {
@@ -11,6 +11,10 @@ Component.register('sw-entity-multi-id-select', {
         prop: 'ids',
         event: 'change'
     },
+
+    mixins: [
+        Mixin.getByName('remove-api-error')
+    ],
 
     props: {
         ids: {

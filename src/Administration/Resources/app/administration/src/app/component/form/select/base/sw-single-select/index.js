@@ -1,7 +1,7 @@
 import './sw-single-select.scss';
 import template from './sw-single-select.html.twig';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 const { debounce, get } = Shopware.Utils;
 
 Component.register('sw-single-select', {
@@ -11,6 +11,10 @@ Component.register('sw-single-select', {
         prop: 'value',
         event: 'change'
     },
+
+    mixins: [
+        Mixin.getByName('remove-api-error')
+    ],
 
     props: {
         options: {

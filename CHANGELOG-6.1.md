@@ -61,6 +61,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Unified css classes of select fields in `sw-sales-channel-detail-base`. All css classes no reference to the sales channels collection names (e.g. `payment-methods` instead of `payment-method`)
     * Deprecated all `sw_sales_channel_detail_base_general_input_*_selection` and `sw_sales_channel_detail_base_general_input_*_assignment` blocks from `sw-sales-channel-detail-base` by refactoring them into `sw-sales-channel-defaults-select`.
     * Deprecated the events `onDefaultItemAdd` and `onRemoveItem` in `sales-channel-detail-base/index.js`. Those events are no longer needed and the add/remove logic is now handled by the `sw-sales-channel-defaults-select` component.
+    * We refactored the logic to remove api errors from the store into a separate mixin ('remove-api-error' mixin). Additionally, to remove the the errors, we changed from listening to the models event to watch the models prop.
+    * Additionally you can now change the default behaviour to remove api errors in your custom components. This can be done by overriding the `$apiErrorHandler` custom option for components that include the `remove-api-error` mixin.
 
     * Added new slot for `sw-data-grid` column headers
     * Added new component `sw-list-price-field`
@@ -522,4 +524,4 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-upright.var.woff2`	
         * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter.var.woff2`	
     * Removed `ContactPageController` and the `contact page`	
-    * Removed `newsletter page` and its route `/newsletter`   
+    * Removed `newsletter page` and its route `/newsletter`

@@ -6,7 +6,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -30,7 +30,7 @@ class CrossSellingLoader
     private $crossSellingRepository;
 
     /**
-     * @var ProductStreamBuilder
+     * @var ProductStreamBuilderInterface
      */
     private $productStreamBuilder;
 
@@ -45,7 +45,7 @@ class CrossSellingLoader
     public function __construct(
         EntityRepositoryInterface $crossSellingRepository,
         EventDispatcherInterface $eventDispatcher,
-        ProductStreamBuilder $productStreamBuilder,
+        ProductStreamBuilderInterface $productStreamBuilder,
         SalesChannelRepositoryInterface $productRepository
     ) {
         $this->eventDispatcher = $eventDispatcher;

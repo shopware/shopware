@@ -18,6 +18,10 @@ Component.register('sw-order-create', {
 
         cart() {
             return State.get('swOrder').cart;
+        },
+
+        isSaveOrderValid() {
+            return this.customer && this.cart.token && this.cart.lineItems.length;
         }
     },
 
@@ -30,18 +34,12 @@ Component.register('sw-order-create', {
     },
 
     beforeDestroy() {
-        this.beforeDestroyedComponent();
+        this.unregisterModule();
     },
 
     methods: {
         createdComponent() {
             this.checkFlagActive();
-        },
-
-        beforeDestroyedComponent() {
-            this.removeCustomer();
-            this.removeCartToken();
-            this.unregisterModule();
         },
 
         unregisterModule() {
@@ -52,25 +50,25 @@ Component.register('sw-order-create', {
             if (!this.next5515) this.redirectToOrderList();
         },
 
-        removeCustomer() {
-            State.commit('swOrder/removeCustomer');
-        },
-
-        removeCartToken() {
-            State.commit('swOrder/removeCartToken');
-        },
-
         redirectToOrderList() {
             this.$router.push({ name: 'sw.order.index' });
         },
 
         onSaveOrder() {
-            State
-                .dispatch('swOrder/saveOrder', {
-                    salesChannelId: this.customer.salesChannelId,
-                    contextToken: this.cart.token
-                })
-                .then(() => this.redirectToOrderList());
+            if (this.isSaveOrderValid) {
+                State
+                    .dispatch('swOrder/saveOrder', {
+                        salesChannelId: this.customer.salesChannelId,
+                        contextToken: this.cart.token
+                    })
+                    .then((response) => {
+                        const orderId = response.data.data.id;
+                        this.$router.push({ name: 'sw.order.detail', params: { id: orderId } });
+                    })
+                    .catch(() => this.showError());
+            } else {
+                this.showError();
+            }
         },
 
         onCancelOrder() {
@@ -79,7 +77,7 @@ Component.register('sw-order-create', {
                 .then(() => this.redirectToOrderList());
         },
 
-        onError() {
+        showError() {
             this.createNotificationError({
                 title: this.$tc('sw-order.create.titleSaveError'),
                 message: this.$tc('sw-order.create.messageSaveError')

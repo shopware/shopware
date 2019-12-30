@@ -1,12 +1,14 @@
 export default {
     namespaced: true,
 
-    state: {
-        customer: null,
-        cart: {
-            token: null,
-            lineItems: []
-        }
+    state() {
+        return {
+            customer: null,
+            cart: {
+                token: null,
+                lineItems: []
+            }
+        };
     },
 
     mutations: {
@@ -14,20 +16,13 @@ export default {
             state.customer = customer;
         },
 
-        removeCustomer(state) {
-            state.customer = null;
-        },
-
         setCartToken(state, token) {
             state.cart.token = token;
         },
 
-        removeCartToken(state) {
-            state.cart.token = null;
-        },
-
         setCart(state, cart) {
             state.cart = cart;
+            state.cart.lineItems = cart.lineItems.slice().reverse();
         }
     },
 
@@ -43,7 +38,7 @@ export default {
         },
 
         createCart({ commit, dispatch }, { salesChannelId }) {
-            Shopware
+            return Shopware
                 .Service('cartSalesChannelService')
                 .createCart(salesChannelId)
                 .then(response => {
@@ -52,27 +47,34 @@ export default {
                 });
         },
 
+        getCart({ commit }, { salesChannelId, contextToken }) {
+            return Shopware
+                .Service('cartSalesChannelService')
+                .getCart(salesChannelId, contextToken)
+                .then((response) => commit('setCart', response.data.data));
+        },
+
         dispatchUpdateCustomerContext({ state }) {
             const { customer, cart } = state;
-            Shopware
+            return Shopware
                 .Service('salesChannelContextService')
                 .updateCustomerContext(customer.id, customer.salesChannelId, cart.token);
         },
 
         updateCustomerContext(_, { customerId, salesChannelId, contextToken }) {
-            Shopware
+            return Shopware
                 .Service('salesChannelContextService')
                 .updateCustomerContext(customerId, salesChannelId, contextToken);
         },
 
         updateOrderContext(_, { context, salesChannelId, contextToken }) {
-            Shopware
+            return Shopware
                 .Service('salesChannelContextService')
                 .updateContext(context, salesChannelId, contextToken);
         },
 
         saveOrder(_, { salesChannelId, contextToken }) {
-            Shopware
+            return Shopware
                 .Service('checkOutSalesChannelService')
                 .checkout(salesChannelId, contextToken);
         },
@@ -86,6 +88,23 @@ export default {
             return Shopware
                 .Service('cartSalesChannelService')
                 .addProduct(salesChannelId, contextToken, productId, quantity)
+                .then(response => commit('setCart', response.data.data));
+        },
+
+        removeLineItem({ dispatch }, { salesChannelId, contextToken, lineItemKeys }) {
+            const deletionPromises = lineItemKeys.map((lineItemKey) => {
+                return Shopware.Service('cartSalesChannelService').removeLineItem(salesChannelId, contextToken, lineItemKey);
+            });
+
+            return Promise.all(deletionPromises).then(() => {
+                dispatch('getCart', { salesChannelId, contextToken });
+            });
+        },
+
+        updateLineItem({ commit }, { salesChannelId, contextToken, lineItemKey, quantity }) {
+            return Shopware
+                .Service('cartSalesChannelService')
+                .updateLineItem(salesChannelId, contextToken, lineItemKey, quantity)
                 .then((response) => commit('setCart', response.data.data));
         }
     }

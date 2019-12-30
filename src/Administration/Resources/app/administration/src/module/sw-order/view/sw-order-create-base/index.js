@@ -1,7 +1,8 @@
 import template from './sw-order-create-base.html.twig';
 
-const { Component, State, Utils } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, State, Utils, Data } = Shopware;
+const { Criteria } = Data;
+const { get, format } = Utils;
 
 Component.register('sw-order-create-base', {
     template,
@@ -18,9 +19,7 @@ Component.register('sw-order-create-base', {
                     customFields: []
                 }
             },
-            delivery: [],
-            isLoading: false,
-            sortedCalculatedTaxes: []
+            isLoading: false
         };
     },
 
@@ -51,7 +50,7 @@ Component.register('sw-order-create-base', {
 
         orderDate() {
             const today = new Date();
-            return Utils.format.date(today);
+            return format.date(today);
         },
 
         customer() {
@@ -68,6 +67,22 @@ Component.register('sw-order-create-base', {
 
         cartLineItems() {
             return this.cart.lineItems;
+        },
+
+        cartPrice() {
+            return this.cart.price;
+        },
+
+        cartDelivery() {
+            return get(this.cart, 'deliveries[0]', null);
+        },
+
+        filteredCalculatedTaxes() {
+            if (!this.cartPrice || !this.cartPrice.calculatedTaxes) {
+                return [];
+            }
+
+            return this.sortByTaxRate(this.cartPrice.calculatedTaxes).filter(price => price.tax !== 0);
         }
     },
 
@@ -113,11 +128,47 @@ Component.register('sw-order-create-base', {
         },
 
         onAddProductItem(item) {
+            this.updateLoading(true);
+
             State.dispatch('swOrder/addProductItem', {
                 salesChannelId: this.customer.salesChannelId,
                 contextToken: this.cart.token,
                 productId: item.identifier,
                 quantity: item.quantity
+            })
+                .finally(() => this.updateLoading(false));
+        },
+
+        onEditItem(item) {
+            this.updateLoading(true);
+
+            State.dispatch('swOrder/updateLineItem', {
+                salesChannelId: this.customer.salesChannelId,
+                contextToken: this.cart.token,
+                lineItemKey: item.id,
+                quantity: item.quantity
+            })
+                .finally(() => this.updateLoading(false));
+        },
+
+        onRemoveItem(itemKeys) {
+            this.updateLoading(true);
+
+            State.dispatch('swOrder/removeLineItem', {
+                salesChannelId: this.customer.salesChannelId,
+                contextToken: this.cart.token,
+                lineItemKeys: itemKeys
+            })
+                .finally(() => this.updateLoading(false));
+        },
+
+        updateLoading(loadingValue) {
+            this.isLoading = loadingValue;
+        },
+
+        sortByTaxRate(price) {
+            return price.sort((prev, current) => {
+                return prev.taxRate - current.taxRate;
             });
         }
     }

@@ -47,10 +47,13 @@
                                 <sw-order-line-items-grid-sales-channel
                                     :cart="cart"
                                     :currency="currency"
+                                    :isLoading="isLoading"
                                     :isCustomerActive="isCustomerActive"
                                     editable
                                     ref="sw-order-line-item-grid-sales-channel"
-                                    @on-add-item="onAddProductItem">
+                                    @on-add-item="onAddProductItem"
+                                    @on-remove-item="onRemoveItem"
+                                    @on-edit-item="onEditItem">
                                 </sw-order-line-items-grid-sales-channel>
                             {% endblock %}
 
@@ -63,35 +66,37 @@
                                             {% block sw_order_create_base_line_items_summary_entries %}
                                                 {% block sw_order_create_base_line_items_summary_amount %}
                                                     <dt>{{ $tc('sw-order.createBase.summaryLabelAmount') }}</dt>
-                                                    <dd>{{ 0 | currency(currency.shortName) }}</dd>
+                                                    <dd>{{ (cartPrice ? cartPrice.positionPrice : 0) | currency(currency.shortName) }}</dd>
                                                 {% endblock %}
 
                                                 {% block sw_order_create_base_line_items_summary_shipping_cost %}
-                                                    <dt>{{ $tc('sw-order.createBase.summaryLabelShippingCosts') }}</dt>
-                                                    <dd>
-                                                        <sw-order-saveable-field type="number"
-                                                                                 editable
-                                                                                 value="">
-                                                            {{ 0 | currency(currency.shortName) }}
-                                                        </sw-order-saveable-field>
+                                                    <template v-if="cartDelivery">
+                                                        <dt>{{ $tc('sw-order.createBase.summaryLabelShippingCosts') }}</dt>
+                                                        <dd>
+                                                            <sw-order-saveable-field type="number"
+                                                                                     editable
+                                                                                     value="">
+                                                                {{ cartDelivery.shippingCosts.totalPrice | currency(currency.shortName) }}
+                                                            </sw-order-saveable-field>
                                                     </dd>
+                                                    </template>
                                                 {% endblock %}
 
                                                 {% block sw_order_create_base_line_items_summary_amount_without_tax %}
                                                     <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
-                                                    <dd><strong>{{ 0 | currency(currency.shortName) }}</strong></dd>
+                                                    <dd><strong>{{ (cartPrice ? cartPrice.netPrice : 0) | currency(currency.shortName) }}</strong></dd>
                                                 {% endblock %}
 
                                                 {% block sw_order_create_base_line_items_summary_taxes %}
-                                                    <template v-for="calculatedTax in sortedCalculatedTaxes">
+                                                    <template v-for="calculatedTax in filteredCalculatedTaxes">
                                                         <dt>{{ $tc('sw-order.createBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}</dt>
-                                                        <dd>{{ 0 | currency(currency.shortName) }}</dd>
+                                                        <dd>{{ calculatedTax.tax | currency(currency.shortName) }}</dd>
                                                     </template>
                                                 {% endblock %}
 
                                                 {% block sw_order_create_base_line_items_summary_amount_total %}
                                                     <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountTotal') }}</strong></dt>
-                                                    <dd><strong>{{ 0 | currency(currency.shortName) }}</strong></dd>
+                                                    <dd><strong>{{ (cartPrice ? cartPrice.totalPrice : 0) | currency(currency.shortName) }}</strong></dd>
                                                 {% endblock %}
                                             {% endblock %}
                                         </sw-description-list>

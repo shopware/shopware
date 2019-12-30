@@ -21,6 +21,10 @@ function resolveFromRootPath(directory) {
     return join(projectRoot, directory);
 }
 
+function toKebabCase(val) {
+    return val.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+}
+
 /**
  * Valid sections
  *
@@ -39,10 +43,6 @@ const sections = [
  */
 function resolve(directory) {
     return join(__dirname, '..', directory);
-}
-
-function toKebabCase(val) {
-    return val.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
 }
 
 /**
@@ -201,7 +201,7 @@ class WebpackPluginInjector {
             pluginName,
             assetPaths,
             styleFiles: pluginDefinition[section].styleFiles,
-            technicalName: toKebabCase(pluginName),
+            technicalName: pluginDefinition.technicalName || toKebabCase(pluginName),
             viewPath: pluginDefinition.views.map((path) => join(basePath, path)),
             entryFile: join(basePath, pluginDefinition[section].entryFilePath)
         };

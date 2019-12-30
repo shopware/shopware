@@ -73,18 +73,34 @@ class SeoUrlGenerator
         $this->requestStack = $requestStack;
     }
 
+    public function generate(array $ids, string $template, SeoUrlRouteInterface $route, Context $context, ?SalesChannelEntity $salesChannel): iterable
+    {
+        $criteria = new Criteria($ids);
+        $route->prepareCriteria($criteria);
+
+        $config = $route->getConfig();
+
+        $repository = $this->definitionRegistry->getRepository($config->getDefinition()->getEntityName());
+
+        $entities = $context->disableCache(static function (Context $context) use ($repository, $criteria) {
+            return $repository->search($criteria, $context)->getEntities();
+        });
+
+        $this->setTwigTemplate($config, $template);
+
+        yield from $this->generateUrls($route, $config, $salesChannel, $entities);
+    }
+
     /**
+     * @deprecated tag:v6.3.0 - use `generate` instead
+     *
      * @param TemplateGroup[] $templateGroups
      *
      * @throws InvalidTemplateException
+     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
      */
-    public function generateSeoUrls(
-        Context $context,
-        SeoUrlRouteInterface $seoUrlRoute,
-        array $ids,
-        array $templateGroups,
-        ?SeoUrlRouteConfig $configOverride = null
-    ): iterable {
+    public function generateSeoUrls(Context $context, SeoUrlRouteInterface $seoUrlRoute, array $ids, array $templateGroups, ?SeoUrlRouteConfig $configOverride = null): iterable
+    {
         $criteria = new Criteria($ids);
         $seoUrlRoute->prepareCriteria($criteria);
 
@@ -99,13 +115,17 @@ class SeoUrlGenerator
 
         foreach ($templateGroups as $templateGroup) {
             $template = $templateGroup->getTemplate() ?: $defaultTemplate;
-            $config->setTemplate($template);
-            $this->setTwigTemplate($config);
+            $this->setTwigTemplate($config, $template);
 
-            yield from $this->generate($seoUrlRoute, $config, $templateGroup->getSalesChannels(), $entities);
+            foreach ($templateGroup->getSalesChannels() as $salesChannel) {
+                yield from $this->generateUrls($seoUrlRoute, $config, $salesChannel, $entities);
+            }
         }
     }
 
+    /**
+     * @deprecated tag:v6.3.0
+     */
     public function checkUpdateAffectsTemplate(
         EntityWrittenContainerEvent $event,
         EntityDefinition $definition,
@@ -135,12 +155,8 @@ class SeoUrlGenerator
         );
     }
 
-    private function generate(
-        SeoUrlRouteInterface $seoUrlRoute,
-        SeoUrlRouteConfig $config,
-        array $salesChannels,
-        EntityCollection $entities
-    ): iterable {
+    private function generateUrls(SeoUrlRouteInterface $seoUrlRoute, SeoUrlRouteConfig $config, ?SalesChannelEntity $salesChannel, EntityCollection $entities): iterable
+    {
         $request = $this->requestStack->getMasterRequest();
 
         $basePath = $request ? $request->getBasePath() : '';
@@ -154,32 +170,31 @@ class SeoUrlGenerator
             $seoUrl->setIsModified(false);
             $seoUrl->setIsDeleted(false);
 
-            /** @var SalesChannelEntity|null $salesChannel */
-            foreach ($salesChannels as $salesChannel) {
-                $copy = clone $seoUrl;
+            $copy = clone $seoUrl;
 
-                $mapping = $seoUrlRoute->getMapping($entity, $salesChannel);
-                $pathInfo = $this->router->generate($config->getRouteName(), $mapping->getInfoPathContext());
-                $pathInfo = $this->removePrefix($pathInfo, $basePath);
+            $mapping = $seoUrlRoute->getMapping($entity, $salesChannel);
 
-                $copy->setPathInfo($pathInfo);
+            $copy->setError($mapping->getError());
+            $pathInfo = $this->router->generate($config->getRouteName(), $mapping->getInfoPathContext());
+            $pathInfo = $this->removePrefix($pathInfo, $basePath);
 
-                $seoPathInfo = $this->getSeoPathInfo($mapping, $config);
+            $copy->setPathInfo($pathInfo);
 
-                if ($seoPathInfo === null || $seoPathInfo === '') {
-                    continue;
-                }
+            $seoPathInfo = $this->getSeoPathInfo($mapping, $config);
 
-                $copy->setSeoPathInfo($seoPathInfo);
-
-                if ($salesChannel !== null) {
-                    $copy->setSalesChannelId($salesChannel->getId());
-                } else {
-                    $copy->setSalesChannelId(null);
-                }
-
-                yield $copy;
+            if ($seoPathInfo === null || $seoPathInfo === '') {
+                continue;
             }
+
+            $copy->setSeoPathInfo($seoPathInfo);
+
+            if ($salesChannel !== null) {
+                $copy->setSalesChannelId($salesChannel->getId());
+            } else {
+                $copy->setSalesChannelId(null);
+            }
+
+            yield $copy;
         }
     }
 
@@ -196,9 +211,8 @@ class SeoUrlGenerator
         }
     }
 
-    private function setTwigTemplate(SeoUrlRouteConfig $config): void
+    private function setTwigTemplate(SeoUrlRouteConfig $config, string $template): void
     {
-        $template = $config->getTemplate();
         $template = "{% autoescape '" . self::ESCAPE_SLUGIFY . "' %}$template{% endautoescape %}";
         $this->twig->setLoader(new ArrayLoader(['template' => $template]));
 

@@ -14,7 +14,7 @@
 
         <service id="Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute">
             <argument type="service" id="Shopware\Core\Content\Category\CategoryDefinition"/>
-            <argument type="service" id="category.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="shopware.seo_url.route"/>
         </service>

@@ -290,6 +290,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * The data format of the `lineItem.payload.options` has changed. Now there is a simple array per element with `option` and `group`. It contains the translated names of the entities.
     * We deprecated the `Shopware\Storefront\Page\Search\SearchPage::$searchResult` property, use `Shopware\Storefront\Page\Search\SearchPage::$listing` instead
     * We implemented the new `Shopware\Core\HttpKernel` class which simplifies the kernel initialisation.
+    * We deprecated the `\Shopware\Core\Content\Seo\SeoUrlGenerator::generateSeoUrls` function, use `\Shopware\Core\Content\Seo\SeoUrlGenerator::generate` instead
+    * We deprecated the `\Shopware\Core\Content\Seo\SeoUrlGenerator::checkUpdateAffectsTemplate` function
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures	
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain	

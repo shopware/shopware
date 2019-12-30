@@ -377,6 +377,9 @@ class SeoUrlIndexerTest extends TestCase
 
     public function testMultiCreate(): void
     {
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
         $products = [
@@ -426,6 +429,9 @@ class SeoUrlIndexerTest extends TestCase
 
     public function testInheritance(): void
     {
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
         $parentId = Uuid::randomHex();
         $child1Id = Uuid::randomHex();
         $child2Id = Uuid::randomHex();
@@ -457,7 +463,8 @@ class SeoUrlIndexerTest extends TestCase
             ],
         ];
 
-        $this->productRepository->upsert($products, Context::createDefaultContext());
+        $context = Context::createDefaultContext();
+        $this->productRepository->upsert($products, $context);
 
         // update parent
         $update = [
@@ -499,6 +506,9 @@ class SeoUrlIndexerTest extends TestCase
 
     public function testIndex(): void
     {
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
         $productDefinition = $this->getContainer()->get(ProductDefinition::class);
         /** @var EntityWriter $writer */
         $writer = $this->getContainer()->get(EntityWriter::class);

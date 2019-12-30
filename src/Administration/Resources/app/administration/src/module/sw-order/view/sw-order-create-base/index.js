@@ -11,14 +11,6 @@ Component.register('sw-order-create-base', {
 
     data() {
         return {
-            currency: {
-                shortName: 'EUR',
-                translated: {
-                    shortName: 'EUR',
-                    name: 'Euro',
-                    customFields: []
-                }
-            },
             isLoading: false
         };
     },
@@ -73,6 +65,10 @@ Component.register('sw-order-create-base', {
             return this.cart.price;
         },
 
+        currency() {
+            return State.get('swOrder').currency;
+        },
+
         cartDelivery() {
             return get(this.cart, 'deliveries[0]', null);
         },
@@ -98,6 +94,14 @@ Component.register('sw-order-create-base', {
                 customerId: this.customer.id,
                 salesChannelId: this.customer.salesChannelId,
                 contextToken: this.cart.token
+            }).then(() => {
+                this.updateLoading(true);
+
+                State.dispatch('swOrder/getCart', {
+                    salesChannelId: this.customer.salesChannelId,
+                    contextToken: this.cart.token
+                })
+                    .finally(() => this.updateLoading(false));
             });
         },
 

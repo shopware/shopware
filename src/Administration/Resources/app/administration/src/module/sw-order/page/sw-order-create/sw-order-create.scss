@@ -20,6 +20,17 @@ $border-radius-hack: 100px;
         justify-content: center;
         align-items: flex-end;
         margin-left: 64px;
+
+        .sw-order-user-card__metadata-price {
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .sw-order-user-card__metadata-item {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
     }
 }
 

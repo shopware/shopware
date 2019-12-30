@@ -21,9 +21,14 @@
                         </sw-button>
                     {% endblock %}
                     {% block sw_order_create_smart_bar_actions_add %}
-                        <sw-button variant="primary" @click="onSaveOrder">
+                        <sw-button-process variant="primary"
+                                           :disabled="isLoading"
+                                           :isLoading="isLoading"
+                                           :processSuccess="isSaveSuccessful"
+                                           @process-finish="saveFinish"
+                                           @click.prevent="onSaveOrder">
                             {{ $tc('sw-order.create.buttonSaveOrder') }}
-                        </sw-button>
+                        </sw-button-process>
                     {% endblock %}
                 {% endblock %}
             </template>

@@ -21,7 +21,7 @@
                                     <sw-button variant="ghost"
                                                size="small"
                                                @click="onInsertExistingItem"
-                                               :disabled="!isCustomerActive">
+                                               :disabled="!isCustomerActive || isLoading">
                                         {{ $tc('sw-order.createBase.buttonAddProduct') }}
                                     </sw-button>
                                 {% endblock %}

@@ -3,6 +3,7 @@ import './sw-order-create.scss';
 import swOrderState from '../../state/order.store';
 
 const { Component, State, Mixin } = Shopware;
+const { get } = Shopware.Utils;
 
 Component.register('sw-order-create', {
     template,
@@ -10,6 +11,14 @@ Component.register('sw-order-create', {
     mixins: [
         Mixin.getByName('notification')
     ],
+
+    data() {
+        return {
+            isLoading: false,
+            isSaveSuccessful: false,
+            orderId: null
+        };
+    },
 
     computed: {
         customer() {
@@ -54,18 +63,29 @@ Component.register('sw-order-create', {
             this.$router.push({ name: 'sw.order.index' });
         },
 
+        saveFinish() {
+            this.isSaveSuccessful = false;
+            this.$router.push({ name: 'sw.order.detail', params: { id: this.orderId } });
+        },
+
         onSaveOrder() {
             if (this.isSaveOrderValid) {
+                this.isLoading = true;
+                this.isSaveSuccessful = false;
+
                 State
                     .dispatch('swOrder/saveOrder', {
                         salesChannelId: this.customer.salesChannelId,
                         contextToken: this.cart.token
                     })
                     .then((response) => {
-                        const orderId = response.data.data.id;
-                        this.$router.push({ name: 'sw.order.detail', params: { id: orderId } });
+                        this.isSaveSuccessful = true;
+                        this.orderId = get(response, 'data.data.id');
                     })
-                    .catch(() => this.showError());
+                    .catch(() => this.showError())
+                    .finally(() => {
+                        this.isLoading = false;
+                    });
             } else {
                 this.showError();
             }

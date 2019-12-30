@@ -14,6 +14,16 @@ Component.register('sw-order-create-details-header', {
         orderDate: {
             type: String,
             required: true
+        },
+
+        cartPrice: {
+            type: Object,
+            default: null
+        },
+
+        currency: {
+            type: Object,
+            default: null
         }
     },
 

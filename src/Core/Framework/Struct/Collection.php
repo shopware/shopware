@@ -65,7 +65,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
 
     public function has($key): bool
     {
-        return array_key_exists($key, $this->elements);
+        return \array_key_exists($key, $this->elements);
     }
 
     public function map(\Closure $closure): array
@@ -93,7 +93,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
      */
     public function filterInstance(string $class)
     {
-        return $this->filter(function ($item) use ($class) {
+        return $this->filter(static function ($item) use ($class) {
             return $item instanceof $class;
         });
     }
@@ -165,7 +165,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
         }
 
         if (!$element instanceof $expectedClass) {
-            $elementClass = get_class($element);
+            $elementClass = \get_class($element);
 
             throw new \InvalidArgumentException(
                 sprintf('Expected collection element of type %s got %s', $expectedClass, $elementClass)

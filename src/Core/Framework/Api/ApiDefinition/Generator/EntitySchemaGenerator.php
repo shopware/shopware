@@ -96,7 +96,6 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
     private function parseField(EntityDefinition $definition, Field $field): array
     {
         $flags = [];
-        /** @var Flag $flag */
         foreach ($field->getFlags() as $flag) {
             $flags = array_replace_recursive($flags, iterator_to_array($flag->parse()));
         }
@@ -121,9 +120,6 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                 return ['type' => 'uuid', 'flags' => $flags];
 
             // json fields
-            case $field instanceof ListField:
-                return ['type' => 'json_list', 'flags' => $flags];
-
             case $field instanceof CustomFields:
             case $field instanceof VersionDataPayloadField:
             case $field instanceof WhitelistRuleField:
@@ -134,26 +130,20 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
             case $field instanceof PriceField:
             case $field instanceof ListingPriceField:
             case $field instanceof ObjectField:
-            case $field instanceof JsonField:
-                $nested = [];
-                if ($field instanceof JsonField) {
-                    foreach ($field->getPropertyMapping() as $nestedField) {
-                        $nested[$nestedField->getPropertyName()] = $this->parseField($definition, $nestedField);
-                    }
-                }
+                return $this->createJsonObjectType($definition, $field, $flags);
 
-                return [
-                    'type' => 'json_object',
-                    'properties' => $nested,
-                    'flags' => $flags,
-                ];
+            case $field instanceof ListField:
+                return ['type' => 'json_list', 'flags' => $flags];
+
+            case $field instanceof JsonField:
+                return $this->createJsonObjectType($definition, $field, $flags);
 
             // association fields
             case $field instanceof OneToManyAssociationField:
             case $field instanceof ChildrenAssociationField:
             case $field instanceof TranslationsAssociationField:
                 if (!$field instanceof OneToManyAssociationField) {
-                    throw new \RuntimeException('Field should extend AssociationField');
+                    throw new \RuntimeException('Field should extend OneToManyAssociationField');
                 }
 
                 $reference = $field->getReferenceDefinition();
@@ -247,7 +237,26 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                 return ['type' => 'boolean', 'flags' => $flags];
 
             default:
-                return ['type' => get_class($field), 'flags' => $flags];
+                return ['type' => \get_class($field), 'flags' => $flags];
         }
+    }
+
+    /**
+     * @param Flag[] $flags
+     */
+    private function createJsonObjectType(EntityDefinition $definition, Field $field, array $flags): array
+    {
+        $nested = [];
+        if ($field instanceof JsonField) {
+            foreach ($field->getPropertyMapping() as $nestedField) {
+                $nested[$nestedField->getPropertyName()] = $this->parseField($definition, $nestedField);
+            }
+        }
+
+        return [
+            'type' => 'json_object',
+            'properties' => $nested,
+            'flags' => $flags,
+        ];
     }
 }

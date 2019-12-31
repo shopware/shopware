@@ -271,7 +271,7 @@ class ProductListingTest extends TestCase
         $repo->create($data, Context::createDefaultContext());
     }
 
-    private function combos($data, &$all = [], $group = [], $val = null, $i = 0): array
+    private function combos(array $data, &$all = [], $group = [], $val = null, $i = 0): array
     {
         if (isset($val)) {
             $group[] = $val;

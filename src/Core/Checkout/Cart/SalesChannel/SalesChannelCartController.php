@@ -329,7 +329,7 @@ class SalesChannelCartController extends AbstractController
         }
     }
 
-    private function serialize($data): array
+    private function serialize(Cart $data): array
     {
         $decoded = $this->serializer->normalize($data);
 

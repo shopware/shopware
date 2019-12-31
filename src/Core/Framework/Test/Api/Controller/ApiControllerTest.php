@@ -1918,7 +1918,7 @@ EOF;
         static::assertEquals('test tax', $tax['data']['attributes']['name']);
     }
 
-    private function createSalesChannel($id): void
+    private function createSalesChannel(string $id): void
     {
         $data = [
             'id' => $id,

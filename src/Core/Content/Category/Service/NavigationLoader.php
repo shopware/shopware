@@ -217,9 +217,9 @@ class NavigationLoader
         return FetchModeHelper::groupUnique($result);
     }
 
-    private function getMetaInfoById(string $id, $metaInfo): array
+    private function getMetaInfoById(string $id, array $metaInfo): array
     {
-        if (!array_key_exists($id, $metaInfo)) {
+        if (!\array_key_exists($id, $metaInfo)) {
             throw new CategoryNotFoundException($id);
         }
 

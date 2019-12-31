@@ -142,8 +142,12 @@ class SalesChannelProxyControllerTest extends TestCase
         return 'HTTP_' . mb_strtoupper(str_replace('-', '_', PlatformRequest::HEADER_LANGUAGE_ID));
     }
 
-    private function assertTranslation(array $expectedTranslations, array $data, string $salesChannelId, $langOverride = null): void
-    {
+    private function assertTranslation(
+        array $expectedTranslations,
+        array $data,
+        string $salesChannelId,
+        ?string $langOverride = null
+    ): void {
         $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
 
         $categoryData = $data;
@@ -175,7 +179,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $this->silentAssertArraySubset($expectedTranslations, $responseData['data']);
     }
 
-    private function createLanguage($langId, string $salesChannelId, $fallbackId = null): void
+    private function createLanguage(string $langId, string $salesChannelId, $fallbackId = null): void
     {
         $baseUrl = '/api/v' . PlatformRequest::API_VERSION;
 

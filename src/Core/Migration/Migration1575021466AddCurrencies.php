@@ -43,8 +43,17 @@ class Migration1575021466AddCurrencies extends MigrationStep
         $this->addCurrency($connection, Uuid::randomBytes(), 'NOK', 0.099, 'nkr', 'NOK', 'NOK', 'Norwegische Kronen', 'Norwegian krone');
     }
 
-    private function addCurrency(Connection $connection, $id, $isoCode, $factor, $symbol, $shortNameDe, $shortNameEn, $nameDe, $nameEn): void
-    {
+    private function addCurrency(
+        Connection $connection,
+        string $id,
+        string $isoCode,
+        float $factor,
+        string $symbol,
+        string $shortNameDe,
+        string $shortNameEn,
+        string $nameDe,
+        string $nameEn
+    ): void {
         $languageEN = $this->getEnLanguageId($connection);
         $languageDE = $this->getDeLanguageId($connection);
 

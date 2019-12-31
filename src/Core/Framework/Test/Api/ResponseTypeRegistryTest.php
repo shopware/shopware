@@ -246,7 +246,7 @@ class ResponseTypeRegistryTest extends TestCase
         $this->setRequestAttributeHack($request, PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
     }
 
-    private function setRequestAttributeHack(Request $request, $key, $value): void
+    private function setRequestAttributeHack(Request $request, string $key, $value): void
     {
         $r = new \ReflectionProperty(Request::class, 'attributes');
         $r->setAccessible(true);

@@ -44,7 +44,7 @@ class KernelPluginCollection
 
     public function has(string $name): bool
     {
-        return array_key_exists($name, $this->plugins);
+        return \array_key_exists($name, $this->plugins);
     }
 
     public function get(string $name): ?Plugin
@@ -65,13 +65,13 @@ class KernelPluginCollection
      */
     public function getActives(): array
     {
-        return array_filter($this->plugins, function (Plugin $plugin) {
+        return array_filter($this->plugins, static function (Plugin $plugin) {
             return $plugin->isActive();
         });
     }
 
     public function filter(\Closure $closure): KernelPluginCollection
     {
-        return new static(array_filter($this->plugins, $closure));
+        return new self(array_filter($this->plugins, $closure));
     }
 }

@@ -539,7 +539,7 @@ class EntityDefinitionQueryHelper
         return $chain;
     }
 
-    private function getAssociations($fieldName, EntityDefinition $definition, string $root): array
+    private function getAssociations(string $fieldName, EntityDefinition $definition, string $root): array
     {
         $fieldName = str_replace('extensions.', '', $fieldName);
 

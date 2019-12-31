@@ -130,8 +130,8 @@ class CompiledFieldCollection extends FieldCollection
         return Field::class;
     }
 
-    protected function createNew(iterable $elements = [])
+    protected function createNew(iterable $elements = []): CompiledFieldCollection
     {
-        return new static($this->registry, $elements);
+        return new self($this->registry, $elements);
     }
 }

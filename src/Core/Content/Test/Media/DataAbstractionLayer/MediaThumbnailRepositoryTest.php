@@ -68,7 +68,7 @@ class MediaThumbnailRepositoryTest extends TestCase
         static::assertFalse($this->getPublicFilesystem()->has($thumbnailPath));
     }
 
-    private function createThumbnailWithMedia($mediaId): MediaEntity
+    private function createThumbnailWithMedia(string $mediaId): MediaEntity
     {
         $this->mediaRepository->create([
             [

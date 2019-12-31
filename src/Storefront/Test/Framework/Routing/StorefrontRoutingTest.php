@@ -168,7 +168,7 @@ class StorefrontRoutingTest extends TestCase
         );
     }
 
-    private function generateCases($keys, $config): array
+    private function generateCases(array $keys, array $config): array
     {
         if (empty($keys)) {
             return [];
@@ -214,7 +214,7 @@ class StorefrontRoutingTest extends TestCase
         return $this->createSalesChannels([$salesChannel]);
     }
 
-    private function createSalesChannels($salesChannels): SalesChannelContext
+    private function createSalesChannels(array $salesChannels): SalesChannelContext
     {
         $salesChannels = array_map(function ($salesChannelData) {
             $defaults = [

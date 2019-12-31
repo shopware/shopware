@@ -231,7 +231,7 @@ class SalesChannelCheckoutController extends AbstractController
         return $salesChannelContext;
     }
 
-    private function serialize($data): array
+    private function serialize(array $data): array
     {
         $decoded = $this->serializer->normalize($data);
 

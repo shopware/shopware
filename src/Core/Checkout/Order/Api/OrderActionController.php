@@ -319,7 +319,7 @@ class OrderActionController extends AbstractController
         return $orderCriteria;
     }
 
-    private function getDocument($documentId, $context): array
+    private function getDocument($documentId, Context $context): array
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $documentId));

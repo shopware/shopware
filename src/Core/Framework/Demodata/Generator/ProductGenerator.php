@@ -63,7 +63,7 @@ class ProductGenerator implements DemodataGeneratorInterface
         $this->createProduct($context, $numberOfItems);
     }
 
-    private function createProduct(DemodataContext $context, $count = 500): void
+    private function createProduct(DemodataContext $context, int $count = 500): void
     {
         $visibilities = $this->buildVisibilities();
 

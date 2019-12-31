@@ -65,7 +65,7 @@ class ScopeRepository implements ScopeRepositoryInterface
 
         if (!$hasWrite) {
             foreach ($scopes as $index => $scope) {
-                if (!$hasWrite && $scope instanceof WriteScope) {
+                if ($scope instanceof WriteScope) {
                     unset($scopes[$index]);
                 }
             }

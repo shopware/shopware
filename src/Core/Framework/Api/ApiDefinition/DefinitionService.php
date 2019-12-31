@@ -37,12 +37,12 @@ class DefinitionService
         $this->definitionRegistry = $definitionRegistry;
     }
 
-    public function generate($format = 'openapi-3', $type = self::API): array
+    public function generate(string $format = 'openapi-3', string $type = self::API): array
     {
         return $this->getGenerator($format)->generate($this->getDefinitions($type));
     }
 
-    public function getSchema($format = 'openapi-3', $type = self::API): array
+    public function getSchema(string $format = 'openapi-3', string $type = self::API): array
     {
         return $this->getGenerator($format)->getSchema($this->getDefinitions($type));
     }

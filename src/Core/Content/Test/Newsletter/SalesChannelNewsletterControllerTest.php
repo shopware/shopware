@@ -32,7 +32,7 @@ class SalesChannelNewsletterControllerTest extends TestCase
          */
         $this->getSalesChannelBrowser(); // must be called for initializing the SalesChannel
         $newsletterDomainConfig = [
-            'id' => $id ?? Uuid::randomHex(),
+            'id' => Uuid::randomHex(),
             'configurationKey' => 'core.newsletter.subscribeDomain',
             'configurationValue' => 'http://localhost',
             'salesChannelId' => $this->getSalesChannelApiSalesChannelId(),

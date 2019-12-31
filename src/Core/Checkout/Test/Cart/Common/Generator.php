@@ -203,7 +203,7 @@ class Generator extends TestCase
         return $cart;
     }
 
-    private function createTaxDetector($useGross, $isNetDelivery): TaxDetector
+    private function createTaxDetector(bool $useGross, bool $isNetDelivery): TaxDetector
     {
         /** @var MockObject|TaxDetector $mock */
         $mock = $this->createMock(TaxDetector::class);

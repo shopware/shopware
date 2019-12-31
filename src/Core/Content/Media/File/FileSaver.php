@@ -319,7 +319,7 @@ class FileSaver
      * @throws FileExistsException
      * @throws FileNotFoundException
      */
-    private function renameFile($source, $destination, FilesystemInterface $filesystem): array
+    private function renameFile(string $source, string $destination, FilesystemInterface $filesystem): array
     {
         $filesystem->rename($source, $destination);
 

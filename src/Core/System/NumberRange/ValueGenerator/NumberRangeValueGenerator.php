@@ -75,7 +75,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
         return $this->generate($parsedPattern, true);
     }
 
-    protected function parsePattern($pattern): ?array
+    protected function parsePattern(?string $pattern): ?array
     {
         return preg_split(
             '/([}{])/',

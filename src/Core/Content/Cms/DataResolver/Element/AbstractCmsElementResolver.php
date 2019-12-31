@@ -29,7 +29,7 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
         // E.g. `product.description` does not exist, but will be found if the first part is omitted.
         $smartDetect = true;
 
-        while (count($parts) > 0) {
+        while (\count($parts) > 0) {
             $part = array_shift($parts);
 
             if ($value === null) {
@@ -41,7 +41,7 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
 
                 // if we are at the destination entity and it does not have a value for the field
                 // on it's on, then try to get the translation fallback
-                if ($value === null && count($parts) === 0) {
+                if ($value === null) {
                     $value = $entity->getTranslation($part);
                 }
             } catch (\InvalidArgumentException $ex) {
@@ -70,7 +70,7 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
         // E.g. `product.description` does not exist, but will be found if the first part is omitted.
         $smartDetect = true;
 
-        while (count($parts) > 0) {
+        while (\count($parts) > 0) {
             $part = array_shift($parts);
             $value = $fields->get($part);
 
@@ -88,8 +88,10 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
         return $value;
     }
 
-    protected function resolveCriteriaForLazyLoadedRelations(EntityResolverContext $resolverContext, FieldConfig $config): ?Criteria
-    {
+    protected function resolveCriteriaForLazyLoadedRelations(
+        EntityResolverContext $resolverContext,
+        FieldConfig $config
+    ): ?Criteria {
         if (!$field = $this->resolveDefinitionField($resolverContext->getDefinition(), $config->getValue())) {
             return null;
         }
@@ -127,7 +129,7 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
         /** @var ManyToManyAssociationField|null $manyToMany */
         $manyToMany = $field->getToManyReferenceDefinition()->getFields()
             ->filterInstance(ManyToManyAssociationField::class)
-            ->filter(function (ManyToManyAssociationField $field) use ($referenceDefinition) {
+            ->filter(static function (ManyToManyAssociationField $field) use ($referenceDefinition) {
                 return $field->getReferenceDefinition() === $referenceDefinition;
             })
             ->first();
@@ -146,7 +148,7 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
         /** @var ManyToOneAssociationField|null $manyToOne */
         $manyToOne = $field->getReferenceDefinition()->getFields()
             ->filterInstance(ManyToOneAssociationField::class)
-            ->filter(function (ManyToOneAssociationField $field) use ($referenceDefinition) {
+            ->filter(static function (ManyToOneAssociationField $field) use ($referenceDefinition) {
                 return $field->getReferenceDefinition() === $referenceDefinition;
             })
             ->first()

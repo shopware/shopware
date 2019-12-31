@@ -302,7 +302,7 @@ class SystemConfigService
         }
     }
 
-    private function getId($key, ?string $salesChannelId = null): ?string
+    private function getId(string $key, ?string $salesChannelId = null): ?string
     {
         $criteria = new Criteria();
         $criteria->addFilter(

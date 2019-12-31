@@ -55,7 +55,7 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
 
     private function createMailTemplate(
         DemodataContext $context,
-        $count = 500
+        int $count = 500
     ): void {
         $context->getConsole()->progressStart($count);
 

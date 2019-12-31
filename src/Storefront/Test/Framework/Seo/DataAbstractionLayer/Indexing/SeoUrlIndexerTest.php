@@ -553,7 +553,7 @@ class SeoUrlIndexerTest extends TestCase
         return $seoUrlCollection;
     }
 
-    private function upsertTemplate($data): void
+    private function upsertTemplate(array $data): void
     {
         $seoUrlTemplateDefaults = [
             'salesChannelId' => Defaults::SALES_CHANNEL,
@@ -564,7 +564,7 @@ class SeoUrlIndexerTest extends TestCase
         $this->templateRepository->upsert([$seoUrlTemplate], Context::createDefaultContext());
     }
 
-    private function upsertProduct($data): void
+    private function upsertProduct(array $data): void
     {
         $defaults = [
             'manufacturer' => [

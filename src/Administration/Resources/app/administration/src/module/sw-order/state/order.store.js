@@ -38,6 +38,10 @@ export default {
 
         setCurrency(state, currency) {
             state.currency = currency;
+        },
+
+        removeEmptyLineItem(state, emptyLineItemKey) {
+            state.cart.lineItems = state.cart.lineItems.filter(item => item.id !== emptyLineItemKey);
         }
     },
 

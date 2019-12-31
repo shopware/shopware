@@ -149,8 +149,19 @@ Component.register('sw-order-line-items-grid-sales-channel', {
         },
 
         onDeleteSelectedItems() {
-            const selectedItemKeys = Object.keys(this.selectedItems);
-            this.$emit('on-remove-item', selectedItemKeys);
+            const selectedIds = [];
+
+            Object.keys(this.selectedItems).forEach(key => {
+                if (this.selectedItems[key].label === '') {
+                    State.commit('swOrder/removeEmptyLineItem', key);
+                } else {
+                    selectedIds.push(key);
+                }
+            });
+
+            if (selectedIds.length > 0) {
+                this.$emit('on-remove-item', selectedIds);
+            }
         },
 
         itemCreatedFromProduct(id) {

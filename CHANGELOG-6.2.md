@@ -431,7 +431,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed a bug when the criteria contains a list of ids and no sortings, queries or a term, the search result will be sorted by the provided ids
     * Added new route `/api/v{version}/_action/container_cache` which clears the Symfony Container cache
     * Added `customerComment` property to the `Shopware\Core\Checkout\Order\OrderEntity.php`
-    
+    * Marked `\Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface` as internal
+    * Added `\Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface::sync` function
+    * Added `single-operation` header in `_action/sync` endpoint
 * Storefront
     Deprecated `$connection->executeQuery()` for write operations
     * Added `\Shopware\Core\Framework\Api\Controller\CaptchaController` which provides a list of all available captchas to the administration

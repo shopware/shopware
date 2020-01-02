@@ -1,23 +1,37 @@
 import template from './sw-order-create-base.html.twig';
 
-const { Component, State, Utils, Data } = Shopware;
+const { Component, State, Utils, Data, Service } = Shopware;
 const { Criteria } = Data;
 const { get, format } = Utils;
 
 Component.register('sw-order-create-base', {
     template,
 
-    inject: ['repositoryFactory'],
-
     data() {
         return {
-            isLoading: false
+            isLoading: false,
+            address: {
+                data: null
+            },
+            showAddressModal: false
         };
     },
 
     computed: {
         customerRepository() {
-            return this.repositoryFactory.create('customer');
+            return Service('repositoryFactory').create('customer');
+        },
+
+        customerAddressRepository() {
+            return Service('repositoryFactory').create('customer_address');
+        },
+
+        customerAddressCriteria() {
+            const criteria = new Criteria();
+
+            criteria.addAssociation('country');
+
+            return criteria;
         },
 
         defaultCriteria() {
@@ -108,7 +122,7 @@ Component.register('sw-order-create-base', {
         },
 
         onSelectExistingCustomer(customerId) {
-            this.customerRepository
+            return this.customerRepository
                 .get(customerId, Shopware.Context.api, this.defaultCriteria)
                 .then((customer) => {
                     State.dispatch('swOrder/selectExistingCustomer', { customer });
@@ -122,11 +136,54 @@ Component.register('sw-order-create-base', {
         },
 
         onEditBillingAddress() {
-            // TODO: Handle function
+            const contextId = 'billingAddressId';
+            const contextDataKey = 'billingAddress';
+
+            this.address = {
+                contextId,
+                contextDataKey,
+                data: this.customer[contextDataKey] ? this.customer[contextDataKey] : this.customer.defaultBillingAddress
+            };
+
+            this.showAddressModal = true;
         },
 
         onEditShippingAddress() {
-            // TODO: Handle function
+            const contextId = 'shippingAddressId';
+            const contextDataKey = 'shippingAddress';
+
+            this.address = {
+                contextId,
+                contextDataKey,
+                data: this.customer[contextDataKey] ? this.customer[contextDataKey] : this.customer.defaultShippingAddress
+            };
+
+            this.showAddressModal = true;
+        },
+
+        setCustomerAddress({ contextId, contextDataKey, data }) {
+            this.customer[contextId] = data.id;
+
+            this.customerAddressRepository
+                .get(this.customer[contextId], Shopware.Context.api, this.customerAddressCriteria)
+                .then(response => {
+                    this.customer[contextDataKey] = response;
+                });
+        },
+
+        closeModal() {
+            this.showAddressModal = false;
+            this.address.data = null;
+        },
+
+        save() {
+            this.closeModal();
+        },
+
+        reset() {
+            this.onSelectExistingCustomer(this.customer.id).finally(() => {
+                this.closeModal();
+            });
         },
 
         onAddProductItem(item) {

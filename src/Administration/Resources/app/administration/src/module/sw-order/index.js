@@ -22,6 +22,7 @@ import './component/sw-order-document-card';
 import './component/sw-order-create-details-header';
 import './component/sw-order-create-details-body';
 import './component/sw-order-create-details-footer';
+import './component/sw-order-create-address-modal';
 import './component/sw-order-new-customer-modal';
 
 const { Module } = Shopware;

@@ -122,10 +122,10 @@
                                                             {% block component_offcanvas_product_buy_quantity %}
                                                                 <select name="quantity"
                                                                         class="custom-select quantity-select-{{ id }} js-offcanvas-cart-change-quantity">
-                                                                    {% for quantity in range(quantityInformation.minPurchase, maxQuantity, quantityInformation.purchaseSteps) %}
-                                                                        <option value="{{ quantity }}"
-                                                                            {% if quantity == quantity %} selected="selected"{% endif %}>
-                                                                            {{ quantity }}
+                                                                    {% for quantityItem in range(quantityInformation.minPurchase, maxQuantity, quantityInformation.purchaseSteps) %}
+                                                                        <option value="{{ quantityItem }}"
+                                                                            {% if quantityItem == quantity %} selected="selected"{% endif %}>
+                                                                            {{ quantityItem }}
                                                                         </option>
                                                                     {% endfor %}
                                                                 </select>

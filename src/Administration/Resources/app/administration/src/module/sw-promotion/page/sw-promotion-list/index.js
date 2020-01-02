@@ -91,6 +91,10 @@ Component.register('sw-promotion-list', {
                 allowResize: true,
                 align: 'center'
             }];
+        },
+
+        updateTotal({ total }) {
+            this.total = total;
         }
     }
 });

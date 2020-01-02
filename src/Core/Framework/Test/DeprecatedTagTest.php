@@ -20,6 +20,7 @@ class DeprecatedTagTest extends TestCase
     private $whiteList = [
         'Test/',
         'node_modules/',
+        'Common/vendor/',
     ];
 
     public function testAllPhpFilesInPlatformForDeprecated(): void

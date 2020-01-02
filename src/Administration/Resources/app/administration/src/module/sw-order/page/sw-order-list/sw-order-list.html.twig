@@ -32,7 +32,7 @@
                 {% block sw_order_list_smart_bar_actions_slot %}
 
                     {% block sw_order_list_smart_bar_actions_add %}
-                        <sw-button variant="primary" disabled>
+                        <sw-button variant="primary" disabled v-if="false">
                             {{ $tc('sw-order.list.buttonAddOrder') }}
                         </sw-button>
                     {% endblock %}

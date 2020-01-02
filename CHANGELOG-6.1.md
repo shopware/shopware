@@ -363,9 +363,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 **Removals**
 
 * Administration
-	* Removed module export of `Shopware`	
+    * Removed module export of `Shopware`
     * Removed plugin functionality in login	
     * Removed direct component registration in modules
+    * Removed "add order" button in order module
     
 * Core    
     * When a sub entity is written or deleted, a written event is dispatched for the configured root entity. 	

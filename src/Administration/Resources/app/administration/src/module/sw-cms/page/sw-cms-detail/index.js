@@ -110,8 +110,9 @@ Component.register('sw-cms-detail', {
             return {
                 page: this.$tc('sw-cms.detail.label.pageTypeShopPage'),
                 landingpage: this.$tc('sw-cms.detail.label.pageTypeLandingpage'),
-                product_list: this.$tc('sw-cms.detail.label.pageTypeCategory'),
-                product_detail: this.$tc('sw-cms.detail.label.pageTypeProduct')
+                product_list: this.$tc('sw-cms.detail.label.pageTypeCategory')
+                // Will be implemented in the future
+                // product_detail: this.$tc('sw-cms.detail.label.pageTypeProduct')
             };
         },
 

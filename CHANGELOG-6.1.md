@@ -373,6 +373,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Removed plugin functionality in login	
     * Removed direct component registration in modules
     * Removed "add order" button in order module
+    * Remove disabled cms page type for product pages
     
 * Core    
     * When a sub entity is written or deleted, a written event is dispatched for the configured root entity. 	

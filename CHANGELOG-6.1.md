@@ -95,6 +95,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
       * Added new block `sw_plugin_last_udates_card_grid_content` in `sw-plugin-last-updates-grid` to override the grid content rather than the slot access.
     * Removed computed property `lineItemActionsEnabled` from `sw-order-line-items-grid` since it was never used and always evaluate to false
     * Replaced kebab-case plugin file exporting with camel case to match php requirements
+    * When updating domains in a sales channel you can only select one of the available languages for the sales channel
 
 * Core    
 	* We did some refactoring on how we use `WriteConstraintsViolationExceptions`.	

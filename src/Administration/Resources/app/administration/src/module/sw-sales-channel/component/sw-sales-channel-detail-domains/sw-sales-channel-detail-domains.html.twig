@@ -90,6 +90,7 @@
                         {% block sw_sales_channel_detail_domains_input_language %}
                             <sw-entity-single-select
                                 :label="$tc('sw-sales-channel.detail.labelInputLanguage')"
+                                :criteria="salesChannelFilterCriteria"
                                 entity="language"
                                 required
                                 v-model="currentDomain.languageId"

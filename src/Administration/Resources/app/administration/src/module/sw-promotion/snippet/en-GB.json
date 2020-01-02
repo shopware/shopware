@@ -157,6 +157,7 @@
             "rulesPlaceholder": "Assign shopping cart rule...",
             "setgroups": {
               "switchGroupsEnabled": "Promote sets of products",
+              "switchGroupsExperimental": "Activate experimental features",
               "buttonAddGroup": "Add product set",
               "titleName": "Group",
               "labelMode": "Mode",

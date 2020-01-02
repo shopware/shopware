@@ -96,6 +96,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Removed computed property `lineItemActionsEnabled` from `sw-order-line-items-grid` since it was never used and always evaluate to false
     * Replaced kebab-case plugin file exporting with camel case to match php requirements
     * Added pagination to plugin manager
+    * Show domain selection in first run wizard only when domains exists
     * Hide user set groups option in promotions behind an experimental flag
     * Added new block `sw_promotion_cart_condition_form_allow_experimental`
     * When updating domains in a sales channel you can only select one of the available languages for the sales channel

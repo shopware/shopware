@@ -1,5 +1,5 @@
 {% block sw_first_run_wizard_shopware_domain %}
-    <div>
+    <div class="sw-first-run-wizard-shopware-domain">
         <h3 class="headline">{{ $tc('sw-first-run-wizard.shopwareDomain.headline') }}</h3>
         <p v-html="$tc('sw-first-run-wizard.shopwareDomain.message')"
            class="message"></p>
@@ -17,7 +17,7 @@
             </sw-field>
             <sw-checkbox-field :label="$tc('sw-first-run-wizard.shopwareDomain.testEnvironment')" v-model="testEnvironment"></sw-checkbox-field>
         </div>
-        <div v-else>
+        <div v-else-if="licenceDomains.length > 0">
             <sw-select-field v-model="selectedShopDomain"
                              label="Shop domain"
                              placeholder="">
@@ -36,5 +36,7 @@
                 {{ domainError.detail }}
             </sw-alert>
         </div>
+
+        <sw-loader v-if="isLoading"></sw-loader>
     </div>
 {% endblock %}

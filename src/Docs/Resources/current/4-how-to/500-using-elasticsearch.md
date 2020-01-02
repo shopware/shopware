@@ -1,6 +1,6 @@
 [titleEn]: <>(Using elasticsearch)
 
-As soon as several thousand data sets are used in a project it makes sense to deal with Elasticsearch.
+As soon as several thousand data sets are used in a project it makes sense to deal with Elasticsearch. Elasticsearch 7.1 or newer is required.
 The Elasticsearch integration for shopware is in the `shopware/elasticsearch` bundle. If this is not available in your project you can simply add it via `composer require shopware/elasticsearch`.
 
 To activate Elasticsearch the following environment variables have to be set:

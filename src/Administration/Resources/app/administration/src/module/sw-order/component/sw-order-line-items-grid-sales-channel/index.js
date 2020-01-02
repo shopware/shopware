@@ -33,7 +33,8 @@ Component.register('sw-order-line-items-grid-sales-channel', {
 
     data() {
         return {
-            selectedItems: {}
+            selectedItems: {},
+            searchTerm: ''
         };
     },
 
@@ -43,7 +44,7 @@ Component.register('sw-order-line-items-grid-sales-channel', {
         },
 
         cartLineItems() {
-            return this.cart.lineItems;
+            return this.cart.lineItems.filter(item => (item.label || '').toLowerCase().includes(this.searchTerm));
         },
 
         getLineItemColumns() {
@@ -111,11 +112,16 @@ Component.register('sw-order-line-items-grid-sales-channel', {
         },
 
         onInlineEditCancel(item) {
-            this.initLineItem(item);
-            delete item.identifier;
+            if (item._isNew) {
+                this.initLineItem(item);
+                delete item.identifier;
+            }
         },
 
         createNewOrderLineItem() {
+            this.searchTerm = '';
+            this.$refs.itemFilter.term = '';
+
             const item = this.orderLineItemRepository.create();
             item.versionId = Shopware.Context.api.liveVersionId;
             this.initLineItem(item);
@@ -180,6 +186,10 @@ Component.register('sw-order-line-items-grid-sales-channel', {
         itemCreatedFromProduct(id) {
             const item = this.cartLineItems.find((elem) => { return elem.id === id; });
             return !!item._isNew && item.type === '';
+        },
+
+        onSearchTermChange(searchTerm) {
+            this.searchTerm = searchTerm.toLowerCase();
         }
     }
 });

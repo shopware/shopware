@@ -9,7 +9,10 @@
 
                     {% block sw_order_line_items_grid_sales_channel_line_item_filter %}
                         <div align="left">
-                            <sw-card-filter :placeholder="$tc('sw-order.createBase.placeholderSearchBarItem')"></sw-card-filter>
+                            <sw-card-filter :placeholder="$tc('sw-order.createBase.placeholderSearchBarItem')"
+                                            @sw-card-filter-term-change="onSearchTermChange"
+                                            ref="itemFilter">
+                            </sw-card-filter>
                         </div>
                     {% endblock %}
 

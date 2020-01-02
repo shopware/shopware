@@ -223,6 +223,7 @@ Core
 
     $response->send();
     ```
+ * If you used the `\Shopware\Core\Content\Seo\SeoUrlGenerator` in your sources, please use the `generate` function instead of the `generateSeoUrls`
  
  * If you update your decoration implementations of `\Shopware\Core\Framework\Validation\ValidationServiceInterface` to  `\Shopware\Core\Framework\Validation\DataValidationFactoryInterface` make sure to still implement the old interface
     and when calling the inner implementation please make sure to check if the inner implementation already supports the interface, like

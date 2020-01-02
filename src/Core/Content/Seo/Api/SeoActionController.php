@@ -9,7 +9,6 @@ use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
-use Shopware\Core\Content\Seo\SeoUrlTemplate\TemplateGroup;
 use Shopware\Core\Content\Seo\Validation\SeoUrlDataValidationFactoryInterface;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
@@ -254,9 +253,7 @@ class SeoActionController extends AbstractController
             }
         }
 
-        $templateString = $seoUrlTemplate['template'];
-        $groups = [new TemplateGroup($context->getLanguageId(), $templateString, [$salesChannelId], [$salesChannel])];
-        $result = $this->seoUrlGenerator->generateSeoUrls($context, $seoUrlRoute, $ids, $groups, $config);
+        $result = $this->seoUrlGenerator->generate($ids, $seoUrlTemplate['template'], $seoUrlRoute, $context, $salesChannel);
 
         return iterator_to_array($result);
     }

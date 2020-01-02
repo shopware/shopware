@@ -21,11 +21,17 @@ class SeoUrlMapping
      */
     private $seoPathInfoContext;
 
-    public function __construct(Entity $entity, array $infoPathContext, array $seoPathInfoContext)
+    /**
+     * @var string|null
+     */
+    private $error;
+
+    public function __construct(Entity $entity, array $infoPathContext, array $seoPathInfoContext, ?string $error = null)
     {
         $this->entity = $entity;
         $this->infoPathContext = $infoPathContext;
         $this->seoPathInfoContext = $seoPathInfoContext;
+        $this->error = $error;
     }
 
     public function getEntity(): Entity
@@ -41,5 +47,10 @@ class SeoUrlMapping
     public function getInfoPathContext(): array
     {
         return $this->infoPathContext;
+    }
+
+    public function getError(): ?string
+    {
+        return $this->error;
     }
 }

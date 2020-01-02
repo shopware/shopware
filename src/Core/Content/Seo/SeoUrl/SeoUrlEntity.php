@@ -81,6 +81,11 @@ class SeoUrlEntity extends Entity
      */
     protected $customFields;
 
+    /**
+     * @var string|null
+     */
+    protected $error;
+
     public function getSalesChannelId(): ?string
     {
         return $this->salesChannelId;
@@ -209,5 +214,15 @@ class SeoUrlEntity extends Entity
     public function setLanguage(LanguageEntity $language): void
     {
         $this->language = $language;
+    }
+
+    public function getError(): ?string
+    {
+        return $this->error;
+    }
+
+    public function setError(?string $error): void
+    {
+        $this->error = $error;
     }
 }

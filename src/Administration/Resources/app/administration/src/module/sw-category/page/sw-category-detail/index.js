@@ -51,7 +51,8 @@ Component.register('sw-category-detail', {
             splitBreakpoint: 1024,
             isDisplayingLeavePageWarning: false,
             nextRoute: null,
-            currentLanguageId: Shopware.Context.api.languageId
+            currentLanguageId: Shopware.Context.api.languageId,
+            discardChanges: false
         };
     },
 
@@ -161,6 +162,13 @@ Component.register('sw-category-detail', {
     },
 
     beforeRouteLeave(to, from, next) {
+        if (this.forceDiscardChanges) {
+            this.forceDiscardChanges = false;
+            next();
+
+            return;
+        }
+
         if (this.category && this.categoryRepository.hasChanges(this.category)) {
             this.isDisplayingLeavePageWarning = true;
             this.nextRoute = to;
@@ -290,7 +298,9 @@ Component.register('sw-category-detail', {
         },
 
         onLeaveModalConfirm(destination) {
+            this.forceDiscardChanges = true;
             this.isDisplayingLeavePageWarning = false;
+
             this.$nextTick(() => {
                 this.$router.push({ name: destination.name, params: destination.params });
             });

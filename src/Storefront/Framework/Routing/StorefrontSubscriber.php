@@ -80,6 +80,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             KernelEvents::EXCEPTION => [
                 ['showHtmlExceptionResponse', -100],
                 ['customerNotLoggedInHandler'],
+                ['maintenanceResolver'],
             ],
             KernelEvents::CONTROLLER => [
                 ['preventPageLoadingFromXmlHttpRequest', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE],
@@ -112,7 +113,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $salesChannelMaintenance = $request->attributes
+        $salesChannelMaintenance = $master->attributes
             ->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE);
         if (!$salesChannelMaintenance) {
             return;
@@ -120,7 +121,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
         $currentIp = $request->server->get('REMOTE_ADDR');
 
-        $maintenanceWhiteList = $request->attributes
+        $maintenanceWhiteList = $master->attributes
             ->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST);
         if ($maintenanceWhiteList) {
             $maintenanceWhiteList = json_decode($maintenanceWhiteList, true);

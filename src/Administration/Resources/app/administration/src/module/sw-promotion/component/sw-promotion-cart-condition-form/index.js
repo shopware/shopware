@@ -22,11 +22,11 @@ Component.register('sw-promotion-cart-condition-form', {
             syncService: null,
             httpClient: null,
             packagerKeys: [],
-            sorterKeys: []
+            sorterKeys: [],
+            allowExperimentalFeatures: false
         };
     },
     computed: {
-
         repositoryGroups() {
             return this.repositoryFactory.create('promotion_setgroup');
         },
@@ -81,6 +81,13 @@ Component.register('sw-promotion-cart-condition-form', {
     watch: {
         promotion() {
             this.loadSetGroups();
+        },
+        allowExperimentalFeatures(newValue) {
+            if (newValue !== false) {
+                return;
+            }
+
+            this.promotion.useSetGroups = false;
         }
     },
     created() {

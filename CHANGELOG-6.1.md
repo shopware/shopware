@@ -292,6 +292,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * The data format of the `lineItem.payload.options` has changed. Now there is a simple array per element with `option` and `group`. It contains the translated names of the entities.
     * We deprecated the `Shopware\Storefront\Page\Search\SearchPage::$searchResult` property, use `Shopware\Storefront\Page\Search\SearchPage::$listing` instead
     * We implemented the new `Shopware\Core\HttpKernel` class which simplifies the kernel initialisation.
+    * Marked the `\Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface` and it's implementations as internal
+    * Added the `version` parameter to the methods of the `\Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface`    
     * We deprecated the `\Shopware\Core\Content\Seo\SeoUrlGenerator::generateSeoUrls` function, use `\Shopware\Core\Content\Seo\SeoUrlGenerator::generate` instead
     * We deprecated the `\Shopware\Core\Content\Seo\SeoUrlGenerator::checkUpdateAffectsTemplate` function
 * Storefront

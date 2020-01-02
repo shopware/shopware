@@ -107,7 +107,7 @@ export default class SearchWidgetPlugin extends Plugin {
      * @private
      */
     _suggest(value) {
-        const url = this._url + encodeURI(value);
+        const url = this._url + encodeURIComponent(value);
 
         // init loading indicator
         const indicator = new ButtonLoadingIndicator(this._submitButton);

@@ -6,11 +6,20 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\ValidationServiceInterface;
+use Shopware\Core\System\Annotation\Concept\DeprecationPattern\ReplaceDecoratedInterface;
+use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
+/**
+ * @ReplaceDecoratedInterface(
+ *     deprecatedInterface="ValidationServiceInterface",
+ *     replacedBy="DataValidationFactoryInterface"
+ * )
+ * @Decoratable
+ */
 class CustomerValidationFactory implements ValidationServiceInterface, DataValidationFactoryInterface
 {
     /**

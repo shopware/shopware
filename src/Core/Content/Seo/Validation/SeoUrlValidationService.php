@@ -6,11 +6,16 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
+use Shopware\Core\System\Annotation\Concept\DeprecationPattern\RenameService;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @deprecated tag:v6.3.0 use SeoUrlValidationFactory instead
+ * @RenameService(
+ *     deprecatedService="SeoUrlValidationService",
+ *     replacedBy="SeoUrlValidationFactory"
+ * )
  */
 class SeoUrlValidationService implements SeoUrlDataValidationFactoryInterface
 {

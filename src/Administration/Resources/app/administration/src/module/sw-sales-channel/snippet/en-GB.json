@@ -92,7 +92,7 @@
       "columnDomainSnippetSet": "Snippet set",
       "maintenanceModeTitle": "Maintenance mode",
       "maintenanceModeDescription": "Maintenance mode sets the Sales Channel invisible to visitors. However white listed/labelled IPs may still access it. This way you can safely work on the sales channel data, while blocking out visitors with a maintenance mode screen.",
-      "labelMaintenanceActive": "Activate Maintenance",
+      "labelMaintenanceActive": "Maintenance",
       "ipAddressWhitleList": "IP addresses whitelist",
       "ipAddressWhitleListHelpText": "Add IP-addresses to the white list in order to allow selective access to your shop. You may add IPv4- and IPv6-addresses as needed.",
       "basicinformationLink": "Change default maintenance layout here",

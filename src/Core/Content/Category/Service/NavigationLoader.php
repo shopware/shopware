@@ -59,7 +59,7 @@ class NavigationLoader
      * @throws CategoryNotFoundException
      * @throws InconsistentCriteriaIdsException
      */
-    public function load(string $activeId, SalesChannelContext $context, string $rootId): Tree
+    public function load(string $activeId, SalesChannelContext $context, string $rootId, int $depth = 2): Tree
     {
         $metaInfo = $this->getCategoryMetaInfo($activeId, $rootId);
 
@@ -80,7 +80,7 @@ class NavigationLoader
         }
 
         // Load the first two levels without using the activeId in the query, so this can be cached
-        $categories = $this->loadLevels($rootId, (int) $root['level'], $context);
+        $categories = $this->loadLevels($rootId, (int) $root['level'], $context, $depth);
 
         // if the active category is part of the provided root id, we have to load the children and the parents of the active id
         $categories = $this->loadChildren($activeId, $context, $rootId, $metaInfo, $categories);
@@ -183,14 +183,14 @@ class NavigationLoader
         return $missing;
     }
 
-    private function loadLevels(string $rootId, int $rootLevel, SalesChannelContext $context): CategoryCollection
+    private function loadLevels(string $rootId, int $rootLevel, SalesChannelContext $context, int $depth = 2): CategoryCollection
     {
         $criteria = new Criteria();
         $criteria->addFilter(
             new ContainsFilter('path', '|' . $rootId . '|'),
             new RangeFilter('level', [
                 RangeFilter::GT => $rootLevel,
-                RangeFilter::LTE => $rootLevel + 2,
+                RangeFilter::LTE => $rootLevel + $depth,
             ])
         );
 

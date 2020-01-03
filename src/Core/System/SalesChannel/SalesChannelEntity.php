@@ -75,6 +75,11 @@ class SalesChannelEntity extends Entity
     protected $navigationCategoryId;
 
     /**
+     * @var int
+     */
+    protected $navigationCategoryDepth;
+
+    /**
      * @var string|null
      */
     protected $footerCategoryId;
@@ -823,5 +828,15 @@ class SalesChannelEntity extends Entity
     public function setProductExports(ProductExportCollection $productExports): void
     {
         $this->productExports = $productExports;
+    }
+
+    public function getNavigationCategoryDepth(): int
+    {
+        return $this->navigationCategoryDepth;
+    }
+
+    public function setNavigationCategoryDepth(int $navigationCategoryDepth): void
+    {
+        $this->navigationCategoryDepth = $navigationCategoryDepth;
     }
 }

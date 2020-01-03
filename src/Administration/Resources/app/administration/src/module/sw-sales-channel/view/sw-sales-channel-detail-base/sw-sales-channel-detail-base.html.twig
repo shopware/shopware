@@ -51,19 +51,33 @@
                     </sw-field>
                 {% endblock %}
 
-                {% block sw_sales_channel_detail_base_general_input_navigation_category %}
-                    <sw-entity-single-select
-                        v-if="!isProductComparison"
-                        required
-                        class="sw-sales-channel-detail__select-navigation-category-id"
-                        id="navigationCategoryId"
-                        :label="$tc('sw-sales-channel.detail.navigationCategoryId')"
-                        :criteria="mainNavigationCriteria"
-                        :helpText="$tc('sw-sales-channel.detail.navigationCategoryHelpText')"
-                        v-model="salesChannel.navigationCategoryId"
-                        :error="salesChannelNavigationCategoryIdError"
-                        entity="category">
-                    </sw-entity-single-select>
+                {% block sw_sales_channel_detail_base_general_input_navigation_category_container %}
+                    <sw-container v-if="!isProductComparison" columns="1fr 200px" gap="0 30px">
+
+                        {% block sw_sales_channel_detail_base_general_input_navigation_category %}
+                            <sw-entity-single-select
+                                v-if="!isProductComparison"
+                                required
+                                class="sw-sales-channel-detail__select-navigation-category-id"
+                                id="navigationCategoryId"
+                                :label="$tc('sw-sales-channel.detail.navigationCategoryId')"
+                                :criteria="mainNavigationCriteria"
+                                :helpText="$tc('sw-sales-channel.detail.navigationCategoryHelpText')"
+                                v-model="salesChannel.navigationCategoryId"
+                                :error="salesChannelNavigationCategoryIdError"
+                                entity="category">
+                            </sw-entity-single-select>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_base_general_input_navigation_category_depth %}
+                            <sw-field type="number"
+                                      numberType="int"
+                                      :min="1"
+                                      :label="$tc('sw-sales-channel.detail.navigationCategoryDepth')"
+                                      v-model="salesChannel.navigationCategoryDepth">
+                            </sw-field>
+                        {% endblock %}
+                    </sw-container>
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_footer_category %}

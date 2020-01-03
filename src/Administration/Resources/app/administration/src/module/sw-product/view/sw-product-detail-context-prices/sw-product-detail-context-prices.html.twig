@@ -115,7 +115,7 @@
 
                                         {% block sw_product_detail_prices_price_card_price_group_grid_currencies_list_inherit_field %}
                                             <sw-inheritance-switch :isInherited="isPriceFieldInherited(item, currency)"
-                                                              v-if="!currency.isDefault"
+                                                              v-if="!currency.isSystemDefault"
                                                               class="sw-product-detail-context-prices__inherited-icon"
                                                               @inheritance-restore="onInheritanceRestore(item, currency)"
                                                               @inheritance-remove="onInheritanceRemove(item, currency)">
@@ -160,7 +160,7 @@
                             {% block sw_product_detail_prices_price_card_price_group_empty_state_warning %}
                                 <p>{{ $tc('sw-product.advancedPrices.newRuleWarning') }}</p>
                             {% endblock %}
-                            
+
                             {# @deprecated tag:v6.2.0 #}
                             {% block sw_product_detail_prices_price_card_price_group_empty_state_rule_select %}{% endblock %}
                         </div>
@@ -188,7 +188,7 @@
             <sw-card class="sw-product-detail-context-prices__empty-state-card" v-else>
                 {% block sw_product_detail_prices_price_empty_state %}
                     <div class="sw-product-detail-context-prices__empty-state">
-                        
+
                         {% block sw_product_detail_prices_empty_state_image %}
                             <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
                         {% endblock %}

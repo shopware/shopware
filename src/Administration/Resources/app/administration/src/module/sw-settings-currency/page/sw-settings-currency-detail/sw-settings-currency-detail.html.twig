@@ -100,7 +100,7 @@
                                                  :placeholder="$tc('sw-settings-currency.detail.placeholderFactor')"
                                                  :error="currencyFactorError"
                                                  v-model="currency.factor"
-                                                 :disabled="currency.isDefault">
+                                                 :disabled="currency.isSystemDefault">
                                 </sw-number-field>
                             {% endblock %}
 

@@ -151,6 +151,8 @@ Component.register('sw-sales-channel-detail', {
                         this.salesChannel.maintenanceIpWhitelist = [];
                     }
 
+                    this.generateAccessUrl();
+
                     this.isLoading = false;
                 });
         },

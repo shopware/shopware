@@ -79,7 +79,12 @@ function openBrowserWithUrl(url) {
 
     try {
         const start = (process.platform === 'darwin' ? 'open' : process.platform === 'win32' ? 'start' : 'xdg-open');
-        spawn(start, [url], childProcessOptions);
+        const child = spawn(start, [url], childProcessOptions);
+
+        child.on('error', error => {
+            console.log('Unable to open browser! Details:');
+            console.log(error);
+        })
     } catch (ex) {
         console.log(ex);
     }

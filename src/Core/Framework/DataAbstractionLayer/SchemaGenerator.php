@@ -187,6 +187,12 @@ EOL;
                 $type = 'LONGBLOB';
 
                 break;
+
+            case $field instanceof RemoteAddressField:
+                $type = 'VARCHAR(255)';
+
+                break;
+
             default:
                 throw new \RuntimeException(sprintf('Unknown field %s', get_class($field)));
         }

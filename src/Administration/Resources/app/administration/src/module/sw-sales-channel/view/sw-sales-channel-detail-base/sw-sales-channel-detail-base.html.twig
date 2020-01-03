@@ -330,8 +330,7 @@
                         :label="$tc('sw-sales-channel.detail.productComparison.fileName')"
                         :placeholder="$tc('sw-sales-channel.detail.productComparison.placeholderFileName')"
                         :error="invalidFileNameError"
-                        v-model="productExport.fileName"
-                        @change="onChangeFileName">
+                        v-model="productExport.fileName">
                     </sw-field>
                 {% endblock %}
 
@@ -510,7 +509,7 @@
                     <div class="sw-sales-channel-detail-base__settings-link">
                         <router-link :to="{ name: 'sw.settings.basic.information.index'}"
                                       class="sw-card__quick-link">
-                            {{ $tc('sw-sales-channel.detail.basicinformationLink') }} 
+                            {{ $tc('sw-sales-channel.detail.basicinformationLink') }}
                             <sw-icon name="default-arrow-simple-right" small></sw-icon>
                         </router-link>
                     </div>

@@ -103,6 +103,16 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fix module meta information in extended module routes with the routeMiddleware
     * Replace old currency isDefault with isSystemDefault
     * Replace block `sw_property_detail_content_option_list` in `sw-property-create` with empty content
+    * Add `setLocaleFromUser` method to vue adapter
+    * Add service `localeHelper` for changing the locale
+    * Use service `localeHelper` on every place where you can change the locale
+    * Refactor `session.store.js`: action `setAdminLocale` return now a Promise
+    * Refactor `snippet.api.service.js`: add paramter code which expects the locale code
+    * Refactor `sw-profile-index`
+        * Remove data `userProfile`
+        * Replace `setUserData` to `getUserData`
+        * `saveFinish` is now an asynchronous method
+     
 
 * Core    
 	* We did some refactoring on how we use `WriteConstraintsViolationExceptions`.	

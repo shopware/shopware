@@ -287,9 +287,7 @@ Component.register('sw-settings-user-detail', {
             let promises = [];
 
             if (this.currentUser.id === this.user.id) {
-                promises = [this.localeRepository.get(this.user.localeId, Shopware.Context.api).then(({ code }) => {
-                    Shopware.State.dispatch('setAdminLocale', code);
-                })];
+                promises = [Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId)];
             }
 
             return Promise.all(promises).then(this.checkEmail().then(() => {

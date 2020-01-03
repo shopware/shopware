@@ -30,9 +30,9 @@
             <title>{% block document_title_tag %}{% endblock %}</title>
             {#{% endif %}#}
             {% if config.custom.pageOrientation == 'landscape' %}
-                {% include '@Framework/documents/style_base_landscape.css.twig' %}
+                {% sw_include '@Framework/documents/style_base_landscape.css.twig' %}
             {% else %}
-                {% include '@Framework/documents/style_base_portrait.css.twig' %}
+                {% sw_include '@Framework/documents/style_base_portrait.css.twig' %}
             {% endif %}
         {% endblock %}
     </head>

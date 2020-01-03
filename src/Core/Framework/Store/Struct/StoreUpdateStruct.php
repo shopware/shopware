@@ -35,4 +35,9 @@ class StoreUpdateStruct extends Struct
      * @var \DateTimeInterface
      */
     protected $releaseDate;
+
+    /**
+     * @var bool
+     */
+    protected $integrated;
 }

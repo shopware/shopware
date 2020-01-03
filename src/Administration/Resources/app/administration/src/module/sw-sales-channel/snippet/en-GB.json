@@ -72,6 +72,7 @@
       "customerGroup": "Customer group",
       "navigation": "Navigation",
       "navigationCategoryId": "Starting point main navigation",
+      "navigationCategoryDepth": "Navigation levels",
       "navigationCategoryHelpText": "For this entry point, you can not select categories of the type \"customizable link\" or \"structuring element\".",
       "footerCategory": "Starting point footer navigation",
       "serviceCategory": "Starting point service navigation",

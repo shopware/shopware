@@ -73,7 +73,8 @@ class HeaderPageletLoader
         $category = $this->navigationLoader->load(
             (string) $navigationId,
             $salesChannelContext,
-            $salesChannelContext->getSalesChannel()->getNavigationCategoryId()
+            $salesChannelContext->getSalesChannel()->getNavigationCategoryId(),
+            $salesChannelContext->getSalesChannel()->getNavigationCategoryDepth()
         );
 
         $languages = $this->loadLanguages($salesChannelContext);

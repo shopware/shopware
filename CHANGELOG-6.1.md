@@ -298,6 +298,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * We deprecated the `\Shopware\Core\Content\Seo\SeoUrlGenerator::generateSeoUrls` function, use `\Shopware\Core\Content\Seo\SeoUrlGenerator::generate` instead
     * We deprecated the `\Shopware\Core\Content\Seo\SeoUrlGenerator::checkUpdateAffectsTemplate` function
     * `@Framework/documents/style_base_portrait.css.twig` and `@Framework/documents/style_base_landscape.css.twig` are now included by `sw_include`.
+    * Added new `$depth` parameter to `\Shopware\Core\Content\Category\Service\NavigationLoader::load`
+    * Added new field `navigation_category_depth` to `\Shopware\Core\System\SalesChannel\SalesChannelDefinition` 
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures	
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain	

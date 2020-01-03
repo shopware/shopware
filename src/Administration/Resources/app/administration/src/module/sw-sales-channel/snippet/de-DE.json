@@ -76,6 +76,7 @@
       "customerGroup": "Kundengruppe",
       "navigation": "Navigation",
       "navigationCategoryId": "Einstiegspunkt Hauptnavigation",
+      "navigationCategoryDepth": "Hauptnavigation Ebenen",
       "navigationCategoryHelpText": "Für diesen Einstiegspunkt können keine Kategorien des Typs \"benutzerdefinierter Link\" oder \"Strukturkategorie\" ausgewählt werden.",
       "footerCategory": "Einstiegspunkt Footernavigation",
       "serviceCategory": "Einstiegspunkt Servicenavigation",

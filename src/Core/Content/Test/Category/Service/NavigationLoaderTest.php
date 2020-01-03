@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
+use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -164,6 +165,56 @@ class NavigationLoaderTest extends TestCase
         $tree = $this->navigationLoader->load($category1_1_1_1Id, $context, $this->rootId);
 
         static::assertNotNull($tree->getChildren($category1_1_1Id));
+    }
+
+    public function testLoadDifferentDepth(): void
+    {
+        $data = new TestDataCollection(Context::createDefaultContext());
+        $categories = [
+            [
+                'id' => $data->create('root'), 'name' => 'root', 'children' => [
+                    ['id' => $data->create('a'), 'name' => 'a', 'children' => [
+                        ['id' => $data->create('b'), 'name' => 'b', 'children' => [
+                            ['id' => $data->create('c'), 'name' => 'c', 'children' => [
+                                ['id' => $data->create('d'), 'name' => 'd', 'children' => [
+                                    ['id' => $data->create('e'), 'name' => 'e'],
+                                ]],
+                            ]],
+                        ]],
+                    ]],
+                ],
+            ],
+        ];
+
+        $this->repository->create($categories, $data->getContext());
+
+        $context = Generator::createSalesChannelContext();
+        $context->getSalesChannel()->setNavigationCategoryId($data->get('root'));
+
+        $tree = $this->navigationLoader->load(
+            $data->get('root'),
+            $context, $data->get('root'),
+            3
+        );
+
+        static::assertSame($data->get('root'), $tree->getActive()->getId());
+        static::assertCount(1, $tree->getChildren($data->get('root'))->getTree());
+        static::assertCount(1, $tree->getChildren($data->get('a'))->getTree());
+        static::assertCount(1, $tree->getChildren($data->get('b'))->getTree());
+        static::assertCount(0, $tree->getChildren($data->get('c'))->getTree());
+
+        $tree = $this->navigationLoader->load(
+            $data->get('root'),
+            $context, $data->get('root'),
+           4
+        );
+
+        static::assertSame($data->get('root'), $tree->getActive()->getId());
+        static::assertCount(1, $tree->getChildren($data->get('root'))->getTree());
+        static::assertCount(1, $tree->getChildren($data->get('a'))->getTree());
+        static::assertCount(1, $tree->getChildren($data->get('b'))->getTree());
+        static::assertCount(1, $tree->getChildren($data->get('c'))->getTree());
+        static::assertCount(0, $tree->getChildren($data->get('d'))->getTree());
     }
 
     public function testLoadRootLevelsAreCached(): void

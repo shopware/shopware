@@ -73,13 +73,13 @@ describe('Checkout: Proceed checkout using various customers', () => {
                     cy.get('.account-address-form').should('be.visible');
 
                     // Fill in and submit address
-                    cy.get('#addresspersonalSalutation').typeAndCheckSelectField('Mr.');
+                    cy.get('#addresspersonalSalutation').typeAndCheck('Mr.');
                     cy.get('#addresspersonalFirstName').typeAndCheck('P.');
                     cy.get('#addresspersonalLastName').typeAndCheck('Sherman');
                     cy.get('#addressAddressStreet').typeAndCheck('42 Wallaby Way');
                     cy.get('#addressAddressZipcode').typeAndCheck('2000');
                     cy.get('#addressAddressCity').typeAndCheck('Sydney');
-                    cy.get('#addressAddressCountry').typeAndCheckSelectField('Australia');
+                    cy.get('#addressAddressCountry').typeAndCheck('Australia');
                     cy.get('.address-form-submit').click();
                     cy.get('.alert-success .alert-content').contains('Address has been saved.');
 

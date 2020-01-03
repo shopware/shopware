@@ -1,4 +1,5 @@
-const GeneralPageObject = require('../sw-general.page-object');
+/* global cy */
+import GeneralPageObject from '../sw-general.page-object';
 
 export default class ProductPageObject extends GeneralPageObject {
     constructor() {

@@ -1,4 +1,4 @@
-const GeneralPageObject = require('./general.page-object');
+import GeneralPageObject from './general.page-object';
 
 export default class CheckoutPageObject extends GeneralPageObject {
     constructor() {

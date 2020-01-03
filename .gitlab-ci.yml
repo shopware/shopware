@@ -301,7 +301,7 @@ Storefront (Jest):
         - chown -R 1000:1000 .
         - docker run --name cypress -d -t --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/vendor/shopware/platform/src/Storefront/Resources/app/storefront/test/e2e:/e2e-Storefront -v $(pwd):/app cypress/browsers:node10.11.0-chrome75
         - docker exec cypress npm clean-install --prefix /e2e-Storefront
-        - forever start vendor/shopware/platform/src/Storefront/Resources/app/storefront/test/e2e/routes/cypress.js
+        - forever start vendor/shopware/platform/src/Storefront/Resources/app/storefront/test/e2e/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - docker exec cypress npx cypress run --project /e2e-Storefront --browser chrome --config baseUrl=http://docker.vm:8000
         - docker rm -f cypress
 
@@ -313,7 +313,7 @@ Storefront (Jest):
         - chown -R 1000:1000 .
         - docker run --name cypress -d -t --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e:/e2e-Administration -v $(pwd):/app cypress/browsers:node10.11.0-chrome75
         - docker exec cypress npm clean-install --prefix /e2e-Administration
-        - forever start vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e/routes/cypress.js
+        - forever start vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - docker exec cypress npx cypress run --project /e2e-Administration --browser chrome --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0 --spec $TEST_DIRECTORY
         - docker rm -f cypress
 
@@ -326,7 +326,7 @@ Storefront (Jest):
         - chown -R 1000:1000 .
         - docker run --name cypress -d -t --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e:/e2e-Administration -v $(pwd):/app cypress/browsers:node10.11.0-chrome75
         - docker exec cypress npm clean-install --prefix /e2e-Administration
-        - forever start vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e/routes/cypress.js
+        - forever start vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - docker exec cypress npx cypress run --project /e2e-Administration --browser chrome --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0 --spec $TEST_DIRECTORY
         - docker rm -f cypress
 

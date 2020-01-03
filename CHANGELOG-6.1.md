@@ -315,6 +315,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new field `navigation_category_depth` to `\Shopware\Core\System\SalesChannel\SalesChannelDefinition`
     * Added new `searchMedia` twig function to resolve media ids to media objects. 
         * `{% set media = searchMedia(ids, context) %}`
+    * Added new field `navigation_category_depth` to `\Shopware\Core\System\SalesChannel\SalesChannelDefinition` 
+    * Changed `MailService` to add `bcc` instead `to` for `deliveryAddress`
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures	
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain	

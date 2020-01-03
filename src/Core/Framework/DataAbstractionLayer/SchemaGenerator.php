@@ -36,6 +36,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceDefinitionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\RemoteAddressField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -187,6 +188,12 @@ EOL;
                 $type = 'LONGBLOB';
 
                 break;
+
+            case $field instanceof RemoteAddressField:
+                $type = 'VARCHAR(255)';
+
+                break;
+
             default:
                 throw new \RuntimeException(sprintf('Unknown field %s', get_class($field)));
         }

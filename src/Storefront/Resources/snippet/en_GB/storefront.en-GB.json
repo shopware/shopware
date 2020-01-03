@@ -394,7 +394,7 @@
       "headline": "%totalCount% products found for \"%searchTerm%\""
     },
     "detail": {
-        "ordernumberLabel": "Order number: ",
+        "productNumberLabel": "Product number: ",
         "addProduct": "Add to shopping cart",
         "tabsDescription": "Description",
         "tabsPreviewMore": "More",

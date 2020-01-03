@@ -170,19 +170,19 @@
             </div>
         {% endblock %}
 
-        {% block page_product_detail_ordernumber_container %}
+        {% block page_product_detail_product_number_container %}
             {% if page.product.productNumber %}
-                <div class="product-detail-ordernumber-container">
+                <div class="product-detail-product-number-container">
                     {% block page_product_detail_ordernumber_label %}
-                        <span class="product-detail-ordernumber-label">
-                            {{ "detail.ordernumberLabel"|trans|sw_sanitize }}
+                        <span class="product-detail-product-number-label">
+                            {{ "detail.productNumberLabel"|trans|sw_sanitize }}
                         </span>
                     {% endblock %}
 
-                    {% block page_product_detail_ordernumber %}
+                    {% block page_product_detail_product_number %}
                         <meta itemprop="productID"
                               content="{{ page.product.id }}"/>
-                        <span class="product-detail-ordernumber"
+                        <span class="product-detail-product-number"
                               itemprop="sku">
                             {{ page.product.productNumber }}
                         </span>

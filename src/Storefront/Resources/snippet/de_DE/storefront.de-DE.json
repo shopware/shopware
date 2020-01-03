@@ -394,7 +394,7 @@
       "headline": "Zu \"%searchTerm%\" wurden %totalCount% Produkt(e) gefunden"
     },
     "detail": {
-        "ordernumberLabel": "Produkt-Nr.:",
+        "productNumberLabel": "Produkt-Nr.:",
         "addProduct": "In den Warenkorb",
         "tabsDescription": "Beschreibung",
         "tabsPreviewMore": "mehr",

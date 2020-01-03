@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 
+/**
+ * @internal
+ */
 class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 {
     public const FORMAT = 'openapi-3';
@@ -54,12 +57,12 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         return $format === self::FORMAT;
     }
 
-    public function generate(array $definitions): array
+    public function generate(array $definitions, int $version): array
     {
         $forSalesChannel = $this->containsSalesChannelDefinition($definitions);
 
         $openApi = $this->openApiLoader->load($forSalesChannel);
-        $this->openApiBuilder->enrich($openApi, $forSalesChannel);
+        $this->openApiBuilder->enrich($openApi, $forSalesChannel, $version);
 
         ksort($definitions);
 
@@ -70,7 +73,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
             $onlyReference = $this->shouldIncludeReferenceOnly($definition, $forSalesChannel);
 
-            $schema = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel, $onlyReference);
+            $schema = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel, $version, $onlyReference);
 
             $openApi->components->merge($schema);
 
@@ -85,7 +88,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         return json_decode($openApi->toJson(), true);
     }
 
-    public function getSchema(array $definitions): array
+    public function getSchema(array $definitions, int $version): array
     {
         $schemaDefinitions = [];
 
@@ -105,7 +108,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            $schema = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel);
+            $schema = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel, $version);
             $schema = array_shift($schema);
             $schema = json_decode($schema->toJson(), true);
             $schema = $schema['allOf'][1]['properties'];

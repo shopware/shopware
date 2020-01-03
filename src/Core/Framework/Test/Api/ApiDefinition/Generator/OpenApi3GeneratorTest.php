@@ -8,11 +8,13 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
+use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Test\Api\ApiDefinition\EntityDefinition\SimpleDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\PlatformRequest;
 
 class OpenApi3GeneratorTest extends TestCase
 {
@@ -42,11 +44,11 @@ class OpenApi3GeneratorTest extends TestCase
         $openApiGenerator = new OpenApi3Generator(
             new OpenApiSchemaBuilder(),
             new OpenApiPathBuilder(),
-            new OpenApiDefinitionSchemaBuilder(),
+            new OpenApiDefinitionSchemaBuilder($this->getContainer()->get(ApiVersionConverter::class)),
             new OpenApiLoader(__DIR__)
         );
 
-        $this->schema = $openApiGenerator->getSchema($definitionRegistry->getDefinitions());
+        $this->schema = $openApiGenerator->getSchema($definitionRegistry->getDefinitions(), PlatformRequest::API_VERSION);
         $this->entityName = 'simple';
     }
 

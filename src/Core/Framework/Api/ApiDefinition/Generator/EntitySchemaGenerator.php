@@ -49,6 +49,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionDataPayloadField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\WhitelistRuleField;
 
+/**
+ * @internal
+ */
 class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
 {
     public const FORMAT = 'entity-schema';
@@ -58,12 +61,12 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
         return $format === self::FORMAT;
     }
 
-    public function generate(array $definitions): array
+    public function generate(array $definitions, int $version): array
     {
-        return $this->getSchema($definitions);
+        return $this->getSchema($definitions, $version);
     }
 
-    public function getSchema(array $definitions): array
+    public function getSchema(array $definitions, int $version): array
     {
         $schema = [];
 

@@ -30,9 +30,9 @@ class SalesChannelApiSchemaController extends AbstractController
      *
      * @throws \Exception
      */
-    public function info(): JsonResponse
+    public function info(int $version): JsonResponse
     {
-        $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::SALES_CHANNEL_API);
+        $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::SALES_CHANNEL_API, $version);
 
         return $this->json($data);
     }
@@ -40,9 +40,9 @@ class SalesChannelApiSchemaController extends AbstractController
     /**
      * @Route("/sales-channel-api/v{version}/_info/open-api-schema.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="sales-channel-api.info.open-api-schema", methods={"GET"})
      */
-    public function openApiSchema(): JsonResponse
+    public function openApiSchema(int $version): JsonResponse
     {
-        $data = $this->definitionService->getSchema(OpenApi3Generator::FORMAT, DefinitionService::SALES_CHANNEL_API);
+        $data = $this->definitionService->getSchema(OpenApi3Generator::FORMAT, DefinitionService::SALES_CHANNEL_API, $version);
 
         return $this->json($data);
     }
@@ -50,8 +50,8 @@ class SalesChannelApiSchemaController extends AbstractController
     /**
      * @Route("/sales-channel-api/v{version}/_info/swagger.html", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="sales-channel-api.info.swagger", methods={"GET"})
      */
-    public function infoHtml(): Response
+    public function infoHtml(int $version): Response
     {
-        return $this->render('@Framework/swagger.html.twig', ['schemaUrl' => 'sales-channel-api.info.openapi3']);
+        return $this->render('@Framework/swagger.html.twig', ['schemaUrl' => 'sales-channel-api.info.openapi3', 'apiVersion' => $version]);
     }
 }

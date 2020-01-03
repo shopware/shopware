@@ -34,4 +34,25 @@ class Deprecated extends Flag
             'replaced_by' => $this->replacedBy,
         ];
     }
+
+    public function isRemovedInVersion(int $version): bool
+    {
+        $removedVersion = (int) str_replace('v', '', $this->willBeRemovedIn);
+        if ($version >= $removedVersion) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function isDeprecatedInVersion(int $version): bool
+    {
+        $deprecatedVersion = (int) str_replace('v', '', $this->deprecatedSince);
+
+        if ($version >= $deprecatedVersion) {
+            return true;
+        }
+
+        return false;
+    }
 }

@@ -170,6 +170,9 @@ class CriteriaParser
             );
         }
 
+        // set default size to 10.000 => max for default configuration
+        $composite->addParameter('size', 10000);
+
         if ($aggregation->getLimit()) {
             $composite->addParameter('size', (string) $aggregation->getLimit());
         }

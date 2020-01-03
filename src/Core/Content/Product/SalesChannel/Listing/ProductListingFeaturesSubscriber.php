@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\Terms
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MaxAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\Bucket;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -173,19 +172,6 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $event->getResult()->setPage($this->getPage($event->getRequest()));
 
         $event->getResult()->setLimit($this->getLimit($event->getRequest()));
-
-        /** @var TermsResult|null $result */
-        $result = $event->getResult()->getAggregations()->get('rating');
-
-        if (!$result) {
-            return;
-        }
-
-        $result->sort(
-            function (Bucket $a, Bucket $b) {
-                return (int) $a->getKey() <=> (int) $b->getKey();
-            }
-        );
     }
 
     private function handleFilters(Request $request, Criteria $criteria): void
@@ -301,7 +287,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $criteria->addAggregation(
             new FilterAggregation(
                 'rating-exists',
-                new TermsAggregation('rating', 'product.ratingAverage'),
+                new MaxAggregation('rating', 'product.ratingAverage'),
                 [new RangeFilter('product.ratingAverage', [RangeFilter::GTE => 0])]
             )
         );

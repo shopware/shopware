@@ -295,6 +295,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * We implemented the new `Shopware\Core\HttpKernel` class which simplifies the kernel initialisation.
     * We deprecated the `\Shopware\Core\Content\Seo\SeoUrlGenerator::generateSeoUrls` function, use `\Shopware\Core\Content\Seo\SeoUrlGenerator::generate` instead
     * We deprecated the `\Shopware\Core\Content\Seo\SeoUrlGenerator::checkUpdateAffectsTemplate` function
+    * `@Framework/documents/style_base_portrait.css.twig` and `@Framework/documents/style_base_landscape.css.twig` are now included by `sw_include`.
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures	
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain	

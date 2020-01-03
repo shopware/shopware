@@ -5,7 +5,14 @@
         {% endblock %}
     </a>
 
-    <router-link v-else :class="tabsItemClasses" ref="sw-tabs-item" v-bind="$attrs" class="sw-tabs-item" @click.native="clickEvent" :to="route">
+    <router-link v-else
+                 :class="tabsItemClasses"
+                 ref="sw-tabs-item"
+                 v-bind="$attrs"
+                 class="sw-tabs-item"
+                 @click.native="clickEvent"
+                 :to="route"
+                 exact>
         {% block sw_tabs_item_slot_native %}
             <slot></slot>
             <sw-icon v-if="hasError"

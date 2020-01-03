@@ -39,9 +39,8 @@
 
 .sw-cms-create-wizard__step-1 {
     .sw-cms-create-wizard__page-type-selection {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr 1fr;
-        gap: 20px;
+        display: flex;
+        justify-content: center;
         margin: 40px 0 20px;
     }
 
@@ -50,10 +49,12 @@
         color: $color-darkgray-200;
         background: #fff;
         padding: 28px 20px;
+        margin-right: 20px;
         text-align: center;
         cursor: pointer;
         border-radius: $border-radius-default;
         display: flex;
+        flex-basis: 140px;
         flex-direction: column;
         justify-content: center;
         align-items: center;
@@ -65,6 +66,10 @@
 
         .sw-icon {
             margin-bottom: 8px;
+        }
+
+        &:last-child {
+            margin-right: 0;
         }
     }
 }

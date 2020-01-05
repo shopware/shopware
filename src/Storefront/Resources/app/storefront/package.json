@@ -69,7 +69,7 @@
     "jest": "24.8.0",
     "jest-junit": "6.3.0",
     "mdn-polyfills": "5.18.0",
-    "node-sass": "4.12.0",
+    "node-sass": "4.13.0",
     "picturefill": "3.0.3",
     "postcss-loader": "3.0.0",
     "postcss-pxtorem": "4.0.1",

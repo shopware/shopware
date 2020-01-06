@@ -141,5 +141,22 @@ describe('NativeEventEmitter tests', () => {
             expect(el.hasOwnProperty('$emitter')).toBeTruthy();
             expect(el.$emitter).toBe(emitter);
         });
+
+
     });
+
+    describe('it can change element after creation', () => {
+        const eventName = 'custom-event';
+        const emmiter = new NativeEventEmitter();
+
+        const emittingTarget = document.createElement('div');
+        document.body.append(emittingTarget);
+
+        emmiter.el = emittingTarget;
+        emmiter.subscribe(eventName, (event) => {
+            expect(event.target).toStrictEqual(emittingTarget);
+        });
+
+        emmiter.publish('custom-event');
+    })
 });

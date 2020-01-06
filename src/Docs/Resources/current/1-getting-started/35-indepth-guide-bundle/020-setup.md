@@ -44,7 +44,8 @@ After having a look at the [composer schema](https://getcomposer.org/doc/04-sche
     "license": "MIT",
     "authors": [
         {
-            "name": "shopware AG"
+            "name": "shopware AG",
+            "role": "Manufacturer"
         }
     ]
 }
@@ -150,7 +151,8 @@ Here's what the final `composer.json` looks like once all values described were 
     "license": "MIT",
     "authors": [
         {
-            "name": "shopware AG"
+            "name": "shopware AG",
+            "role": "Manufacturer"
         }
     ],
     "type": "shopware-platform-plugin",

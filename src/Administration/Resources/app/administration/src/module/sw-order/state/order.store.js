@@ -113,10 +113,16 @@ export default {
             });
         },
 
-        updateLineItem({ commit }, { salesChannelId, contextToken, lineItemKey, quantity }) {
+        updateLineItem({ commit }, { salesChannelId, contextToken, item }) {
             return Service('cartSalesChannelService')
-                .updateLineItem(salesChannelId, contextToken, lineItemKey, quantity)
+                .updateLineItem(salesChannelId, contextToken, item)
                 .then((response) => commit('setCart', response.data.data));
+        },
+
+        addCustomItem({ commit }, { salesChannelId, contextToken, item }) {
+            return Service('cartSalesChannelService')
+                .addCustomItem(salesChannelId, contextToken, item)
+                .then(response => commit('setCart', response.data.data));
         }
     }
 };

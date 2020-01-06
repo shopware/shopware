@@ -38,7 +38,7 @@
                                         </template>
 
                                         {% block sw_order_line_items_grid_sales_channel_create_actions_dropdown_menu %}
-                                            <sw-context-menu-item disabled>
+                                            <sw-context-menu-item @click="onInsertBlankItem">
                                                 {{ $tc('sw-order.createBase.buttonAddBlankProduct') }}
                                             </sw-context-menu-item>
                                             <sw-context-menu-item disabled>
@@ -114,12 +114,11 @@
                             <template #column-unitPrice="{ item, isInlineEdit}">
 
                                 {% block sw_order_line_items_grid_sales_channel_grid_columns_unit_price_inline_edit %}
-                                    <sw-field v-if="isInlineEdit && !itemCreatedFromProduct(item.id)"
-                                              type="number"
+                                    <sw-number-field v-if="isInlineEdit && !itemCreatedFromProduct(item.id)"
                                               v-model="item.priceDefinition.price"
                                               placeholder="0"
                                               size="small">
-                                    </sw-field>
+                                    </sw-number-field>
                                 {% endblock %}
 
                                 {% block sw_order_line_items_grid_sales_channel_grid_columns_unit_price_content %}
@@ -143,13 +142,13 @@
                             <template #column-quantity="{ item, isInlineEdit }">
 
                                 {% block sw_order_line_items_grid_sales_channel_grid_columns_quantity_inline_edit %}
-                                    <sw-field v-if="isInlineEdit"
+                                    <sw-number-field v-if="isInlineEdit"
                                               v-model="item.quantity"
-                                              type="number"
+                                              numberType="int"
                                               :min="1"
                                               size="small"
-                                              placeholder=0>
-                                    </sw-field>
+                                              placeholder="0">
+                                    </sw-number-field>
                                 {% endblock %}
 
                                 {% block sw_order_line_items_grid_sales_channel_grid_columns_quantity_content %}
@@ -164,16 +163,16 @@
                             <template #column-tax="{ item, isInlineEdit }">
 
                                 {% block sw_order_line_items_grid_sales_channel_grid_columns_tax_inline_edit %}
-                                    <sw-field v-if="isInlineEdit &&
+                                    <sw-number-field v-if="isInlineEdit &&
                                                 !itemCreatedFromProduct(item.id) &&
                                                 item.priceDefinition &&
                                                 item.priceDefinition.taxRules"
-                                              type="number"
                                               v-model="item.priceDefinition.taxRules[0].taxRate"
                                               key="order-line-item-tax-edit-default"
                                               size="small"
-                                              placeholder="0">
-                                    </sw-field>
+                                              placeholder="0"
+                                              :min="0">
+                                    </sw-number-field>
                                 {% endblock %}
 
                                 {% block sw_order_line_items_grid_sales_channel_grid_columns_tax_content %}

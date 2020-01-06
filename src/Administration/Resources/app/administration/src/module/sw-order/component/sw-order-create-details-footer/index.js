@@ -77,6 +77,8 @@ Component.register('sw-order-create-details-footer', {
                             State.commit('swOrder/setCurrency', currency);
                         });
 
+                    if (this.cart.token === null) return;
+
                     this.$emit('loading-change', true);
 
                     State.dispatch('swOrder/getCart', {

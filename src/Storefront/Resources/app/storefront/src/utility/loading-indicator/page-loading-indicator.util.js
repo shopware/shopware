@@ -13,22 +13,31 @@ class PageLoadingIndicatorUtilSingleton extends LoadingIndicatorUtil {
     /**
      * Call parent method to attach the loading indicator
      * as well as the backdrop
+     *
+     * @param useBackdrop
      */
-    create() {
+    create(useBackdrop = true) {
         if (this.exists()) return;
 
-        BackdropUtil.create();
-        const backdrop = document.querySelector(`.${BackdropUtil.SELECTOR_CLASS()}`);
-        backdrop.insertAdjacentHTML('beforeend', LoadingIndicatorUtil.getTemplate());
+        if (useBackdrop) {
+            BackdropUtil.create();
+            const backdrop = document.querySelector(`.${BackdropUtil.SELECTOR_CLASS()}`);
+            backdrop.insertAdjacentHTML('beforeend', LoadingIndicatorUtil.getTemplate());
+        }
     }
 
     /**
      * Call parent method to remove the loading indicator
      * as well as the backdrop
+     *
+     * @param useBackdrop
      */
-    remove() {
+    remove(useBackdrop = true) {
         super.remove();
-        BackdropUtil.remove();
+
+        if (useBackdrop) {
+            BackdropUtil.remove();
+        }
     }
 }
 
@@ -42,15 +51,20 @@ export default class PageLoadingIndicatorUtil {
 
     /**
      * Open the PageLoadingIndicator
+     *
+     * @param useBackdrop
      */
-    static create() {
-        PageLoadingIndicatorUtilInstance.create();
+    static create(useBackdrop = true) {
+        PageLoadingIndicatorUtilInstance.create(useBackdrop);
     }
 
     /**
      * Close the PageLoadingIndicator
+     * If useBackdrop is set to false, no existing backdrops are removed
+     *
+     * @param useBackdrop
      */
-    static remove() {
-        PageLoadingIndicatorUtilInstance.remove();
+    static remove(useBackdrop = true) {
+        PageLoadingIndicatorUtilInstance.remove(useBackdrop);
     }
 }

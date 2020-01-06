@@ -370,6 +370,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * `src/Storefront/Resources/app/storefront/src/scss/abstract/variables/_custom.scss`
         * `src/Storefront/Resources/app/storefront/src/scss/skin/shopware/abstract/variables/_bootstrap.scss`
         * `src/Storefront/Resources/app/storefront/src/scss/skin/shopware/abstract/variables/_custom.scss`
+    * Fixed the cookie privacy hint to use the correct link `privacyPage` instead of `shippingPaymentInfoPage`
+    * Added the parameter `useBackdrop` to the `page-loading-indicator.utils.js` `remove` and `create` methods. Defaults to `true`
 * Elasticsearch	
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.
         * You can set them with a parameter.yml too.
@@ -449,5 +451,4 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-upright.var.woff2`	
         * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter.var.woff2`	
     * Removed `ContactPageController` and the `contact page`	
-    * Removed `newsletter page` and its route `/newsletter`  
-    * Fixed the cookie privacy hint to use the correct link `privacyPage` instead of `shippingPaymentInfoPage` 
+    * Removed `newsletter page` and its route `/newsletter`   

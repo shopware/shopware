@@ -219,9 +219,11 @@ Core
     $request = Request::createFromGlobals();
 
     $kernel = new HttpKernel($appEnv, $debug, $classLoader);
-    $response = $kernel->handle($request);
+    $result = $kernel->handle($request);
 
-    $response->send();
+    $result->getResponse()->send();
+
+    $kernel->terminate($result->getRequest(), $result->getResponse());
     ```
  * If you used the `\Shopware\Core\Content\Seo\SeoUrlGenerator` in your sources, please use the `generate` function instead of the `generateSeoUrls`
  

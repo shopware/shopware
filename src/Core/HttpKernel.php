@@ -20,8 +20,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpCache\HttpCache;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\HttpKernel\TerminableInterface;
 
-class HttpKernel implements HttpKernelInterface
+class HttpKernel
 {
     /**
      * @var Connection|null
@@ -70,7 +71,7 @@ class HttpKernel implements HttpKernelInterface
         $this->debug = $debug;
     }
 
-    public function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true)
+    public function handle(Request $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true): HttpKernelResult
     {
         try {
             return $this->doHandle($request, (int) $type, (bool) $catch);
@@ -116,7 +117,16 @@ class HttpKernel implements HttpKernelInterface
         return self::$connection;
     }
 
-    private function doHandle(Request $request, int $type, bool $catch): Response
+    public function terminate(Request $request, Response $response): void
+    {
+        if (!$this->kernel instanceof TerminableInterface) {
+            return;
+        }
+
+        $this->kernel->terminate($request, $response);
+    }
+
+    private function doHandle(Request $request, int $type, bool $catch): HttpKernelResult
     {
         // create core kernel which contains bootstrapping for plugins etc.
         $kernel = $this->createKernel();
@@ -125,7 +135,7 @@ class HttpKernel implements HttpKernelInterface
         $container = $kernel->getContainer();
 
         // transform request to resolve seo urls and detect sales channel
-        $request = $container
+        $transformed = $container
             ->get(RequestTransformerInterface::class)
             ->transform($request);
 
@@ -135,17 +145,13 @@ class HttpKernel implements HttpKernelInterface
             $kernel = new HttpCache($kernel, $container->get(CacheStore::class), null, ['debug' => $this->debug]);
         }
 
-        $response = $kernel->handle($request, $type, $catch);
+        $response = $kernel->handle($transformed, $type, $catch);
 
         // fire event to trigger runtime events like seo url headers
-        $event = new BeforeSendResponseEvent($request, $response);
+        $event = new BeforeSendResponseEvent($transformed, $response);
         $container->get('event_dispatcher')->dispatch($event);
-        $response = $event->getResponse();
 
-        // destroy http kernel
-        $kernel->terminate($request, $response);
-
-        return $response;
+        return new HttpKernelResult($request, $response);
     }
 
     private function createKernel(): KernelInterface

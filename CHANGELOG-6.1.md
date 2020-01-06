@@ -365,6 +365,11 @@ To get the diff between two versions, go to https://github.com/shopware/platform
       * The default port is still port 9998.
     * We implemented the new `Storefront/Resources/views/storefront/component/product/listing.html.twig` which can be included to display product listings
     * Changed the naming of the method `_submitForm` to `_redirectToVariant` inside `src/Storefront/Resources/app/storefront/src/plugin/variant-switch/variant-switch.plugin.js`.
+    * Added the `!default` flag to all variable declarations in the following SCSS files to provide the ability to modify the default values inside a theme:
+        * `src/Storefront/Resources/app/storefront/src/scss/abstract/variables/_bootstrap.scss`
+        * `src/Storefront/Resources/app/storefront/src/scss/abstract/variables/_custom.scss`
+        * `src/Storefront/Resources/app/storefront/src/scss/skin/shopware/abstract/variables/_bootstrap.scss`
+        * `src/Storefront/Resources/app/storefront/src/scss/skin/shopware/abstract/variables/_custom.scss`
 * Elasticsearch	
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.
         * You can set them with a parameter.yml too.

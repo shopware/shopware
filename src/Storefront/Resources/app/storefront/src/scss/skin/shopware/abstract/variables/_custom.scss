@@ -4,16 +4,16 @@ Custom variables
 Contains custom non bootstrap variables.
 */
 
-$buy-btn-bg: $sw-color-buy-button;
-$buy-btn-color: $sw-color-buy-button-text;
+$buy-btn-bg: $sw-color-buy-button !default;
+$buy-btn-color: $sw-color-buy-button-text !default;
 
-$disabled-btn-bg: #eee;
-$disabled-btn-border-color: #eee;
+$disabled-btn-bg: #eee !default;
+$disabled-btn-border-color: #eee !default;
 
-$cms-block-text-hero-hr-color: #e9edf0;
-$cms-element-text-quotes-color: #9aa7be;
-$cms-element-product-listing-gutter-width: 30px;
+$cms-block-text-hero-hr-color: #e9edf0 !default;
+$cms-element-text-quotes-color: #9aa7be !default;
+$cms-element-product-listing-gutter-width: 30px !default;
 
-$price-color: $sw-color-price;
+$price-color: $sw-color-price !default;
 
-$font-weight-semibold: 600;
+$font-weight-semibold: 600 !default;

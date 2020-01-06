@@ -12,6 +12,7 @@ class ElementReplaceHelperSingleton {
      *
      * @param {string|HTMLElement} markup
      * @param {array|string} selectors
+     * @param {boolean} strict
      *
      * @private
      */
@@ -121,7 +122,7 @@ export default class ElementReplaceHelper {
      * @param {boolean} strict
      *
      */
-    static replaceFromMarkup(markup, selectors, strict = true) {
+    static replaceFromMarkup(markup, selectors, strict) {
         ElementReplaceHelperInstance.replaceFromMarkup(markup, selectors, strict);
     }
 
@@ -134,7 +135,7 @@ export default class ElementReplaceHelper {
      *
      * @returns {boolean}
      */
-    static replaceElement(src, target, strict = true) {
+    static replaceElement(src, target, strict) {
         return ElementReplaceHelperInstance.replaceElement(src, target, strict);
     }
 }

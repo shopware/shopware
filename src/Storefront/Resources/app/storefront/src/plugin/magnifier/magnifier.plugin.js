@@ -22,7 +22,7 @@ export default class MagnifierPlugin extends Plugin {
          *
          * @type number
          */
-        zoomFactor: 5,
+        zoomFactor: 3,
 
         /**
          * container for the image
@@ -264,7 +264,6 @@ export default class MagnifierPlugin extends Plugin {
      *
      * @returns {*}
      */
-    // calculateImagePosition(position, imageSize, imageDimensions, coordOne, coordTwo) {
     calculateImagePosition(position, imageSize, imageDimensions, coordOne, coordTwo) {
         const compressedImageSize = (imageDimensions[coordOne] * (imageSize[coordTwo] / imageSize[coordOne]));
         const offsetPercent = (1 - (compressedImageSize / (imageDimensions[coordTwo] / 1))) / 2;

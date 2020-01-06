@@ -31,7 +31,6 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
 
     .gallery-slider-image {
         display: block;
-        width: 100%;
     }
 }
 
@@ -50,7 +49,6 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
 
         .gallery-slider-image {
             object-fit: cover;
-            height: 100%;
             position: absolute;
             top: 0;
             right: 0;
@@ -63,11 +61,14 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     &.is-cover {
         .gallery-slider-image {
             object-fit: cover;
+            width: 100%;
+            height: 100%;
         }
     }
 
     &.is-contain {
         .gallery-slider-image {
+            margin: auto;
             object-fit: contain;
         }
     }

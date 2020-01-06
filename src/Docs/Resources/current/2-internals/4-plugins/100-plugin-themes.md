@@ -54,7 +54,7 @@ Basic example for `theme.json`:
   },
   "style": [
     "@Storefront",
-    "Resources/storefront/style/base.scss"
+    "app/storefront/src/scss/base.scss"
   ],
   "views": [
     "@Storefront",
@@ -63,10 +63,10 @@ Basic example for `theme.json`:
   ],
   "script": [
     "@Storefront",
-    "Resources/storefront/dist/script/all.js"
+    "app/storefront/dist/storefront/js/just-another-theme.js"
   ],
   "asset": [
-    "Resources/storefront/asset"
+    "app/storefront/src/assets"
   ]
 }
 ```
@@ -137,11 +137,11 @@ Example `theme.json`
   },
   "style": [
     "@Storefront",
-    "Resources/storefront/style/base.scss"
+    "app/storefront/src/scss/base.scss"
   ],
   "script": [
     "@Storefront",
-    "Resources/storefront/dist/script/all.js"
+    "app/storefront/dist/storefront/js/just-another-theme.js"
   ]
 }
 ```
@@ -181,10 +181,10 @@ More information: https://getbootstrap.com/docs/4.0/getting-started/theming/#var
 To be able to override Bootstrap variables you can define an additional SCSS entry point in our `theme.json` which is declared before `@Storefront`.
 This entry point is called `overrides.scss`:
 
-```
+```json
 {
   "name": "Just another theme",
-  "author": Just another author",
+  "author": "Just another author",
   "views": [
      "@Storefront",
      "@Plugins",
@@ -204,9 +204,10 @@ This entry point is called `overrides.scss`:
   ]
 }
 ```
+
 In the `overrides.scss` you can now override default variables like `$border-radius` globally:
 
-```
+```scss
 /*
 Override variable defaults
 ==================================================

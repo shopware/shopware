@@ -111,5 +111,10 @@
             <argument type="service" id="router.default"/>
             <argument type="service" id="sales_channel.seo_url.repository"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Twig\Extension\MediaExtension">
+            <argument type="service" id="media.repository" />
+            <tag name="twig.extension"/>
+        </service>
     </services>
 </container>

@@ -38,4 +38,30 @@ $sw-context-button-color-disabled:  $color-light-gray;
             border-color: $sw-context-button-color-border;
         }
     }
+
+    .sw-context-button__menu-position {
+        position: absolute;
+        left: 50%;
+        bottom: 0;
+
+        .sw-context-menu {
+            position: relative;
+        }
+    }
+}
+
+.sw-popover__wrapper.sw-context-button__menu-popover {
+    &.--placement-bottom-outside {
+        transform: translate(0, 0);
+
+        .sw-context-menu {
+            transform: translate(0, calc(-100% - 52px));
+
+            .sw-context-menu__content::before {
+                top: auto;
+                bottom: -5px;
+                transform: rotate(225deg);
+            }
+        }
+    }
 }

@@ -126,6 +126,18 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Removed property type check for value property of `sw-multi-select` and `sw-multi-ip-select` because the value is already checked in a custom validator function
      
     * To make the headers of a column in the `sw-data-grid` translatable you have to specify only the path to the snippet. `this.$tc('path.to.snippet')` will still work. 
+    * Refactored sw-context-button
+        * Added popover directive for automatic detection for opening
+        * Remove property `menuOffsetTop`
+        * Remove property `menuOffsetLeft`
+        * Remove method `mountedComponent`
+        * Remove method `beforeDestroyComponent`
+        * Refactor method `openMenu`
+        * Refactor method `closeMenu`
+        * Added method `handleClickEvent`
+        * Remove method `addMenuToBody`
+        * Remove method `removeMenuFromBody`
+        * Remove data `positionTop`, `positionLeft`, `paddingTop`, `menuUuid`
 
     * Fixed the inheritance reset for the price field in the variant listing.
     * Fixed product name column in product review listing

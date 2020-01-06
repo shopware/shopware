@@ -71,6 +71,11 @@ export default {
                 .then((response) => commit('setCart', response.data.data));
         },
 
+        cancelCart(_, { salesChannelId, contextToken }) {
+            return Service('cartSalesChannelService')
+                .cancelCart(salesChannelId, contextToken);
+        },
+
         dispatchUpdateCustomerContext({ state }) {
             const { customer, cart } = state;
             return Service('salesChannelContextService')
@@ -90,11 +95,6 @@ export default {
         saveOrder(_, { salesChannelId, contextToken }) {
             return Service('checkOutSalesChannelService')
                 .checkout(salesChannelId, contextToken);
-        },
-
-        cancelOrder() {
-            // TODO: Handle order data
-            setTimeout(() => true, 1000);
         },
 
         addProductItem({ commit }, { salesChannelId, contextToken, productId, quantity }) {

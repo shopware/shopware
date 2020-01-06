@@ -31,6 +31,16 @@ class CartSalesChannelService extends ApiService {
         return this.httpClient.get(route, { additionalParams, headers });
     }
 
+    cancelCart(salesChannelId, contextToken, additionalParams = {}, additionalHeaders = {}) {
+        const route = `/sales-channel/${salesChannelId}/checkout/cart`;
+        const headers = {
+            ...this.getBasicHeaders(additionalHeaders),
+            'sw-context-token': contextToken
+        };
+
+        return this.httpClient.delete(route, { additionalParams, headers });
+    }
+
     addProduct(
         salesChannelId,
         contextToken,

@@ -46,7 +46,7 @@ class LineItemValidatorTest extends TestCase
         $cart = $this->createMock(Cart::class);
         $lineItem = new LineItem('id', 'fake');
         $lineItem->setPrice($this->createMock(CalculatedPrice::class));
-        $cart->expects(static::once())->method('getLineItems')->willReturn(new LineItemCollection([$lineItem]));
+        $cart->expects(static::exactly(2))->method('getLineItems')->willReturn(new LineItemCollection([$lineItem]));
 
         $validator = new LineItemValidator();
         $errors = new ErrorCollection();
@@ -58,12 +58,26 @@ class LineItemValidatorTest extends TestCase
         static::assertSame('label', $errors->first()->getMessageKey());
     }
 
+    public function testValidateWithoutLabelGotRemoved(): void
+    {
+        $cart = $this->createMock(Cart::class);
+        $lineItem = new LineItem('id', 'fake');
+        $lineItem->setPrice($this->createMock(CalculatedPrice::class));
+        $cart->method('getLineItems')->willReturn(new LineItemCollection([$lineItem]));
+
+        $validator = new LineItemValidator();
+        $errors = new ErrorCollection();
+        $validator->validate($cart, $errors, $this->createMock(SalesChannelContext::class));
+
+        static::assertCount(0, $cart->getLineItems());
+    }
+
     public function testValidateWithoutPrice(): void
     {
         $cart = $this->createMock(Cart::class);
         $lineItem = new LineItem('id', 'fake');
         $lineItem->setLabel('Label');
-        $cart->expects(static::once())->method('getLineItems')->willReturn(new LineItemCollection([$lineItem]));
+        $cart->expects(static::exactly(2))->method('getLineItems')->willReturn(new LineItemCollection([$lineItem]));
 
         $validator = new LineItemValidator();
         $errors = new ErrorCollection();
@@ -79,7 +93,7 @@ class LineItemValidatorTest extends TestCase
     {
         $cart = $this->createMock(Cart::class);
         $lineItem = new LineItem('id', 'fake');
-        $cart->expects(static::once())->method('getLineItems')->willReturn(new LineItemCollection([$lineItem]));
+        $cart->expects(static::exactly(3))->method('getLineItems')->willReturn(new LineItemCollection([$lineItem]));
 
         $validator = new LineItemValidator();
         $errors = new ErrorCollection();

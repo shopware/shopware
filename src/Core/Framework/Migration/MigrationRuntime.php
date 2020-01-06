@@ -27,9 +27,9 @@ class MigrationRuntime
         $this->logger = $logger;
     }
 
-    public function migrate(?int $until = null, ?int $limit = null): \Generator
+    public function migrate(MigrationSource $source, ?int $until = null, ?int $limit = null): \Generator
     {
-        $migrations = $this->getExecutableMigrations($until, $limit);
+        $migrations = $this->getExecutableMigrations($source, $until, $limit);
 
         $this->setDefaultStorageEngine();
 
@@ -50,9 +50,9 @@ class MigrationRuntime
         }
     }
 
-    public function migrateDestructive(?int $until = null, ?int $limit = null): \Generator
+    public function migrateDestructive(MigrationSource $source, ?int $until = null, ?int $limit = null): \Generator
     {
-        $migrations = $this->getExecutableDestructiveMigrations($until, $limit);
+        $migrations = $this->getExecutableDestructiveMigrations($source, $until, $limit);
 
         $this->setDefaultStorageEngine();
 
@@ -73,17 +73,17 @@ class MigrationRuntime
         }
     }
 
-    public function getExecutableMigrations(?int $until = null, ?int $limit = null): array
+    public function getExecutableMigrations(MigrationSource $source, ?int $until = null, ?int $limit = null): array
     {
-        return $this->getExecutableMigrationsBaseQuery($until, $limit)
+        return $this->getExecutableMigrationsBaseQuery($source, $until, $limit)
             ->andWhere('`update` IS NULL')
             ->execute()
             ->fetchAll(FetchMode::COLUMN);
     }
 
-    public function getExecutableDestructiveMigrations(?int $until = null, ?int $limit = null): array
+    public function getExecutableDestructiveMigrations(MigrationSource $source, ?int $until = null, ?int $limit = null): array
     {
-        return $this->getExecutableMigrationsBaseQuery($until, $limit)
+        return $this->getExecutableMigrationsBaseQuery($source, $until, $limit)
             ->andWhere('`update` IS NOT NULL')
             ->andWhere('`update_destructive` IS NULL')
             ->execute()
@@ -95,21 +95,24 @@ class MigrationRuntime
         $this->connection->exec('SET default_storage_engine=InnoDB');
     }
 
-    private function getExecutableMigrationsBaseQuery(?int $until = null, ?int $limit = null): QueryBuilder
+    private function getExecutableMigrationsBaseQuery(MigrationSource $source, ?int $until = null, ?int $limit = null): QueryBuilder
     {
         $query = $this->connection->createQueryBuilder()
             ->select('`class`')
             ->from('migration')
+            ->where('`class` REGEXP :pattern')
             ->orderBy('`creation_timestamp`', 'ASC');
 
         if ($until !== null) {
-            $query->where('`creation_timestamp` <= :timestamp');
+            $query->andWhere('`creation_timestamp` <= :timestamp');
             $query->setParameter('timestamp', $until);
         }
 
         if ($limit > 0) {
             $query->setMaxResults($limit);
         }
+
+        $query->setParameter(':pattern', $source->getNamespacePattern());
 
         return $query;
     }

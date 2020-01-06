@@ -7,9 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\Command\MigrationCommand;
 use Shopware\Core\Framework\Migration\Command\MigrationDestructiveCommand;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
-use Shopware\Core\Framework\Migration\MigrationCollection;
-use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
-use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -17,7 +14,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 class MigrationCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    private const MIGRATION_IDENTIFIER = 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid';
+    use MigrationTestBehaviour;
 
     protected function tearDown(): void
     {
@@ -29,46 +26,14 @@ class MigrationCommandTest extends TestCase
             ->execute();
     }
 
-    public function getCommand(bool $exceptions = false): MigrationCommand
+    public function getCommand(): MigrationCommand
     {
-        $container = $this->getContainer();
-
-        $directories = $container->getParameter('migration.directories');
-
-        $directories['Shopware\Core\Framework\Test\Migration\_test_migrations_valid']
-            = __DIR__ . '/../Migration/_test_migrations_valid';
-
-        if ($exceptions) {
-            $directories['Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time_exceptions']
-            = __DIR__ . '/../Migration/_test_migrations_valid_run_time_exceptions';
-        }
-
-        return new MigrationCommand(
-            new MigrationCollectionLoader($this->getConnection(), new MigrationCollection($directories)),
-            $container->get(MigrationRuntime::class),
-            $container->get('cache.object')
-        );
+        return $this->getContainer()->get(MigrationCommand::class);
     }
 
-    public function getDestructiveCommand(bool $exceptions = false): MigrationDestructiveCommand
+    public function getDestructiveCommand(): MigrationDestructiveCommand
     {
-        $container = $this->getContainer();
-
-        $directories = $container->getParameter('migration.directories');
-
-        $directories['Shopware\Core\Framework\Test\Migration\_test_migrations_valid']
-            = __DIR__ . '/../Migration/_test_migrations_valid';
-
-        if ($exceptions) {
-            $directories['Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time_exceptions']
-                = __DIR__ . '/../Migration/_test_migrations_valid_run_time_exceptions';
-        }
-
-        return new MigrationDestructiveCommand(
-            new MigrationCollectionLoader($this->getConnection(), new MigrationCollection($directories)),
-            $container->get(MigrationRuntime::class),
-            $container->get('cache.object')
-        );
+        return $this->getContainer()->get(MigrationDestructiveCommand::class);
     }
 
     public function testCommandMigrateNoUntilNoAllOption(): void
@@ -87,7 +52,7 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getCommand();
 
-        $command->run(new ArrayInput(['-all' => true, 'identifier' => self::MIGRATION_IDENTIFIER]), new BufferedOutput());
+        $command->run(new ArrayInput(['-all' => true, 'identifier' => self::INTEGRATION_IDENTIFIER()]), new BufferedOutput());
 
         static::assertSame(2, $this->getMigrationCount());
     }
@@ -98,7 +63,7 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getCommand();
 
-        $command->run(new ArrayInput(['until' => PHP_INT_MAX, 'identifier' => self::MIGRATION_IDENTIFIER]), new BufferedOutput());
+        $command->run(new ArrayInput(['until' => PHP_INT_MAX, 'identifier' => self::INTEGRATION_IDENTIFIER()]), new BufferedOutput());
 
         static::assertSame(2, $this->getMigrationCount());
     }
@@ -107,10 +72,10 @@ class MigrationCommandTest extends TestCase
     {
         static::assertSame(0, $this->getMigrationCount(true));
 
-        $command = $this->getCommand(true);
+        $command = $this->getCommand();
 
         try {
-            $command->run(new ArrayInput(['-all' => true, 'identifier' => self::MIGRATION_IDENTIFIER]), new BufferedOutput());
+            $command->run(new ArrayInput(['-all' => true, 'identifier' => self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]), new BufferedOutput());
         } catch (MigrateException $e) {
             //nth
         }
@@ -134,7 +99,7 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getDestructiveCommand();
 
-        $command->run(new ArrayInput(['-all' => true, 'identifier' => self::MIGRATION_IDENTIFIER]), new BufferedOutput());
+        $command->run(new ArrayInput(['-all' => true, 'identifier' => self::INTEGRATION_IDENTIFIER()]), new BufferedOutput());
 
         static::assertSame(2, $this->getMigrationCount());
     }
@@ -145,7 +110,7 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getDestructiveCommand();
 
-        $command->run(new ArrayInput(['until' => PHP_INT_MAX, 'identifier' => self::MIGRATION_IDENTIFIER]), new BufferedOutput());
+        $command->run(new ArrayInput(['until' => PHP_INT_MAX, 'identifier' => self::INTEGRATION_IDENTIFIER()]), new BufferedOutput());
 
         static::assertSame(2, $this->getMigrationCount());
     }
@@ -154,18 +119,18 @@ class MigrationCommandTest extends TestCase
     {
         static::assertSame(0, $this->getMigrationCount(true, true));
 
-        $command = $this->getCommand(true);
+        $command = $this->getCommand();
 
         try {
-            $command->run(new ArrayInput(['-all' => true, 'identifier' => self::MIGRATION_IDENTIFIER]), new BufferedOutput());
+            $command->run(new ArrayInput(['-all' => true, 'identifier' => self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]), new BufferedOutput());
         } catch (MigrateException $e) {
             //nth
         }
 
-        $command = $this->getDestructiveCommand(true);
+        $command = $this->getDestructiveCommand();
 
         try {
-            $command->run(new ArrayInput(['-all' => true]), new BufferedOutput());
+            $command->run(new ArrayInput(['-all' => true, 'identifier' => self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]), new BufferedOutput());
         } catch (MigrateException $e) {
             //nth
         }
@@ -179,7 +144,7 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getCommand();
 
-        $command->run(new ArrayInput(['-all' => true, 'identifier' => self::MIGRATION_IDENTIFIER]), new BufferedOutput());
+        $command->run(new ArrayInput(['-all' => true, 'identifier' => self::INTEGRATION_IDENTIFIER()]), new BufferedOutput());
 
         static::assertSame(2, $this->getMigrationCount(true));
     }

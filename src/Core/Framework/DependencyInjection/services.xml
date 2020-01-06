@@ -12,7 +12,7 @@
         </parameter>
 
         <!-- Migration config -->
-        <parameter key="migration.directories" type="collection" />
+        <parameter key="core.migration.directories" type="collection" />
         <parameter key="migration.active" type="collection"/>
     </parameters>
 
@@ -71,18 +71,27 @@
 
 
         <!-- Migration -->
+        <service id="Shopware\Core\Framework\Migration\MigrationSource.core" class="Shopware\Core\Framework\Migration\MigrationSource">
+            <argument type="string">core</argument>
+            <tag name="shopware.migration_source"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Migration\MigrationSource.null" class="Shopware\Core\Framework\Migration\MigrationSource">
+            <argument type="string">null</argument>
+            <argument type="collection" />
+
+            <tag name="shopware.migration_source"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Migration\MigrationRuntime">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="logger"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Migration\MigrationCollection">
-            <argument>%migration.directories%</argument>
-        </service>
-
         <service id="Shopware\Core\Framework\Migration\MigrationCollectionLoader">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollection"/>
+            <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
+            <argument type="tagged" tag="shopware.migration_source"/>
         </service>
 
         <service id="Shopware\Core\Framework\Migration\Command\CreateMigrationCommand">
@@ -122,7 +131,6 @@
 
         <service id="Shopware\Core\Framework\Migration\Api\MigrationController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
-            <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

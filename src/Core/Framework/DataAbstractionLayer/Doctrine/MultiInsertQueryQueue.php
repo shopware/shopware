@@ -87,6 +87,7 @@ class MultiInsertQueryQueue
     {
         $queries = [];
         $template = 'INSERT INTO %s (%s) VALUES %s;';
+
         if ($this->ignoreErrors) {
             $template = 'INSERT IGNORE INTO %s (%s) VALUES %s;';
         }

@@ -4,25 +4,22 @@ namespace Shopware\Core\Framework\Test\Migration;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
+use Shopware\Core\Framework\Migration\Exception\UnknownMigrationSourceException;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
+use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
-class MigrationCollectorTest extends TestCase
+class MigrationLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
-
-    private const MIGRATION_IDENTIFIER = 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid';
+    use MigrationTestBehaviour;
 
     /**
      * @var Connection
      */
     private $connection;
-
-    /**
-     * @var MigrationCollection
-     */
-    private $collector;
 
     /**
      * @var MigrationCollectionLoader
@@ -32,9 +29,9 @@ class MigrationCollectorTest extends TestCase
     protected function setUp(): void
     {
         $container = $this->getContainer();
+
         $this->connection = $container->get(Connection::class);
-        $this->collector = new MigrationCollection([]);
-        $this->loader = new MigrationCollectionLoader($this->connection, $this->collector);
+        $this->loader = $container->get(MigrationCollectionLoader::class);
     }
 
     protected function tearDown(): void
@@ -46,10 +43,27 @@ class MigrationCollectorTest extends TestCase
         );
     }
 
+    public function testExceptionForInvalidNames(): void
+    {
+        $this->expectException(UnknownMigrationSourceException::class);
+        $this->expectExceptionMessage('No source registered for "FOOBAR"');
+        $this->loader->collect('FOOBAR');
+    }
+
+    public function testTheInterface(): void
+    {
+        $collection = $this->loader->collect('core');
+
+        static::assertInstanceOf(MigrationCollection::class, $collection);
+        static::assertSame('core', $collection->getName());
+        static::assertContainsOnlyInstancesOf(MigrationStep::class, $collection->getMigrationSteps());
+        static::assertGreaterThan(1, count($collection->getMigrationSteps()));
+    }
+
     public function testItLoadsTheValidMigrations(): void
     {
-        $this->collector->addDirectory(__DIR__ . '/_test_migrations_valid', 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid');
-        $this->loader->syncMigrationCollection(self::MIGRATION_IDENTIFIER);
+        $collection = $this->loader->collect('_test_migrations_valid');
+        $collection->sync();
 
         $migrations = $this->getMigrations();
 
@@ -70,12 +84,35 @@ class MigrationCollectorTest extends TestCase
 
     public function testItGetsCorrectMigrationTimestamps(): void
     {
-        $this->collector->addDirectory(__DIR__ . '/_test_migrations_valid', 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid');
-        $migrations = $this->collector->getActiveMigrationTimestamps();
+        $collection = $this->loader->collect('_test_migrations_valid');
+        $migrations = $collection->getActiveMigrationTimestamps();
 
         static::assertCount(2, $migrations);
         static::assertEquals(1, $migrations[0]);
         static::assertEquals(2, $migrations[1]);
+    }
+
+    public function testThatInvalidMigrationClassesThrowOnLazyInit(): void
+    {
+        $collection = $this->loader->collect('_test_migrations_invalid_namespace');
+
+        $this->expectException(InvalidMigrationClassException::class);
+        $collection->getMigrationSteps();
+    }
+
+    public function testNullcollection(): void
+    {
+        $nullCollection = $this->loader->collect('null');
+
+        $nullCollection->sync();
+
+        static::assertCount(0, $nullCollection->migrateInPlace());
+        static::assertCount(0, $nullCollection->migrateDestructiveInPlace());
+
+        static::assertCount(0, $nullCollection->getMigrationSteps());
+        static::assertCount(0, $nullCollection->getActiveMigrationTimestamps());
+        static::assertCount(0, $nullCollection->getExecutableMigrations());
+        static::assertCount(0, $nullCollection->getExecutableDestructiveMigrations());
     }
 
     private function getMigrations(): array

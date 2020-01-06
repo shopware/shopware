@@ -8,9 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
-use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
@@ -21,13 +19,13 @@ use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
+use Shopware\Core\Framework\Test\Migration\MigrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use SwagTest\Migration\Migration1536761533Test;
 use SwagTest\SwagTest;
-use SwagTestWithoutConfig\SwagTestWithoutConfig;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -35,6 +33,7 @@ class PluginLifecycleServiceTest extends TestCase
 {
     use KernelTestBehaviour;
     use PluginTestsHelper;
+    use MigrationTestBehaviour;
 
     private const PLUGIN_NAME = 'SwagTest';
 
@@ -99,8 +98,12 @@ class PluginLifecycleServiceTest extends TestCase
         $this->connection = $this->container->get(Connection::class);
         $this->systemConfigService = $this->container->get(SystemConfigService::class);
         $this->pluginLifecycleService = $this->createPluginLifecycleService();
+
         require_once __DIR__ . '/_fixture/plugins/SwagTest/src/Migration/Migration1536761533Test.php';
-        $this->addTestPluginToKernel();
+
+        $this->addTestPluginToKernel(self::PLUGIN_NAME);
+        $this->addTestPluginToKernel('SwagTestWithoutConfig');
+
         $this->context = Context::createDefaultContext();
     }
 
@@ -322,9 +325,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get('event_dispatcher'),
             $this->pluginCollection,
             $this->container->get('service_container'),
-            $this->container->get(MigrationCollection::class),
             $this->container->get(MigrationCollectionLoader::class),
-            $this->container->get(MigrationRuntime::class),
             $this->connection,
             $this->container->get(AssetService::class),
             $this->container->get(CommandExecutor::class),
@@ -333,16 +334,6 @@ class PluginLifecycleServiceTest extends TestCase
             Kernel::SHOPWARE_FALLBACK_VERSION,
             $this->systemConfigService
         );
-    }
-
-    private function addTestPluginToKernel(): void
-    {
-        $testPluginBaseDir = __DIR__ . '/_fixture/plugins/SwagTest';
-        $testPluginWithoutConfigBaseDir = __DIR__ . '/_fixture/plugins/SwagTestWithoutConfig';
-        require_once $testPluginBaseDir . '/src/SwagTest.php';
-        require_once $testPluginWithoutConfigBaseDir . '/src/SwagTestWithoutConfig.php';
-        $this->pluginCollection->add(new SwagTest(false, $testPluginBaseDir));
-        $this->pluginCollection->add(new SwagTestWithoutConfig(false, $testPluginWithoutConfigBaseDir));
     }
 
     private function getMigrationTestKeyCount(): int

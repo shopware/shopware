@@ -41,6 +41,8 @@ class Storefront extends Bundle implements ThemeInterface
         $container->setParameter('storefrontRoot', $this->getPath());
 
         $container->addCompilerPass(new DisableTemplateCachePass());
+
+        $this->addCoreMigrationPath($container, $this->getMigrationPath(), $this->getMigrationNamespace());
     }
 
     private function buildConfig(ContainerBuilder $container, $environment): void

@@ -6,9 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\Api\MigrationController;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
-use Shopware\Core\Framework\Migration\MigrationCollection;
-use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
-use Shopware\Core\Framework\Migration\MigrationRuntime;
+use Shopware\Core\Framework\Test\Migration\MigrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 class MigrationControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
-    private const MIGRATION_IDENTIFIER = 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid';
+    use MigrationTestBehaviour;
 
     protected function tearDown(): void
     {
@@ -28,24 +26,9 @@ class MigrationControllerTest extends TestCase
             ->execute();
     }
 
-    public function getController(bool $exceptions = false): MigrationController
+    public function getController(): MigrationController
     {
-        $container = $this->getContainer();
-
-        $directories = $container->getParameter('migration.directories');
-
-        $directories['Shopware\Core\Framework\Test\Migration\_test_migrations_valid']
-            = __DIR__ . '/../../Migration/_test_migrations_valid';
-
-        if ($exceptions) {
-            $directories['Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time_exceptions']
-            = __DIR__ . '/../../Migration/_test_migrations_valid_run_time_exceptions';
-        }
-
-        return new MigrationController(
-            new MigrationCollectionLoader($this->getConnection(), new MigrationCollection($directories)),
-            $container->get(MigrationRuntime::class)
-        );
+        return $this->getContainer()->get(MigrationController::class);
     }
 
     public function testAddMigrationsActionCall(): void
@@ -54,9 +37,9 @@ class MigrationControllerTest extends TestCase
 
         $url = sprintf('/api/v%s/_action/database/sync-migration', PlatformRequest::API_VERSION);
 
-        $client->request('POST', $url, ['identifier' => self::MIGRATION_IDENTIFIER]);
+        $client->request('POST', $url, ['identifier' => self::INTEGRATION_IDENTIFIER()]);
 
-        static::assertSame(204, $client->getResponse()->getStatusCode());
+        static::assertSame(204, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
     }
 
     public function testMigrateActionCall(): void
@@ -91,7 +74,7 @@ class MigrationControllerTest extends TestCase
 
         $controller = $this->getController();
 
-        $controller->syncMigrations($this->getBaseRequest());
+        $controller->syncMigrations($this->createBasRequest());
 
         static::assertSame(2, $this->getMigrationCount());
     }
@@ -100,14 +83,12 @@ class MigrationControllerTest extends TestCase
     {
         static::assertSame(0, $this->getMigrationCount(true));
 
-        $controller = $this->getController(true);
+        $controller = $this->getController();
 
-        $controller->syncMigrations($this->getBaseRequest());
-
-        $request = new Request();
+        $controller->syncMigrations($this->createBasRequest(true));
 
         try {
-            $controller->migrate($request);
+            $controller->migrate($this->createBasRequest(true));
         } catch (MigrateException $e) {
             //nth
         }
@@ -119,20 +100,18 @@ class MigrationControllerTest extends TestCase
     {
         static::assertSame(0, $this->getMigrationCount(true, true));
 
-        $controller = $this->getController(true);
+        $controller = $this->getController();
 
-        $controller->syncMigrations($this->getBaseRequest());
-
-        $request = new Request();
+        $controller->syncMigrations($this->createBasRequest(true));
 
         try {
-            $controller->migrate($request);
+            $controller->migrate($this->createBasRequest(true));
         } catch (MigrateException $e) {
             //nth
         }
 
         try {
-            $controller->migrateDestructive($request);
+            $controller->migrateDestructive($this->createBasRequest(true));
         } catch (MigrateException $e) {
             //nth
         }
@@ -146,11 +125,9 @@ class MigrationControllerTest extends TestCase
 
         $controller = $this->getController();
 
-        $controller->syncMigrations($this->getBaseRequest());
+        $controller->syncMigrations($this->createBasRequest());
 
-        $request = new Request();
-
-        $controller->migrate($request);
+        $controller->migrate($this->createBasRequest());
 
         static::assertSame(2, $this->getMigrationCount(true));
     }
@@ -178,8 +155,14 @@ class MigrationControllerTest extends TestCase
         return (int) $query->execute()->fetchColumn();
     }
 
-    private function getBaseRequest(): Request
+    private function createBasRequest(bool $exceptions = false): Request
     {
-        return new Request([], ['identifier' => self::MIGRATION_IDENTIFIER]);
+        $identifier = self::INTEGRATION_IDENTIFIER();
+
+        if ($exceptions) {
+            $identifier = self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER();
+        }
+
+        return new Request([], ['identifier' => $identifier]);
     }
 }

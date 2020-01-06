@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Plugin\Context;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Plugin;
 
 class UpdateContext extends InstallContext
@@ -17,9 +18,10 @@ class UpdateContext extends InstallContext
         Context $context,
         string $currentShopwareVersion,
         string $currentPluginVersion,
+        MigrationCollection $migrationCollection,
         string $updatePluginVersion
     ) {
-        parent::__construct($plugin, $context, $currentShopwareVersion, $currentPluginVersion);
+        parent::__construct($plugin, $context, $currentShopwareVersion, $currentPluginVersion, $migrationCollection);
         $this->updatePluginVersion = $updatePluginVersion;
     }
 

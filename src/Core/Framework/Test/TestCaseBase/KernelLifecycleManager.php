@@ -42,6 +42,8 @@ class KernelLifecycleManager
     public static function getKernel(): KernelInterface
     {
         if (static::$kernel) {
+            static::$kernel->boot();
+
             return static::$kernel;
         }
 

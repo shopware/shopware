@@ -9,9 +9,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
-use Shopware\Core\Framework\Migration\MigrationRuntime;
+use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
@@ -275,9 +274,7 @@ class KernelPluginIntegrationTest extends TestCase
             $container->get('event_dispatcher'),
             $this->kernel->getPluginLoader()->getPluginInstances(),
             $container,
-            $this->createMock(MigrationCollection::class),
             $this->createMock(MigrationCollectionLoader::class),
-            $this->createMock(MigrationRuntime::class),
             $this->connection,
             $this->createMock(AssetService::class),
             $this->createMock(CommandExecutor::class),

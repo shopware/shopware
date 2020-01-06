@@ -37,18 +37,18 @@ Component.register('sw-plugin-license-list', {
         licensesColumns() {
             return [{
                 property: 'name',
-                label: this.$tc('sw-plugin.license-list.columnName'),
+                label: 'sw-plugin.license-list.columnName',
                 type: 'Text'
             }, {
                 property: 'creationDate',
-                label: this.$tc('sw-plugin.license-list.columnCreationDate'),
+                label: 'sw-plugin.license-list.columnCreationDate',
                 type: 'Date'
             }, {
                 property: 'type',
-                label: this.$tc('sw-plugin.license-list.columnType')
+                label: 'sw-plugin.license-list.columnType'
             }, {
                 property: 'expirationDate',
-                label: this.$tc('sw-plugin.license-list.columnExpirationDate')
+                label: 'sw-plugin.license-list.columnExpirationDate'
             }, {
                 property: 'availableVersion',
                 align: 'center'

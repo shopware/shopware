@@ -69,18 +69,18 @@ Component.register('sw-settings-delivery-time-list', {
         deliveryTimeColumns() {
             return [{
                 property: 'name',
-                label: this.$tc('sw-settings-delivery-time.list.columnName'),
+                label: 'sw-settings-delivery-time.list.columnName',
                 primary: true,
                 routerLink: 'sw.settings.delivery.time.detail'
             }, {
                 property: 'unit',
-                label: this.$tc('sw-settings-delivery-time.list.columnUnit')
+                label: 'sw-settings-delivery-time.list.columnUnit'
             }, {
                 property: 'min',
-                label: this.$tc('sw-settings-delivery-time.list.columnMin')
+                label: 'sw-settings-delivery-time.list.columnMin'
             }, {
                 property: 'max',
-                label: this.$tc('sw-settings-delivery-time.list.columnMax')
+                label: 'sw-settings-delivery-time.list.columnMax'
             }];
         }
     }

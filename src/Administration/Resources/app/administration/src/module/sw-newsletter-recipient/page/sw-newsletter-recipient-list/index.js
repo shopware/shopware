@@ -163,7 +163,7 @@ Component.register('sw-newsletter-recipient-list', {
         getColumns() {
             return [{
                 property: 'email',
-                label: this.$tc('sw-newsletter-recipient.list.email'),
+                label: 'sw-newsletter-recipient.list.email',
                 routerLink: 'sw.newsletter.recipient.detail',
                 allowResize: true,
                 inlineEdit: 'string'
@@ -171,41 +171,41 @@ Component.register('sw-newsletter-recipient-list', {
                 property: 'firstName',
                 dataIndex: 'firstName,lastName',
                 inlineEdit: 'string',
-                label: this.$tc('sw-newsletter-recipient.list.name'),
+                label: 'sw-newsletter-recipient.list.name',
                 allowResize: true,
                 primary: true
             }, {
                 property: 'salesChannel.name',
-                label: this.$tc('sw-newsletter-recipient.list.salesChannel'),
+                label: 'sw-newsletter-recipient.list.salesChannel',
                 allowResize: true,
                 primary: false,
                 visible: false
             }, {
                 property: 'status',
-                label: this.$tc('sw-newsletter-recipient.list.status'),
+                label: 'sw-newsletter-recipient.list.status',
                 allowResize: true
             }, {
                 property: 'zipCode',
-                label: this.$tc('sw-newsletter-recipient.list.zipCode'),
+                label: 'sw-newsletter-recipient.list.zipCode',
                 allowResize: true,
                 align: 'right'
             }, {
                 property: 'city',
-                label: this.$tc('sw-newsletter-recipient.list.city'),
+                label: 'sw-newsletter-recipient.list.city',
                 allowResize: true
             }, {
                 property: 'street',
-                label: this.$tc('sw-newsletter-recipient.list.street'),
+                label: 'sw-newsletter-recipient.list.street',
                 allowResize: true,
                 visible: false
             }, {
                 property: 'updatedAt',
-                label: this.$tc('sw-newsletter-recipient.list.updatedAt'),
+                label: 'sw-newsletter-recipient.list.updatedAt',
                 allowResize: true,
                 visible: false
             }, {
                 property: 'createdAt',
-                label: this.$tc('sw-newsletter-recipient.list.createdAt'),
+                label: 'sw-newsletter-recipient.list.createdAt',
                 allowResize: true,
                 visible: false
             }];

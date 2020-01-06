@@ -63,12 +63,12 @@ Component.register('sw-plugin-last-updates-grid', {
         lastUpdatesColumns() {
             return [{
                 property: 'name',
-                label: this.$tc('sw-plugin.list.columnPlugin'),
+                label: 'sw-plugin.list.columnPlugin',
                 align: 'center',
                 width: 'auto'
             }, {
                 property: 'changelog',
-                label: this.$tc('sw-plugin.list.columnChangelog')
+                label: 'sw-plugin.list.columnChangelog'
 
             }, {
                 property: 'version',

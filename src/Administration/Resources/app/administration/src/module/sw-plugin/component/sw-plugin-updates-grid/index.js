@@ -46,12 +46,12 @@ Component.register('sw-plugin-updates-grid', {
         updateColumns() {
             return [{
                 property: 'label',
-                label: this.$tc('sw-plugin.list.columnPlugin'),
+                label: 'sw-plugin.list.columnPlugin',
                 align: 'center'
             }, {
                 property: 'changelog',
                 width: '*',
-                label: this.$tc('sw-plugin.list.columnChangelog')
+                label: 'sw-plugin.list.columnChangelog'
             }, {
                 property: 'action-update',
                 align: 'center'

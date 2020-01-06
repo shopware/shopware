@@ -25,40 +25,40 @@ Component.register('sw-review-list', {
                 {
                     property: 'title',
                     dataIndex: 'title',
-                    label: this.$tc('sw-review.list.columnTitle')
+                    label: 'sw-review.list.columnTitle'
                 },
                 {
                     property: 'points',
                     dataIndex: 'points',
-                    label: this.$tc('sw-review.list.columnPoints')
+                    label: 'sw-review.list.columnPoints'
                 },
                 {
                     property: 'product',
                     dataIndex: 'product.name',
-                    label: this.$tc('sw-review.list.columnProduct'),
+                    label: 'sw-review.list.columnProduct',
                     routerLink: 'sw.review.detail',
                     primary: true
                 },
                 {
                     property: 'user',
                     dataIndex: 'externalUser',
-                    label: this.$tc('sw-review.list.columnUser')
+                    label: 'sw-review.list.columnUser'
                 },
                 {
                     property: 'createdAt',
                     dataIndex: 'createdAt',
-                    label: this.$tc('sw-review.list.columnCreatedAt')
+                    label: 'sw-review.list.columnCreatedAt'
                 },
                 {
                     property: 'status',
                     dataIndex: 'status',
-                    label: this.$tc('sw-review.list.columnStatus'),
+                    label: 'sw-review.list.columnStatus',
                     align: 'center'
                 },
                 {
                     property: 'comment',
                     dataIndex: 'comment',
-                    label: this.$tc('sw-review.list.columnComment'),
+                    label: 'sw-review.list.columnComment',
                     align: 'center'
                 }
             ];

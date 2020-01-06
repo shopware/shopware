@@ -90,29 +90,29 @@ Component.register('sw-settings-rule-list', {
                 property: 'name',
                 dataIndex: 'name',
                 inlineEdit: 'string',
-                label: this.$tc('sw-settings-rule.list.columnName'),
+                label: 'sw-settings-rule.list.columnName',
                 routerLink: 'sw.settings.rule.detail',
                 width: '250px',
                 allowResize: true,
                 primary: true
             }, {
                 property: 'priority',
-                label: this.$tc('sw-settings-rule.list.columnPriority'),
+                label: 'sw-settings-rule.list.columnPriority',
                 inlineEdit: 'number',
                 allowResize: true
             }, {
                 property: 'description',
-                label: this.$tc('sw-settings-rule.list.columnDescription'),
+                label: 'sw-settings-rule.list.columnDescription',
                 width: '250px',
                 allowResize: true
             }, {
                 property: 'updatedAt',
-                label: this.$tc('sw-settings-rule.list.columnDateCreated'),
+                label: 'sw-settings-rule.list.columnDateCreated',
                 align: 'right',
                 allowResize: true
             }, {
                 property: 'invalid',
-                label: this.$tc('sw-product-stream.list.columnStatus'),
+                label: 'sw-product-stream.list.columnStatus',
                 allowResize: true
             }];
         }

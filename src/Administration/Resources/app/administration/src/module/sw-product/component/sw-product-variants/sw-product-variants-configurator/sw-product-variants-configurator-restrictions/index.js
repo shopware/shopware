@@ -33,7 +33,7 @@ Component.register('sw-product-variants-configurator-restrictions', {
             return [
                 {
                     property: 'id',
-                    label: this.$tc('sw-product.variations.configuratorModal.restrictedCombinations'),
+                    label: 'sw-product.variations.configuratorModal.restrictedCombinations',
                     rawData: true
                 }
             ];

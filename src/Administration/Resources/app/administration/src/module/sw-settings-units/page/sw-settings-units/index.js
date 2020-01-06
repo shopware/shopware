@@ -136,11 +136,11 @@ Component.register('sw-settings-units', {
         unitColumns() {
             return [{
                 property: 'name',
-                label: this.$tc('sw-settings-units.grid.columnName'),
+                label: 'sw-settings-units.grid.columnName',
                 inlineEdit: 'string'
             }, {
                 property: 'shortCode',
-                label: this.$tc('sw-settings-units.grid.columnShortCode'),
+                label: 'sw-settings-units.grid.columnShortCode',
                 inlineEdit: 'string'
             }];
         }

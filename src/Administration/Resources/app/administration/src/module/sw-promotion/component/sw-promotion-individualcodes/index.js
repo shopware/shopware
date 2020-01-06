@@ -72,13 +72,13 @@ Component.register('sw-promotion-individualcodes', {
                 {
                     property: 'isRedeemed',
                     dataIndex: 'isRedeemed',
-                    label: this.$tc('sw-promotion.detail.main.general.codes.individual.columnRedeemed'),
+                    label: 'sw-promotion.detail.main.general.codes.individual.columnRedeemed',
                     allowResize: false
                 },
                 {
                     property: 'customerName',
                     dataIndex: 'customerName',
-                    label: this.$tc('sw-promotion.detail.main.general.codes.individual.columnCustomer'),
+                    label: 'sw-promotion.detail.main.general.codes.individual.columnCustomer',
                     allowResize: false
                 }
             ];

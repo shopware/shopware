@@ -134,7 +134,7 @@ Component.register('sw-product-detail-context-prices', {
             return [
                 {
                     property: 'quantityStart',
-                    label: this.$tc('sw-product.advancedPrices.columnFrom'),
+                    label: 'sw-product.advancedPrices.columnFrom',
                     visible: true,
                     allowResize: true,
                     primary: true,
@@ -142,7 +142,7 @@ Component.register('sw-product-detail-context-prices', {
                     width: '95px'
                 }, {
                     property: 'quantityEnd',
-                    label: this.$tc('sw-product.advancedPrices.columnTo'),
+                    label: 'sw-product.advancedPrices.columnTo',
                     visible: true,
                     allowResize: true,
                     primary: true,

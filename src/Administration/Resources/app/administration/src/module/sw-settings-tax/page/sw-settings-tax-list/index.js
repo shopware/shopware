@@ -91,14 +91,14 @@ Component.register('sw-settings-tax-list', {
                 property: 'name',
                 dataIndex: 'name',
                 inlineEdit: 'string',
-                label: this.$tc('sw-settings-tax.list.columnName'),
+                label: 'sw-settings-tax.list.columnName',
                 routerLink: 'sw.settings.tax.detail',
                 width: '250px',
                 primary: true
             }, {
                 property: 'defaultTaxRate',
                 inlineEdit: 'number',
-                label: this.$tc('sw-settings-tax.list.columnDefaultTaxRate')
+                label: 'sw-settings-tax.list.columnDefaultTaxRate'
             }];
         }
     }

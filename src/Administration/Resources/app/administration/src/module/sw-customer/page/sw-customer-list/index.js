@@ -135,47 +135,47 @@ Component.register('sw-customer-list', {
                 property: 'firstName',
                 dataIndex: 'firstName,lastName',
                 inlineEdit: 'string',
-                label: this.$tc('sw-customer.list.columnName'),
+                label: 'sw-customer.list.columnName',
                 routerLink: 'sw.customer.detail',
                 width: '250px',
                 allowResize: true,
                 primary: true
             }, {
                 property: 'defaultBillingAddress.street',
-                label: this.$tc('sw-customer.list.columnStreet'),
+                label: 'sw-customer.list.columnStreet',
                 allowResize: true
             }, {
                 property: 'defaultBillingAddress.zipcode',
-                label: this.$tc('sw-customer.list.columnZip'),
+                label: 'sw-customer.list.columnZip',
                 align: 'right',
                 allowResize: true
             }, {
                 property: 'defaultBillingAddress.city',
-                label: this.$tc('sw-customer.list.columnCity'),
+                label: 'sw-customer.list.columnCity',
                 allowResize: true
             }, {
                 property: 'customerNumber',
                 dataIndex: 'customerNumber',
                 naturalSorting: true,
-                label: this.$tc('sw-customer.list.columnCustomerNumber'),
+                label: 'sw-customer.list.columnCustomerNumber',
                 allowResize: true,
                 inlineEdit: 'string',
                 align: 'right'
             }, {
                 property: 'email',
                 inlineEdit: 'string',
-                label: this.$tc('sw-customer.list.columnEmail'),
+                label: 'sw-customer.list.columnEmail',
                 allowResize: true
             }, {
                 property: 'affiliateCode',
                 inlineEdit: 'string',
-                label: this.$tc('sw-customer.list.columnAffiliateCode'),
+                label: 'sw-customer.list.columnAffiliateCode',
                 allowResize: true,
                 visible: false
             }, {
                 property: 'campaignCode',
                 inlineEdit: 'string',
-                label: this.$tc('sw-customer.list.columnCampaignCode'),
+                label: 'sw-customer.list.columnCampaignCode',
                 allowResize: true,
                 visible: false
             }];

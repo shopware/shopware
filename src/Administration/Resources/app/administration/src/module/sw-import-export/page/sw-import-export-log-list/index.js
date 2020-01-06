@@ -54,34 +54,34 @@ Component.register('sw-import-export-log-list', {
             return [{
                 property: 'activity',
                 dataIndex: 'activity',
-                label: this.$tc('sw-import-export-log.list.columns.activity'),
+                label: 'sw-import-export-log.list.columns.activity',
                 routerLink: 'sw.import.export.profile_detail',
                 allowResize: true,
                 primary: true
             }, {
                 property: 'profileName',
                 dataIndex: 'profileName',
-                label: this.$tc('sw-import-export-log.list.columns.profile'),
+                label: 'sw-import-export-log.list.columns.profile',
                 allowResize: true
             }, {
                 property: 'state',
                 dataIndex: 'state',
-                label: this.$tc('sw-import-export-log.list.columns.state'),
+                label: 'sw-import-export-log.list.columns.state',
                 allowResize: true
             }, {
                 property: 'updatedAt',
                 dataIndex: 'updatedAt',
-                label: this.$tc('sw-import-export-log.list.columns.updatedAt'),
+                label: 'sw-import-export-log.list.columns.updatedAt',
                 allowResize: true
             }, {
                 property: 'createdAt',
                 dataIndex: 'createdAt',
-                label: this.$tc('sw-import-export-log.list.columns.createdAt'),
+                label: 'sw-import-export-log.list.columns.createdAt',
                 allowResize: true
             }, {
                 property: 'username',
                 dataIndex: 'username',
-                label: this.$tc('sw-import-export-log.list.columns.user'),
+                label: 'sw-import-export-log.list.columns.user',
                 allowResize: true
             }];
         },

@@ -64,13 +64,13 @@ Component.register('sw-settings-customer-group-list', {
         getColumns() {
             return [{
                 property: 'name',
-                label: this.$tc('sw-settings-customer-group.list.columnName'),
+                label: 'sw-settings-customer-group.list.columnName',
                 inlineEdit: 'string',
                 routerLink: 'sw.settings.customer.group.detail',
                 primary: true
             }, {
                 property: 'displayGross',
-                label: this.$tc('sw-settings-customer-group.list.columnDisplayGross'),
+                label: 'sw-settings-customer-group.list.columnDisplayGross',
                 inlineEdit: 'boolean'
             }];
         }

@@ -53,18 +53,18 @@ Component.register('sw-mail-template-list', {
             return [{
                 property: 'mailTemplateType.name',
                 dataIndex: 'mailTemplateType.name',
-                label: this.$tc('sw-mail-template.list.columnMailType'),
+                label: 'sw-mail-template.list.columnMailType',
                 allowResize: true,
                 primary: true
             }, {
                 property: 'description',
                 dataIndex: 'description',
-                label: this.$tc('sw-mail-template.list.columnDescription'),
+                label: 'sw-mail-template.list.columnDescription',
                 allowResize: true
             }, {
                 property: 'salesChannels.salesChannel.name',
                 dataIndex: 'salesChannels.salesChannel.name',
-                label: this.$tc('sw-mail-template.list.columnSalesChannels'),
+                label: 'sw-mail-template.list.columnSalesChannels',
                 allowResize: true,
                 sortable: false
             }];

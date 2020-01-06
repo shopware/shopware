@@ -131,54 +131,54 @@ Component.register('sw-order-list', {
         getOrderColumns() {
             return [{
                 property: 'orderNumber',
-                label: this.$tc('sw-order.list.columnOrderNumber'),
+                label: 'sw-order.list.columnOrderNumber',
                 routerLink: 'sw.order.detail',
                 allowResize: true,
                 primary: true
             }, {
                 property: 'salesChannel.name',
-                label: this.$tc('sw-order.list.columnSalesChannel'),
+                label: 'sw-order.list.columnSalesChannel',
                 allowResize: true
             }, {
                 property: 'orderCustomer.firstName',
                 dataIndex: 'orderCustomer.firstName,orderCustomer.lastName',
-                label: this.$tc('sw-order.list.columnCustomerName'),
+                label: 'sw-order.list.columnCustomerName',
                 allowResize: true
             }, {
                 property: 'billingAddressId',
-                label: this.$tc('sw-order.list.columnBillingAddress'),
+                label: 'sw-order.list.columnBillingAddress',
                 allowResize: true
             }, {
                 property: 'amountTotal',
-                label: this.$tc('sw-order.list.columnAmount'),
+                label: 'sw-order.list.columnAmount',
                 align: 'right',
                 allowResize: true
             }, {
                 property: 'stateMachineState.name',
-                label: this.$tc('sw-order.list.columnState'),
+                label: 'sw-order.list.columnState',
                 allowResize: true
             }, {
                 property: 'transactions[0].stateMachineState.name',
-                label: this.$tc('sw-order.list.columnTransactionState'),
+                label: 'sw-order.list.columnTransactionState',
                 allowResize: true
             }, {
                 property: 'deliveries[0].stateMachineState.name',
-                label: this.$tc('sw-order.list.columnDeliveryState'),
+                label: 'sw-order.list.columnDeliveryState',
                 allowResize: true
             }, {
                 property: 'orderDateTime',
-                label: this.$tc('sw-order.list.orderDate'),
+                label: 'sw-order.list.orderDate',
                 allowResize: true
             }, {
                 property: 'affiliateCode',
                 inlineEdit: 'string',
-                label: this.$tc('sw-order.list.columnAffiliateCode'),
+                label: 'sw-order.list.columnAffiliateCode',
                 allowResize: true,
                 visible: false
             }, {
                 property: 'campaignCode',
                 inlineEdit: 'string',
-                label: this.$tc('sw-order.list.columnCampaignCode'),
+                label: 'sw-order.list.columnCampaignCode',
                 allowResize: true,
                 visible: false
             }];

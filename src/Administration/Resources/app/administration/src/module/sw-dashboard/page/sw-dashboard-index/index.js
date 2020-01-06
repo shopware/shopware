@@ -203,28 +203,28 @@ Component.register('sw-dashboard-index', {
         orderGridColumns() {
             return [{
                 property: 'orderNumber',
-                label: this.$tc('sw-order.list.columnOrderNumber'),
+                label: 'sw-order.list.columnOrderNumber',
                 routerLink: 'sw.order.detail',
                 allowResize: true,
                 primary: true
             }, {
                 property: 'orderDateTime',
                 dataIndex: 'orderDateTime',
-                label: this.$tc('sw-dashboard.todayStats.orderTime'),
+                label: 'sw-dashboard.todayStats.orderTime',
                 allowResize: true,
                 primary: false
             }, {
                 property: 'orderCustomer.firstName',
                 dataIndex: 'orderCustomer.firstName,orderCustomer.lastName',
-                label: this.$tc('sw-order.list.columnCustomerName'),
+                label: 'sw-order.list.columnCustomerName',
                 allowResize: true
             }, {
                 property: 'stateMachineState.name',
-                label: this.$tc('sw-order.list.columnState'),
+                label: 'sw-order.list.columnState',
                 allowResize: true
             }, {
                 property: 'amountTotal',
-                label: this.$tc('sw-order.list.columnAmount'),
+                label: 'sw-order.list.columnAmount',
                 align: 'right',
                 allowResize: true
             }];

@@ -105,22 +105,22 @@ Component.register('sw-settings-currency-list', {
                 property: 'name',
                 dataIndex: 'name',
                 inlineEdit: 'string',
-                label: this.$tc('sw-settings-currency.list.columnName'),
+                label: 'sw-settings-currency.list.columnName',
                 routerLink: 'sw.settings.currency.detail',
                 width: '250px',
                 primary: true
             }, {
                 property: 'shortName',
                 inlineEdit: 'string',
-                label: this.$tc('sw-settings-currency.list.columnShortName')
+                label: 'sw-settings-currency.list.columnShortName'
             }, {
                 property: 'symbol',
                 inlineEdit: 'string',
-                label: this.$tc('sw-settings-currency.list.columnSymbol')
+                label: 'sw-settings-currency.list.columnSymbol'
             }, {
                 property: 'factor',
                 inlineEdit: 'string',
-                label: this.$tc('sw-settings-currency.list.columnFactor')
+                label: 'sw-settings-currency.list.columnFactor'
             }];
         }
     }

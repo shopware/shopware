@@ -6,6 +6,7 @@
                     <sw-text-field
                         :label="$tc('sw-customer.addressForm.labelCompany')"
                         :error="addressCompanyError"
+                        :disabled="disabled"
                         v-model="address.company">
                     </sw-text-field>
                 {% endblock %}
@@ -14,6 +15,7 @@
                     <sw-text-field
                         :label="$tc('sw-customer.addressForm.labelDepartment')"
                         :error="addressDepartmentError"
+                        :disabled="disabled"
                         v-model="address.department">
                     </sw-text-field>
                 {% endblock %}
@@ -27,6 +29,7 @@
                                 :label="$tc('sw-customer.addressForm.labelSalutation')"
                                 v-model="address.salutationId"
                                 :error="addressSalutationIdError"
+                                :disabled="disabled"
                                 labelProperty="displayName"
                                 required>
                             </sw-entity-single-select>
@@ -36,6 +39,7 @@
                             <sw-text-field
                                 :label="$tc('sw-customer.addressForm.labelTitle')"
                                 :error="addressTitleError"
+                                :disabled="disabled"
                                 v-model="address.title">
                             </sw-text-field>
                         {% endblock %}
@@ -48,6 +52,7 @@
                         validation="required"
                         required
                         :error="addressFirstNameError"
+                        :disabled="disabled"
                         v-model="address.firstName">
                     </sw-text-field>
                 {% endblock %}
@@ -58,6 +63,7 @@
                         validation="required"
                         required
                         :error="addressLastNameError"
+                        :disabled="disabled"
                         v-model="address.lastName">
                     </sw-text-field>
                 {% endblock %}
@@ -68,6 +74,7 @@
                         validation="required"
                         required
                         :error="addressStreetError"
+                        :disabled="disabled"
                         v-model="address.street">
                     </sw-text-field>
                 {% endblock %}
@@ -76,6 +83,7 @@
                     <sw-text-field
                         :label="$tc('sw-customer.addressForm.labelAdditionalAddressLine1')"
                         :error="addressAdditionalAddressLine1Error"
+                        :disabled="disabled"
                         v-model="address.additionalAddressLine1">
                     </sw-text-field>
                 {% endblock %}
@@ -84,6 +92,7 @@
                     <sw-text-field
                         :label="$tc('sw-customer.addressForm.labelAdditionalAddressLine2')"
                         :error="addressAdditionalAddressLine2Error"
+                        :disabled="disabled"
                         v-model="address.additionalAddressLine2">
                     </sw-text-field>
                 {% endblock %}
@@ -96,6 +105,7 @@
                                 validation="required"
                                 required
                                 :error="addressZipcodeError"
+                                :disabled="disabled"
                                 v-model="address.zipcode">
                             </sw-text-field>
                         {% endblock %}
@@ -106,6 +116,7 @@
                                 validation="required"
                                 required
                                 :error="addressCityError"
+                                :disabled="disabled"
                                 v-model="address.city">
                             </sw-text-field>
                         {% endblock %}
@@ -124,6 +135,7 @@
                         validation="required"
                         required
                         :error="addressCountryIdError"
+                        :disabled="disabled"
                         v-model="countryId">
                     </sw-entity-single-select>
                 {% endblock %}
@@ -138,6 +150,7 @@
                              v-show="countryId"
                              :required="country !== null && country.forceStateInRegistration"
                              :error="addressCountryStateIdError"
+                             :disabled="disabled"
                              v-model="address.countryStateId">
                         </sw-entity-single-select>
                     </div>
@@ -148,6 +161,7 @@
                     <sw-text-field
                         :label="$tc('sw-customer.addressForm.labelPhoneNumber')"
                         :error="addressPhoneNumberError"
+                        :disabled="disabled"
                         v-model="address.phoneNumber">
                     </sw-text-field>
                 {% endblock %}
@@ -157,11 +171,12 @@
                         :label="$tc('sw-customer.addressForm.labelVatId')"
                         name="vatId"
                         :error="addressVatIdError"
+                        :disabled="disabled"
                         v-model="address.vatId">
                     </sw-text-field>
                 {% endblock %}
 
-                <slot>
+                <slot v-bind="{ disabled }">
                     {% block sw_customer_address_form_extension_slot %} {% endblock %}
                 </slot>
             </sw-container>

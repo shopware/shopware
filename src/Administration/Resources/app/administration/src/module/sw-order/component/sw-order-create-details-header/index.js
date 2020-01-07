@@ -29,7 +29,8 @@ Component.register('sw-order-create-details-header', {
 
     data() {
         return {
-            customerId: ''
+            customerId: '',
+            showNewCustomerModal: false
         };
     },
 
@@ -38,8 +39,13 @@ Component.register('sw-order-create-details-header', {
             this.$emit('on-select-existing-customer', customerId);
         },
 
-        onAddNewCustomer() {
-            this.$emit('on-add-new-customer');
+        onShowNewCustomerModal() {
+            this.showNewCustomerModal = true;
+            this.$emit('on-show-new-customer-modal');
+        },
+
+        onCloseNewCustomerModal() {
+            this.showNewCustomerModal = false;
         }
     }
 });

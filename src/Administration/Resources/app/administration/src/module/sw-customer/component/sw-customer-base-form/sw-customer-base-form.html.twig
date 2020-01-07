@@ -19,6 +19,7 @@
                 {% block sw_customer_base_form_title_field %}
                     <sw-text-field
                         :label="$tc('sw-customer.baseForm.labelTitle')"
+                        :placeholder="$tc('sw-customer.baseForm.placeholderTitle')"
                         v-model="customer.title">
                     </sw-text-field>
                 {% endblock %}
@@ -28,6 +29,7 @@
                 <sw-text-field
                     required
                     :label="$tc('sw-customer.baseForm.labelFirstName')"
+                    :placeholder="$tc('sw-customer.baseForm.placeholderFirstName')"
                     :error="customerFirstNameError"
                     v-model="customer.firstName">
                 </sw-text-field>
@@ -37,6 +39,7 @@
                 <sw-text-field
                     required
                     :label="$tc('sw-customer.baseForm.labelLastName')"
+                    :placeholder="$tc('sw-customer.baseForm.placeholderLastName')"
                     :error="customerLastNameError"
                     v-model="customer.lastName">
                 </sw-text-field>
@@ -46,6 +49,7 @@
                 <sw-text-field
                     required
                     :label="$tc('sw-customer.baseForm.labelEmail')"
+                    :placeholder="$tc('sw-customer.baseForm.placeholderEmail')"
                     :error="customerEmailError"
                     v-model="customer.email">
                 </sw-text-field>
@@ -90,6 +94,7 @@
             {% block sw_customer_base_form_customer_number_field %}
                 <sw-text-field
                     :label="$tc('sw-customer.baseForm.labelCustomerNumber')"
+                    :placeholder="$tc('sw-customer.baseForm.placeholderCustomerNumber')"
                     :error="customerCustomerNumberError"
                     v-model="customer.customerNumber">
                 </sw-text-field>
@@ -105,8 +110,9 @@
 
             {% block sw_customer_base_form_password_field %}
                 <sw-password-field
-                    required
+                    :required="!customer.guest"
                     v-model="customer.password"
+                    :disabled="customer.guest"
                     :label="$tc('sw-customer.baseForm.labelPassword')"
                     :helpText="$tc('sw-customer.baseForm.helpTextPassword')"
                     :error="customerPasswordError"

@@ -237,6 +237,10 @@
     },
     "stateModal": {
       "modalTitle": "Dokumente anhängen"
+    },
+    "newCustomerModal": {
+      "labelDetails": "Details",
+      "labelGuest": "Guest account"
     }
   }
 }

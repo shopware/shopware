@@ -27,6 +27,14 @@ Component.register('sw-customer-base-form', {
         ])
     },
 
+    watch: {
+        'customer.guest'(newVal) {
+            if (newVal) {
+                this.customer.password = null;
+            }
+        }
+    },
+
     methods: {
         onSalesChannelChange(salesChannelId) {
             this.$emit('sales-channel-change', salesChannelId);

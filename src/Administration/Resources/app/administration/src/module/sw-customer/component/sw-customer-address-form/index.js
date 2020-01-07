@@ -21,6 +21,12 @@ Component.register('sw-customer-address-form', {
             default() {
                 return this.addressRepository.create(this.context);
             }
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

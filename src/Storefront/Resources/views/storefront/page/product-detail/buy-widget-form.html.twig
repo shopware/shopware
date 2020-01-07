@@ -11,22 +11,25 @@
         {% endblock %}
 
         {% block page_product_detail_buy_container %}
+            {% if page.product.maxPurchase %}
+                {% if page.product.isCloseout and page.product.availableStock < page.product.maxPurchase %}
+                    {% set maxQuantity = page.product.availableStock %}
+                {% else %}
+                    {% set maxQuantity = page.product.maxPurchase %}
+                {% endif %}
+            {% else %}
+                {% set maxQuantity = shopware.config.core.cart.maxQuantity %}
+            {% endif %}
+
+            {% set hasStock = not page.product.isCloseout or page.product.availableStock >= page.product.minPurchase %}
+            {% set buyable = hasStock and page.product.childCount <= 0 and maxQuantity > 0 %}
+
             {# @var page \Shopware\Storefront\Page\Product\ProductPage #}
-            {% if (not page.product.isCloseout or (page.product.availableStock >= page.product.minPurchase)) and page.product.childCount <= 0 %}
+            {% if buyable %}
                 <div class="form-row buy-widget-container">
                     {% block page_product_detail_buy_quantity_container %}
                         <div class="col-4">
                             {% block page_product_detail_buy_quantity %}
-                                {% if page.product.maxPurchase %}
-                                    {% if page.product.availableStock < page.product.maxPurchase %}
-                                        {% set maxQuantity = page.product.availableStock %}
-                                    {% else %}
-                                        {% set maxQuantity = page.product.maxPurchase %}
-                                    {% endif %}
-                                {% else %}
-                                    {% set maxQuantity = shopware.config.core.cart.maxQuantity %}
-                                {% endif %}
-
                                 <select name="lineItems[{{ page.product.id }}][quantity]"
                                         class="custom-select product-detail-quantity-select">
                                     {% for quantity in range(page.product.minPurchase, maxQuantity, page.product.purchaseSteps) %}

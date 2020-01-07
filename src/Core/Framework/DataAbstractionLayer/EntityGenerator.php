@@ -22,7 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListingPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -52,7 +51,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 class #entity#Entity extends Entity
 {
     use EntityIdTrait;
-    
+
     #properties#
 
 #functions#
@@ -242,7 +241,6 @@ EOF;
 
                 break;
             case $field instanceof LongTextField:
-            case $field instanceof LongTextWithHtmlField:
                 $type = 'string';
 
                 break;

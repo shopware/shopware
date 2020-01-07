@@ -4,9 +4,9 @@ namespace Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooterTranslati
 
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
@@ -39,9 +39,9 @@ class MailHeaderFooterTranslationDefinition extends EntityTranslationDefinition
         return new FieldCollection([
             (new StringField('name', 'name'))->setFlags(new Required()),
             new StringField('description', 'description'),
-            new LongTextWithHtmlField('header_html', 'headerHtml'),
+            (new LongTextField('header_html', 'headerHtml'))->addFlags(new AllowHtml()),
             new LongTextField('header_plain', 'headerPlain'),
-            new LongTextWithHtmlField('footer_html', 'footerHtml'),
+            (new LongTextField('footer_html', 'footerHtml'))->addFlags(new AllowHtml()),
             new LongTextField('footer_plain', 'footerPlain'),
         ]);
     }

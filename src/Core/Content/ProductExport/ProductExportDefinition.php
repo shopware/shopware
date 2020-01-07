@@ -7,11 +7,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -55,9 +55,9 @@ class ProductExportDefinition extends EntityDefinition
             (new BoolField('generate_by_cronjob', 'generateByCronjob'))->addFlags(new Required()),
             new DateTimeField('generated_at', 'generatedAt'),
             (new IntField('interval', 'interval'))->addFlags(new Required()),
-            new LongTextWithHtmlField('header_template', 'headerTemplate'),
-            new LongTextWithHtmlField('body_template', 'bodyTemplate'),
-            new LongTextWithHtmlField('footer_template', 'footerTemplate'),
+            (new LongTextField('header_template', 'headerTemplate'))->addFlags(new AllowHtml()),
+            (new LongTextField('body_template', 'bodyTemplate'))->addFlags(new AllowHtml()),
+            (new LongTextField('footer_template', 'footerTemplate'))->addFlags(new AllowHtml()),
 
             new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, 'id', false),
             new ManyToOneAssociationField('storefrontSalesChannel', 'storefront_sales_channel_id', SalesChannelDefinition::class, 'id', false),

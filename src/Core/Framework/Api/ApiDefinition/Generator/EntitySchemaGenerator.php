@@ -213,7 +213,6 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
             // long text fields
             case $field instanceof TreePathField:
             case $field instanceof LongTextField:
-            case $field instanceof LongTextWithHtmlField:
                 return ['type' => 'text', 'flags' => $flags];
 
             // date fields

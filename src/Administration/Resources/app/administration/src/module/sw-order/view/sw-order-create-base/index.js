@@ -163,13 +163,13 @@ Component.register('sw-order-create-base', {
                 .finally(() => this.updateLoading(false));
         },
 
-        onRemoveItem(itemKeys) {
+        onRemoveItems(lineItemKeys) {
             this.updateLoading(true);
 
-            State.dispatch('swOrder/removeLineItem', {
+            State.dispatch('swOrder/removeLineItems', {
                 salesChannelId: this.customer.salesChannelId,
                 contextToken: this.cart.token,
-                lineItemKeys: itemKeys
+                lineItemKeys: lineItemKeys
             })
                 .finally(() => this.updateLoading(false));
         },

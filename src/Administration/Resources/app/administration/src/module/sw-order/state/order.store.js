@@ -103,14 +103,10 @@ export default {
                 .then(response => commit('setCart', response.data.data));
         },
 
-        removeLineItem({ dispatch }, { salesChannelId, contextToken, lineItemKeys }) {
-            const deletionPromises = lineItemKeys.map((lineItemKey) => {
-                return Service('cartSalesChannelService').removeLineItem(salesChannelId, contextToken, lineItemKey);
-            });
-
-            return Promise.all(deletionPromises).then(() => {
-                dispatch('getCart', { salesChannelId, contextToken });
-            });
+        removeLineItems({ commit }, { salesChannelId, contextToken, lineItemKeys }) {
+            return Service('cartSalesChannelService')
+                .removeLineItems(salesChannelId, contextToken, lineItemKeys)
+                .then(response => commit('setCart', response.data.data));
         },
 
         updateLineItem({ commit }, { salesChannelId, contextToken, item }) {

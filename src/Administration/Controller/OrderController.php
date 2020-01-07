@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Event\LineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -182,6 +183,38 @@ class OrderController extends AbstractController
         $response->setContent(json_encode($this->serialize($cart)));
 
         return $response;
+    }
+
+    /**
+     * @Route("/api/v{version}/sales-channel/{salesChannelId}/checkout/cart/line-items/delete", name="api.checkout.cart.line-items.delete", methods={"POST"})"
+     *
+     * @throws LineItemNotFoundException
+     * @throws LineItemNotRemovableException
+     * @throws MissingRequestParameterException
+     */
+    public function removeLineItems(string $salesChannelId, Request $request, Context $context): Response
+    {
+        if (!$request->request->has('keys')) {
+            throw new MissingRequestParameterException('keys');
+        }
+
+        $lineItemKeys = $request->request->get('keys');
+
+        $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $context, $request);
+
+        $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
+
+        foreach ($lineItemKeys as $lineItemKey) {
+            if (!$cart->has($lineItemKey)) {
+                continue;
+            }
+
+            $cart = $this->cartService->remove($cart, $lineItemKey, $salesChannelContext);
+        }
+
+        $this->saveCart($cart, $salesChannelContext);
+
+        return new JsonResponse($this->serialize($cart));
     }
 
     /**

@@ -93,20 +93,20 @@ class CartSalesChannelService extends ApiService {
             { additionalParams, headers });
     }
 
-    removeLineItem(
+    removeLineItems(
         salesChannelId,
         contextToken,
-        lineItemKey,
+        lineItemKeys,
         additionalParams = {},
         additionalHeaders = {}
     ) {
-        const route = `_proxy/sales-channel-api/${salesChannelId}/v1/checkout/cart/line-item/${lineItemKey}`;
+        const route = `/sales-channel/${salesChannelId}/checkout/cart/line-items/delete`;
         const headers = {
             ...this.getBasicHeaders(additionalHeaders),
             'sw-context-token': contextToken
         };
 
-        return this.httpClient.delete(route, { additionalParams, headers });
+        return this.httpClient.post(route, { keys: lineItemKeys }, { additionalParams, headers });
     }
 
     updateLineItem(

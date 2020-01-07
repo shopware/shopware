@@ -173,7 +173,7 @@ Component.register('sw-order-line-items-grid-sales-channel', {
             });
 
             if (selectedIds.length > 0) {
-                this.$emit('on-remove-item', selectedIds);
+                this.$emit('on-remove-items', selectedIds);
             }
         },
 

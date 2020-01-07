@@ -6,7 +6,12 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "shopware AG"
+            "name": "shopware AG",
+            "role": "Manufacturer"
+        },
+        {
+            "name": "John Doe",
+            "role": "Developer"
         }
     ],
     "require": {

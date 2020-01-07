@@ -112,6 +112,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Remove data `userProfile`
         * Replace `setUserData` to `getUserData`
         * `saveFinish` is now an asynchronous method
+    * Fix `sw-multi-ip-select` value property if it is undefined
+    * Removed property type check for value property of `sw-multi-select` and `sw-multi-ip-select` because the value is already checked in a custom validator function
      
 
 * Core    

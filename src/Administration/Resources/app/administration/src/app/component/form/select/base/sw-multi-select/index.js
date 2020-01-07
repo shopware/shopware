@@ -37,7 +37,6 @@ Component.register('sw-multi-select', {
             required: true
         },
         value: {
-            type: [Array, Object],
             required: true,
             validator(value) {
                 return Array.isArray(value) || value === null || value === undefined;

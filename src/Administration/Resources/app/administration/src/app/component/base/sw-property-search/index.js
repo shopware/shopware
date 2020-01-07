@@ -239,6 +239,12 @@ Component.register('sw-property-search', {
         loadOptions() {
             const params = { page: this.optionPage, limit: 10 };
 
+            if (this.currentGroup.sortingType === 'position') {
+                params.sortBy = 'position';
+            } else {
+                params.sortBy = 'name';
+            }
+
             this.currentGroup.getAssociation('options').getList(params).then((response) => {
                 this.groupOptions = response.items;
                 this.optionTotal = response.total;

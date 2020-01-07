@@ -178,7 +178,7 @@ Bootstrap 4 is using the `!default` flag for it's own default variables. Variabl
 
 More information: https://getbootstrap.com/docs/4.0/getting-started/theming/#variable-defaults
 
-To be able to override Bootstrap variables you can define an additional SCSS entry point in our `theme.json` which is declared before `@Storefront`.
+To be able to override Bootstrap variables you can define an additional SCSS entry point in your `theme.json` which is declared before `@Storefront`.
 This entry point is called `overrides.scss`:
 
 ```json

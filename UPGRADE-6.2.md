@@ -1,6 +1,14 @@
 UPGRADE FROM 6.1.x to 6.2
 =======================
 
+Table of content
+----------------
+
+* [Core](#core)
+* [Administration](#administration)
+* [Storefront](#storefront)
+* [Refactorings](#refactorings)
+
 Core
 ----
 
@@ -10,7 +18,17 @@ Core
       To:
         `<tag name="shopware.entity.definition"/>`
     * As a fallback, this function is used first 
+* We deprecated the `LongTextWithHtmlField` in 6.2, use `LongTextField` with `AllowHtml` flag instead
 
+    Before: 
+    ```
+    new LongTextWithHtmlField('content', 'content')
+    ```
+  
+    After:  
+    ```
+    (new LongTextField('content', 'content'))->addFlags(new AllowHtml()
+    ```
 
 Administration
 --------------
@@ -90,3 +108,10 @@ Storefront
         ```
         @import "../../../../vendor/shopware/platform/src/Storefront/Resources/app/storefront/src/scss/base.scss";
         @import "../../../../vendor/shopware/platform/src/Storefront/Resources/app/storefront/src/scss/skin/shopware/base";
+
+
+Refactorings
+------------
+
+
+

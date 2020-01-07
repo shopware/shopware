@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -31,7 +32,7 @@ class LongTextFieldSerializer extends AbstractFieldSerializer
         $this->validateIfNeeded($field, $existence, $data, $parameters);
 
         $value = $data->getValue();
-        if ($value !== null) {
+        if ($value !== null && !$field->is(AllowHtml::class)) {
             $value = strip_tags((string) $value);
         }
 

@@ -19,6 +19,9 @@ require('./pages/general.page-object');
 require('./pages/checkout.page-object');
 require('./pages/account.page-object');
 
+// Custom storefront commands
+require('./commands/commands');
+
 beforeEach(() => {
     return cy.log('Cleaning, please wait a little bit.').then(() => {
         return cy.cleanUpPreviousState();

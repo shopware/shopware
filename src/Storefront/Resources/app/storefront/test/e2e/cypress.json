@@ -1,7 +1,7 @@
 {
   "viewportHeight": 1080,
   "viewportWidth": 1920,
-  "baseUrl": "http://docker.vm:8000",
+  "baseUrl": "http://shopware-development.saas",
   "watchForFileChanges": false,
   "requestTimeout": 10000,
   "responseTimeout": 60000,
@@ -10,6 +10,7 @@
   "useDarkTheme": false,
   "useShopwareTheme": true,
   "theme": "dark",
+  "video": false,
   "screenshotsFolder": "./../app/build/artifacts/e2e/screenshots",
   "reporter": "junit",
   "reporterOptions": {

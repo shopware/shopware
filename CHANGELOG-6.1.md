@@ -299,7 +299,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed a bug in storefront search that occurred when keywords such as \0\0 were entered.
     * Added a position field on the `\Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition`, used for sorting the line items
     * Changed default `shopware.cdn.strategy` to the new `physical_pathname` strategy that behaves like the old `md5` strategy. For new installations the default is `id`
-    * Deprecated `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoader::load` use `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoader::loadForProduct` instead
     * Deprecated `\Shopware\Core\Framework\Plugin::getExtraBundles`, use `getAdditionalBundles`
     * Added method `\Shopware\Core\Framework\Plugin::getAdditionalBundles` method with additional parameters compared to `getExtraBundles`, to allow loading bundles depending on other plugins/bundles and kernel parameters.
     * Change default `shopware.cdn.strategy` to the new `physical_pathname` strategy that behaves like the old `md5` strategy. For new installations the default is `id`

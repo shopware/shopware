@@ -130,7 +130,7 @@ class ProductPageLoader
         );
 
         $page->setCrossSellings(
-            $this->crossSellingLoader->loadForProduct($product, $salesChannelContext)
+            $this->crossSellingLoader->load($product->getId(), $salesChannelContext)
         );
 
         if ($cmsPage = $this->getCmsPage($salesChannelContext)) {

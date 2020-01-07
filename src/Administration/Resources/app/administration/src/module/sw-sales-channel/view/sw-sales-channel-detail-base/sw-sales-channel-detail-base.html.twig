@@ -10,8 +10,7 @@
                         :placeholder="$tc('sw-sales-channel.detail.productComparison.templates.placeholderSelectTemplate')"
                         :options="templateOptions"
                         v-model="templateName"
-                        @change="$emit('template-selected', arguments[0])"
-                    >
+                        @change="$emit('template-selected', arguments[0])">
                         <option v-for="option in templateOptions"
                                 :value="option.name">
                             {{ $tc(option.translationKey) }}
@@ -52,19 +51,33 @@
                     </sw-field>
                 {% endblock %}
 
-                {% block sw_sales_channel_detail_base_general_input_navigation_category %}
-                    <sw-entity-single-select
-                        v-if="!isProductComparison"
-                        required
-                        class="sw-sales-channel-detail__select-navigation-category-id"
-                        id="navigationCategoryId"
-                        :label="$tc('sw-sales-channel.detail.navigationCategoryId')"
-                        :criteria="mainNavigationCriteria"
-                        :helpText="$tc('sw-sales-channel.detail.navigationCategoryHelpText')"
-                        v-model="salesChannel.navigationCategoryId"
-                        :error="salesChannelNavigationCategoryIdError"
-                        entity="category">
-                    </sw-entity-single-select>
+                {% block sw_sales_channel_detail_base_general_input_navigation_category_container %}
+                    <sw-container v-if="!isProductComparison" columns="1fr 200px" gap="0 30px">
+
+                        {% block sw_sales_channel_detail_base_general_input_navigation_category %}
+                            <sw-entity-single-select
+                                v-if="!isProductComparison"
+                                required
+                                class="sw-sales-channel-detail__select-navigation-category-id"
+                                id="navigationCategoryId"
+                                :label="$tc('sw-sales-channel.detail.navigationCategoryId')"
+                                :criteria="mainNavigationCriteria"
+                                :helpText="$tc('sw-sales-channel.detail.navigationCategoryHelpText')"
+                                v-model="salesChannel.navigationCategoryId"
+                                :error="salesChannelNavigationCategoryIdError"
+                                entity="category">
+                            </sw-entity-single-select>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_base_general_input_navigation_category_depth %}
+                            <sw-field type="number"
+                                      numberType="int"
+                                      :min="1"
+                                      :label="$tc('sw-sales-channel.detail.navigationCategoryDepth')"
+                                      v-model="salesChannel.navigationCategoryDepth">
+                            </sw-field>
+                        {% endblock %}
+                    </sw-container>
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_footer_category %}
@@ -251,8 +264,7 @@
                         valueProperty="id"
                         entity="sales_channel"
                         required
-                        v-model="productExport.storefrontSalesChannelId"
-                    >
+                        v-model="productExport.storefrontSalesChannelId">
                     </sw-entity-single-select>
                 {% endblock %}
 
@@ -332,8 +344,7 @@
                         :label="$tc('sw-sales-channel.detail.productComparison.fileName')"
                         :placeholder="$tc('sw-sales-channel.detail.productComparison.placeholderFileName')"
                         :error="invalidFileNameError"
-                        v-model="productExport.fileName"
-                        @change="onChangeFileName">
+                        v-model="productExport.fileName">
                     </sw-field>
                 {% endblock %}
 
@@ -403,8 +414,7 @@
                         valueProperty="id"
                         required
                         entity="product_stream"
-                        v-model="productExport.productStreamId"
-                    >
+                        v-model="productExport.productStreamId">
                     </sw-entity-single-select>
                 {% endblock %}
 
@@ -482,6 +492,63 @@
             </sw-card>
         {% endblock %}
 
+        {% block sw_sales_channel_detail_base_options_status %}
+            <sw-card :title="$tc('sw-sales-channel.detail.titleStatus')" v-if="salesChannel" :isLoading="isLoading">
+                {% block sw_sales_channel_detail_base_options_status_description %}
+                    <div class="sw-sales-channel-detail-base__description-text">
+                        {{ $tc('sw-sales-channel.detail.textActiveDescription') }}
+                    </div>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_status_input_active %}
+                    <sw-field
+                        type="switch"
+                        :label="$tc('sw-sales-channel.detail.labelInputActive')"
+                        @change="onToggleActive"
+                        v-model="salesChannel.active">
+                    </sw-field>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_options_maintenance_header %}
+                    <h4 class="sw-sales-channel-detail-base__headline-text">
+                        {{ $tc('sw-sales-channel.detail.maintenanceModeTitle') }}
+                    </h4>
+
+                    <div class="sw-sales-channel-detail-base__description-text">
+                        {{ $tc('sw-sales-channel.detail.maintenanceModeDescription') }}
+                    </div>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_settings_link %}
+                    <div class="sw-sales-channel-detail-base__settings-link">
+                        <router-link :to="{ name: 'sw.settings.basic.information.index'}"
+                                      class="sw-card__quick-link">
+                            {{ $tc('sw-sales-channel.detail.basicinformationLink') }}
+                            <sw-icon name="default-arrow-simple-right" small></sw-icon>
+                        </router-link>
+                    </div>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_maintenance_input_active %}
+                    <sw-field
+                        type="switch"
+                        :label="$tc('sw-sales-channel.detail.labelMaintenanceActive')"
+                        v-model="salesChannel.maintenance">
+                    </sw-field>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_maintenance_ipwhitelist %}
+                    <sw-multi-ip-select
+                        :isLoading="isLoading"
+                        class="sw-order-user-card__tag-select"
+                        :label="$tc('sw-sales-channel.detail.ipAddressWhitleList')"
+                        :helpText="$tc('sw-sales-channel.detail.ipAddressWhitleListHelpText')"
+                        v-model="salesChannel.maintenanceIpWhitelist">
+                    </sw-multi-ip-select>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+
         {% block sw_sales_channel_detail_base_options_delete %}
             <sw-card :title="$tc('sw-sales-channel.detail.deleteModalTitle')" v-if="salesChannel" :isLoading="isLoading">
                 <sw-container columns="1fr 175px" gap="0px 30px" class="sw-sales-channel-detail-base__delete-sales-channel">
@@ -491,14 +558,14 @@
                     </div>
 
                     {% block sw_sales_channel_detail_base_options_delete_button %}
-                        <div class="sw-sales-channel-detail-base__button-delete">
-                            <sw-button
-                                    variant="danger"
-                                    size="small"
-                                    @click="showDeleteModal = true">
-                                {{ $tc('sw-sales-channel.detail.buttonDelete') }}
-                            </sw-button>
-                        </div>
+                    <div class="sw-sales-channel-detail-base__button-delete">
+                        <sw-button
+                            variant="danger"
+                            size="small"
+                            @click="showDeleteModal = true">
+                            {{ $tc('sw-sales-channel.detail.buttonDelete') }}
+                        </sw-button>
+                    </div>
                     {% endblock %}
                 </sw-container>
 
@@ -538,62 +605,6 @@
                             </template>
                         {% endblock %}
                     </sw-modal>
-                {% endblock %}
-            </sw-card>
-        {% endblock %}
-
-        {% block sw_sales_channel_detail_base_options_status %}
-            <sw-card :title="$tc('sw-sales-channel.detail.titleStatus')" v-if="salesChannel" :isLoading="isLoading">
-                {% block sw_sales_channel_detail_base_options_status_description %}
-                    <div class="sw-sales-channel-detail-base__description-text">
-                        {{ $tc('sw-sales-channel.detail.textActiveDescription') }}
-                    </div>
-                {% endblock %}
-
-                {% block sw_sales_channel_detail_base_status_input_active %}
-                    <sw-field
-                        type="switch"
-                        :label="$tc('sw-sales-channel.detail.labelInputActive')"
-                        @change="onToggleActive"
-                        v-model="salesChannel.active">
-                    </sw-field>
-                {% endblock %}
-
-                {% block sw_sales_channel_detail_base_options_maintenance_header %}
-                    <h4 class="sw-sales-channel-detail-base__headline-text">
-                        {{ $tc('sw-sales-channel.detail.maintenanceModeTitle') }}
-                    </h4>
-
-                    <div class="sw-sales-channel-detail-base__description-text">
-                        {{ $tc('sw-sales-channel.detail.maintenanceModeDescription') }}
-                    </div>
-                {% endblock %}
-
-                {% block sw_sales_channel_detail_base_settings_link %}
-                <div class="sw-sales-channel-detail-base__settings-link">
-                    <router-link :to="{ name: 'sw.settings.basic.information.index'}"
-                                  class="sw-card__quick-link">
-                        {{ $tc('sw-sales-channel.detail.basicinformationLink') }} <sw-icon name="default-arrow-simple-right" small></sw-icon>
-                    </router-link>
-                </div>
-                {% endblock %}
-
-                {% block sw_sales_channel_detail_base_maintenance_input_active %}
-                    <sw-field
-                        type="switch"
-                        :label="$tc('sw-sales-channel.detail.labelMaintenanceActive')"
-                        v-model="salesChannel.maintenance">
-                    </sw-field>
-                {% endblock %}
-
-                {% block sw_sales_channel_detail_base_maintenance_ipwhitelist %}
-                <sw-multi-ip-select
-                    :isLoading="isLoading"
-                    class="sw-order-user-card__tag-select"
-                    :label="$tc('sw-sales-channel.detail.ipAddressWhitleList')"
-                    :helpText="$tc('sw-sales-channel.detail.ipAddressWhitleListHelpText')"
-                    v-model="salesChannel.maintenanceIpWhitelist">
-                </sw-multi-ip-select>
                 {% endblock %}
             </sw-card>
         {% endblock %}

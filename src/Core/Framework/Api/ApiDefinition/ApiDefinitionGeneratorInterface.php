@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Api\ApiDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 
+/**
+ * @internal
+ */
 interface ApiDefinitionGeneratorInterface
 {
     public function supports(string $format): bool;
@@ -12,10 +15,10 @@ interface ApiDefinitionGeneratorInterface
     /**
      * @param EntityDefinition[]|SalesChannelDefinitionInterface[] $definitions
      */
-    public function generate(array $definitions): array;
+    public function generate(array $definitions, int $version): array;
 
     /**
      * @param EntityDefinition[]|SalesChannelDefinitionInterface[] $definitions
      */
-    public function getSchema(array $definitions): array;
+    public function getSchema(array $definitions, int $version): array;
 }

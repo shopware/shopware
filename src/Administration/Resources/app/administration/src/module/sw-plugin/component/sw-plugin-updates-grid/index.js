@@ -141,7 +141,7 @@ Component.register('sw-plugin-updates-grid', {
             }
 
             this.currentDownload = this.updateQueue.shift();
-            return storeService.downloadPlugin(this.currentDownload.name)
+            return storeService.downloadPlugin(this.currentDownload.name, this.currentDownload.integrated)
                 .then(() => {
                     this.createNotificationSuccess({
                         title: this.$tc('sw-plugin.updates.titleUpdateSuccess'),

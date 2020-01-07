@@ -366,7 +366,7 @@ class MediaRepositoryDecoratorTest extends TestCase
         static::assertEquals($firstId, $event->getEventByEntityName(MediaDefinition::ENTITY_NAME)->getIds()[0]);
     }
 
-    private function getOrderData($orderId, $context): array
+    private function getOrderData(string $orderId, Context $context): array
     {
         $addressId = Uuid::randomHex();
         $orderLineItemId = Uuid::randomHex();

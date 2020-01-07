@@ -193,6 +193,7 @@ EOL;
                 $type = 'LONGBLOB';
 
                 break;
+
             default:
                 throw new \RuntimeException(sprintf('Unknown field %s', get_class($field)));
         }

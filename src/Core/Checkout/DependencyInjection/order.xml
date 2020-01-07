@@ -44,12 +44,14 @@
 
         <service id="Shopware\Core\Checkout\Order\SalesChannel\OrderService">
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
-            <argument type="service" id="Shopware\Core\Checkout\Order\Validation\OrderValidationService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Order\Validation\OrderValidationFactory"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Order\Validation\OrderValidationService">
+        <service id="Shopware\Core\Checkout\Order\Validation\OrderValidationFactory"/>
+        <service id="Shopware\Core\Checkout\Order\Validation\OrderValidationService" alias="Shopware\Core\Checkout\Order\Validation\OrderValidationFactory">
+            <deprecated>tag:v6.3.0: The "%alias_id%" service is deprecated and will be removed in 6.3.0. Use "Shopware\Core\Checkout\Order\Validation\OrderValidationFactory" instead</deprecated>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Order\OrderPersister">

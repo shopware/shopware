@@ -110,8 +110,8 @@ class TranslationValidator implements EventSubscriberInterface
         array $parameters,
         $root = null,
         ?string $propertyPath = null,
-        $invalidValue = null,
-        $code = null
+        ?array $invalidValue = null,
+        ?string $code = null
     ): ConstraintViolationInterface {
         return new ConstraintViolation(
             str_replace(array_keys($parameters), array_values($parameters), $messageTemplate),

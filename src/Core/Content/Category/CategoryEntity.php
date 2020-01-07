@@ -569,22 +569,23 @@ class CategoryEntity extends Entity
 
     private function getBreadcrumbMapping(): array
     {
-        if ($this->breadcrumb === null) {
+        $breadcrumb = $this->getTranslation('breadcrumb');
+        if ($breadcrumb === null) {
             return [];
         }
         if ($this->path === null) {
-            return $this->breadcrumb;
+            return $breadcrumb;
         }
 
         $parts = array_slice(explode('|', $this->path), 1, -1);
 
-        $breadcrumb = [];
+        $filtered = [];
         foreach ($parts as $id) {
-            $breadcrumb[$id] = $this->breadcrumb[$id];
+            $filtered[$id] = $breadcrumb[$id];
         }
 
-        $breadcrumb[$this->getId()] = $this->breadcrumb[$this->getId()];
+        $filtered[$this->getId()] = $breadcrumb[$this->getId()];
 
-        return $breadcrumb;
+        return $filtered;
     }
 }

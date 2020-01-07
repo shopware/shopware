@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -86,6 +87,7 @@ class SalesChannelDefinition extends EntityDefinition
 
             (new FkField('navigation_category_id', 'navigationCategoryId', CategoryDefinition::class))->addFlags(new Required()),
             (new ReferenceVersionField(CategoryDefinition::class, 'navigation_category_version_id'))->addFlags(new Required()),
+            new IntField('navigation_category_depth', 'navigationCategoryDepth', 1),
 
             new FkField('footer_category_id', 'footerCategoryId', CategoryDefinition::class),
             new ReferenceVersionField(CategoryDefinition::class, 'footer_category_version_id'),

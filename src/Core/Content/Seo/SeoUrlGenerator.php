@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Seo;
 
 use Cocur\Slugify\Bridge\Twig\SlugifyExtension;
-use Cocur\Slugify\Slugify;
+use Cocur\Slugify\SlugifyInterface;
 use Shopware\Core\Content\Seo\Exception\InvalidTemplateException;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
@@ -61,7 +61,7 @@ class SeoUrlGenerator
 
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
-        Slugify $slugify,
+        SlugifyInterface $slugify,
         RouterInterface $router,
         RequestStack $requestStack
     ) {
@@ -73,7 +73,27 @@ class SeoUrlGenerator
         $this->requestStack = $requestStack;
     }
 
+    public function generate(array $ids, string $template, SeoUrlRouteInterface $route, Context $context, ?SalesChannelEntity $salesChannel): iterable
+    {
+        $criteria = new Criteria($ids);
+        $route->prepareCriteria($criteria);
+
+        $config = $route->getConfig();
+
+        $repository = $this->definitionRegistry->getRepository($config->getDefinition()->getEntityName());
+
+        $entities = $context->disableCache(static function (Context $context) use ($repository, $criteria) {
+            return $repository->search($criteria, $context)->getEntities();
+        });
+
+        $this->setTwigTemplate($config, $template);
+
+        yield from $this->generateUrls($route, $config, $salesChannel, $entities);
+    }
+
     /**
+     * @deprecated tag:v6.3.0 - use `generate` instead
+     *
      * @param TemplateGroup[] $templateGroups
      *
      * @throws InvalidTemplateException
@@ -95,13 +115,17 @@ class SeoUrlGenerator
 
         foreach ($templateGroups as $templateGroup) {
             $template = $templateGroup->getTemplate() ?: $defaultTemplate;
-            $config->setTemplate($template);
-            $this->setTwigTemplate($config);
+            $this->setTwigTemplate($config, $template);
 
-            yield from $this->generate($seoUrlRoute, $config, $templateGroup->getSalesChannels(), $entities);
+            foreach ($templateGroup->getSalesChannels() as $salesChannel) {
+                yield from $this->generateUrls($seoUrlRoute, $config, $salesChannel, $entities);
+            }
         }
     }
 
+    /**
+     * @deprecated tag:v6.3.0
+     */
     public function checkUpdateAffectsTemplate(
         EntityWrittenContainerEvent $event,
         EntityDefinition $definition,
@@ -114,7 +138,7 @@ class SeoUrlGenerator
         return $this->checkEventRelevance($event, $relevantDefinitions);
     }
 
-    private function initTwig(Slugify $slugify): void
+    private function initTwig(SlugifyInterface $slugify): void
     {
         $this->twig = new Environment(new ArrayLoader());
         $this->twig->setCache(false);
@@ -131,7 +155,7 @@ class SeoUrlGenerator
         );
     }
 
-    private function generate(SeoUrlRouteInterface $seoUrlRoute, SeoUrlRouteConfig $config, array $salesChannels, EntityCollection $entities): iterable
+    private function generateUrls(SeoUrlRouteInterface $seoUrlRoute, SeoUrlRouteConfig $config, ?SalesChannelEntity $salesChannel, EntityCollection $entities): iterable
     {
         $request = $this->requestStack->getMasterRequest();
 
@@ -146,32 +170,31 @@ class SeoUrlGenerator
             $seoUrl->setIsModified(false);
             $seoUrl->setIsDeleted(false);
 
-            /** @var SalesChannelEntity|null $salesChannel */
-            foreach ($salesChannels as $salesChannel) {
-                $copy = clone $seoUrl;
+            $copy = clone $seoUrl;
 
-                $mapping = $seoUrlRoute->getMapping($entity, $salesChannel);
-                $pathInfo = $this->router->generate($config->getRouteName(), $mapping->getInfoPathContext());
-                $pathInfo = $this->removePrefix($pathInfo, $basePath);
+            $mapping = $seoUrlRoute->getMapping($entity, $salesChannel);
 
-                $copy->setPathInfo($pathInfo);
+            $copy->setError($mapping->getError());
+            $pathInfo = $this->router->generate($config->getRouteName(), $mapping->getInfoPathContext());
+            $pathInfo = $this->removePrefix($pathInfo, $basePath);
 
-                $seoPathInfo = $this->getSeoPathInfo($mapping, $config);
+            $copy->setPathInfo($pathInfo);
 
-                if ($seoPathInfo === null || $seoPathInfo === '') {
-                    continue;
-                }
+            $seoPathInfo = $this->getSeoPathInfo($mapping, $config);
 
-                $copy->setSeoPathInfo($seoPathInfo);
-
-                if ($salesChannel !== null) {
-                    $copy->setSalesChannelId($salesChannel->getId());
-                } else {
-                    $copy->setSalesChannelId(null);
-                }
-
-                yield $copy;
+            if ($seoPathInfo === null || $seoPathInfo === '') {
+                continue;
             }
+
+            $copy->setSeoPathInfo($seoPathInfo);
+
+            if ($salesChannel !== null) {
+                $copy->setSalesChannelId($salesChannel->getId());
+            } else {
+                $copy->setSalesChannelId(null);
+            }
+
+            yield $copy;
         }
     }
 
@@ -188,9 +211,8 @@ class SeoUrlGenerator
         }
     }
 
-    private function setTwigTemplate(SeoUrlRouteConfig $config): void
+    private function setTwigTemplate(SeoUrlRouteConfig $config, string $template): void
     {
-        $template = $config->getTemplate();
         $template = "{% autoescape '" . self::ESCAPE_SLUGIFY . "' %}$template{% endautoescape %}";
         $this->twig->setLoader(new ArrayLoader(['template' => $template]));
 
@@ -215,20 +237,24 @@ class SeoUrlGenerator
     private function extractVariableAccessorsFromTemplate(string $template): array
     {
         $rootNode = $this->twig->parse($this->twig->tokenize(new Source($template, '__check')));
-        $nodeStack = $rootNode->getIterator()->getArrayCopy();
+        /** @var \ArrayIterator $rootNodeIterator */
+        $rootNodeIterator = $rootNode->getIterator();
+        $nodeStack = $rootNodeIterator->getArrayCopy();
         $accessors = [];
 
         do {
             /** @var Node $node */
             $node = array_pop($nodeStack);
-            $childNodes = $node->getIterator()->getArrayCopy();
+            /** @var \ArrayIterator $nodeIterator */
+            $nodeIterator = $node->getIterator();
+            $childNodes = $nodeIterator->getArrayCopy();
 
             if ($node instanceof GetAttrExpression) {
                 $accessedMembers = [];
-                $attrChildren = $node->getIterator()->getArrayCopy();
-                /* @var Node $attrChild */
+                $attrChildren = $nodeIterator->getArrayCopy();
 
                 while (!empty($attrChildren)) {
+                    /* @var Node $attrChild */
                     $attrChild = array_pop($attrChildren);
 
                     if ($attrChild instanceof NameExpression) {
@@ -249,8 +275,11 @@ class SeoUrlGenerator
         return $accessors;
     }
 
-    private function mapAccessorsToEntities(EntityDefinition $definition, array $specialVariables, array $accessors): array
-    {
+    private function mapAccessorsToEntities(
+        EntityDefinition $definition,
+        array $specialVariables,
+        array $accessors
+    ): array {
         $relevantDefinitions = [$definition->getEntityName() => []];
         foreach ($accessors as $accessor) {
             if (empty($accessor)) {
@@ -259,15 +288,15 @@ class SeoUrlGenerator
             if ($accessor[0] !== $definition->getEntityName()) {
                 continue;
             }
-            $accessor = array_slice($accessor, 1);
+            $accessor = \array_slice($accessor, 1);
 
             $currentDefinition = $definition;
             foreach ($accessor as $fieldName) {
-                if (array_key_exists($fieldName, $specialVariables)) {
+                if (\array_key_exists($fieldName, $specialVariables)) {
                     /** @var SeoTemplateReplacementVariable $replacement */
                     $replacement = $specialVariables[$fieldName];
 
-                    if (!array_key_exists($replacement->getMappedEntityName(), $relevantDefinitions)) {
+                    if (!\array_key_exists($replacement->getMappedEntityName(), $relevantDefinitions)) {
                         $relevantDefinitions[$replacement->getMappedEntityName()] = [];
                     }
 
@@ -284,12 +313,12 @@ class SeoUrlGenerator
 
                 if ($accessedField instanceof AssociationField) {
                     $currentDefinition = $accessedField->getReferenceDefinition();
-                    if (!array_key_exists($currentDefinition->getEntityName(), $relevantDefinitions)) {
+                    if (!\array_key_exists($currentDefinition->getEntityName(), $relevantDefinitions)) {
                         $relevantDefinitions[$currentDefinition->getEntityName()] = [];
                     }
                 } elseif ($accessedField instanceof TranslatedField) {
                     $translationDefinition = $currentDefinition->getTranslationDefinition();
-                    if (!array_key_exists($translationDefinition->getEntityName(), $relevantDefinitions)) {
+                    if (!\array_key_exists($translationDefinition->getEntityName(), $relevantDefinitions)) {
                         $relevantDefinitions[$translationDefinition->getEntityName()] = [];
                     }
                     $relevantDefinitions[$translationDefinition->getEntityName()][] = $accessedField->getPropertyName();
@@ -317,11 +346,11 @@ class SeoUrlGenerator
                 return true;
             }
 
-            $newEntities = array_filter($relevantEvents->getExistences(), function (EntityExistence $existence) {
+            $newEntities = array_filter($relevantEvents->getExistences(), static function (EntityExistence $existence) {
                 return !$existence->exists();
             });
             // This relevant entity did not exist previously. A initial url has to be generated.
-            if (count($newEntities) > 0) {
+            if (\count($newEntities) > 0) {
                 return true;
             }
 

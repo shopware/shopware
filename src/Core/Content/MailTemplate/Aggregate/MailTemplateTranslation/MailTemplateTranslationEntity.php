@@ -38,6 +38,11 @@ class MailTemplateTranslationEntity extends TranslationEntity
     protected $contentPlain;
 
     /**
+     * @var array|null
+     */
+    protected $customFields;
+
+    /**
      * @var MailTemplateEntity|null
      */
     protected $mailTemplate;
@@ -110,5 +115,15 @@ class MailTemplateTranslationEntity extends TranslationEntity
     public function setMailTemplate(MailTemplateEntity $mailTemplate): void
     {
         $this->mailTemplate = $mailTemplate;
+    }
+
+    public function getCustomFields(): ?array
+    {
+        return $this->customFields;
+    }
+
+    public function setCustomFields(?array $customFields): void
+    {
+        $this->customFields = $customFields;
     }
 }

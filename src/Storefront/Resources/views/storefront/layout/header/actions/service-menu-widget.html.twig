@@ -20,8 +20,9 @@
                         <div class="dropdown-menu dropdown-menu-right"
                              aria-labelledby="serviceMenuDropdown-{{ position }}">
                             {% for category in page.header.serviceMenu %}
+                                {% set externalLink = category.translated.externalLink %}
                                 <a class="top-bar-list-item dropdown-item"
-                                   href="{% if category.externalLink %}{{ category.externalLink }}{% else %}{{ seoUrl('frontend.navigation.page', { navigationId: category.id }) }}{% endif %}"
+                                   href="{% if externalLink %}{{ externalLink }}{% else %}{{ seoUrl('frontend.navigation.page', { navigationId: category.id }) }}{% endif %}"
                                    title="{{ category.translated.name }}">{{ category.translated.name }}</a>
                             {% endfor %}
                         </div>

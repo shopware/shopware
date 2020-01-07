@@ -1,0 +1,24 @@
+{% set listingColumns = 'col-sm-6 col-lg-4 col-xl-3' %}
+
+{% block element_product_listing_wrapper %}
+    <div class="cms-element-sidebar-filter">
+        <div id="filter-panel-wrapper"
+             class="filter-panel-wrapper"
+             data-offcanvas-filter-content="true">
+            {% sw_include '@Storefront/storefront/component/listing/filter-panel.html.twig' with {
+                listing: page.listing,
+                sidebar: false
+            } %}
+        </div>
+
+        {% sw_include '@Storefront/storefront/component/product/listing.html.twig' with {
+            searchResult: page.listing,
+            dataUrl: url('widgets.search.pagelet', { search: page.searchTerm }),
+            filterUrl: '',
+            params: { search: page.searchTerm },
+            sidebar: 0,
+            boxLayout: 'minimal',
+            displayMode: ''
+        } %}
+    </div>
+{% endblock %}

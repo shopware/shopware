@@ -16,7 +16,7 @@ class EntityCollection extends Collection
 
     public function getIds(): array
     {
-        return $this->fmap(function (Entity $entity) {
+        return $this->fmap(static function (Entity $entity) {
             return $entity->getUniqueIdentifier();
         });
     }
@@ -24,7 +24,7 @@ class EntityCollection extends Collection
     public function filterByProperty(string $property, $value)
     {
         return $this->filter(
-            function (Entity $struct) use ($property, $value) {
+            static function (Entity $struct) use ($property, $value) {
                 return $struct->get($property) === $value;
             }
         );
@@ -42,7 +42,7 @@ class EntityCollection extends Collection
             $this->remove($key);
         }
 
-        return new static($filtered);
+        return $this->createNew($filtered);
     }
 
     public function merge(self $collection): void
@@ -69,12 +69,9 @@ class EntityCollection extends Collection
         }
     }
 
-    /**
-     * @return static
-     */
     public function getList(array $ids)
     {
-        return new static(array_intersect_key($this->elements, array_flip($ids)));
+        return $this->createNew(array_intersect_key($this->elements, array_flip($ids)));
     }
 
     public function sortByIdArray(array $ids): void
@@ -82,11 +79,11 @@ class EntityCollection extends Collection
         $sorted = [];
 
         foreach ($ids as $id) {
-            if (is_array($id)) {
+            if (\is_array($id)) {
                 $id = implode('-', $id);
             }
 
-            if (array_key_exists($id, $this->elements)) {
+            if (\array_key_exists($id, $this->elements)) {
                 $sorted[$id] = $this->elements[$id];
             }
         }

@@ -1,0 +1,20 @@
+{
+  "viewportHeight": 1080,
+  "viewportWidth": 1920,
+  "baseUrl": "http://localhost:8000",
+  "watchForFileChanges": false,
+  "requestTimeout": 10000,
+  "responseTimeout": 60000,
+  "defaultCommandTimeout": 10000,
+  "salesChannelName": "Storefront",
+  "useDarkTheme": false,
+  "video": false,
+  "useShopwareTheme": true,
+  "theme": "dark",
+  "screenshotsFolder": "artifacts/screenshots",
+  "reporter": "junit",
+  "reporterOptions": {
+    "mochaFile": "artifacts/my-test-output-[hash].xml",
+    "toConsole": true
+  }
+}

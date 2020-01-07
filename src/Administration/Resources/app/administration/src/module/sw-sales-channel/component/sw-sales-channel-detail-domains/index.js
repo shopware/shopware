@@ -2,6 +2,8 @@ import template from './sw-sales-channel-detail-domains.html.twig';
 import './sw-sales-channel-detail-domains.scss';
 
 const { Component, Context } = Shopware;
+const { Criteria } = Shopware.Data;
+
 
 Component.register('sw-sales-channel-detail-domains', {
     template,
@@ -36,6 +38,14 @@ Component.register('sw-sales-channel-detail-domains', {
                 return this.$t('sw-sales-channel.detail.buttonEditDomain');
             }
             return this.$t('sw-sales-channel.detail.buttonAddDomain');
+        },
+
+        salesChannelFilterCriteria() {
+            const criteria = new Criteria();
+
+            criteria.addAssociation('salesChannels');
+
+            return criteria.addFilter(Criteria.equals('salesChannels.id', this.salesChannel.id));
         }
     },
 

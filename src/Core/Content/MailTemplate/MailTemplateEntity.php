@@ -54,6 +54,11 @@ class MailTemplateEntity extends Entity
     protected $contentPlain;
 
     /**
+     * @var array|null
+     */
+    protected $customFields;
+
+    /**
      * @var MailTemplateSalesChannelCollection|null
      */
     protected $salesChannels;
@@ -176,5 +181,15 @@ class MailTemplateEntity extends Entity
     public function setMailTemplateTypeId(?string $mailTemplateTypeId): void
     {
         $this->mailTemplateTypeId = $mailTemplateTypeId;
+    }
+
+    public function getCustomFields(): ?array
+    {
+        return $this->customFields;
+    }
+
+    public function setCustomFields(?array $customFields): void
+    {
+        $this->customFields = $customFields;
     }
 }

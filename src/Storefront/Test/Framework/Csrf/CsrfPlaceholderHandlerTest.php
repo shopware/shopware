@@ -111,7 +111,7 @@ class CsrfPlaceholderHandlerTest extends TestCase
         );
     }
 
-    private function generateToken($intent)
+    private function generateToken(string $intent)
     {
         $tokenManager = $this->getContainer()->get('security.csrf.token_manager');
 

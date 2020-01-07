@@ -190,7 +190,7 @@ class AccountServiceEventTest extends TestCase
         $dispatcher->removeListener(CustomerChangedPaymentMethodEvent::class, $listenerClosure);
     }
 
-    private function getEmailListenerClosure(bool &$eventDidRun, $phpunit)
+    private function getEmailListenerClosure(bool &$eventDidRun, self $phpunit)
     {
         /* @var CustomerBeforeLoginEvent $event */
         return function ($event) use (&$eventDidRun, $phpunit): void {
@@ -199,7 +199,7 @@ class AccountServiceEventTest extends TestCase
         };
     }
 
-    private function getCustomerListenerClosure(bool &$eventDidRun, $phpunit)
+    private function getCustomerListenerClosure(bool &$eventDidRun, self $phpunit)
     {
         /* @var CustomerLoginEvent $event */
         return function ($event) use (&$eventDidRun, $phpunit): void {

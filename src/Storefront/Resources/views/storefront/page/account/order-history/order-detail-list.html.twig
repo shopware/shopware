@@ -12,7 +12,13 @@
             <div class="row order-detail-content-row">
                 <div class="col-12 order-item-reorder">
                     {% block page_account_order_item_detail_reorder %}
-                        <form action="{{ path('frontend.checkout.line-item.add') }}"
+                        {% set action %}
+                            {% block page_account_order_item_detail_reorder_form_action %}
+                                {{ path('frontend.checkout.line-item.add') }}
+                            {% endblock %}
+                        {% endset %}
+
+                        <form action="{{ action }}"
                               method="post"
                               class="buy-widget order-item-reorder-value"
                               data-add-to-cart="true">

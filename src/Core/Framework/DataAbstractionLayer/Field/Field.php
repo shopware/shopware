@@ -98,6 +98,9 @@ abstract class Field extends Struct
         return null;
     }
 
+    /**
+     * @return Flag[]
+     */
     public function getFlags(): array
     {
         return $this->flags;

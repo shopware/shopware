@@ -1,5 +1,6 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading-indicator.util';
+import DomAccess from 'src/helper/dom-access.helper';
 import Iterator from 'src/helper/iterator.helper';
 import HttpClient from 'src/service/http-client.service';
 import queryString from 'query-string';
@@ -12,10 +13,12 @@ export default class VariantSwitchPlugin extends Plugin {
 
     static options = {
         url: '',
+        radioFieldSelector: '.product-detail-configurator-option-input',
     };
 
     init() {
-        this.httpClient = new HttpClient(window.accessKey, window.contextToken);
+        this._httpClient = new HttpClient(window.accessKey, window.contextToken);
+        this._radioFields = DomAccess.querySelectorAll(this.el, this.options.radioFieldSelector);
 
         this._ensureFormElement();
         this._preserveCurrentValues();
@@ -40,7 +43,7 @@ export default class VariantSwitchPlugin extends Plugin {
      * @private
      */
     _preserveCurrentValues() {
-        Iterator.iterate(this.el.elements, field => {
+        Iterator.iterate(this._radioFields, field => {
             if (VariantSwitchPlugin._isFieldSerializable(field)) {
                 if (field.dataset) {
                     field.dataset.variantSwitchValue = field.value;
@@ -71,7 +74,7 @@ export default class VariantSwitchPlugin extends Plugin {
 
         this.$emitter.publish('onChange');
 
-        this._submitForm({
+        this._redirectToVariant({
             switched: switchedOptionId,
             options: selectedOptions,
         });
@@ -100,7 +103,7 @@ export default class VariantSwitchPlugin extends Plugin {
      */
     _getFormValue() {
         const serialized = {};
-        Iterator.iterate(this.el.elements, field => {
+        Iterator.iterate(this._radioFields, field => {
             if (VariantSwitchPlugin._isFieldSerializable(field)) {
                 if (field.checked) {
                     serialized[field.name] = field.value;
@@ -130,7 +133,7 @@ export default class VariantSwitchPlugin extends Plugin {
      * @private
      */
     _disableFields() {
-        Iterator.iterate(this.el.elements, field => {
+        Iterator.iterate(this._radioFields, field => {
             if (field.classList) {
                 field.classList.add('disabled', 'disabled');
             }
@@ -138,20 +141,20 @@ export default class VariantSwitchPlugin extends Plugin {
     }
 
     /**
-     * creates the hidden data inputs
-     * and submits the form
+     * gets the url of the new variant
+     * and redirects to this url
      *
-     * @param data
+     * @param {Object} data
      * @private
      */
-    _submitForm(data) {
+    _redirectToVariant(data) {
         PageLoadingIndicatorUtil.create();
 
         data.options = JSON.stringify(data.options);
 
         const url = this.options.url + '?' + queryString.stringify(data);
 
-        this.httpClient.get(`${url}`, (response) => {
+        this._httpClient.get(`${url}`, (response) => {
             const data = JSON.parse(response);
             window.location.replace(data.url);
         });

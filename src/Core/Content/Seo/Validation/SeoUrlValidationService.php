@@ -6,47 +6,38 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
-use Shopware\Core\Framework\Validation\ValidationServiceInterface;
+use Shopware\Core\System\Annotation\Concept\DeprecationPattern\RenameService;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-class SeoUrlValidationService implements ValidationServiceInterface
+/**
+ * @deprecated tag:v6.3.0 use SeoUrlValidationFactory instead
+ * @RenameService(
+ *     deprecatedService="SeoUrlValidationService",
+ *     replacedBy="SeoUrlValidationFactory"
+ * )
+ */
+class SeoUrlValidationService implements SeoUrlDataValidationFactoryInterface
 {
-    /**
-     * @var SeoUrlRouteConfig|null
-     */
-    private $routeConfig;
-
-    public function setSeoUrlRouteConfig(SeoUrlRouteConfig $config): void
-    {
-        $this->routeConfig = $config;
-    }
-
-    public function buildCreateValidation(Context $context): DataValidationDefinition
+    public function buildValidation(Context $context, ?SeoUrlRouteConfig $config): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('seo_url.create');
 
-        $this->addConstraints($definition, $context);
+        $this->addConstraints($definition, $config, $context);
 
         return $definition;
     }
 
-    public function buildUpdateValidation(Context $context): DataValidationDefinition
-    {
-        $definition = new DataValidationDefinition('seo_url.update');
-
-        $this->addConstraints($definition, $context);
-
-        return $definition;
-    }
-
-    private function addConstraints(DataValidationDefinition $definition, Context $context): void
-    {
+    private function addConstraints(
+        DataValidationDefinition $definition,
+        ?SeoUrlRouteConfig $routeConfig,
+        Context $context
+    ): void {
         $fkConstraints = [new NotBlank()];
 
-        if ($this->routeConfig) {
+        if ($routeConfig) {
             $fkConstraints[] = new EntityExists([
-                'entity' => $this->routeConfig->getDefinition()->getEntityName(),
+                'entity' => $routeConfig->getDefinition()->getEntityName(),
                 'context' => $context,
             ]);
         }

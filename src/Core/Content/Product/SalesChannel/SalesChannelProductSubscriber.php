@@ -55,7 +55,7 @@ class SalesChannelProductSubscriber implements EventSubscriberInterface
 
     private function calculatePrices(SalesChannelContext $context, SalesChannelProductEntity $product): void
     {
-        $markAsNewDayRange = $this->systemConfigService->get('core.listing.markAsNew');
+        $markAsNewDayRange = $this->systemConfigService->get('core.listing.markAsNew', $context->getSalesChannel()->getId());
 
         $now = new \DateTime();
 

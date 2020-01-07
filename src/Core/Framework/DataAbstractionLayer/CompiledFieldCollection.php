@@ -113,7 +113,7 @@ class CompiledFieldCollection extends FieldCollection
 
     public function filterByFlag(string $flagClass): self
     {
-        $ret = $this->filter(function (Field $field) use ($flagClass) {
+        $ret = $this->filter(static function (Field $field) use ($flagClass) {
             return $field->is($flagClass);
         });
 
@@ -130,8 +130,8 @@ class CompiledFieldCollection extends FieldCollection
         return Field::class;
     }
 
-    protected function createNew(iterable $elements = [])
+    protected function createNew(iterable $elements = []): CompiledFieldCollection
     {
-        return new static($this->registry, $elements);
+        return new self($this->registry, $elements);
     }
 }

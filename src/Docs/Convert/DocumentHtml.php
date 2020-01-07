@@ -113,7 +113,7 @@ class DocumentHtml
         return '#' . mb_strtolower(str_replace('.', '-', $anchor));
     }
 
-    private function resolveLinkUrl(array $matches, DocumentTree $tree, $linkHref, string $linkAnchor): string
+    private function resolveLinkUrl(array $matches, DocumentTree $tree, string $linkHref, string $linkAnchor): string
     {
         $absolutePath = $this->toAbsolutePath($linkHref);
 

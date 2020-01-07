@@ -18,3 +18,10 @@
         position: relative;
     }
 }
+
+.sw-card__back-link {
+    display: flow-root;
+    max-width: 800px;
+    margin: 3px auto 25px auto;
+    text-decoration: none;
+}

@@ -37,7 +37,7 @@
                             class="sw-plugin-list__listing"
                             :repository="pluginRepository"
                             :columns="pluginColumns"
-                            :dataSource="plugins"
+                            :items="plugins"
                             :showSelection="false"
                             :fullPage="false"
                             :showPreviews="true"
@@ -60,6 +60,7 @@
                                 {% block sw_plugin_list_grid_columns_activated_label %}
                                     <sw-switch-field
                                         class="sw-plugin-list__switch-active"
+                                        v-model="item.active"
                                         :value="item.active"
                                         :label="item.active ? $tc('sw-plugin.list.activated') : $tc('sw-plugin.list.deactivated')"
                                         :disabled="!item.installedAt"

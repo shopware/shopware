@@ -61,6 +61,8 @@ class SeoUrlPersister
 
         $processed = [];
 
+        // should be provided
+        $salesChannelId = null;
         foreach ($seoUrls as $seoUrl) {
             if ($seoUrl instanceof \JsonSerializable) {
                 $seoUrl = $seoUrl->jsonSerialize();
@@ -81,6 +83,9 @@ class SeoUrlPersister
             $processed[$fk][$salesChannelId] = true;
 
             $updatedFks[] = $fk;
+            if (isset($seoUrl['error'])) {
+                continue;
+            }
             $existing = $canonicals[$fk][$salesChannelId] ?? null;
 
             if ($existing) {
@@ -122,7 +127,7 @@ class SeoUrlPersister
             $insertQuery->execute();
 
             $deletedIds = array_diff($foreignKeys, $updatedFks);
-            $this->markAsDeleted($deletedIds, $dateTime);
+            $this->markAsDeleted($deletedIds, $dateTime, $salesChannelId);
 
             if (!$this->connection->isRollbackOnly()) {
                 $this->connection->commit();
@@ -146,7 +151,7 @@ class SeoUrlPersister
             && $seoUrl['salesChannelId'] === $existing['salesChannelId'];
     }
 
-    private function findCanonicalPaths($routeName, string $languageId, array $foreignKeys): array
+    private function findCanonicalPaths(string $routeName, string $languageId, array $foreignKeys): array
     {
         $fks = Uuid::fromHexToBytesList($foreignKeys);
         $languageId = Uuid::fromHexToBytes($languageId);
@@ -205,23 +210,29 @@ class SeoUrlPersister
             ->execute();
     }
 
-    private function markAsDeleted($ids, string $dateTime): void
+    private function markAsDeleted(array $ids, string $dateTime, ?string $salesChannelId): void
     {
         if (empty($ids)) {
             return;
         }
         $ids = Uuid::fromHexToBytesList($ids);
-        $this->connection->createQueryBuilder()
+        $query = $this->connection->createQueryBuilder()
             ->update('seo_url')
             ->set('is_deleted', '1')
             ->set('updated_at', ':dateTime')
             ->where('foreign_key IN (:fks)')
             ->setParameter('dateTime', $dateTime)
-            ->setParameter('fks', $ids, Connection::PARAM_STR_ARRAY)
-            ->execute();
+            ->setParameter('fks', $ids, Connection::PARAM_STR_ARRAY);
+
+        if ($salesChannelId) {
+            $query->andWhere('sales_channel_id = :salesChannelId');
+            $query->setParameter('salesChannelId', $salesChannelId);
+        }
+
+        $query->execute();
     }
 
-    private function invalidateEntityCache($seoUrlIds = []): void
+    private function invalidateEntityCache(array $seoUrlIds = []): void
     {
         $tags = $this->cacheKeyGenerator->getSearchTags($this->seoUrlRepository->getDefinition(), new Criteria());
 

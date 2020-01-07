@@ -28,6 +28,9 @@
         "privacyNotice": "Ich habe die <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen.",
         "privacyLink": "Datenschutz",
         "imprintLink": "Impressum",
+        "404ErrorPageHeader": "Seite nicht gefunden",
+        "404ErrorDescription": "Es tut uns leid, es scheint, dass wir die Seite, die Sie suchen, nicht finden können. Sie existiert vielleicht nicht mehr oder wurde verschoben.",
+        "404ErrorReturn": "Zurück zur Startseite",
         "maintenanceModeHeader": "Wartungsmodus",
         "maintenanceModeDescription": "Wir aktualisieren derzeit die Inhalte dieser Seite. Bitte schauen Sie später wieder vorbei.",
         "sortingLabel": "Sortierung",
@@ -62,7 +65,7 @@
         "shipping-address-blocked": "Lieferungen an die gewählte Lieferadresse sind nicht möglich.",
         "VIOLATION::TOO_SHORT_ERROR": "%field% ist zu kurz.",
         "product-not-found": "Das Produkt wurde nicht gefunden.",
-        "message-403-ajax": "Deine Sitzung ist abelaufen. Bitte lade die Seite neu und versuche es erneut.",
+        "message-403-ajax": "Deine Sitzung ist abgelaufen. Bitte lade die Seite neu und versuche es erneut.",
         "message-403": "Deine Sitzung ist abgelaufen. Bitte lade die letzte Seite neu und versuche es erneut."
     },
     "account": {

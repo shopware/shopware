@@ -94,4 +94,9 @@ class EntityWriteResult
     {
         return $this->changeSet;
     }
+
+    public function hasPayload(string $property): bool
+    {
+        return array_key_exists($property, $this->getPayload());
+    }
 }

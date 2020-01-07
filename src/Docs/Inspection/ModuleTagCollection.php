@@ -57,8 +57,8 @@ class ModuleTagCollection extends Collection
         return ModuleTag::class;
     }
 
-    protected function createNew(iterable $elements = [])
+    protected function createNew(iterable $elements = []): ModuleTagCollection
     {
-        return new static($this->module, $elements);
+        return new self($this->module, $elements);
     }
 }

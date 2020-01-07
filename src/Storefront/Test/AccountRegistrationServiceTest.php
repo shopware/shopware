@@ -158,7 +158,7 @@ class AccountRegistrationServiceTest extends TestCase
         static::assertNotEmpty($customerId);
     }
 
-    private function getRegistrationData($isGuest = false): DataBag
+    private function getRegistrationData(bool $isGuest = false): DataBag
     {
         $data = [
             'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,

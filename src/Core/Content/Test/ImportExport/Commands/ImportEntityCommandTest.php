@@ -168,7 +168,7 @@ class ImportEntityCommandTest extends TestCase
         }
     }
 
-    protected function prepareCustomerImportData(ImportExportProfileEntity $profile, $num = 1): array
+    protected function prepareCustomerImportData(ImportExportProfileEntity $profile, int $num = 1): array
     {
         $mapping = $this->getMappings($profile);
         $payment = $mapping['defaultPaymentMethodId'];

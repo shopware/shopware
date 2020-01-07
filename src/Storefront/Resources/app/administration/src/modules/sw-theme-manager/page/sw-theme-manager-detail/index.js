@@ -1,7 +1,7 @@
 import template from './sw-theme-manager-detail.html.twig';
 import './sw-theme-manager-detail.scss';
 
-const { Component, Application, Mixin, State } = Shopware;
+const { Component, Application, Mixin, StateDeprecated } = Shopware;
 const Criteria = Shopware.Data.Criteria;
 const { getObjectDiff, cloneDeep } = Shopware.Utils.object;
 
@@ -66,7 +66,7 @@ Component.register('sw-theme-manager-detail', {
         },
 
         mediaStore() {
-            return State.getStore('media');
+            return StateDeprecated.getStore('media');
         },
 
         themeId() {
@@ -158,7 +158,7 @@ Component.register('sw-theme-manager-detail', {
 
         successfulUpload(mediaItem, context) {
             this.mediaStore.getByIdAsync(mediaItem.targetId).then((media) => {
-                context.value = media.id;
+                this.setMediaItem(media, context);
                 return true;
             });
         },

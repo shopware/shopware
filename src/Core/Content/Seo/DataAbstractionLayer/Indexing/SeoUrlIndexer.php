@@ -8,14 +8,11 @@ use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlExtractIdResult;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
-use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateLoader;
-use Shopware\Core\Content\Seo\SeoUrlTemplate\TemplateGroup;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
@@ -25,7 +22,6 @@ use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\System\Language\LanguageEntity;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -47,11 +43,6 @@ class SeoUrlIndexer implements IndexerInterface
     private $seoUrlGenerator;
 
     /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionRegistry;
-
-    /**
      * @var SeoUrlRouteRegistry
      */
     private $seoUrlRouteRegistry;
@@ -60,11 +51,6 @@ class SeoUrlIndexer implements IndexerInterface
      * @var SeoUrlPersister
      */
     private $seoUrlPersister;
-
-    /**
-     * @var SeoUrlTemplateLoader
-     */
-    private $templateLoader;
 
     /**
      * @var EntityRepositoryInterface
@@ -91,8 +77,6 @@ class SeoUrlIndexer implements IndexerInterface
         EventDispatcherInterface $eventDispatcher,
         SeoUrlGenerator $seoUrlGenerator,
         SeoUrlPersister $seoUrlPersister,
-        SeoUrlTemplateLoader $templateLoader,
-        DefinitionInstanceRegistry $definitionRegistry,
         SeoUrlRouteRegistry $seoUrlRouteRegistry,
         EntityRepositoryInterface $languageRepository,
         IteratorFactory $iteratorFactory,
@@ -102,10 +86,8 @@ class SeoUrlIndexer implements IndexerInterface
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
         $this->seoUrlGenerator = $seoUrlGenerator;
-        $this->definitionRegistry = $definitionRegistry;
         $this->seoUrlRouteRegistry = $seoUrlRouteRegistry;
         $this->seoUrlPersister = $seoUrlPersister;
-        $this->templateLoader = $templateLoader;
         $this->languageRepository = $languageRepository;
         $this->iteratorFactory = $iteratorFactory;
         $this->salesChannelRepository = $salesChannelRepository;
@@ -122,51 +104,47 @@ class SeoUrlIndexer implements IndexerInterface
         $languageChains = $this->fetchLanguageChains($languages->getEntities()->getElements());
         $salesChannels = $this->fetchSalesChannels();
 
-        /** @var SeoUrlRouteInterface $seoUrlRoute */
-        foreach ($this->seoUrlRouteRegistry->getSeoUrlRoutes() as $seoUrlRoute) {
-            $config = $seoUrlRoute->getConfig();
+        $routes = array_keys($this->seoUrlRouteRegistry->getSeoUrlRoutes());
 
-            $templateGroups = $this->templateLoader->getTemplateGroups($config->getRouteName(), $salesChannels);
-            /** @var TemplateGroup[] $groups */
-            foreach ($templateGroups as $languageId => $groups) {
-                $language = $languages->get($languageId);
+        $templates = $this->loadTemplates($routes);
 
-                $chain = $languageChains[$languageId];
-                $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
-                $context->setConsiderInheritance(true);
-                $iterator = $this->iteratorFactory->createIterator($config->getDefinition());
+        foreach ($templates as $config) {
+            $salesChannelId = $config['salesChannelId'];
+            $languageId = $config['languageId'];
+            $routeName = $config['route'];
+            $template = $config['template'];
 
-                $this->eventDispatcher->dispatch(
-                    new ProgressStartedEvent(
-                        sprintf(
-                            'Start indexing %s seo urls for language %s',
-                            $config->getRouteName(),
-                            $language->getName()
-                        ),
-                        $iterator->fetchCount()
-                    ),
-                    ProgressStartedEvent::NAME
-                );
+            $salesChannel = $salesChannels->get($salesChannelId);
 
-                while ($ids = $iterator->fetch()) {
-                    $seoUrls = $this->seoUrlGenerator->generateSeoUrls($context, $seoUrlRoute, $ids, $groups);
-                    $this->seoUrlPersister->updateSeoUrls($context, $config->getRouteName(), $ids, $seoUrls);
+            $language = $languages->get($languageId);
 
-                    $this->eventDispatcher->dispatch(
-                        new ProgressAdvancedEvent(\count($ids)),
-                        ProgressAdvancedEvent::NAME
-                    );
-                }
+            $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $languageChains[$languageId]);
+            $context->setConsiderInheritance(true);
 
-                $this->eventDispatcher->dispatch(
-                    new ProgressFinishedEvent(sprintf(
-                        'Finished indexing %s seo urls for language %s',
-                        $config->getRouteName(),
-                        $language->getName()
-                    )),
-                    ProgressFinishedEvent::NAME
-                );
+            $route = $this->seoUrlRouteRegistry->findByRouteName($routeName);
+
+            $iterator = $this->iteratorFactory->createIterator($route->getConfig()->getDefinition());
+
+            $this->eventDispatcher->dispatch(
+                new ProgressStartedEvent(
+                    sprintf('Start indexing %s seo urls for language %s of sales channel %s', $routeName, $language->getName(), $salesChannel->getName()),
+                    $iterator->fetchCount()
+                ),
+                ProgressStartedEvent::NAME
+            );
+
+            while ($ids = $iterator->fetch()) {
+                $seoUrls = $this->seoUrlGenerator->generate($ids, $template, $route, $context, $salesChannel);
+
+                $this->seoUrlPersister->updateSeoUrls($context, $routeName, $ids, $seoUrls);
+
+                $this->eventDispatcher->dispatch(new ProgressAdvancedEvent(\count($ids)), ProgressAdvancedEvent::NAME);
             }
+
+            $this->eventDispatcher->dispatch(
+                new ProgressFinishedEvent(sprintf('Finished indexing %s seo urls for language %s for sales channel %s', $routeName, $language->getName(), $salesChannel->getName())),
+                ProgressFinishedEvent::NAME
+            );
         }
     }
 
@@ -180,12 +158,10 @@ class SeoUrlIndexer implements IndexerInterface
         $languageChains = $this->fetchLanguageChains($languages->getEntities()->getElements());
         $salesChannels = $this->fetchSalesChannels();
 
-        $groupOffset = 0;
         $dataOffset = null;
         $routeOffset = 0;
 
         if ($lastId) {
-            $groupOffset = $lastId['groupOffset'];
             $dataOffset = $lastId['dataOffset'];
             $routeOffset = $lastId['routeOffset'];
         }
@@ -196,53 +172,40 @@ class SeoUrlIndexer implements IndexerInterface
             return null;
         }
 
+        /** @var SeoUrlRouteInterface $route */
         $route = $routes[$routeOffset];
 
-        $config = $route->getConfig();
+        $templates = $this->loadTemplates([$route->getConfig()->getRouteName()]);
 
-        $templateGroups = $this->templateLoader->getTemplateGroups($config->getRouteName(), $salesChannels);
-
-        $mapped = [];
-        foreach ($templateGroups as $languageId => $groups) {
-            $mapped[] = ['languageId' => $languageId, 'groups' => $groups];
-        }
-
-        if (!isset($mapped[$groupOffset])) {
-            ++$routeOffset;
-
-            return [
-                'groupOffset' => 0,
-                'dataOffset' => null,
-                'routeOffset' => $routeOffset,
-            ];
-        }
-
-        $group = $mapped[$groupOffset];
-
-        $languageId = $group['languageId'];
-        $groups = $group['groups'];
-
-        $chain = $languageChains[$languageId];
-        $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
-        $context->setConsiderInheritance(true);
-        $iterator = $this->iteratorFactory->createIterator($config->getDefinition(), $dataOffset);
+        $iterator = $this->iteratorFactory->createIterator($route->getConfig()->getDefinition(), $dataOffset);
 
         $ids = $iterator->fetch();
         if (empty($ids)) {
-            ++$groupOffset;
+            ++$routeOffset;
 
             return [
-                'groupOffset' => $groupOffset,
                 'dataOffset' => null,
                 'routeOffset' => $routeOffset,
             ];
         }
 
-        $seoUrls = $this->seoUrlGenerator->generateSeoUrls($context, $route, $ids, $groups);
-        $this->seoUrlPersister->updateSeoUrls($context, $config->getRouteName(), $ids, $seoUrls);
+        foreach ($templates as $config) {
+            $salesChannelId = $config['salesChannelId'];
+            $languageId = $config['languageId'];
+            $routeName = $config['route'];
+            $template = $config['template'];
+
+            $salesChannel = $salesChannels->get($salesChannelId);
+
+            $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $languageChains[$languageId]);
+            $context->setConsiderInheritance(true);
+
+            $seoUrls = $this->seoUrlGenerator->generate($ids, $template, $route, $context, $salesChannel);
+
+            $this->seoUrlPersister->updateSeoUrls($context, $routeName, $ids, $seoUrls);
+        }
 
         return [
-            'groupOffset' => $groupOffset,
             'dataOffset' => $iterator->getOffset(),
             'routeOffset' => $routeOffset,
         ];
@@ -250,10 +213,14 @@ class SeoUrlIndexer implements IndexerInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        $idsPerRoute = [];
+        /** @var SeoUrlExtractIdResult[] $updates */
+        $updates = [];
+        $total = 0;
         /** @var SeoUrlRouteInterface $seoUrlRoute */
         foreach ($this->seoUrlRouteRegistry->getSeoUrlRoutes() as $seoUrlRoute) {
             $extractResult = $seoUrlRoute->extractIdsToUpdate($event);
+
+            $total += count($extractResult->getIds());
 
             if ($extractResult->mustReindex()) {
                 // if we need to reindex completely, create task for that and finish immediately
@@ -268,10 +235,24 @@ class SeoUrlIndexer implements IndexerInterface
                 continue;
             }
 
-            $idsPerRoute[$seoUrlRoute->getConfig()->getRouteName()] = $extractResult;
+            $updates[$seoUrlRoute->getConfig()->getRouteName()] = $extractResult;
         }
-        $activeTemplateGroupsPerRoute = $this->loadAffectedTemplateGroups($event, array_keys($idsPerRoute));
-        if (empty($activeTemplateGroupsPerRoute)) {
+
+        if ($total > 50) {
+            // if we need to reindex completely, create task for that and finish immediately
+            $message = new IndexerMessage([self::getName()]);
+            $message->setTimestamp(new \DateTime());
+            $this->bus->dispatch($message);
+
+            return;
+        }
+
+        if (empty($updates)) {
+            return;
+        }
+
+        $templates = $this->loadTemplates(array_keys($updates));
+        if (empty($templates)) {
             return;
         }
 
@@ -281,25 +262,29 @@ class SeoUrlIndexer implements IndexerInterface
         });
         $languageChains = $this->fetchLanguageChains($languages->getEntities()->getElements());
 
-        /*
-         * @var SeoUrlExtractIdResult
-         */
-        foreach ($idsPerRoute as $routeName => $extractResult) {
-            $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($routeName);
-            $config = $seoUrlRoute->getConfig();
+        $salesChannels = $this->fetchSalesChannels();
 
-            $templateLanguageGroups = $activeTemplateGroupsPerRoute[$routeName];
+        foreach ($templates as $config) {
+            $salesChannelId = $config['salesChannelId'];
+            $languageId = $config['languageId'];
+            $routeName = $config['route'];
+            $template = $config['template'];
 
-            /** @var TemplateGroup[] $groups */
-            foreach ($templateLanguageGroups as $languageId => $groups) {
-                $chain = $languageChains[$languageId];
-                $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
-                $context->setConsiderInheritance(true);
-                foreach (array_chunk($extractResult->getIds(), 250) as $idsChunk) {
-                    $seoUrls = $this->seoUrlGenerator->generateSeoUrls($context, $seoUrlRoute, $idsChunk, $groups);
-                    $this->seoUrlPersister->updateSeoUrls($context, $config->getRouteName(), $idsChunk, $seoUrls);
-                }
-            }
+            $ids = $updates[$routeName];
+
+            $route = $this->seoUrlRouteRegistry->findByRouteName($routeName);
+
+            $chain = $languageChains[$languageId];
+            $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
+            $context->setConsiderInheritance(true);
+
+            $salesChannel = $salesChannels->get($salesChannelId);
+
+            // generate new seo urls
+            $urls = $this->seoUrlGenerator->generate($ids->getIds(), $template, $route, $context, $salesChannel);
+
+            // persist seo urls to storage
+            $this->seoUrlPersister->updateSeoUrls($context, $routeName, $ids->getIds(), $urls);
         }
     }
 
@@ -308,86 +293,7 @@ class SeoUrlIndexer implements IndexerInterface
         return 'Swag.SeoUrlIndexer';
     }
 
-    /**
-     * Load Template groups affected by the given $event
-     */
-    private function loadAffectedTemplateGroups(EntityWrittenContainerEvent $event, array $routeNames): array
-    {
-        $activeTemplateGroupsPerRoute = [];
-        $affectedSalesChannelIds = [[]];
-        // load all templates per route and check if they are affected by the $event
-        foreach ($routeNames as $routeName) {
-            $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($routeName);
-            $config = $seoUrlRoute->getConfig();
-            $templateLanguageGroups = $this->templateLoader->getTemplateGroups($config->getRouteName(), []);
-            $activeTemplateLanguageGroups = $this->filterAffectedTemplateGroups($templateLanguageGroups, $event, $seoUrlRoute);
-
-            foreach ($activeTemplateLanguageGroups as $templateGroups) {
-                /* @var TemplateGroup $templateGroup */
-                foreach ($templateGroups as $templateGroup) {
-                    $affectedSalesChannelIds[] = $templateGroup->getSalesChannelIds();
-                }
-            }
-
-            $activeTemplateGroupsPerRoute[$routeName] = $activeTemplateLanguageGroups;
-        }
-
-        if (empty($activeTemplateGroupsPerRoute)) {
-            return [];
-        }
-
-        // gather all sales channel ids from the affected templates and the load the sales channel entities
-        $affectedSalesChannelIds = array_merge(...$affectedSalesChannelIds);
-        $salesChannels = $this->fetchSalesChannels($affectedSalesChannelIds);
-
-        // Assign the sales channel entities each TemplateGroup.
-        foreach ($activeTemplateGroupsPerRoute as $templateLanguageGroups) {
-            foreach ($templateLanguageGroups as $templateGroups) {
-                /** @var TemplateGroup $templateGroup */
-                foreach ($templateGroups as $templateGroup) {
-                    $activeSalesChannelIdForTemplate = $templateGroup->getSalesChannelIds();
-
-                    $activeSalesChannels = array_filter($salesChannels, function (?SalesChannelEntity $salesChannel) use ($activeSalesChannelIdForTemplate) {
-                        if ($salesChannel === null) {
-                            return in_array(null, $activeSalesChannelIdForTemplate, true);
-                        }
-
-                        return in_array($salesChannel->getId(), $activeSalesChannelIdForTemplate, true);
-                    });
-
-                    $templateGroup->setSalesChannels($activeSalesChannels);
-                }
-            }
-        }
-
-        return $activeTemplateGroupsPerRoute;
-    }
-
-    /**
-     * Filters TemplateGroups which are affected by the given $event. TemplateGroups are only included in the result,
-     * if they contain variables which could change with the given $event.
-     */
-    private function filterAffectedTemplateGroups(array $templateGroups, EntityWrittenContainerEvent $event, SeoUrlRouteInterface $route): array
-    {
-        $activeTemplateGroups = [];
-        $definition = $route->getConfig()->getDefinition();
-        $specialVariables = $route->getSeoVariables();
-        foreach ($templateGroups as $languageId => $groups) {
-            $activeGroups = array_filter($groups, function (TemplateGroup $group) use ($event,$specialVariables, $definition) {
-                return $this->seoUrlGenerator->checkUpdateAffectsTemplate($event, $definition, $specialVariables, $group->getTemplate());
-            });
-
-            if (empty($activeGroups)) {
-                continue;
-            }
-
-            $activeTemplateGroups[$languageId] = $activeGroups;
-        }
-
-        return $activeTemplateGroups;
-    }
-
-    private function getLanguageIdChain($languageId): array
+    private function getLanguageIdChain(string $languageId): array
     {
         return [
             $languageId,
@@ -406,23 +312,14 @@ class SeoUrlIndexer implements IndexerInterface
         return $result ? (string) $result : null;
     }
 
-    private function fetchSalesChannels(array $ids = []): array
+    private function fetchSalesChannels(): EntityCollection
     {
-        $ids = array_filter($ids, function ($id) {
-            return $id !== null;
-        });
-
         $context = Context::createDefaultContext();
-        $entities = $context->disableCache(function (Context $context) use ($ids) {
-            return $this->salesChannelRepository->search((new Criteria($ids))->addAssociation('navigationCategory'), $context)->getEntities();
+        $entities = $context->disableCache(function (Context $context) {
+            return $this->salesChannelRepository->search(new Criteria(), $context)->getEntities();
         });
 
-        $salesChannels = $entities->getElements();
-        // We add the "null" SalesChannel manually as it signals the fallback value if no other seo urls or
-        // url templates are assigned to a entity/sales channel combination
-        $salesChannels[] = null;
-
-        return $salesChannels;
+        return $entities;
     }
 
     private function fetchLanguageChains(array $languages): array
@@ -435,5 +332,57 @@ class SeoUrlIndexer implements IndexerInterface
         }
 
         return $languageChains;
+    }
+
+    private function loadTemplates(array $routes): array
+    {
+        $domains = $this->connection->fetchAll(
+            'SELECT
+               LOWER(HEX(sales_channel.id)) as salesChannelId,
+               LOWER(HEX(domains.language_id)) as languageId
+             FROM sales_channel_domain as domains
+             INNER JOIN sales_channel
+               ON domains.sales_channel_id = sales_channel.id
+               AND sales_channel.active = 1'
+        );
+
+        $modified = $this->connection->fetchAll(
+            'SELECT LOWER(HEX(sales_channel_id)) as sales_channel_id, route_name, template
+             FROM seo_url_template 
+             WHERE route_name IN (:routes)',
+            ['routes' => $routes],
+            ['routes' => Connection::PARAM_STR_ARRAY]
+        );
+
+        $grouped = [];
+        foreach ($modified as $template) {
+            $grouped[$template['sales_channel_id']][$template['route_name']] = $template['template'];
+        }
+
+        if (!array_key_exists('', $grouped)) {
+            throw new \RuntimeException('Default templates not configured');
+        }
+        $defaults = $grouped[''];
+
+        $result = [];
+        foreach ($domains as $domain) {
+            $salesChannelId = $domain['salesChannelId'];
+
+            foreach ($routes as $route) {
+                $template = $defaults[$route];
+                if (isset($grouped[$salesChannelId][$route])) {
+                    $template = $grouped[$salesChannelId][$route];
+                }
+
+                $result[] = [
+                    'salesChannelId' => $salesChannelId,
+                    'languageId' => $domain['languageId'],
+                    'route' => $route,
+                    'template' => $template,
+                ];
+            }
+        }
+
+        return $result;
     }
 }

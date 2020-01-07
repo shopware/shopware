@@ -93,6 +93,14 @@ To get the diff between two versions, go to https://github.com/shopware/platform
       * Reorganized content of `sw-plugin-last-updates-grid`. It now displays only the empty state or grid but not both.
       * We moved the condition when the empty state is shown to the slot access itself rather than to the `sw-empty-state` component.
       * Added new block `sw_plugin_last_udates_card_grid_content` in `sw-plugin-last-updates-grid` to override the grid content rather than the slot access.
+    * Removed computed property `lineItemActionsEnabled` from `sw-order-line-items-grid` since it was never used and always evaluate to false
+    * Replaced kebab-case plugin file exporting with camel case to match php requirements
+    * Added pagination to plugin manager
+    * Show domain selection in first run wizard only when domains exists
+    * Hide user set groups option in promotions behind an experimental flag
+    * Added new block `sw_promotion_cart_condition_form_allow_experimental`
+    * When updating domains in a sales channel you can only select one of the available languages for the sales channel
+    * Fix module meta information in extended module routes with the routeMiddleware
 
 * Core    
 	* We did some refactoring on how we use `WriteConstraintsViolationExceptions`.	
@@ -267,6 +275,15 @@ To get the diff between two versions, go to https://github.com/shopware/platform
        ```	
     * Fixed a bug that cms configuration could not be overridden if some default config is null.	
     * We added a check to `lineItem.payload.productNumber` before calling the twig truncate function	
+    * Deprecated `\Shopware\Core\Framework\Validation\ValidationServiceInterface`, it will be removed in 6.3.0
+    * Added the interface `\Shopware\Core\Framework\Validation\DataValidationFactoryInterface` that will replace the deprecated `\Shopware\Core\Framework\Validation\ValidationServiceInterface`
+    * Removed the `\Shopware\Core\Framework\Validation\ValidationServiceInterface` from the `\Shopware\Core\Content\Seo\Validation\SeoUrlValidationService`, added the `\Shopware\Core\Content\Seo\Validation\SeoUrlDataValidationFactoryInterface` instead to allow service decoration
+    * Renamed `\Shopware\Core\Content\Seo\Validation\SeoUrlValidationService` to `\Shopware\Core\Content\Seo\Validation\SeoUrlValidationFactory`, the old serviceId is now deprecated 
+    * Renamed `\Shopware\Core\Checkout\Customer\Validation\AddressValidationService` to `\Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory`, the old serviceId is now deprecated 
+    * Renamed `\Shopware\Core\Checkout\Customer\Validation\CustomerValidationService` to `\Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory`, the old serviceId is now deprecated 
+    * Renamed `\Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationService` to `\Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory`, the old serviceId is now deprecated 
+    * Renamed `\Shopware\Core\Checkout\Order\Validation\OrderValidationService` to `\Shopware\Core\Checkout\Order\Validation\OrderValidationFactory`, the old serviceId is now deprecated 
+    * Renamed `\Shopware\Core\Content\ContactForm\Validation\ContactFormValidationService` to `\Shopware\Core\Content\ContactForm\Validation\ContactFormValidationFactory`, the old serviceId is now deprecated 
     * Fixed a bug in storefront search that occurred when keywords such as \0\0 were entered.
     * Added a position field on the `\Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition`, used for sorting the line items
     * Changed default `shopware.cdn.strategy` to the new `physical_pathname` strategy that behaves like the old `md5` strategy. For new installations the default is `id`
@@ -276,7 +293,16 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Change default `shopware.cdn.strategy` to the new `physical_pathname` strategy that behaves like the old `md5` strategy. For new installations the default is `id`
     * Fixed a bug where entities got removed by deleting default version. Deleting default version via `/api/v{version}/_action/version/{versionId}/{entity}/{entityId}` is now forbidden
     * The data format of the `lineItem.payload.options` has changed. Now there is a simple array per element with `option` and `group`. It contains the translated names of the entities.
-* Storefront	
+    * We deprecated the `Shopware\Storefront\Page\Search\SearchPage::$searchResult` property, use `Shopware\Storefront\Page\Search\SearchPage::$listing` instead
+    * We implemented the new `Shopware\Core\HttpKernel` class which simplifies the kernel initialisation.
+    * Marked the `\Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface` and it's implementations as internal
+    * Added the `version` parameter to the methods of the `\Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface`    
+    * We deprecated the `\Shopware\Core\Content\Seo\SeoUrlGenerator::generateSeoUrls` function, use `\Shopware\Core\Content\Seo\SeoUrlGenerator::generate` instead
+    * We deprecated the `\Shopware\Core\Content\Seo\SeoUrlGenerator::checkUpdateAffectsTemplate` function
+    * `@Framework/documents/style_base_portrait.css.twig` and `@Framework/documents/style_base_landscape.css.twig` are now included by `sw_include`.
+    * Added new `$depth` parameter to `\Shopware\Core\Content\Category\Service\NavigationLoader::load`
+    * Added new field `navigation_category_depth` to `\Shopware\Core\System\SalesChannel\SalesChannelDefinition` 
+* Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures	
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain	
     * Added twig function `sw_csrf` for creating CSRF tokens	
@@ -330,6 +356,20 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * You can now disable the lint plugin by setting `ESLINT_DISABLE` environment variable to `'true'`.
       * Run `APP_URL="<your url>" PLATFORM_ROOT=/app/ ESLINT_DISABLE=true npm run hot` in Storefront js folder
     * The Lint plugin can only be disabled in hot reload mode.
+    * We extended setup of the `storefront:hot-proxy`
+      * The proxy now points to your app url's host instead of `localhost` which means that the url only differs in the port.
+      * The port is now replaced in both regular page requests and XHtmlRequests.
+      * The proxy's port is now configurable.
+        * Using psh: just override the `STOREFRONT_PROXY_PORT` constant (this will also map the port for docker setup)
+        * Using npm: run `APP_URL="<your url>" STOREFRONT_PROXY_PORT=<some port> PROJECT_ROOT=<path to your root folder>/ npm run hot-proxy` from the storefronts js directory.
+      * The default port is still port 9998.
+    * We implemented the new `Storefront/Resources/views/storefront/component/product/listing.html.twig` which can be included to display product listings
+    * Changed the naming of the method `_submitForm` to `_redirectToVariant` inside `src/Storefront/Resources/app/storefront/src/plugin/variant-switch/variant-switch.plugin.js`.
+    * Added the `!default` flag to all variable declarations in the following SCSS files to provide the ability to modify the default values inside a theme:
+        * `src/Storefront/Resources/app/storefront/src/scss/abstract/variables/_bootstrap.scss`
+        * `src/Storefront/Resources/app/storefront/src/scss/abstract/variables/_custom.scss`
+        * `src/Storefront/Resources/app/storefront/src/scss/skin/shopware/abstract/variables/_bootstrap.scss`
+        * `src/Storefront/Resources/app/storefront/src/scss/skin/shopware/abstract/variables/_custom.scss`
 * Elasticsearch	
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.
         * You can set them with a parameter.yml too.
@@ -340,9 +380,11 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 **Removals**
 
 * Administration
-	* Removed module export of `Shopware`	
+    * Removed module export of `Shopware`
     * Removed plugin functionality in login	
     * Removed direct component registration in modules
+    * Removed "add order" button in order module
+    * Remove disabled cms page type for product pages
     
 * Core    
     * When a sub entity is written or deleted, a written event is dispatched for the configured root entity. 	

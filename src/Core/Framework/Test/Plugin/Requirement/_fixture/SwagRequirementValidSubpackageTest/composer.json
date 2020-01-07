@@ -11,7 +11,7 @@
     ],
     "require": {
         "ext-json": "*",
-        "shopware/core": "dev-master"
+        "shopware/core": "6.1.x@dev || dev-master"
     },
     "extra": {
         "shopware-plugin-class": "SwagRequirementValidSubpackageTest\\SwagRequirementValidSubpackageTest",

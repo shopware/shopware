@@ -23,20 +23,23 @@ class DocumentConfigurationFactory
         return $documentConfiguration;
     }
 
+    /**
+     * @param DocumentBaseConfigEntity|DocumentConfiguration|array $additionalConfig
+     */
     public static function mergeConfiguration(DocumentConfiguration $baseConfig, $additionalConfig): DocumentConfiguration
     {
         $additionalConfigArray = [];
-        if (is_array($additionalConfig)) {
+        if (\is_array($additionalConfig)) {
             $additionalConfigArray = $additionalConfig;
-        } elseif (is_object($additionalConfig)) {
+        } elseif (\is_object($additionalConfig)) {
             $additionalConfigArray = $additionalConfig->jsonSerialize();
         }
 
-        $additionalConfigArray = static::cleanConfig($additionalConfigArray);
+        $additionalConfigArray = self::cleanConfig($additionalConfigArray);
 
         foreach ($additionalConfigArray as $key => $value) {
             if ($value !== null) {
-                if ($key === 'custom' && is_array($value)) {
+                if ($key === 'custom' && \is_array($value)) {
                     $baseConfig->__set('custom', array_merge($baseConfig->__get('custom'), $value));
                 } elseif (strncmp($key, 'custom.', 7) === 0) {
                     $customKey = mb_substr($key, 7);
@@ -50,7 +53,7 @@ class DocumentConfigurationFactory
         return $baseConfig;
     }
 
-    private static function cleanConfig(array $config)
+    private static function cleanConfig(array $config): array
     {
         if (isset($config['config'])) {
             $config = array_merge($config, $config['config']);

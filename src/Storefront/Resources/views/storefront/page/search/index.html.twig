@@ -8,29 +8,13 @@
                     {% block page_search_headline_text %}
                         {{ "search.headline"|trans({
                             '%searchTerm%': page.searchTerm,
-                            '%totalCount%': page.searchResult.total,
+                            '%totalCount%': page.listing.total,
                         })|sw_sanitize }}
                     {% endblock %}
                 </h1>
             {% endblock %}
 
-            {% block page_search_listing %}
-                <div class="cms-element-product-listing">
-                    {% block page_search_listing_row %}
-                        <div class="row cms-listing-row">
-                            {% for product in page.searchResult %}
-                                {% block page_search_listing_column %}
-                                    <div class="cms-listing-col col-sm-6 col-lg-4 col-xl-3">
-                                        {% block page_search_listing_item %}
-                                            {% sw_include '@Storefront/storefront/component/product/card/box.html.twig' with {layout: 'minimal'} %}
-                                        {% endblock %}
-                                    </div>
-                                {% endblock %}
-                            {% endfor %}
-                        </div>
-                    {% endblock %}
-                </div>
-            {% endblock %}
+            {% sw_include '@Storefront/storefront/page/search/search-pagelet.html.twig' with { page: page } %}
         </div>
     {% endblock %}
 {% endblock %}

@@ -56,7 +56,6 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
         $criteria->addAssociation('manufacturer');
         $criteria->addAssociation('mainCategories.category');
         $criteria->addAssociation('categories');
-        $criteria->addAssociation('children');
     }
 
     public function getMapping(Entity $product, ?SalesChannelEntity $salesChannel): SeoUrlMapping

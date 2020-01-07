@@ -222,20 +222,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $lineItem->setQuantityInformation($quantityInformation);
 
-        $options = [];
-        if ($product->getOptions() !== null) {
-            foreach ($product->getOptions() as $option) {
-                if (!$option->getGroup()) {
-                    continue;
-                }
-
-                $options[] = [
-                    'group' => $option->getGroup()->getTranslation('name'),
-                    'option' => $option->getTranslation('name'),
-                ];
-            }
-        }
-
         $lineItem->replacePayload([
             'isCloseout' => $product->getIsCloseout(),
             'customFields' => $product->getCustomFields(),
@@ -251,7 +237,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'categoryIds' => $product->getCategoryTree(),
             'propertyIds' => $product->getPropertyIds(),
             'optionIds' => $product->getOptionIds(),
-            'options' => $options,
+            'options' => $this->getOptions($product),
         ]);
     }
 
@@ -315,5 +301,27 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
 
         return $product->getAvailableStock();
+    }
+
+    private function getOptions(SalesChannelProductEntity $product): array
+    {
+        $options = [];
+
+        if (!$product->getOptions()) {
+            return $options;
+        }
+
+        foreach ($product->getOptions() as $option) {
+            if (!$option->getGroup()) {
+                continue;
+            }
+
+            $options[] = [
+                'group' => $option->getGroup()->getTranslation('name'),
+                'option' => $option->getTranslation('name'),
+            ];
+        }
+
+        return $options;
     }
 }

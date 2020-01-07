@@ -29,7 +29,6 @@ services:
     PhpCsFixer\Fixer\Whitespace\CompactNullableTypehintFixer: ~
     PhpCsFixerCustomFixers\Fixer\NoImportFromGlobalNamespaceFixer: ~
     PhpCsFixerCustomFixers\Fixer\NoUnneededConcatenationFixer: ~
-    PhpCsFixerCustomFixers\Fixer\NoUselessCommentFixer: ~
     PhpCsFixerCustomFixers\Fixer\NullableParamStyleFixer: ~
     PhpCsFixerCustomFixers\Fixer\OperatorLinebreakFixer: ~
     PhpCsFixerCustomFixers\Fixer\PhpdocNoIncorrectVarAnnotationFixer: ~

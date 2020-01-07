@@ -66,9 +66,9 @@ class InfoController extends AbstractController
      *
      * @throws \Exception
      */
-    public function info(): JsonResponse
+    public function info(int $version): JsonResponse
     {
-        $data = $this->definitionService->generate(OpenApi3Generator::FORMAT);
+        $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::API, $version);
 
         return $this->json($data);
     }
@@ -76,9 +76,9 @@ class InfoController extends AbstractController
     /**
      * @Route("/api/v{version}/_info/open-api-schema.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="api.info.open-api-schema", methods={"GET"})
      */
-    public function openApiSchema(): JsonResponse
+    public function openApiSchema(int $version): JsonResponse
     {
-        $data = $this->definitionService->getSchema(OpenApi3Generator::FORMAT);
+        $data = $this->definitionService->getSchema(OpenApi3Generator::FORMAT, DefinitionService::API, $version);
 
         return $this->json($data);
     }
@@ -86,9 +86,9 @@ class InfoController extends AbstractController
     /**
      * @Route("/api/v{version}/_info/entity-schema.json", name="api.info.entity-schema", methods={"GET"})
      */
-    public function entitySchema(): JsonResponse
+    public function entitySchema(int $version): JsonResponse
     {
-        $data = $this->definitionService->getSchema(EntitySchemaGenerator::FORMAT);
+        $data = $this->definitionService->getSchema(EntitySchemaGenerator::FORMAT, DefinitionService::API, $version);
 
         return $this->json($data);
     }
@@ -96,9 +96,9 @@ class InfoController extends AbstractController
     /**
      * @Route("/api/v{version}/_info/swagger.html", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="api.info.swagger", methods={"GET"})
      */
-    public function infoHtml(): Response
+    public function infoHtml(int $version): Response
     {
-        return $this->render('@Framework/swagger.html.twig', ['schemaUrl' => 'api.info.openapi3']);
+        return $this->render('@Framework/swagger.html.twig', ['schemaUrl' => 'api.info.openapi3', 'apiVersion' => $version]);
     }
 
     /**

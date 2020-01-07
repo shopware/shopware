@@ -69,6 +69,12 @@ Component.register('sw-sales-channel-detail-base', {
         }
     },
 
+    watch: {
+        'productExport.fileName'() {
+            this.onChangeFileName();
+        }
+    },
+
     data() {
         return {
             showDeleteModal: false,
@@ -249,6 +255,15 @@ Component.register('sw-sales-channel-detail-base', {
 
             this.$emit('valid-file-name');
             return null;
+        },
+
+        maintenanceIpWhitelist: {
+            get() {
+                return this.salesChannel.maintenanceIpWhitelist ? this.salesChannel.maintenanceIpWhitelist : [];
+            },
+            set(value) {
+                this.salesChannel.maintenanceIpWhitelist = value;
+            }
         },
 
         ...mapApiErrors('salesChannel',

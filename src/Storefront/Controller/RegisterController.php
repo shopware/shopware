@@ -148,7 +148,7 @@ class RegisterController extends StorefrontController
                 $data->remove('shippingAddress');
             }
             $data = $this->prepareAffiliateTracking($data, $request);
-            $this->accountRegistrationService->register($data, $data->has('guest'), $context, $this->getAdditionalRegisterValidationDefinitions($data));
+            $this->accountRegistrationService->register($data, $data->has('guest'), $context, $this->getAdditionalRegisterValidationDefinitions($data, $context));
         } catch (ConstraintViolationException $formViolations) {
             if (!$request->request->has('errorRoute')) {
                 throw new MissingRequestParameterException('errorRoute');
@@ -220,17 +220,17 @@ class RegisterController extends StorefrontController
         return true;
     }
 
-    private function getAdditionalRegisterValidationDefinitions(DataBag $data): DataValidationDefinition
+    private function getAdditionalRegisterValidationDefinitions(DataBag $data, SalesChannelContext $context): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('storefront.confirmation');
 
-        if ($this->systemConfigService->get('core.loginRegistration.requireEmailConfirmation')) {
+        if ($this->systemConfigService->get('core.loginRegistration.requireEmailConfirmation', $context->getSalesChannel()->getId())) {
             $definition->add('emailConfirmation', new NotBlank(), new EqualTo([
                 'value' => $data->get('email'),
             ]));
         }
 
-        if ($this->systemConfigService->get('core.loginRegistration.requirePasswordConfirmation')) {
+        if ($this->systemConfigService->get('core.loginRegistration.requirePasswordConfirmation', $context->getSalesChannel()->getId())) {
             $definition->add('passwordConfirmation', new NotBlank(), new EqualTo([
                 'value' => $data->get('password'),
             ]));

@@ -2,57 +2,39 @@
 parameters:
     level: 5
     paths:
-        - %currentWorkingDirectory%/vendor/shopware/platform/src
-        - %currentWorkingDirectory%/src
+        - src
     symfony:
         constant_hassers: false
         # the placeholder "%ShopwareHashedCacheDir%" will be replaced on execution by dev-ops/analyze/phpstan-config-generator.php script
         container_xml_path: '%rootDir%/../../../../../../..%ShopwareHashedCacheDir%/srcShopware_Development_KernelDevDebugContainer.xml'
     inferPrivatePropertyTypeFromConstructor: true
-    reportUnmatchedIgnoredErrors: false
-#   Bleeding edge features. Currently optional in latest PHPStan version
-    featureToggles:
-        deadCatchesRule: true
-#        Does not recognize annotions with traits correctly
-#        invalidVarTag: true
-        missingReturnRule: true
-        noopRule: true
-#        has problems with instanceof comparisons in switch statements
-#        subtractableTypes: true
-        tooWideTypehints: true
-        unreachableStatement: true
-        yieldRules: true
-        validateParameters: true
-        allowVarTagAboveStatements: true
-#        Not sure if we could simply use "self" instead of "static". Used mainly in our collections
-#        newStatic: true
 
     excludes_analyse:
-        - %currentWorkingDirectory%/vendor/shopware/platform/src/Core/Flag/feature_*.php
-        - %currentWorkingDirectory%/src/Core/Flag/feature_*.php
-        - %currentWorkingDirectory%/vendor/shopware/platform/src/Recovery/*
-        - %currentWorkingDirectory%/src/Recovery/*
+        - src/Core/Flag/feature_*.php
+        - src/Recovery/*
 
-        - %currentWorkingDirectory%/vendor/shopware/platform/src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php
-        - %currentWorkingDirectory%/src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php
+        - src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php
 
         # Tests
-        - %currentWorkingDirectory%/vendor/shopware/platform/src/**/*Test.php
-        - %currentWorkingDirectory%/src/**/*Test.php
-        - %currentWorkingDirectory%/src/Core/Framework/Test/**/*.php
-        - %currentWorkingDirectory%/vendor/shopware/platform/src/Core/Framework/Test/**/*.php
+        - src/**/*Test.php
+        - src/Core/Framework/Test/**/*.php
 
-        - %currentWorkingDirectory%/vendor/shopware/platform/src/**/Test/**/_fixture/feature_*.php
-        - %currentWorkingDirectory%/src/**/Test/**/_fixture/feature_*.php
+        - src/**/Test/**/_fixture/feature_*.php
 
-        - %currentWorkingDirectory%/vendor/shopware/platform/src/Core/TestBootstrap.php
-        - %currentWorkingDirectory%/src/Core/TestBootstrap.php
+        - src/Core/TestBootstrap.php
+
+        # Fatal error in PHPStan caused by this class https://github.com/phpstan/phpstan-symfony/issues/71
+        - src/Core/Framework/Struct/Serializer/StructNormalizer.php
+
     ignoreErrors:
         # https://github.com/phpstan/phpstan/issues/1060
         - '#Call to an undefined method Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface::(variableNode|scalarNode|end|integerNode|booleanNode|enumNode)\(\)\.#'
-        # Must not call parent, because of own handling on adding new elements
-        - '#Shopware\\Core\\Framework\\DataAbstractionLayer\\CompiledFieldCollection::__construct\(\) does not call parent constructor from Shopware\\Core\\Framework\\Struct\\Collection.#'
         # PhpStan does not recognize the Faker plugins correctly. They are called via magic methods
         - '#Access to an undefined property Faker\\Generator::\$[^.]+\.#'
         # For BC with Symfony 4
         - '#Method Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface::dispatch\(\) invoked with 2 parameters, 1 required\.#'
+        # To fix this error, the \Shopware\Core\Framework\Struct\Collection::createNew method has to be implemented
+        # in every implementation of `Collection` and needs to return `new self` instead of `new static`. See https://github.com/phpstan/phpstan/issues/2773
+        -
+             message: '#Unsafe usage of new static()#'
+             path: src/Core/Framework/Struct/Collection.php

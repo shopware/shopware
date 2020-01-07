@@ -18,7 +18,6 @@ use Shopware\Core\Framework\Update\Services\PluginCompatibility;
 use Shopware\Core\Framework\Update\Services\RequirementsValidator;
 use Shopware\Core\Framework\Update\Steps\DeactivatePluginsStep;
 use Shopware\Core\Framework\Update\Steps\DownloadStep;
-use Shopware\Core\Framework\Update\Steps\ErrorResult;
 use Shopware\Core\Framework\Update\Steps\FinishResult;
 use Shopware\Core\Framework\Update\Steps\UnpackStep;
 use Shopware\Core\Framework\Update\Steps\ValidResult;
@@ -125,7 +124,7 @@ class UpdateController extends AbstractController
             return new JsonResponse($updates);
         } catch (\Throwable $e) {
             return new JsonResponse([
-                '__class' => get_class($e),
+                '__class' => \get_class($e),
                 '__message' => $e->getMessage(),
             ]);
         }
@@ -166,7 +165,11 @@ class UpdateController extends AbstractController
             unlink($destination);
         }
 
-        $result = (new DownloadStep($update, $destination, $this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION))->run($offset);
+        $result = (new DownloadStep(
+            $update,
+            $destination,
+            $this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION
+        ))->run($offset);
 
         return $this->toJson($result);
     }
@@ -174,7 +177,7 @@ class UpdateController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/update/unpack", name="api.custom.updateapi.unpack", methods={"GET"})
      */
-    public function unpack(Request $request, Context $context): JsonResponse
+    public function unpack(Request $request): JsonResponse
     {
         $update = $this->apiClient->checkForUpdates($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION);
 
@@ -241,12 +244,16 @@ class UpdateController extends AbstractController
 
         if ($offset === 0) {
             // plugins can subscribe to this events, check compatibility and throw exceptions to prevent the update
-            $this->eventDispatcher->dispatch(new UpdatePrePrepareEvent($context, $this->shopwareVersion,
-                $update->version));
+            $this->eventDispatcher->dispatch(
+                new UpdatePrePrepareEvent($context, $this->shopwareVersion, $update->version)
+            );
         }
 
         // disable plugins - save active plugins
-        $deactivationFilter = $request->query->get('deactivationFilter', PluginCompatibility::PLUGIN_DEACTIVATION_FILTER_NOT_COMPATIBLE);
+        $deactivationFilter = $request->query->get(
+            'deactivationFilter',
+            PluginCompatibility::PLUGIN_DEACTIVATION_FILTER_NOT_COMPATIBLE
+        );
 
         $deactivatePluginStep = new DeactivatePluginsStep(
             $update,
@@ -262,11 +269,10 @@ class UpdateController extends AbstractController
         if ($result instanceof FinishResult) {
             $containerWithoutPlugins = $this->rebootKernelWithoutPlugins();
 
-            /** @var EventDispatcherInterface $eventDispatcher */
-            $eventDispatcher = $containerWithoutPlugins->get('event_dispatcher');
-
             // @internal plugins are deactivated
-            $eventDispatcher->dispatch(new UpdatePostPrepareEvent($context, $this->shopwareVersion, $update->version));
+            $containerWithoutPlugins->get('event_dispatcher')->dispatch(
+                new UpdatePostPrepareEvent($context, $this->shopwareVersion, $update->version)
+            );
         }
 
         return $this->toJson($result);
@@ -275,7 +281,7 @@ class UpdateController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/update/finish/{token}", defaults={"auth_required"=false}, name="api.custom.updateapi.finish", methods={"GET"})
      */
-    public function finish(string $token, int $version, Request $request, Context $context): Response
+    public function finish(string $token, Request $request, Context $context): Response
     {
         $offset = $request->query->getInt('offset');
         $oldVersion = (string) $this->systemConfig->get(self::UPDATE_PREVIOUS_VERSION_KEY);
@@ -296,8 +302,9 @@ class UpdateController extends AbstractController
 
         // reboot with plugins
         $container = $this->rebootWithPlugins();
-        $container->get('event_dispatcher')
-            ->dispatch(new UpdatePostFinishEvent($context, $oldVersion, $this->shopwareVersion));
+        $container->get('event_dispatcher')->dispatch(
+            new UpdatePostFinishEvent($context, $oldVersion, $this->shopwareVersion)
+        );
 
         return $this->redirectToRoute('administration.index');
     }
@@ -327,38 +334,28 @@ class UpdateController extends AbstractController
         return $kernel->getContainer();
     }
 
-    private function toJson($result): JsonResponse
+    /**
+     * @param ValidResult|FinishResult $result
+     */
+    private function toJson(ValidResult $result): JsonResponse
     {
-        if ($result instanceof ValidResult) {
-            return new JsonResponse([
-                'valid' => true,
-                'offset' => $result->getOffset(),
-                'total' => $result->getTotal(),
-                'success' => true,
-                '_class' => get_class($result),
-            ]);
-        }
-
         if ($result instanceof FinishResult) {
             return new JsonResponse([
                 'valid' => false,
                 'offset' => $result->getOffset(),
                 'total' => $result->getTotal(),
                 'success' => true,
-                '_class' => get_class($result),
+                '_class' => \get_class($result),
             ]);
         }
 
-        if ($result instanceof ErrorResult) {
-            return new JsonResponse([
-                'valid' => false,
-                'success' => false,
-                'errorMsg' => $result->getMessage(),
-                '_class' => get_class($result),
-            ]);
-        }
-
-        throw new UpdateFailedException(sprintf('Result type %s can not be mapped.', get_class($result)));
+        return new JsonResponse([
+            'valid' => true,
+            'offset' => $result->getOffset(),
+            'total' => $result->getTotal(),
+            'success' => true,
+            '_class' => \get_class($result),
+        ]);
     }
 
     private function replaceRecoveryFiles(string $fileDir): void
@@ -377,7 +374,7 @@ class UpdateController extends AbstractController
             $sourceFile = $file->getPathname();
             $destinationFile = $this->rootDir . '/' . str_replace($fileDir, '', $file->getPathname());
 
-            $destinationDirectory = dirname($destinationFile);
+            $destinationDirectory = \dirname($destinationFile);
             $fs->mkdir($destinationDirectory);
             $fs->rename($sourceFile, $destinationFile, true);
         }

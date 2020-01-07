@@ -1,4 +1,5 @@
 import template from './sw-first-run-wizard-shopware-domain.html.twig';
+import './sw-first-run-wizard-shopware-domain.scss';
 
 const { Component } = Shopware;
 
@@ -14,7 +15,8 @@ Component.register('sw-first-run-wizard-shopware-domain', {
             createShopDomain: false,
             newShopDomain: '',
             testEnvironment: false,
-            domainError: null
+            domainError: null,
+            isLoading: false
         };
     },
 
@@ -23,6 +25,16 @@ Component.register('sw-first-run-wizard-shopware-domain', {
             return this.createShopDomain
                 ? this.newShopDomain
                 : this.selectedShopDomain;
+        },
+
+        isDomainEmpty() {
+            return this.domainToVerify.length <= 0;
+        }
+    },
+
+    watch: {
+        isDomainEmpty() {
+            this.updateButtons();
         }
     },
 
@@ -32,6 +44,7 @@ Component.register('sw-first-run-wizard-shopware-domain', {
 
     methods: {
         createdComponent() {
+            this.isLoading = true;
             this.updateButtons();
             this.setTitle();
 
@@ -48,6 +61,11 @@ Component.register('sw-first-run-wizard-shopware-domain', {
 
                 this.licenceDomains = items;
                 this.selectedShopDomain = items[0].domain;
+            }).finally(() => {
+                if (this.licenceDomains.length <= 0) {
+                    this.createShopDomain = true;
+                }
+                this.isLoading = false;
             });
         },
 
@@ -71,7 +89,7 @@ Component.register('sw-first-run-wizard-shopware-domain', {
                     position: 'right',
                     variant: 'primary',
                     action: this.verifyDomain.bind(this),
-                    disabled: false
+                    disabled: this.isDomainEmpty
                 }
             ];
 

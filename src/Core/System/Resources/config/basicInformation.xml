@@ -21,22 +21,6 @@
             <placeholder lang="de-DE">E-Mail-Adresse eingeben ...</placeholder>
         </input-field>
 
-        <input-field type="textarea">
-            <name>address</name>
-            <label>Address</label>
-            <label lang="de-DE">Adresse</label>
-            <placeholder>Enter address...</placeholder>
-            <placeholder lang="de-DE">Adresse eingeben ...</placeholder>
-        </input-field>
-
-        <input-field type="textarea">
-            <name>bankAccount</name>
-            <label>Bank account </label>
-            <label lang="de-DE">Bankverbindung</label>
-            <placeholder>Enter bank account...</placeholder>
-            <placeholder lang="de-DE">Bankverbindung eingeben ...</placeholder>
-        </input-field>
-
         <input-field type="bool">
             <name>familyFriendly</name>
             <label>Family friendly shop</label>

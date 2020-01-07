@@ -7,14 +7,9 @@
 const { createServer, request } = require('http');
 const { spawn } = require('child_process');
 
-module.exports = function createProxyServer(userOptions) {
-    // user options
-    const fullUrl = userOptions.fullUrl;
-    const appPort = userOptions.appPort;
-    const proxyHost = userOptions.proxyHost;
-    const proxyPort = userOptions.proxyPort;
+module.exports = function createProxyServer({ appPort, originalHost, proxyHost, proxyPort }) {
     const proxyUrl = `${proxyHost}:${proxyPort}`;
-    const originalHost = userOptions.originalHost;
+    const originalUrl = `${originalHost}:${appPort}`;
 
     // Create the HTTP proxy
     const server = createServer((client_req, client_res) => {
@@ -24,7 +19,7 @@ module.exports = function createProxyServer(userOptions) {
             method: client_req.method,
             headers: {
                 ...client_req.headers,
-                host: `${originalHost}:${appPort}`,
+                host: originalUrl,
                 'hot-reload-mode': true,
                 'accept-encoding': 'identity',
             },
@@ -34,31 +29,15 @@ module.exports = function createProxyServer(userOptions) {
         client_req.pipe(
             // request the data
             request(requestOptions, (response) => {
-                // if content type is not text/html
-                if (String(response.headers['content-type']).indexOf('text/html') === -1) {
-                    // pipe the request to the client without modification
-                    response.pipe(client_res, {  end: true });
+                // replace urls from "redirects"
+                const contentType = String(response.headers['content-type']);
 
-                    // finish request
+                if (contentType.indexOf('text/html') >= 0 || contentType.indexOf('application/json') >= 0) {
+                    replaceOriginalUrl(response, client_res, originalUrl, proxyUrl);
                     return;
                 }
 
-                // transform bitcode to readable utf8 text
-                response.setEncoding('utf8');
-
-                // collect all chunks
-                let responseData = '';
-                response.on('data', (chunk) => responseData += chunk);
-
-                // when request is finished
-                response.on('end', () => {
-                    // replace original url with proxy url
-                    const responseBody = responseData.replace(new RegExp(`${fullUrl}/`, 'g'), `${proxyUrl}/`);
-
-                    // end the client response with sufficient headers
-                    client_res.writeHead(response.statusCode, response.headers);
-                    client_res.end(responseBody);
-                });
+                response.pipe(client_res, {  end: true });
             }),
             {  end: true }
         );
@@ -88,4 +67,22 @@ function openBrowserWithUrl(url) {
     } catch (ex) {
         console.log(ex);
     }
+}
+
+function replaceOriginalUrl(response, clientResponse, originalUrl, proxyUrl) {
+    let responseData = '';
+
+    // transform bitcode to readable utf8 text
+    response.setEncoding('utf8');
+    response.on('data', (chunk) => responseData += chunk);
+
+    // when request is finished
+    response.on('end', () => {
+        // replace original url with proxy url
+        const responseBody = responseData.replace(new RegExp(`${originalUrl}`, 'g'), `${proxyUrl}`);
+
+        // end the client response with sufficient headers
+        clientResponse.writeHead(response.statusCode, response.headers);
+        clientResponse.end(responseBody);
+    });
 }

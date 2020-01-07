@@ -4,11 +4,13 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-        <service id="Shopware\Core\Content\ContactForm\Validation\ContactFormValidationService">
+        <service id="Shopware\Core\Content\ContactForm\Validation\ContactFormValidationFactory"/>
+        <service id="Shopware\Core\Content\ContactForm\Validation\ContactFormValidationService" alias="Shopware\Core\Content\ContactForm\Validation\ContactFormValidationFactory">
+            <deprecated>tag:v6.3.0: The "%alias_id%" service is deprecated and will be removed in 6.3.0. Use "%Shopware\Core\Content\ContactForm\Validation\ContactFormValidationFactory%" instead</deprecated>
         </service>
 
         <service id="Shopware\Core\Content\ContactForm\ContactFormService">
-            <argument type="service" id="Shopware\Core\Content\ContactForm\Validation\ContactFormValidationService"/>
+            <argument type="service" id="Shopware\Core\Content\ContactForm\Validation\ContactFormValidationFactory"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>

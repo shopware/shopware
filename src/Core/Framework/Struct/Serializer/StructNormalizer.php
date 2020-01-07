@@ -37,9 +37,9 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
     }
 
     /**
-     * @return object|object[]
+     * {@inheritdoc}
      */
-    public function denormalize($data, $class = null, $format = null, array $context = [])
+    public function denormalize($data, $type = null, $format = null, array $context = [])
     {
         if (\is_string($data) && $date = $this->createDate($data)) {
             return $date;
@@ -70,7 +70,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
      */
     public function supportsDenormalization($data, $type, $format = null): bool
     {
-        return \is_array($data) && array_key_exists('_class', $data);
+        return \is_array($data) && \array_key_exists('_class', $data);
     }
 
     private function isObject(array $argument): bool
@@ -88,7 +88,9 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
 
         $struct = $reflectionClass->newInstanceWithoutConstructor();
         if (!$struct instanceof Struct) {
-            throw new InvalidArgumentException(sprintf('Unable to unserialize a non-struct class: %s', $reflectionClass->getName()));
+            throw new InvalidArgumentException(
+                sprintf('Unable to unserialize a non-struct class: %s', $reflectionClass->getName())
+            );
         }
 
         if (!$reflectionClass->getConstructor()) {
@@ -108,7 +110,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
         foreach ($constructorParams as $constructorParam) {
             $name = $constructorParam->getName();
 
-            if (!array_key_exists($name, $arguments)) {
+            if (!\array_key_exists($name, $arguments)) {
                 if (!$constructorParam->isOptional()) {
                     throw new InvalidArgumentException(
                         sprintf(
@@ -130,20 +132,25 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
 
         $struct = $reflectionClass->newInstanceArgs($params);
         if (!$struct instanceof Struct) {
-            throw new InvalidArgumentException(sprintf('Unable to unserialize a non-struct class: %s', $reflectionClass->getName()));
+            throw new InvalidArgumentException(
+                sprintf('Unable to unserialize a non-struct class: %s', $reflectionClass->getName())
+            );
         }
         $struct->assign($arguments);
 
         return $struct;
     }
 
+    /**
+     * @throws \ReflectionException
+     */
     private function getReflectionClass(string $class): \ReflectionClass
     {
-        if (isset($this->classes[$class])) {
-            return $this->classes[$class];
+        if (!isset($this->classes[$class])) {
+            $this->classes[$class] = new \ReflectionClass($class);
         }
 
-        return $this->classes[$class] = new \ReflectionClass($class);
+        return $this->classes[$class];
     }
 
     private function createDate(string $date): ?\DateTimeInterface

@@ -564,6 +564,10 @@ Component.register('sw-data-grid', {
             const el = this.$el;
             const wrapperEl = this.$refs.wrapper;
 
+            if (!wrapperEl) {
+                return;
+            }
+
             if (wrapperEl.clientWidth < wrapperEl.scrollWidth) {
                 el.classList.add('is--scroll-x');
             } else {

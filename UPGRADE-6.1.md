@@ -212,8 +212,38 @@ Core
  * Added unique constraint for `iso_code` column of `currency` table. The migration can fail if there are already duplicate `iso_codes` in the table
  * Replace `mailer` usage with `core_mailer` in your service definitions. 
  * If you call `\Shopware\Core\Framework\Api\Response\ResponseFactoryInterface::createDetailResponse` or `\Shopware\Core\Framework\Api\Response\ResponseFactoryInterface::createListingResponse` in your plugin, the first parameter to be passed now is the `Criteria` object with which the data was loaded.
+ * We changed the type hint of `Shopware\Core\Framework\Validation\ValidationServiceInterface::buildCreateValidation` and `Shopware\Core\Framework\Validation\ValidationServiceInterface::buildUpdateValidation` to `SalesChannelContext`
  * Replace `\Shopware\Core\Framework\Plugin::getExtraBundles` with `\Shopware\Core\Framework\Plugin::getAdditionalBundles`. Dont use both.
+ * We implemented the new `Shopware\Core\HttpKernel` class which simplifies the kernel initialisation. This kernel can simply initialed and can be used in your `index.php` file as follow:
+    ```php
+    $request = Request::createFromGlobals();
+
+    $kernel = new HttpKernel($appEnv, $debug, $classLoader);
+    $result = $kernel->handle($request);
+
+    $result->getResponse()->send();
+
+    $kernel->terminate($result->getRequest(), $result->getResponse());
+    ```
+ * If you used the `\Shopware\Core\Content\Seo\SeoUrlGenerator` in your sources, please use the `generate` function instead of the `generateSeoUrls`
  
+ * If you update your decoration implementations of `\Shopware\Core\Framework\Validation\ValidationServiceInterface` to  `\Shopware\Core\Framework\Validation\DataValidationFactoryInterface` make sure to still implement the old interface
+    and when calling the inner implementation please make sure to check if the inner implementation already supports the interface, like
+    ```php
+       public function createValidation(SalesChannelContext $context): DataValidationDefinition
+       {
+           if ($this->inner instanceof DataValidationFactoryInterface) {
+               $validation = $this->inner->create($context);
+           } else {
+               $validation = $this->inner->buildCreateValidation($context->getContext());
+           }
+   
+           $this->modifyValidation($validation);
+   
+           return $validation;              
+       }
+    ```
+
 Administration
 --------------
 
@@ -832,6 +862,25 @@ SHOPWARE_HTTP_DEFAULT_TTL=7200
         {% endif %}
     {% endblock %}    
     ``` 
+  * The following blocks moved from the `storefront/element/cms-element-product-listing.html.twig` template into the new template `storefront/component/product/listing.html.twig`. If you have overwritten one of the following blocks, you must now extend the `storefront/component/product/listing.html.twig` template instead of the `storefront/element/cms-element-product-listing.html.twig` template 
+    * `element_product_listing_wrapper_content`
+    * `element_product_listing_pagination_nav_actions`
+    * `element_product_listing_pagination_nav_top`
+    * `element_product_listing_sorting`
+    * `element_product_listing_row`
+    * `element_product_listing_col`
+    * `element_product_listing_box`
+    * `element_product_listing_col_empty`
+    * `element_product_listing_col_empty_alert`
+    * `element_product_listing_pagination_nav_bottom`
+  * The `storefront/component/listing/filter-panel.html.twig` component requires now a provided `sidebar (bool)` parameter. Please provide this parameter in the `sw_include` tag:
+    ```twig
+        {% sw_include '@Storefront/storefront/component/listing/filter-panel.html.twig' with {
+            listing: listing,
+            sidebar: true
+        } %}
+    ```
+    
 Elasticsearch
 -------------
 

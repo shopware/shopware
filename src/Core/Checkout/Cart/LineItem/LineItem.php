@@ -133,7 +133,7 @@ class LineItem extends Struct
      */
     public static function createFromLineItem(LineItem $lineItem): self
     {
-        $self = new static($lineItem->id, $lineItem->type, $lineItem->getReferencedId(), $lineItem->quantity);
+        $self = new self($lineItem->id, $lineItem->type, $lineItem->getReferencedId(), $lineItem->quantity);
 
         foreach (get_object_vars($lineItem) as $property => $value) {
             $self->$property = $value;
@@ -467,8 +467,11 @@ class LineItem extends Struct
     /**
      * @throws InvalidQuantityException
      */
-    private function refreshChildQuantity(LineItemCollection $lineItems, int $oldParentQuantity, int $newParentQuantity): void
-    {
+    private function refreshChildQuantity(
+        LineItemCollection $lineItems,
+        int $oldParentQuantity,
+        int $newParentQuantity
+    ): void {
         foreach ($lineItems as $lineItem) {
             $newQuantity = intdiv($lineItem->getQuantity(), $oldParentQuantity) * $newParentQuantity;
 

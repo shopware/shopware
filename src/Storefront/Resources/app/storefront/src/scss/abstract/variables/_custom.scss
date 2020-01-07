@@ -4,26 +4,26 @@ Custom variables
 Contains custom non bootstrap variables.
 */
 
-$search-suggest-zindex: 1000;
-$offcanvas-zindex: 1050;
-$cookie-msg-zindex: 1100;
-$scroll-up-zindex: 700;
-$menu-flyout-zindex: 750;
-$zoom-modal-action-zindex: 1051;
-$magnifier-overlay-zindex: 1100;
+$search-suggest-zindex: 1000 !default;
+$offcanvas-zindex: 1050 !default;
+$cookie-msg-zindex: 1100 !default;
+$scroll-up-zindex: 700 !default;
+$menu-flyout-zindex: 750 !default;
+$zoom-modal-action-zindex: 1051 !default;
+$magnifier-overlay-zindex: 1100 !default;
 
-$icon-base-size: 22px;
-$icon-base-color: #878787;
-$icon-review-color: #fedc70;
+$icon-base-size: 22px !default;
+$icon-base-color: #878787 !default;
+$icon-review-color: #fedc70 !default;
 
-$progress-bar-review: $icon-review-color;
+$progress-bar-review: $icon-review-color !default;
 
-$element-backdrop-bg: rgba(#fff, 0.5);
+$element-backdrop-bg: rgba(#fff, 0.5) !default;
 
-$spacer-xs: ( $spacer * 0.25 );
-$spacer-sm: ( $spacer * 0.5 );
-$spacer-md: $spacer;
-$spacer-lg: ( $spacer * 1.5 );
-$spacer-xl: ( $spacer * 3 );
+$spacer-xs: ( $spacer * 0.25 ) !default;
+$spacer-sm: ( $spacer * 0.5 ) !default;
+$spacer-md: $spacer !default;
+$spacer-lg: ( $spacer * 1.5 ) !default;
+$spacer-xl: ( $spacer * 3 ) !default;
 
-$asset-path: '/bundles/storefront/assets';
+$asset-path: '/bundles/storefront/assets' !default;

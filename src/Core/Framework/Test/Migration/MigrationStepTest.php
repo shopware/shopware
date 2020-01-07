@@ -150,13 +150,13 @@ class MigrationStepTest extends TestCase
         );
     }
 
-    private function removeTrigger($name): void
+    private function removeTrigger(string $name): void
     {
         $connection = $this->getContainer()->get(Connection::class);
         $connection->executeUpdate(sprintf('DROP TRIGGER %s;', $name));
     }
 
-    private function assertTriggerExists($name): void
+    private function assertTriggerExists(string $name): void
     {
         $trigger = $this->getContainer()->get(Connection::class)->executeQuery(
             sprintf('SHOW TRIGGERS WHERE `Trigger` =  \'%s\'', $name)

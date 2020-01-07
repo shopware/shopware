@@ -121,7 +121,7 @@ class RequirementsValidatorTest extends TestCase
         );
     }
 
-    private function createPlugin($path): PluginEntity
+    private function createPlugin(string $path): PluginEntity
     {
         $plugin = new PluginEntity();
         $plugin->setPath($path);

@@ -633,7 +633,7 @@ class TranslationTest extends TestCase
         $this->silentAssertArraySubset($expectedTranslations, $responseData['data']);
     }
 
-    private function createLanguage($langId, $fallbackId = null): void
+    private function createLanguage(string $langId, ?string $fallbackId = null): void
     {
         $baseUrl = '/api/v' . PlatformRequest::API_VERSION;
 

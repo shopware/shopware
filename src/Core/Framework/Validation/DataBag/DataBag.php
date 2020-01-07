@@ -6,10 +6,10 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 
 class DataBag extends ParameterBag
 {
-    public function __construct(array $parameters = [])
+    final public function __construct(array $parameters = [])
     {
         foreach ($parameters as $key => $value) {
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 $parameters[$key] = new static($value);
             }
         }

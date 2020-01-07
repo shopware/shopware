@@ -54,7 +54,8 @@
                                            :isLoading="isLoading"
                                            allowInlineEdit
                                            allowColumnEdit
-                                           fullPage>
+                                           fullPage
+                                           @update-records="updateTotal">
 
                             {% block sw_promotion_list_grid_columns %}
                                 {% block sw_promotion_list_grid_columns_active %}

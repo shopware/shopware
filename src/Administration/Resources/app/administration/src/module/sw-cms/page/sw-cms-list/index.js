@@ -68,8 +68,10 @@ Component.register('sw-cms-list', {
                 { value: '', name: this.$tc('sw-cms.sorting.labelSortByAllPages'), active: true },
                 { value: 'page', name: this.$tc('sw-cms.sorting.labelSortByShopPages') },
                 { value: 'landingpage', name: this.$tc('sw-cms.sorting.labelSortByLandingPages') },
-                { value: 'product_list', name: this.$tc('sw-cms.sorting.labelSortByCategoryPages') },
-                { value: 'product_detail', name: this.$tc('sw-cms.sorting.labelSortByProductPages'), disabled: true }
+                { value: 'product_list', name: this.$tc('sw-cms.sorting.labelSortByCategoryPages') }
+
+                // Will be implemented in the future
+                // { value: 'product_detail', name: this.$tc('sw-cms.sorting.labelSortByProductPages'), disabled: true }
             ];
         },
 
@@ -77,8 +79,10 @@ Component.register('sw-cms-list', {
             return {
                 page: this.$tc('sw-cms.sorting.labelSortByShopPages'),
                 landingpage: this.$tc('sw-cms.sorting.labelSortByLandingPages'),
-                product_list: this.$tc('sw-cms.sorting.labelSortByCategoryPages'),
-                product_detail: this.$tc('sw-cms.sorting.labelSortByProductPages')
+                product_list: this.$tc('sw-cms.sorting.labelSortByCategoryPages')
+
+                // Will be implemented in the future
+                // product_detail: this.$tc('sw-cms.sorting.labelSortByProductPages')
             };
         },
 

@@ -9,6 +9,7 @@ const entryPointConfig = {
     ExampleEntryPoint: {
         basePath: __dirname,
         views: [],
+        technicalName: 'example-entry-point',
         storefront: {
             path: path.join(__dirname, 'assets'),
             entryFilePath: 'assets/entry-point.js',

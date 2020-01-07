@@ -19,14 +19,16 @@ Component.register('sw-cms-create-wizard', {
             pageTypeNames: {
                 page: this.$tc('sw-cms.detail.label.pageTypeShopPage'),
                 landingpage: this.$tc('sw-cms.detail.label.pageTypeLandingpage'),
-                product_list: this.$tc('sw-cms.detail.label.pageTypeCategory'),
-                product_detail: this.$tc('sw-cms.detail.label.pageTypeProduct')
+                product_list: this.$tc('sw-cms.detail.label.pageTypeCategory')
+                // Will be implemented in the future
+                // product_detail: this.$tc('sw-cms.detail.label.pageTypeProduct')
             },
             pageTypeIcons: {
                 page: 'default-object-lightbulb',
                 landingpage: 'default-web-dashboard',
-                product_list: 'default-shopping-basket',
-                product_detail: 'default-action-tags'
+                product_list: 'default-shopping-basket'
+                // Will be implemented in the future
+                // product_detail: 'default-action-tags'
             },
             steps: {
                 pageType: 1,

@@ -46,6 +46,7 @@ Component.register('sw-product-detail', {
     computed: {
         ...mapState('swProductDetail', [
             'product',
+            'parentProduct',
             'localMode'
         ]),
 
@@ -59,16 +60,13 @@ Component.register('sw-product-detail', {
         ...mapPageErrors(errorConfiguration),
 
         identifier() {
-            return this.placeholder(this.product, 'name');
+            return this.productTitle;
         },
 
         productTitle() {
             // when product is variant
-            if (this.isChild && this.product && this.product.options && this.product.options.items) {
-                // return each option
-                return this.product.options.map(option => {
-                    return option.translated.name || option.name;
-                }).join(' – ');
+            if (this.isChild && this.product) {
+                return this.getInheritTitle();
             }
 
             // return name
@@ -554,6 +552,24 @@ Component.register('sw-product-detail', {
             return this.product.media.some((productMedia) => {
                 return productMedia.mediaId === mediaId;
             });
+        },
+
+        getInheritTitle() {
+            if (
+                this.product.hasOwnProperty('translated') &&
+                this.product.translated.hasOwnProperty('name') &&
+                this.product.translated.name !== null
+            ) {
+                return this.product.translated.name;
+            }
+            if (this.product.name !== null) {
+                return this.product.name;
+            }
+            if (this.parentProduct && this.parentProduct.hasOwnProperty('translated')) {
+                const pProduct = this.parentProduct;
+                return pProduct.translated.hasOwnProperty('name') ? pProduct.translated.name : pProduct.name;
+            }
+            return '';
         }
     }
 });

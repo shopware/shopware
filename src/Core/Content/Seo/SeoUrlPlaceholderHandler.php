@@ -2,22 +2,22 @@
 
 namespace Shopware\Core\Content\Seo;
 
-use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Routing\RouterInterface;
 
 class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
 {
     public const DOMAIN_PLACEHOLDER = '124c71d524604ccbad6042edce3ac799';
 
     /**
-     * @var Router
+     * @var RouterInterface
      */
     private $router;
 
@@ -31,16 +31,22 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
      */
     private $requestStack;
 
-    public function __construct(RequestStack $requestStack, Router $router, SalesChannelRepositoryInterface $seoUrlRepository)
-    {
+    public function __construct(
+        RequestStack $requestStack,
+        RouterInterface $router,
+        SalesChannelRepositoryInterface $seoUrlRepository
+    ) {
         $this->router = $router;
         $this->seoUrlRepository = $seoUrlRepository;
         $this->requestStack = $requestStack;
     }
 
-    public function generate($name, $parameters = []): string
+    /**
+     * @param string $name
+     */
+    public function generate($name, array $parameters = []): string
     {
-        $path = $this->router->generate($name, $parameters, Router::ABSOLUTE_PATH);
+        $path = $this->router->generate($name, $parameters, RouterInterface::ABSOLUTE_PATH);
 
         $request = $this->requestStack->getMasterRequest();
         $basePath = $request ? $request->getBasePath() : '';
@@ -87,9 +93,9 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
         $criteria->addFilter(new EqualsAnyFilter('pathInfo', $mapping));
         $criteria->addSorting(new FieldSorting('salesChannelId'));
 
+        /** @var SeoUrlCollection $seoUrls */
         $seoUrls = $this->seoUrlRepository->search($criteria, $context)->getEntities();
 
-        /** @var SeoUrlEntity $seoUrl */
         foreach ($seoUrls as $seoUrl) {
             $seoPathInfo = trim($seoUrl->getSeoPathInfo());
             if ($seoPathInfo === '') {

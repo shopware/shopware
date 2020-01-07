@@ -175,6 +175,9 @@ class JsonApiEncoder
         return $source[$property];
     }
 
+    /**
+     * @param Entity|EntityCollection|null $data
+     */
     private function encodeData(?array $source, EntityDefinition $definition, $data, JsonApiEncodingResult $result): void
     {
         if ($data === null) {

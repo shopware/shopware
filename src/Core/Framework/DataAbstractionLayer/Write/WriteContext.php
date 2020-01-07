@@ -41,7 +41,7 @@ class WriteContext
         $this->exceptions = new WriteException();
     }
 
-    public function setLanguages($languages): void
+    public function setLanguages(array $languages): void
     {
         $this->languages = $languages;
         $this->languageCodeIdMapping = null;

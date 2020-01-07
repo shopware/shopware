@@ -15,10 +15,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class OpenApiSchemaBuilder
 {
-    public function enrich(OpenApi $openApi, bool $forSalesChannel): void
+    public function enrich(OpenApi $openApi, bool $forSalesChannel, int $version): void
     {
-        $openApi->merge($this->createServers($forSalesChannel));
-        $openApi->info = $this->createInfo($forSalesChannel);
+        $openApi->merge($this->createServers($forSalesChannel, $version));
+        $openApi->info = $this->createInfo($forSalesChannel, $version);
 
         /** @var array|string $security */
         $security = $openApi->security;
@@ -34,20 +34,20 @@ class OpenApiSchemaBuilder
     /**
      * @return Server[]
      */
-    private function createServers(bool $forSalesChannel): array
+    private function createServers(bool $forSalesChannel, int $version): array
     {
         $url = $_SERVER['APP_URL'] ?? '';
 
         return [
-            new Server(['url' => rtrim($url, '/') . ($forSalesChannel ? '/sales-channel-api/v1' : '/api/v1')]),
+            new Server(['url' => rtrim($url, '/') . ($forSalesChannel ? '/sales-channel-api/v' : '/api/v') . $version]),
         ];
     }
 
-    private function createInfo(bool $forSalesChannel): Info
+    private function createInfo(bool $forSalesChannel, int $version): Info
     {
         return new Info([
             'title' => 'Shopware ' . ($forSalesChannel ? 'Sales-Channel' : 'Management') . ' API',
-            'version' => '1',
+            'version' => $version,
         ]);
     }
 

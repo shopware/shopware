@@ -5,8 +5,9 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <!-- deprecated -->
-        <service alias="Shopware\Core\System\StateMachine\StateMachineRegistry" id="Shopware\Core\Framework\StateMachine\StateMachineRegistry" />
+        <service alias="Shopware\Core\System\StateMachine\StateMachineRegistry" id="Shopware\Core\Framework\StateMachine\StateMachineRegistry" >
+            <deprecated>tag:v6.3.0: The "%alias_id%" service is deprecated and will be removed in 6.3.0. Use "%Shopware\Core\System\StateMachine\StateMachineRegistry%" instead</deprecated>
+        </service>
 
         <service id="Shopware\Core\System\StateMachine\Api\StateMachineActionController" public="true">
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>

@@ -103,20 +103,27 @@ Component.register('sw-order-line-items-grid-sales-channel', {
                 } else if (item.type === 'credit') {
                     // TODO:  implement for credit
                 } else {
-                    // TODO: implement for custom item
+                    this.$emit('on-add-custom-item', item);
                 }
             } else {
                 this.$emit('on-edit-item', item);
             }
         },
 
-        onInlineEditCancel() {
-            // TODO: implement cancel saving item
+        onInlineEditCancel(item) {
+            this.initLineItem(item);
+            delete item.identifier;
         },
 
         createNewOrderLineItem() {
             const item = this.orderLineItemRepository.create();
             item.versionId = Shopware.Context.api.liveVersionId;
+            this.initLineItem(item);
+
+            return item;
+        },
+
+        initLineItem(item) {
             item.priceDefinition = {
                 isCalculated: false,
                 taxRules: [{ taxRate: 0, percentage: 100 }],
@@ -133,13 +140,19 @@ Component.register('sw-order-line-items-grid-sales-channel', {
             item.totalPrice = 0;
             item.precision = 2;
             item.label = '';
-
-            return item;
         },
 
         onInsertExistingItem() {
             const item = this.createNewOrderLineItem();
             item.type = '';
+            this.cartLineItems.unshift(item);
+            State.commit('swOrder/setCartLineItems', this.cartLineItems);
+        },
+
+        onInsertBlankItem() {
+            const item = this.createNewOrderLineItem();
+            item.description = 'custom line item';
+            item.type = 'custom';
             this.cartLineItems.unshift(item);
             State.commit('swOrder/setCartLineItems', this.cartLineItems);
         },
@@ -166,7 +179,7 @@ Component.register('sw-order-line-items-grid-sales-channel', {
 
         itemCreatedFromProduct(id) {
             const item = this.cartLineItems.find((elem) => { return elem.id === id; });
-            return item._isNew && item.type === '';
+            return !!item._isNew && item.type === '';
         }
     }
 });

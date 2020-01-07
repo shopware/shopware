@@ -95,6 +95,8 @@ Component.register('sw-order-create-base', {
                 salesChannelId: this.customer.salesChannelId,
                 contextToken: this.cart.token
             }).then(() => {
+                if (this.cart.token === null) return;
+
                 this.updateLoading(true);
 
                 State.dispatch('swOrder/getCart', {
@@ -143,14 +145,24 @@ Component.register('sw-order-create-base', {
                 .finally(() => this.updateLoading(false));
         },
 
+        onAddCustomItem(item) {
+            this.updateLoading(true);
+
+            State.dispatch('swOrder/addCustomItem', {
+                salesChannelId: this.customer.salesChannelId,
+                contextToken: this.cart.token,
+                item
+            })
+                .finally(() => this.updateLoading(false));
+        },
+
         onEditItem(item) {
             this.updateLoading(true);
 
             State.dispatch('swOrder/updateLineItem', {
                 salesChannelId: this.customer.salesChannelId,
                 contextToken: this.cart.token,
-                lineItemKey: item.id,
-                quantity: item.quantity
+                item
             })
                 .finally(() => this.updateLoading(false));
         },

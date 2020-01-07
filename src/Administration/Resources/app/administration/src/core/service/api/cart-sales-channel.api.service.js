@@ -1,3 +1,5 @@
+import { deepCopyObject } from 'src/core/service/utils/object.utils';
+import utils from 'src/core/service/util.service';
 import ApiService from '../api.service';
 
 /**
@@ -51,20 +53,34 @@ class CartSalesChannelService extends ApiService {
             );
     }
 
-    addLineItem(
+    addCustomItem(
         salesChannelId,
         contextToken,
-        id,
+        item,
         additionalParams = {},
         additionalHeaders = {}
     ) {
-        const route = `_proxy/sales-channel-api/${salesChannelId}/v1/checkout/cart/line-item/${id}`;
+        const id = utils.createId();
+        const route = `/sales-channel/${salesChannelId}/checkout/cart/line-item/${id}`;
+
         const headers = {
             ...this.getBasicHeaders(additionalHeaders),
             'sw-context-token': contextToken
         };
 
-        return this.httpClient.patch(route, {}, { additionalParams, headers });
+        const dummyPrice = deepCopyObject(item.priceDefinition);
+        dummyPrice.taxRules = item.priceDefinition.taxRules;
+        dummyPrice.quantity = item.quantity;
+        dummyPrice.type = 'quantity';
+
+        return this.httpClient.post(route,
+            { label: item.label,
+                quantity: item.quantity,
+                type: item.type,
+                description: item.description,
+                priceDefinition: dummyPrice,
+                salesChannelId: salesChannelId },
+            { additionalParams, headers });
     }
 
     removeLineItem(
@@ -86,18 +102,29 @@ class CartSalesChannelService extends ApiService {
     updateLineItem(
         salesChannelId,
         contextToken,
-        lineItemKey,
-        quantity,
+        item,
         additionalParams = {},
         additionalHeaders = {}
     ) {
-        const route = `_proxy/sales-channel-api/${salesChannelId}/v1/checkout/cart/line-item/${lineItemKey}`;
+        const route = `/sales-channel/${salesChannelId}/checkout/cart/line-item/${item.id}`;
         const headers = {
             ...this.getBasicHeaders(additionalHeaders),
             'sw-context-token': contextToken
         };
 
-        return this.httpClient.patch(route, { quantity: quantity }, { additionalParams, headers });
+        const dummyPrice = deepCopyObject(item.priceDefinition);
+        dummyPrice.taxRules = item.priceDefinition.taxRules;
+        dummyPrice.quantity = item.quantity;
+        dummyPrice.type = 'quantity';
+
+        return this.httpClient.patch(route,
+            { label: item.label,
+                quantity: item.quantity,
+                type: item.type,
+                description: item.description,
+                priceDefinition: dummyPrice,
+                salesChannelId: salesChannelId },
+            { additionalParams, headers });
     }
 }
 

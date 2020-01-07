@@ -338,10 +338,7 @@ class WriteCommandExtractor
      */
     private function getMainFields(array $fields): array
     {
-        $main = [
-            new CreatedAtField(),
-            new UpdatedAtField()
-        ];
+        $main = [];
 
         foreach ($fields as $field) {
             if ($field instanceof ChildrenAssociationField) {
@@ -358,7 +355,11 @@ class WriteCommandExtractor
                 continue;
             }
 
-            if ($field instanceof FkField) {
+            if (
+                $field instanceof FkField
+                || $field instanceof CreatedAtField
+                || $field instanceof UpdatedAtField
+            ) {
                 $main[] = $field;
             }
         }

@@ -102,6 +102,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * When updating domains in a sales channel you can only select one of the available languages for the sales channel
     * Fix module meta information in extended module routes with the routeMiddleware
     * Replace old currency isDefault with isSystemDefault
+    * Replace block `sw_property_detail_content_option_list` in `sw-property-create` with empty content
 
 * Core    
 	* We did some refactoring on how we use `WriteConstraintsViolationExceptions`.	

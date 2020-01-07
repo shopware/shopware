@@ -2,28 +2,18 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\LongTextWithHtmlFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 
-class LongTextWithHtmlField extends Field implements StorageAware
+/**
+ * @deprecated Use LongTextField with AllowHtml flag instead
+ * @see AllowHtml
+ * @see LongTextField
+ */
+class LongTextWithHtmlField extends LongTextField
 {
-    /**
-     * @var string
-     */
-    private $storageName;
-
     public function __construct(string $storageName, string $propertyName)
     {
-        $this->storageName = $storageName;
-        parent::__construct($propertyName);
-    }
-
-    public function getStorageName(): string
-    {
-        return $this->storageName;
-    }
-
-    protected function getSerializerClass(): string
-    {
-        return LongTextWithHtmlFieldSerializer::class;
+        parent::__construct($storageName, $propertyName);
+        $this->addFlags(new AllowHtml());
     }
 }

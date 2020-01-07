@@ -45,15 +45,6 @@ Component.register('sw-single-select', {
             required: false,
             default: 'value'
         },
-        popoverConfig: {
-            type: Object,
-            required: false,
-            default() {
-                return {
-                    active: false
-                };
-            }
-        },
 
         // Used to implement a custom search function.
         // Parameters passed: { options, labelProperty, valueProperty, searchTerm }

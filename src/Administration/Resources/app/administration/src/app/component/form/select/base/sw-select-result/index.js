@@ -54,16 +54,24 @@ Component.register('sw-select-result', {
     },
 
     created() {
-        this.$parent.$on('active-item-change', this.checkIfActive);
-        this.$parent.$on('item-select-by-keyboard', this.checkIfSelected);
+        this.createdComponent();
     },
 
     destroyed() {
-        this.$parent.$off('active-item-change', this.checkIfActive);
-        this.$parent.$off('item-select-by-keyboard', this.checkIfSelected);
+        this.createdComponent();
     },
 
     methods: {
+        createdComponent() {
+            this.$parent.$parent.$on('active-item-change', this.checkIfActive);
+            this.$parent.$parent.$on('item-select-by-keyboard', this.checkIfSelected);
+        },
+
+        destroyedComponent() {
+            this.$parent.$parent.$off('active-item-change', this.checkIfActive);
+            this.$parent.$parent.$off('item-select-by-keyboard', this.checkIfSelected);
+        },
+
         checkIfSelected(selectedItemIndex) {
             if (selectedItemIndex === this.index) this.onClickResult({});
         },
@@ -77,7 +85,7 @@ Component.register('sw-select-result', {
                 return;
             }
 
-            this.$parent.$emit('item-select', this.item);
+            this.$parent.$parent.$emit('item-select', this.item);
         },
 
         onMouseEnter() {

@@ -20,22 +20,29 @@ Component.register('sw-popover', {
             required: false,
             default: null
         },
-        isPopover: {
+        resizeWidth: {
             type: Boolean,
             required: false,
-            default: true
+            default: false
         },
         popoverClass: {
             type: String,
             required: false,
             default: ''
         }
+
     },
 
     computed: {
         componentStyle() {
             return {
                 'z-Index': this.zIndex
+            };
+        },
+        popoverConfig() {
+            return {
+                active: true,
+                resizeWidth: this.resizeWidth
             };
         }
     }

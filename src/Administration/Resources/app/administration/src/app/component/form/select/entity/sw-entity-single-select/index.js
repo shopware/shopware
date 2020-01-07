@@ -56,15 +56,6 @@ Component.register('sw-entity-single-select', {
             default() {
                 return Shopware.Context.api;
             }
-        },
-        popoverConfig: {
-            type: Object,
-            required: false,
-            default() {
-                return {
-                    active: false
-                };
-            }
         }
     },
 

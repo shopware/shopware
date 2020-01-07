@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
@@ -337,7 +338,11 @@ class WriteCommandExtractor
      */
     private function getMainFields(array $fields): array
     {
-        $main = [];
+        $main = [
+            new CreatedAtField(),
+            new UpdatedAtField()
+        ];
+
         foreach ($fields as $field) {
             if ($field instanceof ChildrenAssociationField) {
                 continue;

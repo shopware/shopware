@@ -1,0 +1,27 @@
+{% block sw_plugin_description %}
+    <sw-page class="sw-plugin-description">
+        {% block sw_plugin_description_header %}
+            <template #smart-bar-header>
+                <h2>{{ namespace }}</h2>
+            </template>
+        {% endblock %}
+
+        {% block sw_plugin_description_actions %}
+            <template #smart-bar-actions>
+                {% block sw_plugin_description_actions_abort %}
+                    <sw-button :routerLink="{ name: 'sw.plugin.index' }">
+                        {{ $tc('sw-plugin-description.buttonBack') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        <template #content>
+            {% block sw_plugin_description_content %}
+                <sw-card-view>
+                    <sw-card v-html="description" />
+                </sw-card-view>
+            {% endblock %}
+        </template>
+    </sw-page>
+{% endblock %}

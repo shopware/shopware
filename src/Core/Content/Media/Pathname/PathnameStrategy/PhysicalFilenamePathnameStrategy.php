@@ -20,6 +20,8 @@ class PhysicalFilenamePathnameStrategy extends AbstractPathNameStrategy
      */
     public function generatePathHash(MediaEntity $media, ?MediaThumbnailEntity $thumbnail = null): ?string
     {
-        return $this->generateMd5Path($media->getUploadedAt()->getTimestamp() . '/' . $media->getFileName());
+        $timestamp = $media->getUploadedAt() ? $media->getUploadedAt()->getTimestamp() . '/' : '';
+
+        return $this->generateMd5Path($timestamp . $media->getFileName());
     }
 }

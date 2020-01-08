@@ -8,14 +8,14 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class TestDataCollection
 {
     /**
+     * @var Context
+     */
+    public $context;
+
+    /**
      * @var string[]
      */
     protected $ids = [];
-
-    /**
-     * @var Context
-     */
-    protected $context;
 
     public function __construct(Context $context)
     {

@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\ListingPrice;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\ListingPriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -16,6 +18,89 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class ProductListingPriceIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
+
+    public function testListingPriceSortingWithInheritance(): void
+    {
+        $ids = new TestDataCollection(Context::createDefaultContext());
+
+        $this->getContainer()->get('rule.repository')->create([
+            ['id' => $ids->create('rule-a'), 'name' => 'test', 'priority' => 1],
+        ], $ids->context);
+
+        $products = [
+            [
+                'id' => $ids->create('simple-1'),
+                'stock' => 10,
+                'name' => 'Simple product',
+                'manufacturer' => ['name' => 'test'],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+                'productNumber' => $ids->get('simple-1'),
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
+                'prices' => [
+                    $this->formatPrice(20, Defaults::CURRENCY, $ids->get('rule-a'), 1),
+                ],
+            ],
+            [
+                'id' => $ids->create('simple-2'),
+                'stock' => 10,
+                'name' => 'Simple 2',
+                'manufacturer' => ['name' => 'test'],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+                'productNumber' => $ids->get('simple-2'),
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 20, 'net' => 10, 'linked' => false]],
+                'prices' => [
+                    $this->formatPrice(10, Defaults::CURRENCY, $ids->get('rule-a'), 1),
+                ],
+            ],
+            [
+                'id' => $ids->create('parent'),
+                'stock' => 10,
+                'name' => 'price test',
+                'manufacturer' => ['name' => 'test'],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+                'productNumber' => $ids->get('parent'),
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 18, 'net' => 10, 'linked' => false]],
+            ],
+            [
+                'id' => $ids->create('child'),
+                'stock' => 10,
+                'parentId' => $ids->get('parent'),
+                'productNumber' => $ids->get('child'),
+            ],
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create($products, $ids->context);
+
+        $criteria = new Criteria($ids->getList(['simple-1', 'simple-2', 'child']));
+        $criteria->addSorting(new FieldSorting('product.listingPrices'));
+
+        // test for simple prices fallback
+        /** @var EntitySearchResult $listing */
+        $listing = $this->getContainer()->get('product.repository')
+            ->search($criteria, $ids->context);
+
+        $sorted = array_values($listing->getIds());
+
+        static::assertEquals(
+            [$ids->get('simple-1'), $ids->get('child'), $ids->get('simple-2')],
+            $sorted
+        );
+
+        // test for advanced price rules
+        $ids->context->setRuleIds([$ids->get('rule-a')]);
+
+        /** @var EntitySearchResult $listing */
+        $listing = $this->getContainer()->get('product.repository')
+            ->search($criteria, $ids->context);
+
+        $sorted = array_values($listing->getIds());
+
+        static::assertEquals(
+            [$ids->get('simple-2'), $ids->get('child'), $ids->get('simple-1')],
+            $sorted
+        );
+    }
 
     public function testPriceUpdateConsideredInListingPriceIndexer(): void
     {
@@ -313,7 +398,7 @@ class ProductListingPriceIndexerTest extends TestCase
         string $currencyId,
         string $ruleId,
         int $quantityStart,
-        ?int $quantityEnd,
+        ?int $quantityEnd = null,
         ?float $net = null,
         ?string $id = null
     ): array {

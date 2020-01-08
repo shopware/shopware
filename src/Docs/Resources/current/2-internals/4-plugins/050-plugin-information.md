@@ -63,7 +63,7 @@ Have a look at the [composer schema](https://getcomposer.org/doc/04-schema.md), 
 | version                         | Current version of your plugin                                                                                                   |
 | type                            | Set the type to `shopware-platform-plugin`. Otherwise Shopware won't be able to recognize your plugin                         |
 | license                         | Provide the license model of your plugin, e.g. `MIT` or `proprietary`                                                            |
-| authors                         | Collection of the authors of your plugin. If one or more authors with the role `Manufacturer` are provided, they will be the only ones written to the database.|
+| authors                         | Collection of the authors of your plugin. If one or more authors with the role `Manufacturer` are provided, only these will be written to the database.|
 | require                         | Add your dependencies here. This should be `shopware/platform`, but could also be another plugin or composer package          |
 | extra                           | The `extra` property is used to provide some Shopware specific information                                                       |
 | extra - shopware-plugin-class   | The fully qualified class name of your plugin's base class                                                                       |

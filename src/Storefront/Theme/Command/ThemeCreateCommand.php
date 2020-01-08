@@ -83,6 +83,7 @@ class ThemeCreateCommand extends Command
         $composerFile = $directory . '/composer.json';
         $bootstrapFile = $directory . '/src/' . $pluginName . '.php';
         $themeConfigFile = $directory . '/src/Resources/theme.json';
+        $variableOverridesFile = $directory . '/src/Resources/app/storefront/src/scss/overrides.scss';
 
         $composer = str_replace(
             ['#namespace#', '#class#'],
@@ -105,6 +106,7 @@ class ThemeCreateCommand extends Command
         file_put_contents($composerFile, $composer);
         file_put_contents($bootstrapFile, $bootstrap);
         file_put_contents($themeConfigFile, $themeConfig);
+        file_put_contents($variableOverridesFile, $this->getVariableOverridesTemplate());
 
         touch($directory . '/src/Resources/app/storefront/src/scss/base.scss');
         touch($directory . '/src/Resources/app/storefront/src/main.js');
@@ -179,6 +181,7 @@ EOL;
      "@#name#"
   ],
   "style": [
+    "app/storefront/src/scss/overrides.scss",
     "@Storefront",
     "app/storefront/src/scss/base.scss"
   ],
@@ -190,6 +193,20 @@ EOL;
     "app/storefront/src/assets"
   ]
 }
+EOL;
+    }
+
+    private function getVariableOverridesTemplate()
+    {
+        return <<<EOL
+/*
+Override variable defaults
+==================================================
+This file is used to override default SCSS variables from the Shopware Storefront or Bootstrap.
+
+Because of the !default flags, theme variable overrides have to be declared beforehand.
+https://getbootstrap.com/docs/4.0/getting-started/theming/#variable-defaults
+*/
 EOL;
     }
 }

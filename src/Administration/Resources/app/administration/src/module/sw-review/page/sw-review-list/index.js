@@ -85,8 +85,10 @@ Component.register('sw-review-list', {
 
             this.isLoading = true;
 
+            const context = { ...Shopware.Context.api, inheritance: true };
+
             this.repository
-                .search(this.criteria, Shopware.Context.api)
+                .search(this.criteria, context)
                 .then((result) => {
                     this.total = result.total;
                     this.items = result;

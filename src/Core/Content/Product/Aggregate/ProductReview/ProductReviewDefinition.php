@@ -67,7 +67,9 @@ class ProductReviewDefinition extends EntityDefinition
             new LongTextField('comment', 'comment'),
             new UpdatedAtField(),
             new CreatedAtField(),
-            new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false),
+
+            (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false))
+                ->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
 
             (new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, 'id', false))
                 ->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING), new ReadProtected(SalesChannelApiSource::class)),

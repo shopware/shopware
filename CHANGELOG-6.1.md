@@ -123,6 +123,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Removed property type check for value property of `sw-multi-select` and `sw-multi-ip-select` because the value is already checked in a custom validator function
      
 
+    * Fixed the inheritance reset for the price field in the variant listing.
+    * Fixed product name column in product review listing
 * Core    
 	* We did some refactoring on how we use `WriteConstraintsViolationExceptions`.	
         It's path `property` should now point to the object that is inspected by an validator while the `propertyPath` property in `WriteConstraint` objects should only point to the invalid property. 	

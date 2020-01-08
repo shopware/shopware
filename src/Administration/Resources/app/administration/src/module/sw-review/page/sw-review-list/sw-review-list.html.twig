@@ -74,7 +74,7 @@
                             <template slot="column-product" slot-scope="{ item }">
                                 <template v-if="item.productId">
                                     <router-link :to="{ name: 'sw.product.detail', params: { id: item.productId } }">
-                                        {{ item.product.name }}
+                                        {{ item.product.translated.name }}
                                     </router-link>
                                 </template>
                             </template>

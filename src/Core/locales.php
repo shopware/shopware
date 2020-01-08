@@ -2237,7 +2237,7 @@ return [
     [
         'locale' => 'sl-SI',
         'name' => [
-            'en-GB' => 'Slovakian',
+            'en-GB' => 'Slovene',
             'de-DE' => 'Slowenisch',
         ],
         'territory' => [

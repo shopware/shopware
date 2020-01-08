@@ -8,3 +8,19 @@
     text-overflow: ellipsis;
     overflow: hidden;
 }
+
+@mixin reset-truncate() {
+    white-space: inherit;
+    text-overflow: inherit;
+    overflow: visible;
+}
+
+@mixin transition($what: all, $time: 0.3s, $how: ease) {
+    transition: $what $time $how;
+}
+
+@mixin hidden() {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+}

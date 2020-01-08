@@ -6,10 +6,10 @@
         <div>
             {% block sw_order_create_details_body_email %}
                 <sw-text-field
+                    disabled
                     size="small"
                     class="sw-order-create-details-body__item"
                     v-model="email"
-                    :disabled="!isCustomerActive"
                     :label="$tc('sw-order.createBase.detailsBody.labelEmail')"
                     :placeholder="$tc('sw-order.createBase.detailsBody.labelEmail')">
                 </sw-text-field>
@@ -40,10 +40,10 @@
         <div>
             {% block sw_order_create_details_body_phone_number %}
                 <sw-text-field
+                    disabled
                     size="small"
                     class="sw-order-create-details-body__item"
                     v-model="phoneNumber"
-                    :disabled="!isCustomerActive"
                     :label="$tc('sw-order.createBase.detailsBody.labelPhoneNumber')"
                     :placeholder="$tc('sw-order.createBase.detailsBody.labelPhoneNumber')">
                 </sw-text-field>

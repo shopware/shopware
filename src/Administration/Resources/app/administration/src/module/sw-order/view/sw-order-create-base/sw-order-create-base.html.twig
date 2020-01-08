@@ -1,9 +1,11 @@
 {% block sw_order_create %}
     <sw-card-view>
         {% block sw_order_create_details %}
-            <sw-card :title="$tc('sw-order.createBase.labelDetailsCard')">
-                <template #grid type="row" class="sw-order-user-card">
-                    <sw-container>
+            <sw-card
+                :title="$tc('sw-order.createBase.labelDetailsCard')"
+                class="sw-order-create__card">
+                <template #grid>
+                    <sw-container type="row" class="sw-order-user-card">
                         <sw-card-section>
                             {% block sw_order_create_details_header %}
                                 <sw-order-create-details-header
@@ -11,8 +13,7 @@
                                     :orderDate="orderDate"
                                     :cartPrice="cartPrice"
                                     :currency="currency"
-                                    @on-select-existing-customer="onSelectExistingCustomer"
-                                    @on-add-new-customer="onAddNewCustomer">
+                                    @on-select-existing-customer="onSelectExistingCustomer">
                                 </sw-order-create-details-header>
                             {% endblock %}
                             {% block sw_order_create_details_body %}
@@ -42,7 +43,7 @@
         {% block sw_order_create_base_line_items_card %}
             <sw-card :title="$tc('sw-order.createBase.cardTitleLineItems')"
                      :isLoading="isLoading"
-                     class="sw-order-create-base__line-item-grid-card">
+                     class="sw-order-create__card sw-order-create-base__line-item-grid-card">
                 {% block sw_order_create_base_line_items_card_rows %}
                     <template #grid>
                         <sw-container type="row">

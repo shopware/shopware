@@ -1,17 +1,34 @@
 @import "~scss/variables";
+@import "~scss/mixins";
 
 $sw-field: '.sw-field';
 $sw-button: '.sw-button';
 $sw-order-user-card: '.sw-order-user-card';
+$sw-highlight-text: '.sw-highlight-text';
 
 $font-weight-normal: 400;
 $font-weight-semi-bold: 600;
 
-$border-radius-hack: 100px;
+$select-result-customer-item-first-width: 40px;
+$select-result-customer-item-gutter: 10px;
+
+.sw-order-create {
+    &__card {
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    &__select {
+        .sw-select__selection {
+            padding-right: 32px;
+        }
+    }
+}
 
 .sw-order-create-details-header {
     #{$sw-order-user-card}__container {
-        margin: 0 0 32px;
+        margin: 0 0 8px;
     }
 
     #{$sw-order-user-card}__info-summary {
@@ -20,17 +37,6 @@ $border-radius-hack: 100px;
         justify-content: center;
         align-items: flex-end;
         margin-left: 64px;
-
-        .sw-order-user-card__metadata-price {
-            font-weight: 600;
-            font-size: 18px;
-            margin-bottom: 8px;
-        }
-
-        .sw-order-user-card__metadata-item {
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
     }
 }
 
@@ -111,6 +117,59 @@ $border-radius-hack: 100px;
                 left: 80px;
                 top: 50%;
             }
+        }
+    }
+}
+
+.select-result-customer {
+    &__item {
+        min-width: calc(50% - (#{$select-result-customer-item-first-width} + #{$select-result-customer-item-gutter}));
+        max-width: calc(50% - (#{$select-result-customer-item-first-width} + #{$select-result-customer-item-gutter}));
+        margin: 0 $select-result-customer-item-gutter;
+
+        &.has-many-childrens {
+            display: flex;
+            white-space: nowrap;
+
+            #{$sw-highlight-text} {
+                @include reset-truncate;
+
+                display: inline-block;
+                width: auto;
+
+                &:last-child {
+                    @include truncate;
+
+                    margin-left: 5px;
+                }
+            }
+        }
+
+        &:first-child {
+            min-width: $select-result-customer-item-first-width;
+            max-width: $select-result-customer-item-first-width;
+            color: $color-gray-500;
+        }
+
+        #{$sw-highlight-text} {
+            @include truncate;
+
+            display: inline-block;
+            width: 100%;
+        }
+    }
+
+    .sw-select-result {
+        @include transition;
+
+        border-bottom: 0;
+
+        &__result-item-text {
+            width: 100%;
+        }
+
+        .sw-icon {
+            @include hidden;
         }
     }
 }

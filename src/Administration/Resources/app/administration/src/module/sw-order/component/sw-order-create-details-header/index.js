@@ -7,8 +7,7 @@ Component.register('sw-order-create-details-header', {
 
     props: {
         customer: {
-            type: Object,
-            default: {}
+            type: Object
         },
 
         orderDate: {
@@ -17,21 +16,30 @@ Component.register('sw-order-create-details-header', {
         },
 
         cartPrice: {
-            type: Object,
-            default: null
+            type: Object
         },
 
         currency: {
-            type: Object,
-            default: null
+            type: Object
         }
     },
 
     data() {
         return {
-            customerId: '',
             showNewCustomerModal: false
         };
+    },
+
+    computed: {
+        customerId: {
+            get() {
+                return this.customer ? this.customer.id : '';
+            },
+
+            set(customerId) {
+                if (this.customer) this.customer.id = customerId;
+            }
+        }
     },
 
     methods: {
@@ -41,7 +49,6 @@ Component.register('sw-order-create-details-header', {
 
         onShowNewCustomerModal() {
             this.showNewCustomerModal = true;
-            this.$emit('on-show-new-customer-modal');
         },
 
         onCloseNewCustomerModal() {

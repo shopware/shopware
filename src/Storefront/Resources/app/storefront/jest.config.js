@@ -5,12 +5,6 @@ const { join } = require('path');
 
 const artifactsPath = join(process.env.PROJECT_ROOT, '/build/artifacts');
 
-const fullyRequired = {
-    statements: 100,
-    branches: 100,
-    functions: 100,
-};
-
 module.exports = {
 
     // The directory where Jest should store its cached dependency information
@@ -38,7 +32,11 @@ module.exports = {
 
     // Fail testsuite if coverage is below given percentage
     coverageThreshold: {
-        './src/helper': fullyRequired,
+        './src/helper': {
+            statements: 85,
+            branches: 85,
+            functions: 85,
+        },
     },
 
     // Automatically reset mock state between every test

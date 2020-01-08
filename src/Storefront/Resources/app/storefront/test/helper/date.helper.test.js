@@ -17,7 +17,11 @@ describe('date.helper.js', () => {
 
     test('it returns formatted date from date object', () => {
         const date = new Date(2020, 1, 3, 9, 0, 0);
-        const expectedDate = Intl.DateTimeFormat(navigator.language, defaultFormatterOptions).format(date);
+        Object.defineProperty(navigator, 'language', {
+            value: 'en-GB',
+        });
+
+        const expectedDate = Intl.DateTimeFormat('en-GB', defaultFormatterOptions).format(date);
 
         expect(DateHelper.format(date.getTime())).toBe(expectedDate);
         expect(DateHelper.format(date)).toBe(expectedDate);

@@ -54,7 +54,7 @@ Basic example for `theme.json`:
   },
   "style": [
     "@Storefront",
-    "Resources/storefront/style/base.scss"
+    "app/storefront/src/scss/base.scss"
   ],
   "views": [
     "@Storefront",
@@ -63,10 +63,10 @@ Basic example for `theme.json`:
   ],
   "script": [
     "@Storefront",
-    "Resources/storefront/dist/script/all.js"
+    "app/storefront/dist/storefront/js/just-another-theme.js"
   ],
   "asset": [
-    "Resources/storefront/asset"
+    "app/storefront/src/assets"
   ]
 }
 ```
@@ -137,11 +137,11 @@ Example `theme.json`
   },
   "style": [
     "@Storefront",
-    "Resources/storefront/style/base.scss"
+    "app/storefront/src/scss/base.scss"
   ],
   "script": [
     "@Storefront",
-    "Resources/storefront/dist/script/all.js"
+    "app/storefront/dist/storefront/js/just-another-theme.js"
   ]
 }
 ```
@@ -168,7 +168,65 @@ This will compile the javascript and trigger a rebuild of the theme, so all your
 are be visible.
 
 Please have a look at the [storefront assets](./../../4-how-to/330-storefront-assets.md) documentation
-for more information about the build process and how to add your own assets. 
+for more information about the build process and how to add your own assets.
+
+### Override default SCSS variables
+
+To override default variables like for example `$border-radius` from Bootstrap you should use a slightly different approach then explained in the [storefront assets](./../../4-how-to/330-storefront-assets.md) how-to.
+
+Bootstrap 4 is using the `!default` flag for it's own default variables. Variable overrides have to be declared beforehand.
+
+More information: https://getbootstrap.com/docs/4.0/getting-started/theming/#variable-defaults
+
+To be able to override Bootstrap variables you can define an additional SCSS entry point in your `theme.json` which is declared before `@Storefront`.
+This entry point is called `overrides.scss`:
+
+```json
+{
+  "name": "Just another theme",
+  "author": "Just another author",
+  "views": [
+     "@Storefront",
+     "@Plugins",
+     "@JustAnotherTheme"
+  ],
+  "style": [
+    "app/storefront/src/scss/overrides.scss", <-- Variable overrides
+    "@Storefront",
+    "app/storefront/src/scss/base.scss"
+  ],
+  "script": [
+    "@Storefront",
+    "app/storefront/dist/storefront/js/just-another-theme.js"
+  ],
+  "asset": [
+    "app/storefront/src/assets"
+  ]
+}
+```
+
+In the `overrides.scss` you can now override default variables like `$border-radius` globally:
+
+```scss
+/*
+Override variable defaults
+==================================================
+This file is used to override default SCSS variables from the Shopware Storefront or Bootstrap.
+
+Because of the !default flags, theme variable overrides have to be declared beforehand.
+https://getbootstrap.com/docs/4.0/getting-started/theming/#variable-defaults
+*/
+
+$disabled-btn-bg: #f00;
+$disabled-btn-border-color: #fc8;
+$font-weight-semibold: 300;
+$border-radius: 0;
+$icon-base-color: #f00;
+$modal-backdrop-bg: rgba(255, 0, 0, 0.5);
+```
+
+Please only add variable overrides in this file. You should not write CSS code like `.container { background: #f00 }` in this file. When running `storefront:hot` or `storefront:hot-proxy` SCSS variables will be injected dynamically by webpack. When writing selectors and properties in the `overrides.scss` the code can appear multiple times in your built CSS.
+
 ## Theme Configuration
 
 One of the benefits of creating a theme is that you can overwrite the theme configuration of 

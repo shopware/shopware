@@ -166,5 +166,5 @@ Cypress.Commands.add('typeAndCheckStorefront', {
 Cypress.Commands.add('typeAndSelect', {
     prevSubject: 'element'
 }, (subject, value) => {
-    cy.wrap(subject).select(value).invoke('val').should('eq', value);
+    cy.wrap(subject).select(value);
 });

@@ -1,5 +1,4 @@
 const path = require('path');
-const url = require('url');
 
 module.exports = {
     getBuildPath,
@@ -8,6 +7,8 @@ module.exports = {
     getPath,
     getMode,
     getOutputPath,
+    getAppUrl,
+    getScssEntryByName,
     isHotModuleReplacementMode,
     isDevelopmentEnvironment,
     isProductionEnvironment,
@@ -131,4 +132,17 @@ function getPath(dir) {
     }
 
     return basePath;
+}
+
+/**
+ * Returns the entry point config object matching to the given filepath name.
+ *
+ * @param {Array} styles
+ * @param {String} fileName
+ * @returns {Object|undefined}
+ */
+function getScssEntryByName(styles, fileName) {
+    return styles.find((item) => {
+        return item.filepath.includes(fileName);
+    });
 }

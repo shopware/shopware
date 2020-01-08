@@ -23,7 +23,7 @@ let product = {};
 describe('Checkout: Proceed checkout using various customers', () => {
 
     beforeEach(() => {
-        return cy.createProductFixtureStorefront().then(() => {
+        return cy.createProductFixture().then(() => {
             return cy.createDefaultFixture('category');
         }).then(() => {
             return cy.fixture('product');

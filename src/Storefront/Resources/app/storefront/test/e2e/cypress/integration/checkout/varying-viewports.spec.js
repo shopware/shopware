@@ -19,7 +19,7 @@ let product = {};
 describe('Checkout: Login as customer and run checkout in various viewports', () => {
 
     beforeEach(() => {
-        return cy.createProductFixtureStorefront().then(() => {
+        return cy.createProductFixture().then(() => {
             return cy.createDefaultFixture('category')
         }).then(() => {
             return cy.fixture('product');

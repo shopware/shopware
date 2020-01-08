@@ -19,7 +19,7 @@ let product = {};
 describe('Checkout: Use different taxes in products while checkout', () => {
 
     beforeEach(() => {
-        return cy.createProductFixtureStorefront().then(() => {
+        return cy.createProductFixture().then(() => {
             return cy.createDefaultFixture('category')
         }).then(() => {
             return cy.fixture('product');
@@ -37,7 +37,7 @@ describe('Checkout: Use different taxes in products while checkout', () => {
 
         context(`Checkout with ${additionalProduct.name} (${contextDescription})`, () => {
             beforeEach(() => {
-                return cy.createProductFixtureStorefront(additionalProduct).then(() => {
+                return cy.createProductFixture(additionalProduct).then(() => {
                     cy.visit('/');
                 })
             });

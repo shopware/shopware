@@ -168,36 +168,3 @@ Cypress.Commands.add('typeAndSelect', {
 }, (subject, value) => {
     cy.wrap(subject).select(value).invoke('val').should('eq', value);
 });
-
-/**
- * Search for an existing entity using Shopware API at the given endpoint
- * @memberOf Cypress.Chainable#
- * @name createProductFixture
- * @function
- * @param {String} endpoint - API endpoint for the request
- */
-Cypress.Commands.add('createProductFixtureStorefront', (options = {}) => {
-    let json = {};
-    const taxName = options.taxName || '19%';
-
-    return cy.fixture('product').then((result) => {
-        json = result;
-
-        return cy.searchViaAdminApi({
-            endpoint: 'tax',
-            data: {
-                field: 'name',
-                value: taxName
-            }
-        });
-    }).then((result) => {
-        return Cypress._.merge(json, {
-            taxId: result.id
-        }, options);
-    }).then((result) => {
-        return cy.createViaAdminApi({
-            endpoint: 'product',
-            data: result
-        });
-    });
-});

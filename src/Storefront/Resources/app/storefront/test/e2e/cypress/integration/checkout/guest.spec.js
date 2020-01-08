@@ -4,7 +4,7 @@ let product = {};
 
 describe(`Checkout as Guest`, () => {
     beforeEach(() => {
-        return cy.createProductFixtureStorefront().then(() => {
+        return cy.createProductFixture().then(() => {
             return cy.createDefaultFixture('category')
         }).then(() => {
             return cy.fixture('product');

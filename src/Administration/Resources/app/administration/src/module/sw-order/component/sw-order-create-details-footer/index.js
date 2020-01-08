@@ -8,8 +8,7 @@ Component.register('sw-order-create-details-footer', {
 
     props: {
         customer: {
-            type: Object,
-            default: {}
+            type: Object
         },
 
         isCustomerActive: {
@@ -18,8 +17,7 @@ Component.register('sw-order-create-details-footer', {
         },
 
         cart: {
-            type: Object,
-            default: {}
+            type: Object
         }
     },
 
@@ -56,6 +54,13 @@ Component.register('sw-order-create-details-footer', {
 
         currencyRepository() {
             return Service('repositoryFactory').create('currency');
+        },
+
+        entitySingleSelectClasses() {
+            return [
+                'sw-order-create__select',
+                'sw-order-create-details-footer__item'
+            ];
         }
     },
 

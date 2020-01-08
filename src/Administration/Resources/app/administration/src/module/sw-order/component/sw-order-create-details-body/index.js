@@ -7,8 +7,7 @@ Component.register('sw-order-create-details-body', {
 
     props: {
         customer: {
-            type: Object,
-            default: {}
+            type: Object
         },
 
         isCustomerActive: {

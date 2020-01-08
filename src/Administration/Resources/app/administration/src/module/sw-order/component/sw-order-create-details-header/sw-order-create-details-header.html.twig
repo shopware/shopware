@@ -1,9 +1,10 @@
 {% block sw_order_create_details_header %}
     <div class="sw-order-create-details-header">
         {% block sw_order_create_details_new_customer_modal %}
-            <sw-order-new-customer-modal v-if="showNewCustomerModal"
-                                         @close="onCloseNewCustomerModal"
-                                         @on-select-existing-customer="onSelectExistingCustomer">
+            <sw-order-new-customer-modal
+                v-if="showNewCustomerModal"
+                @close="onCloseNewCustomerModal"
+                @on-select-existing-customer="onSelectExistingCustomer">
             </sw-order-new-customer-modal>
         {% endblock %}
 
@@ -33,14 +34,64 @@
                             {{ $tc('sw-order.createBase.detailsHeader.textCustomer') }}
                         </div>
                         <sw-container columns="1fr 128px" gap="0 8px">
-                            <sw-entity-single-select
-                                size="small"
-                                entity="customer"
-                                labelProperty="firstName"
-                                v-model="customerId"
-                                :placeholder="$tc('sw-order.createBase.detailsHeader.placeholder')"
-                                @change="onSelectExistingCustomer">
-                            </sw-entity-single-select>
+                            {% block sw_order_create_search_customer %}
+                                <sw-entity-single-select
+                                    size="small"
+                                    class="sw-order-create__select select-result-customer"
+                                    entity="customer"
+                                    labelProperty="firstName"
+                                    :value="customerId"
+                                    :placeholder="$tc('sw-order.createBase.detailsHeader.placeholder')"
+                                    @change="onSelectExistingCustomer">
+
+                                    {% block sw_order_create_search_customer_slot_selection_label_property %}
+                                        <template #selection-label-property="{ item: customer, getKey }">
+                                            {{ getKey(customer, 'firstName') || getKey(customer, `translated.firstName`) }}
+                                            {{ getKey(customer, 'lastName') || getKey(customer, `translated.lastName`) }}
+                                        </template>
+                                    {% endblock %}
+
+                                    {% block sw_order_create_search_customer_slot_result_label_property %}
+                                        <template #result-label-property="{ item, searchTerm, highlightSearchTerm, getKey }">
+                                            <div class="select-result-customer__item">
+                                                {% block sw_order_create_search_customer_slot_result_label_property_number %}
+                                                    <sw-highlight-text
+                                                        v-if="highlightSearchTerm"
+                                                        :text="getKey(item, 'customerNumber') || getKey(item, `translated.customerNumber`)"
+                                                        :searchTerm="searchTerm">
+                                                    </sw-highlight-text>
+                                                {% endblock %}
+                                            </div>
+                                            <div class="select-result-customer__item has-many-childrens">
+                                                {% block sw_order_create_search_customer_slot_result_label_property_firstname %}
+                                                    <sw-highlight-text
+                                                        v-if="highlightSearchTerm"
+                                                        :text="getKey(item, 'firstName') || getKey(item, `translated.firstName`)"
+                                                        :searchTerm="searchTerm">
+                                                    </sw-highlight-text>
+                                                {% endblock %}
+
+                                                {% block sw_order_create_search_customer_slot_result_label_property_lastname %}
+                                                    <sw-highlight-text
+                                                        v-if="highlightSearchTerm"
+                                                        :text="getKey(item, 'lastName') || getKey(item, `translated.lastName`)"
+                                                        :searchTerm="searchTerm">
+                                                    </sw-highlight-text>
+                                                {% endblock %}
+                                            </div>
+                                            <div class="select-result-customer__item">
+                                                {% block sw_order_create_search_customer_slot_result_label_property_company %}
+                                                    <sw-highlight-text
+                                                        v-if="highlightSearchTerm"
+                                                        :text="getKey(item, 'company') || getKey(item, `translated.company`)"
+                                                        :searchTerm="searchTerm">
+                                                    </sw-highlight-text>
+                                                {% endblock %}
+                                            </div>
+                                        </template>
+                                    {% endblock %}
+                                </sw-entity-single-select>
+                            {% endblock %}
                             <sw-button size="small" @click="onShowNewCustomerModal">
                                 {{ $tc('sw-order.createBase.detailsHeader.buttonAddNewCustomer') }}
                             </sw-button>
@@ -51,7 +102,7 @@
                 {% block sw_order_create_details_header_profile_summary %}
                     <div class="sw-order-user-card__info-summary">
                         <div class="sw-order-user-card__metadata-price">
-                              {{ (cartPrice ? cartPrice.totalPrice : 0) | currency(currency.shortName) }}
+                            {{ (cartPrice ? cartPrice.totalPrice : 0) | currency(currency.shortName) }}
                         </div>
                         <div class="sw-order-user-card__metadata-item">{{ orderDate }}</div>
                     </div>

@@ -19,6 +19,8 @@ use Shopware\Core\System\Language\LanguageEntity;
 
 class PluginService
 {
+    public const COMPOSER_AUTHOR_ROLE_MANUFACTURER = 'Manufacturer';
+
     /**
      * @var string
      */
@@ -234,14 +236,15 @@ class PluginService
         return file_get_contents($pluginIconPath);
     }
 
-    private function getAuthors(CompletePackageInterface $info): string
+    private function getAuthors(CompletePackageInterface $info): ?string
     {
         $authors = null;
+        /** @var array|null $composerAuthors */
         $composerAuthors = $info->getAuthors();
 
         if ($composerAuthors !== null) {
             $manufacturersAuthors = array_filter($composerAuthors, function (array $author): bool {
-                return ($author['role'] ?? '') === 'Manufacturer';
+                return ($author['role'] ?? '') === self::COMPOSER_AUTHOR_ROLE_MANUFACTURER;
             });
 
             if (empty($manufacturersAuthors)) {

@@ -32,7 +32,7 @@ let webpackConfig = merge(baseWebpackConfig, {
                 },
                 cache: true,
                 parallel: true,
-                sourceMap: false
+                sourceMap: config.build.productionSourceMap
             }),
             new OptimizeCSSAssetsPlugin()
         ]

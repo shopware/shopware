@@ -151,7 +151,7 @@ class HttpKernel
         $event = new BeforeSendResponseEvent($transformed, $response);
         $container->get('event_dispatcher')->dispatch($event);
 
-        return new HttpKernelResult($request, $response);
+        return new HttpKernelResult($transformed, $event->getResponse());
     }
 
     private function createKernel(): KernelInterface

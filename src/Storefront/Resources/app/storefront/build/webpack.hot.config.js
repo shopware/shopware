@@ -6,7 +6,7 @@ const utils = require('./utils');
 
 /**
  * -------------------------------------------------------
- * WEBPACK CONFIGURATIONS
+ * WEBPACK CONFIGURATION
  * -------------------------------------------------------
  * Impacts development hot mode
  * https://webpack.js.org/configuration

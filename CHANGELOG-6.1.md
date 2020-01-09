@@ -14,6 +14,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 * Core
     * Added a check for the author role in plugin composer.json files. If one or more authors have the role `Manufacturer`, only these will be written to the database.
 
+* Recovery
+    * The database connection now supports sockets
+
 ### 6.1.0
 
 **Addition / Changes**

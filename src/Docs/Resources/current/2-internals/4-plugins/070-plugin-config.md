@@ -234,6 +234,34 @@ Now all that's left to do is to present you a working example `config.xml` and s
 </config>
 ```
 
+## Advanced custom input fields
+For more complex and advanced configurations it is possible to declare a `<component name="componentName">` element. 
+This element can render any admin component. It is also possible to render your own admin component which you could deliver 
+with your plugin. The name of the component has to match the components name in the administration, for example `sw-single-select`.
+The component also needs a `<name>` element first. All other elements within the component element will be passed to
+the rendered admin component as properties.
+It can render every component that works with v-model and uses simple data types for the values like
+strings, arrays or numbers. Storing entity collections which are needed for entity multi selects for example is not possible yet.
+
+Here are some examples:
+
+### Render a product entity single select
+```xml
+<component name="sw-entity-single-select">
+    <name>exampleProduct</name>
+    <entity>product</entity>
+    <title>Choose a product for the plugin configuration</title>
+</component>
+```
+
+### Render a media field
+```xml
+<component name="sw-media-field">
+    <name>pluginMedia</name>
+    <label>Upload media or choose one from the media manager</label>
+</component>
+```
+
 ![Example plugin config](./img/plugin-config.png)
 
 There's a GitHub repository available, containing this example source.

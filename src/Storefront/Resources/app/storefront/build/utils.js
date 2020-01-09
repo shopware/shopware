@@ -1,4 +1,5 @@
 const path = require('path');
+const { existsSync } = require('fs');
 
 module.exports = {
     getBuildPath,
@@ -9,6 +10,7 @@ module.exports = {
     getOutputPath,
     getAppUrl,
     getScssEntryByName,
+    getScssResources,
     isHotModuleReplacementMode,
     isDevelopmentEnvironment,
     isProductionEnvironment,
@@ -145,4 +147,22 @@ function getScssEntryByName(styles, fileName) {
     return styles.find((item) => {
         return item.filepath.includes(fileName);
     });
+}
+
+/**
+ * Returns a modified SCSS resources array when the filepath
+ * from the provided entry point object finds an actual file.
+ *
+ * @param {Array} resources
+ * @param {Object} overridesEntry
+ * @param {string} fileName
+ * @return {string[]}
+ */
+function getScssResources(resources, overridesEntry, fileName) {
+    if (typeof overridesEntry !== 'undefined' && existsSync(overridesEntry.filepath)) {
+        console.log('> An ' + fileName + ' was found. Adding to SASS resources...\n');
+        return [overridesEntry.filepath, ...resources];
+    }
+    console.log('> No ' + fileName + ' was found. Skipping...\n');
+    return resources;
 }

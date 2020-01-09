@@ -4,38 +4,6 @@ const { existsSync } = require('fs');
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 const utils = require('./utils');
 
-const themeFilesConfigPath = join(utils.getProjectRootPath(), 'var/theme-files.json');
-if (!existsSync(themeFilesConfigPath)) {
-    throw new Error(`File "${themeFilesConfigPath}" not found`);
-}
-
-// eslint-disable-next-line
-const themeFiles = require(themeFilesConfigPath);
-
-/**
- * Additional scss resources for "sass-resources-loader"
- * https://www.npmjs.com/package/sass-resources-loader
- * @type {string[]}
- */
-const scssResources = [
-    // Dumped theme variables
-    join(utils.getProjectRootPath(), 'var/theme-variables.scss'),
-
-    // Storefront & vendor variables + mixins + functions
-    join(__dirname, '..', 'src/scss/variables.scss'),
-];
-
-// Search for "overrides.scss" entry point in "theme-files.json" content
-const overridesEntry = utils.getScssEntryByName(themeFiles.style, 'scss/overrides.scss');
-
-// When "overrides.scss" is found add to the "scssResources", otherwise do nothing
-if (typeof overridesEntry !== 'undefined' && existsSync(overridesEntry.filepath)) {
-    console.log('> An "overrides.scss" was found. Adding to SASS resources...\n');
-    scssResources.unshift(overridesEntry.filepath);
-} else {
-    console.log('> No "overrides.scss" was found. Skipping...\n');
-}
-
 /**
  * -------------------------------------------------------
  * WEBPACK CONFIGURATIONS
@@ -44,6 +12,34 @@ if (typeof overridesEntry !== 'undefined' && existsSync(overridesEntry.filepath)
  * https://webpack.js.org/configuration
  * -------------------------------------------------------
  */
+
+const themeFilesConfigPath = join(utils.getProjectRootPath(), 'var/theme-files.json');
+if (!existsSync(themeFilesConfigPath)) {
+    throw new Error(`File "${themeFilesConfigPath}" not found`);
+}
+
+// eslint-disable-next-line
+const themeFiles = require(themeFilesConfigPath);
+
+// Search for "overrides.scss" entry point in "theme-files.json" content
+const overridesEntry = utils.getScssEntryByName(themeFiles.style, 'scss/overrides.scss');
+
+/**
+ * Additional SCSS resources for "sass-resources-loader"
+ * https://www.npmjs.com/package/sass-resources-loader
+ * @type {string[]}
+ */
+const scssResources = utils.getScssResources(
+    [
+        // Dumped theme variables
+        join(utils.getProjectRootPath(), 'var/theme-variables.scss'),
+
+        // Storefront & vendor variables + mixins + functions
+        join(__dirname, '..', 'src/scss/variables.scss'),
+    ],
+    overridesEntry,
+    'overrides.scss'
+);
 
 /**
  * Webpack module configuration and how them will be treated

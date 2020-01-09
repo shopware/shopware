@@ -37,12 +37,12 @@
                 <template #results-list>
                     {% block sw_multi_select_base_results_slot %}
                         <sw-select-result-list :options="visibleResults"
-                                                :isLoading="isLoading"
-                                                ref="swSelectResultList"
-                                                :emptyMessage="$tc('global.sw-multi-select.messageNoResults', 0, { term: searchTerm })"
-                                                :focusEl="$refs.selectionList.getFocusEl()"
-                                                @paginate="$emit('paginate')"
-                                                @item-select="addItem">
+                                               :isLoading="isLoading"
+                                               ref="swSelectResultList"
+                                               :emptyMessage="$tc('global.sw-multi-select.messageNoResults', 0, { term: searchTerm })"
+                                               :focusEl="$refs.selectionList.getFocusEl()"
+                                               @paginate="$emit('paginate')"
+                                               @item-select="addItem">
                             {% block sw_multi_select_base_results_list %}
                                 {% block sw_multi_select_base_results_list_before %}
                                     <template #before-item-list>

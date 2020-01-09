@@ -810,7 +810,7 @@ SHOPWARE_HTTP_DEFAULT_TTL=7200
     * Every `POST` method needs to append a CSRF token now
     * CSRF tokens can be generated in twig or via ajax, if configured. Here is a small twig example for a typical form:
     ```twig
-      <form name="ExampleForm" method="post" action="{{ path("exmaple.route") }}" data-form-csrf-handler="true">
+      <form name="ExampleForm" method="post" action="{{ path("example.route") }}" data-form-csrf-handler="true">
           <!-- some form fields -->
         
           {{ sw_csrf('example.route') }}

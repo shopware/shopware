@@ -29,7 +29,7 @@ Here is an example for a `twig`- and `ajax`- mode compatible form:
   <form 
     name="ExampleForm" 
     method="post" 
-    action="{{ path("exmaple.route") }}"
+    action="{{ path("example.route") }}"
     data-form-csrf-handler="true">
       <!-- some form fields -->
     

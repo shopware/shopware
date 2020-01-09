@@ -303,6 +303,8 @@ Storefront (Jest):
         - docker exec cypress npm clean-install --prefix /e2e-Storefront
         - forever start vendor/shopware/platform/src/Storefront/Resources/app/storefront/test/e2e/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - docker exec cypress npx cypress run --project /e2e-Storefront --browser chrome --config baseUrl=http://docker.vm:8000
+        - npx mochawesome-merge build/artifacts/e2e/mochawesome*.json > build/artifacts/e2e/report-final.json
+        - npx mochawesome-report-generator build/artifacts/e2e/report-final.json --cdn true --reportDir build/artifacts/e2e/
         - docker rm -f cypress
 
 .administration_script:
@@ -315,6 +317,8 @@ Storefront (Jest):
         - docker exec cypress npm clean-install --prefix /e2e-Administration
         - forever start vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - docker exec cypress npx cypress run --project /e2e-Administration --browser chrome --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0 --spec $TEST_DIRECTORY
+        - npx mochawesome-merge build/artifacts/e2e/mochawesome*.json > build/artifacts/e2e/report-final.json
+        - npx mochawesome-report-generator build/artifacts/e2e/report-final.json --cdn true --reportDir build/artifacts/e2e/
         - docker rm -f cypress
 
 .mixed_script:
@@ -328,6 +332,8 @@ Storefront (Jest):
         - docker exec cypress npm clean-install --prefix /e2e-Administration
         - forever start vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - docker exec cypress npx cypress run --project /e2e-Administration --browser chrome --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0 --spec $TEST_DIRECTORY
+        - npx mochawesome-merge build/artifacts/e2e/mochawesome*.json > build/artifacts/e2e/report-final.json
+        - npx mochawesome-report-generator build/artifacts/e2e/report-final.json --cdn true --reportDir build/artifacts/e2e/
         - docker rm -f cypress
 
 General (Storefront):

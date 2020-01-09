@@ -4,6 +4,8 @@ namespace Shopware\Storefront\Framework\Routing;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
+use Shopware\Core\Content\Seo\HreflangLoaderInterface;
+use Shopware\Core\Content\Seo\HreflangLoaderParameter;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Util\Random;
@@ -11,6 +13,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Storefront\Controller\ErrorController;
+use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -54,12 +57,18 @@ class StorefrontSubscriber implements EventSubscriberInterface
      */
     private $csrfPlaceholderHandler;
 
+    /**
+     * @var HreflangLoaderInterface
+     */
+    private $hreflangLoader;
+
     public function __construct(
         RequestStack $requestStack,
         RouterInterface $router,
         ErrorController $errorController,
         SalesChannelContextServiceInterface $contextService,
         CsrfPlaceholderHandler $csrfPlaceholderHandler,
+        HreflangLoaderInterface $hreflangLoader,
         bool $kernelDebug
     ) {
         $this->requestStack = $requestStack;
@@ -68,6 +77,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $this->contextService = $contextService;
         $this->kernelDebug = $kernelDebug;
         $this->csrfPlaceholderHandler = $csrfPlaceholderHandler;
+        $this->hreflangLoader = $hreflangLoader;
     }
 
     public static function getSubscribedEvents(): array
@@ -91,6 +101,9 @@ class StorefrontSubscriber implements EventSubscriberInterface
             BeforeSendResponseEvent::class => [
                 ['replaceCsrfToken'],
                 ['setCanonicalUrl'],
+            ],
+            StorefrontRenderEvent::class => [
+                ['addHreflang'],
             ],
         ];
     }
@@ -280,6 +293,21 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $event->setResponse(
             $this->csrfPlaceholderHandler->replaceCsrfToken($event->getResponse())
         );
+    }
+
+    public function addHreflang(StorefrontRenderEvent $event): void
+    {
+        $request = $event->getRequest();
+        $route = $request->attributes->get('_route');
+
+        if ($route === null) {
+            return;
+        }
+
+        $routeParams = $request->attributes->get('_route_params', []);
+        $salesChannelContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+        $parameter = new HreflangLoaderParameter($route, $routeParams, $salesChannelContext);
+        $event->setParameter('hrefLang', $this->hreflangLoader->load($parameter));
     }
 
     private function setSalesChannelContext(ExceptionEvent $event): void

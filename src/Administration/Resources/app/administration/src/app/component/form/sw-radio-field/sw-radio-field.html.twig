@@ -9,20 +9,21 @@
                     <div class="sw-field__radio-option group-bordered" v-for="(option, index) in options">
                         <div class="sw-field__radio-input">
                             <input type="radio"
-                                :name="`${identification}-${index}`"
+                                :name="`${identification}`"
                                 :id="`${identification}-${index}`"
-                                :value="option.value"
+                                :value="index"
                                 :disabled="disabled"
-                                :checked="currentValue === option.value ? 'checked' : false"
-                                @change="onChange" />
+                                :checked="currentIndex === index"
+                                @change="onChange"/>
                             <div class="sw-field__radio-state"></div>
                         </div>
 
-                        <label :for="`${identification}-${index}`">{{ option.name }}</label>
-
-                        {% block sw_radio_field_help_text %}
-                            <sw-help-text v-if="option.helpText" :text="option.helpText"></sw-help-text>
-                        {% endblock %}
+                        <label :for="`${identification}-${index}`">
+                            <span>{{ option.name }}</span>
+                            {% block sw_radio_field_help_text %}
+                                <sw-help-text v-if="option.helpText" :text="option.helpText"></sw-help-text>
+                            {% endblock %}
+                        </label>
                     </div>
                 </div>
         </template>

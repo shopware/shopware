@@ -52,6 +52,7 @@
             <xs:enumeration value="single-select"/>
             <xs:enumeration value="multi-select"/>
             <xs:enumeration value="textarea"/>
+            <xs:enumeration value="entity-single-select"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="translatableString">

@@ -181,6 +181,20 @@
             "template-applied-message": "The data from the template has been applied. Please save the sales channel to save the changes."
           }
         }
+      },
+      "hreflang": {
+        "title": "Hreflang",
+        "titleCard": "Hreflang integration",
+        "titleDescription": "The hreflang metatag is used to uniquely assign a content to a language. Google explicitly shows the respective languages in their search results.",
+        "enableCheckbox": "Enable hreflang",
+        "defaultDomain": "Default domain for hreflang",
+        "domainSettings": {
+          "label": "Hreflang localisation",
+          "byIso": "Localisation according to ISO standard",
+          "byIsoHelpText": "The localization is done via the exact ISO. In addition to the language, the country of destination is also supplied.",
+          "byAbbreviation": "Localisation according to language",
+          "byAbbreviationHelpText": "Localization is only done via the language. Here, several countries of destination are addressed via the output language"
+        }
       }
     },
     "sw-sales-channel-defaults-select": {

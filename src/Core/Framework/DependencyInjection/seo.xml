@@ -118,5 +118,11 @@
             <argument type="service" id="media.repository" />
             <tag name="twig.extension"/>
         </service>
+
+        <service id="Shopware\Core\Content\Seo\HreflangLoaderInterface" class="Shopware\Core\Content\Seo\HreflangLoader">
+            <argument type="service" id="router.default"/>
+            <argument type="service" id="seo_url.repository"/>
+            <argument type="service" id="sales_channel_domain.repository"/>
+        </service>
     </services>
 </container>

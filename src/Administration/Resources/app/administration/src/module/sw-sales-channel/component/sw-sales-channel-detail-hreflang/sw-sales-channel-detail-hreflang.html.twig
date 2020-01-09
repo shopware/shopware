@@ -1,0 +1,38 @@
+{% block sw_sales_channel_detail_hreflang %}
+<sw-card :title="$tc('sw-sales-channel.detail.hreflang.title')"
+         class="sw-sales-channel-detail-hreflang">
+    {% block sw_sales_channel_detail_hreflang_title %}
+        <h4>
+            <span class="sw-sales-channel-detail-domains__headline-text sw-sales-channel-detail-base__headline-text">{{ $tc('sw-sales-channel.detail.hreflang.titleCard') }}</span>
+        </h4>
+    {% endblock %}
+
+    {% block sw_sales_channel_detail_hreflang_content %}
+        {% block sw_sales_channel_detail_hreflang_content_description %}
+            <div class="sw-sales-channel-detail-base__description-text">
+                {{ $tc('sw-sales-channel.detail.hreflang.titleDescription') }}
+            </div>
+        {% endblock %}
+
+        {% block sw_sales_channel_detail_hreflang_content_enable %}
+            <sw-switch-field
+                v-model="salesChannel.hreflangActive"
+                :label="$tc('sw-sales-channel.detail.hreflang.enableCheckbox')"
+                @change="salesChannel.hreflangDefaultDomainId = null"
+            ></sw-switch-field>
+        {% endblock %}
+
+        {% block sw_sales_channel_detail_hreflang_content_domain %}
+            <sw-entity-single-select
+                :disabled="!salesChannel.hreflangActive"
+                :label="$tc('sw-sales-channel.detail.hreflang.defaultDomain')"
+                entity="sales_channel_domain"
+                v-model="salesChannel.hreflangDefaultDomainId"
+                :criteria="domainCriteria"
+                labelProperty="url"
+            ></sw-entity-single-select>
+        {% endblock %}
+
+    {% endblock %}
+</sw-card>
+{% endblock %}

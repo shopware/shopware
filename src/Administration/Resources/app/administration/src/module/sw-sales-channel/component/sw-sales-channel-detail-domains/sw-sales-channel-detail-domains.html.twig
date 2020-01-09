@@ -120,6 +120,16 @@
                             </sw-entity-single-select>
                         {% endblock %}
                     </sw-container>
+
+                    {% block sw_sales_channel_detail_domains_hreflang %}
+                        <sw-radio-field
+                            :label="$tc('sw-sales-channel.detail.hreflang.domainSettings.label')"
+                            identification="hreflang"
+                            v-model="currentDomain.hreflangUseOnlyLocale"
+                            :options="hreflangLocalisationOptions"
+                        ></sw-radio-field>
+                    {% endblock %}
+
                 {% endblock %}
 
                 <template slot="modal-footer">

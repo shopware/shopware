@@ -69,6 +69,16 @@ class SalesChannelDomainEntity extends Entity
      */
     protected $productExports;
 
+    /**
+     * @var SalesChannelEntity|null
+     */
+    protected $salesChannelDefaultHreflang;
+
+    /**
+     * @var bool
+     */
+    protected $hreflangUseOnlyLocale;
+
     public function getUrl(): string
     {
         return $this->url;
@@ -177,5 +187,25 @@ class SalesChannelDomainEntity extends Entity
     public function setProductExports(ProductExportCollection $productExports): void
     {
         $this->productExports = $productExports;
+    }
+
+    public function isHreflangUseOnlyLocale(): bool
+    {
+        return $this->hreflangUseOnlyLocale;
+    }
+
+    public function setHreflangUseOnlyLocale(bool $hreflangUseOnlyLocale): void
+    {
+        $this->hreflangUseOnlyLocale = $hreflangUseOnlyLocale;
+    }
+
+    public function getSalesChannelDefaultHreflang(): ?SalesChannelEntity
+    {
+        return $this->salesChannelDefaultHreflang;
+    }
+
+    public function setSalesChannelDefaultHreflang(?SalesChannelEntity $salesChannelDefaultHreflang): void
+    {
+        $this->salesChannelDefaultHreflang = $salesChannelDefaultHreflang;
     }
 }

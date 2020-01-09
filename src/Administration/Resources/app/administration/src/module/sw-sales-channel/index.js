@@ -6,6 +6,7 @@ import './component/sw-sales-channel-modal-grid';
 import './component/sw-sales-channel-modal-detail';
 
 import './component/sw-sales-channel-detail-domains';
+import './component/sw-sales-channel-detail-hreflang';
 
 import './page/sw-sales-channel-detail';
 import './page/sw-sales-channel-create';

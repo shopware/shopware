@@ -46,6 +46,21 @@ Component.register('sw-sales-channel-detail-domains', {
             criteria.addAssociation('salesChannels');
 
             return criteria.addFilter(Criteria.equals('salesChannels.id', this.salesChannel.id));
+        },
+
+        hreflangLocalisationOptions() {
+            return [
+                {
+                    name: this.$tc('sw-sales-channel.detail.hreflang.domainSettings.byIso'),
+                    value: false,
+                    helpText: this.$tc('sw-sales-channel.detail.hreflang.domainSettings.byIsoHelpText')
+                },
+                {
+                    name: this.$tc('sw-sales-channel.detail.hreflang.domainSettings.byAbbreviation'),
+                    value: true,
+                    helpText: this.$tc('sw-sales-channel.detail.hreflang.domainSettings.byAbbreviationHelpText')
+                }
+            ];
         }
     },
 

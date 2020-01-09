@@ -6,7 +6,6 @@ imports:
     - { resource: '%vendor_dir%/symplify/easy-coding-standard/config/set/common/strict.yaml' }
 
 services:
-    PhpCsFixer\Fixer\Alias\MbStrFunctionsFixer: ~
     PhpCsFixer\Fixer\CastNotation\ModernizeTypesCastingFixer: ~
     PhpCsFixer\Fixer\ClassNotation\ClassAttributesSeparationFixer:
         elements: ['property', 'method']

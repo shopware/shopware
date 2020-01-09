@@ -17,6 +17,10 @@ $sw-field--radio-color-border: $color-steam-cloud;
             font-weight: normal;
             font-size: $font-size-small;
             color: $color-gutenberg;
+
+            .sw-help-text {
+                margin-left: 5px;
+            }
         }
     }
 

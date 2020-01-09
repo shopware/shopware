@@ -43,7 +43,7 @@ export default class ProductStreamPageObject extends GeneralPageObject {
             cy.get('.sw-single-select').last().within(($singleSelect) => {
                 cy.wrap($singleSelect).click();
                 cy.get('.sw-select-result-list').should('be.visible');
-                cy.get('li.sw-select-result').contains(value).click();
+                selectResultList().find('li.sw-select-result').contains(value).click();
             });
         });
     }
@@ -56,7 +56,7 @@ export default class ProductStreamPageObject extends GeneralPageObject {
             cy.get('.sw-entity-single-select').within(($singleSelect) => {
                 cy.wrap($singleSelect).click();
                 cy.get('.sw-select-result-list').should('be.visible');
-                cy.get('li.sw-select-result').contains(value).click();
+                selectResultList().find('li.sw-select-result').contains(value).click();
             });
         });
     }
@@ -68,36 +68,38 @@ export default class ProductStreamPageObject extends GeneralPageObject {
             cy.get('.sw-entity-multi-select').within(($multiSelect) => {
                 cy.wrap($multiSelect).click();
                 cy.get('.sw-select-result-list').should('be.visible');
-
-                value.forEach((value) => {
-                    cy.get('li.sw-select-result').contains(value).click();
-                });
             });
-        })
+        });
+
+        value.forEach((value) => {
+            cy.get('li.sw-select-result').contains(value).click();
+        });
     }
 
     selectFieldAndOperator(selector, fieldPath, operator) {
-        cy.get(selector).within(() => {
-            if (typeof fieldPath === 'string' && fieldPath !== '') {
-                cy.wrap(fieldPath.split('.')).each((field) => {
-                    cy.get(`.sw-product-stream-field-select`).last().within(($singleSelect) => {
-                        cy.wrap($singleSelect).click();
-                        cy.get('.sw-select-result-list').should('be.visible');
-                        cy.get('li.sw-select-result').contains(field).click();
-                    })
-                });
-            }
+        if (typeof fieldPath === 'string' && fieldPath !== '') {
+            cy.wrap(fieldPath.split('.')).each((field) => {
+                cy.get(`.sw-product-stream-field-select`).last().within(($singleSelect) => {
+                    cy.wrap($singleSelect).click();
+                    cy.get('.sw-select-result-list').should('be.visible');
+                    selectResultList().find('li.sw-select-result').contains(field).click();
+                })
+            });
+        }
 
-            if (typeof operator === 'string' && operator !== '') {
-                cy.get('.sw-product-stream-value').within(() => {
+        if (typeof operator === 'string' && operator !== '') {
+            cy.get('.sw-product-stream-value').within(() => {
+                cy.get('.sw-single-select').first().click();
+            });
 
-                    cy.get('.sw-single-select').first().within(($singleSelect) => {
-                        cy.wrap($singleSelect).click();
-                        cy.get('.sw-select-result-list').should('be.visible');
-                        cy.get('li.sw-select-result').contains(operator).click();
-                    });
-                });
-            }
-        });
+            cy.get('.sw-select-result-list').should('be.visible');
+            cy.get('li.sw-select-result').contains(operator).click();
+        }
     }
+}
+
+function selectResultList() {
+    return cy.window().then(() => {
+        return cy.wrap(Cypress.$('.sw-select-result-list-popover-wrapper'));
+    });
 }

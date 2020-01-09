@@ -189,10 +189,10 @@ Cypress.Commands.add('typeSingleSelect', {
         cy.get(`${selector} .is--disabled`)
             .should('not.exist');
 
-        cy.get(`${selector} .sw-select-result__result-item-text`)
+        cy.get(`.sw-select-result__result-item-text`)
             .should('be.visible');
 
-        cy.get(`${selector} .sw-select-result__result-item-text`)
+        cy.get(`.sw-select-result__result-item-text`)
             .contains(value).click({force: true});
     } else {
         // Select the first element

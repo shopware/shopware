@@ -846,4 +846,88 @@ describe('core/factory/component.factory.js', () => {
         expect(typeof component.vm.$super).toBe('function');
         expect(component.vm.$super('fooBar')).toBe('fooBar');
     });
+
+    it(
+        // eslint-disable-next-line max-len
+        'correctly builds the super call stack if root component of the inheritance chain does not implement an overridden method',
+        () => {
+            ComponentFactory.register('grandparent-component', {
+                template: '<div>This is a test template.</div>'
+            });
+            ComponentFactory.extend('parent-component', 'grandparent-component', {
+                methods: {
+                    fooBar() {
+                        return 'called';
+                    }
+                }
+            });
+            ComponentFactory.extend('child-component', 'parent-component', {
+                methods: {
+                    fooBar() {
+                        return this.$super('fooBar');
+                    }
+                }
+            });
+
+            const childComponent = shallowMount(ComponentFactory.build('child-component'));
+
+            expect(childComponent.vm.fooBar()).toBe('called');
+        }
+    );
+
+    it(
+        // eslint-disable-next-line max-len
+        'correctly builds the super call stack if one component of the inheritance chain does not implement an overridden method',
+        () => {
+            ComponentFactory.register('grandparent-component', {
+                template: '<div>This is a test template.</div>',
+                methods: {
+                    fooBar() {
+                        return 'called';
+                    }
+                }
+            });
+            ComponentFactory.extend('parent-component', 'grandparent-component', {});
+            ComponentFactory.extend('child-component', 'parent-component', {
+                methods: {
+                    fooBar() {
+                        return this.$super('fooBar');
+                    }
+                }
+            });
+
+            const childComponent = shallowMount(ComponentFactory.build('child-component'));
+
+            expect(childComponent.vm.fooBar()).toBe('called');
+        }
+    );
+
+    it(
+        // eslint-disable-next-line max-len
+        'correctly builds the super call stack if components in the beginning of the inheritance chain do not implement an overridden method',
+        () => {
+            ComponentFactory.register('great-grandparent-component', {
+                template: '<div>This is a test template.</div>'
+            });
+            ComponentFactory.extend('grandparent-component', 'great-grandparent-component', {});
+            ComponentFactory.extend('parent-component', 'grandparent-component', {
+                methods: {
+                    fooBar() {
+                        return 'called';
+                    }
+                }
+            });
+            ComponentFactory.extend('child-component', 'parent-component', {
+                methods: {
+                    fooBar() {
+                        return this.$super('fooBar');
+                    }
+                }
+            });
+
+            const childComponent = shallowMount(ComponentFactory.build('child-component'));
+
+            expect(childComponent.vm.fooBar()).toBe('called');
+        }
+    );
 });

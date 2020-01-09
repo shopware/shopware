@@ -3,11 +3,12 @@
 
 ## Using native mounting with Docker Volumes and docker-sync
 
-If you are working on MacOS X and have to face with performance issues; or you want to use native mounting with Docker [Volumes](https://docs.docker.com/storage/volumes/) instead of [bind mounts](https://docs.docker.com/storage/bind-mounts/), but sharing your code into containers will slow down the code-execution. Thankfully, there is a solution for these problems, that's to use `docker-sync`    
+If you are working on Mac/OSX and are facing performance issues, you should use [docker-sync](http://docker-sync.io/) instead of the default mounting strategy.
 
 ### Preparation
 
 Download & install `docker-sync` from [http://docker-sync.io/](http://docker-sync.io/) which supported for OSX, Windows, Linux and FreeBSD.
+`docker-sync` uses ruby, which is pre-installed on OSX. On other Operating systems, you might have to [install ruby](https://www.ruby-lang.org/en/) separately.
 
 * For OSX, see [OSX](https://docker-sync.readthedocs.io/en/latest/getting-started/installation.html#installation-osx).
 * For Windows, see [Windows](https://docker-sync.readthedocs.io/en/latest/getting-started/installation.html#installation-windows).
@@ -15,9 +16,9 @@ Download & install `docker-sync` from [http://docker-sync.io/](http://docker-syn
 * See the list of alternatives at [Alternatives](https://docker-sync.readthedocs.io/en/latest/miscellaneous/alternatives.html)
 
 
-### Enable to use docker-sync in PSH Console
+### Enable the use of docker-sync in PSH Console
 
-Normally PSH will disable to use `docker-sync` as default. To switch to Docker Volumes and Docker Sync, you can simply update `DOCKER_SYNC_ENABLED: true` in your `.psh.yaml.override`. For example, mine looks like this
+By default, the usage of `docker-sync` is disabled in PSH. To use Docker Volumes with Docker Sync, you must set `DOCKER_SYNC_ENABLED`  to `true` in your `.psh.yaml.override`. Create a new entry in the `const` section like so:
 
 ```yaml
 const:
@@ -25,7 +26,7 @@ const:
   DOCKER_SYNC_ENABLED: true
 ```
 
-That's it. Then you could continue to install Shopware 6 as usual
+That's it. Continue to install Shopware 6 as usual:
 
 1. Build and start the containers:
 
@@ -33,7 +34,8 @@ That's it. Then you could continue to install Shopware 6 as usual
     > ./psh.phar docker:start
     ```
 
-> This creates and starts the containers, watchers and the sync itself. Running start the first time will take several minutes to complete, but it will be a lot faster in the next times, since containers and volumes are reused.
+> This command creates and starts the containers, watchers, and the sync itself. Running start the first time takes several minutes to complete.
+> Subsequent starts are a lot faster since the images and volumes are reused.
 
 2. Access the application container:
 
@@ -47,7 +49,7 @@ That's it. Then you could continue to install Shopware 6 as usual
     > ./psh.phar install 
     ```
 
-For more information about Shopware Installation, have a look [here](https://docs.shopware.com/en/shopware-platform-dev-en/getting-started/system-installation-guides)
+For more information about Shopware Installation, take a look [here](https://docs.shopware.com/en/shopware-platform-dev-en/getting-started/system-installation-guides)
 
 ### Next: [Startup](./../30-startup-guide/__categoryInfo.md)
   

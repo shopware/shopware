@@ -6,14 +6,14 @@
       "extensions": []
     },
     {
-      "filepath": "\/app\/custom\/plugins\/EpicTheme\/src\/Resources\/app\/storefront\/src\/main.js",
+      "filepath": "\/app\/custom\/plugins\/CustomTheme\/src\/Resources\/app\/storefront\/src\/main.js",
       "resolveMapping": [],
       "extensions": []
     }
   ],
   "style": [
     {
-      "filepath": "\/app\/custom\/plugins\/EpicTheme\/src\/Resources\/app\/storefront\/src\/scss\/overrides.scss",
+      "filepath": "\/app\/custom\/plugins\/CustomTheme\/src\/Resources\/app\/storefront\/src\/scss\/overrides.scss",
       "resolveMapping": [],
       "extensions": []
     },
@@ -25,10 +25,10 @@
       "extensions": []
     },
     {
-      "filepath": "\/app\/custom\/plugins\/EpicTheme\/src\/Resources\/app\/storefront\/src\/scss\/base.scss",
+      "filepath": "\/app\/custom\/plugins\/CustomTheme\/src\/Resources\/app\/storefront\/src\/scss\/base.scss",
       "resolveMapping": [],
       "extensions": []
     }
   ],
-  "basePath": "\/app\/custom\/plugins\/EpicTheme\/src\/Resources"
+  "basePath": "\/app\/custom\/plugins\/CustomTheme\/src\/Resources"
 }

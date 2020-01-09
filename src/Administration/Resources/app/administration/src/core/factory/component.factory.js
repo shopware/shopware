@@ -482,15 +482,15 @@ function findMethodInChain(extension, methodName, methodsOrComputed) {
         return resolveGetterSetterChain(extension, splitPath, methodsOrComputed);
     }
 
-    if (!extension[methodsOrComputed]) {
+    if (extension[methodsOrComputed] && extension[methodsOrComputed][methodName]) {
+        return extension[methodsOrComputed][methodName];
+    }
+
+    if (extension.extends) {
         return findMethodInChain(extension.extends, methodName, methodsOrComputed);
     }
 
-    if (!extension[methodsOrComputed][methodName]) {
-        return findMethodInChain(extension.extends, methodName, methodsOrComputed);
-    }
-
-    return extension[methodsOrComputed][methodName];
+    return null;
 }
 
 /**

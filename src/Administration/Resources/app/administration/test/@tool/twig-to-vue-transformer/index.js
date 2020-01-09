@@ -11,7 +11,7 @@ exports.getCacheKey = getCacheKey;
 function process(src, path) {
     const compiledTemplate = twigRenderer(src, path);
     return {
-        code: 'module.exports = `' + compiledTemplate + '`;' //eslint-disable-line
+        code: '/* istanbul ignore file */\nmodule.exports = `' + compiledTemplate + '`;' //eslint-disable-line
     };
 }
 exports.process = process;

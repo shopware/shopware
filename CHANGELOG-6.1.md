@@ -138,6 +138,11 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Remove method `addMenuToBody`
         * Remove method `removeMenuFromBody`
         * Remove data `positionTop`, `positionLeft`, `paddingTop`, `menuUuid`
+    * Removed property `popoverConfig` in `sw-select-result-list`, `sw-single-select`, `sw-entity-single-select`
+    * Removed property `isPopover` in `sw-popover`
+    * Added property `resizeWidth` and `popoverClass` to `sw-popover`
+    * Move `created` and `destroyed` to `createdComponent` and `destroyedComponent` in `sw-select-result`
+    * Ignore `.html.twig` in code coverage reports
 
     * Fixed the inheritance reset for the price field in the variant listing.
     * Fixed product name column in product review listing

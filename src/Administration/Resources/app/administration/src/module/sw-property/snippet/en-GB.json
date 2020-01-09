@@ -35,6 +35,8 @@
       "labelOptionName": "Name",
       "labelOptionColor": "Color",
       "labelOptionMedia": "Image",
+      "labelPosition": "Position",
+      "placeholderPosition": "Rank this group...",
       "placeholderOptionName": "Enter name...",
       "labelOptionPosition":  "Position",
       "placeholderOptionPosition":  "Rank this option...",

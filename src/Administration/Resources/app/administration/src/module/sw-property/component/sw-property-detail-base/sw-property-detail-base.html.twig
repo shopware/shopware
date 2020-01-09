@@ -19,7 +19,7 @@
         {% endblock %}
 
         {% block sw_property_detail_sorting_display_container %}
-            <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0 30px">
+            <sw-container columns="repeat(3, 1fr)" gap="0px 30px">
                 {% block sw_property_detail_display_type %}
                     <sw-field v-model="propertyGroup.displayType" validation="required" required type="select" :label="$tc('sw-property.detail.labelDisplayType')" >
                         <option slot="options" v-for="option in displayTypes" :key="option.value" :value="option.value">{{ option.label }}</option>
@@ -30,6 +30,16 @@
                     <sw-field v-model="propertyGroup.sortingType" validation="required" required type="select" :label="$tc('sw-property.detail.labelSortingType')" >
                         <option slot="options" v-for="option in sortingTypes" :key="option.value" :value="option.value">{{ option.label }}</option>
                     </sw-field>
+                {% endblock %}
+
+                {% block sw_property_detail_position %}
+                    <sw-number-field
+                            v-model="propertyGroup.position"
+                            pattern="[0-9]"
+                            :step="1"
+                            :label="$tc('sw-property.detail.labelPosition')"
+                            :placeholder="$tc('sw-property.detail.placeholderPosition')">
+                    </sw-number-field>
                 {% endblock %}
             </sw-container>
         {% endblock %}

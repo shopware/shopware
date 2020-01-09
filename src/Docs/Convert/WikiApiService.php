@@ -53,34 +53,6 @@ class WikiApiService
         $this->syncRoot($tree);
     }
 
-    private function insertGermanStubArticle(array $articleInfoDe, Document $document): void
-    {
-        $documentMetadata = $document->getMetadata();
-        $this->updateArticleLocale(
-            $articleInfoDe,
-            [
-                'seoUrl' => $documentMetadata->getUrlDe(),
-                'searchableInAllLanguages' => false,
-            ]
-        );
-
-        $this->updateArticleVersion(
-            $articleInfoDe,
-            [
-                'title' => $documentMetadata->getTitleDe(),
-                'navigationTitle' => $documentMetadata->getTitleDe(),
-                'content' => '<p>Die Entwicklerdokumentation ist nur auf Englisch verfügbar.</p>',
-                'searchableInAllLanguages' => false,
-                'fromProductVersion' => self::INITIAL_VERSION,
-                'active' => $documentMetadata->isActive(),
-                'metaTitle' => $documentMetadata->getMetaTitleDe(),
-                'metaDescription' => $documentMetadata->getMetaDescriptionDe(),
-            ]
-        );
-
-        $this->updateArticlePriority($articleInfoDe, $document->getPriority());
-    }
-
     private function buildArticleVersionUrl(array $articleInfo): string
     {
         return vsprintf(
@@ -640,7 +612,6 @@ class WikiApiService
             );
 
             $this->updateArticlePriority($articleInfo['en_GB'], $document->getPriority());
-            $this->insertGermanStubArticle($articleInfo['de_DE'], $document);
         }
     }
 

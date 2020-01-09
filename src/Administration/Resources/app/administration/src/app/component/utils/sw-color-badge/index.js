@@ -17,6 +17,8 @@ const { Component } = Shopware;
  *     <sw-color-badge color="green"></sw-color-badge>
  *     <!-- red circle -->
  *     <sw-color-badge color="red" rounded></sw-color-badge>
+ *     <!-- white circle with black border (readability on light backgrounds) -->
+ *     <sw-color-badge color="red" borderColor="black" borderWidth="1px" rounded></sw-color-badge>
  * </div>
  */
 Component.register('sw-color-badge', {
@@ -33,6 +35,21 @@ Component.register('sw-color-badge', {
             required: false,
             default: ''
         },
+        borderColor: {
+            type: String,
+            required: false,
+            default: ''
+        },
+        borderWidth: {
+            type: String,
+            required: false,
+            default: ''
+        },
+        borderStyle: {
+            type: String,
+            required: false,
+            default: ''
+        },
         rounded: {
             type: Boolean,
             required: false,
@@ -42,10 +59,16 @@ Component.register('sw-color-badge', {
 
     computed: {
         colorStyle() {
-            if (!this.color.length) {
-                return '';
+            const colorSetter = this.color.length ? `background:${this.color};` : '';
+            const borderColorSetter = this.borderColor.length ? `border-color:${this.borderColor};` : '';
+            const borderWidthSetter = this.borderWidth.length ? `border-width:${this.borderWidth};` : '';
+            let borderStyleSetter = '';
+
+            if (this.borderColor.length && this.borderWidth.length) {
+                borderStyleSetter = `border-style:${this.borderStyle.length ? this.borderStyle : 'solid'};`;
             }
-            return `background:${this.color}`;
+
+            return colorSetter + borderColorSetter + borderWidthSetter + borderStyleSetter;
         },
         variantClass() {
             return {

@@ -3,12 +3,10 @@
 namespace Shopware\Core\Content\Product\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
@@ -71,6 +69,7 @@ class ProductRatingAverageIndexer implements IndexerInterface
     public function index(\DateTimeInterface $timestamp): void
     {
         $iterator = $this->iteratorFactory->createIterator($this->productDefinition);
+        $iterator->getQuery()->andWhere('product.parent_id IS NULL');
 
         $this->eventDispatcher->dispatch(
             new ProgressStartedEvent('Start indexing product rating average', $iterator->fetchCount()),
@@ -78,7 +77,7 @@ class ProductRatingAverageIndexer implements IndexerInterface
         );
 
         while ($ids = $iterator->fetch()) {
-            $this->update(Uuid::fromHexToBytesList($ids), []);
+            $this->update($ids);
 
             $this->eventDispatcher->dispatch(
                 new ProgressAdvancedEvent(\count($ids)),
@@ -95,13 +94,14 @@ class ProductRatingAverageIndexer implements IndexerInterface
     public function partial(?array $lastId, \DateTimeInterface $timestamp): ?array
     {
         $iterator = $this->iteratorFactory->createIterator($this->productDefinition, $lastId);
+        $iterator->getQuery()->andWhere('product.parent_id IS NULL');
 
         $ids = $iterator->fetch();
         if (empty($ids)) {
             return null;
         }
 
-        $this->update(Uuid::fromHexToBytesList($ids), []);
+        $this->update($ids);
 
         return $iterator->getOffset();
     }
@@ -117,48 +117,12 @@ class ProductRatingAverageIndexer implements IndexerInterface
      */
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        $nested = $event->getEventByEntityName(ProductReviewDefinition::ENTITY_NAME);
-
-        if ($nested instanceof EntityDeletedEvent) {
-            $nested = $event->getEventByEntityName(ProductDefinition::ENTITY_NAME);
-
-            $this->update(Uuid::fromHexToBytesList($nested->getIds()), []);
-
-            return;
-        }
+        $nested = $event->getEventByEntityName(ProductDefinition::ENTITY_NAME);
 
         if ($nested) {
-            $this->updateByReview($nested->getIds());
+            $parentIds = $this->fetchParentIds($nested->getIds());
+            $this->update($parentIds);
         }
-    }
-
-    /**
-     * this function is called when reviews have been updated
-     * it looks up which products have to be calculated and calls the
-     * update function
-     */
-    private function updateByReview(array $reviewIds): void
-    {
-        if (empty($reviewIds)) {
-            return;
-        }
-
-        // select productids of all reviews that have been updated
-        $sql = 'SELECT product_id FROM product_review WHERE product_review.id in (:ids)';
-
-        $results = $this->connection->executeQuery(
-            $sql,
-            ['ids' => Uuid::fromHexToBytesList($reviewIds)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
-        )->fetchAll();
-
-        if (count($results) === 0) {
-            return;
-        }
-
-        $productIds = array_column($results, 'product_id');
-
-        $this->update($productIds, []);
     }
 
     /**
@@ -170,34 +134,56 @@ class ProductRatingAverageIndexer implements IndexerInterface
      * if reviews are deleted => as we are in pre delete context we have to ignore them
      * if reviews are updated => we have to consider them, take care that they are not
      */
-    private function update(array $productIds, array $excludedReviewIds): void
+    private function update(array $parentIds): void
     {
-        if (empty($productIds)) {
+        if (empty($parentIds)) {
             return;
         }
 
-        $sql = <<<SQL
-UPDATE product SET product.rating_average = (
-    SELECT AVG(product_review.points)
-    FROM product_review
-    WHERE product_review.product_id = IFNULL(product.parent_id, product.id) 
-    AND product_review.status = 1
-SQL;
-        $params = ['ids' => $productIds];
-        $paramTypes = ['ids' => Connection::PARAM_STR_ARRAY];
-        if (count($excludedReviewIds) > 0) {
-            $sql .= ' AND product_review.id NOT IN (:reviewIds)';
-            $params['reviewIds'] = $excludedReviewIds;
-            $paramTypes['reviewIds'] = Connection::PARAM_STR_ARRAY;
-        }
-        $sql .= ') WHERE (product.id IN (:ids) OR product.parent_id IN (:ids))';
+        $this->connection->executeUpdate(
+            'UPDATE product SET rating_average = NULL WHERE parent_id IN (:ids) OR id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($parentIds)],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
 
-        $this->connection->executeUpdate($sql, $params, $paramTypes);
+        $query = $this->connection->createQueryBuilder();
+        $query->select([
+            'IFNULL(product.parent_id, product.id) as id',
+            'AVG(product_review.points) as average',
+        ]);
+        $query->from('product_review');
+        $query->leftJoin('product_review', 'product', 'product', 'product.id = product_review.product_id OR product.parent_id = product_review.product_id');
+        $query->andWhere('product_review.status = 1');
+        $query->andWhere('product.id IN (:ids) OR product.parent_id IN (:ids)');
+        $query->setParameter('ids', Uuid::fromHexToBytesList($parentIds), Connection::PARAM_STR_ARRAY);
+        $query->addGroupBy('IFNULL(product.parent_id, product.id)');
+
+        $averages = $query->execute()->fetchAll();
+
+        $this->connection->transactional(function () use ($averages): void {
+            foreach ($averages as $average) {
+                $this->connection->executeUpdate(
+                    'UPDATE product SET rating_average = :average WHERE id = :id',
+                    ['average' => $average['average'], 'id' => $average['id']]
+                );
+            }
+        });
 
         $tags = [];
-        foreach ($productIds as $productId) {
-            $tags[] = $this->cacheKeyGenerator->getEntityTag(Uuid::fromBytesToHex($productId), ProductDefinition::ENTITY_NAME);
+        foreach ($parentIds as $productId) {
+            $tags[] = $this->cacheKeyGenerator->getEntityTag($productId, ProductDefinition::ENTITY_NAME);
         }
         $this->cache->invalidateTags($tags);
+    }
+
+    private function fetchParentIds(array $ids): array
+    {
+        $query = $this->connection->createQueryBuilder();
+        $query->select('LOWER(HEX(IFNULL(product.parent_id, product.id))) as id');
+        $query->from('product');
+        $query->where('product.id IN (:ids)');
+        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY);
+
+        return $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
     }
 }

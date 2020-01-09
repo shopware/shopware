@@ -122,7 +122,10 @@ class ProductPageLoader
         $product = $this->productLoader->load($productId, $salesChannelContext);
         $page->setProduct($product);
 
+        $request->request->set('parentId', $product->getParentId());
         $reviews = $this->productReviewLoader->load($request, $salesChannelContext);
+        $reviews->setParentId($product->getParentId() ?? $product->getId());
+
         $page->setReviews($reviews);
 
         $page->setConfiguratorSettings(

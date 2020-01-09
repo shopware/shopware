@@ -434,7 +434,7 @@
         "reviewExistsTeaserTitle": "Bearbeiten Sie Ihre Bewertung",
         "reviewExistsTeaserText": "Sie können hier Ihre bestehende Bewertung anpassen.",
         "reviewExistsTeaserButton": "Bewertung bearbeiten",
-        "reviewLanguageFilterLabel": "Bewertungen einblenden, die in anderen Sprachen verfasst wurden.",
+        "reviewLanguageFilterLabel": "Bewertungen nur in aktueller Sprache anzeigen.",
         "reviewSortLabel" : "Sortiert nach",
         "reviewSortTopRatedLabel" : "Am besten bewertet",
         "reviewSortNewLabel" : "Neueste Bewertung",

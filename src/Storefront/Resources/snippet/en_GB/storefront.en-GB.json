@@ -434,7 +434,7 @@
         "reviewExistsTeaserTitle": "Edit your review!",
         "reviewExistsTeaserText": "It looks like you already handed in a review for this particular product.",
         "reviewExistsTeaserButton": "Edit review",
-        "reviewLanguageFilterLabel": "Show reviews written in all languages.",
+        "reviewLanguageFilterLabel": "Display reviews in current language only.",
         "reviewSortLabel" : "Sort by",
         "reviewSortTopRatedLabel" : "Top rated",
         "reviewSortNewLabel" : "Most recent",

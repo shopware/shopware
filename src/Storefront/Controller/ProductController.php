@@ -142,6 +142,7 @@ class ProductController extends StorefrontController
             'productId' => $productId,
             'success' => 1,
             'data' => $data,
+            'parentId' => $data->get('parentId'),
         ];
 
         if ($data->has('id')) {

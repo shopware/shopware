@@ -4,7 +4,6 @@
         {% set data = reviews.customerReview %}
     {% endif %}
 
-
     <form class="review-form"
           action="{{ path('frontend.detail.review.save', { productId: reviews.productId }) }}"
           method="post"
@@ -22,6 +21,10 @@
             <input type="hidden"
                    name="forwardTo"
                    value="frontend.product.reviews">
+
+            <input type="hidden"
+                   name="parentId"
+                   value="{{ reviews.parentId }}">
 
             <input type="hidden"
                    name="forwardParameters"

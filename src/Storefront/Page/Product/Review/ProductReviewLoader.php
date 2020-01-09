@@ -22,7 +22,7 @@ class ProductReviewLoader
     private const LIMIT = 10;
     private const DEFAULT_PAGE = 1;
     private const ACTIVE_STATUS = 1;
-    private const ALL_LANGUAGES = 'all';
+    private const FILTER_LANGUAGE = 'filter-language';
 
     /**
      * @var EntityRepositoryInterface
@@ -51,19 +51,22 @@ class ProductReviewLoader
      */
     public function load(Request $request, SalesChannelContext $context): ReviewLoaderResult
     {
-        $productId = $request->get('productId');
+        $productId = $request->get('parentId') ?? $request->get('productId');
         if (!$productId) {
             throw new MissingRequestParameterException('productId');
         }
 
-        $criteria = $this->createReviewCriteria($request);
+        $criteria = $this->createCriteria($productId, $request, $context);
 
-        $reviews = $this->getReviews($criteria, $context, $request);
+        $reviews = $this->reviewRepository->search($criteria, $context->getContext());
+        $reviews = StorefrontSearchResult::createFrom($reviews);
 
         $this->eventDispatcher->dispatch(new ProductReviewsLoadedEvent($reviews, $context, $request));
 
         $reviewResult = ReviewLoaderResult::createFrom($reviews);
-        $reviewResult->setProductId($productId);
+        $reviewResult->setProductId($request->get('productId'));
+        $reviewResult->setParentId($request->get('parentId'));
+
         $aggregation = $reviews->getAggregations()->get('ratingMatrix');
         $matrix = new RatingMatrix([]);
 
@@ -71,116 +74,45 @@ class ProductReviewLoader
             $matrix = new RatingMatrix($aggregation->getBuckets());
         }
         $reviewResult->setMatrix($matrix);
-        $reviewResult->setCustomerReview($this->loadProductCustomerReview($request, $context));
-        $reviewResult->setTotalReviews($this->getUnfilteredReviewCount($request, $context));
+        $reviewResult->setCustomerReview($this->getCustomerReview($productId, $context));
+        $reviewResult->setTotalReviews($matrix->getTotalReviewCount());
 
         return $reviewResult;
     }
 
-    /**
-     * load product review for a specific user
-     * if there is no customer or customer has not written a review
-     * null is returned otherwise review entity is returned
-     *
-     * @throws MissingRequestParameterException
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
-     */
-    private function loadProductCustomerReview(Request $request, SalesChannelContext $context): ?ProductReviewEntity
+    private function createCriteria(string $productId, Request $request, SalesChannelContext $context): Criteria
     {
-        $productId = $request->get('productId');
-        if (!$productId) {
-            throw new MissingRequestParameterException('productId');
-        }
-
-        return $this->getCustomerReview($productId, $context);
-    }
-
-    /**
-     * get reviews with the users language
-     * if there aren't any reviews then get them with any language
-     */
-    private function getReviews(Criteria $criteria, SalesChannelContext $context, Request $request): StorefrontSearchResult
-    {
-        if ($request->get('language') !== self::ALL_LANGUAGES) {
-            $languageCriteria = clone $criteria;
-            $languageCriteria->addFilter(new EqualsFilter('languageId', $this->getLanguageId($context)));
-            $reviews = $this->reviewRepository->search($languageCriteria, $context->getContext());
-
-            if ($reviews->count() > 0) {
-                return StorefrontSearchResult::createFrom($reviews);
-            }
-        }
-
-        $reviews = $this->reviewRepository->search($criteria, $context->getContext());
-
-        return StorefrontSearchResult::createFrom($reviews);
-    }
-
-    /**
-     * @throws MissingRequestParameterException
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
-     */
-    private function createReviewCriteria(Request $request): Criteria
-    {
-        $productId = $request->get('productId');
-        if (!$productId) {
-            throw new MissingRequestParameterException('productId');
-        }
-
         $limit = (int) $request->get('limit', self::LIMIT);
         $page = (int) $request->get('p', self::DEFAULT_PAGE);
         $offset = $limit * ($page - 1);
 
-        $criteria = (new Criteria())
-            ->setLimit($limit)
-            ->setOffset($offset)
-            ->addFilter(
-                new EqualsFilter('status', self::ACTIVE_STATUS),
-                new EqualsFilter('productId', $productId)
-            );
-        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+        $criteria = new Criteria();
+        $criteria->setLimit($limit);
+        $criteria->setOffset($offset);
+        $criteria->addFilter(new EqualsFilter('status', self::ACTIVE_STATUS));
+        $criteria->addFilter(
+            new MultiFilter(MultiFilter::CONNECTION_OR, [
+                new EqualsFilter('product.id', $productId),
+                new EqualsFilter('product.parentId', $productId),
+            ])
+        );
 
         $sorting = new FieldSorting('createdAt', 'DESC');
-
         if ($request->get('sort', 'points') === 'points') {
             $sorting = new FieldSorting('points', 'DESC');
         }
 
         $criteria->addSorting($sorting);
 
-        $points = $request->get('points', []);
-
-        if (is_array($points) && count($points) > 0) {
-            $pointFilter = [];
-            foreach ($points as $point) {
-                $pointFilter[] = new EqualsFilter('points', $point);
-            }
-
-            $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, $pointFilter));
+        if ($request->get('language') === self::FILTER_LANGUAGE) {
+            $criteria->addPostFilter(
+                new EqualsFilter('languageId', $context->getContext()->getLanguageId())
+            );
         }
 
-        $criteria->addAggregation(
-            new FilterAggregation(
-                'status-filter',
-                new TermsAggregation('ratingMatrix', 'points'),
-                [new EqualsFilter('status', 1)]
-            )
-        );
+        $this->handlePointsAggregation($request, $criteria);
 
         return $criteria;
-    }
-
-    /**
-     * get language id by customer
-     *if customer does not exist get language id from context
-     */
-    private function getLanguageId(SalesChannelContext $context): string
-    {
-        if ($context->getCustomer()) {
-            return $context->getCustomer()->getLanguageId();
-        }
-
-        return $context->getContext()->getLanguageId();
     }
 
     /**
@@ -197,52 +129,41 @@ class ProductReviewLoader
             return null;
         }
 
-        $criteria = $this->createCustomerReviewCriteria($productId, $customer->getId());
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+        $criteria->setOffset(0);
+        $criteria->addFilter(
+            new MultiFilter(MultiFilter::CONNECTION_OR, [
+                new EqualsFilter('product.id', $productId),
+                new EqualsFilter('product.parentId', $productId),
+            ])
+        );
+        $criteria->addFilter(new EqualsFilter('customerId', $customer->getId()));
 
         $customerReviews = $this->reviewRepository->search($criteria, $context->getContext());
 
-        if ($customerReviews->count() > 0) {
-            return $customerReviews->first();
-        }
-
-        return null;
+        return $customerReviews->first();
     }
 
-    /**
-     * get criteria for customer product review
-     *
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
-     */
-    private function createCustomerReviewCriteria(string $productId, string $customerId): Criteria
+    private function handlePointsAggregation(Request $request, Criteria $criteria): void
     {
-        $criteria = (new Criteria())
-            ->setLimit(1)
-            ->setOffset(0)
-            ->addFilter(
-                new EqualsFilter('productId', $productId),
-                new EqualsFilter('customerId', $customerId)
-            );
+        $points = $request->get('points', []);
 
-        return $criteria;
-    }
+        if (is_array($points) && count($points) > 0) {
+            $pointFilter = [];
+            foreach ($points as $point) {
+                $pointFilter[] = new EqualsFilter('points', $point);
+            }
 
-    private function getUnfilteredReviewCount(Request $request, SalesChannelContext $context): int
-    {
-        $productId = $request->get('productId');
-        if (!$productId) {
-            throw new MissingRequestParameterException('productId');
+            $criteria->addPostFilter(new MultiFilter(MultiFilter::CONNECTION_OR, $pointFilter));
         }
 
-        $criteria = (new Criteria())
-            ->setLimit(1)
-            ->addFilter(
-                new EqualsFilter('status', self::ACTIVE_STATUS),
-                new EqualsFilter('productId', $productId)
-            );
-        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
-
-        $customerReviews = $this->reviewRepository->search($criteria, $context->getContext());
-
-        return $customerReviews->getTotal();
+        $criteria->addAggregation(
+            new FilterAggregation(
+                'status-filter',
+                new TermsAggregation('ratingMatrix', 'points'),
+                [new EqualsFilter('status', 1)]
+            )
+        );
     }
 }

@@ -31,6 +31,16 @@
                         <option slot="options" v-for="option in sortingTypes" :key="option.value" :value="option.value">{{ option.label }}</option>
                     </sw-field>
                 {% endblock %}
+
+                {% block sw_property_detail_position %}
+                    <sw-number-field
+                            v-model="propertyGroup.position"
+                            pattern="[0-9]"
+                            :step="1"
+                            :label="$tc('sw-property.detail.labelPosition')"
+                            :placeholder="$tc('sw-property.detail.placeholderPosition')">
+                    </sw-number-field>
+                {% endblock %}
             </sw-container>
         {% endblock %}
     </sw-card>

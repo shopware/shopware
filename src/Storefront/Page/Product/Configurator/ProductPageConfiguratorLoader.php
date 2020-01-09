@@ -154,7 +154,12 @@ class ProductPageConfiguratorLoader
         usort(
             $sorted,
             static function (PropertyGroupEntity $a, PropertyGroupEntity $b) {
-                return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
+                $posA = $a->getTranslation('position');
+                $posB = $b->getTranslation('position');
+                if ($posA === $posB) {
+                    return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
+                }
+                return ($posA < $posB) ? -1 : 1;
             }
         );
 

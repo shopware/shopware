@@ -32,6 +32,11 @@ class PropertyGroupEntity extends Entity
     protected $description;
 
     /**
+     * @var int
+     */
+    protected $position;
+
+    /**
      * @var PropertyGroupOptionCollection|null
      */
     protected $options;
@@ -84,6 +89,16 @@ class PropertyGroupEntity extends Entity
     public function setDescription(?string $description): void
     {
         $this->description = $description;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
     }
 
     public function getDisplayType(): string

@@ -23,6 +23,11 @@ class PropertyGroupTranslationEntity extends TranslationEntity
     protected $description;
 
     /**
+     * @var int|null
+     */
+    protected $position;
+
+    /**
      * @var PropertyGroupEntity|null
      */
     protected $propertyGroup;
@@ -70,6 +75,16 @@ class PropertyGroupTranslationEntity extends TranslationEntity
     public function setDescription(?string $description): void
     {
         $this->description = $description;
+    }
+
+    public function getPosition(): ?int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
     }
 
     public function getCustomFields(): ?array

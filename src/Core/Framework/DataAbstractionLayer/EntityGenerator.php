@@ -32,6 +32,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceDefinitionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\RemoteAddressField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
@@ -52,7 +53,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 class #entity#Entity extends Entity
 {
     use EntityIdTrait;
-    
+
     #properties#
 
 #functions#
@@ -187,6 +188,7 @@ EOF;
                 $type = $this->getClassTypeHint($definition->getCollectionClass());
 
                 break;
+            case $field instanceof OneToOneAssociationField:
             case $field instanceof ManyToOneAssociationField:
                 $uses[] = $this->getUsage($field->getReferenceDefinition()->getEntityClass());
                 $type = $this->getClassTypeHint($field->getReferenceDefinition()->getEntityClass());
@@ -202,11 +204,7 @@ EOF;
                 $type = $this->getClassTypeHint($field->getToManyReferenceDefinition()->getCollectionClass());
 
                 break;
-            case $field instanceof OneToOneAssociationField:
-                $uses[] = $this->getUsage($field->getReferenceDefinition()->getEntityClass());
-                $type = $this->getClassTypeHint($field->getReferenceDefinition()->getEntityClass());
-
-                break;
+            case $field instanceof ReferenceVersionField:
             case $field instanceof VersionField:
                 return null;
             case $field instanceof TranslatedField:
@@ -224,8 +222,6 @@ EOF;
                 $uses[] = 'use ' . CalculatedPrice::class;
 
                 break;
-            case $field instanceof ReferenceVersionField:
-                return null;
             case $field instanceof PriceDefinitionField:
                 $type = 'QuantityPriceDefinition';
                 $uses[] = 'use ' . QuantityPriceDefinition::class;
@@ -241,21 +237,8 @@ EOF;
                 $uses[] = 'use ' . PriceRuleCollection::class;
 
                 break;
-            case $field instanceof LongTextField:
-            case $field instanceof LongTextWithHtmlField:
-                $type = 'string';
-
-                break;
-            case $field instanceof PasswordField:
-                $type = 'string';
-
-                break;
             case $field instanceof FloatField:
                 $type = 'float';
-
-                break;
-            case $field instanceof IdField:
-                $type = 'string';
 
                 break;
             case $field instanceof IntField:
@@ -266,11 +249,13 @@ EOF;
                 $type = 'array';
 
                 break;
+            case $field instanceof LongTextField:
+            case $field instanceof LongTextWithHtmlField:
+            case $field instanceof PasswordField:
+            case $field instanceof IdField:
             case $field instanceof FkField:
-                $type = 'string';
-
-                break;
             case $field instanceof StringField:
+            case $field instanceof RemoteAddressField:
                 $type = 'string';
 
                 break;
@@ -280,7 +265,7 @@ EOF;
                 break;
             case $field instanceof DateTimeField:
             case $field instanceof DateField:
-                $type = "\DateTime";
+                $type = "\DateTimeInterface";
 
                 break;
             case $field instanceof BlobField:

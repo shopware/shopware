@@ -29,6 +29,21 @@ Component.register('sw-popover', {
             type: String,
             required: false,
             default: ''
+        },
+        /**
+         * @deprecated tag:v6.2.0
+         */
+        isPopover: {
+            type: Boolean,
+            required: false,
+            default: true,
+            validator() {
+                Shopware.Utils.debug.warn(
+                    'sw-popover',
+                    'The property "isPopover" is deprecated and will be removed in 6.2'
+                );
+                return true;
+            }
         }
 
     },

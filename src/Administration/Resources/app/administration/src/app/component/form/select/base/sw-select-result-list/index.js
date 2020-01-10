@@ -43,7 +43,26 @@ Component.register('sw-select-result-list', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        /**
+         * @deprecated tag:v6.2.0
+         */
+        popoverConfig: {
+            type: Object,
+            required: false,
+            default() {
+                return { active: false };
+            },
+            validator() {
+                Shopware.Utils.debug.warn(
+                    'sw-select-result-list',
+                    'The property "popoverConfig" is deprecated and will be removed in 6.2'
+                );
+                return true;
+            }
         }
+
     },
 
     data() {

@@ -46,6 +46,24 @@ Component.register('sw-single-select', {
             default: 'value'
         },
 
+        /**
+         * @deprecated tag:v6.2.0
+         */
+        popoverConfig: {
+            type: Object,
+            required: false,
+            default() {
+                return { active: false };
+            },
+            validator() {
+                Shopware.Utils.debug.warn(
+                    'sw-single-select',
+                    'The property "popoverConfig" is deprecated and will be removed in 6.2'
+                );
+                return true;
+            }
+        },
+
         // Used to implement a custom search function.
         // Parameters passed: { options, labelProperty, valueProperty, searchTerm }
         searchFunction: {

@@ -32,6 +32,18 @@ class PropertyGroupCollection extends EntityCollection
         return $map;
     }
 
+    public function sortByPositions(): void
+    {
+        usort($this->elements, function(PropertyGroupEntity $a, PropertyGroupEntity $b) {
+            $posA = $a->getTranslation('position');
+            $posB = $b->getTranslation('position');
+            if ($posA === $posB) {
+                return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
+            }
+            return $posA <=> $posB;
+        });
+    }
+
     protected function getExpectedClass(): string
     {
         return PropertyGroupEntity::class;

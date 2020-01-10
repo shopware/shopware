@@ -91,7 +91,7 @@ class PropertyGroupEntity extends Entity
         $this->description = $description;
     }
 
-    public function getPosition(): int
+    public function getPosition(): ?int
     {
         return $this->position;
     }

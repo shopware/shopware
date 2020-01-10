@@ -167,42 +167,6 @@ class ProductPageConfiguratorLoader
             $sorted[$group->getId()] = $group;
         }
 
-        // check if the parent product has a configuratorGroupConfig
-        $criteria = (new Criteria([$product->getParentId() ?? $product->getId()]));
-        /** @var ProductEntity $parentProduct */
-        $parentProduct = $this->productRepository
-            ->search($criteria, $context->getContext())
-            ->first();
-
-        $configuratorGroupConfig = $parentProduct->getConfiguratorGroupConfig();
-        if ($configuratorGroupConfig) {
-            // sort groups by configuratorGroupConfig if possible
-            $sortedGroupIds = array_map(function (array $configuratorGroupConfigEntry) {
-                return $configuratorGroupConfigEntry['id'];
-            }, $configuratorGroupConfig);
-            usort(
-                $sorted,
-                static function (PropertyGroupEntity $a, PropertyGroupEntity $b) use ($sortedGroupIds) {
-                    $posA = array_search($a->getId(), $sortedGroupIds);
-                    $posB = array_search($b->getId(), $sortedGroupIds);
-                    return $posA <=> $posB;
-                }
-            );
-        } else {
-            // sort groups by their position, resolve conflicts by name
-            usort(
-                $sorted,
-                static function (PropertyGroupEntity $a, PropertyGroupEntity $b) {
-                    $posA = $a->getTranslation('position');
-                    $posB = $b->getTranslation('position');
-                    if ($posA === $posB) {
-                        return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
-                    }
-                    return $posA <=> $posB;
-                }
-            );
-        }
-
         /** @var PropertyGroupEntity $group */
         foreach ($sorted as $group) {
             $group->getOptions()->sort(
@@ -224,7 +188,30 @@ class ProductPageConfiguratorLoader
             );
         }
 
-        return new PropertyGroupCollection($sorted);
+        $groupCollection = new PropertyGroupCollection($sorted);
+        // check if the parent product has a configuratorGroupConfig
+        $criteria = (new Criteria([$product->getParentId() ?? $product->getId()]));
+        /** @var ProductEntity $parentProduct */
+        $parentProduct = $this->productRepository
+            ->search($criteria, $context->getContext())
+            ->first();
+
+        $configuratorGroupConfig = $parentProduct->getConfiguratorGroupConfig();
+        if ($configuratorGroupConfig) {
+            // sort groups by configuratorGroupConfig
+            $sortedGroupIds = array_map(function (array $configuratorGroupConfigEntry) {
+                return $configuratorGroupConfigEntry['id'];
+            }, $configuratorGroupConfig);
+
+            // ensure all ids are in the array (but only once)
+            $sortedGroupIds = array_unique(array_merge($sortedGroupIds, $groupCollection->getIds()));
+
+            $groupCollection->sortByIdArray($sortedGroupIds);
+        } else {
+            $groupCollection->sortByPositions();
+        }
+
+        return $groupCollection;
     }
 
     private function isCombinable(

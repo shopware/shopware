@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceEntity;
 use Shopware\Core\Framework\Struct\Struct;
 
 class CalculatedPrice extends Struct
@@ -38,13 +39,19 @@ class CalculatedPrice extends Struct
      */
     protected $referencePrice;
 
+    /**
+     * @var ShippingMethodPriceEntity
+     */
+    protected $shippingMethodPrice;
+
     public function __construct(
         float $unitPrice,
         float $totalPrice,
         CalculatedTaxCollection $calculatedTaxes,
         TaxRuleCollection $taxRules,
         int $quantity = 1,
-        ?ReferencePrice $referencePrice = null
+        ?ReferencePrice $referencePrice = null,
+        ?ShippingMethodPriceEntity $shippingMethodPrice = null
     ) {
         $this->unitPrice = $unitPrice;
         $this->totalPrice = $totalPrice;
@@ -52,6 +59,7 @@ class CalculatedPrice extends Struct
         $this->taxRules = $taxRules;
         $this->quantity = $quantity;
         $this->referencePrice = $referencePrice;
+        $this->shippingMethodPrice = $shippingMethodPrice;
     }
 
     public function getTotalPrice(): float
@@ -83,4 +91,15 @@ class CalculatedPrice extends Struct
     {
         return $this->referencePrice;
     }
+
+    public function getShippingMethodPrice()
+    {
+        return $this->shippingMethodPrice;
+    }
+
+    public function setShippingMethodPrice($shippingMethodPrice)
+    {
+        $this->shippingMethodPrice = $shippingMethodPrice;
+    }
+
 }

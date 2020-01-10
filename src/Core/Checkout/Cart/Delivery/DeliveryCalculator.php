@@ -109,6 +109,8 @@ class DeliveryCalculator
                 $context
             );
 
+            $costs->setShippingMethodPrice($price);
+
             break;
         }
 

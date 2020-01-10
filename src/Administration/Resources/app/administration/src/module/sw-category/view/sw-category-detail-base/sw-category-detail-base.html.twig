@@ -117,6 +117,7 @@
             {% block sw_category_detail_seo_card %}
                 <sw-seo-url v-if="category.seoUrls"
                             :isLoading="isLoading"
+                            :hasDefaultTemplate="false"
                             :urls="category.seoUrls">
                 </sw-seo-url>
             {% endblock %}

@@ -101,6 +101,7 @@
             {% block sw_product_detail_base_settings_seo_settings_url %}
                 <sw-seo-url v-if="product.seoUrls"
                             :isLoading="loading.product"
+                            :hasDefaultTemplate="false"
                             :urls="product.seoUrls">
 
                     <template #seo-additional="props">

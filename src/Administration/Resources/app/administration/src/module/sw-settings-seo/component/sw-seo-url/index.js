@@ -29,6 +29,11 @@ Component.register('sw-seo-url', {
             type: Boolean,
             required: false,
             default: false
+        },
+        hasDefaultTemplate: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 
@@ -79,6 +84,10 @@ Component.register('sw-seo-url', {
 
         hasAdditionalSeoSlot() {
             return this.$scopedSlots.hasOwnProperty('seo-additional');
+        },
+
+        allowInput() {
+            return this.hasDefaultTemplate || this.currentSalesChannelId !== null;
         }
     },
 
@@ -138,7 +147,7 @@ Component.register('sw-seo-url', {
                 return entityData.salesChannelId === null;
             });
 
-            if (defaultSeoUrlData === undefined) {
+            if (defaultSeoUrlData === undefined && (this.hasDefaultTemplate || this.urls.length <= 0)) {
                 this.showEmptySeoUrlError = true;
             }
 

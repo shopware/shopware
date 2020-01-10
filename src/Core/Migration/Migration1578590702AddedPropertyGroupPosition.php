@@ -19,6 +19,5 @@ class Migration1578590702AddedPropertyGroupPosition extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        $connection->executeUpdate('ALTER TABLE `property_group_translation` DROP COLUMN `position`;');
     }
 }

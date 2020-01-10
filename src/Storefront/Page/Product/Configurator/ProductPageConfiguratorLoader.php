@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\Product\Configurator;
 
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingEntity;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
@@ -27,12 +28,19 @@ class ProductPageConfiguratorLoader
      */
     private $combinationLoader;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $productRepository;
+
     public function __construct(
         EntityRepositoryInterface $configuratorRepository,
+        EntityRepositoryInterface $productRepository,
         AvailableCombinationLoader $combinationLoader
     ) {
         $this->combinationLoader = $combinationLoader;
         $this->configuratorRepository = $configuratorRepository;
+        $this->productRepository = $productRepository;
     }
 
     /**
@@ -48,7 +56,8 @@ class ProductPageConfiguratorLoader
 
         $groups = $this->loadSettings($product, $salesChannelContext);
 
-        $groups = $this->sortSettings($groups);
+        $groups = $this->sortSettings($groups, $product, $salesChannelContext);
+
 
         $combinations = $this->combinationLoader->load(
             $product->getParentId(),
@@ -132,7 +141,14 @@ class ProductPageConfiguratorLoader
         return $groups;
     }
 
-    private function sortSettings(array $groups): PropertyGroupCollection
+    /**
+     * @param array $groups
+     * @param SalesChannelProductEntity $product
+     * @param SalesChannelContext $context
+     * @return PropertyGroupCollection
+     * @throws InconsistentCriteriaIdsException
+     */
+    private function sortSettings(array $groups, SalesChannelProductEntity $product, SalesChannelContext $context): PropertyGroupCollection
     {
         if (!$groups) {
             return new PropertyGroupCollection();
@@ -151,17 +167,41 @@ class ProductPageConfiguratorLoader
             $sorted[$group->getId()] = $group;
         }
 
-        usort(
-            $sorted,
-            static function (PropertyGroupEntity $a, PropertyGroupEntity $b) {
-                $posA = $a->getTranslation('position');
-                $posB = $b->getTranslation('position');
-                if ($posA === $posB) {
-                    return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
+        // check if the parent product has a configuratorGroupConfig
+        $criteria = (new Criteria([$product->getParentId() ?? $product->getId()]));
+        /** @var ProductEntity $parentProduct */
+        $parentProduct = $this->productRepository
+            ->search($criteria, $context->getContext())
+            ->first();
+
+        $configuratorGroupConfig = $parentProduct->getConfiguratorGroupConfig();
+        if ($configuratorGroupConfig) {
+            // sort groups by configuratorGroupConfig if possible
+            $sortedGroupIds = array_map(function (array $configuratorGroupConfigEntry) {
+                return $configuratorGroupConfigEntry['id'];
+            }, $configuratorGroupConfig);
+            usort(
+                $sorted,
+                static function (PropertyGroupEntity $a, PropertyGroupEntity $b) use ($sortedGroupIds) {
+                    $posA = array_search($a->getId(), $sortedGroupIds);
+                    $posB = array_search($b->getId(), $sortedGroupIds);
+                    return $posA <=> $posB;
                 }
-                return ($posA < $posB) ? -1 : 1;
-            }
-        );
+            );
+        } else {
+            // sort groups by their position, resolve conflicts by name
+            usort(
+                $sorted,
+                static function (PropertyGroupEntity $a, PropertyGroupEntity $b) {
+                    $posA = $a->getTranslation('position');
+                    $posB = $b->getTranslation('position');
+                    if ($posA === $posB) {
+                        return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
+                    }
+                    return $posA <=> $posB;
+                }
+            );
+        }
 
         /** @var PropertyGroupEntity $group */
         foreach ($sorted as $group) {

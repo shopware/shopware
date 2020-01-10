@@ -229,6 +229,7 @@
 
         <service id="Shopware\Storefront\Page\Product\Configurator\ProductPageConfiguratorLoader">
             <argument type="service" id="product_configurator_setting.repository"/>
+            <argument type="service" id="product.repository"/>
             <argument type="service" id="Shopware\Storefront\Page\Product\Configurator\AvailableCombinationLoader"/>
         </service>
 

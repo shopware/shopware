@@ -34,6 +34,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -181,6 +182,17 @@ class OrderController extends AbstractController
         $response->setContent(json_encode($this->serialize($cart)));
 
         return $response;
+    }
+
+    /**
+     * @Route("/api/v{version}/sales-channel/{salesChannelId}/checkout/cart", name="api.checkout.cart.cancel", methods={"DELETE"})
+     */
+    public function cancelCart(string $salesChannelId, Request $request, Context $context): JsonResponse
+    {
+        $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $context, $request);
+        $this->cartService->deleteCart($salesChannelContext);
+
+        return new JsonResponse();
     }
 
     /**

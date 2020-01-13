@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Checkout\Cart\Event\CartDeletedEvent;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\Event\LineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\LineItemQuantityChangedEvent;
@@ -221,6 +222,14 @@ class CartService
     public function recalculate(Cart $cart, SalesChannelContext $context): Cart
     {
         return $this->calculate($cart, $context, true);
+    }
+
+    public function deleteCart(SalesChannelContext $context): void
+    {
+        $this->persister->delete($context->getToken(), $context);
+
+        $cartDeleteEvent = new CartDeletedEvent($context);
+        $this->eventDispatcher->dispatch($cartDeleteEvent);
     }
 
     private function calculate(Cart $cart, SalesChannelContext $context, bool $persist = false): Cart

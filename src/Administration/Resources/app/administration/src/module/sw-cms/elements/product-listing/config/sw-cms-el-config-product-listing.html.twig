@@ -3,9 +3,11 @@
 
         {% block sw_cms_element_product_listing_config_layout_select %}
             <sw-select-field :label="$tc('sw-cms.elements.productBox.config.label.layoutType')" v-model="element.config.boxLayout.value">
-                <option value="standard">{{ $tc('sw-cms.elements.productBox.config.label.layoutTypeStandard') }}</option>
-                <option value="image">{{ $tc('sw-cms.elements.productBox.config.label.layoutTypeImage') }}</option>
-                <option value="minimal">{{ $tc('sw-cms.elements.productBox.config.label.layoutTypeMinimal') }}</option>
+                {% block sw_cms_element_product_listing_config_layout_select_options %}
+                    <option value="standard">{{ $tc('sw-cms.elements.productBox.config.label.layoutTypeStandard') }}</option>
+                    <option value="image">{{ $tc('sw-cms.elements.productBox.config.label.layoutTypeImage') }}</option>
+                    <option value="minimal">{{ $tc('sw-cms.elements.productBox.config.label.layoutTypeMinimal') }}</option>
+                {% endblock %}
             </sw-select-field>
         {% endblock %}
 

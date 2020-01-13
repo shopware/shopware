@@ -1,6 +1,21 @@
 const { Utils, Service } = Shopware;
 const { get } = Utils;
 
+function filterEmptyLineItems(items) {
+    return items.filter(item => item.label === '');
+}
+
+function reverseLineItems(items) {
+    return items.slice().reverse();
+}
+
+function mergeEmptyAndExistingLineItems(emptyLineItems, lineItems) {
+    // Reverse the lineItems so the newly added are at the top for better UX
+    const reversedLineItems = reverseLineItems(lineItems);
+
+    return [...emptyLineItems, ...reversedLineItems];
+}
+
 export default {
     namespaced: true,
 
@@ -27,9 +42,9 @@ export default {
         },
 
         setCart(state, cart) {
-            const emptyLineItems = state.cart.lineItems.filter(item => item.label === '');
+            const emptyLineItems = filterEmptyLineItems(state.cart.lineItems);
             state.cart = cart;
-            state.cart.lineItems = cart.lineItems.concat(emptyLineItems).reverse();
+            state.cart.lineItems = mergeEmptyAndExistingLineItems(emptyLineItems, state.cart.lineItems);
         },
 
         setCartLineItems(state, lineItems) {

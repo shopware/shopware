@@ -120,8 +120,8 @@ class PromotionItemBuilder
         // and make sure it has everything as dynamic content.
         // this is necessary for the recalculation process.
         $promotionItem = new LineItem($discount->getId(), PromotionProcessor::LINE_ITEM_TYPE);
-        $promotionItem->setLabel($promotion->getName());
-        $promotionItem->setDescription($promotion->getName());
+        $promotionItem->setLabel($promotion->getTranslation('name'));
+        $promotionItem->setDescription($promotion->getTranslation('name'));
         $promotionItem->setGood(false);
         $promotionItem->setRemovable(true);
         $promotionItem->setPriceDefinition($promotionDefinition);

@@ -141,6 +141,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
     * Fixed the inheritance reset for the price field in the variant listing.
     * Fixed product name column in product review listing
+    * Fixed inheritance switches in product detail view on main products when you come from an child product
 * Core    
 	* We did some refactoring on how we use `WriteConstraintsViolationExceptions`.	
         It's path `property` should now point to the object that is inspected by an validator while the `propertyPath` property in `WriteConstraint` objects should only point to the invalid property. 	

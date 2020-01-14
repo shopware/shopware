@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "shopware/platform": "dev-master"
+        "shopware/platform": "6.2.*@dev"
     },
     "extra": {
         "shopware-plugin-class": "Works\\Works"

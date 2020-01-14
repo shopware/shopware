@@ -193,7 +193,8 @@ class NavigationLoaderTest extends TestCase
 
         $tree = $this->navigationLoader->load(
             $data->get('root'),
-            $context, $data->get('root'),
+            $context,
+            $data->get('root'),
             3
         );
 
@@ -205,8 +206,9 @@ class NavigationLoaderTest extends TestCase
 
         $tree = $this->navigationLoader->load(
             $data->get('root'),
-            $context, $data->get('root'),
-           4
+            $context,
+            $data->get('root'),
+            4
         );
 
         static::assertSame($data->get('root'), $tree->getActive()->getId());

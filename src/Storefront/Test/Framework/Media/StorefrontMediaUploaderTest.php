@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+namespace Shopware\Storefront\Test\Framework\Media;
+
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Content\Media\File\FileSaver;
@@ -45,9 +47,8 @@ class StorefrontMediaUploaderTest extends TestCase
     public function testUploadDocumentFailFilenameContainsPhp(): void
     {
         $this->expectException(IllegalFileNameException::class);
-        $this->expectExceptionMessage((new IllegalFileNameException(
-            'contains.php.pdf',
-            'contains PHP related file extension'))->getMessage()
+        $this->expectExceptionMessage(
+            (new IllegalFileNameException('contains.php.pdf', 'contains PHP related file extension'))->getMessage()
         );
 
         $file = $this->getUploadFixture('contains.php.pdf');
@@ -101,12 +102,14 @@ class StorefrontMediaUploaderTest extends TestCase
 
     private function removeMedia($ids): void
     {
-        if (!is_array($ids)) {
+        if (!\is_array($ids)) {
             $ids = [$ids];
         }
 
         $this->getContainer()->get('media.repository')->delete(
-            array_map(static function (string $id) {return ['id' => $id]; }, $ids),
+            array_map(static function (string $id) {
+                return ['id' => $id];
+            }, $ids),
             Context::createDefaultContext()
         );
     }

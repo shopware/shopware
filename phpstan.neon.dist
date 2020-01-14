@@ -23,9 +23,6 @@ parameters:
 
         - src/Core/TestBootstrap.php
 
-        # Fatal error in PHPStan caused by this class https://github.com/phpstan/phpstan-symfony/issues/71
-        - src/Core/Framework/Struct/Serializer/StructNormalizer.php
-
     ignoreErrors:
         # https://github.com/phpstan/phpstan/issues/1060
         - '#Call to an undefined method Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface::(variableNode|scalarNode|end|integerNode|booleanNode|enumNode)\(\)\.#'

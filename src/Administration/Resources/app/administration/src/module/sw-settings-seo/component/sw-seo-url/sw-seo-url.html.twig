@@ -21,7 +21,7 @@
 
                         {% block sw_seo_url_card_seo_path %}
                         <sw-inherit-wrapper v-model="currentSeoUrl.seoPathInfo"
-                                            :hasParent="currentSalesChannelId !== null && !isHeadlessSalesChannel"
+                                            :hasParent="currentSalesChannelId !== null && !isHeadlessSalesChannel && hasDefaultTemplate"
                                             :inheritedValue="(currentSeoUrl.salesChannelId !== null && !isHeadlessSalesChannel) ? defaultSeoUrl.seoPathInfo : null">
 
                             <template #content="props">
@@ -29,7 +29,7 @@
                                     <sw-text-field :mapInheritance="props"
                                                    :value="props.currentValue"
                                                    @input="props.updateCurrentValue"
-                                                   :disabled="props.isInherited || isHeadlessSalesChannel"
+                                                   :disabled="props.isInherited || isHeadlessSalesChannel || !allowInput"
                                                    :disableInheritanceToggle="isHeadlessSalesChannel"
                                                    :label="$tc('sw-seo-url.labelSeoPathInfo')"
                                                    :help-text="seoUrlHelptext">

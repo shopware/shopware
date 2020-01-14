@@ -21,7 +21,7 @@ class CsvFileIteratorTest extends TestCase
     private function getTestData(int $rows)
     {
         $stream = fopen('php://memory', 'r+b');
-        fwrite($stream, 'Header' . "\n");
+        fwrite($stream, "Header\n");
         for ($i = 0; $i < $rows; ++$i) {
             fwrite($stream, 'Line' . $i . "\n");
         }

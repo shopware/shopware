@@ -40,7 +40,8 @@ There's a good reason, why many IDEs try to prevent you from changing code in th
     Docker is <b>not</b> the recommended way to install Shopware 6 on a Mac, due to performance issues.
     Instead take a closer look at our
     <a href="https://docs.shopware.com/en/shopware-platform-dev-en/getting-started/system-installation-guides/vagrant">vagrant guide</a>
-    or the <a href="https://docs.shopware.com/en/shopware-platform-dev-en/getting-started/system-installation-guides/mac-os-x">MacOS installation guide</a>.
+    or the <a href="https://docs.shopware.com/en/shopware-platform-dev-en/getting-started/system-installation-guides/mac-os-x">MacOS using MAMP installation guide</a>
+    or install <a href="https://docs.shopware.com/en/shopware-platform-dev-en/getting-started/system-installation-guides/docker-sync">docker-sync</a> to use native mounting with Docker volumes. 
 </p>
 
 The docker installation is the easiest way to get a running Shopware 6. This way you can setup Shopware 6 with just three easy commands: 
@@ -69,7 +70,7 @@ To be sure that the installation succeeded, just open the following url in your 
 
 ## Local installation
 
-If you are working on a Mac or it's otherwise impossible to get docker up and running on your development environment you can install Shopware 6 locally.
+If it's impossible to get docker up and running on your development environment you can install Shopware 6 locally.
 **But be aware that this will be the by far more complex solution since additional or changed system requirements need to be managed by you.**
 
 Once you setup all the required packages mentioned in [requirements](./../10-requirements/__categoryInfo.md) there are two main goals you need to accomplish:
@@ -119,6 +120,7 @@ To be sure that the installation succeeded, just open the configured host url in
 
 * [MacOSX using MAMP](./../25-system-installation-guides/10-mac-os-x.md)
 * [Vagrant VM](./../25-system-installation-guides/20-vagrant.md)
+* [Using docker-sync](./../25-system-installation-guides/30-docker-sync.md)
 
 ## Updating the repositories
 

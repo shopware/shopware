@@ -28,7 +28,48 @@ function createClient(context) {
         baseURL: context.apiResourcePath
     });
 
-    return refreshTokenInterceptor(client);
+    refreshTokenInterceptor(client);
+    globalErrorHandlingInterceptor(client);
+
+    return client;
+}
+
+/**
+ * Sets up an interceptor to process global request errors
+ * @param {AxiosInstance} client
+ * @returns {AxiosInstance}
+ */
+function globalErrorHandlingInterceptor(client) {
+    client.interceptors.response.use(response => response, error => {
+        const { response: { status, data: { errors } } } = error;
+
+        if (status === 412) {
+            const frameworkLanguageNotFound = errors.find((e) => e.code === 'FRAMEWORK__LANGUAGE_NOT_FOUND');
+
+            if (frameworkLanguageNotFound) {
+                localStorage.removeItem('sw-admin-current-language');
+
+                Shopware.State.dispatch('notification/createNotification', {
+                    variant: 'error',
+                    system: true,
+                    autoClose: false,
+                    growl: true,
+                    title: frameworkLanguageNotFound.title,
+                    message: `${frameworkLanguageNotFound.detail} Please reload the administration.`,
+                    actions: [
+                        {
+                            label: 'Reload administration',
+                            method: () => window.location.reload()
+                        }
+                    ]
+                });
+            }
+        }
+
+        return Promise.reject(error);
+    });
+
+    return client;
 }
 
 /**

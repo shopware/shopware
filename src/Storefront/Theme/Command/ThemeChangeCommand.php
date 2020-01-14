@@ -150,7 +150,7 @@ class ThemeChangeCommand extends Command
     {
         $choices = [];
 
-        foreach ($this->pluginRegistry->getConfigurations() as $theme) {
+        foreach ($this->pluginRegistry->getConfigurations()->getThemes() as $theme) {
             $choices[] = $theme->getTechnicalName();
         }
 

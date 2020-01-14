@@ -247,15 +247,17 @@ class SetNullOnDeleteTest extends TestCase
         $id = Uuid::randomHex();
         $childId = Uuid::randomHex();
 
-        $this->repository->create([
+        $this->repository->create(
             [
-                'id' => $id,
-                'productNumber' => Uuid::randomHex(),
-                'name' => 'test',
-                'setNulls' => [
-                    ['id' => $childId, 'name' => 'test child'],
+                [
+                    'id' => $id,
+                    'productNumber' => Uuid::randomHex(),
+                    'name' => 'test',
+                    'setNulls' => [
+                        ['id' => $childId, 'name' => 'test child'],
+                    ],
                 ],
-            ], ],
+            ],
             Context::createDefaultContext()
         );
 
@@ -265,13 +267,14 @@ class SetNullOnDeleteTest extends TestCase
         $eventDispatcher = $this->getContainer()->get('event_dispatcher');
         $eventDispatcher->addListener(
             SetNullOnDeleteChildDefinition::ENTITY_NAME . '.written',
-            function (EntityWrittenEvent $event) use ($childId, &$eventWasThrown): void {
+            static function (EntityWrittenEvent $event) use ($childId, &$eventWasThrown): void {
                 static::assertCount(1, $event->getPayloads());
-                static::assertEquals([
-                    'id' => $childId,
-                    'setNullOnDeleteParentId' => null,
-                    'setNullOnDeleteParentVersionId' => null,
-                ],
+                static::assertEquals(
+                    [
+                        'id' => $childId,
+                        'setNullOnDeleteParentId' => null,
+                        'setNullOnDeleteParentVersionId' => null,
+                    ],
                     $event->getPayloads()[0]
                 );
 
@@ -279,11 +282,7 @@ class SetNullOnDeleteTest extends TestCase
             }
         );
 
-        $this->repository->delete([
-            ['id' => $id],
-        ],
-            Context::createDefaultContext()
-        );
+        $this->repository->delete([['id' => $id]], Context::createDefaultContext());
 
         static::assertTrue($eventWasThrown);
     }

@@ -11,6 +11,11 @@ class CartBehavior extends Struct
      */
     protected $isRecalculation = false;
 
+    /**
+     * @var bool
+     */
+    protected $isAdminOrder = false;
+
     public function isRecalculation(): bool
     {
         return $this->isRecalculation;
@@ -21,5 +26,15 @@ class CartBehavior extends Struct
         $this->isRecalculation = $isRecalculation;
 
         return $this;
+    }
+
+    public function isAdminOrder(): bool
+    {
+        return $this->isAdminOrder;
+    }
+
+    public function setIsAdminOrder(bool $isAdminOrder): void
+    {
+        $this->isAdminOrder = $isAdminOrder;
     }
 }

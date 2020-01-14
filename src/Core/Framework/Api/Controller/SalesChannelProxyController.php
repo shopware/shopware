@@ -2,13 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
-use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\CartBehavior;
-use Shopware\Core\Checkout\Cart\CartPersisterInterface;
-use Shopware\Core\Checkout\Cart\CartRuleLoader;
-use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Processor;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -88,21 +82,6 @@ class SalesChannelProxyController extends AbstractController
      */
     private $contextService;
 
-    /**
-     * @var CartService
-     */
-    private $cartService;
-
-    /**
-     * @var CartPersisterInterface
-     */
-    private $cartPersister;
-
-    /**
-     * @var CartRuleLoader
-     */
-    private $cartRuleLoader;
-
     public function __construct(
         KernelInterface $kernel,
         EntityRepositoryInterface $salesChannelRepository,
@@ -110,11 +89,7 @@ class SalesChannelProxyController extends AbstractController
         SalesChannelContextPersister $contextPersister,
         SalesChannelRequestContextResolver $requestContextResolver,
         SalesChannelContextServiceInterface $contextService,
-        EventDispatcherInterface $eventDispatcher,
-        CartService $cartService,
-        CartPersisterInterface $cartPersister,
-        Processor $processor,
-        CartRuleLoader $cartRuleLoader
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->kernel = $kernel;
         $this->salesChannelRepository = $salesChannelRepository;
@@ -123,10 +98,6 @@ class SalesChannelProxyController extends AbstractController
         $this->requestContextResolver = $requestContextResolver;
         $this->contextService = $contextService;
         $this->eventDispatcher = $eventDispatcher;
-        $this->cartService = $cartService;
-        $this->cartPersister = $cartPersister;
-        $this->processor = $processor;
-        $this->cartRuleLoader = $cartRuleLoader;
     }
 
     /**
@@ -141,21 +112,8 @@ class SalesChannelProxyController extends AbstractController
 
         $salesChannelApiRequest = $this->setUpSalesChannelApiRequest($_path, $salesChannelId, $request, $salesChannel);
 
-        return $this->wrapInSalesChannelApiRoute($salesChannelApiRequest, function () use ($request, $salesChannelId, $salesChannelApiRequest): Response {
-            $response = $this->kernel->handle($salesChannelApiRequest, HttpKernelInterface::SUB_REQUEST);
-            //Process after request handle
-            $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request);
-            $token = $salesChannelContext->getToken();
-
-            try {
-                $cart = $this->cartPersister->load($token, $salesChannelContext);
-                // Recalculate Cart with update prices & tax for live checkout
-                $this->recalculateCartWithPersist($cart, $salesChannelContext, false);
-            } catch (CartTokenNotFoundException $e) {
-                //Token is not a token Cart, continue process
-            }
-
-            return $response;
+        return $this->wrapInSalesChannelApiRoute($salesChannelApiRequest, function () use ($salesChannelApiRequest): Response {
+            return $this->kernel->handle($salesChannelApiRequest, HttpKernelInterface::SUB_REQUEST);
         });
     }
 
@@ -285,29 +243,6 @@ class SalesChannelProxyController extends AbstractController
         );
 
         return $salesChannelContext;
-    }
-
-    private function recalculateCartWithPersist(Cart $cart, SalesChannelContext $context, bool $persist = false): Cart
-    {
-        $behavior = (new CartBehavior())
-            ->setIsRecalculation(true);
-
-        // all prices are now prepared for calculation -  starts the cart calculation
-        $cart = $this->processor->process($cart, $context, $behavior);
-
-        // validate cart against the context rules
-        $validated = $this->cartRuleLoader->loadByCart($context, $cart, $behavior);
-
-        $cart = $validated->getCart();
-
-        if ($persist) {
-            $this->cartPersister->save($cart, $context);
-        }
-
-        //Set Cart to Cache
-        $this->cartService->setCart($cart);
-
-        return $cart;
     }
 
     private function updateCustomerToContext(string $customerId, SalesChannelContext $context): void

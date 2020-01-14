@@ -15,14 +15,14 @@ class CartSalesChannelService extends ApiService {
     }
 
     createCart(salesChannelId, additionalParams = {}, additionalHeaders = {}) {
-        const route = `_proxy/sales-channel-api/${salesChannelId}/v1/checkout/cart`;
+        const route = `/sales-channel/${salesChannelId}/checkout/cart`;
         const headers = this.getBasicHeaders(additionalHeaders);
 
         return this.httpClient.post(route, {}, { additionalParams, headers });
     }
 
     getCart(salesChannelId, contextToken, additionalParams = {}, additionalHeaders = {}) {
-        const route = `_proxy/sales-channel-api/${salesChannelId}/v1/checkout/cart`;
+        const route = `/sales-channel/${salesChannelId}/checkout/cart`;
         const headers = {
             ...this.getBasicHeaders(additionalHeaders),
             'sw-context-token': contextToken
@@ -49,7 +49,7 @@ class CartSalesChannelService extends ApiService {
         additionalParams = {},
         additionalHeaders = {}
     ) {
-        const route = `_proxy/sales-channel-api/${salesChannelId}/v1/checkout/cart/product/${productId}`;
+        const route = `/sales-channel/${salesChannelId}/checkout/cart/product/${productId}`;
         const headers = {
             ...this.getBasicHeaders(additionalHeaders),
             'sw-context-token': contextToken

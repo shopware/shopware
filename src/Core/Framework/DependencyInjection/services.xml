@@ -301,10 +301,6 @@
             <argument type="service" id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

@@ -32,6 +32,9 @@
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Cart\ProductLineItemFactory"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
+            <argument type="service" id="order.repository"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

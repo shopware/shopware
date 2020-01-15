@@ -14,6 +14,11 @@
         "shopware/administration": "self.version",
         "shopware/elasticsearch": "self.version"
     },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "6.2.x-dev"
+        }
+    },
     "require": {
         "php": ">=7.2.0",
         "ext-curl": "*",

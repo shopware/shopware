@@ -1,9 +1,4 @@
 {% block component_filter_panel %}
-    {% if not sidebar and block %}
-        {% deprecated 'Sidebar parameter missing, please provide bool sidebar parameter. @deprecated tag:v6.2.0' %}
-        {% set sidebar = block.sectionPosition == 'sidebar' %}
-    {% endif %}
-
     {% block component_filter_panel_header %}
         <div class="filter-panel-offcanvas-header">
             <h3 class="filter-panel-offcanvas-only">{{ "listing.filterTitleText"|trans }}</h3>

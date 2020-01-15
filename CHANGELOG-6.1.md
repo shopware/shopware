@@ -17,6 +17,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Prevent adding a product comparison sales channel if there are no product streams available
     * Prevent adding a product comparison sales channel if there are no product streams available.
     * Changed `sw-system-config` component to render boolean field types with undefined value as falsy.
+  * Product images inside the product listing and cart won't get smaller anymore when the window gets to big and then gets smaller.
 
 * Core
     * Added a check for the author role in plugin composer.json files. If one or more authors have the role `Manufacturer`, only these will be written to the database.

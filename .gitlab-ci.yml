@@ -300,9 +300,11 @@ Storefront (Jest):
         - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
         - ./psh.phar e2e:dump-db --APP_ENV="prod"
         - chown -R 1000:1000 .
-        - docker run --name cypress -d -t --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/vendor/shopware/platform/src/${SECTION}/Resources/app/$(echo ${SECTION} | tr '[:upper:]' '[:lower:]')/test/e2e:/e2e -v $(pwd):/app cypress/browsers:node12.6.0-chrome75
+        - E2E_BASE_PATH=vendor/shopware/platform/src/${SECTION}/Resources/app/$(echo ${SECTION} | tr '[:upper:]' '[:lower:]')/test/e2e
+        - docker run --name cypress -d -t --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app cypress/browsers:node12.6.0-chrome75
+
         - docker exec cypress npm clean-install --prefix /e2e
-        - forever start vendor/shopware/platform/src/${SECTION}/Resources/app/$(echo ${SECTION} | tr '[:upper:]' '[:lower:]')/test/e2e/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
+        - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - docker exec cypress /e2e/node_modules/.bin/cypress run --project /e2e --browser chrome --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0 --spec $TEST_DIRECTORY
         - npx mochawesome-merge build/artifacts/e2e/mochawesome*.json > build/artifacts/e2e/report-final.json
         - npx mochawesome-report-generator build/artifacts/e2e/report-final.json --cdn true --reportDir build/artifacts/e2e/

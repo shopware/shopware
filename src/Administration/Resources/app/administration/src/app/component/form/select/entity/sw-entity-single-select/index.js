@@ -58,7 +58,7 @@ Component.register('sw-entity-single-select', {
             }
         },
         /**
-         * @deprecated tag:v6.2.0
+         * @deprecated tag:v6.3.0
          */
         popoverConfig: {
             type: Object,
@@ -69,7 +69,7 @@ Component.register('sw-entity-single-select', {
             validator() {
                 Shopware.Utils.debug.warn(
                     'sw-entity-single-select',
-                    'The property "popoverConfig" is deprecated and will be removed in 6.2'
+                    'The property "popoverConfig" is deprecated and will be removed in 6.3'
                 );
                 return true;
             }

@@ -14,7 +14,7 @@ class ProductExportExceptionHandler implements ExceptionHandlerInterface
             return null;
         }
 
-        if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*\'file_name\'/', $e->getMessage())) {
+        if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*file_name\'/', $e->getMessage())) {
             $payload = $command->getPayload();
 
             return new DuplicateFileNameException($payload['file_name'] ?? '', $e);

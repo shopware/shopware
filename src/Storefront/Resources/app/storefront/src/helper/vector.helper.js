@@ -1,367 +1,230 @@
-const VERTICES = ['x', 'y', 'z', 'w'];
+function argsToVector(args) {
+    if (args[0] instanceof Vector) {
+        return args[0];
+    }
 
-/**
- * VectorBase class
- */
-class VectorBase {
+    if (Array.isArray(args[0])) {
+        return new Vector(args[0]);
+    }
 
-    constructor(verticesCount, ...rest) {
-        this._verticesCount = verticesCount;
+    return new Vector(args);
+}
 
-        this._iterateVertices((vertex, key) => {
-            this[vertex] = rest[key];
+class Vector {
+    /**
+     * @param {Array<Number>}args
+     */
+    constructor(args) {
+        this.entries = args.map((arg, index) => {
+            if (typeof arg !== 'number') {
+                throw new Error(`[Vector] argument ${index} must be a number ${typeof arg} given.`);
+            }
+
+            return arg;
         });
     }
 
-    /**
-     * iterates over all available vertices
-     *
-     * @param {function} callback
-     * @private
-     */
-    _iterateVertices(callback) {
-        for (let index = 0; index < this._verticesCount; index++) {
-            const vertex = VERTICES[index];
-            callback(vertex, index);
+    get dimension() {
+        return this.entries.length;
+    }
+
+    validateDimensions(vectorB) {
+        if (this.dimension !== vectorB.dimension) {
+            throw new Error(`[Vector] dimension mismatch expected ${this.dimension} got ${vectorB.dimension}`);
         }
     }
 
-    /**
-     * when args
-     *  - is a vector it iterates over the vector
-     *  - is a single number it uses it for all vector values
-     *  - is a number array it uses them for the vector values
-     *
-     * @param {Array} args
-     * @param {function} callback
-     * @return {Array}
-     *
-     * @private
-     */
-    _parseArguments(args, callback) {
-        const parameters = [];
+    /* Make common entry names available */
+    get x() { return this.entries[0]; }
+    set x(x) { this.entries[0] = x; }
 
-        if (typeof args === 'number') {
-            this._iterateVertices((vertex, index) => {
-                parameters.push(callback(this[vertex], args, index));
-            });
-        } else if (args[0] instanceof VectorBase) {
-            this._validate(args[0], true);
-            this._iterateVertices((vertex, index) => {
-                parameters.push(callback(this[vertex], args[0][vertex], index));
-            });
-        } else if (args instanceof VectorBase) {
-            this._validate(args, true);
-            this._iterateVertices((vertex, index) => {
-                parameters.push(callback(this[vertex], args[vertex], index));
-            });
-        } else if (typeof args[0] === 'number' || typeof args[0] === 'boolean') {
-            if (typeof args[1] !== 'number' && typeof args[1] !== 'boolean') {
-                this._iterateVertices((vertex, index) => {
-                    if (args[0] === false) {
-                        parameters.push(this[vertex]);
-                    } else {
-                        parameters.push(callback(this[vertex], args[0], index));
-                    }
-                });
-            } else {
-                this._iterateVertices((vertex, index) => {
-                    if (typeof args[index] !== 'number' && typeof args[index] !== 'boolean') {
-                        throw new Error(`Parameter ${index + 1} must be a Number or Boolean`);
-                    }
-                    if (args[index] === false) {
-                        parameters.push(this[vertex]);
-                    } else {
-                        parameters.push(callback(this[vertex], args[index], index));
-                    }
-                });
-            }
-        }
+    get y() { return this.entries[1]; }
+    set y(y) { if (this.dimension > 1) this.entries[1] = y; }
 
-        return parameters;
-    }
+    get z() { return this.entries[2]; }
+    set z(z) { if (this.dimension > 2) this.entries[2] = z; }
+
+    get w() { return this.entries[3]; }
+    set w(w) { if (this.dimension > 3) this.entries[3] = w; }
 
     /**
-     * validates a vector to be equal to the current one
+     * creates a new vector from a given vector or vector entries
      *
-     * @param vector
-     * @param strict
-     *
-     * @private
-     */
-    _validate(vector, strict = false) {
-        if (!vector) {
-            throw new Error('A vector must be passed.');
-        }
-        if (strict && vector.constructor.name !== this.constructor.name) {
-            throw new Error(`${this.constructor.name} must be passed.`);
-        }
-    }
-
-}
-
-export default class Vector extends VectorBase {
-
-    /**
-     * sets the vector values
-     * @param {VectorBase, Number} args
+     * @param {Vector|Array<number>|...number} args
+     * @returns {Vector}
+     * @deprecated use constructor instead
      */
     set(...args) {
-        const parameters = this._parseArguments(args, (currentVertex, passedVertex) => {
-            return passedVertex;
-        });
-
-        return new this.constructor(...parameters);
+        const other = argsToVector(args);
+        this.validateDimensions(other);
+        return new this.constructor(...other.entries);
     }
 
     /**
-     * returns length of the vector
+     * returns the euclid length of a vector
      *
-     * @return {number}
+     * @returns {number}
      */
     length() {
-        let val = 0;
-        this._iterateVertices(vertex => {
-            val += this[vertex] * this[vertex];
-        });
-
-        return Math.sqrt(Math.abs(val));
+        return Math.sqrt(this.entries.reduce((acc, e) => {
+            acc += e*e;
+            return acc;
+        }, 0));
     }
 
     /**
-     * linear extrapolation between two vectors
+     * Vector addition
      *
-     *
-     * @param {VectorBase, Number} args
-     * @param factor
-     * @return {*}
+     * @param {Vector} vector
+     * @returns {Vector}
      */
-    lerp(args, factor) {
-        const parameters = this._parseArguments(args, (currentVertex, passedVertex) => passedVertex);
-        const vertex = new this.constructor(...parameters);
-        return vertex.subtract(this).multiply(factor).add(this);
+    add(vector) {
+        this.validateDimensions(vector);
+        return new this.constructor(this.entries.map((e, index) => e + vector.entries[index]));
     }
 
     /**
-     * normalizes the vector
+     * Scalar multiplication of vertices
      *
-     * @return {VectorBase}
+     * @param {Vector|number} factor
+     * @returns {Vector}
      */
-    normalize() {
-        let len = this.length();
-        const parameters = [];
-
-        if (len > 0) {
-            len = 1 / Math.sqrt(len);
-
-            this._iterateVertices(vertex => {
-                parameters.push(this[vertex] * len);
-            });
-
-            return new this.constructor(...parameters);
+    multiply(factor) {
+        if (factor instanceof Vector) {
+            this.validateDimensions(factor);
+            return new this.constructor(this.entries.map((e, index) => {
+                return e * factor.entries[index];
+            }));
         }
 
-        return this;
+        if (typeof factor !== 'number' || Number.isNaN(factor)) {
+            throw new Error('[Vector] multiply: factor must be number or vector');
+        }
+
+        return new this.constructor(this.entries.map(e => factor * e));
     }
 
     /**
-     * floors the vector
+     * Add the negated vector
      *
-     * @return {VectorBase}
+     * @param {Vector} vector
+     * @returns {Vector}
      */
-    floor() {
-        const parameters = [];
-
-        this._iterateVertices(vertex => {
-            parameters.push(Math.floor(this[vertex]));
-        });
-
-        return new this.constructor(...parameters);
+    subtract(vector) {
+        return this.add(vector.multiply(-1));
     }
 
     /**
-     * ceils the vector
+     * Scalar multiplication with inverted number
      *
-     * @return {VectorBase}
+     * @param {Vector|number} quotient
+     * @returns {Vector}
      */
-    ceil() {
-        const parameters = [];
+    divide(quotient) {
+        if (quotient instanceof Vector) {
+            return new this.constructor(this.entries.map((e, index) => {
+                return e / quotient.entries[index];
+            }))
+        }
 
-        this._iterateVertices(vertex => {
-            parameters.push(Math.ceil(this[vertex]));
-        });
+        if (quotient === 0) {
+            throw new Error('Can\'t divide by 0');
+        }
 
-        return new this.constructor(...parameters);
+        return this.multiply(1 / quotient);
     }
 
     /**
-     * rounds the vector
+     * Returns unified vector
      *
-     * @return {VectorBase}
+     * @returns {Vector}
      */
-    round() {
-        const parameters = [];
-
-        this._iterateVertices(vertex => {
-            parameters.push(Math.round(this[vertex]));
-        });
-
-        return new this.constructor(...parameters);
+    normalize() {
+        return new this.constructor(this.divide(this.length()));
     }
 
     /**
-     * crossnumber between two vectors
+     * compares dimension and entries of a vector
      *
-     * @param {VectorBase, Number} args
-     * @return {number}
-     */
-    cross(...args) {
-        let ret = 0;
-
-        this._parseArguments(args, (currentVertex, passedVertex) => {
-            ret -= currentVertex * passedVertex;
-        });
-
-        return ret;
-    }
-
-    /**
-     * returns the scalar product of two vectors
-     *
-     * @param {VectorBase, Number} args
-     * @return {number}
-     */
-    dot(...args) {
-        let ret = 0;
-
-        this._parseArguments(args, (currentVertex, passedVertex) => {
-            ret += parseFloat(currentVertex * passedVertex);
-        });
-
-        return ret;
-    }
-
-    /**
-     * adds two vectors together
-     *
-     * @param {VectorBase, Number} args
-     * @return {VectorBase}
-     */
-    add(...args) {
-        const parameters = this._parseArguments(args, (currentVertex, passedVertex) => {
-            return currentVertex + passedVertex;
-        });
-
-        return new this.constructor(...parameters);
-    }
-
-    /**
-     * subtracts two vectors from each other
-     *
-     * @param {VectorBase, Number} args
-     * @return {VectorBase}
-     */
-    subtract(...args) {
-        const parameters = this._parseArguments(args, (currentVertex, passedVertex) => {
-            return currentVertex - passedVertex;
-        });
-
-        return new this.constructor(...parameters);
-    }
-
-    /**
-     * multiplies two vectors with each other
-     *
-     * @param {VectorBase, Number} args
-     * @return {VectorBase}
-     */
-    multiply(...args) {
-        const parameters = this._parseArguments(args, (currentVertex, passedVertex) => {
-            return currentVertex * passedVertex;
-        });
-
-        return new this.constructor(...parameters);
-    }
-
-    /**
-     * divides two vectors with each other
-     *
-     * @param {VectorBase, Number} args
-     * @return {VectorBase}
-     */
-    divide(...args) {
-        const parameters = this._parseArguments(args, (currentVertex, passedVertex) => {
-            if (passedVertex === 0) {
-                throw new Error('Can\'t divide by 0');
-            }
-            return currentVertex / passedVertex;
-        });
-
-        return new this.constructor(...parameters);
-    }
-
-    /**
-     * clamps vector to min/max value
-     *
-     * @param {VectorBase|number} min
-     * @param {VectorBase|number} max
-     * @return {VectorBase}
-     */
-    clamp(min, max) {
-        const parameters = [];
-
-        this._parseArguments(min, (currentVertex, passedVertex, index) => {
-            parameters[index] = Math.max(currentVertex, passedVertex);
-        });
-
-        this._parseArguments(max, (currentVertex, passedVertex, index) => {
-            parameters[index] = Math.min(parameters[index], passedVertex);
-        });
-
-        return new this.constructor(...parameters);
-    }
-
-    /**
-     * returns absolute values of the vector
-     *
-     * @return {VectorBase}
-     */
-    abs() {
-        const parameters = [];
-
-        this._iterateVertices(vertex => {
-            parameters.push(Math.abs(this[vertex]));
-        });
-
-        return new this.constructor(...parameters);
-    }
-
-    /**
-     * compares two vectors
-     *
-     * @param {VectorBase, Number} args
-     * @return {boolean}
+     * @param {Vector,Array<number>}args
+     * @returns {boolean}
      */
     equals(...args) {
-        const truthy = [];
+        const other = argsToVector(args);
 
-        this._parseArguments(args, (currentVertex, passedVertex) => {
-            truthy.push(currentVertex === passedVertex);
-        });
+        try {
+            this.validateDimensions(other);
+            return this.entries.reduce((acc, e, index) => {
+                if (e !== other.entries[index]) {
+                    acc = false;
+                }
 
-        return truthy.indexOf(false) === -1;
+                return acc;
+            }, true)
+        } catch(e) {
+            return false;
+        }
     }
 
-}
+    /**
+     * Returns dot product of vertices
+     * @param vector
+     * @returns {*}
+     */
+    dot(vector) {
+        this.validateDimensions(vector);
 
+        return this.entries.reduce((acc, e, index) => {
+            acc += e * vector.entries[index];
+            return acc;
+        }, 0)
+    }
+
+    /**
+     *
+     * @param {Vector|number} min
+     * @param {Vector|number} max
+     * @returns {*}
+     */
+    clamp(min, max) {
+        if (typeof min === 'number') {
+            min = new this.constructor((new Array(this.dimension)).fill(min));
+        }
+
+        if (typeof max === 'number') {
+            max = new this.constructor((new Array(this.dimension)).fill(max));
+        }
+
+        return this.constructor(this.entries.map((e, index) => {
+            if (e < min.entries[index]) {
+                return min.entries[index];
+            }
+
+            if (e > max.entries[index]) {
+                return max.entries[index];
+            }
+
+            return e;
+        }));
+    }
+}
 
 /**
  * Vector2
  */
 class Vector2 extends Vector {
+    constructor(x, y) {
+        if (x instanceof Vector) {
+            super(x.entries.slice(0, 2));
+            return;
+        }
 
-    constructor(x = 0, y = 0) {
-        super(2, x, y);
+        if (Array.isArray(x)) {
+            super(x.slice(0,2));
+            return;
+        }
+
+        super([x, y]);
     }
 
     /**
@@ -373,34 +236,54 @@ class Vector2 extends Vector {
         const angle = Math.atan2(this.y, this.x) * (180 / Math.PI);
         return (angle + 360) % 360;
     }
-
 }
 
 /**
  * Vector3
  */
 class Vector3 extends Vector {
+    constructor(x, y, z) {
+        if (x instanceof Vector) {
+            super(x.entries.slice(0, 3));
+            return;
+        }
 
-    constructor(x = 0, y = 0, z = 0) {
-        super(3, x, y, z);
+        if (Array.isArray(x)) {
+            super(x.slice(0,3));
+            return;
+        }
+
+        super([x, y, z]);
     }
 
+    cross(vector) {
+        return new this.constructor(
+            (this.y * vector.z - this.z * vector.y),
+            (this.z * vector.x - this.x * vector.z),
+            (this.x * vector.y - this.y * vector.x)
+        )
+    }
 }
 
 /**
  * Vector4
  */
 class Vector4 extends Vector {
+    constructor(x, y, z, w) {
+        if (x instanceof Vector) {
+            super(x.entries.slice(0, 4));
+            return;
+        }
 
-    constructor(x = 0, y = 0, z = 0, w = 0) {
-        super(4, x, y, z, w);
+        if (Array.isArray(x)) {
+            super(x.slice(0,4));
+            return;
+        }
+
+        super([x, y, z, w]);
     }
-
 }
 
-export {
-    Vector2,
-    Vector3,
-    Vector4,
-};
+export default Vector;
 
+export { Vector2, Vector3, Vector4};

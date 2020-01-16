@@ -16,9 +16,12 @@ export default class Debouncer {
         let timeout;
 
         return (...args) => {
+            if (immediate &&  !timeout) {
+                setTimeout(callback.bind(callback, ...args), 0);
+            }
+
             clearTimeout(timeout);
             timeout = setTimeout(callback.bind(callback, ...args), delay);
-            if (immediate && !timeout) callback.call(callback, ...args);
         };
     }
 }

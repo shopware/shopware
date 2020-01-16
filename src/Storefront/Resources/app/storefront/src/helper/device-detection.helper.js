@@ -30,7 +30,7 @@ export default class DeviceDetection {
      */
     static isIPhoneDevice() {
         const userAgent = navigator.userAgent;
-        return !!(userAgent.match(/iPhone/i));
+        return !!userAgent.match(/iPhone/i);
     }
 
     /**
@@ -39,7 +39,7 @@ export default class DeviceDetection {
      */
     static isIPadDevice() {
         const userAgent = navigator.userAgent;
-        return !!(userAgent.match(/iPad/i));
+        return !!userAgent.match(/iPad/i);
     }
 
     /**
@@ -48,7 +48,7 @@ export default class DeviceDetection {
      */
     static isIEBrowser() {
         const userAgent = navigator.userAgent.toLowerCase();
-        return userAgent.indexOf('msie') !== -1 || !!navigator.userAgent.match(/Trident.*rv[ :]*11\./);
+        return userAgent.indexOf('msie') !== -1 || !!navigator.userAgent.match(/Trident.*rv:\d+\./);
     }
 
     /**
@@ -56,8 +56,8 @@ export default class DeviceDetection {
      * @returns {boolean}
      */
     static isEdgeBrowser() {
-        const userAgent = navigator.userAgent.toLowerCase();
-        return userAgent.indexOf('edge') !== -1;
+        const userAgent = navigator.userAgent;
+        return !!userAgent.match(/Edge\/\d+/i);
     }
 
     /**
@@ -65,16 +65,14 @@ export default class DeviceDetection {
      * @returns {object}
      */
     static getList() {
-        const detections = {};
-
-        detections['is-touch'] = DeviceDetection.isTouchDevice();
-        detections['is-ios'] = DeviceDetection.isIOSDevice();
-        detections['is-native-windows'] = DeviceDetection.isNativeWindowsBrowser();
-        detections['is-iphone'] = DeviceDetection.isIPhoneDevice();
-        detections['is-ipad'] = DeviceDetection.isIPadDevice();
-        detections['is-ie'] = DeviceDetection.isIEBrowser();
-        detections['is-edge'] = DeviceDetection.isEdgeBrowser();
-
-        return detections;
+        return {
+            'is-touch': DeviceDetection.isTouchDevice(),
+            'is-ios': DeviceDetection.isIOSDevice(),
+            'is-native-windows':  DeviceDetection.isNativeWindowsBrowser(),
+            'is-iphone': DeviceDetection.isIPhoneDevice(),
+            'is-ipad': DeviceDetection.isIPadDevice(),
+            'is-ie': DeviceDetection.isIEBrowser(),
+            'is-edge': DeviceDetection.isEdgeBrowser(),
+        };
     }
 }

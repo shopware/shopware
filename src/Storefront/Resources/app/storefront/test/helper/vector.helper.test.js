@@ -2,34 +2,99 @@
 import Vector, { Vector2, Vector3, Vector4 } from 'src/helper/vector.helper';
 
 describe('Vector tests', () => {
+    describe('constructor', () => {
+        test('expect objects are vertices', () => {
+            expect(new Vector2(1,2)).toBeInstanceOf(Vector);
+            expect(new Vector3(1,2,3)).toBeInstanceOf(Vector);
+            expect(new Vector4(1,2,3,4)).toBeInstanceOf(Vector);
+        });
 
+        test('has correct vertex amount', () => {
+            const vec = new Vector4(1, 1, 1, 1);
+            expect(vec.dimension).toBe(4);
+        });
 
-    test('all vectors have the vector base class', () => {
-        const Vector2Base = Vector2.__proto__;
-        const Vector3Base = Vector3.__proto__;
-        const Vector4Base = Vector4.__proto__;
-
-        expect(Vector2Base).toBe(Vector);
-        expect(Vector3Base).toBe(Vector);
-        expect(Vector4Base).toBe(Vector);
+        test('it throws for objects being passed as constructor elements', () => {
+            expect(() => { new Vector2({x: 2, y: 4}); }).toThrowError();
+        });
     });
 
+    describe('Vector2 constructor', () => {
+        test('it can be created by numbers', () => {
+            const vec = new Vector2(1, 2);
+            expect(vec.entries).toStrictEqual([1, 2]);
+        });
 
-    test('has correct vertex amount', () => {
-        const vec = new Vector4(1, 1, 1, 1);
-        expect(vec._verticesCount).toBe(4);
+        test('it can be created by array', () => {
+            const vec = new Vector2([1, 2]);
+            expect(vec.entries).toStrictEqual([1, 2]);
+        });
+
+        test('it can be created by other vector', () => {
+            const vec = new Vector2(new Vector([1, 2]));
+            expect(vec.entries).toStrictEqual([1, 2]);
+        });
     });
 
-    test('can contain decimal values ', () => {
-        const vec = new Vector4(0.1, 0.2, 0.3, 0.4);
-        expect(vec.x).toEqual(0.1);
-        expect(vec.y).toEqual(0.2);
-        expect(vec.z).toEqual(0.3);
-        expect(vec.w).toEqual(0.4);
+    describe('Vector3 constructor', () => {
+        test('it can be created by numbers', () => {
+            const vec = new Vector3(1, 2, 3);
+            expect(vec.entries).toStrictEqual([1, 2, 3]);
+        });
+
+        test('it can be created by array', () => {
+            const vec = new Vector3([1, 2, 3]);
+            expect(vec.entries).toStrictEqual([1, 2, 3]);
+        });
+
+        test('it can be created by other vector', () => {
+            const vec = new Vector3(new Vector([1, 2, 3]));
+            expect(vec.entries).toStrictEqual([1, 2, 3]);
+        });
+    });
+
+    describe('Vector4 constructor', () => {
+        test('it can be created by numbers', () => {
+            const vec = new Vector4(1, 2, 3, 4);
+            expect(vec.entries).toStrictEqual([1, 2, 3, 4]);
+        });
+
+        test('it can be created by array', () => {
+            const vec = new Vector4([1, 2, 3, 4]);
+            expect(vec.entries).toStrictEqual([1, 2, 3, 4]);
+        });
+
+        test('it can be created by other vector', () => {
+            const vec = new Vector4(new Vector([1, 2, 3, 4]));
+            expect(vec.entries).toStrictEqual([1, 2, 3, 4]);
+        });
     });
 
     describe('methods', () => {
         describe('set', () => {
+            test('you can not set vertices that are not defined', () => {
+                const vec = new Vector([1]);
+                vec.x = 1;
+                vec.y = 2;
+                vec.z = 3;
+                vec.w = 4;
+
+                expect(vec.entries).toStrictEqual([1]);
+            });
+
+            test('you can set vertices directly', () => {
+                const vec = new Vector4(0, 0, 0, 0);
+                vec.x = 1;
+                vec.y = 2;
+                vec.z = 3;
+                vec.w = 4;
+
+                expect(vec.x).toEqual(1);
+                expect(vec.y).toEqual(2);
+                expect(vec.z).toEqual(3);
+                expect(vec.w).toEqual(4);
+            });
+
             test('set values from vector', () => {
                 const vec = new Vector4(0, 0, 0, 0);
                 const newVec = vec.set(new Vector4(1, 2, 3, 4));
@@ -57,9 +122,26 @@ describe('Vector tests', () => {
                 expect(newVec.w).toEqual(4);
             });
 
-            test('set values with error', () => {
+            test('you can set data from array', () => {
+                let vec = new Vector2(0,0);
+                vec = vec.set([1,2]);
+
+                expect(vec.x).toBe(1);
+                expect(vec.y).toBe(2);
+            });
+
+            test('it can be set from other vector', () => {
+                let vec = new Vector2(0,0);
+                vec = vec.set(new Vector2(4,5));
+
+                expect(vec.x).toBe(4);
+                expect(vec.y).toBe(5);
+            });
+
+            test('throws error for different dimensions', () => {
                 const vec = new Vector4(0, 0, 0, 0);
-                expect(vec.set.bind(vec, 2, 3)).toThrow(new Error('Parameter 3 must be a Number or Boolean'));
+                expect(() => { vec.set(new Vector2(0, 0), 2, 3) }).toThrowError();
+                expect(() => { vec.set([0, 0, 2, 3, 5]) }).toThrowError();
             });
         });
 
@@ -68,116 +150,13 @@ describe('Vector tests', () => {
                 const vec = new Vector4(1, 2, 3, 4);
                 expect(vec.length()).toBeCloseTo(5.477225575051661);
             });
-
-            test('get length reversed', () => {
-                const vec = new Vector4(4, 3, 2, 1);
-                expect(vec.length()).toBeCloseTo(5.477225575051661);
-            });
-        });
-
-        describe('lerp', () => {
-            test('lerp to middle', () => {
-                const vec = new Vector4(0, 0, 0, 0);
-                const lerpVec = new Vector4(2, 2, 2, 2);
-                expect(vec.lerp(lerpVec, 0.5)).toEqual(new Vector4(1, 1, 1, 1));
-            });
-
-            test('lerp to middle with number', () => {
-                const vec = new Vector4(0, 0, 0, 0);
-                expect(vec.lerp(5, 0.5)).toEqual(new Vector4(2.5, 2.5, 2.5, 2.5));
-            });
         });
 
         describe('normalize', () => {
             test('normalized vector', () => {
                 const vec = new Vector4(1, 2, 3, 4);
                 const newVec = vec.normalize();
-                expect(newVec.x).toBeCloseTo(0.42728700639623407);
-                expect(newVec.y).toBeCloseTo(0.8545740127924681);
-                expect(newVec.z).toBeCloseTo(1.2818610191887023);
-                expect(newVec.w).toBeCloseTo(1.7091480255849363);
-            });
-        });
-
-        describe('floor', () => {
-            test('floor vector', () => {
-                const vec = new Vector4(1.23, 2.34, 3.41, 4.12);
-                const newVec = vec.floor();
-                expect(newVec.x).toEqual(1);
-                expect(newVec.y).toEqual(2);
-                expect(newVec.z).toEqual(3);
-                expect(newVec.w).toEqual(4);
-            });
-
-            test('floor negative vector', () => {
-                const vec = new Vector4(-1.23, -2.34, -3.41, -4.12);
-                const newVec = vec.floor();
-                expect(newVec.x).toEqual(-2);
-                expect(newVec.y).toEqual(-3);
-                expect(newVec.z).toEqual(-4);
-                expect(newVec.w).toEqual(-5);
-            });
-        });
-
-        describe('ceil', () => {
-            test('ceil vector', () => {
-                const vec = new Vector4(1.23, 2.34, 3.41, 4.12);
-                const newVec = vec.ceil();
-                expect(newVec.x).toEqual(2);
-                expect(newVec.y).toEqual(3);
-                expect(newVec.z).toEqual(4);
-                expect(newVec.w).toEqual(5);
-            });
-
-            test('ceil negative vector', () => {
-                const vec = new Vector4(-1.23, -2.34, -3.41, -4.12);
-                const newVec = vec.ceil();
-                expect(newVec.x).toEqual(-1);
-                expect(newVec.y).toEqual(-2);
-                expect(newVec.z).toEqual(-3);
-                expect(newVec.w).toEqual(-4);
-            });
-        });
-
-        describe('round', () => {
-            test('round vector', () => {
-                const vec = new Vector4(1.23, 2.34, 3.41, 4.12);
-                const newVec = vec.round();
-                expect(newVec.x).toEqual(1);
-                expect(newVec.y).toEqual(2);
-                expect(newVec.z).toEqual(3);
-                expect(newVec.w).toEqual(4);
-            });
-
-            test('round negative vector', () => {
-                const vec = new Vector4(-1.23, -2.34, -3.41, -4.12);
-                const newVec = vec.round();
-                expect(newVec.x).toEqual(-1);
-                expect(newVec.y).toEqual(-2);
-                expect(newVec.z).toEqual(-3);
-                expect(newVec.w).toEqual(-4);
-            });
-        });
-
-        describe('cross', () => {
-            test('cross vector', () => {
-                const vec = new Vector4(1, 2, 3, 4);
-                expect(vec.cross(new Vector4(4, 3, 2, 1))).toEqual(-20);
-            });
-
-            test('cross parameters', () => {
-                const vec = new Vector4(1, 2, 3, 4);
-                expect(vec.cross(4, 3, 2, 1)).toEqual(-20);
-            });
-
-            test('cross negative vector', () => {
-                const vec = new Vector4(-1, -2, -3, -4);
-                expect(vec.cross(new Vector4(4, 3, 2, 1))).toEqual(20);
-            });
-
-            test('cross negative parameters', () => {
-                const vec = new Vector4(-1, -2, -3, -4);
-                expect(vec.cross(4, 3, 2, 1)).toEqual(20);
+                expect(newVec.length()).toBeCloseTo(1);
             });
         });
 
@@ -194,7 +173,7 @@ describe('Vector tests', () => {
 
             test('get dot product with number', () => {
                 const vec = new Vector4(1, 2, 3, 4);
-                expect(vec.dot(4)).toBe(40);
+                expect(vec.dot(new Vector4(4, 4, 4, 4))).toBe(40);
             });
         });
 
@@ -292,6 +271,13 @@ describe('Vector tests', () => {
                 expect(newVec.z).toEqual(-3);
                 expect(newVec.w).toEqual(-4);
             });
+
+            test('throw when multiplied with non numbers', () => {
+                expect(() => { (new Vector2(1,2)).multiply(false); }).toThrowError();
+                expect(() => { (new Vector2(1,2)).multiply(null); }).toThrowError();
+                expect(() => { (new Vector2(1,2)).multiply(undefined); }).toThrowError();
+                expect(() => { (new Vector2(1,2)).multiply({x: 1, y: 2}); }).toThrowError();
+            })
         });
 
         describe('divide', () => {
@@ -351,7 +337,7 @@ describe('Vector tests', () => {
 
             test('throw error when divided by 0', () => {
                 const vec = new Vector4(1, 2, 3, 4);
-                expect(vec.divide.bind(vec, 0)).toThrow(Error);
+                expect(vec.divide.bind(vec, 0)).toThrowError();
             });
         });
 
@@ -384,45 +370,39 @@ describe('Vector tests', () => {
                 expect(newVec.z).toEqual(32);
                 expect(newVec.w).toEqual(32);
             });
-        });
 
-        describe('abs', () => {
-            test('absolute vertex', () => {
-                const vec = new Vector4(-1, -2, -3, 4);
-                const newVec = vec.abs();
-                expect(newVec.x).toEqual(1);
-                expect(newVec.y).toEqual(2);
-                expect(newVec.z).toEqual(3);
-                expect(newVec.w).toEqual(4);
-            });
+            test('clamp returns original vector if in range', () => {
+                const min = new Vector3(0,0,0);
+                const max = new Vector3(10,10,10);
+                const clamped = (new Vector3(5,5,5)).clamp(min, max);
 
-            test('absolute vertex with dezimal', () => {
-                const vec = new Vector4(-0.1234, -0.2341, -0.3412, -0.4321);
-                const newVec = vec.abs();
-                expect(newVec.x).toEqual(0.1234);
-                expect(newVec.y).toEqual(0.2341);
-                expect(newVec.z).toEqual(0.3412);
-                expect(newVec.w).toEqual(0.4321);
-            });
+                expect(clamped.x).toEqual(5);
+                expect(clamped.y).toEqual(5);
+                expect(clamped.z).toEqual(5);
+            })
         });
 
         describe('equals', () => {
             test('equal vertex', () => {
                 const vec = new Vector4(1, 2, 3, 4);
                 const expected = new Vector4(1, 2, 3, 4);
-                expect(vec.equals(expected)).toBeTruthy();
+                expect(vec.equals(expected)).toBe(true);
             });
 
             test('not equal vertex', () => {
                 const vec = new Vector4(4, 3, 2, 1);
                 const expected = new Vector4(1, 2, 3, 4);
-                expect(vec.equals(expected)).not.toBeTruthy();
+                expect(vec.equals(expected)).not.toBe(true);
             });
 
             test('equal vertex with numbers', () => {
                 const vec = new Vector4(1, 2, 3, 4);
-                expect(vec.equals(1, 2, 3, 4)).toBeTruthy();
+                expect(vec.equals(1, 2, 3, 4)).toBe(true);
             });
+
+            test('does not equal vertices from other dimension', () => {
+                expect((new Vector2(1,2)).equals(new Vector3(1,2,3))).toBe(false);
+            })
         });
     });
 
@@ -446,4 +426,22 @@ describe('Vector tests', () => {
         });
 
     });
+
+    describe('Vector3  methods', () => {
+        describe('cross', () => {
+            test('cross vector', () => {
+                const vec1 = new Vector3(1, 2, 3);
+                const vec2 = new Vector3(4, 3, 2);
+                const crossProduct = vec1.cross(vec2);
+
+                expect(crossProduct.dot(vec1)).toBeCloseTo(0);
+                expect(crossProduct.dot(vec2)).toBeCloseTo(0);
+            });
+
+            test('same vector has no cross product', () => {
+                const vec1 = new Vector3(1, 2, 3);
+                expect(new Vector3(0, 0, 0).equals(vec1.cross(vec1))).toBe(true);
+            })
+        });
+    })
 });

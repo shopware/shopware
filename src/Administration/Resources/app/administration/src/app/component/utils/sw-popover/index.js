@@ -44,6 +44,21 @@ Component.register('sw-popover', {
                 );
                 return true;
             }
+        },
+        /**
+         * @deprecated tag:v6.3.0
+         */
+        popoverConfigExtension: {
+            type: Object,
+            required: false,
+            default: {},
+            validator() {
+                Shopware.Utils.debug.warn(
+                    'sw-popover',
+                    'The property "popoverConfigExtension" is deprecated and will be removed in 6.3'
+                );
+                return true;
+            }
         }
 
     },
@@ -55,7 +70,10 @@ Component.register('sw-popover', {
             };
         },
         popoverConfig() {
+            const popoverConfigBase = this.popoverConfigExtension || {};
+
             return {
+                ...popoverConfigBase,
                 active: true,
                 resizeWidth: this.resizeWidth
             };

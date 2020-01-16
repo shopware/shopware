@@ -130,7 +130,7 @@ Cypress.Commands.add('createCustomerFixtureStorefront', (userData) => {
     }).then((salutation) => {
         salutationId = salutation.id;
 
-        finalAddressRawData = _.merge({
+        finalAddressRawData = Cypress._.merge({
             addresses: [{
                 customerId: customerId,
                 salutationId: salutationId,
@@ -139,7 +139,7 @@ Cypress.Commands.add('createCustomerFixtureStorefront', (userData) => {
             }]
         }, customerAddressJson);
     }).then(() => {
-        return _.merge(customerJson, {
+        return Cypress._.merge(customerJson, {
             salutationId: salutationId,
             defaultPaymentMethodId: paymentId,
             salesChannelId: salesChannelId,
@@ -148,7 +148,7 @@ Cypress.Commands.add('createCustomerFixtureStorefront', (userData) => {
             defaultShippingAddressId: addressId
         });
     }).then((result) => {
-        return _.merge(result, finalAddressRawData);
+        return Cypress._.merge(result, finalAddressRawData);
     }).then((result) => {
         return cy.createViaAdminApi({
             endpoint: 'customer',

@@ -1,7 +1,7 @@
 {
   "viewportHeight": 1080,
   "viewportWidth": 1920,
-  "baseUrl": "http://shopware-development.saas",
+  "baseUrl": "http://docker.vm:8000",
   "watchForFileChanges": false,
   "requestTimeout": 100000,
   "responseTimeout": 600000,

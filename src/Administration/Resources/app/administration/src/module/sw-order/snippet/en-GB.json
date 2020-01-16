@@ -55,7 +55,9 @@
       "buttonSaveOrder": "Save order",
       "buttonCancelOrder": "Cancel",
       "titleSaveError": "Error",
-      "messageSaveError": "Order could not be saved."
+      "titleFetchError": "Error",
+      "messageSaveError": "Order could not be saved.",
+      "messageFetchCustomerAddressesError": "An error occurred during fetching customer addresses"
     },
     "createBase": {
       "labelDetailsCard": "Details",

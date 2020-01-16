@@ -35,6 +35,42 @@ Component.register('sw-order-create-details-body', {
             set(phoneNumber) {
                 if (this.customer) this.customer.defaultBillingAddress.phoneNumber = phoneNumber;
             }
+        },
+
+        billingAddress: {
+            get() {
+                if (this.customer) {
+                    if (this.customer.billingAddress) {
+                        return this.customer.billingAddress;
+                    }
+
+                    return this.customer.defaultBillingAddress;
+                }
+
+                return null;
+            },
+
+            set(billingAddress) {
+                if (this.customer) this.customer.billingAddress = billingAddress;
+            }
+        },
+
+        shippingAddress: {
+            get() {
+                if (this.customer) {
+                    if (this.customer.shippingAddress) {
+                        return this.customer.shippingAddress;
+                    }
+
+                    return this.customer.defaultShippingAddress;
+                }
+
+                return null;
+            },
+
+            set(shippingAddress) {
+                if (this.customer) this.customer.shippingAddress = shippingAddress;
+            }
         }
     },
 

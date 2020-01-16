@@ -25,7 +25,7 @@
                             {{ $tc('sw-order.detailBase.buttonEditAddress') }}
                         </sw-button>
                     </p>
-                    <sw-address :address="customer.defaultBillingAddress" />
+                    <sw-address :address="billingAddress" />
                 </div>
                 <sw-textarea-field
                     v-else
@@ -59,7 +59,7 @@
                             {{ $tc('sw-order.detailBase.buttonEditAddress') }}
                         </sw-button>
                     </p>
-                    <sw-address :address="customer.defaultShippingAddress" />
+                    <sw-address :address="shippingAddress" />
                 </div>
                 <sw-textarea-field
                     v-else

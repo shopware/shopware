@@ -61,6 +61,14 @@ Component.register('sw-order-create-details-footer', {
                 'sw-order-create__select',
                 'sw-order-create-details-footer__item'
             ];
+        },
+
+        currentCurrencyId() {
+            return State.getters['swOrder/currencyId'];
+        },
+
+        defaultSalesChannel() {
+            return State.get('swOrder').defaultSalesChannel;
         }
     },
 
@@ -71,18 +79,22 @@ Component.register('sw-order-create-details-footer', {
             handler() {
                 if (this.customer === null) return;
 
+                this.updateContext();
+
                 State.dispatch('swOrder/updateOrderContext', {
                     context: this.context,
                     salesChannelId: this.customer.salesChannelId,
                     contextToken: this.cart.token
                 }).then(() => {
-                    this.currencyRepository
-                        .get(this.context.currencyId, Shopware.Context.api)
-                        .then((currency) => {
-                            State.commit('swOrder/setCurrency', currency);
-                        });
+                    if (this.context.currencyId && this.currentCurrencyId !== this.context.currencyId) {
+                        this.currencyRepository
+                            .get(this.context.currencyId, Shopware.Context.api)
+                            .then((currency) => {
+                                State.commit('swOrder/setCurrency', currency);
+                            });
+                    }
 
-                    if (this.cart.token === null) return;
+                    if (this.cart.token === null || this.cart.lineItems.length === 0) return;
 
                     this.$emit('loading-change', true);
 
@@ -93,6 +105,15 @@ Component.register('sw-order-create-details-footer', {
                         .finally(() => this.$emit('loading-change', false));
                 });
             }
+        }
+    },
+
+    methods: {
+        updateContext() {
+            const contextKeys = ['currencyId', 'languageId', 'shippingMethodId', 'paymentMethodId'];
+            contextKeys.forEach((key) => {
+                this.context[key] = this.context[key] || this.defaultSalesChannel[key];
+            });
         }
     }
 });

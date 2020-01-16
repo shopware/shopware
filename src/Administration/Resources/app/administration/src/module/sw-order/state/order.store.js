@@ -22,6 +22,7 @@ export default {
     state() {
         return {
             customer: null,
+            defaultSalesChannel: null,
             cart: {
                 token: null,
                 lineItems: []
@@ -35,6 +36,10 @@ export default {
     mutations: {
         setCustomer(state, customer) {
             state.customer = customer;
+        },
+
+        setDefaultSalesChannel(state, salesChannel) {
+            state.defaultSalesChannel = salesChannel;
         },
 
         setCartToken(state, token) {
@@ -63,12 +68,17 @@ export default {
     getters: {
         isCustomerActive(state) {
             return get(state, 'customer.active', false);
+        },
+
+        currencyId(state) {
+            return get(state, 'currency.id', null);
         }
     },
 
     actions: {
         selectExistingCustomer({ commit }, { customer }) {
             commit('setCustomer', customer);
+            commit('setDefaultSalesChannel', { ...get(customer, 'salesChannel', null) });
         },
 
         createCart({ commit, dispatch }, { salesChannelId }) {

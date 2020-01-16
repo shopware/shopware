@@ -55,6 +55,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fix quickview of product in the checkout process
     * Catch `FRAMEWORK_LANGUAGE_NOT_FOUND` error when user has invalid `sw-admin-current-language` in localStorage
     * Fix that the loginListener calls directly get destroyed through an refresh of the page
+    * Added optional `productStreamsExist` and `productStreamsLoading` properties to `sw-sales-channel-modal-grid` component.
 
 * Core
     * Added a check for the author role in plugin composer.json files. If one or more authors have the role `Manufacturer`, only these will be written to the database.

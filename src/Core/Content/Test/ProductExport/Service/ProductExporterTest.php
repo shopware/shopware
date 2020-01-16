@@ -148,7 +148,7 @@ class ProductExporterTest extends TestCase
                 'fileFormat' => ProductExportEntity::FILE_FORMAT_CSV,
                 'interval' => 0,
                 'headerTemplate' => 'name,url',
-                'bodyTemplate' => '{{ product.name }},{{ productUrl(product) }}',
+                'bodyTemplate' => "{{ product.name }},{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}",
                 'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
                 'storefrontSalesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
                 'salesChannelId' => $this->getSalesChannelId(),

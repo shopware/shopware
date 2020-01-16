@@ -156,7 +156,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed inheritance switches in product detail view on main products when you come from an child product
     * Added block `sw_cms_element_product_listing_config_layout_select_options` in `sw-cms-el-config-product-listing`
     * Fix quickview of product in the checkout process
-    * Catch `FRAMEWORK_LANGUAGE_NOT_FOUND` error when user has invalid `sw-admin-current-language` in localStorage 
+    * Catch `FRAMEWORK_LANGUAGE_NOT_FOUND` error when user has invalid `sw-admin-current-language` in localStorage
+    * Fix that the loginListener calls directly get destroyed through an refresh of the page 
 * Core    
 	* We did some refactoring on how we use `WriteConstraintsViolationExceptions`.	
         It's path `property` should now point to the object that is inspected by an validator while the `propertyPath` property in `WriteConstraint` objects should only point to the invalid property. 	

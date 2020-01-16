@@ -5,8 +5,8 @@ namespace Shopware\Storefront\Page\Product\CrossSelling;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method void               add(CrossSellingElement $entity)
- * @method void               set(string $key, CrossSellingElement $entity)
+ * @method void                     add(CrossSellingElement $entity)
+ * @method void                     set(string $key, CrossSellingElement $entity)
  * @method CrossSellingElement[]    getIterator()
  * @method CrossSellingElement[]    getElements()
  * @method CrossSellingElement|null get(string $key)

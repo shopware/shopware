@@ -24,11 +24,11 @@ class Migration1578475268FixSloveneLocale extends MigrationStep
             return;
         }
 
-        $connection->executeUpdate('
-            UPDATE locale_translation
-            SET name = :correctName
-            WHERE locale_id = :locale_id AND language_id = :language_id
-            AND name = :wrongName',
+        $connection->executeUpdate(
+            'UPDATE locale_translation
+             SET name = :correctName
+             WHERE locale_id = :locale_id AND language_id = :language_id
+             AND name = :wrongName',
             [
                 'locale_id' => $localeId,
                 'language_id' => $enLangId,
@@ -45,8 +45,8 @@ class Migration1578475268FixSloveneLocale extends MigrationStep
 
     private function fetchLanguageId(string $code, Connection $connection): ?string
     {
-        $langId = $connection->fetchColumn('
-            SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `language`.`translation_code_id` = `locale`.`id` WHERE `code` = :code LIMIT 1',
+        $langId = $connection->fetchColumn(
+            'SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `language`.`translation_code_id` = `locale`.`id` WHERE `code` = :code LIMIT 1',
             ['code' => $code]
         );
         if ($langId === false) {

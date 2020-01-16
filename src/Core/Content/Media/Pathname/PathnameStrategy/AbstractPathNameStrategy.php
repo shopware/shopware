@@ -47,7 +47,7 @@ abstract class AbstractPathNameStrategy implements PathnameStrategyInterface
     {
         $md5hash = md5($fromValue);
 
-        $md5hashSlices = \array_slice(str_split($md5hash, 2), 0, 3);
+        $md5hashSlices = \array_slice(mb_str_split($md5hash, 2), 0, 3);
         $md5hashSlices = array_map(
             function ($slice) {
                 return array_key_exists($slice, $this->blacklist) ? $this->blacklist[$slice] : $slice;

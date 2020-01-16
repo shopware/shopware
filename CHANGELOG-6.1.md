@@ -15,6 +15,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Refactored tooltip directive to automatically change the position if it does not fit in the screen on the desired position.
     * Added possibility to show a tooltip also on disabled input fields with the option `showOnDisabledElements`. This will generate a wrapper element around the original element.
     * Prevent adding a product comparison sales channel if there are no product streams available
+    * Prevent adding a product comparison sales channel if there are no product streams available.
+    * Changed `sw-system-config` component to render boolean field types with undefined value as falsy.
 
 * Core
     * Added a check for the author role in plugin composer.json files. If one or more authors have the role `Manufacturer`, only these will be written to the database.

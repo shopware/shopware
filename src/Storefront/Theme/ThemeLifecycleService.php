@@ -158,7 +158,7 @@ class ThemeLifecycleService
             $config = $configuration->getThemeConfig();
 
             foreach ($config['fields'] as $key => $field) {
-                if ($field['type'] !== 'media') {
+                if (!array_key_exists('type', $field) || $field['type'] !== 'media') {
                     continue;
                 }
 
@@ -250,8 +250,10 @@ class ThemeLifecycleService
     {
         $labels = [];
         foreach ($data as $key => $item) {
-            foreach ($item['label'] as $locale => $label) {
-                $labels[$locale][$prefix . '.' . $key] = $label;
+            if (array_key_exists('label', $item)) {
+                foreach ($item['label'] as $locale => $label) {
+                    $labels[$locale][$prefix . '.' . $key] = $label;
+                }
             }
         }
 

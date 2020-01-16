@@ -19,7 +19,7 @@ export default class AjaxOffCanvas extends OffCanvas {
      * @param {boolean} fullwidth
      * @param {array|string} cssClass
      */
-    static open(url = false, data = false, callback = null, position = 'left', closable = true, delay = OffCanvas.REMOVE_OFF_CANVAS_DELAY, fullwidth = false, cssClass = '') {
+    static open(url = false, data = false, callback = null, position = 'left', closable = true, delay = OffCanvas.REMOVE_OFF_CANVAS_DELAY(), fullwidth = false, cssClass = '') {
         if (!url) {
             throw new Error('A url must be given!');
         }

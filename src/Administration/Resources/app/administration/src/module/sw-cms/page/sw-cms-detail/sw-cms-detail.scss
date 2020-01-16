@@ -93,6 +93,18 @@
         position: relative;
         overflow: hidden;
 
+        .sw-cms-detail__page-notification {
+            display: grid;
+
+            .sw-cms-detail__page-notification-alert {
+                z-index: $z-index-over-overlay;
+                width: 80%;
+                max-width: 700px;
+                margin-bottom: 20px;
+                margin-top: 20px;
+            }
+        }
+
         .sw-cms-detail__page-form {
             padding-top: 50px;
             overflow-y: auto;

@@ -29,7 +29,7 @@ Component.register('sw-cms-list-item', {
                 };
             }
 
-            if (this.page.locked === true && this.page.type !== 'page') {
+            if (this.page.locked && this.page.type !== 'page') {
                 return {
                     'background-image': this.defaultLayoutAsset
                 };

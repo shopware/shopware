@@ -19,7 +19,7 @@ class ProductExceptionHandler implements ExceptionHandlerInterface
             return null;
         }
 
-        if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*\'uniq.product.product_number__version_id\'/', $e->getMessage())) {
+        if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*uniq.product.product_number__version_id\'/', $e->getMessage())) {
             $payload = $command->getPayload();
 
             return new DuplicateProductNumberException($payload['product_number'] ?? '', $e);

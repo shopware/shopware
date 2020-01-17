@@ -39,10 +39,11 @@ Component.register('sw-sales-channel-modal-grid', {
                 limit: 500,
                 page: 1
             };
+            const { languageId } = Shopware.State.get('session');
 
             this.isLoading = true;
 
-            this.salesChannelTypeStore.getList(params).then((response) => {
+            this.salesChannelTypeStore.getList(params, false, languageId).then((response) => {
                 this.total = response.total;
                 this.salesChannelTypes = response.items;
                 this.isLoading = false;

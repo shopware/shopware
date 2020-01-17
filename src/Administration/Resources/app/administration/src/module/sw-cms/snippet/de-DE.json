@@ -111,6 +111,7 @@
         "mappingEmptyPreview": "Für diese Datenzuordnung liegen leider keine Vorschaudaten vor.",
         "addBlocks": "Füge Blöcke per Drag & Drop hinzu",
         "labelNavigation": "Navigation",
+        "lockedNotification": "Dieses Layout ist eine gesperrte Standard Vorlage die du nutzen kannst. Dieses Vorlage kann nicht angepasst werden. Wenn du diese Vorlage für eigene Bedürfnisse anpassen möchtest, kannst du es duplizieren und das Duplikat anpassen.",
         "headlineEmptyState": "Raum für Kreativität",
         "claimEmptyState": "Stelle neue Layouts mithilfe von Sektionen zusammen. Wähle eine Sektion und füge einfach per Drag & Drop-Blöcke zu jeder Sektion hinzu und befülle die Blöcke dann mit deinem individuellen Inhalt."
       },

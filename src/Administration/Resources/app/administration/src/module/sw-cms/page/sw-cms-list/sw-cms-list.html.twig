@@ -135,6 +135,13 @@
                                                                         </sw-context-menu-item>
                                                                     {% endblock %}
 
+                                                                    {% block sw_cms_list_listing_list_data_grid_actions_edit_duplicate %}
+                                                                        <sw-context-menu-item
+                                                                            @click="onDuplicateCmsPage(item)">
+                                                                            {{ $tc('sw-cms.components.cmsListItem.duplicate') }}
+                                                                        </sw-context-menu-item>
+                                                                    {% endblock %}
+
                                                                     {% block sw_cms_list_listing_list_data_grid_actions_edit_delete %}
                                                                         <sw-context-menu-item
                                                                             variant="danger"
@@ -197,6 +204,13 @@
                                                                                 variant="danger"
                                                                                 @click="onPreviewImageRemove(cmsPage)">
                                                                             {{ $tc('sw-cms.components.cmsListItem.removePreviewImage') }}
+                                                                        </sw-context-menu-item>
+                                                                    {% endblock %}
+
+                                                                    {% block sw_cms_list_listing_list_item_option_duplicate %}
+                                                                        <sw-context-menu-item
+                                                                            @click="onDuplicateCmsPage(cmsPage)">
+                                                                            {{ $tc('sw-cms.components.cmsListItem.duplicate') }}
                                                                         </sw-context-menu-item>
                                                                     {% endblock %}
 

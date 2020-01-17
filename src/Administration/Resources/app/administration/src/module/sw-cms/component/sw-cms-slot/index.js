@@ -62,7 +62,7 @@ Component.register('sw-cms-slot', {
 
     methods: {
         onSettingsButtonClick() {
-            if (!this.elementConfig.defaultConfig) {
+            if (!this.elementConfig.defaultConfig || this.element.locked) {
                 return;
             }
             this.showElementSettings = true;

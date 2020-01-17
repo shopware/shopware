@@ -246,6 +246,16 @@ Component.register('sw-cms-list', {
             this.showDeleteModal = true;
         },
 
+        onDuplicateCmsPage(page) {
+            this.isLoading = true;
+            this.pageRepository.clone(page.id, Shopware.Context.api).then(() => {
+                this.resetList();
+                this.isLoading = false;
+            }).catch(() => {
+                this.isLoading = false;
+            });
+        },
+
         onCloseDeleteModal() {
             this.currentPage = null;
             this.showDeleteModal = false;

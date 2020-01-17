@@ -112,6 +112,7 @@
         "mappingEmptyPreview": "No preview available.",
         "addBlocks": "Add blocks via drag & drop",
         "labelNavigation": "Navigation",
+        "lockedNotification": "This layout is a locked default layout template you can use for your content. You can not edit this template. If you want to adapt the layout to your needs, you can duplicate it and alter just the duplicate. ",
         "headlineEmptyState": "Space for creativity",
         "claimEmptyState": "Create new layouts by choosing a section. Start by choosing a section type, drag & drop blocks into any section and fill in your content."
       },

@@ -48,6 +48,7 @@
       "labelDescription": "Beschreibung",
       "placeholderDescription": "Gib eine Beschreibung ein ...",
       "placeholderOptionSearch": "Suche nach Optionen",
+      "cardTitle": "Optionen",
       "addOption": "Option hinzufügen",
       "addOptionNotPossible": "Optionen können nur in der Standardsprache hinzugefügt werden",
       "contextMenuOptionResetDelete": "Wiederherstellen",
@@ -57,7 +58,8 @@
       "titleSaveError": "Fehler",
       "messageSaveError": "Eigenschaft konnte nicht gespeichert werden.",
       "messageOptionsEmpty": "Noch keine Optionen",
-      "messageOptionsEmptySubline": "Füge hier Optionen hinzu."
+      "messageOptionsEmptySubline": "Füge hier Optionen hinzu.",
+      "optionEmptyStateSubline": "Speichere zuerst die Eigenschaft mit den gepflegten Basis Informationen um weitere Optionen hinzuzufügen."
     }
   }
 }

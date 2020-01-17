@@ -14,7 +14,7 @@ class Migration1578590702AddedPropertyGroupPosition extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('ALTER TABLE `property_group_translation` ADD `position` INT(11) NULL AFTER `description`;');
+        $connection->executeUpdate('ALTER TABLE `property_group_translation` ADD `position` INT(11) NULL DEFAULT 1 AFTER `description`;');
     }
 
     public function updateDestructive(Connection $connection): void

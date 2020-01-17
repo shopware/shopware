@@ -189,14 +189,9 @@ class ProductPageConfiguratorLoader
         }
 
         $groupCollection = new PropertyGroupCollection($sorted);
-        // check if the parent product has a configuratorGroupConfig
-        $criteria = (new Criteria([$product->getParentId() ?? $product->getId()]));
-        /** @var ProductEntity $parentProduct */
-        $parentProduct = $this->productRepository
-            ->search($criteria, $context->getContext())
-            ->first();
 
-        $configuratorGroupConfig = $parentProduct->getConfiguratorGroupConfig();
+        // check if the parent product has a configuratorGroupConfig
+        $configuratorGroupConfig = $product->getConfiguratorGroupConfig();
         if ($configuratorGroupConfig) {
             // sort groups by configuratorGroupConfig
             $sortedGroupIds = array_map(function (array $configuratorGroupConfigEntry) {

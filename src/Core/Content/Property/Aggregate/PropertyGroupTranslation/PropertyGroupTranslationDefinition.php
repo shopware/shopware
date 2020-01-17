@@ -30,6 +30,13 @@ class PropertyGroupTranslationDefinition extends EntityTranslationDefinition
         return PropertyGroupTranslationEntity::class;
     }
 
+    public function getDefaults(): array
+    {
+        return [
+            'position' => 1,
+        ];
+    }
+
     protected function getParentDefinitionClass(): string
     {
         return PropertyGroupDefinition::class;

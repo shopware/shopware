@@ -92,6 +92,11 @@ Component.register('sw-order-create', {
         },
 
         onCancelOrder() {
+            if (this.customer === null || this.cart === null) {
+                this.redirectToOrderList();
+                return;
+            }
+
             State
                 .dispatch('swOrder/cancelCart', {
                     salesChannelId: this.customer.salesChannelId,

@@ -333,7 +333,8 @@
         "payment-method-blocked": "The payment method %name% is blocked for your current shopping cart.",
         "lineItemDeliveryDate": "Delivery period: %earliest% - %latest%",
         "promotion-discount-deleted": "Discount \"%name%\" has been removed",
-        "promotion-discount-added": "Discount \"%name%\" has been added"
+        "promotion-discount-added": "Discount \"%name%\" has been added",
+       "shipping-address-blocked": "Shipping to the selected shipping address is currently not possible."
     },
     "listing": {
         "filterTitleText": "Filter",

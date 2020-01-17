@@ -113,6 +113,6 @@ class ImportExportFileEntity extends Entity
 
     public static function buildPath(string $id): string
     {
-        return implode('/', mb_str_split($id, 8));
+        return implode('/', str_split($id, 8));
     }
 }

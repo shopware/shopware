@@ -72,11 +72,11 @@
                               :columns="getLineItemColumns"
                               :fullPage="false"
                               :showSettings="false"
-                              showSelection
+                              :showSelection="isCustomerActive"
                               showActions
                               :isLoading="isLoading"
                               :allowColumnEdit="false"
-                              allowInlineEdit
+                              :allowInlineEdit="isCustomerActive"
                               :compactMode="false"
                               identifier="sw-order-line-item-grid-sales-channel"
                               class="sw-order-line-items-grid-sales-channel__data-grid"

@@ -1,8 +1,9 @@
-const GeneralPageObject = require('../sw-general.page-object');
+/* global cy */
+import GeneralPageObject from '../sw-general.page-object';
 
 export default class RuleBuilderPageObject extends GeneralPageObject {
-    constructor(browser) {
-        super(browser);
+    constructor() {
+        super();
 
         this.elements = {
             ...this.elements,
@@ -14,7 +15,7 @@ export default class RuleBuilderPageObject extends GeneralPageObject {
         };
     }
 
-    createBasicSelectCondition({ selector, type, operator, value}) {
+    createBasicSelectCondition({ selector, type, operator, value }) {
         this.selectTypeAndOperator(selector, type, operator);
 
         if (value !== undefined) {
@@ -26,7 +27,7 @@ export default class RuleBuilderPageObject extends GeneralPageObject {
         }
     }
 
-    createBasicSelectConditionFromSearch({ selector, type, operator, value}) {
+    createBasicSelectConditionFromSearch({ selector, type, operator, value }) {
         this.selectTypeAndOperator(selector, type, operator);
 
         if (value !== undefined) {
@@ -43,7 +44,7 @@ export default class RuleBuilderPageObject extends GeneralPageObject {
         }
     }
 
-    createBasicInputCondition({ selector, type, operator, inputName, value}) {
+    createBasicInputCondition({ selector, type, operator, inputName, value }) {
         this.selectTypeAndOperator(selector, type, operator);
 
         if (value !== undefined) {

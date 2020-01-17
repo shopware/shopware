@@ -2,7 +2,7 @@ import AccountPageObject from '../../support/pages/account.page-object';
 
 describe('Account: Login as customer', () => {
     beforeEach(() => {
-        return cy.createCustomerFixture()
+        return cy.createCustomerFixtureStorefront()
     });
 
     it('Change email and log in', () => {
@@ -11,8 +11,8 @@ describe('Account: Login as customer', () => {
         cy.visit('/account/login');
 
         cy.get(page.elements.loginCard).should('be.visible');
-        cy.get('#loginMail').typeAndCheck('test@example.com');
-        cy.get('#loginPassword').typeAndCheck('shopware');
+        cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
+        cy.get('#loginPassword').typeAndCheckStorefront('shopware');
         cy.get(`${page.elements.loginSubmit} [type="submit"]`).click();
 
         cy.get('.account-welcome h1').should((element) => {
@@ -38,8 +38,8 @@ describe('Account: Login as customer', () => {
         cy.visit('/account/login');
 
         cy.get(page.elements.loginCard).should('be.visible');
-        cy.get('#loginMail').typeAndCheck('tester@example.com');
-        cy.get('#loginPassword').typeAndCheck('shopware');
+        cy.get('#loginMail').typeAndCheckStorefront('tester@example.com');
+        cy.get('#loginPassword').typeAndCheckStorefront('shopware');
         cy.get(`${page.elements.loginSubmit} [type="submit"]`).click();
 
         cy.get('.account-welcome h1').should((element) => {
@@ -53,8 +53,8 @@ describe('Account: Login as customer', () => {
         cy.visit('/account/login');
 
         cy.get(page.elements.loginCard).should('be.visible');
-        cy.get('#loginMail').typeAndCheck('test@example.com');
-        cy.get('#loginPassword').typeAndCheck('shopware');
+        cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
+        cy.get('#loginPassword').typeAndCheckStorefront('shopware');
         cy.get(`${page.elements.loginSubmit} [type="submit"]`).click();
 
         cy.get('.account-welcome h1').should((element) => {
@@ -80,8 +80,8 @@ describe('Account: Login as customer', () => {
         cy.visit('/account/login');
 
         cy.get(page.elements.loginCard).should('be.visible');
-        cy.get('#loginMail').typeAndCheck('test@example.com');
-        cy.get('#loginPassword').typeAndCheck('demodemo');
+        cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
+        cy.get('#loginPassword').typeAndCheckStorefront('demodemo');
         cy.get(`${page.elements.loginSubmit} [type="submit"]`).click();
 
         cy.get('.account-welcome h1').should((element) => {

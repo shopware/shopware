@@ -2,7 +2,7 @@ import AccountPageObject from '../../support/pages/account.page-object';
 
 describe('Account: Login as customer', () => {
     beforeEach(() => {
-        return cy.createCustomerFixture()
+        return cy.createCustomerFixtureStorefront()
     });
 
     it('Add new address and swap roles of these two addresses', () => {
@@ -11,8 +11,8 @@ describe('Account: Login as customer', () => {
 
         // Login
         cy.get('.login-card').should('be.visible');
-        cy.get('#loginMail').typeAndCheck('test@example.com');
-        cy.get('#loginPassword').typeAndCheck('shopware');
+        cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
+        cy.get('#loginPassword').typeAndCheckStorefront('shopware');
         cy.get('.login-submit [type="submit"]').click();
 
         // Add address form
@@ -23,13 +23,13 @@ describe('Account: Login as customer', () => {
         cy.get('.account-address-form').should('be.visible');
 
         // Fill in and submit address
-        cy.get('#addresspersonalSalutation').typeAndCheckSelectField('Mr.');
-        cy.get('#addresspersonalFirstName').typeAndCheck('P.  ');
-        cy.get('#addresspersonalLastName').typeAndCheck('Sherman');
-        cy.get('#addressAddressStreet').typeAndCheck('42 Wallaby Way');
-        cy.get('#addressAddressZipcode').typeAndCheck('2000');
-        cy.get('#addressAddressCity').typeAndCheck('Sydney');
-        cy.get('#addressAddressCountry').typeAndCheckSelectField('Australia');
+        cy.get('#addresspersonalSalutation').typeAndSelect('Mr.');
+        cy.get('#addresspersonalFirstName').typeAndCheckStorefront('P.  ');
+        cy.get('#addresspersonalLastName').typeAndCheckStorefront('Sherman');
+        cy.get('#addressAddressStreet').typeAndCheckStorefront('42 Wallaby Way');
+        cy.get('#addressAddressZipcode').typeAndCheckStorefront('2000');
+        cy.get('#addressAddressCity').typeAndCheckStorefront('Sydney');
+        cy.get('#addressAddressCountry').typeAndSelect('Australia');
         cy.get('.address-form-submit').click();
 
         // Verify new address

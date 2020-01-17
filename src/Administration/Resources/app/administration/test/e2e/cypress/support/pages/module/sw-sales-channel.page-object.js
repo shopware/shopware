@@ -1,8 +1,9 @@
-const GeneralPageObject = require('../sw-general.page-object');
+/* global cy */
+import GeneralPageObject from '../sw-general.page-object';
 
 export default class SalesChannelPageObject extends GeneralPageObject {
-    constructor(browser) {
-        super(browser);
+    constructor() {
+        super();
 
         this.elements = {
             ...this.elements,
@@ -54,7 +55,7 @@ export default class SalesChannelPageObject extends GeneralPageObject {
             searchTerm: 'English'
         });
         cy.get('.sw-sales-channel-detail__assign-languages')
-            .typeSingleSelectAndCheck('English','.sw-sales-channel-detail__assign-languages');
+            .typeSingleSelectAndCheck('English', '.sw-sales-channel-detail__assign-languages');
     }
 
     openSalesChannel(salesChannelName, position = 0) {

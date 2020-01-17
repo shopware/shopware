@@ -3,16 +3,17 @@
   "viewportWidth": 1920,
   "baseUrl": "http://docker.vm:8000",
   "watchForFileChanges": false,
-  "requestTimeout": 10000,
-  "responseTimeout": 60000,
-  "defaultCommandTimeout": 10000,
+  "requestTimeout": 100000,
+  "responseTimeout": 600000,
+  "defaultCommandTimeout": 100000,
   "salesChannelName": "Storefront",
   "useDarkTheme": false,
   "useShopwareTheme": true,
   "theme": "dark",
+  "video": false,
   "screenshotsFolder": "./../app/build/artifacts/e2e/screenshots",
-  "reporter": "junit",
+  "reporter": "cypress-multi-reporters",
   "reporterOptions": {
-    "mochaFile": "./../app/build/artifacts/e2e/my-test-output-[hash].xml"
+    "configFile": "reporter-config.json"
   }
 }

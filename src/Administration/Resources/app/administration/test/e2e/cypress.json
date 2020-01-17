@@ -12,9 +12,8 @@
   "useShopwareTheme": true,
   "theme": "dark",
   "screenshotsFolder": "./../app/build/artifacts/e2e/screenshots",
-  "reporter": "junit",
+  "reporter": "cypress-multi-reporters",
   "reporterOptions": {
-    "mochaFile": "./../app/build/artifacts/e2e/my-test-output-[hash].xml",
-    "toConsole": true
+    "configFile": "reporter-config.json"
   }
 }

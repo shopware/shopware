@@ -26,8 +26,6 @@ describe('Checkout: Proceed checkout using various customers', () => {
         return cy.createProductFixture().then(() => {
             return cy.createDefaultFixture('category');
         }).then(() => {
-            return cy.setProductFixtureVisibility('Product name');
-        }).then(() => {
             return cy.fixture('product');
         }).then((result) => {
             product = result;
@@ -37,7 +35,7 @@ describe('Checkout: Proceed checkout using various customers', () => {
     customers.forEach(customer => {
         context(`Checkout with ${customer.firstName}  ${customer.lastName}`, () => {
             beforeEach(() => {
-                return cy.createCustomerFixture(customer).then(() => {
+                return cy.createCustomerFixtureStorefront(customer).then(() => {
                     if (customer.displayGross) {
                         return null;
                     }
@@ -59,8 +57,8 @@ describe('Checkout: Proceed checkout using various customers', () => {
 
                 // Login
                 cy.get(accountPage.elements.loginCard).should('be.visible');
-                cy.get('#loginMail').typeAndCheck('tester@example.com');
-                cy.get('#loginPassword').typeAndCheck('shopware');
+                cy.get('#loginMail').typeAndCheckStorefront('tester@example.com');
+                cy.get('#loginPassword').typeAndCheckStorefront('shopware');
                 cy.get(`${accountPage.elements.loginSubmit} [type="submit"]`).click();
 
                 // Add new address and choose is as default shipping if necessary
@@ -73,13 +71,13 @@ describe('Checkout: Proceed checkout using various customers', () => {
                     cy.get('.account-address-form').should('be.visible');
 
                     // Fill in and submit address
-                    cy.get('#addresspersonalSalutation').typeAndCheckSelectField('Mr.');
-                    cy.get('#addresspersonalFirstName').typeAndCheck('P.');
-                    cy.get('#addresspersonalLastName').typeAndCheck('Sherman');
-                    cy.get('#addressAddressStreet').typeAndCheck('42 Wallaby Way');
-                    cy.get('#addressAddressZipcode').typeAndCheck('2000');
-                    cy.get('#addressAddressCity').typeAndCheck('Sydney');
-                    cy.get('#addressAddressCountry').typeAndCheckSelectField('Australia');
+                    cy.get('#addresspersonalSalutation').typeAndSelect('Mr.');
+                    cy.get('#addresspersonalFirstName').typeAndCheckStorefront('P.');
+                    cy.get('#addresspersonalLastName').typeAndCheckStorefront('Sherman');
+                    cy.get('#addressAddressStreet').typeAndCheckStorefront('42 Wallaby Way');
+                    cy.get('#addressAddressZipcode').typeAndCheckStorefront('2000');
+                    cy.get('#addressAddressCity').typeAndCheckStorefront('Sydney');
+                    cy.get('#addressAddressCountry').typeAndSelect('Australia');
                     cy.get('.address-form-submit').click();
                     cy.get('.alert-success .alert-content').contains('Address has been saved.');
 

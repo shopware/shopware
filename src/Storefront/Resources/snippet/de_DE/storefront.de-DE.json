@@ -333,7 +333,8 @@
         "payment-method-blocked": "Die Zahlungsart %name% ist für Ihren aktuellen Warenkorb gesperrt.",
         "lineItemDeliveryDate": "Lieferzeitraum: %earliest% - %latest%",
         "promotion-discount-deleted": "Der Rabatt \"%name%\" wurde aus dem Warenkorb gelöscht",
-        "promotion-discount-added": "Der Rabatt \"%name%\" wurde dem Warenkorb hinzugefügt"
+        "promotion-discount-added": "Der Rabatt \"%name%\" wurde dem Warenkorb hinzugefügt",
+        "shipping-address-blocked": "Lieferungen an die gewählte Lieferadresse sind nicht möglich."
     },
     "listing": {
         "filterTitleText": "Filter",

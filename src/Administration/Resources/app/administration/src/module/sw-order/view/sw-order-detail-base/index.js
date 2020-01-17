@@ -215,9 +215,9 @@ Component.register('sw-order-detail-base', {
 
         destroyedComponent() {
             this.$root.$off('language-change', this.reloadEntityData);
-            this.$root.$on('order-edit-start', this.onStartEditing);
-            this.$root.$on('order-edit-save', this.onSaveEdits);
-            this.$root.$on('order-edit-cancel', this.onCancelEditing);
+            this.$root.$off('order-edit-start', this.onStartEditing);
+            this.$root.$off('order-edit-save', this.onSaveEdits);
+            this.$root.$off('order-edit-cancel', this.onCancelEditing);
         },
 
         reloadEntityData() {

@@ -30,7 +30,7 @@
                 "quantity": "Anz.",
                 "tax": "MwSt.",
                 "unitPrice": "Stückpreis",
-                "articleNumber": "Art. Nr.",
+                "productNumber": "Prod. Nr.",
                 "total": "Gesamt"
             },
             "tax": "zzgl. %taxRate%% MwSt.:",

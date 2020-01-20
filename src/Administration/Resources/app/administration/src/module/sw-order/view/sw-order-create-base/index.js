@@ -109,7 +109,7 @@ Component.register('sw-order-create-base', {
                 salesChannelId: this.customer.salesChannelId,
                 contextToken: this.cart.token
             }).then(() => {
-                if (this.cart.token === null) return;
+                if (this.cart.token === null || this.cart.lineItems.length === 0) return;
 
                 this.updateLoading(true);
 

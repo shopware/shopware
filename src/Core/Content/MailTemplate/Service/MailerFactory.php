@@ -3,15 +3,16 @@
 namespace Shopware\Core\Content\MailTemplate\Service;
 
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Swift_Transport;
 
 class MailerFactory
 {
-    public function create(SystemConfigService $configService, \Swift_Mailer $mailer): \Swift_Mailer
+    public function create(SystemConfigService $configService, Swift_Transport $innerTransport): Swift_Transport
     {
         $emailAgent = $configService->get('core.mailerSettings.emailAgent');
 
         if ($emailAgent !== 'smtp') {
-            return $mailer;
+            return $innerTransport;
         }
 
         $transport = new \Swift_SmtpTransport(
@@ -32,9 +33,7 @@ class MailerFactory
             (string) $configService->get('core.mailerSettings.password')
         );
 
-        $mailer = new \Swift_Mailer($transport);
-
-        return $mailer;
+        return $transport;
     }
 
     private function getEncryption(SystemConfigService $configService): ?string

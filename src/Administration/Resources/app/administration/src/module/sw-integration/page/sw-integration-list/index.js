@@ -1,21 +1,22 @@
 import template from './sw-integration-list.html.twig';
 import './sw-integration-list.scss';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin, Data: { Criteria } } = Shopware;
+/** @deprecated tag:v6.4.0 */
+const { StateDeprecated } = Shopware;
 
 Component.register('sw-integration-list', {
     template,
 
-    inject: ['integrationService'],
+    inject: ['integrationService', 'repositoryFactory'],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('listing')
+        Mixin.getByName('notification')
     ],
 
     data() {
         return {
-            integrations: [],
+            integrations: null,
             isLoading: false,
             isModalLoading: false,
             showDeleteModal: null,
@@ -31,43 +32,72 @@ Component.register('sw-integration-list', {
     },
 
     computed: {
+        /** @deprecated tag:v6.4.0 */
         id() {
             return this.$vnode.tag;
         },
+
+        /** @deprecated tag:v6.4.0 */
         integrationStore() {
             return StateDeprecated.getStore('integration');
         },
+
+        integrationRepository() {
+            return this.repositoryFactory.create('integration');
+        },
+
+        integrationCriteria() {
+            const criteria = new Criteria(1, 25);
+
+            criteria.addSorting(Criteria.sort('label', 'ASC'));
+
+            return criteria;
+        },
+
         secretAccessKeyFieldType() {
             return this.showSecretAccessKey ? 'text' : 'password';
+        },
+
+        integrationColumns() {
+            return [
+                {
+                    property: 'label',
+                    label: this.$tc('sw-integration.list.integrationName'),
+                    primary: true
+                }, {
+                    property: 'writeAccess',
+                    label: this.$tc('sw-integration.list.permissions')
+                }
+            ];
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            this.getList();
+        },
+
         getList() {
             this.isLoading = true;
-            const params = this.getListingParams();
 
-            this.integrations = [];
-
-            // Use the integration label as the default sorting
-            if (!params.sortBy && !params.sortDirection) {
-                params.sortBy = 'label';
-                params.sortDirection = 'ASC';
-            }
-
-            return this.integrationStore.getList(params).then((response) => {
-                this.total = response.total;
-                this.integrations = response.items;
-                this.isLoading = false;
-
-                return this.integrations;
-            });
+            this.integrationRepository.search(this.integrationCriteria, Shopware.Context.api)
+                .then((integrations) => {
+                    this.integrations = integrations;
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         onSaveIntegration() {
             if (!this.currentIntegration) {
                 return;
             }
+
             const integration = this.integrations.find(a => a.id === this.currentIntegration.id);
 
             if (typeof integration === 'undefined') {
@@ -79,14 +109,16 @@ Component.register('sw-integration-list', {
 
         updateIntegration(integration) {
             this.isModalLoading = true;
-            Object.assign(integration, this.currentIntegration);
-            integration.save().then(() => {
-                this.createSavedSuccessNotification();
-                this.onCloseDetailModal();
-            }).catch(() => {
-                this.createSavedErrorNotification();
-                this.onCloseDetailModal();
-            });
+
+            this.integrationRepository.save(integration, Shopware.Context.api)
+                .then(() => {
+                    this.createSavedSuccessNotification();
+                    this.onCloseDetailModal();
+                })
+                .catch(() => {
+                    this.createSavedErrorNotification();
+                    this.onCloseDetailModal();
+                });
         },
 
         createIntegration() {
@@ -97,18 +129,19 @@ Component.register('sw-integration-list', {
 
             this.isModalLoading = true;
 
-            this.currentIntegration.save().then(() => {
-                this.createSavedSuccessNotification();
-                this.getList();
-                this.currentIntegration.isNew = false;
-
-                this.$nextTick(() => {
-                    this.onCloseDetailModal();
+            this.integrationRepository.save(this.currentIntegration, Shopware.Context.api)
+                .then(() => {
+                    this.createSavedSuccessNotification();
+                    this.getList();
+                })
+                .catch(() => {
+                    this.createSavedErrorNotification();
+                })
+                .finally(() => {
+                    this.$nextTick(() => {
+                        this.onCloseDetailModal();
+                    });
                 });
-            }).catch(() => {
-                this.createSavedErrorNotification();
-                this.onCloseDetailModal();
-            });
         },
 
         createSavedSuccessNotification() {
@@ -129,6 +162,7 @@ Component.register('sw-integration-list', {
             if (!this.currentIntegration) {
                 return;
             }
+
             this.isModalLoading = true;
 
             this.integrationService.generateKey().then((response) => {
@@ -144,16 +178,14 @@ Component.register('sw-integration-list', {
             });
         },
 
-        onShowDetailModal(id) {
-            if (!id) {
-                this.currentIntegration = this.integrationStore.create();
-                this.onGenerateKeys();
-                return;
-            }
+        onShowDetailModal(integration) {
+            this.currentIntegration = integration;
+        },
 
-            const entry = this.integrations.find(a => a.id === id);
-            this.currentIntegration = {};
-            Object.assign(this.currentIntegration, entry);
+        onCreateIntegration() {
+            this.currentIntegration = this.integrationRepository.create();
+
+            this.onGenerateKeys();
         },
 
         onCloseDetailModal() {
@@ -168,14 +200,15 @@ Component.register('sw-integration-list', {
 
         onConfirmDelete(id) {
             if (!id) {
-                return false;
+                return;
             }
 
             this.onCloseDeleteModal();
 
-            return this.integrationStore.store[id].delete(true).then(() => {
-                this.getList();
-            });
+            this.integrationRepository.delete(id, Shopware.Context.api)
+                .then(() => {
+                    this.getList();
+                });
         }
     }
 });

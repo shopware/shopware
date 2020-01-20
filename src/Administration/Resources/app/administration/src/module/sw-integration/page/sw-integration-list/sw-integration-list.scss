@@ -19,6 +19,12 @@ $sw-field-icon-border-radius: $border-radius-default;
 
     .sw-integration-list__overview {
         .sw-card__content {
+            padding: 0;
+
+            .sw-data-grid {
+                border-radius: 3px;
+            }
+
             .sw-empty-state {
                 padding: 30px;
             }
@@ -26,12 +32,12 @@ $sw-field-icon-border-radius: $border-radius-default;
     }
 
     .sw-empty-state {
-        position:relative;
+        position: relative;
     }
 
     .sw-integration-list__app-icon {
         margin-right: 16px;
-        background-color: #33404D;
+        background-color: $color-darkgray-500;
         border-radius: $sw-field-icon-border-radius;
         width: 20px;
         height: 20px;
@@ -57,7 +63,6 @@ $sw-field-icon-border-radius: $border-radius-default;
     .sw-grid .sw-grid__content.sw-grid__content--pagination {
         grid-template-rows: auto;
     }
-
 }
 
 .sw-integration-list__detail {
@@ -76,4 +81,3 @@ $sw-field-icon-border-radius: $border-radius-default;
         margin-top: 7px;
     }
 }
-

@@ -130,7 +130,7 @@ class EntityMapper
 
             case $field instanceof LongTextField:
             case $field instanceof LongTextWithHtmlField:
-                return ['type' => 'text'];
+                return $this->createLongTextField();
 
             case $field instanceof TranslatedField:
                 $reference = EntityDefinitionQueryHelper::getTranslatedField($definition, $field);
@@ -142,8 +142,9 @@ class EntityMapper
             case $field instanceof DateField:
                 return self::DATE_FIELD;
 
-            case $field instanceof PasswordField:
             case $field instanceof StringField:
+                return $this->createStringField();
+            case $field instanceof PasswordField:
             case $field instanceof FkField:
             case $field instanceof IdField:
             case $field instanceof VersionField:
@@ -187,5 +188,15 @@ class EntityMapper
         }
 
         return $properties;
+    }
+
+    protected function createStringField(): array
+    {
+        return self::KEYWORD_FIELD;
+    }
+
+    protected function createLongTextField(): array
+    {
+        return ['type' => 'text'];
     }
 }

@@ -2,30 +2,37 @@ import template from './sw-sales-channel-modal-grid.html.twig';
 import './sw-sales-channel-modal-grid.scss';
 
 const { Component, StateDeprecated } = Shopware;
-const { Criteria } = Shopware.Data;
 
 Component.register('sw-sales-channel-modal-grid', {
     template,
 
     inject: { repositoryFactory: 'repositoryFactory' },
 
+    props: {
+        productStreamsExist: {
+            type: Boolean,
+            required: false,
+            default: true
+        },
+
+        productStreamsLoading: {
+            type: Boolean,
+            required: false,
+            default: false
+        }
+    },
+
     data() {
         return {
             salesChannelTypes: [],
             isLoading: false,
-            total: 0,
-            productStreamsExist: false,
-            productStreamsLoading: false
+            total: 0
         };
     },
 
     computed: {
         salesChannelTypeStore() {
             return StateDeprecated.getStore('sales_channel_type');
-        },
-
-        productStreamRepository() {
-            return this.repositoryFactory.create('product_stream');
         }
     },
 
@@ -47,14 +54,6 @@ Component.register('sw-sales-channel-modal-grid', {
                 this.total = response.total;
                 this.salesChannelTypes = response.items;
                 this.isLoading = false;
-            });
-
-            this.productStreamsLoading = true;
-            this.productStreamRepository.search(new Criteria(1, 1), Shopware.Context.api).then((result) => {
-                if (result.total > 0) {
-                    this.productStreamsExist = true;
-                }
-                this.productStreamsLoading = false;
             });
         },
 

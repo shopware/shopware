@@ -135,23 +135,23 @@ Component.register('sw-import-export-profile-csv-mapping-modal', {
             return [{
                 property: 'fileField',
                 dataIndex: 'fileField',
-                label: this.$tc('sw-import-export-profile.mapping.columnFileField'),
+                label: 'sw-import-export-profile.mapping.columnFileField',
                 allowResize: true,
                 primary: true
             }, {
                 property: 'entityField',
                 dataIndex: 'entityField',
-                label: this.$tc('sw-import-export-profile.mapping.columnEntityField'),
+                label: 'sw-import-export-profile.mapping.columnEntityField',
                 allowResize: true
             }, {
                 property: 'valueSubstitution',
                 dataIndex: 'valueSubstitution',
-                label: this.$tc('sw-import-export-profile.mapping.columnValueSubstitution'),
+                label: 'sw-import-export-profile.mapping.columnValueSubstitution',
                 allowResize: true
             }, {
                 property: 'isIdentifier',
                 dataIndex: 'isIdentifier',
-                label: this.$tc('sw-import-export-profile.mapping.columnIsIdentifier'),
+                label: 'sw-import-export-profile.mapping.columnIsIdentifier',
                 allowResize: true
             }];
         }

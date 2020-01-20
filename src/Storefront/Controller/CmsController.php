@@ -102,7 +102,7 @@ class CmsController extends StorefrontController
             throw new PageNotFoundException('');
         }
 
-        $cmsPage = $this->load($category->getCmsPageId(), $request, $salesChannelContext, $category->getSlotConfig());
+        $cmsPage = $this->load($category->getCmsPageId(), $request, $salesChannelContext, $category->getTranslation('slotConfig'));
 
         return $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $cmsPage]);
     }

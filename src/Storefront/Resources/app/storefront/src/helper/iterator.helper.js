@@ -31,6 +31,10 @@ export default class Iterator {
             return;
         }
 
+        if (source instanceof NodeList) {
+            return source.forEach(callback);
+        }
+
         if (source instanceof Object) {
             return Object.keys(source).forEach(key => {
                 callback(source[key], key)

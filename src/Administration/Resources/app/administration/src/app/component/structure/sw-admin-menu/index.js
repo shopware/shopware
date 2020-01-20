@@ -107,6 +107,8 @@ Component.register('sw-admin-menu', {
 
     methods: {
         createdComponent() {
+            Shopware.Service('loginService').notifyOnLoginListener();
+
             this.collapseMenuOnSmallViewports();
             this.getUser();
             this.$root.$on('toggle-offcanvas', (state) => {

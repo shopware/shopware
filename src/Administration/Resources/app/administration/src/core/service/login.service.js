@@ -30,7 +30,8 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
         addOnTokenChangedListener,
         addOnLogoutListener,
         addOnLoginListener,
-        getLocalStorageKey
+        getLocalStorageKey,
+        notifyOnLoginListener
     };
 
     /**
@@ -58,7 +59,7 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
                 expiry: response.data.expires_in
             });
 
-            notifyOnLoginListener();
+            window.localStorage.setItem('redirectFromLogin', 'true');
 
             return auth;
         });
@@ -142,6 +143,12 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
      * notifies the listener for the onLoginEvent
      */
     function notifyOnLoginListener() {
+        if (!window.localStorage.getItem('redirectFromLogin')) {
+            return null;
+        }
+
+        window.localStorage.removeItem('redirectFromLogin');
+
         return onLoginListener.map((callback) => {
             return callback.call(null);
         });

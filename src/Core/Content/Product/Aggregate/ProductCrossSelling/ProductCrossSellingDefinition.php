@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -74,7 +75,7 @@ class ProductCrossSellingDefinition extends EntityDefinition
 
             (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new Required()),
             (new ReferenceVersionField(ProductDefinition::class))->addFlags(new Required()),
-            new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class),
+            (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class))->addFlags(new ReverseInherited('crossSellings')),
 
             (new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class))->addFlags(new Required()),
             (new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class))->addFlags(new ReadProtected(SalesChannelApiSource::class)),

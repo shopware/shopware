@@ -105,23 +105,23 @@ Component.register('sw-settings-logging-list', {
             return [{
                 property: 'createdAt',
                 dataIndex: 'createdAt',
-                label: this.$tc('sw-settings-logging.list.columnDate'),
+                label: 'sw-settings-logging.list.columnDate',
                 allowResize: true,
                 primary: true
             }, {
                 property: 'message',
                 dataIndex: 'message',
-                label: this.$tc('sw-settings-logging.list.columnMessage'),
+                label: 'sw-settings-logging.list.columnMessage',
                 allowResize: true
             }, {
                 property: 'level',
                 dataIndex: 'level',
-                label: this.$tc('sw-settings-logging.list.columnLevel'),
+                label: 'sw-settings-logging.list.columnLevel',
                 allowResize: true
             }, {
                 property: 'context',
                 dataIndex: 'context',
-                label: this.$tc('sw-settings-logging.list.columnContent'),
+                label: 'sw-settings-logging.list.columnContent',
                 allowResize: true
             }];
         }

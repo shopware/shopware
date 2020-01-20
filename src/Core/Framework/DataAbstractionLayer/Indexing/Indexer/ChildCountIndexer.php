@@ -232,7 +232,7 @@ class ChildCountIndexer implements IndexerInterface
         );
 
         $tags = array_map(function ($id) use ($definition) {
-            return $this->cacheKeyGenerator->getEntityTag($id, $definition);
+            return $this->cacheKeyGenerator->getEntityTag($id, $definition->getEntityName());
         }, $parentIds);
 
         $this->cache->invalidateTags($tags);

@@ -22,7 +22,7 @@ class AddressValidator implements CartValidatorInterface
         $shippingAddress = $customer->getActiveShippingAddress();
 
         if (!$shippingAddress->getCountry()->getShippingAvailable()) {
-            $errors->add(new ShippingAddressBlockedError($shippingAddress->getCountry()->getName()));
+            $errors->add(new ShippingAddressBlockedError($shippingAddress->getCountry()->getTranslation('name')));
         }
     }
 }

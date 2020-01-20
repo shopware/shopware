@@ -37,7 +37,7 @@ class MailSender
 
         $deliveryAddress = $this->configService->get('core.mailerSettings.deliveryAddress');
         if ($deliveryAddress) {
-            $message->setTo([$deliveryAddress]);
+            $message->addBcc($deliveryAddress);
         }
 
         $this->swiftMailer->send($message, $failedRecipients);

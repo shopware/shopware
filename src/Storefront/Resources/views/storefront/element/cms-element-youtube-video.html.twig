@@ -8,7 +8,7 @@
         {% set videoUrl = 'https://www.youtube.com/embed/' %}        
     {% endif %}
     
-    {% set videoUrl = videoUrl ~ config.videoID.value ~ '?' ~ videoUrl ~ 'rel=0' ~ '&'  %}
+    {% set videoUrl = videoUrl ~ config.videoID.value ~ '?' ~ 'rel=0' ~ '&'  %}
 
     {% if config.autoPlay.value %}
        {% set videoUrl = videoUrl ~ 'autoplay=1' ~ '&' %}   

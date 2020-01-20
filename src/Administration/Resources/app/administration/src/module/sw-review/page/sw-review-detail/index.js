@@ -69,7 +69,9 @@ Component.register('sw-review-detail', {
             criteria.addAssociation('salesChannel');
             criteria.addAssociation('product');
 
-            this.repository.get(this.reviewId, Shopware.Context.api, criteria).then((review) => {
+            const context = { ...Shopware.Context.api, inheritance: true };
+
+            this.repository.get(this.reviewId, context, criteria).then((review) => {
                 this.review = review;
                 this.isLoading = false;
             });

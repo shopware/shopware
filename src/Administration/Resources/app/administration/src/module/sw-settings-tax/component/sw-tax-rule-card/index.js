@@ -78,16 +78,16 @@ Component.register('sw-tax-rule-card', {
             return [{
                 property: 'country.name',
                 dataIndex: 'country.name',
-                label: this.$tc('sw-settings-tax.taxRuleCard.labelCountryName'),
+                label: 'sw-settings-tax.taxRuleCard.labelCountryName',
                 primary: true
             }, {
                 property: 'type.typeName',
                 dataIndex: 'type.typeName',
-                label: this.$tc('sw-settings-tax.taxRuleCard.labelAppliesOn')
+                label: 'sw-settings-tax.taxRuleCard.labelAppliesOn'
             }, {
                 property: 'taxRate',
                 dataIndex: 'taxRate',
-                label: this.$tc('sw-settings-tax.taxRuleCard.labelTaxRate')
+                label: 'sw-settings-tax.taxRuleCard.labelTaxRate'
             }];
         }
     },

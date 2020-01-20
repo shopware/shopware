@@ -279,6 +279,7 @@ $app->any('/database-configuration/', function (ServerRequestInterface $request,
     $connectionInfo->port = $databaseParameters['port'];
     $connectionInfo->databaseName = $databaseParameters['database'];
     $connectionInfo->password = $databaseParameters['password'];
+    $connectionInfo->socket = $databaseParameters['socket'];
 
     try {
         try {

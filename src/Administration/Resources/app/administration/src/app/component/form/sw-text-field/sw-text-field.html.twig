@@ -1,10 +1,10 @@
 {% block sw_text_field %}
     <sw-contextual-field class="sw-field--text"
-                        v-bind="$attrs"
-                        :name="formFieldName"
-                        @inheritance-restore="$emit('inheritance-restore', $event)"
-                        @inheritance-remove="$emit('inheritance-remove', $event)"
-                        v-on="$listeners">
+                         v-bind="$attrs"
+                         :name="formFieldName"
+                         @inheritance-restore="$emit('inheritance-restore', $event)"
+                         @inheritance-remove="$emit('inheritance-remove', $event)"
+                         v-on="$listeners">
         <template v-if="hasPrefix" #sw-contextual-field-prefix="{ disabled, identification }">
             <slot name="prefix" v-bind="{disabled, identification}"></slot>
         </template>
@@ -27,9 +27,9 @@
             <slot name="suffix" v-bind="{ identification }"></slot>
             <sw-field-copyable
                 v-if="copyable"
-            :displayName="identification"
-            :copyableText="currentValue"
-            :tooltip="copyableTooltip">
+                :displayName="identification"
+                :copyableText="currentValue"
+                :tooltip="copyableTooltip">
             </sw-field-copyable>
         </template>
     </sw-contextual-field>

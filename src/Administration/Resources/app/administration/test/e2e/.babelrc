@@ -1,8 +1,7 @@
 {
-
   "presets": [
     [
-      "env",
+      "@babel/preset-env",
       {
         "targets": {
           "node": "current"
@@ -11,7 +10,7 @@
     ]
   ],
   "plugins": [
-    "add-module-exports",
-    "babel-plugin-transform-object-rest-spread"
-  ]
+    "@babel/plugin-proposal-object-rest-spread"
+  ],
+  "ignore": ["/node_modules\/(?!@shopware-ag)/"]
 }

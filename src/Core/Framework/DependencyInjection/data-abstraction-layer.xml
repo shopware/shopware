@@ -25,7 +25,6 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator" public="true">
-            <argument type="service" id="Shopware\Core\System\Language\LanguageDefinition"/>
             <argument>%kernel.cache.hash%</argument>
         </service>
 

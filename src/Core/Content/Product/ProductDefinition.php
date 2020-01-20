@@ -161,9 +161,9 @@ class ProductDefinition extends EntityDefinition
             (new ManyToManyIdField('property_ids', 'propertyIds', 'properties'))->addFlags(new Inherited()),
             (new ManyToManyIdField('option_ids', 'optionIds', 'options'))->addFlags(new Inherited()),
             (new ManyToManyIdField('tag_ids', 'tagIds', 'tags'))->addFlags(new Inherited()),
-            (new ListingPriceField('listing_prices', 'listingPrices'))->addFlags(new WriteProtected()),
+            (new ListingPriceField('listing_prices', 'listingPrices'))->addFlags(new WriteProtected(), new Inherited()),
             (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, 'product_id', 'category_id'))->addFlags(new CascadeDelete(), new WriteProtected()),
-            (new FloatField('rating_average', 'ratingAverage'))->addFlags(new WriteProtected()),
+            (new FloatField('rating_average', 'ratingAverage'))->addFlags(new WriteProtected(), new Inherited()),
             (new FkField('delivery_time_id', 'deliveryTimeId', DeliveryTimeDefinition::class))->addFlags(new Inherited()),
             (new ManyToOneAssociationField('deliveryTime', 'delivery_time_id', DeliveryTimeDefinition::class))->addFlags(new Inherited()),
 

@@ -17,7 +17,8 @@ Have a look at the [composer schema](https://getcomposer.org/doc/04-schema.md), 
     "authors": [
         {
             "name": "Example Company",
-            "homepage": "https://my.example.com"
+            "homepage": "https://my.example.com",
+            "role": "Manufacturer"
         }
     ],
     "require": {
@@ -60,10 +61,10 @@ Have a look at the [composer schema](https://getcomposer.org/doc/04-schema.md), 
 | name                            | Name of your package                                                                                                             |
 | description                     | The composer JSON schema requires a short description of your package                                                            |
 | version                         | Current version of your plugin                                                                                                   |
-| type                            | Set the type to `shopware-platform-plugin`. Otherwise Shopware won't be able to recognize your plugin                            |
+| type                            | Set the type to `shopware-platform-plugin`. Otherwise Shopware won't be able to recognize your plugin                         |
 | license                         | Provide the license model of your plugin, e.g. `MIT` or `proprietary`                                                            |
-| authors                         | Collection of the authors of your plugin                                                                                         |
-| require                         | Add your dependencies here. This should be `shopware/platform`, but could also be another plugin or composer package             |
+| authors                         | Collection of the authors of your plugin. If one or more authors with the role `Manufacturer` are provided, only these will be written to the database.|
+| require                         | Add your dependencies here. This should be `shopware/platform`, but could also be another plugin or composer package          |
 | extra                           | The `extra` property is used to provide some Shopware specific information                                                       |
 | extra - shopware-plugin-class   | The fully qualified class name of your plugin's base class                                                                       |
 | extra - plugin-icon             | The path to the plugin's icon file. This is optional if you don't have any custom plugin icon                                    |

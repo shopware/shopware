@@ -17,7 +17,6 @@ Component.register('sw-cms-detail', {
         'cmsPageService',
         'cmsService',
         'cmsDataResolverService'
-
     ],
 
     mixins: [

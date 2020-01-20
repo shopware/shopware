@@ -88,7 +88,9 @@ Component.register('sw-cms-block', {
         },
 
         onBlockOverlayClick() {
-            this.$emit('block-overlay-click');
+            if (!this.block.locked) {
+                this.$emit('block-overlay-click');
+            }
         }
     }
 });

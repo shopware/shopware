@@ -1,14 +1,12 @@
 {% block sw_cms_detail %}
     <sw-page class="sw-cms-detail" :showSearchBar="false" :showSmartBar="false">
-
         {% block sw_cms_detail_content %}
             <div class="sw-cms-detail__content" slot="content">
-
                 {% block sw_cms_detail_toolbar %}
                     <sw-cms-toolbar>
                         {% block sw_cms_detail_toolbar_language_switch %}
                             <sw-language-switch slot="language-switch"
-                                                :disabled="isLoading"
+                                                :disabled="isLoading || page.locked"
                                                 @on-change="onChangeLanguage"
                                                 :saveChangesFunction="saveOnLanguageChange"
                                                 :abortChangeFunction="abortOnLanguageChange">
@@ -73,7 +71,7 @@
                                             class="sw-cms-detail__save-action"
                                             :isLoading="isLoading"
                                             :processSuccess="isSaveSuccessful"
-                                            :disabled="isLoading || page.locked === true"
+                                            :disabled="isLoading || page.locked"
                                             variant="primary"
                                             @process-finish="saveFinish"
                                             v-tooltip.bottom="tooltipSave"
@@ -88,15 +86,31 @@
 
                 {% block sw_cms_detail_stage_container %}
                     <div class="sw-cms-detail__stage-container">
-
+                        <sw-overlay v-if="page.locked"></sw-overlay>
                         {% block sw_cms_detail_stage_form_view %}
                             <div class="sw-cms-detail__page-form" v-if="currentDeviceView === 'form'">
+                                {% block sw_cms_detail_page_notification %}
+                                    <div class="sw-cms-detail__page-notification" v-if="page.locked">
+                                        <sw-alert class="sw-cms-detail__page-notification-alert" variant="info">
+                                            {{ $tc('sw-cms.detail.label.lockedNotification') }}
+                                        </sw-alert>
+                                    </div>
+                                {% endblock %}
+
                                 <sw-cms-page-form :page="page"></sw-cms-page-form>
                             </div>
                         {% endblock %}
 
                         {% block sw_cms_detail_stage_wrapper %}
                             <div class="sw-cms-detail__stage" v-else>
+
+                                {% block sw_cms_detail_toolbar_notification %}
+                                    <div class="sw-cms-detail__page-notification" v-if="page.locked">
+                                        <sw-alert class="sw-cms-detail__page-notification-alert" variant="info">
+                                            {{ $tc('sw-cms.detail.label.lockedNotification') }}
+                                        </sw-alert>
+                                    </div>
+                                {% endblock %}
 
                                 {% block sw_cms_detail_stage_empty_stage %}
                                     <div class="sw-cms-detail__empty-stage"

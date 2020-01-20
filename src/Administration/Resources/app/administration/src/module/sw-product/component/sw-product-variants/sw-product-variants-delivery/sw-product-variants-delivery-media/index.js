@@ -67,12 +67,12 @@ Component.register('sw-product-variants-delivery-media', {
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-product.variations.deliveryModal.mediaOptions'),
+                    label: 'sw-product.variations.deliveryModal.mediaOptions',
                     rawData: true
                 },
                 {
                     property: 'option.media',
-                    label: this.$tc('sw-product.variations.deliveryModal.media'),
+                    label: 'sw-product.variations.deliveryModal.media',
                     rawData: true
                 }
             ];

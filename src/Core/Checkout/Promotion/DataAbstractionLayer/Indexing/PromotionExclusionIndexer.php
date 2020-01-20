@@ -389,7 +389,7 @@ class PromotionExclusionIndexer implements IndexerInterface
     private function addTags(array &$tags, array $addTags): void
     {
         foreach ($addTags as $tag) {
-            $tag = $this->cacheKeyGenerator->getEntityTag($tag, $this->promotionDefinition);
+            $tag = $this->cacheKeyGenerator->getEntityTag($tag, PromotionDefinition::ENTITY_NAME);
 
             if (isset($tags[$tag])) {
                 continue;

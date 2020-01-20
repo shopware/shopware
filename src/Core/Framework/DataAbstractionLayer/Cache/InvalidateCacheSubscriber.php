@@ -69,13 +69,13 @@ class InvalidateCacheSubscriber implements EventSubscriberInterface
                     $id = implode('-', $id);
                 }
 
-                $keys[] = $this->cacheKeyGenerator->getEntityTag($id, $definition);
+                $keys[] = $this->cacheKeyGenerator->getEntityTag($id, $definition->getEntityName());
 
                 foreach ($result->getPayload() as $propertyName => $value) {
                     $field = $definition->getFields()->get($propertyName);
 
                     if (($field instanceof FkField) && $value !== null) {
-                        $keys[] = $this->cacheKeyGenerator->getEntityTag($value, $field->getReferenceDefinition());
+                        $keys[] = $this->cacheKeyGenerator->getEntityTag($value, $field->getReferenceDefinition()->getEntityName());
                     }
 
                     if ($field instanceof TranslatedField) {

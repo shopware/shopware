@@ -51,9 +51,16 @@
                                    title="{{ manufacturer.translated.name }}"
                                    class="quickview-minimal-product-manufacturer">
                                     {% if manufacturer.media %}
-                                        <img src="{{ manufacturer.media.url }}"
-                                             class="quickview-minimal-product-manufacturer-logo"
-                                             alt="{{ manufacturer.translated.name }}"/>
+                                        {% sw_thumbnails 'quickview-minimal-product-manufacturer-logo' with {
+                                            media: manufacturer.media,
+                                            sizes: {
+                                                'default': '360px'
+                                            },
+                                            attributes: {
+                                                'class': 'quickview-minimal-product-manufacturer-logo',
+                                                'alt': ( manufacturer.translated.name ?: '')
+                                            }
+                                        } %}
                                     {% else %}
                                         {{ manufacturer.translated.name }}
                                     {% endif %}
@@ -76,7 +83,7 @@
 
                     {% block component_product_quickview_minimal_footer_text %}
                         <p class="quickview-minimal-footer-description">
-                            {{ page.product.translated.description }}
+                            {{ page.product.translated.description|sw_sanitize }}
                         </p>
                     {% endblock %}
                 </div>

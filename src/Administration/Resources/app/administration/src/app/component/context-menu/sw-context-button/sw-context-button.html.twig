@@ -1,5 +1,5 @@
 {% block sw_context_button %}
-    <div class="sw-context-button" :class="contextClass" @click="openMenu" ref="swContextButton">
+    <div class="sw-context-button" :class="contextClass" @click="onClickButton" ref="swContextButton">
         {% block sw_context_button_button %}
             <slot name="button">
                 <button class="sw-context-button__button" :class="contextButtonClass">
@@ -9,9 +9,17 @@
         {% endblock %}
 
         {% block sw_context_button_menu %}
-            <sw-context-menu :class="contextMenuClass" :style="menuStyles" ref="swContextMenu">
-                <slot>{% block sw_context_button_menu_slot_default %}{% endblock %}</slot>
-            </sw-context-menu>
+            <sw-popover class="sw-context-button__menu-position"
+                        popoverClass="sw-context-button__menu-popover"
+                        :zIndex="9000"
+                        v-if="showMenu">
+                <sw-context-menu
+                    :class="contextMenuClass"
+                    :style="menuStyles"
+                    ref="swContextMenu">
+                    <slot>{% block sw_context_button_menu_slot_default %}{% endblock %}</slot>
+                </sw-context-menu>
+            </sw-popover>
         {% endblock %}
     </div>
 {% endblock %}

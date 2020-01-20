@@ -22,12 +22,10 @@ describe('Checkout: Login as customer and run checkout in various viewports', ()
         return cy.createProductFixture().then(() => {
             return cy.createDefaultFixture('category')
         }).then(() => {
-            return cy.setProductFixtureVisibility('Product name')
-        }).then(() => {
             return cy.fixture('product');
         }).then((result) => {
             product = result;
-            return cy.createCustomerFixture()
+            return cy.createCustomerFixtureStorefront()
         }).then(() => {
             cy.visit('/');
         })
@@ -66,8 +64,8 @@ describe('Checkout: Login as customer and run checkout in various viewports', ()
                 cy.get('.checkout-main').should('be.visible');
                 cy.get('.login-collapse-toggle').click();
                 cy.get(accountPage.elements.loginCard).should('be.visible');
-                cy.get('#loginMail').typeAndCheck('test@example.com');
-                cy.get('#loginPassword').typeAndCheck('shopware');
+                cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
+                cy.get('#loginPassword').typeAndCheckStorefront('shopware');
                 cy.get(`${accountPage.elements.loginSubmit} [type="submit"]`).click();
 
                 // Confirm

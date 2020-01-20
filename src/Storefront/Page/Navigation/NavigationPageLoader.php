@@ -78,7 +78,7 @@ class NavigationPageLoader
         if ($pageId) {
             $resolverContext = new EntityResolverContext($context, $request, $this->categoryDefinition, $category);
 
-            $pages = $this->cmsPageLoader->load($request, new Criteria([$pageId]), $context, $category->getSlotConfig(), $resolverContext);
+            $pages = $this->cmsPageLoader->load($request, new Criteria([$pageId]), $context, $category->getTranslation('slotConfig'), $resolverContext);
 
             if (!$pages->has($pageId)) {
                 throw new PageNotFoundException($pageId);

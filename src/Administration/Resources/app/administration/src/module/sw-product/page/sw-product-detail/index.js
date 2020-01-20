@@ -295,6 +295,8 @@ Component.register('sw-product-detail', {
 
                 if (this.product.parentId) {
                     this.loadParentProduct();
+                } else {
+                    Shopware.State.commit('swProductDetail/setParentProduct', {});
                 }
 
                 Shopware.State.commit('swProductDetail/setLoading', ['product', false]);

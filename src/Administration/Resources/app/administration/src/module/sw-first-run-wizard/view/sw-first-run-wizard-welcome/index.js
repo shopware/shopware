@@ -145,14 +145,11 @@ Component.register('sw-first-run-wizard-welcome', {
 
         onConfirmLanguageSwitch() {
             this.userRepository.save(this.user, Shopware.Context.api)
-                .then(() => {
+                .then(async () => {
                     this.showConfirmLanguageSwitchModal = false;
 
-                    this.localeRepository.get(this.user.localeId, Shopware.Context.api).then(({ code }) => {
-                        Shopware.State.dispatch('setAdminLocale', code);
-                        window.localStorage.setItem('sw-admin-locale', code);
-                        document.location.reload();
-                    });
+                    await Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
+                    document.location.reload();
                 })
                 .catch(() => {
                     this.showConfirmLanguageSwitchModal = false;

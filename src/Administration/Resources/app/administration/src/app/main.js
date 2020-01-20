@@ -22,6 +22,7 @@ import LicenseViolationsService from 'src/app/service/license-violations.service
 import LocaleToLanguageService from 'src/app/service/locale-to-language.service';
 import addPluginUpdatesListener from 'src/core/service/plugin-updates-listener.service';
 import addShopwareUpdatesListener from 'src/core/service/shopware-updates-listener.service';
+import LocaleHelperService from 'src/app/service/locale-helper.service';
 
 /** Import decorators */
 import 'src/app/decorator';
@@ -96,4 +97,12 @@ Application
     })
     .addServiceProvider('licenseViolationService', () => {
         return LicenseViolationsService(Application.getContainer('service').storeService);
+    })
+    .addServiceProvider('localeHelper', () => {
+        return new LocaleHelperService({
+            Shopware: Shopware,
+            localeRepository: Shopware.Service('repositoryFactory').create('locale'),
+            snippetService: Shopware.Service('snippetService'),
+            localeFactory: Application.getContainer('factory').locale
+        });
     });

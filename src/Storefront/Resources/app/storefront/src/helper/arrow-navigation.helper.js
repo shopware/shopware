@@ -46,7 +46,6 @@ export default class ArrowNavigationHelper {
      * @private
      */
     _onKeyDown(event) {
-
         const parent = DomAccess.querySelector(document, this._parentSelector, false);
         if (!parent) return;
 

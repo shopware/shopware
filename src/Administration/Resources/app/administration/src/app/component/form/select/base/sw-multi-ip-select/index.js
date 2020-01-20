@@ -28,7 +28,6 @@ Component.register('sw-multi-ip-select', {
 
     props: {
         value: {
-            type: [Array, Object],
             required: true,
             validator(value) {
                 return Array.isArray(value) || value === null || value === undefined;
@@ -55,10 +54,23 @@ Component.register('sw-multi-ip-select', {
     },
 
     computed: {
+        currentValue: {
+            get() {
+                if (!this.value) {
+                    return [];
+                }
+
+                return this.value;
+            },
+            set(newValue) {
+                this.$emit('change', newValue);
+            }
+        },
+
         objectValues() {
             const objectArray = [];
 
-            this.value.forEach((entry) => {
+            this.currentValue.forEach((entry) => {
                 objectArray.push({ value: entry });
             });
 
@@ -84,23 +96,22 @@ Component.register('sw-multi-ip-select', {
                 return;
             }
 
-            const newValue = [...this.value, this.searchTerm];
-            this.$emit('change', newValue);
+            this.currentValue = [...this.currentValue, this.searchTerm];
             this.searchTerm = '';
         },
 
         remove({ value }) {
-            this.$emit('change', this.value.filter((entry) => {
+            this.currentValue = this.currentValue.filter((entry) => {
                 return entry !== value;
-            }));
+            });
         },
 
         removeLastItem() {
-            if (!this.value.length) {
+            if (!this.currentValue.length) {
                 return;
             }
 
-            const lastSelection = this.value[this.value.length - 1];
+            const lastSelection = this.currentValue[this.currentValue.length - 1];
             this.remove({ value: lastSelection });
         },
 

@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Language\LanguageDefinition;
 
 class InvalidateCacheSubscriberTest extends TestCase
 {
@@ -91,7 +90,6 @@ class InvalidateCacheSubscriberTest extends TestCase
             ->with($tags);
 
         $generator = new EntityCacheKeyGenerator(
-            $this->getContainer()->get(LanguageDefinition::class),
             $this->getContainer()->getParameter('kernel.cache.hash')
         );
         $registry = $this->getContainer()->get(DefinitionInstanceRegistry::class);

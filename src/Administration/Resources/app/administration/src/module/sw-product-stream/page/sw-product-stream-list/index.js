@@ -81,24 +81,24 @@ Component.register('sw-product-stream-list', {
                 property: 'name',
                 dataIndex: 'name',
                 inlineEdit: 'string',
-                label: this.$tc('sw-product-stream.list.columnName'),
+                label: 'sw-product-stream.list.columnName',
                 routerLink: 'sw.product.stream.detail',
                 width: '250px',
                 allowResize: true,
                 primary: true
             }, {
                 property: 'description',
-                label: this.$tc('sw-product-stream.list.columnDescription'),
+                label: 'sw-product-stream.list.columnDescription',
                 width: '250px',
                 allowResize: true
             }, {
                 property: 'updatedAt',
-                label: this.$tc('sw-product-stream.list.columnDateUpdated'),
+                label: 'sw-product-stream.list.columnDateUpdated',
                 align: 'right',
                 allowResize: true
             }, {
                 property: 'invalid',
-                label: this.$tc('sw-product-stream.list.columnStatus'),
+                label: 'sw-product-stream.list.columnStatus',
                 allowResize: true
             }];
         }

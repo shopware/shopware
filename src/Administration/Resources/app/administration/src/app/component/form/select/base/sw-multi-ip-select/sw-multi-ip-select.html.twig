@@ -7,15 +7,14 @@
             {% block sw_ip_multi_select_base_selection %}
                 <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse }">
                     {% block sw_ip_multi_select_base_selection_slot %}
-                        <sw-select-selection-list
-                            :selections="objectValues"
-                            ref="selectionList"
-                            @item-remove="remove"
-                            @last-item-delete="removeLastItem"
-                            @search-term-change="onSearchTermChange"
-                            labelProperty="value"
-                            valueProperty="value"
-                            v-bind="{ size, placeholder, searchTerm }">
+                        <sw-select-selection-list :selections="objectValues"
+                                                  ref="selectionList"
+                                                  @item-remove="remove"
+                                                  @last-item-delete="removeLastItem"
+                                                  @search-term-change="onSearchTermChange"
+                                                  labelProperty="value"
+                                                  valueProperty="value"
+                                                  v-bind="{ size, placeholder, searchTerm }">
                             {% block sw_ip_multi_select_base_selection_list %}
                                 {% block sw_ip_multi_select_base_selection_list_label %}
                                     <template #label-property="{ item, index, labelProperty, valueProperty }">

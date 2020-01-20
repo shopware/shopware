@@ -111,11 +111,15 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
 
     private function overwriteSlotConfig(CmsPageEntity $page, array $config): void
     {
-        if (empty($config)) {
-            return;
-        }
-
         foreach ($page->getSections()->getBlocks()->getSlots() as $slot) {
+            if ($slot->getConfig() === null && $slot->getTranslation('config') !== null) {
+                $slot->setConfig($slot->getTranslation('config'));
+            }
+
+            if (empty($config)) {
+                continue;
+            }
+
             if (!isset($config[$slot->getId()])) {
                 continue;
             }

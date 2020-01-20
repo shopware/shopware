@@ -4,6 +4,15 @@ const { existsSync } = require('fs');
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 const utils = require('./utils');
 
+/**
+ * -------------------------------------------------------
+ * WEBPACK CONFIGURATION
+ * -------------------------------------------------------
+ * Impacts development hot mode
+ * https://webpack.js.org/configuration
+ * -------------------------------------------------------
+ */
+
 const themeFilesConfigPath = join(utils.getProjectRootPath(), 'var/theme-files.json');
 if (!existsSync(themeFilesConfigPath)) {
     throw new Error(`File "${themeFilesConfigPath}" not found`);
@@ -12,14 +21,25 @@ if (!existsSync(themeFilesConfigPath)) {
 // eslint-disable-next-line
 const themeFiles = require(themeFilesConfigPath);
 
+// Search for "overrides.scss" entry point in "theme-files.json" content
+const overridesEntry = utils.getScssEntryByName(themeFiles.style, 'scss/overrides.scss');
+
 /**
- * -------------------------------------------------------
- * WEBPACK CONFIGURATIONS
- * -------------------------------------------------------
- * Impacts development hot mode
- * https://webpack.js.org/configuration
- * -------------------------------------------------------
+ * Additional SCSS resources for "sass-resources-loader"
+ * https://www.npmjs.com/package/sass-resources-loader
+ * @type {string[]}
  */
+const scssResources = utils.getScssResources(
+    [
+        // Dumped theme variables
+        join(utils.getProjectRootPath(), 'var/theme-variables.scss'),
+
+        // Storefront & vendor variables + mixins + functions
+        join(__dirname, '..', 'src/scss/variables.scss'),
+    ],
+    overridesEntry,
+    'overrides.scss'
+);
 
 /**
  * Webpack module configuration and how them will be treated
@@ -52,13 +72,7 @@ const modules = {
                 {
                     loader: 'sass-resources-loader',
                     options: {
-                        resources: [
-                            // Dumped theme variables
-                            join(utils.getProjectRootPath(), 'var/theme-variables.scss'),
-
-                            // Storefront & vendor variables + mixins + functions
-                            join(__dirname, '..', 'src/scss/variables.scss'),
-                        ],
+                        resources: scssResources,
                     },
                 },
             ],

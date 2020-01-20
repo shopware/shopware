@@ -1,4 +1,5 @@
 import template from './sw-property-create.html.twig';
+import './sw-property-create.scss';
 
 const { Component } = Shopware;
 

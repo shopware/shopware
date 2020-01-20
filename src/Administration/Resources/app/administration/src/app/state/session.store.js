@@ -26,17 +26,17 @@ export default {
     },
 
     actions: {
-        setAdminLocale({ commit, rootState }, locale) {
+        async setAdminLocale({ commit, rootState }, locale) {
             const locales = rootState.system.locales;
             const loginService = Shopware.Service('loginService');
 
             if (!loginService.isLoggedIn()) {
                 commit('setAdminLocale', { locales, locale, languageId: '' });
-                return;
+                return Promise.resolve();
             }
 
             const localeToLanguageService = Shopware.Service('localeToLanguageService');
-            localeToLanguageService.localeToLanguage(locale).then((languageId) => {
+            return localeToLanguageService.localeToLanguage(locale).then((languageId) => {
                 commit('setAdminLocale', { locales, locale, languageId });
             });
         }

@@ -61,13 +61,13 @@ Component.register('sw-order-state-change-modal-assign-mail-template', {
                 },
                 {
                     property: 'mailTemplateType.name',
-                    label: this.$tc('sw-order.assignMailTemplateCard.gridColumnType'),
+                    label: 'sw-order.assignMailTemplateCard.gridColumnType',
                     rawData: true,
                     sortable: false
                 },
                 {
                     property: 'description',
-                    label: this.$tc('sw-order.assignMailTemplateCard.gridColumnDescription'),
+                    label: 'sw-order.assignMailTemplateCard.gridColumnDescription',
                     rawData: true,
                     sortable: true
                 }

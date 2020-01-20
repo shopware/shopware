@@ -137,15 +137,14 @@ Component.register('sw-system-config', {
             if (this.currentSalesChannelId !== null
                     && this.inherit
                     && this.actualConfigData.hasOwnProperty('null')
-                    && this.actualConfigData.null[bind.name] !== null
-                    && !types.isUndefined(this.actualConfigData.null[bind.name])) {
+                    && this.actualConfigData.null[bind.name] !== null) {
                 if (bind.type === 'single-select' || bind.config.componentName === 'sw-entity-single-select') {
                     // Add inherited placeholder option
                     bind.placeholder = this.$tc('sw-settings.system-config.inherited');
                 } else if (bind.type === 'bool') {
                     // Add inheritedValue for checkbox fields to restore the inherited state
-                    bind.config.inheritedValue = this.actualConfigData.null[bind.name];
-                } else if (bind.type !== 'multi-select') {
+                    bind.config.inheritedValue = this.actualConfigData.null[bind.name] || false;
+                } else if (bind.type !== 'multi-select' && !types.isUndefined(this.actualConfigData.null[bind.name])) {
                     // Add inherited placeholder
                     bind.placeholder = `${this.actualConfigData.null[bind.name]}`;
                 }

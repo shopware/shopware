@@ -5,7 +5,6 @@ const { join } = require('path');
 
 const artifactsPath = join(process.env.PROJECT_ROOT, '/build/artifacts');
 
-
 module.exports = {
 
     // The directory where Jest should store its cached dependency information
@@ -22,6 +21,23 @@ module.exports = {
         'text',
         'clover',
     ],
+
+    collectCoverageFrom: [
+        'src/**',
+        '!src/main.js',
+        '!src/scss/**',
+        '!src/vendor/**',
+        '!src/plugin/**',
+    ],
+
+    // Fail testsuite if coverage is below given percentage
+    coverageThreshold: {
+        './src/helper': {
+            statements: 85,
+            branches: 85,
+            functions: 85,
+        },
+    },
 
     // Automatically reset mock state between every test
     resetMocks: true,
@@ -48,9 +64,13 @@ module.exports = {
 
     // The glob patterns Jest uses to detect test files
     testMatch: [
+        '!**/test/e2e/**',
         '**/test/**/*.test.js',
         '**/test/*.test.js',
     ],
 
-    testEnvironment: 'node',
+    transform: {
+        '^.+\\.js$': 'babel-jest',
+        '^.+\\.html$': 'html-loader-jest',
+    },
 };

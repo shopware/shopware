@@ -45,13 +45,22 @@ Component.register('sw-single-select', {
             required: false,
             default: 'value'
         },
+
+        /**
+         * @deprecated tag:v6.3.0
+         */
         popoverConfig: {
             type: Object,
             required: false,
             default() {
-                return {
-                    active: false
-                };
+                return { active: false };
+            },
+            validator() {
+                Shopware.Utils.debug.warn(
+                    'sw-single-select',
+                    'The property "popoverConfig" is deprecated and will be removed in 6.3'
+                );
+                return true;
             }
         },
 

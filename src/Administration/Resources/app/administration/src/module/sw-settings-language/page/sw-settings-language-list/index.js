@@ -58,23 +58,23 @@ Component.register('sw-settings-language-list', {
         getColumns() {
             return [{
                 property: 'name',
-                label: this.$tc('sw-settings-language.list.columnName'),
+                label: 'sw-settings-language.list.columnName',
                 dataIndex: 'name',
                 inlineEdit: true
             }, {
                 property: 'locale',
                 dataIndex: 'locale.id',
-                label: this.$tc('sw-settings-language.list.columnLocaleName')
+                label: 'sw-settings-language.list.columnLocaleName'
             }, {
                 property: 'locale.code',
-                label: this.$tc('sw-settings-language.list.columnIsoCode')
+                label: 'sw-settings-language.list.columnIsoCode'
             }, {
                 property: 'parent',
                 dataIndex: 'parent.id',
-                label: this.$tc('sw-settings-language.list.columnInherit')
+                label: 'sw-settings-language.list.columnInherit'
             }, {
                 property: 'id',
-                label: this.$tc('sw-settings-language.list.columnDefault')
+                label: 'sw-settings-language.list.columnDefault'
             }];
         }
     },

@@ -121,7 +121,7 @@ class ManyToOneJoinBuilder implements JoinBuilderInterface
             '#source#' => $source,
             '#root#' => EntityDefinitionQueryHelper::escape($on),
             '#alias#' => EntityDefinitionQueryHelper::escape($alias),
-            '#reference_column#' => EntityDefinitionQueryHelper::escape($field->getReferenceField()),
+            '#reference_column#' => $referenceColumn,
         ];
 
         $queryBuilder->leftJoin(

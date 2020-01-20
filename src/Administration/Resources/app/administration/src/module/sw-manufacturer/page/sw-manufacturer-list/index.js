@@ -36,12 +36,12 @@ Component.register('sw-manufacturer-list', {
                 dataIndex: 'name',
                 allowResize: true,
                 routerLink: 'sw.manufacturer.detail',
-                label: this.$tc('sw-manufacturer.list.columnName'),
+                label: 'sw-manufacturer.list.columnName',
                 inlineEdit: 'string',
                 primary: true
             }, {
                 property: 'link',
-                label: this.$tc('sw-manufacturer.list.columnLink'),
+                label: 'sw-manufacturer.list.columnLink',
                 inlineEdit: 'string'
             }];
         },

@@ -165,7 +165,7 @@ export default class ImageZoomPlugin extends Plugin {
      */
     _onPan(event) {
         if (this._isActive()) {
-            this._transform = this._storedTransform.add(event.deltaX, event.deltaY, 0);
+            this._transform = this._storedTransform.add(new Vector3(event.deltaX, event.deltaY, 0));
             this._unsetTransition();
             this._updateTransform();
             this._setCursor('move');
@@ -186,7 +186,7 @@ export default class ImageZoomPlugin extends Plugin {
             const y = this._storedTransform.x + event.deltaY;
             const z = this._storedTransform.z * event.scale;
 
-            this._transform = this._transform.set(x, y, z);
+            this._transform = new Vector3(x, y, z);
             this._unsetTransition();
             this._updateTransform();
             this._setCursor('move');
@@ -205,7 +205,12 @@ export default class ImageZoomPlugin extends Plugin {
             const maxZoom = this._getMaxZoomValue();
             const z = (this._storedTransform.z >= maxZoom) ? 1 : maxZoom;
 
-            this._transform = this._transform.set(false, false, z);
+            this._transform = new Vector3(
+                this._transform.x,
+                this._transform.y,
+                z
+            );
+
             this._setTransition();
             this._updateTransform(true);
         }
@@ -221,7 +226,7 @@ export default class ImageZoomPlugin extends Plugin {
     _onZoomIn() {
         if (this._isActive()) {
             const zoomAmount = this._getMaxZoomValue() / this.options.zoomSteps;
-            this._transform = this._transform.add(0, 0, zoomAmount);
+            this._transform = this._transform.add(new Vector3(0, 0, zoomAmount));
             this._setTransition();
             this._updateTransform(true);
         }
@@ -236,7 +241,12 @@ export default class ImageZoomPlugin extends Plugin {
      */
     _onResetZoom() {
         if (this._isActive()) {
-            this._transform = this._transform.set(false, false, 1);
+            this._transform = new Vector3(
+                this._transform.x,
+                this._transform.y,
+                1
+            );
+
             this._setTransition();
             this._updateTransform(true);
         }
@@ -252,7 +262,7 @@ export default class ImageZoomPlugin extends Plugin {
     _onZoomOut() {
         if (this._isActive()) {
             const zoomAmount = this._getMaxZoomValue() / this.options.zoomSteps;
-            this._transform = this._transform.subtract(0, 0, zoomAmount);
+            this._transform = this._transform.subtract(new Vector3(0, 0, zoomAmount));
             this._setTransition();
             this._updateTransform(true);
         }
@@ -268,7 +278,7 @@ export default class ImageZoomPlugin extends Plugin {
      */
     _onMouseWheel(event) {
         if (this._isActive()) {
-            this._transform = this._transform.add(0, 0, (event.wheelDelta / 800));
+            this._transform = this._transform.add(new Vector3(0, 0, (event.wheelDelta / 800)));
             this._unsetTransition();
             this._updateTransform(true);
         }
@@ -424,7 +434,10 @@ export default class ImageZoomPlugin extends Plugin {
      */
     _updateTranslateRange() {
         this._getElementSizes();
-        const scaledImageSize = this._imageSize.multiply(this._transform.z).round();
+        const scaledImageSize = this._imageSize.multiply(this._transform.z);
+        scaledImageSize.x = Math.round(scaledImageSize.x);
+        scaledImageSize.y = Math.round(scaledImageSize.y);
+
         this._translateRange = scaledImageSize.subtract(this._containerSize).clamp(0, scaledImageSize).divide(2);
     }
 

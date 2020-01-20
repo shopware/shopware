@@ -47,7 +47,7 @@ Component.register('sw-maintain-currencies-modal', {
                     width: '150px'
                 }, {
                     property: 'price',
-                    label: this.$tc('sw-maintain-currencies-modal.columnPrice'),
+                    label: 'sw-maintain-currencies-modal.columnPrice',
                     visible: true,
                     allowResize: false,
                     primary: true,

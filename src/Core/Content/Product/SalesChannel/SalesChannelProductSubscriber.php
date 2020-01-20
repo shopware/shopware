@@ -50,6 +50,10 @@ class SalesChannelProductSubscriber implements EventSubscriberInterface
         /** @var SalesChannelProductEntity $product */
         foreach ($event->getEntities() as $product) {
             $this->calculatePrices($event->getSalesChannelContext(), $product);
+
+            $product->setCalculatedMaxPurchase(
+                $this->calculateMaxPurchase($product, $event->getSalesChannelContext()->getSalesChannel()->getId())
+            );
         }
     }
 
@@ -87,5 +91,18 @@ class SalesChannelProductSubscriber implements EventSubscriberInterface
         $product->setCalculatedPrice(
             $this->priceCalculator->calculate($prices->getPrice(), $context)
         );
+    }
+
+    private function calculateMaxPurchase(SalesChannelProductEntity $product, string $salesChannelId): int
+    {
+        $fallback = (int) $this->systemConfigService->get('core.cart.maxQuantity', $salesChannelId);
+
+        $max = $product->getMaxPurchase() ?? $fallback;
+
+        if ($product->getIsCloseout() && $product->getAvailableStock() < $max) {
+            $max = $product->getAvailableStock();
+        }
+
+        return max($max, 0);
     }
 }

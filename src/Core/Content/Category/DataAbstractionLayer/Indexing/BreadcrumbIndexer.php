@@ -265,7 +265,7 @@ class BreadcrumbIndexer implements IndexerInterface
                 ]
             );
 
-            $tags[] = $this->cacheKeyGenerator->getEntityTag($id, $this->categoryRepository->getDefinition());
+            $tags[] = $this->cacheKeyGenerator->getEntityTag($id, CategoryDefinition::ENTITY_NAME);
         }
 
         $this->cache->invalidateTags($tags);

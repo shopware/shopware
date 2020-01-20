@@ -14,6 +14,11 @@ namespace Shopware\Core\System\Annotation\Concept\ExtensionPattern;
  * Furthermore the service is not allowed to call any public function on itself, as these calls would not be made to all Decorators.
  * Also all callers of the service must use the Interface in any type declarations and never the concrete service, as this would break if the service is decorated.
  *
+ * @see \Shopware\Development\Analyze\PHPStan\Rules\Decoratable\DecoratableImplementsInterfaceRule
+ * @see \Shopware\Development\Analyze\PHPStan\Rules\Decoratable\DecoratableDoesNotAddPublicMethodRule
+ * @see \Shopware\Development\Analyze\PHPStan\Rules\Decoratable\DecoratableDoesNotCallOwnPublicMethodRule
+ * @see \Shopware\Development\Analyze\PHPStan\Rules\Decoratable\DecoratableNotDirectlyDependetRule
+ *
  * For an introduction on how to use decoration in your plugin refer to the (symfony docs)[https://symfony.com/doc/current/service_container/service_decoration.html]
  */
 class Decoratable

@@ -1,6 +1,6 @@
-const GeneralPageObject = require('../sw-general.page-object');
+import GeneralPageObject from '../sw-general.page-object';
 
-export default class ManufacturerPageObject extends GeneralPageObject {
+export default class MenuPageObject extends GeneralPageObject {
     constructor() {
         super();
 

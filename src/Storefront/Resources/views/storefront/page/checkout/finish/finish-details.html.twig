@@ -60,14 +60,14 @@
                             {% block page_checkout_finish_order_payment_method %}
                                 <p>
                                     <strong>{{ "checkout.finishInfoPayment"|trans|sw_sanitize }}</strong>
-                                    {{ context.paymentMethod.translated.name }}
+                                    {{ page.order.transactions.first.paymentMethod.translated.name }}
                                 </p>
                             {% endblock %}
 
                             {% block page_checkout_finish_order_dispatch_method %}
                                 <p>
                                     <strong>{{ "checkout.finishInfoShipping"|trans|sw_sanitize }}</strong>
-                                    {{ context.shippingMethod.translated.name }}
+                                    {{ page.order.deliveries.first.shippingMethod.translated.name }}
                                 </p>
                             {% endblock %}
                         </div>

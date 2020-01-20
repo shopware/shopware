@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Seo;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
@@ -238,7 +239,7 @@ class SeoUrlPersister
 
         if (!empty($seoUrlIds)) {
             foreach ($seoUrlIds as $id) {
-                $tags[] = $this->cacheKeyGenerator->getEntityTag($id, $this->seoUrlRepository->getDefinition());
+                $tags[] = $this->cacheKeyGenerator->getEntityTag($id, SeoUrlDefinition::ENTITY_NAME);
             }
         }
 

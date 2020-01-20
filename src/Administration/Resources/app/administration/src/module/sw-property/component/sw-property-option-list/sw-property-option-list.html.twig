@@ -1,5 +1,7 @@
 {% block sw_property_option_list %}
-    <sw-card :isLoading="isLoading" class="sw-property-option-list">
+    <sw-card :isLoading="isLoading"
+             class="sw-property-option-list"
+             :title="$tc('sw-property.detail.cardTitle')">
 
         {% block sw_property_option_list_toolbar %}
             <div class="sw-property-option-list__toolbar">

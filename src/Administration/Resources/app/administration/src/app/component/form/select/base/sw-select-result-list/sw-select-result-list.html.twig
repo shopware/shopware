@@ -1,25 +1,34 @@
 {% block sw_select_result_list %}
     <div class="sw-select-result-list" @scroll="onScroll">
-        <div class="sw-select-result-list__content" v-popover="popoverConfig">
-            <slot name="before-item-list"></slot>
+        <sw-popover class="sw-select-result-list-popover"
+                    popoverClass="sw-select-result-list-popover-wrapper"
+                    :popoverConfigExtension="popoverConfig" {# @deprecated tag:v6.3.0 #}
+                    :zIndex="1100"
+                    :resizeWidth="true">
+            <div class="sw-select-result-list__content"
+                 :class="{ 'sw-select-result-list__content_empty': isLoading && (!options || options.length <= 0) }">
+                <slot name="before-item-list"></slot>
 
-            <ul class="sw-select-result-list__item-list">
-                <template v-for="(item, index) in options">
-                    <slot name="result-item" v-bind="{ item, index }"></slot>
-                </template>
-            </ul>
+                <ul class="sw-select-result-list__item-list">
+                    <template v-for="(item, index) in options">
+                        <slot name="result-item"
+                              v-bind="{ item, index }">
+                        </slot>
+                    </template>
+                </ul>
 
-            <slot name="after-item-list"></slot>
+                <slot name="after-item-list"></slot>
 
-            <div v-if="!isLoading && options && options.length < 1" class="sw-select-result-list__empty">
-                {% block sw_select_result_list_empty_icon %}
-                    <sw-icon name="default-action-search" size="20px"></sw-icon>
-                {% endblock %}
+                <div v-if="!isLoading && options && options.length < 1" class="sw-select-result-list__empty">
+                    {% block sw_select_result_list_empty_icon %}
+                        <sw-icon name="default-action-search" size="20px"></sw-icon>
+                    {% endblock %}
 
-                {% block sw_select_result_list_empty_text %}
-                    {{ emptyMessageText }}
-                {% endblock %}
+                    {% block sw_select_result_list_empty_text %}
+                        {{ emptyMessageText }}
+                    {% endblock %}
+                </div>
             </div>
-        </div>
+        </sw-popover>
     </div>
 {% endblock %}

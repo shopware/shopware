@@ -1,4 +1,9 @@
 {% block page_product_detail_buy_form_inner %}
+    {# @var page \Shopware\Storefront\Page\Product\ProductPage #}
+
+    {# @var product \Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity #}
+    {% set product = page.product %}
+
     <form
         id="productDetailPageBuyProductForm"
         action="{% block page_product_detail_buy_form_action %}{{ path('frontend.checkout.line-item.add') }}{% endblock %}"
@@ -11,27 +16,18 @@
         {% endblock %}
 
         {% block page_product_detail_buy_container %}
-            {# @var page \Shopware\Storefront\Page\Product\ProductPage #}
-            {% if (not page.product.isCloseout or (page.product.availableStock >= page.product.minPurchase)) and page.product.childCount <= 0 %}
+            {% set buyable = product.available and product.childCount <= 0 and product.calculatedMaxPurchase > 0 %}
+
+            {% if buyable %}
                 <div class="form-row buy-widget-container">
                     {% block page_product_detail_buy_quantity_container %}
                         <div class="col-4">
                             {% block page_product_detail_buy_quantity %}
-                                {% if page.product.maxPurchase %}
-                                    {% if page.product.availableStock < page.product.maxPurchase %}
-                                        {% set maxQuantity = page.product.availableStock %}
-                                    {% else %}
-                                        {% set maxQuantity = page.product.maxPurchase %}
-                                    {% endif %}
-                                {% else %}
-                                    {% set maxQuantity = shopware.config.core.cart.maxQuantity %}
-                                {% endif %}
-
-                                <select name="lineItems[{{ page.product.id }}][quantity]"
+                                <select name="lineItems[{{ product.id }}][quantity]"
                                         class="custom-select product-detail-quantity-select">
-                                    {% for quantity in range(page.product.minPurchase, maxQuantity, page.product.purchaseSteps) %}
+                                    {% for quantity in range(product.minPurchase, product.calculatedMaxPurchase, product.purchaseSteps) %}
                                         <option value="{{ quantity }}">
-                                            {{ quantity }}{% if page.product.packUnit %} {{ page.product.packUnit }}{% endif %}
+                                            {{ quantity }}{% if product.packUnit %} {{ product.packUnit }}{% endif %}
                                         </option>
                                     {% endfor %}
                                 </select>
@@ -47,19 +43,19 @@
 
                     {% block page_product_detail_buy_product_buy_info %}
                         <input type="hidden"
-                               name="lineItems[{{ page.product.id }}][id]"
-                               value="{{ page.product.id }}">
+                               name="lineItems[{{ product.id }}][id]"
+                               value="{{ product.id }}">
                         <input type="hidden"
-                               name="lineItems[{{ page.product.id }}][type]"
+                               name="lineItems[{{ product.id }}][type]"
                                value="product">
                         <input type="hidden"
-                               name="lineItems[{{ page.product.id }}][referencedId]"
-                               value="{{ page.product.id }}">
+                               name="lineItems[{{ product.id }}][referencedId]"
+                               value="{{ product.id }}">
                         <input type="hidden"
-                               name="lineItems[{{ page.product.id }}][stackable]"
+                               name="lineItems[{{ product.id }}][stackable]"
                                value="1">
                         <input type="hidden"
-                               name="lineItems[{{ page.product.id }}][removable]"
+                               name="lineItems[{{ product.id }}][removable]"
                                value="1">
                     {% endblock %}
 

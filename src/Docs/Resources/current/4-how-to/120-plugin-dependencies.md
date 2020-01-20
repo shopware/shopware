@@ -40,7 +40,8 @@ own `composer.json` as a key value pair:
     "license": "MIT",
     "authors": [
         {
-            "name": "shopware AG"
+            "name": "shopware AG",
+            "role": "Manufacturer"
         }
     ],
     "require": {

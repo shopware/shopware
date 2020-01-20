@@ -9,9 +9,8 @@ Make sure to have a look at the [Symfony documentation](https://symfony.com/doc/
 
 ## Registering your service
 
-The main requirement here is to have a `services.xml` file loaded in your plugin.
-This can be achieved by placing the file into a `Resources/config` directory relative to your plugin's base class location.
-Make sure to also have a look at the method [getServicesFilePath](./../2-internals/4-plugins/020-plugin-base-class.md#getServicesFilePath)
+The main requirement here is to have a `services.xml` file placed into `Resources/config/` folder.
+The services are automatically registered via autoloading.
 
 From here on, everything works exactly like in Symfony itself.
 

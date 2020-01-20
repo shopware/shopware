@@ -3,9 +3,7 @@
 namespace Shopware\Storefront\Pagelet\Header;
 
 use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\Service\NavigationLoader;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -16,7 +14,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class HeaderPageletLoader
+class HeaderPageletLoader implements HeaderPageletLoaderInterface
 {
     /**
      * @var SalesChannelRepositoryInterface
@@ -58,8 +56,6 @@ class HeaderPageletLoader
     }
 
     /**
-     * @throws CategoryNotFoundException
-     * @throws InconsistentCriteriaIdsException
      * @throws MissingRequestParameterException
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): HeaderPagelet
@@ -97,9 +93,6 @@ class HeaderPageletLoader
         return $page;
     }
 
-    /**
-     * @throws InconsistentCriteriaIdsException
-     */
     private function loadLanguages(SalesChannelContext $salesChannelContext): LanguageCollection
     {
         $criteria = new Criteria();
@@ -117,9 +110,6 @@ class HeaderPageletLoader
         return $languages;
     }
 
-    /**
-     * @throws InconsistentCriteriaIdsException
-     */
     private function loadCurrencies(SalesChannelContext $salesChannelContext): CurrencyCollection
     {
         /** @var CurrencyCollection $currencyCollection */
@@ -128,9 +118,6 @@ class HeaderPageletLoader
         return $currencyCollection;
     }
 
-    /**
-     * @throws InconsistentCriteriaIdsException
-     */
     private function loadServiceMenu(SalesChannelContext $salesChannelContext): CategoryCollection
     {
         $serviceId = $salesChannelContext->getSalesChannel()->getServiceCategoryId();

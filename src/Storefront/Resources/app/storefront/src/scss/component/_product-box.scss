@@ -34,8 +34,10 @@ $box-image-height-img: 332px;
 .product-image {
     display: block;
     max-width: 100%;
+    width: 100%;
     // 'max-height: 100%' not working in firefox
     max-height: $box-standard-height-img;
+    object-fit: contain;
 
     &.is-cover,
     &.is-contain {

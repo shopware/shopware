@@ -77,7 +77,7 @@ Component.register('sw-order-create-details-footer', {
             immediate: true,
             deep: true,
             handler() {
-                if (this.customer === null) return;
+                if (!this.customer) return;
 
                 this.updateContext();
 
@@ -94,7 +94,7 @@ Component.register('sw-order-create-details-footer', {
                             });
                     }
 
-                    if (this.cart.token === null || this.cart.lineItems.length === 0) return;
+                    if (!this.cart.token || this.cart.lineItems.length === 0) return;
 
                     this.$emit('loading-change', true);
 

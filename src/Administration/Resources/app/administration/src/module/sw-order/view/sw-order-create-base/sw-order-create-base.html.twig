@@ -67,10 +67,8 @@
                                     :isCustomerActive="isCustomerActive"
                                     editable
                                     ref="sw-order-line-item-grid-sales-channel"
-                                    @on-add-item="onAddProductItem"
-                                    @on-add-custom-item="onAddCustomItem"
-                                    @on-remove-items="onRemoveItems"
-                                    @on-edit-item="onEditItem">
+                                    @on-save-item="onSaveItem"
+                                    @on-remove-items="onRemoveItems">
                                 </sw-order-line-items-grid-sales-channel>
                             {% endblock %}
 

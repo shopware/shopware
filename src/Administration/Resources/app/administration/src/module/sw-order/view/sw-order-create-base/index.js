@@ -102,14 +102,14 @@ Component.register('sw-order-create-base', {
         },
 
         updateCustomerContext() {
-            if (this.customer === null) return;
+            if (!this.customer) return;
 
             State.dispatch('swOrder/updateCustomerContext', {
                 customerId: this.customer.id,
                 salesChannelId: this.customer.salesChannelId,
                 contextToken: this.cart.token
             }).then(() => {
-                if (this.cart.token === null || this.cart.lineItems.length === 0) return;
+                if (!this.cart.token || this.cart.lineItems.length === 0) return;
 
                 this.updateLoading(true);
 
@@ -127,10 +127,10 @@ Component.register('sw-order-create-base', {
                 .then((customer) => {
                     State.dispatch('swOrder/selectExistingCustomer', { customer });
 
-                    if (this.cart.token === null) {
-                        this.createCart();
-                    } else {
+                    if (this.cart.token) {
                         this.updateCustomerContext();
+                    } else {
+                        this.createCart();
                     }
                 });
         },
@@ -205,33 +205,10 @@ Component.register('sw-order-create-base', {
             });
         },
 
-        onAddProductItem(item) {
+        onSaveItem(item) {
             this.updateLoading(true);
 
-            State.dispatch('swOrder/addProductItem', {
-                salesChannelId: this.customer.salesChannelId,
-                contextToken: this.cart.token,
-                productId: item.identifier,
-                quantity: item.quantity
-            })
-                .finally(() => this.updateLoading(false));
-        },
-
-        onAddCustomItem(item) {
-            this.updateLoading(true);
-
-            State.dispatch('swOrder/addCustomItem', {
-                salesChannelId: this.customer.salesChannelId,
-                contextToken: this.cart.token,
-                item
-            })
-                .finally(() => this.updateLoading(false));
-        },
-
-        onEditItem(item) {
-            this.updateLoading(true);
-
-            State.dispatch('swOrder/updateLineItem', {
+            State.dispatch('swOrder/saveLineItem', {
                 salesChannelId: this.customer.salesChannelId,
                 contextToken: this.cart.token,
                 item

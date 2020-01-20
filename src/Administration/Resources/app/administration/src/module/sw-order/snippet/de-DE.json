@@ -97,6 +97,7 @@
       "columnTotalPrice": "Gesamt",
       "columnTotalPriceGross": "Gesamt",
       "columnTax": "Steuersatz",
+      "textCreditTax": "Auto",
       "columnPriceNet": "Nettopreis",
       "columnTotalPriceNet": "Gesamt",
       "contextMenuShowProduct": "Produkt anzeigen",

@@ -99,6 +99,7 @@
       "columnTotalPrice": "Total",
       "columnTotalPriceGross": "Subtotal",
       "columnTax": "VAT",
+      "textCreditTax": "Auto",
       "contextMenuShowProduct": "Show product",
       "messageEmptyItem": "No items added yet",
       "buttonAddProduct" :"Add product",

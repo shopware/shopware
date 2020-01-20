@@ -10,11 +10,10 @@ class MailerFactoryTest extends TestCase
 {
     public function testFactoryWithoutConfig(): void
     {
-        $original = new \Swift_Mailer(new \Swift_NullTransport());
-
+        $original = new \Swift_NullTransport();
         $factory = new MailerFactory();
 
-        $mailer = $factory->create(
+        $mailer = $factory->createTransport(
             new ConfigService([
                 'core.mailerSettings.emailAgent' => 'local',
             ]),
@@ -26,11 +25,10 @@ class MailerFactoryTest extends TestCase
 
     public function testFactoryWithConfig(): void
     {
-        $original = new \Swift_Mailer(new \Swift_NullTransport());
-
+        $original = new \Swift_NullTransport();
         $factory = new MailerFactory();
 
-        $mailer = $factory->create(
+        $transport = $factory->createTransport(
             new ConfigService([
                 'core.mailerSettings.emailAgent' => 'smtp',
                 'core.mailerSettings.host' => 'localhost',
@@ -43,9 +41,7 @@ class MailerFactoryTest extends TestCase
             $original
         );
 
-        static::assertNotSame($original, $mailer);
-
-        $transport = $mailer->getTransport();
+        static::assertNotSame($original, $transport);
 
         /** @var \Swift_SmtpTransport $transport */
         static::assertSame('localhost', $transport->getHost());

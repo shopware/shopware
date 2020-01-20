@@ -93,12 +93,14 @@
             <tag name="console.command"/>
         </service>
 
-        <service id="core_mailer" class="Swift_Mailer">
-            <factory service="Shopware\Core\Content\MailTemplate\Service\MailerFactory" method="create" />
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="mailer"/>
-        </service>
+        <service id="core_mailer" alias="mailer" />
 
         <service id="Shopware\Core\Content\MailTemplate\Service\MailerFactory" />
+
+        <service id="core_mailer_transport" class="\Swift_Transport" decorates="swiftmailer.transport">
+            <factory service="Shopware\Core\Content\MailTemplate\Service\MailerFactory" method="createTransport"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="core_mailer_transport.inner"/>
+        </service>
     </services>
 </container>

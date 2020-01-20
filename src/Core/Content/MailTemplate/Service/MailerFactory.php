@@ -6,6 +6,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class MailerFactory
 {
+    /** @deprecated tag:v6.3.0 use createTransport to build a transport layer instead */
     public function create(SystemConfigService $configService, \Swift_Mailer $mailer): \Swift_Mailer
     {
         $emailAgent = $configService->get('core.mailerSettings.emailAgent');
@@ -35,6 +36,35 @@ class MailerFactory
         $mailer = new \Swift_Mailer($transport);
 
         return $mailer;
+    }
+
+    public function createTransport(SystemConfigService $configService, \Swift_Transport $innerTransport): \Swift_Transport
+    {
+        $emailAgent = $configService->get('core.mailerSettings.emailAgent');
+
+        if ($emailAgent !== 'smtp') {
+            return $innerTransport;
+        }
+
+        $transport = new \Swift_SmtpTransport(
+            $configService->get('core.mailerSettings.host'),
+            $configService->get('core.mailerSettings.port'),
+            $this->getEncryption($configService)
+        );
+
+        $auth = $this->getAuthMode($configService);
+        if ($auth) {
+            $transport->setAuthMode($auth);
+        }
+
+        $transport->setUsername(
+            (string) $configService->get('core.mailerSettings.username')
+        );
+        $transport->setPassword(
+            (string) $configService->get('core.mailerSettings.password')
+        );
+
+        return $transport;
     }
 
     private function getEncryption(SystemConfigService $configService): ?string

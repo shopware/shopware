@@ -30,6 +30,8 @@ return [
     'select_language_es' => 'Español',
     'select_language_pt' => 'Português',
     'select_language_pl' => 'Polski',
+    'select_language_cz' => 'Czech',
+    'select_language_sv' => 'Swedish',
 
     'language-selection_welcome_title' => 'Welcome to Shopware 6',
     'language-selection_select_language' => 'Installation wizard language',
@@ -138,7 +140,7 @@ return [
     <strong>Welcome to Shopware,</strong>
 </p>
 <p>
-    You have installed Shopware successfully and we are delighted to welcome you to our community! 
+    You have installed Shopware successfully and we are delighted to welcome you to our community!
 <p>Your shop is now ready to use. If you are new to Shopware, we recommend taking a look at this guide <a href="https://docs.shopware.com/en/shopware-5-en/first-steps/first-steps-in-shopware" target="_blank">"First steps in Shopware"</a>. When you log in to the administration for the first time, our "First Run Wizard" will take you through the basic setup.</p>
 <p>Enjoy your new online shop!</p>',
 ];

@@ -30,6 +30,8 @@ return [
     'select_language_es' => 'Español',
     'select_language_pt' => 'Português',
     'select_language_pl' => 'Polski',
+    'select_language_cz' => 'Czech',
+    'select_language_sv' => 'Swedish',
 
     'language-selection_welcome_title' => 'Willkommen zu Shopware 6',
     'language-selection_select_language' => 'Sprache des Installations-Assistenten',

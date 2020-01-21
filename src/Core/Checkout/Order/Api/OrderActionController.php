@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Checkout\Order\Api;
 
+use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
-use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Service\MailService;
@@ -89,6 +89,8 @@ class OrderActionController extends AbstractController
 
     /**
      * @Route("/api/v{version}/_action/order/{orderId}/state/{transition}", name="api.action.order.state_machine.order.transition_state", methods={"POST"})
+     *
+     * @throws OrderNotFoundException
      */
     public function orderStateTransition(
         string $orderId,
@@ -97,7 +99,7 @@ class OrderActionController extends AbstractController
         Request $request,
         Context $context
     ): JsonResponse {
-        $mediaIds = $request->request->get('mediaIds');
+        $mediaIds = $request->request->get('mediaIds', []);
         $documentIds = $request->request->get('documentIds', []);
         $stateFieldName = $request->query->get('stateFieldName', 'stateId');
 
@@ -116,40 +118,29 @@ class OrderActionController extends AbstractController
 
         if ($toPlace) {
             $orderCriteria = $this->getOrderCriteria($orderId);
-            /** @var OrderEntity $order */
+            /** @var OrderEntity|null $order */
             $order = $this->orderRepository->search($orderCriteria, $context)->first();
-
-            $customer = $order->getOrderCustomer();
+            if ($order === null) {
+                throw new OrderNotFoundException($orderId);
+            }
 
             $technicalName = 'order.state.' . $toPlace->getTechnicalName();
 
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('mailTemplateType.technicalName', $technicalName));
-            $criteria->setLimit(1);
-
-            if ($order->getSalesChannelId()) {
-                $criteria->addFilter(new EqualsFilter('mail_template.salesChannels.salesChannel.id', $order->getSalesChannelId()));
-            }
-
-            /** @var MailTemplateEntity|null $mailTemplate */
-            $mailTemplate = $this->mailTemplateRepository->search($criteria, $context)->first();
+            $mailTemplate = $this->getMailTemplate($context, $technicalName, $order);
 
             if ($mailTemplate === null) {
                 return new JsonResponse($toPlace);
             }
 
-            if ($customer) {
-                $this->sendMail(
-                    $context,
-                    $customer,
-                    $mailTemplate,
-                    $order,
-                    $mediaIds,
-                    $documentIds,
-                    $toPlace,
-                    $fromPlace
-                );
-            }
+            $this->sendMail(
+                $context,
+                $mailTemplate,
+                $order,
+                $mediaIds,
+                $documentIds,
+                $toPlace,
+                $fromPlace
+            );
         }
 
         return new JsonResponse($this->apiVersionConverter->convertEntity(
@@ -161,6 +152,8 @@ class OrderActionController extends AbstractController
 
     /**
      * @Route("/api/v{version}/_action/order_transaction/{orderTransactionId}/state/{transition}", name="api.action.order.state_machine.order_transaction.transition_state", methods={"POST"})
+     *
+     * @throws OrderNotFoundException
      */
     public function orderTransactionStateTransition(
         string $orderTransactionId,
@@ -169,7 +162,7 @@ class OrderActionController extends AbstractController
         Request $request,
         Context $context
     ): JsonResponse {
-        $mediaIds = $request->request->get('mediaIds');
+        $mediaIds = $request->request->get('mediaIds', []);
         $documentIds = $request->request->get('documentIds', []);
         $stateFieldName = $request->query->get('stateFieldName', 'stateId');
 
@@ -189,39 +182,29 @@ class OrderActionController extends AbstractController
         if ($toPlace) {
             $orderCriteria = $this->getOrderCriteria();
             $orderCriteria->addFilter(new EqualsFilter('transactions.id', $orderTransactionId));
-            /** @var OrderEntity $order */
+            /** @var OrderEntity|null $order */
             $order = $this->orderRepository->search($orderCriteria, $context)->first();
-            $customer = $order->getOrderCustomer();
+            if ($order === null) {
+                throw new OrderNotFoundException('with transactionId: ' . $orderTransactionId);
+            }
 
             $technicalName = 'order_transaction.state.' . $toPlace->getTechnicalName();
 
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('mailTemplateType.technicalName', $technicalName));
-            $criteria->setLimit(1);
-
-            if ($order->getSalesChannelId()) {
-                $criteria->addFilter(new EqualsFilter('mail_template.salesChannels.salesChannel.id', $order->getSalesChannelId()));
-            }
-
-            /** @var MailTemplateEntity|null $mailTemplate */
-            $mailTemplate = $this->mailTemplateRepository->search($criteria, $context)->first();
+            $mailTemplate = $this->getMailTemplate($context, $technicalName, $order);
 
             if ($mailTemplate === null) {
                 return new JsonResponse($toPlace);
             }
 
-            if ($customer) {
-                $this->sendMail(
-                    $context,
-                    $customer,
-                    $mailTemplate,
-                    $order,
-                    $mediaIds,
-                    $documentIds,
-                    $toPlace,
-                    $fromPlace
-                );
-            }
+            $this->sendMail(
+                $context,
+                $mailTemplate,
+                $order,
+                $mediaIds,
+                $documentIds,
+                $toPlace,
+                $fromPlace
+            );
         }
 
         return new JsonResponse($this->apiVersionConverter->convertEntity(
@@ -233,6 +216,8 @@ class OrderActionController extends AbstractController
 
     /**
      * @Route("/api/v{version}/_action/order_delivery/{orderDeliveryId}/state/{transition}", name="api.action.order.state_machine.order_delivery.transition_state", methods={"POST"})
+     *
+     * @throws OrderNotFoundException
      */
     public function orderDeliveryStateTransition(
         string $orderDeliveryId,
@@ -241,7 +226,7 @@ class OrderActionController extends AbstractController
         Request $request,
         Context $context
     ): JsonResponse {
-        $mediaIds = $request->request->get('mediaIds');
+        $mediaIds = $request->request->get('mediaIds', []);
         $documentIds = $request->request->get('documentIds', []);
         $stateFieldName = $request->query->get('stateFieldName', 'stateId');
 
@@ -261,39 +246,29 @@ class OrderActionController extends AbstractController
         if ($toPlace) {
             $orderCriteria = $this->getOrderCriteria();
             $orderCriteria->addFilter(new EqualsFilter('deliveries.id', $orderDeliveryId));
-            /** @var OrderEntity $order */
+            /** @var OrderEntity|null $order */
             $order = $this->orderRepository->search($orderCriteria, $context)->first();
-            $customer = $order->getOrderCustomer();
+            if ($order === null) {
+                throw new OrderNotFoundException('with deliveryId: ' . $orderDeliveryId);
+            }
 
             $technicalName = 'order_delivery.state.' . $toPlace->getTechnicalName();
 
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('mailTemplateType.technicalName', $technicalName));
-            $criteria->setLimit(1);
-
-            if ($order->getSalesChannelId()) {
-                $criteria->addFilter(new EqualsFilter('mail_template.salesChannels.salesChannel.id', $order->getSalesChannelId()));
-            }
-
-            /** @var MailTemplateEntity|null $mailTemplate */
-            $mailTemplate = $this->mailTemplateRepository->search($criteria, $context)->first();
+            $mailTemplate = $this->getMailTemplate($context, $technicalName, $order);
 
             if ($mailTemplate === null) {
                 return new JsonResponse($toPlace);
             }
 
-            if ($customer) {
-                $this->sendMail(
-                    $context,
-                    $customer,
-                    $mailTemplate,
-                    $order,
-                    $mediaIds,
-                    $documentIds,
-                    $toPlace,
-                    $fromPlace
-                );
-            }
+            $this->sendMail(
+                $context,
+                $mailTemplate,
+                $order,
+                $mediaIds,
+                $documentIds,
+                $toPlace,
+                $fromPlace
+            );
         }
 
         return new JsonResponse($this->apiVersionConverter->convertEntity(
@@ -314,12 +289,16 @@ class OrderActionController extends AbstractController
         $orderCriteria->addAssociation('orderCustomer.salutation');
         $orderCriteria->addAssociation('stateMachineState');
         $orderCriteria->addAssociation('transactions');
+        $orderCriteria->addAssociation('deliveries');
         $orderCriteria->addAssociation('salesChannel');
 
         return $orderCriteria;
     }
 
-    private function getDocument($documentId, Context $context): array
+    /**
+     * @throws InvalidDocumentException
+     */
+    private function getDocument(string $documentId, Context $context): array
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $documentId));
@@ -342,16 +321,24 @@ class OrderActionController extends AbstractController
         ];
     }
 
+    /**
+     * @param string[] $mediaIds
+     * @param string[] $documentIds
+     */
     private function sendMail(
         Context $context,
-        OrderCustomerEntity $customer,
         MailTemplateEntity $mailTemplate,
         OrderEntity $order,
-        $mediaIds,
-        $documentIds,
+        array $mediaIds,
+        array $documentIds,
         StateMachineStateEntity $toPlace,
         ?StateMachineStateEntity $fromPlace
     ): void {
+        $customer = $order->getOrderCustomer();
+        if ($customer === null) {
+            return;
+        }
+
         $data = new DataBag();
         $data->set(
             'recipients',
@@ -401,5 +388,23 @@ class OrderActionController extends AbstractController
                 $context
             );
         }
+    }
+
+    private function getMailTemplate(Context $context, string $technicalName, OrderEntity $order): ?MailTemplateEntity
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('mailTemplateType.technicalName', $technicalName));
+        $criteria->setLimit(1);
+
+        if ($order->getSalesChannelId()) {
+            $criteria->addFilter(
+                new EqualsFilter('mail_template.salesChannels.salesChannel.id', $order->getSalesChannelId())
+            );
+        }
+
+        /** @var MailTemplateEntity|null $mailTemplate */
+        $mailTemplate = $this->mailTemplateRepository->search($criteria, $context)->first();
+
+        return $mailTemplate;
     }
 }

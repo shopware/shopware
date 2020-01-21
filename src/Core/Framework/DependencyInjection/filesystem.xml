@@ -28,6 +28,10 @@
             <tag name="shopware.filesystem.factory"/>
         </service>
 
+        <service class="Shopware\Core\Framework\Adapter\Filesystem\Adapter\S3v3Factory" id="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory.s3">
+            <tag name="shopware.filesystem.factory"/>
+        </service>
+
         <service class="Shopware\Core\Framework\Adapter\Filesystem\Adapter\GoogleStorageFactory" id="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory.google_storage">
             <tag name="shopware.filesystem.factory"/>
         </service>

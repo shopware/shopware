@@ -45,6 +45,28 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         - removed computed "paymentMethodStore"
         - removed computed "ruleStore"
         - removed computed "mediaStore"
+    * `sw-settings-custom-field-set`
+	    - Removed method which overrides the mixin method `getList`
+	    - Add computed property `listingCriteria`
+    * `sw-settings-document-list`
+        - Removed method which overrides the mixin method `getList`
+        - Add computed property `listingCriteria`
+    * Refactor  `sw-settings-snippet-list`
+        - Remove `StateDeprecated`
+        - Remove computed property `snippetSetStore`
+        - Add computed property `snippetSetRepository`
+        - Add computed property `snippetSetCriteria`
+    * Refactor `sw-settings-snippet-set-list`
+        - Remove `StateDeprecated`
+        - Remove computed property `snippetSetStore`
+        - Add computed property `snippetSetRepository`
+        - Add computed property `snippetSetCriteria`
+        - The method `onConfirmClone` is now an asynchronous method
+    * Refactor mixin `sw-settings-list.mixin`
+        - Remove `StateDeprecated`
+        - Remove computed property `store`
+        - Add computed property `entityRepository`
+        - Add computed property `listingCriteria`
 
 * Core    
     *

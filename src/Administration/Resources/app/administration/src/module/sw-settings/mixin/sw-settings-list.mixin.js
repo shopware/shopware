@@ -1,4 +1,4 @@
-const { Mixin, StateDeprecated } = Shopware;
+const { Mixin, Data: { Criteria } } = Shopware;
 const { debug } = Shopware.Utils;
 
 Mixin.register('sw-settings-list', {
@@ -7,6 +7,8 @@ Mixin.register('sw-settings-list', {
         Mixin.getByName('listing'),
         Mixin.getByName('notification')
     ],
+
+    inject: ['repositoryFactory'],
 
     data() {
         return {
@@ -20,8 +22,17 @@ Mixin.register('sw-settings-list', {
     },
 
     computed: {
-        store() {
-            return StateDeprecated.getStore(this.entityName);
+        entityRepository() {
+            return this.repositoryFactory.create(this.entityName);
+        },
+        listingCriteria() {
+            const criteria = new Criteria();
+
+            if (this.term) {
+                criteria.setTerm(this.term);
+            }
+
+            return criteria;
         },
         titleSaveSuccess() {
             return this.$tc(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.titleDeleteSuccess`);
@@ -52,17 +63,16 @@ Mixin.register('sw-settings-list', {
     methods: {
         getList() {
             this.isLoading = true;
-            const params = this.getListingParams();
 
-            this.items = [];
+            this.entityRepository.search(this.listingCriteria, Shopware.Context.api)
+                .then((items) => {
+                    this.items = items;
 
-            return this.store.getList(params).then((response) => {
-                this.total = response.total;
-                this.items = response.items;
-                this.isLoading = false;
-
-                return this.items;
-            });
+                    return this.items;
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         onChangeLanguage() {
@@ -78,32 +88,33 @@ Mixin.register('sw-settings-list', {
         },
 
         onConfirmDelete(id) {
-            this.deleteEntity = this.store.store[id];
+            this.deleteEntity = this.items.find((item) => item.id === id);
 
             this.onCloseDeleteModal();
-            return this.store.store[id].delete(true).then(() => {
-                this.createNotificationSuccess({
-                    title: this.titleSaveSuccess,
-                    message: this.messageSaveSuccess
+            return this.entityRepository.delete(id, Shopware.Context.api)
+                .then(() => {
+                    this.createNotificationSuccess({
+                        title: this.titleSaveSuccess,
+                        message: this.messageSaveSuccess
+                    });
+                })
+                .finally(() => {
+                    this.deleteEntity = null;
+                    this.getList();
                 });
-
-                this.deleteEntity = null;
-                this.getList();
-            });
         },
 
         onInlineEditSave(item) {
             this.isLoading = true;
 
-            return item.save().then(() => {
-                this.isLoading = false;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+            return this.entityRepository.save(item, Shopware.Context.api)
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
-        onInlineEditCancel(item) {
-            item.discardChanges();
+        onInlineEditCancel() {
+            this.getList();
         }
     }
 });

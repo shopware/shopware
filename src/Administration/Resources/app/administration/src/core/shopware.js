@@ -198,7 +198,8 @@ const Shopware = function Shopware() {
     this.Locale = {
         register: LocaleFactory.register,
         extend: LocaleFactory.extend,
-        getByName: LocaleFactory.getLocaleByName
+        getByName: LocaleFactory.getLocaleByName,
+        getLocaleRegistry: LocaleFactory.getLocaleRegistry
     };
 
     /**

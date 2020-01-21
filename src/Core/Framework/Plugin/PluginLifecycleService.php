@@ -228,10 +228,6 @@ class PluginLifecycleService
 
         $pluginBaseClass->uninstall($uninstallContext);
 
-        if ($keepUserData === false) {
-            $this->removeMigrations($pluginBaseClass);
-        }
-
         $this->updatePluginData(
             [
                 'id' => $plugin->getId(),

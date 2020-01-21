@@ -57,6 +57,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fix that the loginListener calls directly get destroyed through an refresh of the page
   * Product images inside the product listing and cart won't get smaller anymore when the window gets to big and then gets smaller.
     * Added optional `productStreamsExist` and `productStreamsLoading` properties to `sw-sales-channel-modal-grid` component.
+    * Added component `sw-sales-channel-defaults-select`. This component is used to handle each to-many association and its corresponding default id in sales channels.
+    * Unified css classes of select fields in `sw-sales-channel-detail-base`. All css classes no reference to the sales channels collection names (e.g. `payment-methods` instead of `payment-method`)
+    * Deprecated all `sw_sales_channel_detail_base_general_input_*_selection` and `sw_sales_channel_detail_base_general_input_*_assignment` blocks from `sw-sales-channel-detail-base` by refactoring them into `sw-sales-channel-defaults-select`.
+    * Deprecated the events `onDefaultItemAdd` and `onRemoveItem` in `sales-channel-detail-base/index.js`. Those events are no longer needed and the add/remove logic is now handled by the `sw-sales-channel-defaults-select` component.
 
 * Core
     * Added a check for the author role in plugin composer.json files. If one or more authors have the role `Manufacturer`, only these will be written to the database.

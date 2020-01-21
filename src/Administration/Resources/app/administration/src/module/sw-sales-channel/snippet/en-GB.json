@@ -182,6 +182,9 @@
           }
         }
       }
+    },
+    "sw-sales-channel-defaults-select": {
+      "messageError": "The value is in use by domain: \"%{url}\"."
     }
   }
 }

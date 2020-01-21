@@ -114,133 +114,99 @@
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_payments_methods %}
-                    <sw-container v-if="!isProductComparison" columns="1fr 200px" gap="0 30px">
-                        {% block sw_sales_channel_detail_base_general_input_payments_methods_selection %}
-                            <sw-entity-multi-select
-                                class="sw-sales-channel-detail__select-payment-method"
-                                :label="$tc('sw-sales-channel.detail.labelInputPaymentMethods')"
-                                @item-remove="(item) => onRemoveItem(item, 'paymentMethodSelect', 'paymentMethodId')"
-                                v-model="salesChannel.paymentMethods">
-                            </sw-entity-multi-select>
-                        {% endblock %}
+                    <sw-sales-channel-defaults-select
+                        v-if="!isProductComparison"
+                        :salesChannel="salesChannel"
+                        propertyName="paymentMethods"
+                        :propertyLabel="$tc('sw-sales-channel.detail.labelInputPaymentMethods')"
+                        defaultPropertyName="paymentMethodId"
+                        :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputPaymentMethods')">
+                    </sw-sales-channel-defaults-select>
 
-                        {% block sw_sales_channel_detail_base_general_input_payments_methods_assignment %}
-                            <sw-entity-single-select
-                                ref="paymentMethodSelect"
-                                class="sw-sales-channel-detail__assign-payment-method"
-                                :label="$tc('sw-sales-channel.detail.labelInputDefaultPaymentMethod')"
-                                entity="payment_method"
-                                required
-                                @change="(itemId, item) => onDefaultItemAdd(item, 'paymentMethodSelect', 'paymentMethods')"
-                                :error="salesChannelPaymentMethodIdError"
-                                v-model="salesChannel.paymentMethodId">
-                            </sw-entity-single-select>
-                        {% endblock %}
-                    </sw-container>
+                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_payments_methods instead #}
+                    {% block sw_sales_channel_detail_base_general_input_payments_methods_selection %}
+                    {% endblock %}
+
+                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_payments_methods instead #}
+                    {% block sw_sales_channel_detail_base_general_input_payments_methods_assignment %}
+                    {% endblock %}
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_shipping_methods %}
-                    <sw-container v-if="!isProductComparison" columns="1fr 200px" gap="0 30px">
-                        {% block sw_sales_channel_detail_base_general_input_shipping_methods_selection %}
-                            <sw-entity-multi-select
-                                class="sw-sales-channel-detail__select-shipping-method"
-                                :label="$tc('sw-sales-channel.detail.labelInputShippingMethods')"
-                                @item-remove="(item) => onRemoveItem(item, 'shippingMethodSelect', 'shippingMethodId')"
-                                v-model="salesChannel.shippingMethods">
-                            </sw-entity-multi-select>
-                        {% endblock %}
+                    <sw-sales-channel-defaults-select
+                        v-if="!isProductComparison"
+                        :salesChannel="salesChannel"
+                        propertyName="shippingMethods"
+                        :propertyLabel="$tc('sw-sales-channel.detail.labelInputShippingMethods')"
+                        defaultPropertyName="shippingMethodId"
+                        :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputDefaultShippingMethod')">
+                    </sw-sales-channel-defaults-select>
 
-                        {% block sw_sales_channel_detail_base_general_input_shipping_methods_assignment %}
-                            <sw-entity-single-select
-                                ref="shippingMethodSelect"
-                                class="sw-sales-channel-detail__assign-shipping-method"
-                                :label="$tc('sw-sales-channel.detail.labelInputDefaultShippingMethod')"
-                                entity="shipping_method"
-                                required
-                                @change="(itemId, item) => onDefaultItemAdd(item, 'shippingMethodSelect', 'shippingMethods')"
-                                :error="salesChannelShippingMethodIdError"
-                                v-model="salesChannel.shippingMethodId">
-                            </sw-entity-single-select>
-                        {% endblock %}
-                    </sw-container>
+                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_shipping_methods instead #}
+                    {% block sw_sales_channel_detail_base_general_input_shipping_methods_selection %}
+                    {% endblock %}
+
+                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_shipping_methods instead #}
+                    {% block sw_sales_channel_detail_base_general_input_shipping_methods_assignment %}
+                    {% endblock %}
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_countries %}
-                    <sw-container v-if="!isProductComparison" columns="1fr 200px" gap="0 30px">
-                        {% block sw_sales_channel_detail_base_general_input_countries_selection %}
-                            <sw-entity-multi-select
-                                class="sw-sales-channel-detail__select-countries"
-                                :label="$tc('sw-sales-channel.detail.labelInputCountries')"
-                                @item-remove="(item) => onRemoveItem(item, 'countrySelect', 'countryId')"
-                                v-model="salesChannel.countries">
-                            </sw-entity-multi-select>
-                        {% endblock %}
+                    <sw-sales-channel-defaults-select
+                        v-if="!isProductComparison"
+                        :salesChannel="salesChannel"
+                        propertyName="countries"
+                        :propertyLabel="$tc('sw-sales-channel.detail.labelInputCountries')"
+                        defaultPropertyName="countryId"
+                        :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputDefaultCountry')">
+                    </sw-sales-channel-defaults-select>
 
-                        {% block sw_sales_channel_detail_base_general_input_countries_assignment %}
-                            <sw-entity-single-select
-                                ref="countrySelect"
-                                class="sw-sales-channel-detail__assign-countries"
-                                :label="$tc('sw-sales-channel.detail.labelInputDefaultCountry')"
-                                entity="country"
-                                required
-                                @change="(itemId, item) => onDefaultItemAdd(item, 'countrySelect', 'countries')"
-                                :error="salesChannelCountryIdError"
-                                v-model="salesChannel.countryId">
-                            </sw-entity-single-select>
-                        {% endblock %}
-                    </sw-container>
+                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_countries instead #}
+                    {% block sw_sales_channel_detail_base_general_input_countries_selection %}
+                    {% endblock %}
+
+                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_countries instead #}
+                    {% block sw_sales_channel_detail_base_general_input_countries_assignment %}
+                    {% endblock %}
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_currencies %}
-                    <sw-container v-if="!isProductComparison" columns="1fr 200px" gap="0 30px">
-                        {% block sw_sales_channel_detail_base_general_input_currencies_selection %}
-                            <sw-entity-multi-select
-                                class="sw-sales-channel-detail__select-currencies"
-                                :label="$tc('sw-sales-channel.detail.labelInputCurrencies')"
-                                @item-remove="(item) => onRemoveItem(item, 'currencySelect', 'currencyId')"
-                                v-model="salesChannel.currencies">
-                            </sw-entity-multi-select>
-                        {% endblock %}
+                    <sw-sales-channel-defaults-select
+                        v-if="!isProductComparison"
+                        :salesChannel="salesChannel"
+                        propertyName="currencies"
+                        :propertyLabel="$tc('sw-sales-channel.detail.labelInputCurrencies')"
+                        defaultPropertyName="currencyId"
+                        :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputDefaultCurrency')"
+                        propertyNameInDomain="currencyId">
+                    </sw-sales-channel-defaults-select>
 
-                        {% block sw_sales_channel_detail_base_general_input_currencies_assignment %}
-                            <sw-entity-single-select
-                                ref="currencySelect"
-                                class="sw-sales-channel-detail__assign-currencies"
-                                :label="$tc('sw-sales-channel.detail.labelInputDefaultCurrency')"
-                                entity="currency"
-                                @change="(itemId, item) => onDefaultItemAdd(item, 'currencySelect', 'currencies')"
-                                :error="salesChannelCurrencyIdError"
-                                required
-                                v-model="salesChannel.currencyId">
-                            </sw-entity-single-select>
-                        {% endblock %}
-                    </sw-container>
+                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_currencies instead #}
+                    {% block sw_sales_channel_detail_base_general_input_currencies_selection %}
+                    {% endblock %}
+
+                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_currencies instead #}
+                    {% block sw_sales_channel_detail_base_general_input_currencies_assignment %}
+                    {% endblock %}
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_languages %}
-                    <sw-container v-if="!isProductComparison" columns="1fr 200px" gap="0 30px">
-                        {% block sw_sales_channel_detail_base_general_input_languages_selection %}
-                            <sw-entity-multi-select
-                                class="sw-sales-channel-detail__select-languages"
-                                @item-remove="(item) => onRemoveItem(item, 'languageSelect', 'languageId')"
-                                :label="$tc('sw-sales-channel.detail.labelInputLanguages')"
-                                v-model="salesChannel.languages">
-                            </sw-entity-multi-select>
-                        {% endblock %}
+                    <sw-sales-channel-defaults-select
+                        :salesChannel="salesChannel"
+                        propertyName="languages"
+                        :propertyLabel="$tc('sw-sales-channel.detail.labelInputLanguages')"
+                        defaultPropertyName="languageId"
+                        :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputDefaultLanguage')"
+                        propertyNameInDomain="languageId">
+                    </sw-sales-channel-defaults-select>
 
-                        {% block sw_sales_channel_detail_base_general_input_languages_assignment %}
-                            <sw-entity-single-select
-                                ref="languageSelect"
-                                class="sw-sales-channel-detail__assign-languages"
-                                :label="$tc('sw-sales-channel.detail.labelInputDefaultLanguage')"
-                                entity="language"
-                                @change="(itemId, item) => onDefaultItemAdd(item, 'languageSelect', 'languages')"
-                                :error="salesChannelLanguageIdError"
-                                required
-                                v-model="salesChannel.languageId">
-                            </sw-entity-single-select>
-                        {% endblock %}
-                    </sw-container>
+                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_languages instead #}
+                    {% block sw_sales_channel_detail_base_general_input_languages_selection %}
+                    {% endblock %}
+
+                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_languages instead #}
+                    {% block sw_sales_channel_detail_base_general_input_languages_assignment %}
+                    {% endblock %}
                 {% endblock %}
             </sw-card>
         {% endblock %}

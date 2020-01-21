@@ -3,10 +3,12 @@
  */
 import capitalizeString from 'lodash/capitalize';
 import camelCase from 'lodash/camelCase';
+import kebabCase from 'lodash/kebabCase';
 
 export default {
     capitalizeString,
     camelCase,
+    kebabCase,
     isEmptyOrSpaces,
     isUrl
 };

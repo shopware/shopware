@@ -1,5 +1,6 @@
 import './component/structure/sw-admin-menu-extension';
 import './component/structure/sw-sales-channel-menu';
+import './component/sw-sales-channel-defaults-select';
 import './component/sw-sales-channel-modal';
 import './component/sw-sales-channel-modal-grid';
 import './component/sw-sales-channel-modal-detail';

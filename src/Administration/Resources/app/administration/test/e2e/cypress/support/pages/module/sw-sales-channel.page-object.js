@@ -27,17 +27,17 @@ export default class SalesChannelPageObject extends GeneralPageObject {
         cy.get('.sw-sales-channel-detail__select-customer-group')
             .typeSingleSelectAndCheck('Standard customer group', '.sw-sales-channel-detail__select-customer-group');
 
-        cy.get('.sw-sales-channel-detail__select-payment-method').typeMultiSelectAndCheck('Invoice', {
+        cy.get('.sw-sales-channel-detail__select-payment-methods').typeMultiSelectAndCheck('Invoice', {
             searchTerm: 'Invoice'
         });
-        cy.get('.sw-sales-channel-detail__assign-payment-method')
-            .typeSingleSelectAndCheck('Invoice', '.sw-sales-channel-detail__assign-payment-method');
+        cy.get('.sw-sales-channel-detail__assign-payment-methods')
+            .typeSingleSelectAndCheck('Invoice', '.sw-sales-channel-detail__assign-payment-methods');
 
-        cy.get('.sw-sales-channel-detail__select-shipping-method').typeMultiSelectAndCheck('Standard', {
+        cy.get('.sw-sales-channel-detail__select-shipping-methods').typeMultiSelectAndCheck('Standard', {
             searchTerm: 'Standard'
         });
-        cy.get('.sw-sales-channel-detail__assign-shipping-method')
-            .typeSingleSelectAndCheck('Standard', '.sw-sales-channel-detail__assign-shipping-method');
+        cy.get('.sw-sales-channel-detail__assign-shipping-methods')
+            .typeSingleSelectAndCheck('Standard', '.sw-sales-channel-detail__assign-shipping-methods');
 
         cy.get('.sw-sales-channel-detail__select-countries').typeMultiSelectAndCheck('Germany', {
             searchTerm: 'Germany'

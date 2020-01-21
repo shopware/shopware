@@ -752,6 +752,18 @@ To migrate your existing data run `bin/console database:migrate --all Shopware\\
        </router-view>
     {% endblock %}
    ```
+* Deprecated all `sw_sales_channel_detail_base_general_input_*_selection` and `sw_sales_channel_detail_base_general_input_*_assignment` blocks from `sw-sales-channel-detail-base` from `sw-sales-channel-detail-base`-view component due to its tight coupling.
+Components overriding this blocks must now override the complete row in the form by overriding `sw_sales_channel_detail_base_general_input_*` blocks.
+    * Deprecated `sw_sales_channel_detail_base_general_input_payments_methods_selection` use `sw_sales_channel_detail_base_general_input_payments_methods` instead
+    * Deprecated `sw_sales_channel_detail_base_general_input_payments_methods_assignment` use `sw_sales_channel_detail_base_general_input_payments_methods` instead
+    * Deprecated `sw_sales_channel_detail_base_general_input_shipping_methods_selection` use `sw_sales_channel_detail_base_general_input_shipping_methods` instead
+    * Deprecated `sw_sales_channel_detail_base_general_input_shipping_methods_assignment` use `sw_sales_channel_detail_base_general_input_shipping_methods` instead
+    * Deprecated `sw_sales_channel_detail_base_general_input_countries_selection` use `sw_sales_channel_detail_base_general_input_countries` instead
+    * Deprecated `sw_sales_channel_detail_base_general_input_countries_assignment` use `sw_sales_channel_detail_base_general_input_countries` instead
+    * Deprecated `sw_sales_channel_detail_base_general_input_currencies_selection` use `sw_sales_channel_detail_base_general_input_currencies` instead
+    * Deprecated `sw_sales_channel_detail_base_general_input_currencies_assignment` use `sw_sales_channel_detail_base_general_input_currencies` instead
+    * Deprecated `sw_sales_channel_detail_base_general_input_languages_selection` use `sw_sales_channel_detail_base_general_input_languages` instead
+    * Deprecated `sw_sales_channel_detail_base_general_input_languages_assignment` use `sw_sales_channel_detail_base_general_input_languages` instead
 
 Storefront
 ----------

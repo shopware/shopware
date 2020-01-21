@@ -1,8 +1,10 @@
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-manufacturer-detail.html.twig';
 import './sw-manufacturer-detail.scss';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin, Data: { Criteria } } = Shopware;
+
+/* @deprecated tag:v6.4.0 */
+const { StateDeprecated } = Shopware;
 const { mapApiErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-manufacturer-detail', {
@@ -62,12 +64,37 @@ Component.register('sw-manufacturer-detail', {
             return StateDeprecated.getStore('language');
         },
 
+        /* @deprecated tag:v6.4.0 */
         mediaStore() {
             return StateDeprecated.getStore('media');
         },
 
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
+        },
+
+        /* @deprecated tag:v6.4.0 */
         customFieldSetStore() {
             return StateDeprecated.getStore('custom_field_set');
+        },
+
+        customFieldSetRepository() {
+            return this.repositoryFactory.create('custom_field_set');
+        },
+
+        customFieldSetCriteria() {
+            const criteria = new Criteria();
+            criteria.setPage(1);
+            criteria.setLimit(100);
+            criteria.addFilter(
+                Criteria.equals('relations.entityName', 'product_manufacturer')
+            );
+
+            criteria.getAssociation('customFields')
+                .addSorting(Criteria.sort('config.customFieldPosition', 'ASC'))
+                .setLimit(100);
+
+            return criteria;
         },
 
         mediaUploadTag() {
@@ -122,19 +149,11 @@ Component.register('sw-manufacturer-detail', {
                 this.manufacturer = manufacturer;
             });
 
-            this.customFieldSetStore.getList({
-                page: 1,
-                limit: 100,
-                criteria: CriteriaFactory.equals('relations.entityName', 'product_manufacturer'),
-                associations: {
-                    customFields: {
-                        limit: 100,
-                        sort: 'config.customFieldPosition'
-                    }
-                }
-            }, true).then(({ items }) => {
-                this.customFieldSets = items.filter(set => set.customFields.length > 0);
-            });
+            this.customFieldSetRepository
+                .search(this.customFieldSetCriteria, Shopware.Context.api)
+                .then((result) => {
+                    this.customFieldSets = result.filter((set) => set.customFields.length > 0);
+                });
         },
 
         abortOnLanguageChange() {
@@ -151,7 +170,6 @@ Component.register('sw-manufacturer-detail', {
 
         setMediaItem({ targetId }) {
             this.manufacturer.mediaId = targetId;
-            this.mediaStore.getByIdAsync(targetId);
         },
 
         setMediaFromSidebar(media) {

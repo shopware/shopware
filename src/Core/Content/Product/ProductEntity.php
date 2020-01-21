@@ -761,7 +761,7 @@ class ProductEntity extends Entity
         $this->listingPrices = $listingPrices;
     }
 
-    public function getRestockTime(): int
+    public function getRestockTime(): ?int
     {
         return $this->restockTime;
     }

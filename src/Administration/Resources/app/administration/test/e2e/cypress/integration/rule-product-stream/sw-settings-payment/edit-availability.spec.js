@@ -64,7 +64,7 @@ describe('Payment: Test crud operations', () => {
         // Save and verify payment method
         cy.get(page.elements.paymentSaveAction).click();
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+            expect(xhr).to.have.property('status', 204);
         });
 
         cy.get(page.elements.smartBarBack).click();

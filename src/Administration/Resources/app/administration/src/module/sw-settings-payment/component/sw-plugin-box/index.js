@@ -1,12 +1,12 @@
 import template from './sw-plugin-box.html.twig';
 import './sw-plugin-box.scss';
 
-const { Component, StateDeprecated } = Shopware;
+const { Component } = Shopware;
 
 Component.register('sw-plugin-box', {
     template,
 
-    inject: ['systemConfigApiService'],
+    inject: ['systemConfigApiService', 'repositoryFactory'],
 
     props: {
         pluginId: {
@@ -24,8 +24,8 @@ Component.register('sw-plugin-box', {
     },
 
     computed: {
-        pluginStore() {
-            return StateDeprecated.getStore('plugin');
+        pluginRepository() {
+            return this.repositoryFactory.create('plugin');
         }
     },
 
@@ -47,7 +47,10 @@ Component.register('sw-plugin-box', {
 
     methods: {
         createdComponent() {
-            this.plugin = this.pluginStore.getById(this.pluginId);
+            this.pluginRepository.get(this.pluginId, Shopware.Context.api)
+                .then((plugin) => {
+                    this.plugin = plugin;
+                });
         },
 
         checkPluginConfig() {

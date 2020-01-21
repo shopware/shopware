@@ -22,7 +22,7 @@ describe('Payment: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/payment-method?_response=true',
+            url: '/api/v1/payment-method',
             method: 'post'
         }).as('saveData');
 
@@ -35,7 +35,7 @@ describe('Payment: Test crud operations', () => {
 
         // Verify and check usage of payment method
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+            expect(xhr).to.have.property('status', 204);
         });
 
         cy.get(page.elements.smartBarBack).click();
@@ -68,7 +68,7 @@ describe('Payment: Test crud operations', () => {
 
         // Verify and check usage of payment method
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+            expect(xhr).to.have.property('status', 204);
         });
 
         cy.get(page.elements.smartBarBack).click();

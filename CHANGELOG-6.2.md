@@ -24,6 +24,14 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Added `customFieldSetCriteria` as an computed property
 
     *
+    * The component sw-plugin-box was refactored to use the "repositoryFactory" instead of "StateDeprecated" to fetch and save data
+            - removed "StateDeprecated"
+            - removed computed "pluginStore"
+    * The component sw-settings-payment-detail was refactored to use the "repositoryFactory" instead of "StateDeprecated" to fetch and save data
+        - removed "StateDeprecated"
+        - removed computed "paymentMethodStore"
+        - removed computed "ruleStore"
+        - removed computed "mediaStore"
 
 * Core    
     *

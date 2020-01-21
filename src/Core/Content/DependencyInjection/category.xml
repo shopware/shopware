@@ -6,20 +6,20 @@
 
     <services>
         <service id="Shopware\Core\Content\Category\CategoryDefinition">
-            <tag name="shopware.entity.definition" entity="category"/>
+            <tag name="shopware.entity.definition"/>
             <tag name="shopware.composite_search.definition" priority="500" />
         </service>
 
         <service id="Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="category_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Category\Aggregate\CategoryTag\CategoryTagDefinition">
-            <tag name="shopware.entity.definition" entity="category_tag"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryDefinition">
-            <tag name="shopware.sales_channel.entity.definition" entity="category"/>
+            <tag name="shopware.sales_channel.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Category\Service\NavigationLoader">

@@ -5,13 +5,13 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
         <service id="Shopware\Core\Content\ProductStream\ProductStreamDefinition">
-            <tag name="shopware.entity.definition" entity="product_stream"/>
+            <tag name="shopware.entity.definition"/>
         </service>
         <service id="Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="product_stream_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
         <service id="Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition">
-            <tag name="shopware.entity.definition" entity="product_stream_filter"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\ProductStream\DataAbstractionLayer\Indexing\ProductStreamIndexer">

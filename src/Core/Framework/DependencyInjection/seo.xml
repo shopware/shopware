@@ -24,7 +24,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Seo\SeoUrl\SalesChannel\SalesChannelSeoUrlDefinition">
-            <tag name="shopware.sales_channel.entity.definition" entity="seo_url"/>
+            <tag name="shopware.sales_channel.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition" >
@@ -36,7 +36,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Seo\MainCategory\SalesChannel\SalesChannelMainCategoryDefinition">
-            <tag name="shopware.sales_channel.entity.definition" entity="main_category"/>
+            <tag name="shopware.sales_channel.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Seo\Entity\Serializer\SeoUrlFieldSerializer">

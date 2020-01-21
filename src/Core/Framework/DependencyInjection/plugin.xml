@@ -27,11 +27,11 @@
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\PluginDefinition">
-            <tag name="shopware.entity.definition" entity="plugin"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="plugin_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\PluginService">

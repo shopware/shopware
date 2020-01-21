@@ -334,7 +334,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Log\LogEntryDefinition">
-            <tag name="shopware.entity.definition" entity="log_entry"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <!-- Feature Flags -->

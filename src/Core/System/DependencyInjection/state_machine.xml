@@ -31,22 +31,22 @@
             <tag name="console.command"/>
         </service>
         <service id="Shopware\Core\System\StateMachine\StateMachineDefinition">
-            <tag name="shopware.entity.definition" entity="state_machine"/>
+            <tag name="shopware.entity.definition"/>
         </service>
         <service id="Shopware\Core\System\StateMachine\StateMachineTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="state_machine_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
         <service id="Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition">
-            <tag name="shopware.entity.definition" entity="state_machine_state"/>
+            <tag name="shopware.entity.definition"/>
         </service>
         <service id="Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="state_machine_state_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
         <service  id="Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionDefinition">
-            <tag name="shopware.entity.definition" entity="state_machine_transition"/>
+            <tag name="shopware.entity.definition"/>
         </service>
         <service  id="Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryDefinition">
-            <tag name="shopware.entity.definition" entity="state_machine_history"/>
+            <tag name="shopware.entity.definition"/>
         </service>
     </services>
 </container>

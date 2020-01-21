@@ -6,7 +6,7 @@
 
     <services>
         <service id="Shopware\Core\System\Tag\TagDefinition">
-            <tag name="shopware.entity.definition" entity="tag"/>
+            <tag name="shopware.entity.definition"/>
             <tag name="shopware.composite_search.definition" priority="200"/>
         </service>
     </services>

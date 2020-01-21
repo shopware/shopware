@@ -6,21 +6,20 @@
 
     <services>
         <service id="Shopware\Core\Content\Property\PropertyGroupDefinition">
-            <tag name="shopware.entity.definition" entity="property_group"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition">
-            <tag name="shopware.entity.definition" entity="property_group_option"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslation\PropertyGroupOptionTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="property_group_option_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="property_group_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
     </services>
-</container>                
-                
+</container>

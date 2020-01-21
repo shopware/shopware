@@ -6,11 +6,11 @@
 
     <services>
         <service id="Shopware\Core\System\Language\LanguageDefinition">
-            <tag name="shopware.entity.definition" entity="language"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\Language\SalesChannel\SalesChannelLanguageDefinition">
-            <tag name="shopware.sales_channel.entity.definition" entity="language"/>
+            <tag name="shopware.sales_channel.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\Language\LanguageValidator">

@@ -6,7 +6,7 @@
 
     <services>
         <service id="Shopware\Core\System\SystemConfig\SystemConfigDefinition">
-            <tag name="shopware.entity.definition" entity="system_config"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="kernel.bundles" class="Iterator">

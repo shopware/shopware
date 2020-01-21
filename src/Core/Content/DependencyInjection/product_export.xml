@@ -9,7 +9,7 @@
     </parameters>
     <services>
         <service id="Shopware\Core\Content\ProductExport\ProductExportDefinition">
-            <tag name="shopware.entity.definition" entity="product_export"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\ProductExport\Service\ProductExportRenderer">

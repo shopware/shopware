@@ -6,7 +6,7 @@
 
     <services>
         <service id="Shopware\Core\System\Integration\IntegrationDefinition">
-            <tag name="shopware.entity.definition" entity="integration"/>
+            <tag name="shopware.entity.definition"/>
         </service>
     </services>
-</container>                
+</container>

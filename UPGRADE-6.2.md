@@ -4,6 +4,13 @@ UPGRADE FROM 6.1.x to 6.2
 Core
 ----
 
+* The usage of `entity` in the `shopware.entity.definition` tag is deprecated and will be removed with 6.4.
+    * Therefore change:
+        `<tag name="shopware.entity.definition" entity="product"/>`
+      To:
+        `<tag name="shopware.entity.definition"/>`
+    * As a fallback, this function is used first 
+
 
 Administration
 --------------

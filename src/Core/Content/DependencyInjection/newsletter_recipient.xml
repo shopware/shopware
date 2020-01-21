@@ -6,11 +6,11 @@
 
     <services>
         <service id="Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition">
-            <tag name="shopware.entity.definition" entity="newsletter_recipient"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipientTag\NewsletterRecipientTagDefinition">
-            <tag name="shopware.entity.definition" entity="newsletter_recipient_tag"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Newsletter\ScheduledTask\NewsletterRecipientTask">

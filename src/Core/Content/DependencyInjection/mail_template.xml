@@ -21,11 +21,11 @@
         </service>
 
         <service id="Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelDefinition">
-            <tag name="shopware.entity.definition" entity="mail_template_sales_channel"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaDefinition">
-            <tag name="shopware.entity.definition" entity="mail_template_media"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\MailTemplate\Service\MailSender" public="true">
@@ -49,11 +49,11 @@
 
         <!-- Header Footer Entities -->
         <service id="Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition">
-            <tag name="shopware.entity.definition" entity="mail_header_footer"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooterTranslation\MailHeaderFooterTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="mail_header_footer_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <!-- Header Footer Repository -->

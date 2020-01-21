@@ -6,7 +6,7 @@
 
     <services>
         <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition">
-            <tag name="shopware.entity.definition" entity="scheduled_task"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler">

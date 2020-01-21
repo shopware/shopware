@@ -46,23 +46,23 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Document\DocumentDefinition">
-            <tag name="shopware.entity.definition" entity="document"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition">
-            <tag name="shopware.entity.definition" entity="document_type"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\Aggregate\DocumentTypeTranslation\DocumentTypeTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="document_type_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition">
-            <tag name="shopware.entity.definition" entity="document_base_config"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition">
-            <tag name="shopware.entity.definition" entity="document_base_config_sales_channel"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer">

@@ -6,15 +6,15 @@
 
     <services>
         <service id="Shopware\Core\System\Salutation\SalutationDefinition">
-            <tag name="shopware.entity.definition" entity="salutation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\Salutation\SalesChannel\SalesChannelSalutationDefinition">
-            <tag name="shopware.sales_channel.entity.definition" entity="salutation"/>
+            <tag name="shopware.sales_channel.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="salutation_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
     </services>
 </container>

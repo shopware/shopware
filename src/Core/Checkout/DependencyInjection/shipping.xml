@@ -6,23 +6,23 @@
 
     <services>
         <service id="Shopware\Core\Checkout\Shipping\ShippingMethodDefinition">
-            <tag name="shopware.entity.definition" entity="shipping_method"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Shipping\SalesChannel\SalesChannelShippingMethodDefinition">
-            <tag name="shopware.sales_channel.entity.definition" entity="shipping_method"/>
+            <tag name="shopware.sales_channel.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTag\ShippingMethodTagDefinition">
-            <tag name="shopware.entity.definition" entity="shipping_method_tag"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition">
-            <tag name="shopware.entity.definition" entity="shipping_method_price"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="shipping_method_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
     </services>
-</container>                
+</container>

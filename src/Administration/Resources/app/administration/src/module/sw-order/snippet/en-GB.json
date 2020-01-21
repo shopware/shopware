@@ -69,16 +69,23 @@
       "detailsBody": {
         "labelEmail": "Email",
         "labelPhoneNumber": "Phone number",
+        "placeholderEmail": "Enter email address...",
+        "placeholderPhoneNumber": "Enter phone number...",
         "labelBillingAddress": "Billing address",
         "labelShippingAddress": "Shipping address",
-        "placeholder": "Select or add cusomer first..."
+        "placeholder": "Select or add customer first..."
       },
       "detailsFooter": {
         "labelSalesChannel": "Sales channel",
         "labelPaymentMethod": "Payment method",
         "labelShippingMethod": "Shipping method",
         "labelOrderLanguage": "Order language",
-        "labelCurrency": "Currency"
+        "labelCurrency": "Currency",
+        "placeholderSalesChannel": "Select Sales Channel...",
+        "placeholderPaymentMethod": "Select payment method...",
+        "placeholderShippingMethod": "Select shipping method...",
+        "placeholderOrderLanguage": "Select order language...",
+        "placeholderCurrency": "Select currency..."
       },
       "cardTitleLineItems": "Items",
       "placeholderSearchBarItem": "Search items...",

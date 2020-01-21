@@ -7,6 +7,7 @@
                         :label="$tc('sw-customer.addressForm.labelCompany')"
                         :error="addressCompanyError"
                         :disabled="disabled"
+                        :placeholder="$tc('sw-customer.addressForm.placeholderCompany')"
                         v-model="address.company">
                     </sw-text-field>
                 {% endblock %}
@@ -16,6 +17,7 @@
                         :label="$tc('sw-customer.addressForm.labelDepartment')"
                         :error="addressDepartmentError"
                         :disabled="disabled"
+                        :placeholder="$tc('sw-customer.addressForm.placeholderDepartment')"
                         v-model="address.department">
                     </sw-text-field>
                 {% endblock %}
@@ -27,6 +29,7 @@
                                 class="sw-customer-address-form__salutation-select"
                                 entity="salutation"
                                 :label="$tc('sw-customer.addressForm.labelSalutation')"
+                                :placeholder="$tc('sw-customer.addressForm.placeholderSalutation')"
                                 v-model="address.salutationId"
                                 :error="addressSalutationIdError"
                                 :disabled="disabled"
@@ -38,6 +41,7 @@
                         {% block sw_customer_address_form_title_field %}
                             <sw-text-field
                                 :label="$tc('sw-customer.addressForm.labelTitle')"
+                                :placeholder="$tc('sw-customer.addressForm.placeholderTitle')"
                                 :error="addressTitleError"
                                 :disabled="disabled"
                                 v-model="address.title">
@@ -49,6 +53,7 @@
                 {% block sw_customer_address_form_first_name_field %}
                     <sw-text-field
                         :label="$tc('sw-customer.addressForm.labelFirstName')"
+                        :placeholder="$tc('sw-customer.addressForm.placeholderFirstName')"
                         validation="required"
                         required
                         :error="addressFirstNameError"
@@ -60,6 +65,7 @@
                 {% block sw_customer_address_form_last_name_field %}
                     <sw-text-field
                         :label="$tc('sw-customer.addressForm.labelLastName')"
+                        :placeholder="$tc('sw-customer.addressForm.placeholderLastName')"
                         validation="required"
                         required
                         :error="addressLastNameError"
@@ -71,6 +77,7 @@
                 {% block sw_customer_address_form_street_field %}
                     <sw-text-field
                         :label="$tc('sw-customer.addressForm.labelStreet')"
+                        :placeholder="$tc('sw-customer.addressForm.placeholderStreet')"
                         validation="required"
                         required
                         :error="addressStreetError"
@@ -82,6 +89,7 @@
                 {% block sw_customer_address_form_additional_address_line_1_field %}
                     <sw-text-field
                         :label="$tc('sw-customer.addressForm.labelAdditionalAddressLine1')"
+                        :placeholder="$tc('sw-customer.addressForm.placeholderAdditionalAddressLine1')"
                         :error="addressAdditionalAddressLine1Error"
                         :disabled="disabled"
                         v-model="address.additionalAddressLine1">
@@ -91,40 +99,42 @@
                 {% block sw_customer_address_form_additional_address_line_2_field %}
                     <sw-text-field
                         :label="$tc('sw-customer.addressForm.labelAdditionalAddressLine2')"
+                        :placeholder="$tc('sw-customer.addressForm.placeholderAdditionalAddressLine2')"
                         :error="addressAdditionalAddressLine2Error"
                         :disabled="disabled"
                         v-model="address.additionalAddressLine2">
                     </sw-text-field>
                 {% endblock %}
 
+                {# @deprecated tag:v6.4.0 #}
                 {% block sw_customer_address_form_zipcode_city_container %}
-                    <sw-container columns="90px 1fr" gap="10px">
-                        {% block sw_customer_address_form_zipcode_field %}
-                            <sw-text-field
-                                :label="$tc('sw-customer.addressForm.labelZipcode')"
-                                validation="required"
-                                required
-                                :error="addressZipcodeError"
-                                :disabled="disabled"
-                                v-model="address.zipcode">
-                            </sw-text-field>
-                        {% endblock %}
+                    {% block sw_customer_address_form_zipcode_field %}
+                        <sw-text-field
+                            :label="$tc('sw-customer.addressForm.labelZipcode')"
+                            :placeholder="$tc('sw-customer.addressForm.placeholderZipcode')"
+                            validation="required"
+                            required
+                            :error="addressZipcodeError"
+                            :disabled="disabled"
+                            v-model="address.zipcode">
+                        </sw-text-field>
+                    {% endblock %}
 
-                        {% block sw_customer_address_form_city_field %}
-                            <sw-text-field
-                                :label="$tc('sw-customer.addressForm.labelCity')"
-                                validation="required"
-                                required
-                                :error="addressCityError"
-                                :disabled="disabled"
-                                v-model="address.city">
-                            </sw-text-field>
-                        {% endblock %}
-                    </sw-container>
+                    {% block sw_customer_address_form_city_field %}
+                        <sw-text-field
+                            :label="$tc('sw-customer.addressForm.labelCity')"
+                            :placeholder="$tc('sw-customer.addressForm.placeholderCity')"
+                            validation="required"
+                            required
+                            :error="addressCityError"
+                            :disabled="disabled"
+                            v-model="address.city">
+                        </sw-text-field>
+                    {% endblock %}
                 {% endblock %}
 
+                {# @deprecated tag:v6.4.0 #}
                 {% block sw_customer_address_form_placeholder %}
-                    <span class="sw-customer-address-form__placeholder"></span>
                 {% endblock %}
 
                 {% block sw_customer_address_form_country_field %}
@@ -132,6 +142,7 @@
                         class="sw-customer-address-form__country-select"
                         entity="country"
                         :label="$tc('sw-customer.addressForm.labelCountry')"
+                        :placeholder="$tc('sw-customer.addressForm.placeholderCountry')"
                         validation="required"
                         required
                         :error="addressCountryIdError"
@@ -143,23 +154,24 @@
                 {% block sw_customer_address_form_state_field %}
                     <div class="sw-customer-address-form__state-select-placeholder">
                         <sw-entity-single-select
-                             class="sw-customer-address-form__state-select"
-                             entity="country_state"
-                             :criteria="stateCriteria"
-                             :label="$tc('sw-customer.addressForm.labelState')"
-                             v-show="countryId"
-                             :required="country !== null && country.forceStateInRegistration"
-                             :error="addressCountryStateIdError"
-                             :disabled="disabled"
-                             v-model="address.countryStateId">
+                            class="sw-customer-address-form__state-select"
+                            entity="country_state"
+                            :criteria="stateCriteria"
+                            :label="$tc('sw-customer.addressForm.labelState')"
+                            :placeholder="$tc('sw-customer.addressForm.placeholderState')"
+                            v-show="countryId"
+                            :required="country !== null && country.forceStateInRegistration"
+                            :error="addressCountryStateIdError"
+                            :disabled="disabled"
+                            v-model="address.countryStateId">
                         </sw-entity-single-select>
                     </div>
-
                 {% endblock %}
 
                 {% block sw_customer_address_form_phone_number_field %}
                     <sw-text-field
                         :label="$tc('sw-customer.addressForm.labelPhoneNumber')"
+                        :placeholder="$tc('sw-customer.addressForm.placeholderPhoneNumber')"
                         :error="addressPhoneNumberError"
                         :disabled="disabled"
                         v-model="address.phoneNumber">
@@ -169,6 +181,7 @@
                 {% block sw_customer_address_form_vat_id_field %}
                     <sw-text-field
                         :label="$tc('sw-customer.addressForm.labelVatId')"
+                        :placeholder="$tc('sw-customer.addressForm.placeholderVatId')"
                         name="vatId"
                         :error="addressVatIdError"
                         :disabled="disabled"

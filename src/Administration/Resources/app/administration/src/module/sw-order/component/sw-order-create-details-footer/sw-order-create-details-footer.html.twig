@@ -12,7 +12,7 @@
                     v-model="salesChannelId"
                     :class="entitySingleSelectClasses"
                     :label="$tc('sw-order.createBase.detailsFooter.labelSalesChannel')"
-                    :placeholder="$tc('sw-order.createBase.detailsFooter.labelSalesChannel')">
+                    :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderSalesChannel')">
                 </sw-entity-single-select>
             {% endblock %}
 
@@ -25,7 +25,7 @@
                     :disabled="!isCustomerActive"
                     :criteria="salesChannelCriteria"
                     :label="$tc('sw-order.createBase.detailsFooter.labelPaymentMethod')"
-                    :placeholder="$tc('sw-order.createBase.detailsFooter.labelPaymentMethod')">
+                    :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderPaymentMethod')">
                 </sw-entity-single-select>
             {% endblock %}
 
@@ -38,7 +38,7 @@
                     :disabled="!isCustomerActive"
                     :criteria="salesChannelCriteria"
                     :label="$tc('sw-order.createBase.detailsFooter.labelShippingMethod')"
-                    :placeholder="$tc('sw-order.createBase.detailsFooter.labelShippingMethod')">
+                    :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderShippingMethod')">
                 </sw-entity-single-select>
             {% endblock %}
         </div>
@@ -53,7 +53,7 @@
                     :disabled="!isCustomerActive"
                     :criteria="salesChannelCriteria"
                     :label="$tc('sw-order.createBase.detailsFooter.labelOrderLanguage')"
-                    :placeholder="$tc('sw-order.createBase.detailsFooter.labelOrderLanguage')">
+                    :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderOrderLanguage')">
                 </sw-entity-single-select>
             {% endblock %}
 
@@ -66,7 +66,7 @@
                     :disabled="!isCustomerActive"
                     :criteria="salesChannelCriteria"
                     :label="$tc('sw-order.createBase.detailsFooter.labelCurrency')"
-                    :placeholder="$tc('sw-order.createBase.detailsFooter.labelCurrency')">
+                    :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderCurrency')">
                 </sw-entity-single-select>
             {% endblock %}
         </div>

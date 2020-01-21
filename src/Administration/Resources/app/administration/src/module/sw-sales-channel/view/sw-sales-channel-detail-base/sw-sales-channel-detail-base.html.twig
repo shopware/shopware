@@ -519,16 +519,6 @@
                     </div>
                 {% endblock %}
 
-                {% block sw_sales_channel_detail_base_settings_link %}
-                    <div class="sw-sales-channel-detail-base__settings-link">
-                        <router-link :to="{ name: 'sw.settings.basic.information.index'}"
-                                      class="sw-card__quick-link">
-                            {{ $tc('sw-sales-channel.detail.basicinformationLink') }}
-                            <sw-icon name="default-arrow-simple-right" small></sw-icon>
-                        </router-link>
-                    </div>
-                {% endblock %}
-
                 {% block sw_sales_channel_detail_base_maintenance_input_active %}
                     <sw-field
                         type="switch"
@@ -545,6 +535,16 @@
                         :helpText="$tc('sw-sales-channel.detail.ipAddressWhitleListHelpText')"
                         v-model="salesChannel.maintenanceIpWhitelist">
                     </sw-multi-ip-select>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_settings_link %}
+                    <div class="sw-sales-channel-detail-base__settings-link">
+                        <router-link :to="{ name: 'sw.settings.basic.information.index'}"
+                                     class="sw-card__quick-link">
+                            {{ $tc('sw-sales-channel.detail.basicinformationLink') }}
+                            <sw-icon name="default-arrow-simple-right" small></sw-icon>
+                        </router-link>
+                    </div>
                 {% endblock %}
             </sw-card>
         {% endblock %}

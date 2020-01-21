@@ -94,7 +94,7 @@ Here's a brief example of how this file could look like:
         }
     ],
     "require": {
-        "shopware/core": "*"
+        "shopware/core": "6.1.*"
     },
     "extra": {
         "shopware-plugin-class": "Swag\\PluginQuickStart\\PluginQuickStart",

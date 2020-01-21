@@ -36,8 +36,8 @@ class CountryStateCollection extends EntityCollection
                 return $a->getPosition() <=> $b->getPosition();
             }
 
-            if ($a->getName() !== $b->getName()) {
-                return strnatcasecmp($a->getName(), $b->getName());
+            if ($a->getTranslation('name') !== $b->getTranslation('name')) {
+                return strnatcasecmp($a->getTranslation('name'), $b->getTranslation('name'));
             }
 
             return 0;

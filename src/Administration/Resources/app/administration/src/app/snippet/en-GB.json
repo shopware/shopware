@@ -99,6 +99,10 @@
       "labelPriceGross": "Price (gross)",
       "labelPriceNet": "Price (net)"
     },
+    "sw-list-price-field": {
+      "labelListPriceGross": "List price (gross)",
+      "labelListPriceNet": "List price (net)"
+    },
     "sw-text-editor": {
       "labelTextLength": "{count} character | {count} characters"
     },
@@ -715,6 +719,7 @@
   },
   "sw-maintain-currencies-modal": {
     "title": "Currency dependent pricing",
-    "columnPrice": "Prices (gross / net)"
+    "columnPrice": "Prices (gross / net)",
+    "columnListPriceHeader": "List prices (gross / net)"
   }
 }

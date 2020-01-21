@@ -99,6 +99,10 @@
       "labelPriceGross": "Preis (Brutto)",
       "labelPriceNet": "Preis (Netto)"
     },
+    "sw-list-price-field": {
+      "labelListPriceGross": "Streichpreis (Brutto)",
+      "labelListPriceNet": "Streichpreis (Netto)"
+    },
     "sw-text-editor": {
       "labelTextLength": "{count} Zeichen | {count} Zeichen"
     },
@@ -715,6 +719,7 @@
   },
   "sw-maintain-currencies-modal": {
     "title": "Währungen pflegen",
-    "columnPrice": "Preise (Brutto / Netto)"
+    "columnPrice": "Preise (Brutto / Netto)",
+    "columnListPriceHeader": "Streichpreise (Brutto / Netto)"
   }
 }

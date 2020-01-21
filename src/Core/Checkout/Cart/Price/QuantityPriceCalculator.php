@@ -65,7 +65,8 @@ class QuantityPriceCalculator
             $calculatedTaxes,
             $taxRules,
             $price->getQuantity(),
-            $this->referencePriceCalculator->calculate($price->getUnitPrice(), $definition)
+            $this->referencePriceCalculator->calculate($price->getUnitPrice(), $definition),
+            $price->getListPrice()
         );
     }
 }

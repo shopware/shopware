@@ -89,6 +89,18 @@ Component.register('sw-price-field', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        grossLabel: {
+            type: String,
+            required: false,
+            default: null
+        },
+
+        netLabel: {
+            type: String,
+            required: false,
+            default: null
         }
     },
 
@@ -149,11 +161,13 @@ Component.register('sw-price-field', {
         },
 
         labelGross() {
-            return this.label ? this.$tc('global.sw-price-field.labelPriceGross') : '';
+            const label = this.grossLabel ? this.grossLabel : this.$tc('global.sw-price-field.labelPriceGross');
+            return this.label ? label : '';
         },
 
         labelNet() {
-            return this.label ? this.$tc('global.sw-price-field.labelPriceNet') : '';
+            const label = this.netLabel ? this.netLabel : this.$tc('global.sw-price-field.labelPriceNet');
+            return this.label ? label : '';
         },
 
         grossError() {
@@ -209,6 +223,7 @@ Component.register('sw-price-field', {
 
         convertNetToGross(value) {
             if (!value || typeof value !== 'number') {
+                this.priceForCurrency.gross = 0;
                 return false;
             }
             this.$emit('price-calculate', true);
@@ -221,6 +236,7 @@ Component.register('sw-price-field', {
 
         convertGrossToNet(value) {
             if (!value || typeof value !== 'number') {
+                this.priceForCurrency.net = 0;
                 this.$emit('calculating', false);
                 return false;
             }

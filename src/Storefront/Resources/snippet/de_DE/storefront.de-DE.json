@@ -403,6 +403,7 @@
         "priceUnitName": "Inhalt:",
         "priceDataInfoUntil": "bis",
         "priceDataInfoFrom": "ab",
+        "listPricePercentage": "(%price%% gespart)",
         "dataColumnQuantity": "Menge",
         "dataColumnPrice": "Stückpreis",
         "dataColumnReferencePrice": "Grundpreis",

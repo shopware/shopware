@@ -2,7 +2,10 @@
 
 namespace Shopware\Core\Content\Test\Product\SalesChannel;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
@@ -73,6 +76,192 @@ class SalesChannelProductSubscriberTest extends TestCase
             /** @var SalesChannelProductEntity $product */
             static::assertSame($case->expected, $product->getCalculatedMaxPurchase(), $case->description);
         }
+    }
+
+    public function testListPrices(): void
+    {
+        $ids = new TestDataCollection(Context::createDefaultContext());
+
+        $taxId = $this->getContainer()->get(Connection::class)
+            ->fetchColumn('SELECT LOWER(HEX(id)) FROM tax LIMIT 1');
+
+        $this->getContainer()->get('currency.repository')
+            ->create([
+                [
+                    'id' => $ids->create('currency'),
+                    'name' => 'test',
+                    'shortName' => 'test',
+                    'factor' => 1.5,
+                    'symbol' => 'XXX',
+                    'isoCode' => 'XX',
+                    'decimalPrecision' => 3,
+                ],
+            ], $ids->context);
+
+        $defaults = [
+            'id' => 1,
+            'name' => 'test',
+            'stock' => 10,
+            'taxId' => $taxId,
+            'visibilities' => [
+                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
+        ];
+
+        $cases = [
+            new ListPriceTestCase(100, 90, 200, 90, 50, CartPrice::TAX_STATE_GROSS, -100, 100, 200),
+            new ListPriceTestCase(100, 90, 200, 135, 33.33, CartPrice::TAX_STATE_NET, -45, 90, 135),
+            new ListPriceTestCase(100, 90, 200, 135, 33.33, CartPrice::TAX_STATE_FREE, -45, 90, 135),
+
+            new ListPriceTestCase(100, 90, 200, 90, 50, CartPrice::TAX_STATE_GROSS, -100, 100, 200, $ids->get('currency'), $ids->get('currency')),
+            new ListPriceTestCase(100, 90, 200, 135, 33.33, CartPrice::TAX_STATE_NET, -45, 90, 135, $ids->get('currency'), $ids->get('currency')),
+            new ListPriceTestCase(100, 90, 200, 135, 33.33, CartPrice::TAX_STATE_FREE, -45, 90, 135, $ids->get('currency'), $ids->get('currency')),
+
+            new ListPriceTestCase(100, 90, 200, 90, 50, CartPrice::TAX_STATE_GROSS, -150, 150, 300, Defaults::CURRENCY, $ids->get('currency')),
+            new ListPriceTestCase(100, 90, 200, 135, 33.33, CartPrice::TAX_STATE_NET, -67.5, 135, 202.5, Defaults::CURRENCY, $ids->get('currency')),
+            new ListPriceTestCase(100, 90, 200, 135, 33.33, CartPrice::TAX_STATE_FREE, -67.5, 135, 202.5, Defaults::CURRENCY, $ids->get('currency')),
+        ];
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+        foreach ($cases as $i => $case) {
+            // prepare currency factor calculation
+            $factor = 1;
+            if ($case->usedCurrency !== Defaults::CURRENCY) {
+                $factor = 1.5;
+            }
+
+            $context->getContext()->assign(['currencyFactor' => $factor]);
+            $context->getCurrency()->setId($case->usedCurrency);
+
+            // test different tax states
+            $context->setTaxState($case->taxState);
+
+            // create a new product for this case
+            $id = $ids->create('product-' . $i);
+
+            $data = array_merge($defaults, [
+                'id' => $id,
+                'productNumber' => $id,
+                'price' => [
+                    [
+                        'currencyId' => $case->currencyId,
+                        'gross' => $case->gross,
+                        'net' => $case->net,
+                        'linked' => false,
+                        'listPrice' => [
+                            'gross' => $case->wasGross,
+                            'net' => $case->wasNet,
+                            'linked' => false,
+                        ],
+                    ],
+                ],
+            ]);
+
+            $this->getContainer()->get('product.repository')
+                ->create([$data], $ids->context);
+
+            $product = $this->getContainer()->get('sales_channel.product.repository')
+                ->search(new Criteria([$id]), $context)
+                ->get($id);
+
+            static::assertInstanceOf(SalesChannelProductEntity::class, $product);
+
+            $price = $product->getCalculatedPrice();
+
+            static::assertInstanceOf(ListPrice::class, $price->getListPrice());
+
+            static::assertEquals($case->expectedPrice, $price->getUnitPrice());
+            static::assertEquals($case->expectedWas, $price->getListPrice()->getPrice());
+
+            static::assertEquals($case->percentage, $price->getListPrice()->getPercentage());
+            static::assertEquals($case->discount, $price->getListPrice()->getDiscount());
+        }
+    }
+}
+
+class ListPriceTestCase
+{
+    /**
+     * @var float
+     */
+    public $gross;
+
+    /**
+     * @var float
+     */
+    public $net;
+
+    /**
+     * @var float
+     */
+    public $wasGross;
+
+    /**
+     * @var float
+     */
+    public $wasNet;
+
+    /**
+     * @var string
+     */
+    public $currencyId;
+
+    /**
+     * @var float
+     */
+    public $percentage;
+
+    /**
+     * @var string
+     */
+    public $taxState;
+
+    /**
+     * @var float
+     */
+    public $discount;
+
+    /**
+     * @var string
+     */
+    public $usedCurrency;
+
+    /**
+     * @var float
+     */
+    public $expectedPrice;
+
+    /**
+     * @var float
+     */
+    public $expectedWas;
+
+    public function __construct(
+        float $gross,
+        float $net,
+        float $wasGross,
+        float $wasNet,
+        float $percentage,
+        string $taxState,
+        float $discount,
+        float $expectedPrice,
+        float $expectedWas,
+        string $currencyId = Defaults::CURRENCY,
+        string $usedCurrency = Defaults::CURRENCY
+    ) {
+        $this->gross = $gross;
+        $this->net = $net;
+        $this->wasGross = $wasGross;
+        $this->wasNet = $wasNet;
+        $this->currencyId = $currencyId;
+        $this->percentage = $percentage;
+        $this->taxState = $taxState;
+        $this->discount = $discount;
+        $this->usedCurrency = $usedCurrency;
+        $this->expectedPrice = $expectedPrice;
+        $this->expectedWas = $expectedWas;
     }
 }
 

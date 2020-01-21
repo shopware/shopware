@@ -35,7 +35,9 @@
         {% endblock %}
 
         {% block component_product_box_price %}
-            <p class="product-price">
+            {% set listPrice = product.priceRange or product.calculatedPrices.count > 0 ? null : product.calculatedPrice.listPrice %}
+
+            <p class="product-price{% if listPrice.percentage > 0 %} with-list-price{% endif %}">
                 {% if product.priceRange %}
                     {{ fromPrice.unitPrice|currency }}
                     -
@@ -44,6 +46,12 @@
                     {{ product.calculatedPrices.first.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
                 {% else %}
                     {{ product.calculatedPrice.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+
+                    {% if listPrice.percentage > 0 %}
+                        <span class="list-price">
+                            {{ listPrice.price|currency }}{{ "general.star"|trans|sw_sanitize }}
+                        </span>
+                    {% endif %}
                 {% endif %}
             </p>
         {% endblock %}

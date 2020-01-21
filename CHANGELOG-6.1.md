@@ -438,6 +438,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * `src/Storefront/Resources/app/storefront/src/scss/abstract/variables/_custom.scss`
         * `src/Storefront/Resources/app/storefront/src/scss/skin/shopware/abstract/variables/_bootstrap.scss`
         * `src/Storefront/Resources/app/storefront/src/scss/skin/shopware/abstract/variables/_custom.scss`
+    * The `CountryStateController` returns country states now sorted by their position/name.
+    
 * Elasticsearch	
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.
         * You can set them with a parameter.yml too.

@@ -259,13 +259,12 @@ Component.register('sw-profile-index', {
 
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
-            }).catch((exception) => {
+            }).catch(() => {
                 this.createNotificationError({
                     title: this.$tc('sw-profile.index.notificationPasswordErrorTitle'),
                     message: this.$tc('sw-profile.index.notificationSaveErrorMessage')
                 });
                 this.isLoading = false;
-                throw exception;
             });
         },
 

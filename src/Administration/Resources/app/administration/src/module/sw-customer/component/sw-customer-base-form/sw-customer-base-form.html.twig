@@ -114,6 +114,7 @@
                     v-model="customer.password"
                     :disabled="customer.guest"
                     :label="$tc('sw-customer.baseForm.labelPassword')"
+                    :placeholder="$tc('sw-customer.baseForm.placeholderPassword')"
                     :helpText="$tc('sw-customer.baseForm.helpTextPassword')"
                     :error="customerPasswordError"
                     autocomplete="new-password">
@@ -124,6 +125,7 @@
         {% block sw_customer_base_form_tag_field %}
             <sw-entity-tag-select
                 :label="$tc('sw-customer.baseForm.labelTags')"
+                :placeholder="$tc('sw-customer.baseForm.placeholderTags')"
                 v-model="customer.tags">
             </sw-entity-tag-select>
         {% endblock %}

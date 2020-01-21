@@ -138,36 +138,55 @@ Component.register('sw-order-create-base', {
         onEditBillingAddress() {
             const contextId = 'billingAddressId';
             const contextDataKey = 'billingAddress';
+            const data = this.customer[contextDataKey]
+                ? this.customer[contextDataKey]
+                : this.customer.defaultBillingAddress;
 
-            this.address = {
-                contextId,
-                contextDataKey,
-                data: this.customer[contextDataKey] ? this.customer[contextDataKey] : this.customer.defaultBillingAddress
-            };
-
+            this.address = { contextId, contextDataKey, data };
             this.showAddressModal = true;
         },
 
         onEditShippingAddress() {
             const contextId = 'shippingAddressId';
             const contextDataKey = 'shippingAddress';
+            const data = this.customer[contextDataKey]
+                ? this.customer[contextDataKey]
+                : this.customer.defaultShippingAddress;
 
-            this.address = {
-                contextId,
-                contextDataKey,
-                data: this.customer[contextDataKey] ? this.customer[contextDataKey] : this.customer.defaultShippingAddress
-            };
-
+            this.address = { contextId, contextDataKey, data };
             this.showAddressModal = true;
         },
 
-        setCustomerAddress({ contextId, contextDataKey, data }) {
+        setCustomerAddress({ contextId, data }) {
             this.customer[contextId] = data.id;
 
+            const availableCustomerAddresses = [
+                {
+                    id: this.customer.billingAddressId,
+                    dataKey: 'billingAddress'
+                },
+                {
+                    id: this.customer.shippingAddressId,
+                    dataKey: 'shippingAddress'
+                },
+                {
+                    id: this.customer.defaultBillingAddressId,
+                    dataKey: 'defaultBillingAddress'
+                },
+                {
+                    id: this.customer.defaultShippingAddressId,
+                    dataKey: 'defaultShippingAddress'
+                }
+            ];
+
             this.customerAddressRepository
-                .get(this.customer[contextId], Shopware.Context.api, this.customerAddressCriteria)
-                .then(response => {
-                    this.customer[contextDataKey] = response;
+                .get(data.id, Shopware.Context.api, this.customerAddressCriteria)
+                .then((updatedAddress) => {
+                    availableCustomerAddresses.forEach((customerAddress) => {
+                        if (customerAddress.id === data.id) {
+                            this.customer[customerAddress.dataKey] = updatedAddress;
+                        }
+                    });
                 });
         },
 

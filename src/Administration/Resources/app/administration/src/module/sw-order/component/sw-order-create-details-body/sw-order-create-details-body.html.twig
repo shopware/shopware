@@ -11,7 +11,7 @@
                     class="sw-order-create-details-body__item"
                     v-model="email"
                     :label="$tc('sw-order.createBase.detailsBody.labelEmail')"
-                    :placeholder="$tc('sw-order.createBase.detailsBody.labelEmail')">
+                    :placeholder="$tc('sw-order.createBase.detailsBody.placeholderEmail')">
                 </sw-text-field>
             {% endblock %}
 
@@ -21,7 +21,7 @@
                         {{ $tc('sw-order.createBase.detailsBody.labelBillingAddress') }}
                         <sw-button
                             class="sw-order-create-details-body__item-label-button"
-                            @click="$emit('on-edit-billing-address')">
+                            @click="onEditBillingAddress">
                             {{ $tc('sw-order.detailBase.buttonEditAddress') }}
                         </sw-button>
                     </p>
@@ -45,7 +45,7 @@
                     class="sw-order-create-details-body__item"
                     v-model="phoneNumber"
                     :label="$tc('sw-order.createBase.detailsBody.labelPhoneNumber')"
-                    :placeholder="$tc('sw-order.createBase.detailsBody.labelPhoneNumber')">
+                    :placeholder="$tc('sw-order.createBase.detailsBody.placeholderPhoneNumber')">
                 </sw-text-field>
             {% endblock %}
 
@@ -55,7 +55,7 @@
                         {{ $tc('sw-order.createBase.detailsBody.labelShippingAddress') }}
                         <sw-button
                             class="sw-order-create-details-body__item-label-button"
-                            @click="$emit('on-edit-shipping-address')">
+                            @click="onEditShippingAddress">
                             {{ $tc('sw-order.detailBase.buttonEditAddress') }}
                         </sw-button>
                     </p>

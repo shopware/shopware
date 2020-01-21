@@ -51,9 +51,9 @@
       }
     },
     "create": {
-      "textNewOrder": "New order",
-      "buttonSaveOrder": "Save order",
-      "buttonCancelOrder": "Cancel",
+      "textNewOrder": "Neue Bestellung",
+      "buttonSaveOrder": "Bestellung speichern",
+      "buttonCancelOrder": "Abbrechen",
       "titleSaveError": "Error",
       "titleFetchError": "Error",
       "messageSaveError": "Order could not be saved.",
@@ -62,26 +62,33 @@
     "createBase": {
       "labelDetailsCard": "Details",
       "detailsHeader": {
-        "textCustomer": "Customer",
-        "placeholder": "Select customer...",
-        "buttonAddNewCustomer": "Add new customer"
+        "textCustomer": "Kunde",
+        "placeholder": "Wähle einen Kunden ...",
+        "buttonAddNewCustomer": "Kunden anlegen"
       },
       "detailsBody": {
-        "labelEmail": "Email",
-        "labelPhoneNumber": "Phone number",
-        "labelBillingAddress": "Billing address",
-        "labelShippingAddress": "Shipping address",
-        "placeholder": "Select or add cusomer first..."
+        "labelEmail": "E-Mail-Adresse",
+        "labelPhoneNumber": "Telefonnummer",
+        "placeholderEmail": "Gib eine E-Mail-Adresse ein ...",
+        "placeholderPhoneNumber": "Gib eine Telefonnummer ein ...",
+        "labelBillingAddress": "Rechnungsadresse",
+        "labelShippingAddress": "Lieferadresse",
+        "placeholder": "Kunden auswählen oder anlegen ..."
       },
       "detailsFooter": {
         "labelSalesChannel": "Sales channel",
-        "labelPaymentMethod": "Payment method",
-        "labelShippingMethod": "Shipping method",
-        "labelOrderLanguage": "Order language",
-        "labelCurrency": "Currency"
+        "labelPaymentMethod": "Zahlungsart",
+        "labelShippingMethod": "Versandart",
+        "labelOrderLanguage": "Bestellsprache",
+        "labelCurrency": "Währung",
+        "placeholderSalesChannel": "Wähle Verkaufskanal ...",
+        "placeholderPaymentMethod": "Wähle Zahlart ...",
+        "placeholderShippingMethod": "Wähle Versandart ...",
+        "placeholderOrderLanguage": "Wähle Bestellsprache ...",
+        "placeholderCurrency": "Wähle Währung ..."
       },
       "cardTitleLineItems": "Positionen",
-      "placeholderSearchBarItem": "Search items...",
+      "placeholderSearchBarItem": "Durchsuche Positionen ...",
       "labelDeleteOrderCard": "Delete order",
       "columnProductName": "Name",
       "columnQuantity": "Menge",
@@ -93,7 +100,7 @@
       "columnPriceNet": "Nettopreis",
       "columnTotalPriceNet": "Gesamt",
       "contextMenuShowProduct": "Produkt anzeigen",
-      "messageEmptyItem": "No items added yet",
+      "messageEmptyItem": "Noch keine Positionen vorhanden",
       "buttonAddProduct" :"Produkt hinzufügen",
       "buttonAddBlankProduct" :"Leere Position hinzufügen",
       "buttonAddCredit" :"Gutschrift hinzufügen",

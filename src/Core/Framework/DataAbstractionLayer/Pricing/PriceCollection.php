@@ -31,7 +31,11 @@ class PriceCollection extends Collection
             return $price;
         }
 
-        if ($currencyId === Defaults::CURRENCY || !$fallback) {
+        if ($currencyId === Defaults::CURRENCY) {
+            return null;
+        }
+
+        if (!$fallback) {
             return null;
         }
 

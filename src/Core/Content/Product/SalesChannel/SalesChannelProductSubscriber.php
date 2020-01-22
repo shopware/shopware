@@ -54,21 +54,13 @@ class SalesChannelProductSubscriber implements EventSubscriberInterface
             $product->setCalculatedMaxPurchase(
                 $this->calculateMaxPurchase($product, $event->getSalesChannelContext()->getSalesChannel()->getId())
             );
+
+            $this->markAsNew($event->getSalesChannelContext(), $product);
         }
     }
 
     private function calculatePrices(SalesChannelContext $context, SalesChannelProductEntity $product): void
     {
-        $markAsNewDayRange = $this->systemConfigService->get('core.listing.markAsNew', $context->getSalesChannel()->getId());
-
-        $now = new \DateTime();
-
-        /* @var SalesChannelProductEntity $product */
-        $product->setIsNew(
-            $product->getReleaseDate() instanceof \DateTimeInterface
-            && $product->getReleaseDate()->diff($now)->days <= $markAsNewDayRange
-        );
-
         $prices = $this->priceDefinitionBuilder->build($product, $context);
 
         //calculate listing price
@@ -104,5 +96,18 @@ class SalesChannelProductSubscriber implements EventSubscriberInterface
         }
 
         return max($max, 0);
+    }
+
+    private function markAsNew(SalesChannelContext $context, SalesChannelProductEntity $product): void
+    {
+        $markAsNewDayRange = $this->systemConfigService->get('core.listing.markAsNew', $context->getSalesChannel()->getId());
+
+        $now = new \DateTime();
+
+        /* @var SalesChannelProductEntity $product */
+        $product->setIsNew(
+            $product->getReleaseDate() instanceof \DateTimeInterface
+            && $product->getReleaseDate()->diff($now)->days <= $markAsNewDayRange
+        );
     }
 }

@@ -63,7 +63,26 @@ Component.register('sw-maintain-currencies-modal', {
 
     methods: {
         createdComponent() {
+            this.sortCurrencies();
             this.clonePrices = Shopware.Utils.object.cloneDeep(this.prices);
+        },
+
+        sortCurrencies() {
+            this.currencies.sort((a, b) => {
+                if (a.isSystemDefault) {
+                    return -1;
+                }
+                if (b.isSystemDefault) {
+                    return +1;
+                }
+                if (a.translated.name < b.translated.name) {
+                    return -1;
+                }
+                if (a.translated.name > b.translated.name) {
+                    return 1;
+                }
+                return 0;
+            });
         },
 
         convertPrice(value, currency) {
@@ -91,13 +110,24 @@ Component.register('sw-maintain-currencies-modal', {
         },
 
         onInheritanceRemove(currency) {
-            // create new entry for currency in prices
-            this.$set(this.prices, this.prices.length, {
+            const price = {
                 currencyId: currency.id,
                 gross: this.convertPrice(this.defaultPrice.gross, currency),
                 linked: this.defaultPrice.linked,
                 net: this.convertPrice(this.defaultPrice.net, currency)
-            });
+            };
+
+            if (this.defaultPrice.listPrice) {
+                price.listPrice = {
+                    currencyId: currency.id,
+                    gross: this.convertPrice(this.defaultPrice.listPrice.gross, currency),
+                    linked: this.defaultPrice.listPrice.linked,
+                    net: this.convertPrice(this.defaultPrice.listPrice.net, currency)
+                };
+            }
+
+            // create new entry for currency in prices
+            this.$set(this.prices, this.prices.length, price);
         },
 
         onCancel() {

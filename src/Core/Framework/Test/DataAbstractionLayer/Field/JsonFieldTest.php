@@ -186,9 +186,6 @@ EOF;
 
         $violation = $violations->get(2);
         static::assertEquals('/0/net', $violation->getPropertyPath());
-
-        $violation = $violations->get(3);
-        static::assertEquals('/0/foo', $violation->getPropertyPath());
     }
 
     public function testPropertyTypes(): void
@@ -202,39 +199,6 @@ EOF;
             'stock' => 1,
             'name' => 'test',
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 'strings are not allowed', 'linked' => false]],
-            'manufacturer' => ['name' => 'test'],
-            'tax' => ['name' => 'test', 'taxRate' => 15],
-            'categories' => [
-                ['id' => $id, 'name' => 'asd'],
-            ],
-        ];
-
-        $ex = null;
-
-        try {
-            $this->getWriter()->insert($this->registerDefinition(ProductDefinition::class), [$data], $context);
-        } catch (WriteException $ex) {
-        }
-
-        static::assertInstanceOf(WriteException::class, $ex);
-        static::assertCount(1, $ex->getExceptions());
-
-        $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
-        static::assertEquals('/0/price', $fieldException->getPath());
-    }
-
-    public function testUnexpectedFieldShouldThrowException(): void
-    {
-        $id = Uuid::randomHex();
-        $context = $this->createWriteContext();
-
-        $data = [
-            'id' => $id,
-            'productNumber' => Uuid::randomHex(),
-            'stock' => 1,
-            'name' => 'test',
-            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 13.2, 'linked' => false, 'fail' => 'me']],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [

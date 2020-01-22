@@ -403,6 +403,7 @@
         "priceUnitName": "Content:",
         "priceDataInfoUntil": "To",
         "priceDataInfoFrom": "From",
+        "listPricePercentage": "(%price%% saved)",
         "dataColumnQuantity": "Quantity",
         "dataColumnPrice": "Unit price",
         "dataColumnReferencePrice": "Reference price",

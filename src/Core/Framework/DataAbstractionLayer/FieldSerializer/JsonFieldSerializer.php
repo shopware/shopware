@@ -173,7 +173,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
                 $encoded = $nestedField->getSerializer()->encode($nestedField, $existence, $kvPair, $nestedParams);
 
                 foreach ($encoded as $fieldKey => $fieldValue) {
-                    if ($nestedField instanceof JsonField) {
+                    if ($nestedField instanceof JsonField && $fieldValue !== null) {
                         $fieldValue = json_decode($fieldValue, true);
                     }
 

@@ -48,13 +48,19 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
      */
     protected $referencePriceDefinition;
 
+    /**
+     * @var float|null
+     */
+    protected $listPrice;
+
     public function __construct(
         float $price,
         TaxRuleCollection $taxRules,
         int $precision,
         int $quantity = 1,
         bool $isCalculated = false,
-        ?ReferencePriceDefinition $referencePrice = null
+        ?ReferencePriceDefinition $referencePrice = null,
+        ?float $listPrice = null
     ) {
         $this->price = $price;
         $this->taxRules = $taxRules;
@@ -62,6 +68,7 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
         $this->isCalculated = $isCalculated;
         $this->precision = $precision;
         $this->referencePriceDefinition = $referencePrice;
+        $this->listPrice = $listPrice;
     }
 
     public function getPrice(): float
@@ -116,7 +123,9 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
             new TaxRuleCollection($taxRules),
             (int) $data['precision'],
             array_key_exists('quantity', $data) ? $data['quantity'] : 1,
-            array_key_exists('isCalculated', $data) ? $data['isCalculated'] : false
+            array_key_exists('isCalculated', $data) ? $data['isCalculated'] : false,
+            null,
+            isset($data['listPrice']) ? (float) $data['listPrice'] : null
         );
     }
 
@@ -151,5 +160,15 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
     public function getReferencePriceDefinition(): ?ReferencePriceDefinition
     {
         return $this->referencePriceDefinition;
+    }
+
+    public function getListPrice(): ?float
+    {
+        return $this->listPrice;
+    }
+
+    public function setListPrice(?float $listPrice): void
+    {
+        $this->listPrice = $listPrice;
     }
 }

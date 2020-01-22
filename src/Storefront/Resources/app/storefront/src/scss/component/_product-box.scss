@@ -111,6 +111,18 @@ $box-image-height-img: 332px;
     font-weight: $font-weight-bold;
     line-height: 20px;
     overflow: hidden;
+
+    &.with-list-price {
+        color: #e52427;
+    }
+
+    .list-price {
+        color: $headings-color;
+        font-weight: $font-weight-normal;
+        padding-left: 5px;
+        font-size: 12px;
+        text-decoration: line-through;
+    }
 }
 
 .product-action {
@@ -124,13 +136,21 @@ $box-image-height-img: 332px;
     z-index: 10;
 
     .badge {
-        margin: 0 0 10px;
-        line-height: inherit;
+        height: 24px;
+        margin: 0 0 8px;
+        line-height: 24px;
         font-size: 12px;
         font-weight: $font-weight-bold;
         color: $white;
-        border-radius: 0;
+        border-radius: 0 3px 3px 0;
         border-color: transparent;
+
+        &.badge-discount {
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 0;
+            width: 16px;
+        }
     }
 }
 

@@ -62,6 +62,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated all `sw_sales_channel_detail_base_general_input_*_selection` and `sw_sales_channel_detail_base_general_input_*_assignment` blocks from `sw-sales-channel-detail-base` by refactoring them into `sw-sales-channel-defaults-select`.
     * Deprecated the events `onDefaultItemAdd` and `onRemoveItem` in `sales-channel-detail-base/index.js`. Those events are no longer needed and the add/remove logic is now handled by the `sw-sales-channel-defaults-select` component.
 
+    * Added new slot for `sw-data-grid` column headers
+    * Added new component `sw-list-price-field`
 * Core
     * Added a check for the author role in plugin composer.json files. If one or more authors have the role `Manufacturer`, only these will be written to the database.
     * Added new `searchMedia` twig function to resolve media ids to media objects.
@@ -69,7 +71,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Changed `MailService` to add `bcc` instead `to` for `deliveryAddress`
     * We added the `Inherited` flag to the `listingPrices` property of the `\Shopware\Core\Content\Product\ProductDefinition`
     * The `\Shopware\Storefront\Page\Product\Review\ProductReviewLoader::load` returns now the reviews of all variants.
-
+    * The `\Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField` can now contains a `listPrice`
+    * `\Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice` supports now list prices.
 * Storefront
     * Fixed the cookie privacy hint to use the correct link `privacyPage` instead of `shippingPaymentInfoPage`
     * Added the parameter `useBackdrop` to the `page-loading-indicator.utils.js` `remove` and `create` methods. Defaults to `true`

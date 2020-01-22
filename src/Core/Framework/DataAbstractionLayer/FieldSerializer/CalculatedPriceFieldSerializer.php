@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -24,6 +25,9 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
         $value = json_decode(json_encode($data->getValue(), JSON_PRESERVE_ZERO_FRACTION), true);
 
         unset($value['extensions']);
+        if (isset($value['listPrice'])) {
+            unset($value['listPrice']['extensions']);
+        }
 
         $data->setValue($value);
 
@@ -70,13 +74,22 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
             );
         }
 
+        $listPrice = null;
+        if (isset($value['listPrice'])) {
+            $listPrice = ListPrice::createFromUnitPrice(
+                (float) $value['unitPrice'],
+                (float) $value['listPrice']['price']
+            );
+        }
+
         return new CalculatedPrice(
             (float) $value['unitPrice'],
             (float) $value['totalPrice'],
             new CalculatedTaxCollection($calculatedTaxes),
             new TaxRuleCollection($taxRules),
             (int) $value['quantity'],
-            $referencePriceDefinition
+            $referencePriceDefinition,
+            $listPrice
         );
     }
 }

@@ -16,6 +16,11 @@ class CalculatedPriceField extends JsonField
             (new JsonField('calculatedTaxes', 'calculatedTaxes'))->addFlags(new Required()),
             (new JsonField('taxRules', 'taxRules'))->addFlags(new Required()),
             new JsonField('referencePrice', 'referencePrice'),
+            new JsonField('listPrice', 'listPrice', [
+                new FloatField('price', 'price'),
+                new FloatField('discount', 'discount'),
+                new FloatField('percentage', 'percentage'),
+            ]),
         ];
 
         parent::__construct($storageName, $propertyName, $propertyMapping);

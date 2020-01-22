@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Price;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 
@@ -61,7 +62,8 @@ class NetPriceCalculator
             $calculatedTaxes,
             $taxRules,
             $definition->getQuantity(),
-            $this->referencePriceCalculator->calculate($price, $definition)
+            $this->referencePriceCalculator->calculate($price, $definition),
+            $this->calculateListPrice($unitPrice, $definition)
         );
     }
 
@@ -76,5 +78,19 @@ class NetPriceCalculator
             $definition->getPrice(),
             $definition->getPrecision()
         );
+    }
+
+    private function calculateListPrice(float $unitPrice, QuantityPriceDefinition $definition): ?ListPrice
+    {
+        if (!$definition->getListPrice()) {
+            return null;
+        }
+
+        $listPrice = $definition->getListPrice();
+        if (!$definition->isCalculated()) {
+            $listPrice = $this->priceRounding->round($definition->getListPrice(), $definition->getPrecision());
+        }
+
+        return ListPrice::createFromUnitPrice($unitPrice, $listPrice);
     }
 }

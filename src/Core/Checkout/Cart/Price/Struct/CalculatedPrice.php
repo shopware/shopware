@@ -38,13 +38,19 @@ class CalculatedPrice extends Struct
      */
     protected $referencePrice;
 
+    /**
+     * @var ListPrice|null
+     */
+    protected $listPrice;
+
     public function __construct(
         float $unitPrice,
         float $totalPrice,
         CalculatedTaxCollection $calculatedTaxes,
         TaxRuleCollection $taxRules,
         int $quantity = 1,
-        ?ReferencePrice $referencePrice = null
+        ?ReferencePrice $referencePrice = null,
+        ?ListPrice $listPrice = null
     ) {
         $this->unitPrice = $unitPrice;
         $this->totalPrice = $totalPrice;
@@ -52,6 +58,7 @@ class CalculatedPrice extends Struct
         $this->taxRules = $taxRules;
         $this->quantity = $quantity;
         $this->referencePrice = $referencePrice;
+        $this->listPrice = $listPrice;
     }
 
     public function getTotalPrice(): float
@@ -82,5 +89,10 @@ class CalculatedPrice extends Struct
     public function getReferencePrice(): ?ReferencePrice
     {
         return $this->referencePrice;
+    }
+
+    public function getListPrice(): ?ListPrice
+    {
+        return $this->listPrice;
     }
 }

@@ -129,7 +129,7 @@ function registerModule(moduleId, module) {
 
             // Support for children routes
             if (hasOwnProperty(route, 'children') && Object.keys(route.children).length) {
-                route = iterateChildRoutes(route, splitModuleId, routeKey);
+                route = iterateChildRoutes(route);
                 moduleRoutes = registerChildRoutes(route, moduleRoutes);
             }
 
@@ -242,11 +242,9 @@ function registerChildRoutes(routeDefinition, moduleRoutes) {
  * Recursively iterates over the route children definitions and converts the format to the vue-router route definition.
  *
  * @param {Object} routeDefinition
- * @param {Array} moduleName
- * @param {String} parentKey
  * @returns {Object}
  */
-function iterateChildRoutes(routeDefinition, moduleName, parentKey) {
+function iterateChildRoutes(routeDefinition) {
     routeDefinition.children = Object.keys(routeDefinition.children).map((key) => {
         let child = routeDefinition.children[key];
 
@@ -256,11 +254,11 @@ function iterateChildRoutes(routeDefinition, moduleName, parentKey) {
             child.path = `${routeDefinition.path}/${child.path}`;
         }
 
-        child.name = `${moduleName.join('.')}.${parentKey}.${key}`;
+        child.name = `${routeDefinition.name}.${key}`;
         child.isChildren = true;
 
         if (hasOwnProperty(child, 'children') && Object.keys(child.children).length) {
-            child = iterateChildRoutes(child, moduleName, `${parentKey}.${key}`);
+            child = iterateChildRoutes(child);
         }
 
         return child;

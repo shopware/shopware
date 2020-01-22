@@ -106,14 +106,12 @@ class ApiController extends AbstractController
      *      operationId="compositeSearch",
      *      tags={"Admin Api"},
      *      @OA\Parameter(
-     *          parameter="limit",
      *          name="limit",
      *          in="query",
      *          description="Max amount of resources per entity",
      *          @OA\Schema(type="integer"),
      *      ),
      *      @OA\Parameter(
-     *          parameter="term",
      *          name="term",
      *          in="query",
      *          description="The term to search for",

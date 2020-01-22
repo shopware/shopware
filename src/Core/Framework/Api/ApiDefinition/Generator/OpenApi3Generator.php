@@ -141,7 +141,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                         'format' => 'uuid',
                     ],
                 ],
-                $schema['attributes']['properties'],
+                $schema,
                 $relationships
             );
 
@@ -177,7 +177,6 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             $entityName = $definition->getEntityName();
             $schemaDefinitions[$entityName] = [
                 'name' => $entityName,
-                'required' => $schema['attributes']['required'],
                 'translatable' => $definition->getFields()->filterInstance(TranslatedField::class)->getKeys(),
                 'properties' => $properties,
             ];

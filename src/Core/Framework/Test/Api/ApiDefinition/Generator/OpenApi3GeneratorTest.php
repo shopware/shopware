@@ -61,21 +61,41 @@ class OpenApi3GeneratorTest extends TestCase
     public function testTypeConversion(): void
     {
         $properties = $this->schema[$this->entityName]['properties'];
-        $this->silentAssertArraySubset(['type' => 'string', 'format' => 'uuid'], $properties['id']);
-        $this->silentAssertArraySubset(['type' => 'string'], $properties['stringField']);
-        $this->silentAssertArraySubset(['type' => 'integer', 'format' => 'int64'], $properties['intField']);
-        $this->silentAssertArraySubset(['type' => 'number', 'format' => 'float'], $properties['floatField']);
-        $this->silentAssertArraySubset(['type' => 'boolean'], $properties['boolField']);
-        $this->silentAssertArraySubset(['type' => 'string'], $properties['stringField']);
-        $this->silentAssertArraySubset(['type' => 'integer', 'format' => 'int64'], $properties['childCount']);
+        static::assertArrayHasKey('id', $properties);
+        static::assertArrayHasKey('type', $properties['id']);
+        static::assertEquals('string', $properties['id']['type']);
+        static::assertArrayHasKey('format', $properties['id']);
+        static::assertEquals('uuid', $properties['id']['format']);
+        static::assertArrayHasKey('stringField', $properties);
+        static::assertArrayHasKey('type', $properties['stringField']);
+        static::assertEquals('string', $properties['stringField']['type']);
+        static::assertArrayHasKey('intField', $properties);
+        static::assertArrayHasKey('type', $properties['intField']);
+        static::assertEquals('integer', $properties['intField']['type']);
+        static::assertArrayHasKey('format', $properties['intField']);
+        static::assertEquals('int64', $properties['intField']['format']);
+        static::assertArrayHasKey('floatField', $properties);
+        static::assertArrayHasKey('type', $properties['floatField']);
+        static::assertEquals('number', $properties['floatField']['type']);
+        static::assertArrayHasKey('format', $properties['floatField']);
+        static::assertEquals('float', $properties['floatField']['format']);
+        static::assertArrayHasKey('boolField', $properties);
+        static::assertArrayHasKey('type', $properties['boolField']);
+        static::assertEquals('boolean', $properties['boolField']['type']);
+        static::assertArrayHasKey('childCount', $properties);
+        static::assertArrayHasKey('type', $properties['childCount']);
+        static::assertEquals('integer', $properties['childCount']['type']);
+        static::assertArrayHasKey('format', $properties['childCount']);
+        static::assertEquals('int64', $properties['childCount']['format']);
     }
 
     public function testFlagConversion(): void
     {
         $properties = $this->schema[$this->entityName]['properties'];
-        $requiredFields = $this->schema[$this->entityName]['required'];
 
-        $this->silentAssertArraySubset(['requiredField'], $requiredFields);
-        $this->silentAssertArraySubset(['readOnly' => true], $properties['readOnlyField']);
+        static::assertArrayHasKey('requiredField', $properties);
+        static::assertArrayHasKey('readOnlyField', $properties);
+        static::assertArrayHasKey('readOnly', $properties['readOnlyField']);
+        static::assertTrue($properties['readOnlyField']['readOnly']);
     }
 }

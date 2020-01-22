@@ -59,7 +59,8 @@ export const string = {
     kebabCase: stringUtils.kebabCase,
     md5: stringUtils.md5,
     isEmptyOrSpaces: stringUtils.isEmptyOrSpaces,
-    isUrl: stringUtils.isUrl
+    isUrl: stringUtils.isUrl,
+    isValidIp: stringUtils.isValidIp
 };
 
 export const types = {

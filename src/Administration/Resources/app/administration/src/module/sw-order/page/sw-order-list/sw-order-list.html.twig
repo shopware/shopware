@@ -163,7 +163,8 @@
             </template>
 
             {% block sw_order_list_sidebar %}
-                <sw-sidebar slot="sidebar">
+                <sw-sidebar slot="sidebar" class="sw-order-list__sidebar">
+
                     {% block sw_order_list_sidebar_refresh %}
                         <sw-sidebar-item
                             icon="default-arrow-360-left"
@@ -171,9 +172,11 @@
                             @click="onRefresh">
                         </sw-sidebar-item>
                     {% endblock %}
+
                     {% block sw_order_list_sidebar_filter %}
                         <sw-sidebar-item icon="default-action-filter"
                                          :title="$tc('sw-order.list.titleSidebarItemFilter')">
+
                             {% block sw_order_list_sidebar_filter_affiliate_code %}
                                 <sw-multi-select
                                     :label="$tc('sw-order.list.titleSidebarItemFilterAffiliateCode')"
@@ -202,6 +205,5 @@
                 </sw-sidebar>
             {% endblock %}
         {% endblock %}
-
     </sw-page>
 {% endblock %}

@@ -51,7 +51,9 @@ Component.register('sw-popover', {
         popoverConfigExtension: {
             type: Object,
             required: false,
-            default: {},
+            default() {
+                return {};
+            },
             validator() {
                 Shopware.Utils.debug.warn(
                     'sw-popover',

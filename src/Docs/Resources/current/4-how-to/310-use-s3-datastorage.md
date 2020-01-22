@@ -1,4 +1,4 @@
-[titleEn]: <>(Using AWS S3 as file storage)
+[titleEn]: <>(Using S3 as file storage)
 [metaDescriptionEn]: <>(Cloud solutions are often the preferred way to store large amounts of files. This article shows you how to configure a cloud file storage, in this example two S3 buckets.)
 
 ## Overview
@@ -33,6 +33,9 @@ The configuration for file storage of Shopware 6 resides in the general bundle c
 To set up a non default filesystem for your shop you need to add the `filesystem:` map to 
 the `shopware.yml`. Under this key you can separately define your storage for the public and private
 filesystem like this:
+
+### AWS
+
 ```yaml
 shopware:
   filesystem:
@@ -57,7 +60,39 @@ set of values in the `shopware.yml`:
 ```yaml
 shopware:
   cdn:
-    url: "https://s3.{your-bucket-region}.amazonaws.com/{your-private-bucket-name}"
+    url: "https://s3.{your-bucket-region}.amazonaws.com/{your-public-bucket-name}"
+    strategy: "md5"
+```
+
+### Other S3 Provider
+
+```yaml
+shopware:
+  filesystem:
+    public:
+      type: "s3"
+      config:
+        bucket: "{your-public-bucket-name}"
+        region: "{your-bucket-region}"
+        endpoint: "{your-s3-provider-endpoint}"
+        options:
+          visibility: "public"
+    private:
+      type: "s3"
+      config:
+        bucket: "{your-private-bucket-name}"
+        region: "{your-bucket-region}"
+        endpoint: "{your-s3-provider-endpoint}"
+        options:
+          visibility: "private"
+```
+
+To utilize your public bucket you have to add its URL as the CDN for your shop, this is just another
+set of values in the `shopware.yml`:
+```yaml
+shopware:
+  cdn:
+    url: "https://s3.{your-bucket-region}.{your-s3-provider-endpoint}/{your-public-bucket-name}"
     strategy: "md5"
 ```
 
@@ -71,4 +106,4 @@ Note: make sure your IAM user has read/write permissions for both Buckets.
 
 ## Final notes
 
-Although this example uses AWS S3, Shopware 6 also supports using Google Cloud Storage as an external filesystem.
+Although this example uses AWS S3, Shopware 6 also supports using Google Cloud Storage or Other S3 Providers as an external filesystem.

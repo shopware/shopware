@@ -101,7 +101,7 @@ The event only contains the changeset for the cookie configuration as an object.
 You can listen for this event using the following lines:
 
 ```JavaScript
-import { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration';
+import { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
 
 function eventCallback(updatedCookies) {    
     if (typeof updatedCookies.myCookie !== 'undefined') {

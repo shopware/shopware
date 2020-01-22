@@ -1,0 +1,169 @@
+{% block sw_settings_cache_index %}
+    <sw-page class="sw-settings-cache">
+
+        {% block sw_settings_cache_smart_bar_header %}
+            <template slot="smart-bar-header">
+                {% block sw_settings_cache_smart_bar_header_title %}
+                    <h2>
+                        {% block sw_settings_cache_smart_bar_header_title_text %}
+                            {{ $tc('sw-settings.index.title') }}
+                                <sw-icon name="small-arrow-medium-right" small></sw-icon>
+                            {{ $tc('sw-settings-cache.general.mainMenuItemGeneral') }}
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_cache_content %}
+            <template slot="content">
+                <sw-card-view>
+                    <sw-card
+                        :title="$tc('sw-settings-cache.general.mainMenuItemGeneral')"
+                        :isLoading="isLoading">
+
+                        {% block sw_settings_cache_content_toolbar %}
+                            <sw-card-section :secondary="true" slot="toolbar">
+                                <sw-container class="sw-settings-cache__card-toolbar" columns="1fr 1fr" rows="repeat(2, 40px)">
+
+                                    {% block sw_settings_cache_content_toolbar_environment %}
+                                        <div>
+
+                                            {% block sw_settings_cache_content_toolbar_environment_heading %}
+                                                <p class="sw-settings-cache__card-toolbar-heading">
+                                                    {{ $tc('sw-settings-cache.toolbar.environment') }}
+                                                </p>
+                                            {% endblock %}
+
+                                            {% block sw_settings_cache_content_toolbar_environment_text %}
+                                                <p>{{ environmentValue }}</p>
+                                            {% endblock %}
+                                        </div>
+                                    {% endblock %}
+
+                                    {% block sw_settings_cache_content_toolbar_http_cache %}
+                                        <div>
+
+                                            {% block sw_settings_cache_content_toolbar_http_cache_heading %}
+                                                <p class="sw-settings-cache__card-toolbar-heading">
+                                                    {{ $tc('sw-settings-cache.toolbar.httpCache') }}
+                                                </p>
+                                            {% endblock %}
+
+                                            {% block sw_settings_cache_content_toolbar_http_cache_text %}
+                                                <p>{{ httpCacheValue }}</p>
+                                            {% endblock %}
+                                        </div>
+                                    {% endblock %}
+
+                                    {% block sw_settings_cache_content_toolbar_cache_adapter %}
+                                        <div>
+
+                                            {% block sw_settings_cache_content_toolbar_cache_adapter_heading %}
+                                                <p class="sw-settings-cache__card-toolbar-heading">
+                                                    {{ $tc('sw-settings-cache.toolbar.cacheAdapter') }}
+                                                </p>
+                                            {% endblock %}
+
+                                            {% block sw_settings_cache_content_toolbar_cache_adapter_text %}
+                                                <p>{{ cacheAdapterValue }}</p>
+                                            {% endblock %}
+                                        </div>
+                                    {% endblock %}
+                                </sw-container>
+                            </sw-card-section>
+                        {% endblock %}
+
+                        {% block sw_settings_cache_content_clear_cache_row %}
+                            <sw-card-section divider="bottom">
+                                <sw-container align="center" columns="1fr auto" gap="20px">
+                                    <div>
+
+                                        {% block sw_settings_cache_content_clear_cache_row_heading %}
+                                            <p class="sw-settings-cache__card-section-heading">
+                                                {{ $tc('sw-settings-cache.section.clearCachesHeadline') }}
+                                            </p>
+                                        {% endblock %}
+
+                                        {% block sw_settings_cache_content_clear_cache_row_text %}
+                                            <p>{{ $tc('sw-settings-cache.section.clearCachesText') }}</p>
+                                        {% endblock %}
+                                    </div>
+
+                                    {% block sw_settings_cache_content_clear_cache_row_button %}
+                                        <sw-button-process variant="ghost"
+                                                           :isLoading="processes.normalClearCache"
+                                                           :processSuccess="processSuccess.normalClearCache"
+                                                           @process-finish="resetButtons"
+                                                           @click="clearCache"
+                                        >
+                                            {{ $tc('sw-settings-cache.section.clearCachesButton') }}
+                                        </sw-button-process>
+                                    {% endblock %}
+                                </sw-container>
+                            </sw-card-section>
+                        {% endblock %}
+
+                        {% block sw_settings_cache_content_clear_and_warm_up_cache_row %}
+                            <sw-card-section divider="bottom">
+                                <sw-container align="center" columns="1fr auto" gap="20px">
+                                    <div>
+
+                                        {% block sw_settings_cache_content_clear_and_warm_up_cache_row_heading %}
+                                            <p class="sw-settings-cache__card-section-heading">
+                                                {{ $tc('sw-settings-cache.section.clearAndWarmUpHeadline') }}
+                                            </p>
+                                        {% endblock %}
+
+                                        {% block sw_settings_cache_content_clear_and_warm_up_cache_row_text %}
+                                            <p>{{ $tc('sw-settings-cache.section.clearAndWarmUpText') }}</p>
+                                        {% endblock %}
+                                    </div>
+
+                                    {% block sw_settings_cache_content_clear_and_warm_up_cache_row_button %}
+                                        <sw-button-process variant="ghost"
+                                                        :isLoading="processes.clearAndWarmUpCache"
+                                                        :processSuccess="processSuccess.clearAndWarmUpCache"
+                                                        @process-finish="resetButtons"
+                                                        @click="clearAndWarmUpCache">
+                                            {{ $tc('sw-settings-cache.section.clearAndWarmUpButton') }}
+                                        </sw-button-process>
+                                    {% endblock %}
+                                </sw-container>
+                            </sw-card-section>
+                        {% endblock %}
+
+                        {% block sw_settings_cache_content_indexes_row %}
+                            <sw-card-section>
+                                <sw-container align="center" columns="1fr auto" gap="20px">
+                                    <div>
+
+                                        {% block sw_settings_cache_content_indexes_row_heading %}
+                                            <p class="sw-settings-cache__card-section-heading">
+                                                {{ $tc('sw-settings-cache.section.indexesHeadline') }}
+                                            </p>
+                                        {% endblock %}
+
+                                        {% block sw_settings_cache_content_indexes_row_text %}
+                                            <p>{{ $tc('sw-settings-cache.section.indexesText') }}</p>
+                                        {% endblock %}
+                                    </div>
+
+                                    {% block sw_settings_cache_content_indexes_row_button %}
+                                        <sw-button-process variant="ghost"
+                                                           :isLoading="processes.updateIndexes"
+                                                           :processSuccess="processSuccess.updateIndexes"
+                                                           @process-finish="resetButtons"
+                                                           @click="updateIndexes">
+                                            {{ $tc('sw-settings-cache.section.indexesButton') }}
+                                        </sw-button-process>
+                                    {% endblock %}
+                                </sw-container>
+                            </sw-card-section>
+                        {% endblock %}
+                    </sw-card>
+                </sw-card-view>
+            </template>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

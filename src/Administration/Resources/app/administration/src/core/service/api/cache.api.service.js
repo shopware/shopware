@@ -5,9 +5,24 @@ class CacheApiService {
         this.name = 'cacheApiService';
     }
 
+    info() {
+        const headers = this.getHeaders();
+        return this.httpClient.get('/_action/cache_info', { headers });
+    }
+
+    index() {
+        const headers = this.getHeaders();
+        return this.httpClient.post('/_action/index', { headers });
+    }
+
     clear() {
         const headers = this.getHeaders();
         return this.httpClient.delete('/_action/cache', { headers });
+    }
+
+    clearAndWarmup() {
+        const headers = this.getHeaders();
+        return this.httpClient.delete('/_action/cache_warmup', { headers });
     }
 
     getHeaders() {

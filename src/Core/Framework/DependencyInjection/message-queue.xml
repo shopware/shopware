@@ -62,6 +62,11 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Framework\MessageQueue\Subscriber\MessageFailedHandler">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <!--ScheduledTask-->
         <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\RequeueDeadMessagesTask">
             <tag name="shopware.scheduled.task"/>

@@ -106,51 +106,119 @@ function enableWorkerNotificationListener(loginService, context) {
 }
 
 function registerThumbnailMiddleware(factory) {
-    let notificationId = null;
+    const ids = {};
+    factory.register('DalIndexingMessage', {
+        name: 'Shopware\\Core\\Framework\\DataAbstractionLayer\\Indexing\\MessageQueue\\IndexerMessage',
+        fn: function middleware(next, { entry, $root, notification }) {
+            messageQueueNotification('dalIndexing', ids, next, entry, $root, notification, {
+                title: 'global.notification-center.worker-listener.dalIndexing.title',
+                message: 'global.notification-center.worker-listener.dalIndexing.message',
+                success: 'global.notification-center.worker-listener.dalIndexing.messageSuccess',
+                foregroundSuccessMessage: 'sw-settings-cache.notifications.index.success'
+            });
+        }
+    });
+
+    factory.register('WarmupIndexingMessage', {
+        name: 'Shopware\\Storefront\\Framework\\Cache\\CacheWarmer\\WarmUpMessage',
+        fn: function middleware(next, { entry, $root, notification }) {
+            messageQueueNotification('warmupMessage', ids, next, entry, $root, notification, {
+                title: 'global.notification-center.worker-listener.warmupIndexing.title',
+                message: 'global.notification-center.worker-listener.warmupIndexing.message',
+                success: 'global.notification-center.worker-listener.warmupIndexing.messageSuccess',
+                foregroundSuccessMessage: 'sw-settings-cache.notifications.clearCacheAndWarmup.success'
+            });
+        }
+    });
+
+    factory.register('EsIndexingMessage', {
+        name: 'Shopware\\Elasticsearch\\Framework\\Indexing\\IndexingMessage',
+        fn: function middleware(next, { entry, $root, notification }) {
+            messageQueueNotification('esIndexing', ids, next, entry, $root, notification, {
+                title: 'global.notification-center.worker-listener.esIndexing.title',
+                message: 'global.notification-center.worker-listener.esIndexing.message',
+                success: 'global.notification-center.worker-listener.esIndexing.messageSuccess'
+            });
+        }
+    });
+
     factory.register('generateThumbnailsMessage', {
         name: 'Shopware\\Core\\Content\\Media\\Message\\GenerateThumbnailsMessage',
         fn: function middleware(next, { entry, $root, notification }) {
-            // Create notification config object
-            const config = {
-                title: $root.$tc('global.notification-center.worker-listener.thumbnailGeneration.title'),
-                message: $root.$tc(
-                    'global.notification-center.worker-listener.thumbnailGeneration.message',
-                    entry.size
-                ),
-                variant: 'info',
-                metadata: {
-                    size: entry.size
-                },
-                growl: false,
-                isLoading: true
-            };
-
-            // Create new notification
-            if (entry.size && notificationId === null) {
-                notification.create(config).then((uuid) => {
-                    notificationId = uuid;
-                });
-                next();
-            }
-
-            // Update existing notification
-            if (notificationId !== null) {
-                config.uuid = notificationId;
-
-                if (entry.size === 0) {
-                    config.title = $root.$tc('global.default.success');
-                    config.message = $root.$t(
-                        'global.notification-center.worker-listener.thumbnailGeneration.messageSuccess'
-                    );
-                    config.isLoading = false;
-                }
-                notification.update(config);
-            }
-
-            // do your stuff and call next then
-            next();
+            messageQueueNotification('thumbnails', ids, next, entry, $root, notification, {
+                title: 'global.notification-center.worker-listener.thumbnailGeneration.title',
+                message: 'global.notification-center.worker-listener.thumbnailGeneration.message',
+                success: 'global.notification-center.worker-listener.thumbnailGeneration.messageSuccess'
+            });
         }
     });
 
     return true;
+}
+
+function messageQueueNotification(key, ids, next, entry, $root, notification, messages) {
+    let notificationId = null;
+    let didSendForegroundMessage = false;
+
+    if (ids.hasOwnProperty((key))) {
+        notificationId = ids[key].notificationId;
+        didSendForegroundMessage = ids[key].didSendForegroundMessage;
+    }
+
+    if (key === 'warmupMessage') {
+        entry.size *= 10;
+    }
+
+
+    const config = {
+        title: $root.$tc(messages.title),
+        message: $root.$tc(messages.message, entry.size),
+        variant: 'info',
+        metadata: {
+            size: entry.size
+        },
+        growl: false,
+        isLoading: true
+    };
+
+    // Create new notification
+    if (entry.size && notificationId === null) {
+        notification.create(config).then((uuid) => {
+            notificationId = uuid;
+
+            ids[key] = {
+                notificationId,
+                didSendForegroundMessage: false
+            };
+        });
+        next();
+    }
+
+    // Update existing notification
+    if (notificationId !== null) {
+        config.uuid = notificationId;
+
+        if (entry.size === 0) {
+            config.title = $root.$tc(messages.title);
+            config.message = $root.$t(messages.success);
+            config.isLoading = false;
+
+            if (messages.foregroundSuccessMessage && !didSendForegroundMessage) {
+                const foreground = Object.assign({}, config);
+                foreground.message = $root.$t(messages.foregroundSuccessMessage);
+                delete foreground.uuid;
+                delete foreground.isLoading;
+                foreground.growl = true;
+                foreground.variant = 'success';
+                notification.create(foreground);
+
+                ids[key] = {
+                    notificationId,
+                    didSendForegroundMessage: true
+                };
+            }
+        }
+        notification.update(config);
+    }
+    next();
 }

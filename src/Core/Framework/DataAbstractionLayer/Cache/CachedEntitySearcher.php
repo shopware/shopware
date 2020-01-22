@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 use Shopware\Core\Framework\Log\LogEntryDefinition;
+use Shopware\Core\Framework\MessageQueue\MessageQueueStatsDefinition;
 use Shopware\Core\Framework\Plugin\PluginDefinition;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeState\NumberRangeStateDefinition;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
@@ -25,6 +26,7 @@ class CachedEntitySearcher implements EntitySearcherInterface
         NumberRangeStateDefinition::class,
         PluginDefinition::class,
         LogEntryDefinition::class,
+        MessageQueueStatsDefinition::class,
     ];
 
     /**

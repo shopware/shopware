@@ -66,6 +66,13 @@
 
         <LessSpecificReturnType errorLevel="info"/>
 
+        <!-- Issue in Psalm https://github.com/vimeo/psalm/issues/2706 -->
+        <InaccessibleProperty>
+            <errorLevel type="info">
+                <file name="vendor/shopware/platform/src/Core/Framework/Api/Controller/CacheController.php"/>
+            </errorLevel>
+        </InaccessibleProperty>
+
         <!-- level 3 issues - slightly lazy code writing, but provably low false-negatives -->
 
         <DeprecatedMethod errorLevel="info"/>

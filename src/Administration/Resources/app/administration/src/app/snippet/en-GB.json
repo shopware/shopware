@@ -36,6 +36,21 @@
           "title": "Generating thumbnails",
           "message": "No thumbnails remaining. | One thumbnail remaining. | {n} thumbnails remaining.",
           "messageSuccess": "Thumbnails have been generated."
+        },
+        "esIndexing": {
+          "title": "Elasticsearch indexing",
+          "message": "Elasticsearch indexed. | One remaining. | {n} remaining.",
+          "messageSuccess": "Elasticsearch successfully indexed."
+        },
+        "dalIndexing": {
+          "title": "Data indexing",
+          "message": "All data indexed. | Indexing data.",
+          "messageSuccess": "Indexing finished."
+        },
+        "warmupIndexing": {
+          "title": "Cache warmup",
+          "message": "Cache warmed-up. | One page remaining. | Approximately {n} pages remaining..",
+          "messageSuccess": "Cache successfully warmed-up."
         }
       },
       "plugin-updates-listener": {
@@ -708,7 +723,13 @@
     "functionSpecialShortcutSaveDetailViewLinux": "Linux: Save detail view",
     "keyboardShortcutSpecialShortcutSaveDetailViewLinux": "ALT-S",
     "functionSpecialShortcutCancelDetailView": "Cancel detail view",
-    "keyboardShortcutSpecialShortcutCancelDetailView": "ESC"
+    "keyboardShortcutSpecialShortcutCancelDetailView": "ESC",
+    "functionSpecialShortcutClearCacheWindows": "Windows: Cache clear",
+    "keyboardShortcutSpecialShortcutClearCacheWindows": "ALT-C",
+    "functionSpecialShortcutClearCacheMac": "Mac: Cache clear",
+    "keyboardShortcutSpecialShortcutClearCacheMac": "CONTROL-C",
+    "functionSpecialShortcutClearCacheLinux": "Linux: Cache clear",
+    "keyboardShortcutSpecialShortcutClearCacheLinux": "ALT-C"
   },
   "sw-discard-changes-modal": {
     "title": "Discard unsaved changes?",

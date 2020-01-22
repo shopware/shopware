@@ -36,6 +36,21 @@
           "title": "Vorschaubilder werden generiert",
           "message": "Keine Bilder verbleibend. | Ein Bild verbleibend. | {n} Bilder verbleibend.",
           "messageSuccess": "Generierung der Vorschaubilder wurde abgeschlossen."
+        },
+        "esIndexing": {
+          "title": "Elasticsearch Indizierung",
+          "message": "Elasticsearch wurde indexiert. | Ein Indizierungsaufruf verbleibt. | {n} verbleibende Indizierungsaufrufe.",
+          "messageSuccess": "Elasticsearch wurde indexiert."
+        },
+        "dalIndexing": {
+          "title": "Datenindizierung",
+          "message": "Alle Daten werden indexiert. | Daten indexieren verbleibt.",
+          "messageSuccess": "Datenindizierung wurde beendet."
+        },
+        "warmupIndexing": {
+          "title": "Cache aufwärmen",
+          "message": "Cache wurde aufgewärmt. | Eine Seite übrig. | Circa {n} Seiten übrig.",
+          "messageSuccess": "Cache-Aufwärmen wurde beendet."
         }
       },
       "plugin-updates-listener": {
@@ -708,7 +723,13 @@
     "functionSpecialShortcutSaveDetailViewLinux": "Linux: Speichern in Detailansicht",
     "keyboardShortcutSpecialShortcutSaveDetailViewLinux": "alt s",
     "functionSpecialShortcutCancelDetailView": "Abbrechen in Detailansicht",
-    "keyboardShortcutSpecialShortcutCancelDetailView": "Esc"
+    "keyboardShortcutSpecialShortcutCancelDetailView": "Esc",
+    "functionSpecialShortcutClearCacheWindows": "Windows: Cache löschen",
+    "keyboardShortcutSpecialShortcutClearCacheWindows": "alt c",
+    "functionSpecialShortcutClearCacheMac": "Mac: Cache löschen",
+    "keyboardShortcutSpecialShortcutClearCacheMac": "control s",
+    "functionSpecialShortcutClearCacheLinux": "Linux: Cache löschen",
+    "keyboardShortcutSpecialShortcutClearCacheLinux": "alt c"
   },
   "sw-discard-changes-modal": {
     "title": "Ungespeicherte Änderungen verwerfen?",

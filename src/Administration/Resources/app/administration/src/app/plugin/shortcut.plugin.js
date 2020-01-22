@@ -58,7 +58,7 @@ export default {
             },
             methods: {
                 handleKeyDownDebounce: util.debounce(function handleKeyDown(event) {
-                    if (event.constructor !== KeyboardEvent) {
+                    if (event.constructor !== KeyboardEvent && window.Cypress === undefined) {
                         return false;
                     }
 

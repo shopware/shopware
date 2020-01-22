@@ -179,7 +179,7 @@ class CartLineItemController extends StorefrontController
      */
     public function addProductByNumber(Request $request, SalesChannelContext $salesChannelContext): Response
     {
-        $number = $request->request->getAlnum('number');
+        $number = $request->request->get('number');
         if (!$number) {
             throw new MissingRequestParameterException('number');
         }

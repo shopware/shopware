@@ -296,7 +296,7 @@ class ApplicationBootstrapper {
             return this;
         }
 
-        return new Error('State could not be initialized');
+        throw new Error('State could not be initialized');
     }
 
     /**

@@ -13,8 +13,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
 * Administration
 	* Added `disabled` attribute of fields to `sw-customer-address-form` component
-
-    *
+    * Deprecated `tagStore` in `sw-newsletter-recipient-list`
 
 * Core    
     *

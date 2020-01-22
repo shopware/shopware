@@ -54,6 +54,7 @@ Component.register('sw-newsletter-recipient-list', {
             return this.repositoryFactory.create('sales_channel');
         },
 
+        /** @deprecated tag:v6.4.0 */
         tagStore() {
             return StateDeprecated.getStore('tag');
         },

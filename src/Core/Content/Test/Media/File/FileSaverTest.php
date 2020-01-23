@@ -4,8 +4,10 @@ namespace Shopware\Core\Content\Test\Media\File;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
+use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Content\Media\Exception\CouldNotRenameFileException;
 use Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException;
+use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
 use Shopware\Core\Content\Media\Exception\MissingFileException;
 use Shopware\Core\Content\Media\File\FileSaver;
@@ -23,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class FileSaverTest extends TestCase
 {
@@ -30,6 +33,7 @@ class FileSaverTest extends TestCase
     use MediaFixtures;
 
     public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
+    public const TEST_SCRIPT_FILE = __DIR__ . '/../fixtures/test.php';
 
     /**
      * @var EntityRepositoryInterface
@@ -434,7 +438,9 @@ class FileSaverTest extends TestCase
             $this->getContainer()->get(ThumbnailService::class),
             $this->getContainer()->get(MetadataLoader::class),
             $this->getContainer()->get(TypeDetector::class),
-            $this->getContainer()->get('messenger.bus.shopware')
+            $this->getContainer()->get('messenger.bus.shopware'),
+            $this->getContainer()->get('event_dispatcher'),
+            $this->getContainer()->getParameter('shopware.filesystem.allowed_extensions')
         );
 
         $mediaPath = $this->urlGenerator->getRelativeMediaUrl($png);
@@ -445,5 +451,91 @@ class FileSaverTest extends TestCase
 
         static::assertEquals($png->getFileName(), $updatedMedia->getFileName());
         static::assertTrue($this->getPublicFilesystem()->has($mediaPath));
+    }
+
+    public function testMaliciousFileExtension(): void
+    {
+        $this->expectException(FileTypeNotSupportedException::class);
+
+        $tempFile = tempnam(sys_get_temp_dir(), '');
+        copy(self::TEST_SCRIPT_FILE, $tempFile);
+
+        $fileSize = filesize($tempFile);
+        $mediaFile = new MediaFile($tempFile, 'text/plain', 'php', $fileSize);
+
+        $mediaId = Uuid::randomHex();
+
+        $context = Context::createDefaultContext();
+
+        $this->mediaRepository->create(
+            [
+                [
+                    'id' => $mediaId,
+                ],
+            ],
+            $context
+        );
+
+        try {
+            $this->fileSaver->persistFileToMedia(
+                $mediaFile,
+                'test-file',
+                $mediaId,
+                $context
+            );
+        } finally {
+            if (file_exists($tempFile)) {
+                unlink($tempFile);
+            }
+        }
+    }
+
+    public function testWhitelistEvent(): void
+    {
+        /** @var EventDispatcher $dispatcher */
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $eventDidRun = false;
+        $listenerClosure = function () use (&$eventDidRun): void {
+            $eventDidRun = true;
+        };
+
+        $dispatcher->addListener(MediaFileExtensionWhitelistEvent::class, $listenerClosure);
+
+        $tempFile = tempnam(sys_get_temp_dir(), '');
+        copy(self::TEST_IMAGE, $tempFile);
+
+        $fileSize = filesize($tempFile);
+        $mediaFile = new MediaFile($tempFile, 'image/png', 'png', $fileSize);
+
+        $mediaId = Uuid::randomHex();
+
+        $context = Context::createDefaultContext();
+
+        $this->mediaRepository->create(
+            [
+                [
+                    'id' => $mediaId,
+                ],
+            ],
+            $context
+        );
+
+        try {
+            $this->fileSaver->persistFileToMedia(
+                $mediaFile,
+                'test-file',
+                $mediaId,
+                $context
+            );
+        } finally {
+            if (file_exists($tempFile)) {
+                unlink($tempFile);
+            }
+        }
+
+        $dispatcher->removeListener(MediaFileExtensionWhitelistEvent::class, $listenerClosure);
+
+        static::assertTrue($eventDidRun, 'The media_whitelist.before_filter event did not run');
     }
 }

@@ -48,6 +48,9 @@ class Configuration implements ConfigurationInterface
                         ->variableNode('config')->end()
                     ->end()
                 ->end()
+                ->arrayNode('allowed_extensions')
+                    ->prototype('scalar')->end()
+                ->end()
             ->end();
 
         return $rootNode;

@@ -8,6 +8,7 @@ shopware:
             type: "local"
             config:
                 root: "%kernel.project_dir%/public"
+        allowed_extensions: ["jpg", "jpeg", "png", "webp", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc"]
 
     cdn:
         url: ~

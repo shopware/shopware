@@ -14,6 +14,16 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 * Administration
 	* Added `disabled` attribute of fields to `sw-customer-address-form` component
     * Deprecated `tagStore` in `sw-newsletter-recipient-list`
+    * Moved `sw-manufacturer` to the new data handling
+        * Deprecated `mediaStore`
+        * Added `mediaRepository`
+        * Deprecated `customFieldSetStore`
+        * Added `customFieldSetRepository`
+        * Deprecated import of `StateDeprecated`
+        * Rewritten `loadEntityData` so it uses the new data handling
+        * Added `customFieldSetCriteria` as an computed property
+
+    *
 
 * Core    
     *

@@ -188,6 +188,7 @@
         "availableAddresses": "Available addresses",
         "selectAddress": "Select address",
         "addressCreateBtn": "Add address",
+        "addressEditBtn": "Edit address",
         "addressCreateWelcome": "Create a new address",
         "addressEditWelcome": "Change address",
         "addressSaveChange": "Save address",

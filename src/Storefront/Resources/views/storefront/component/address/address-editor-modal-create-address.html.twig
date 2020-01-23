@@ -1,14 +1,17 @@
 {% block component_address_address_editor_modal_create_address %}
-    <div id="address-create-new"
-         class="collapse{% if address %} show{% endif %}"
+    <div id="{% if address %}address-create-edit{% else %}address-create-new{% endif %}"
+         class="collapse"
          data-parent="#addressEditorAccordion">
         {% block component_address_address_editor_modal_create_address_wrapper %}
             <div class="card address-editor-create-address-wrapper">
-
                 {% block component_address_address_editor_modal_create_address_title %}
                     <div class="card-title create-address-title">
                         {% block component_address_address_editor_modal_create_address_title_text %}
-                            {{ "account.addressCreateWelcome"|trans|sw_sanitize }}
+                            {% if address %}
+                                {{ "account.addressEditWelcome"|trans|sw_sanitize }}
+                            {% else %}
+                                {{ "account.addressCreateWelcome"|trans|sw_sanitize }}
+                            {% endif %}
                         {% endblock %}
                     </div>
                 {% endblock %}
@@ -18,6 +21,7 @@
                         {% block component_address_address_editor_modal_create_address_form %}
                             <form method="post"
                                   action="{{ path('frontend.account.addressbook') }}"
+                                  class="js-close-address-editor"
                                   data-form-ajax-submit="true"
                                   data-form-ajax-submit-options='{
                                       "replaceSelectors": ".js-address-editor"

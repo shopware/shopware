@@ -81,6 +81,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
 * Recovery
     * The database connection now supports sockets
+    
+* Storefront
+    * You can now change your addresses during checkout
 
 ### 6.1.0
 

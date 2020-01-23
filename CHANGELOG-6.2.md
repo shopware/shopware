@@ -24,6 +24,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Added `customFieldSetCriteria` as an computed property
 
     *
+    * Deprecated the use of `fixed-top` class in `header-minimal.html.twig`
 
 * Core    
     *

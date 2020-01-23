@@ -1,7 +1,7 @@
 import template from './sw-multi-ip-select.html.twig';
 import './sw-multi-ip-select.scss';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 const { get, string } = Shopware.Utils;
 
 /**
@@ -25,6 +25,10 @@ Component.register('sw-multi-ip-select', {
         prop: 'value',
         event: 'change'
     },
+
+    mixins: [
+        Mixin.getByName('remove-api-error')
+    ],
 
     props: {
         value: {

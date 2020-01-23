@@ -23,7 +23,8 @@ Component.register('sw-colorpicker', {
     template,
 
     mixins: [
-        Mixin.getByName('sw-form-field')
+        Mixin.getByName('sw-form-field'),
+        Mixin.getByName('remove-api-error')
     ],
 
     props: {

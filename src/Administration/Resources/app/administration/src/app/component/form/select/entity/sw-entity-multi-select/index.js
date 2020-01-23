@@ -1,6 +1,6 @@
 import template from './sw-entity-multi-select.html.twig';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 const { debounce, get } = Shopware.Utils;
 const { Criteria, EntityCollection } = Shopware.Data;
 
@@ -14,6 +14,10 @@ Component.register('sw-entity-multi-select', {
     },
 
     inject: { repositoryFactory: 'repositoryFactory' },
+
+    mixins: [
+        Mixin.getByName('remove-api-error')
+    ],
 
     props: {
         labelProperty: {

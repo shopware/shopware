@@ -61,22 +61,6 @@ Mixin.register('sw-form-field', {
         }
     },
 
-    created() {
-        let event = 'input';
-        if (this.$options.model && this.$options.model.event) {
-            event = this.$options.model.event;
-        }
-
-        this.$on(event, () => {
-            if (this.$attrs.error && this.$attrs.error.selfLink) {
-                Shopware.State.dispatch(
-                    'error/removeApiError',
-                    { expression: this.$attrs.error.selfLink }
-                );
-            }
-        });
-    },
-
     beforeDestroy() {
         this.beforeDestroyComponent();
     },

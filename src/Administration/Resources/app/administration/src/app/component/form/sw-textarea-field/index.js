@@ -15,7 +15,8 @@ Component.register('sw-textarea-field', {
     inheritAttrs: false,
 
     mixins: [
-        Mixin.getByName('sw-form-field')
+        Mixin.getByName('sw-form-field'),
+        Mixin.getByName('remove-api-error')
     ],
 
     props: {

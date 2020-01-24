@@ -16,7 +16,7 @@ To get started create a `Resources/storefront/example-plugin` folder and put an 
 Inside that file create and export a ExamplePlugin class that extends the base Plugin class:
 
 ```js
-import Plugin from 'src/script/plugin-system/plugin.class';
+import Plugin from 'src/plugin-system/plugin.class';
 
 export default class ExamplePlugin extends Plugin {
 }
@@ -27,7 +27,7 @@ In your case you add an callback to the onScroll event from the window and check
 Your full plugin now looks like this:
 
 ```js
-import Plugin from 'src/script/plugin-system/plugin.class';
+import Plugin from 'src/plugin-system/plugin.class';
 
 export default class ExamplePlugin extends Plugin {
     init() {
@@ -113,7 +113,7 @@ In your case define a text option and as a default value use the text you previo
 And instead of the hard coded string inside the `alert()` use your new option value.
 
 ```js
-import Plugin from 'src/script/plugin-system/plugin.class';
+import Plugin from 'src/plugin-system/plugin.class';
 
 export default class ExamplePlugin extends Plugin {
     static options = {

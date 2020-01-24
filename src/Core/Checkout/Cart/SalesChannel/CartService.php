@@ -22,6 +22,7 @@ use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
+use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -235,6 +236,7 @@ class CartService
     private function calculate(Cart $cart, SalesChannelContext $context, bool $persist = false): Cart
     {
         $behavior = new CartBehavior();
+        $behavior->setIsAdminOrder($context->hasExtension(ProductCartProcessor::IS_ADMIN_ORDER));
 
         // validate cart against the context rules
         $cart = $this->cartRuleLoader

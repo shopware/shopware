@@ -2,16 +2,14 @@
 
 namespace Shopware\Administration\Controller;
 
-use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
-use Shopware\Core\Checkout\Cart\Event\LineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
@@ -19,6 +17,10 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
+use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
+use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -27,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -37,7 +40,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Serializer;
 
@@ -93,6 +95,21 @@ class OrderController extends AbstractController
      */
     private $eventDispatcher;
 
+    /**
+     * @var ProductLineItemFactory
+     */
+    private $productLineItemFactory;
+
+    /**
+     * @var ApiVersionConverter
+     */
+    private $apiVersionConverter;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $orderRepository;
+
     public function __construct(
         EntityRepositoryInterface $salesChannelRepository,
         CartService $cartService,
@@ -102,7 +119,10 @@ class OrderController extends AbstractController
         SalesChannelContextFactory $salesChannelContextFactory,
         Serializer $serializer,
         Processor $processor,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        ProductLineItemFactory $productLineItemFactory,
+        ApiVersionConverter $apiVersionConverter,
+        EntityRepositoryInterface $orderRepository
     ) {
         $this->salesChannelRepository = $salesChannelRepository;
         $this->contextPersister = $contextPersister;
@@ -113,43 +133,94 @@ class OrderController extends AbstractController
         $this->processor = $processor;
         $this->cartRuleLoader = $cartRuleLoader;
         $this->eventDispatcher = $eventDispatcher;
+        $this->productLineItemFactory = $productLineItemFactory;
+        $this->apiVersionConverter = $apiVersionConverter;
+        $this->orderRepository = $orderRepository;
+    }
+
+    /**
+     * @Route("/api/v{version}/sales-channel/{salesChannelId}/checkout/cart", name="api.checkout.cart.detail", methods={"GET"})
+     */
+    public function getCart(string $salesChannelId, Request $request, Context $context): JsonResponse
+    {
+        $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $context, $request);
+
+        $name = $request->request->getAlnum('name', CartService::SALES_CHANNEL);
+
+        $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext, $name);
+
+        return new JsonResponse($this->serialize($cart));
+    }
+
+    /**
+     * @Route("/api/v{version}/sales-channel/{salesChannelId}/checkout/cart", name="api.checkout.cart.create", methods={"POST"})
+     */
+    public function createCart(string $salesChannelId, Request $request, Context $context): JsonResponse
+    {
+        $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $context, $request);
+
+        $name = $request->request->getAlnum('name', CartService::SALES_CHANNEL);
+
+        $this->cartService->createNew($salesChannelContext->getToken(), $name);
+
+        return new JsonResponse(
+            [PlatformRequest::HEADER_CONTEXT_TOKEN => $salesChannelContext->getToken()],
+            JsonResponse::HTTP_OK,
+            [PlatformRequest::HEADER_CONTEXT_TOKEN => $salesChannelContext->getToken()]
+        );
+    }
+
+    /**
+     * @Route("/api/v{version}/sales-channel/{salesChannelId}/checkout/cart/product/{id}", name="api.checkout.cart.product.add", methods={"POST"})
+     *
+     * @throws MixedLineItemTypeException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     */
+    public function addProduct(string $salesChannelId, string $id, Request $request, Context $context): JsonResponse
+    {
+        $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $context, $request);
+
+        $quantity = $request->request->get('quantity');
+
+        $lineItem = $this->productLineItemFactory->create($id, ['quantity' => $quantity]);
+
+        $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext, CartService::SALES_CHANNEL);
+
+        $cart = $this->cartService->add($cart, $lineItem, $salesChannelContext);
+
+        return new JsonResponse($this->serialize($cart));
     }
 
     /**
      * @Route("/api/v{version}/sales-channel/{salesChannelId}/checkout/cart/line-item/{id}", name="api.checkout.cart.line-item.add", methods={"POST"})
      *
      * @throws MissingRequestParameterException
-     * @throws MixedLineItemTypeException
      * @throws InvalidQuantityException
      * @throws LineItemNotStackableException
      * @throws InvalidPriceFieldTypeException
+     * @throws MixedLineItemTypeException
      */
-    public function addLineItem(string $salesChannelId, string $id, Request $request, Context $context): Response
+    public function addLineItem(string $salesChannelId, string $id, Request $request, Context $context): JsonResponse
     {
         if (!$request->request->has('type')) {
             throw new MissingRequestParameterException('type');
         }
 
+        $name = $request->request->getAlnum('name', CartService::SALES_CHANNEL);
         $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $context, $request);
 
         $lineItemtype = $request->request->get('type');
         $quantity = $request->request->get('quantity');
 
         $lineItem = new LineItem($id, $lineItemtype, null, $quantity);
-
         $this->updateLineItemByRequest($lineItem, $request, $salesChannelContext->getContext());
 
-        $cart = $this->addLineItemToCart($salesChannelContext, $lineItem);
+        $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext, $name);
 
-        $cart = $this->recalculateCart($cart, $salesChannelContext);
+        $cart = $this->cartService->add($cart, $lineItem, $salesChannelContext);
 
-        //Save Cart to Cache and DB
-        $this->saveCart($cart, $salesChannelContext);
-
-        $response = new Response();
-        $response->setContent(json_encode($this->serialize($cart)));
-
-        return $response;
+        return new JsonResponse($this->serialize($cart));
     }
 
     /**
@@ -160,59 +231,22 @@ class OrderController extends AbstractController
      * @throws LineItemNotStackableException
      * @throws InvalidPriceFieldTypeException
      */
-    public function updateLineItem(string $salesChannelId, string $id, Request $request, Context $context): Response
+    public function updateLineItem(string $salesChannelId, string $id, Request $request, Context $context): JsonResponse
     {
+        $name = $request->request->getAlnum('name', CartService::SALES_CHANNEL);
+
         $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $context, $request);
 
-        $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
+        $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext, $name);
 
         if (!$cart->has($id)) {
             throw new LineItemNotFoundException($id);
         }
 
-        $lineItem = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext)->getLineItems()->get($id);
-
+        $lineItem = $cart->getLineItems()->get($id);
         $this->updateLineItemByRequest($lineItem, $request, $salesChannelContext->getContext());
 
-        $cart = $this->recalculateCart($cart, $salesChannelContext);
-
-        //Save Cart to Cache and DB
-        $this->saveCart($cart, $salesChannelContext);
-
-        $response = new Response();
-        $response->setContent(json_encode($this->serialize($cart)));
-
-        return $response;
-    }
-
-    /**
-     * @Route("/api/v{version}/sales-channel/{salesChannelId}/checkout/cart/line-items/delete", name="api.checkout.cart.line-items.delete", methods={"POST"})"
-     *
-     * @throws LineItemNotFoundException
-     * @throws LineItemNotRemovableException
-     * @throws MissingRequestParameterException
-     */
-    public function removeLineItems(string $salesChannelId, Request $request, Context $context): Response
-    {
-        if (!$request->request->has('keys')) {
-            throw new MissingRequestParameterException('keys');
-        }
-
-        $lineItemKeys = $request->request->get('keys');
-
-        $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $context, $request);
-
-        $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
-
-        foreach ($lineItemKeys as $lineItemKey) {
-            if (!$cart->has($lineItemKey)) {
-                continue;
-            }
-
-            $cart = $this->cartService->remove($cart, $lineItemKey, $salesChannelContext);
-        }
-
-        $this->saveCart($cart, $salesChannelContext);
+        $cart = $this->cartService->recalculate($cart, $salesChannelContext);
 
         return new JsonResponse($this->serialize($cart));
     }
@@ -229,22 +263,69 @@ class OrderController extends AbstractController
     }
 
     /**
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @Route("/api/v{version}/sales-channel/{salesChannelId}/checkout/cart/line-items/delete", name="api.checkout.cart.line-items.delete", methods={"POST"})"
+     *
+     * @throws LineItemNotFoundException
+     * @throws LineItemNotRemovableException
+     * @throws MissingRequestParameterException
      */
-    private function addLineItemToCart(SalesChannelContext $salesChannelContext, LineItem $lineItem): Cart
+    public function removeLineItems(string $salesChannelId, Request $request, Context $context): JsonResponse
     {
-        $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
+        if (!$request->request->has('keys')) {
+            throw new MissingRequestParameterException('keys');
+        }
 
-        $cart->add($lineItem);
+        $lineItemKeys = $request->request->get('keys');
 
-        $cart->markModified();
-        $lineItem->markModified();
+        $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $context, $request);
 
-        $this->eventDispatcher->dispatch(new LineItemAddedEvent($lineItem, $cart, $salesChannelContext));
+        $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext, CartService::SALES_CHANNEL);
 
-        return $cart;
+        foreach ($lineItemKeys as $lineItemKey) {
+            if (!$cart->has($lineItemKey)) {
+                continue;
+            }
+
+            $cart = $this->cartService->remove($cart, $lineItemKey, $salesChannelContext);
+        }
+
+        return new JsonResponse($this->serialize($cart));
+    }
+
+    /**
+     * @Route("/api/v{version}/sales-channel/{salesChannelId}/checkout/order", name="api.checkout.order.create", methods={"POST"})
+     */
+    public function createOrder(string $salesChannelId, int $version, Request $request, Context $context): JsonResponse
+    {
+        $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $context, $request);
+
+        $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext, CartService::SALES_CHANNEL);
+
+        $orderId = $this->cartService->order($cart, $salesChannelContext);
+        $order = $this->getOrderById($orderId, $salesChannelContext);
+
+        return new JsonResponse($this->serialize($this->apiVersionConverter->convertEntity(
+            $this->orderRepository->getDefinition(),
+            $order,
+            $version
+        )));
+    }
+
+    /**
+     * @throws OrderNotFoundException
+     */
+    private function getOrderById(string $orderId, SalesChannelContext $context): OrderEntity
+    {
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('addresses.country');
+
+        $order = $this->orderRepository->search($criteria, $context->getContext())->get($orderId);
+
+        if ($order === null) {
+            throw new OrderNotFoundException($orderId);
+        }
+
+        return $order;
     }
 
     /**
@@ -282,21 +363,10 @@ class OrderController extends AbstractController
         if ($priceDefinition !== null) {
             $priceDefinitionType = $this->initPriceDefinition($context, $priceDefinition, $lineItem->getType());
             $lineItem->setPriceDefinition($priceDefinitionType);
+            if ($lineItem->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE) {
+                $lineItem->setExtensions([ProductCartProcessor::CUSTOM_PRICE => true]);
+            }
         }
-    }
-
-    private function recalculateCart(Cart $cart, SalesChannelContext $context): Cart
-    {
-        $behavior = (new CartBehavior())
-            ->setIsRecalculation(true);
-
-        // all prices are now prepared for calculation -  starts the cart calculation
-        $cart = $this->processor->process($cart, $context, $behavior);
-
-        // validate cart against the context rules
-        $validated = $this->cartRuleLoader->loadByCart($context, $cart, $behavior);
-
-        return $validated->getCart();
     }
 
     private function fetchSalesChannelContext(string $salesChannelId, Context $context, Request $request): SalesChannelContext
@@ -313,6 +383,7 @@ class OrderController extends AbstractController
         }
 
         $salesChannelContext = $this->salesChannelContextFactory->create($contextToken, $salesChannelId, $parameters);
+        $salesChannelContext->addExtension(ProductCartProcessor::IS_ADMIN_ORDER, new ArrayEntity());
 
         return $salesChannelContext;
     }
@@ -349,12 +420,6 @@ class OrderController extends AbstractController
         if ($salesChannel === null) {
             throw new InvalidSalesChannelIdException($salesChannelId);
         }
-    }
-
-    private function saveCart(Cart $cart, SalesChannelContext $salesChannelContext): void
-    {
-        $this->cartService->setCart($cart);
-        $this->cartPersister->save($cart, $salesChannelContext);
     }
 
     private function initPriceDefinition(Context $context, $priceDefinition, $lineItemType)

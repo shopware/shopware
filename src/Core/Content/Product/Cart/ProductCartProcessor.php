@@ -22,6 +22,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorInterface
 {
+    public const CUSTOM_PRICE = 'customPrice';
+
+    public const IS_ADMIN_ORDER = 'isAdminOrder';
+
     /**
      * @var ProductGatewayInterface
      */
@@ -98,7 +102,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 throw new MissingLineItemPriceException($lineItem->getId());
             }
 
-            if ($behavior->isRecalculation()) {
+            if ($behavior->isRecalculation() || $behavior->isAdminOrder()) {
                 $definition->setQuantity($lineItem->getQuantity());
                 $lineItem->setPrice($this->calculator->calculate($definition, $context));
                 $toCalculate->add($lineItem);
@@ -191,7 +195,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         );
 
         // check if the price has to be updated
-        if (!$this->isPriceComplete($lineItem, $behavior)) {
+        if (!$this->shouldPriceBeRecalculated($lineItem, $behavior)) {
             $prices = $this->priceDefinitionBuilder->build($product, $context, $lineItem->getQuantity());
 
             $lineItem->setPriceDefinition($prices->getQuantityPrice());
@@ -284,14 +288,21 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             && $lineItem->getQuantityInformation() !== null;
     }
 
-    private function isPriceComplete(LineItem $lineItem, CartBehavior $behavior): bool
+    private function shouldPriceBeRecalculated(LineItem $lineItem, CartBehavior $behavior): bool
     {
-        //always update prices for live checkout
+        if ($lineItem->hasExtension(self::CUSTOM_PRICE) && $behavior->isAdminOrder()) {
+            return true;
+        }
+
         if (!$behavior->isRecalculation()) {
             return false;
         }
 
-        return $lineItem->getPriceDefinition() !== null;
+        if ($lineItem->getPriceDefinition() !== null) {
+            return true;
+        }
+
+        return false;
     }
 
     private function getAvailableStock(ProductEntity $product, LineItem $lineItem): int

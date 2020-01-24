@@ -71,7 +71,7 @@
                             {% block sw_settings_number_range_detail_content_field_prefix %}
                                 <sw-field type="text"
                                           :disabled="advanced"
-                                          @input="onChange()"
+                                          @input="onChangePattern()"
                                           :label="$tc('sw-settings-number-range.detail.labelPrefix')"
                                           :placeholder="advanced?$tc('sw-settings-number-range.detail.placeholderSimpleModeImpossible'):$tc('sw-settings-number-range.detail.placeholderPrefix')"
                                           v-model="prefix">
@@ -81,7 +81,7 @@
                             {% block sw_settings_number_range_detail_content_field_start %}
                                 <sw-field type="number"
                                           numberType="int"
-                                          @change="onChange()"
+                                          @change="onChangePattern()"
                                           :label="$tc('sw-settings-number-range.detail.labelStart')"
                                           :placeholder="$tc('sw-settings-number-range.detail.placeholderStart')"
                                           v-model="numberRange.start"
@@ -93,7 +93,7 @@
                             {% block sw_settings_number_range_detail_content_field_suffix %}
                                 <sw-field type="text"
                                           :disabled="advanced"
-                                          @input="onChange()"
+                                          @input="onChangePattern()"
                                           :label="$tc('sw-settings-number-range.detail.labelSuffix')"
                                           :placeholder="advanced?$tc('sw-settings-number-range.detail.placeholderSimpleModeImpossible'):$tc('sw-settings-number-range.detail.placeholderSuffix')"
                                           v-model="suffix">
@@ -116,7 +116,7 @@
                             {% block sw_settings_number_range_detail_content_field_pattern %}
                                 <sw-field type="text"
                                           v-if="advanced"
-                                          @input="onChange()"
+                                          @input="onChangePattern()"
                                           :label="$tc('sw-settings-number-range.detail.labelPattern')"
                                           :placeholder="$tc('sw-settings-number-range.detail.placeholderPattern')"
                                           v-model="numberRange.pattern">
@@ -148,44 +148,42 @@
                     <sw-card :title="$tc('sw-settings-number-range.detail.assignmentCard')">
                         <sw-container columns="repeat(auto-fit, minmax(100%, 1fr)" gap="0px 30px">
                             {% block sw_sales_channel_detail_base_general_input_type %}
-                                <sw-select :store="numberRangeTypeStore"
-                                            v-model="numberRange.typeId"
-                                            v-if="numberRange.type"
-                                            id="numberRangeTypes"
-                                            :criteria="typeCriteria"
-                                            displayName="typeName"
-                                            :label="$tc('sw-settings-number-range.detail.labelType')"
-                                            class="sw-number-range-detail__select-type"
-                                            :showSearch="false"
-                                            @input="onChangeType"
-                                            :disabled="
+                                <sw-entity-single-select
+                                    v-if="numberRange.type"
+                                    entity="number_range_type"
+                                    v-model="numberRange.typeId"
+                                    :disabled="
                                             numberRange.type.global ||
                                             numberRange.global ||
                                             (
                                                 numberRange.type !== null &&
-                                                numberRangeSalesChannels &&
-                                                numberRangeSalesChannels.length > 0
+                                                numberRange.numberRangeSalesChannels &&
+                                                numberRange.numberRangeSalesChannels.length > 0
                                             )"
-                                            validation="required"
-                                            required>
-                                </sw-select>
+                                    :label="$tc('sw-settings-number-range.detail.labelType')"
+                                    id="numberRangeTypes"
+                                    @change="onChangeType"
+                                    class="sw-number-range-detail__select-type"
+                                    required
+                                    :criteria="numberRangeTypeCriteria"
+                                    labelProperty="typeName">
+                                </sw-entity-single-select>
                             {% endblock %}
+
                             {% block sw_sales_channel_detail_base_general_input_sales_channel %}
-                                <sw-select :store="salesChannelStore"
-                                           multi
-                                           v-model="numberRangeSalesChannels"
-                                           :associationStore="numberRangeSalesChannelsStore"
-                                           id="numberRangeSalesChannel"
-                                           :criteria="salesChannelsTypeCriteria"
-                                           v-if="numberRange && (!numberRange.global || numberRange.global === false)"
-                                           :label="$tc('sw-settings-number-range.detail.labelSalesChannel')"
-                                           class="sw-number-range-detail__select-type"
-                                           :disabled="selectedType.id === undefined"
-                                           :showSearch="false"
-                                           ref="numberRangeSalesChannel"
-                                           required
-                                           validation="required">
-                                </sw-select>
+                                <sw-multi-select
+                                    v-if="numberRange && (!numberRange.global || numberRange.global === false)"
+                                    class="sw-number-range-detail__select-type"
+                                    :label="$tc('sw-settings-number-range.detail.labelSalesChannel')"
+                                    :disabled="!numberRange.typeId"
+                                    required
+                                    :value="selectedNumberRangeSalesChannels"
+                                    @item-add="addSalesChannel"
+                                    @item-remove="removeSalesChannel"
+                                    :options="salesChannels"
+                                    labelProperty="translated.name"
+                                    valueProperty="id">
+                                </sw-multi-select>
                             {% endblock %}
                         </sw-container>
                     </sw-card>

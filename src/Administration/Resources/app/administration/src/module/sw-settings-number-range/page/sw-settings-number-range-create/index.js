@@ -21,16 +21,21 @@ Component.extend('sw-settings-number-range-create', 'sw-settings-number-range-de
             }
 
             if (this.$route.params.id) {
-                this.numberRange = this.numberRangeStore.create(this.$route.params.id);
+                this.numberRange = this.numberRangeRepository.create(Shopware.Context.api, this.$route.params.id);
             } else {
-                this.numberRange = this.numberRangeStore.create();
+                this.numberRange = this.numberRangeRepository.create(Shopware.Context.api);
             }
             this.numberRange.start = 1;
             this.numberRange.global = false;
+            this.numberRange.pattern = '';
             this.numberRange.isLoading = true;
+            this.numberRange.type = this.numberRangeTypeRepository.create(Shopware.Context.api);
+            this.numberRange.type.global = false;
+
             this.$super('createdComponent');
             this.getPreview();
             this.splitPattern();
+            this.onChangePattern();
             this.numberRange.isLoading = false;
         },
 

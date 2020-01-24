@@ -67,6 +67,29 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         - Remove computed property `store`
         - Add computed property `entityRepository`
         - Add computed property `listingCriteria`
+    * Refactor the module `sw-settings-number-range-detail`
+        * Remove LocalStore
+        * Remove StateDeprecated
+        * Remove data typeCriteria
+        * Remove data numberRangeSalesChannelsStore
+        * Remove data numberRangeSalesChannels
+        * Remove data numberRangeSalesChannelsAssoc
+        * Remove data salesChannelsTypeCriteria
+        * Remove computed numberRangeStore
+        * Remove computed firstSalesChannel
+        * Remove computed salesChannelAssociationStore
+        * Remove computed numberRangeStateStore
+        * Remove computed salesChannelStore
+        * Remove computed numberRangeTypeStore
+        * Remove method onChange
+        * Remove method showOption
+        * Remove method getPossibleSalesChannels
+        * Remove method setSalesChannelCriteria
+        * Remove method enrichAssocStores
+        * Remove method onChangeSalesChannel
+        * Remove method configHasSaleschannel
+        * Remove method selectHasSaleschannel
+        * Remove method undeleteSaleschannel
 
 * Core    
     *

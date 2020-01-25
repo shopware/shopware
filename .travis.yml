@@ -61,9 +61,9 @@ jobs:
                 - >
                     for module in $(ls platform/src/); do
                         echo "[PSALM: scan $module]"
-                        php dev-ops/analyze/vendor/bin/psalm --config=vendor/shopware/platform/psalm.xml --threads=2 --show-info=false vendor/shopware/platform/src/$module;
+                        php dev-ops/analyze/vendor/bin/psalm --config=vendor/shopware/platform/psalm.xml --threads=$(nproc) --diff --show-info=false vendor/shopware/platform/src/$module;
                     done
-                - php dev-ops/analyze/vendor/bin/psalm --config=vendor/shopware/platform/psalm.xml --threads=2 --show-info=false src
+                - php dev-ops/analyze/vendor/bin/psalm --config=vendor/shopware/platform/psalm.xml --threads=$(nproc) --show-info=false src
 
 notifications:
     email: false

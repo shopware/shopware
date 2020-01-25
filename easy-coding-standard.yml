@@ -37,6 +37,8 @@ services:
     PhpCsFixerCustomFixers\Fixer\SingleSpaceAfterStatementFixer: ~
 
 parameters:
+    cache_directory: 'var/cache/cs_fixer'
+    cache_namespace: 'platform'
     exclude_files:
         - 'src/Recovery/*'
     skip:

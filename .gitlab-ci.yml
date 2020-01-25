@@ -83,15 +83,15 @@ PHP analysis:
         - ./psh.phar init
         - if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
         - php dev-ops/analyze/generate-composer.php
-        - php dev-ops/analyze/vendor/bin/ecs check vendor/shopware/platform/src --config vendor/shopware/platform/easy-coding-standard.yml
+        - php dev-ops/analyze/vendor/bin/ecs check platform/src --config platform/easy-coding-standard.yml
         - php dev-ops/analyze/phpstan-config-generator.php
-        - php dev-ops/analyze/vendor/bin/phpstan analyze --autoload-file=dev-ops/analyze/vendor/autoload.php --configuration vendor/shopware/platform/phpstan.neon --error-format gitlab | tee phpstan-report.json
+        - php dev-ops/analyze/vendor/bin/phpstan analyze --autoload-file=dev-ops/analyze/vendor/autoload.php --configuration platform/phpstan.neon --error-format gitlab | tee phpstan-report.json
         - >
             for module in $(ls vendor/shopware/platform/src/); do
                 echo "[PSALM: scan $module]"
-                php dev-ops/analyze/vendor/bin/psalm --config=vendor/shopware/platform/psalm.xml --threads=2 --show-info=false vendor/shopware/platform/src/$module;
+                php dev-ops/analyze/vendor/bin/psalm --config=platform/psalm.xml --threads=$(nproc) --diff --show-info=false platform/src/$module;
             done
-        - php dev-ops/analyze/vendor/bin/psalm --config=vendor/shopware/platform/psalm.xml --threads=2 --show-info=false src
+        - php dev-ops/analyze/vendor/bin/psalm --config=vendor/shopware/platform/psalm.xml --threads=$(nproc) --show-info=false src
     artifacts:
         reports:
             codequality: development/phpstan-report.json

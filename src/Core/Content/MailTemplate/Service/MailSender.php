@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\MailTemplate\Service;
 use Shopware\Core\Content\MailTemplate\Exception\MailTransportFailedException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
-class MailSender
+class MailSender implements MailSenderInterface
 {
     /**
      * @var \Swift_Mailer

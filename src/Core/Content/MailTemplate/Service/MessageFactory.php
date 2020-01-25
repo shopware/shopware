@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class MessageFactory
+class MessageFactory implements MessageFactoryInterface
 {
     /**
      * @var ValidatorInterface

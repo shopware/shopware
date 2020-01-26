@@ -162,8 +162,10 @@
             border: 1px solid $color-steam-cloud;
             background: #fff;
             -webkit-appearance: none;
+            cursor: pointer;
         }
 
+        /* @deprecated tag:v6.3.0 */
         &-slider-range::-webkit-slider-thumb:hover {
             cursor: pointer;
         }
@@ -174,8 +176,10 @@
             border-radius: $border-radius-default;
             border: 1px solid $color-steam-cloud;
             background: #fff;
+            cursor: pointer;
         }
 
+        /* @deprecated tag:v6.3.0 */
         &-slider-range::-moz-range-thumb:hover {
             cursor: pointer;
         }
@@ -286,8 +290,10 @@
             border: 1px solid $color-steam-cloud;
             background: #fff;
             -webkit-appearance: none;
+            cursor: pointer;
         }
 
+        /* @deprecated tag:v6.3.0 */
         &::-webkit-slider-thumb:hover {
             cursor: pointer;
         }
@@ -298,8 +304,10 @@
             border: 1px solid $color-steam-cloud;
             border-radius: $border-radius-default;
             background: #fff;
+            cursor: pointer;
         }
 
+        /* @deprecated tag:v6.3.0 */
         &::-moz-range-thumb:hover {
             cursor: pointer;
         }

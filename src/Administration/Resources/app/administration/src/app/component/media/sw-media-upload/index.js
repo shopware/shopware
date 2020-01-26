@@ -37,9 +37,9 @@ Component.register('sw-media-upload', {
         variant: {
             type: String,
             required: false,
-            validValues: ['compact', 'regular'],
+            validValues: ['compact', 'regular', 'gravatar'],
             validator(value) {
-                return ['compact', 'regular'].includes(value);
+                return ['compact', 'regular', 'gravatar'].includes(value);
             },
             default: 'regular'
         },
@@ -79,6 +79,12 @@ Component.register('sw-media-upload', {
             type: String,
             required: false,
             default: null
+        },
+
+        gravatarEmail: {
+            type: String,
+            required: false,
+            default: null
         }
     },
 
@@ -86,6 +92,7 @@ Component.register('sw-media-upload', {
         return {
             multiSelect: this.allowMultiSelect,
             showUrlInput: false,
+            showGravatarImport: false,
             preview: null,
             isDragActive: false,
             defaultFolderId: null
@@ -263,6 +270,18 @@ Component.register('sw-media-upload', {
             this.showUrlInput = !this.showUrlInput;
         },
 
+        openGravatarModal() {
+            this.showGravatarImport = true;
+        },
+
+        closeGravatarModal() {
+            this.showGravatarImport = false;
+        },
+
+        toggleShowGravatarImport() {
+            this.showGravatarImport = !this.showGravatarImport;
+        },
+
         onClickOpenMediaSidebar() {
             this.$emit('media-upload-sidebar-open');
         },
@@ -292,6 +311,28 @@ Component.register('sw-media-upload', {
             });
 
             this.closeUrlModal();
+        },
+
+        /*
+         * entry points
+         */
+        onGravatarImport({ url, fileExtension }) {
+            if (!this.multiSelect) {
+                this.uploadStore.removeByTag(this.uploadTag);
+                this.preview = url;
+            }
+
+            const fileInfo = fileReader.getNameAndExtensionFromUrl(url);
+            if (fileExtension) {
+                fileInfo.extension = fileExtension;
+            }
+
+            const targetEntity = this.getMediaEntityForUpload();
+            targetEntity.save().then(() => {
+                this.uploadStore.addUpload(this.uploadTag, { src: url, targetId: targetEntity.id, ...fileInfo });
+            });
+
+            this.closeGravatarModal();
         },
 
         onFileInputChange() {

@@ -1,0 +1,98 @@
+{% block sw_media_gravatar_form %}
+    <sw-modal v-if="variant === 'modal'"
+        class="sw-media-gravatar-form"
+        variant="small"
+        :title="$tc('global.sw-media-gravatar-form.title')"
+        v-on="$listeners">
+        {% block sw_media_gravatar_form_loader %}
+            <sw-loader
+                v-if="loading"
+                size="50px">
+                {{ $tc('global.sw-media-gravatar-form.loader') }}
+            </sw-loader>
+        {% endblock %}
+
+        <template v-if="!loading">
+            <template v-if="url">
+                {% block sw_media_gravatar_form_avatar %}
+                    <sw-avatar
+                        class="sw-media-gravatar-form__avatar"
+                        size="240px"
+                        color="transparent"
+                        :imageUrl="url">
+                    </sw-avatar>
+                {% endblock %}
+            </template>
+
+            <template v-else>
+                {% block sw_media_gravatar_form_not_found_alert %}
+                    <sw-alert
+                        variant="error"
+                        appearance="default"
+                        :showIcon="true"
+                        :closable="false">
+                        {{ $t('global.sw-media-gravatar-form.notFoundAlert', { email }) }}
+                    </sw-alert>
+                {% endblock %}
+            </template>
+
+            {% block sw_media_gravatar_form_values %}
+                <sw-description-list
+                    grid="auto 1fr"
+                    class="sw-media-gravatar-form__values">
+                    {% block sw_media_gravatar_form_values_email %}
+                        <dt>
+                            {{ $tc('global.sw-media-gravatar-form.email') }}
+                        </dt>
+                        <dd>
+                            {{ email }}
+                        </dd>
+                    {% endblock %}
+
+                    {% block sw_media_gravatar_form_values_url %}
+                        <template v-if="url">
+                            <dt>
+                                {{ $tc('global.sw-media-gravatar-form.url') }}
+                            </dt>
+                            <dd>
+                                {{ url }}
+                            </dd>
+                        </template>
+                    {% endblock %}
+                </sw-description-list>
+            {% endblock %}
+        </template>
+
+        {% block sw_media_gravatar_form_footer %}
+            <template slot="modal-footer">
+                {% block sw_media_gravatar_form_cancel_button %}
+                    <sw-button size="small" @click="closeModal">
+                        {{ $tc('global.default.cancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_media_gravatar_form_submit_button %}
+                    <sw-button
+                        class="sw-media-gravatar-form__submit-button"
+                        variant="primary"
+                        size="small"
+                        :disabled="!isValid"
+                        @click.prevent="emitUrl">
+                        {{ $tc('global.sw-media-gravatar-form.import') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </sw-modal>
+
+    <div v-else-if="variant === 'inline'">
+        {% block sw_media_gravatar_form_values %}{% endblock %}
+
+        <sw-button class="sw-media-gravatar-form__submit-button"
+                   size="small"
+                   variant="primary"
+                   @click="emitUrl">
+            {{ $tc('global.sw-media-gravatar-form.import') }}
+        </sw-button>
+    </div>
+{% endblock %}

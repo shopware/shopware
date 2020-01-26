@@ -281,6 +281,15 @@
       "labelFileExtension": "File extension",
       "missingFileExtension": "The URL does not contain a file extension. Please enter a file extension above."
     },
+    "sw-media-gravatar-form": {
+      "title": "Import avatar from Gravatar",
+      "import": "Import",
+      "example": "info@example.com",
+      "email": "E-mail",
+      "url": "URL",
+      "notFoundAlert": "No avatar for email address \"{email}\" found",
+      "loader": "Waiting for gravatar.com to respond"
+    },
     "sw-media-modal-folder-settings": {
       "labelSettings": "Settings",
       "labelSystem": "System folder",

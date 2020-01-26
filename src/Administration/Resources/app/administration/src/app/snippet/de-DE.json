@@ -281,6 +281,15 @@
       "labelFileExtension": "Dateiendung",
       "missingFileExtension": "In der angegebenen URL konnte keine Dateiendung gefunden werden. Bitte gib eine Dateiendung an."
     },
+    "sw-media-gravatar-form": {
+      "title": "Avatar aus Gravatar importieren",
+      "import": "Importieren",
+      "example": "info@beispiel.de",
+      "email": "E-Mail",
+      "url": "URL",
+      "notFoundAlert": "Es wurde kein Avatar für die E-Mail-Adresse \"{email}\" gefunden",
+      "loader": "Warten auf Antwort von gravatar.com"
+    },
     "sw-media-modal-folder-settings": {
       "labelSettings": "Einstellungen",
       "labelSystem": "Systemordner",

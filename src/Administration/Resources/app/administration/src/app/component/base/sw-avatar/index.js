@@ -37,6 +37,10 @@ const colors = [
 Component.register('sw-avatar', {
     template,
 
+    inject: [
+        'ExternalApiGravatarService'
+    ],
+
     props: {
         color: {
             type: String,
@@ -65,13 +69,19 @@ Component.register('sw-avatar', {
             type: Boolean,
             required: false,
             default: false
+        },
+        gravatarEmail: {
+            type: String,
+            required: false,
+            default: false
         }
     },
 
     data() {
         return {
             fontSize: 16,
-            lineHeight: 16
+            lineHeight: 16,
+            gravatarImageUrl: null
         };
     },
 
@@ -79,7 +89,12 @@ Component.register('sw-avatar', {
         size() {
             this.$nextTick(() => {
                 this.generateAvatarInitialsSize();
+                this.loadGravatarImage();
             });
+        },
+
+        gravatarEmail() {
+            this.loadGravatarImage();
         }
     },
 
@@ -108,12 +123,14 @@ Component.register('sw-avatar', {
         },
 
         avatarImage() {
-            if (!this.imageUrl) {
-                return '';
+            const imageUrl = this.imageUrl || this.gravatarImageUrl;
+
+            if (!imageUrl) {
+                return null;
             }
 
             return {
-                'background-image': `url('${this.imageUrl}')`
+                'background-image': `url('${imageUrl}')`
             };
         },
 
@@ -136,11 +153,11 @@ Component.register('sw-avatar', {
         },
 
         showPlaceholder() {
-            return this.placeholder && (!this.imageUrl || !this.imageUrl.length);
+            return this.placeholder && (!this.avatarImage || !this.avatarImage['background-image']);
         },
 
         showInitials() {
-            return !this.placeholder && (!this.imageUrl || !this.imageUrl.length);
+            return !this.placeholder && (!this.avatarImage || !this.avatarImage['background-image']);
         }
     },
 
@@ -151,6 +168,7 @@ Component.register('sw-avatar', {
     methods: {
         mountedComponent() {
             this.generateAvatarInitialsSize();
+            this.loadGravatarImage();
         },
 
         generateAvatarInitialsSize() {
@@ -158,6 +176,27 @@ Component.register('sw-avatar', {
 
             this.fontSize = Math.round(avatarSize * 0.4);
             this.lineHeight = Math.round(avatarSize * 0.98);
+        },
+
+        loadGravatarImage() {
+            if (!this.gravatarEmail || !this.gravatarEmail.length) {
+                this.gravatarImageUrl = null;
+
+                return Promise.resolve(null);
+            }
+
+            const size = (this.size || '80');
+            let imageSize = Number(size.replace(/\D/g, ''));
+
+            if (size.indexOf('%') > -1) {
+                imageSize *= 20.48;
+            }
+
+            return this.ExternalApiGravatarService
+                .requestAvatarUrl(this.gravatarEmail, Math.floor(imageSize))
+                .then(url => {
+                    this.gravatarImageUrl = url;
+                });
         }
     }
 });

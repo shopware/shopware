@@ -10,7 +10,8 @@
                                     {% block sw_customer_card_avatar %}
                                         <sw-avatar size="80px"
                                                    :firstName="customer.firstName"
-                                                   :lastName="customer.lastName">
+                                                   :lastName="customer.lastName"
+                                                   :gravatarEmail="customer.email">
                                         </sw-avatar>
                                     {% endblock %}
 

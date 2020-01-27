@@ -11,8 +11,8 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
 
     public function __construct(iterable $elements = [])
     {
-        foreach ($elements as $element) {
-            $this->add($element);
+        foreach ($elements as $key => $element) {
+            $this->set($key, $element);
         }
     }
 

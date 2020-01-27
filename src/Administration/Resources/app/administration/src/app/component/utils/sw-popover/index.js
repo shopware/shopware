@@ -36,14 +36,7 @@ Component.register('sw-popover', {
         isPopover: {
             type: Boolean,
             required: false,
-            default: true,
-            validator() {
-                Shopware.Utils.debug.warn(
-                    'sw-popover',
-                    'The property "isPopover" is deprecated and will be removed in 6.2'
-                );
-                return true;
-            }
+            default: true
         },
         /**
          * @deprecated tag:v6.3.0
@@ -53,13 +46,6 @@ Component.register('sw-popover', {
             required: false,
             default() {
                 return {};
-            },
-            validator() {
-                Shopware.Utils.debug.warn(
-                    'sw-popover',
-                    'The property "popoverConfigExtension" is deprecated and will be removed in 6.3'
-                );
-                return true;
             }
         }
 

@@ -136,7 +136,7 @@ Component.register('sw-multi-select', {
                 return this.value;
             },
             set(newValue) {
-                /** @deprecated Html select don't have an onInput event */
+                /** @deprecated tag:v6.3.0 Html select don't have an onInput event */
                 this.$emit('input', newValue);
                 this.$emit('change', newValue);
             }

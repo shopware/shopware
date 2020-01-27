@@ -50,9 +50,23 @@
                         {% endblock %}
 
                         {% block sw_media_upload_regular_header_switch %}
-                            <a v-if="!source" class="sw-media-upload__switch-mode" @click="toggleShowUrlFields">
-                                {{ toggleButtonCaption }}
-                            </a>
+                            <sw-context-button
+                                v-if="!source"
+                                class="sw-media-upload__switch-mode">
+                                <sw-context-menu-item
+                                    v-if="showUrlInput"
+                                    @click="closeUrlModal"
+                                    class="sw-media-upload__button-file-upload">
+                                    {{ $tc('global.sw-media-upload.buttonFileUpload') }}
+                                </sw-context-menu-item>
+
+                                <sw-context-menu-item
+                                    v-if="!showUrlInput"
+                                    @click="openUrlModal"
+                                    class="sw-media-upload__button-url-upload">
+                                    {{ $tc('global.sw-media-upload.buttonUrlUpload') }}
+                                </sw-context-menu-item>
+                            </sw-context-button>
                         {% endblock %}
                     </div>
                 {% endblock %}

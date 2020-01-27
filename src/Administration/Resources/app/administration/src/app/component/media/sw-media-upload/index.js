@@ -132,12 +132,6 @@ Component.register('sw-media-upload', {
             return this.preview !== null;
         },
 
-        toggleButtonCaption() {
-            return this.showUrlInput ?
-                this.$tc('global.sw-media-upload.buttonSwitchToFileUpload') :
-                this.$tc('global.sw-media-upload.buttonSwitchToUrlUpload');
-        },
-
         hasOpenMediaButtonListener() {
             return Object.keys(this.$listeners).includes('media-upload-sidebar-open');
         },
@@ -264,10 +258,6 @@ Component.register('sw-media-upload', {
 
         closeUrlModal() {
             this.showUrlInput = false;
-        },
-
-        toggleShowUrlFields() {
-            this.showUrlInput = !this.showUrlInput;
         },
 
         openGravatarModal() {

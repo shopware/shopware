@@ -70,13 +70,13 @@
                                                             {% block sw_data_grid_header_columns_icon %}
                                                                 <sw-icon v-if="column.iconLabel"
                                                                         :name="column.iconLabel">
-                                                                    {{ $tc(column.label) }}
+                                                                    {{ $te(column.label) ? $tc(column.label) : column.label }}
                                                                 </sw-icon>
                                                             {% endblock %}
 
                                                             {% block sw_data_grid_header_columns_label %}
                                                                 <template v-else>
-                                                                    {{ $tc(column.label) }}
+                                                                    {{ $te(column.label) ? $tc(column.label) : column.label }}
                                                                 </template>
                                                             {% endblock %}
                                                         </slot>

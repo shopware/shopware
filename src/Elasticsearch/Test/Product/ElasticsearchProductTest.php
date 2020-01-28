@@ -34,6 +34,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
@@ -1200,6 +1201,50 @@ class ElasticsearchProductTest extends TestCase
         $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
         static::assertCount(1, $products->getIds());
         static::assertSame(1, $products->getTotal());
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testXorQuery(TestDataCollection $data): void
+    {
+        $searcher = $this->createEntitySearcher();
+
+        $criteria = new Criteria();
+
+        $multiFilter = new MultiFilter(
+            MultiFilter::CONNECTION_XOR,
+            [
+                new EqualsFilter('taxId', $data->get('t1')),
+                new EqualsFilter('manufacturerId', $data->get('m2')),
+            ]
+        );
+        $criteria->addFilter($multiFilter);
+
+        $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+        static::assertSame(3, $products->getTotal());
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testNegativXorQuery(TestDataCollection $data): void
+    {
+        $searcher = $this->createEntitySearcher();
+
+        $criteria = new Criteria();
+
+        $multiFilter = new MultiFilter(
+            MultiFilter::CONNECTION_XOR,
+            [
+                new EqualsFilter('taxId', 'foo'),
+                new EqualsFilter('manufacturerId', 'baa'),
+            ]
+        );
+        $criteria->addFilter($multiFilter);
+
+        $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+        static::assertSame(0, $products->getTotal());
     }
 
     protected function getDiContainer(): ContainerInterface

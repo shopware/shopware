@@ -126,6 +126,8 @@ Component.register('sw-settings-shipping-price-matrix', {
                 ]
             ));
 
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+
             return criteria;
         }
     },

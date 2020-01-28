@@ -86,6 +86,8 @@ Component.register('sw-settings-payment-detail', {
                 ]
             ));
 
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+
             return criteria;
         }
     },

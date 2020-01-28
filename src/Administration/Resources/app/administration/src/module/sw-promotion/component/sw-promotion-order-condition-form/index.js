@@ -32,6 +32,8 @@ Component.register('sw-promotion-order-condition-form', {
                 Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])])
             ]));
 
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+
             return criteria;
         },
 

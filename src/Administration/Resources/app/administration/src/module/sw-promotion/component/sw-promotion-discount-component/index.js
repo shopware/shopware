@@ -68,6 +68,8 @@ Component.register('sw-promotion-discount-component', {
                 Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])])
             );
 
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+
             return criteria;
         },
 

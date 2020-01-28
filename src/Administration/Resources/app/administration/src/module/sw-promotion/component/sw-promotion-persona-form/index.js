@@ -58,6 +58,8 @@ Component.register('sw-promotion-persona-form', {
                 ])
             ]));
 
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+
             return criteria;
         },
 

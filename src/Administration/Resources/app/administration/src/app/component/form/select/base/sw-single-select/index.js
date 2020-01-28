@@ -58,13 +58,6 @@ Component.register('sw-single-select', {
             required: false,
             default() {
                 return { active: false };
-            },
-            validator() {
-                Shopware.Utils.debug.warn(
-                    'sw-single-select',
-                    'The property "popoverConfig" is deprecated and will be removed in 6.3'
-                );
-                return true;
             }
         },
 
@@ -101,7 +94,7 @@ Component.register('sw-single-select', {
                 return this.value;
             },
             set(newValue) {
-                /** @deprecated Html select don't have an onInput event */
+                /** @deprecated tag:v6.3.0 Html select don't have an onInput event */
                 this.$emit('input', newValue);
                 this.$emit('change', newValue);
             }

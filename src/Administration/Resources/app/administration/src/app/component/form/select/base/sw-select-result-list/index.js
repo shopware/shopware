@@ -53,13 +53,6 @@ Component.register('sw-select-result-list', {
             required: false,
             default() {
                 return {};
-            },
-            validator() {
-                Shopware.Utils.debug.warn(
-                    'sw-select-result-list',
-                    'The property "popoverConfig" is deprecated and will be removed in 6.3'
-                );
-                return true;
             }
         }
 

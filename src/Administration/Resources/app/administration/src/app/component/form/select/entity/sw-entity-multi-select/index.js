@@ -202,7 +202,7 @@ Component.register('sw-entity-multi-select', {
         },
 
         emitChanges(newCollection) {
-            /** @deprecated Html select don't have an onInput event */
+            /** @deprecated tag:v6.3.0 Html select don't have an onInput event */
             this.$emit('input', newCollection);
             this.$emit('change', newCollection);
         },

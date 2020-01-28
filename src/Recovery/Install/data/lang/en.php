@@ -123,6 +123,8 @@ return [
     'configuration_admin_firstName' => 'Admin first name:',
     'configuration_admin_lastName' => 'Admin last name:',
     'configuration_defaults_warning' => 'Beware! The settings for your default system language as well as the default currency are permanent and cannot be changed ever again.',
+    'configuration_admin_currency_headline' => 'Available Currencies',
+    'configuration_admin_currency_text' => 'Add more currencies to your Shopware shop. If you want to add currencies afterwards, you can create them at any time in the administration.',
     'configuration_email_help_text' => 'This email address will be used for outgoing shop emails.',
 
     'configuration_admin_language_de' => 'German',

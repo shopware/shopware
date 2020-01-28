@@ -123,6 +123,8 @@ return [
     'configuration_admin_firstName' => 'Admin-Vorname:',
     'configuration_admin_lastName' => 'Admin-Nachname:',
     'configuration_defaults_warning' => 'Die System-Standardsprache und System-Standardwährung können nachträglich nicht geändert werden.',
+    'configuration_admin_currency_headline' => 'Verfügbare Währungen',
+    'configuration_admin_currency_text' => 'Füge mehrere Währungen zu Deinem Shopware-Shop hinzu. Du kannst weitere Sprachen im Nachhinein in der Administration erstellen.',
     'configuration_email_help_text' => 'Diese E-Mail-Adresse wird für ausgehende Shop-E-Mails genutzt.',
 
     'configuration_admin_language_de' => 'Deutsch',

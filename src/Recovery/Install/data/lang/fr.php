@@ -111,6 +111,10 @@ return [
     'configuration_defaults_warning' => 'La langue système standard et la devise par défaut ne peuvent pas être modifiées ultérieurement.',
     'configuration_email_help_text' => 'Cette adresse e-mail est utilisée pour les e-mails sortants de la boutique.',
     'configuration_admin_language_de' => 'Deutsch',
+    'configuration_admin_currency_headline' => 'Monnaies disponibles',
+    'configuration_admin_currency_text' => 'Ajoutez d\'autres devises à votre boutique Shopware. Si vous souhaitez ajouter des devises par la suite, vous pouvez le faire à tout moment dans l\'administration.',
+
+    'configuration_admin_language_de' => 'Allemand',
     'configuration_admin_language_en' => 'Anglais',
     'configuration_admin_password' => 'Mot de passe Admin :',
     'finish_header' => 'Installation terminée',

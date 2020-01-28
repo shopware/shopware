@@ -112,6 +112,11 @@ return [
     'configuration_email_help_text' => 'Ten adres e-mail jest wykorzystywany do wysyłania wiadomości e-mail od sklepu.',
     'configuration_admin_language_de' => 'Język niemiecki',
     'configuration_admin_language_en' => 'Język angielski',
+    'configuration_admin_currency_headline' => 'Dostępne waluty',
+    'configuration_admin_currency_text' => 'Dodaj więcej walut do swojego sklepu Shopware. Jeśli chcesz później dodać walutę, możesz to zrobić w dowolnym momencie w administracji.',
+
+    'configuration_admin_language_de' => 'Niemiecki',
+    'configuration_admin_language_en' => 'Angielski',
     'configuration_admin_password' => 'Hasło administratora:',
     'finish_header' => 'Zakończono instalację',
     'finish_info' => 'Udało Ci się zainstalować Shopware!',

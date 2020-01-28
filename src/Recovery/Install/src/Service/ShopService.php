@@ -308,6 +308,9 @@ class ShopService
              VALUES (?, ?)'
         );
         $statement->execute([$id, $countryId]);
+
+        $this->addAdditionalCurrenciesToSalesChannel($shop, $id);
+        $this->removeUnwantedCurrencies($shop);
     }
 
     private function getRootCategoryId(): string
@@ -503,5 +506,59 @@ SQL;
         $stmt->execute([$id, $name, $localeId, $localeId]);
 
         return $id;
+    }
+
+    private function addAdditionalCurrenciesToSalesChannel(Shop $shop, string $salesChannelId): void
+    {
+        // get id of the headless sales channel
+        $statement = $this->connection->prepare('SELECT id FROM sales_channel WHERE type_id = UNHEX(?)');
+        $statement->execute([Defaults::SALES_CHANNEL_TYPE_API]);
+        $idOfHeadlessSalesChannel = $statement->fetchColumn();
+
+        // set the default currency of the headless sales channel
+        $statement = $this->connection->prepare('UPDATE sales_channel SET currency_id = ? WHERE id = ?');
+        $defaultCurrencyId = $this->getCurrencyId($shop->currency);
+        $statement->execute([$defaultCurrencyId, $idOfHeadlessSalesChannel]);
+
+        // remove all currencies from the headless sales channel, except the default currency
+        $statement = $this->connection->prepare('DELETE FROM sales_channel_currency WHERE sales_channel_id = ? AND currency_id != UNHEX(?)');
+        $statement->execute([$idOfHeadlessSalesChannel, $defaultCurrencyId]);
+
+        if ($shop->additionalCurrencies === null) {
+            return;
+        }
+
+        $salesChannelsToBeEdited = [];
+        $salesChannelsToBeEdited[] = $idOfHeadlessSalesChannel;
+        $salesChannelsToBeEdited[] = $salesChannelId;
+
+        // set the currencies of the headless sales channel to the ones from the default sales channel
+        foreach ($salesChannelsToBeEdited as $currentSalesChannelId) {
+            foreach ($shop->additionalCurrencies as $additionalCurrency) {
+                $currencyId = $this->getCurrencyId($additionalCurrency);
+
+                // add additional currencies
+                $statement = $this->connection->prepare('INSERT INTO sales_channel_currency (sales_channel_id, currency_id) VALUES (?, ?)');
+                $statement->execute([$currentSalesChannelId, $currencyId]);
+            }
+        }
+    }
+
+    private function removeUnwantedCurrencies(Shop $shop): void
+    {
+        // remove all currencies except the default currency when no additional currency is selected
+        if ($shop->additionalCurrencies === null) {
+            $statement = $this->connection->prepare('DELETE FROM currency WHERE iso_code != ?');
+            $statement->execute([$shop->currency]);
+
+            return;
+        }
+
+        $selectedCurrencies = $shop->additionalCurrencies;
+        $selectedCurrencies[] = $shop->currency;
+
+        $inputParameters = str_repeat('?,', count($shop->additionalCurrencies) - 1) . '?';
+        $statement = $this->connection->prepare('DELETE FROM currency WHERE iso_code NOT IN (' . $inputParameters . ', ?)');
+        $statement->execute($selectedCurrencies);
     }
 }

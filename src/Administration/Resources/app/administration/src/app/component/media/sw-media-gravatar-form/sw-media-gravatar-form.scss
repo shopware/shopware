@@ -8,4 +8,11 @@
     .sw-media-gravatar-form__values {
         display: grid;
     }
+
+    &.is--inline {
+        .sw-media-gravatar-form__avatar {
+            max-height: 96px;
+            max-width: 96px;
+        }
+    }
 }

@@ -1,6 +1,6 @@
 {% block sw_media_gravatar_form %}
     <sw-modal v-if="variant === 'modal'"
-        class="sw-media-gravatar-form"
+        class="sw-media-gravatar-form is--modal"
         variant="small"
         :title="$tc('global.sw-media-gravatar-form.title')"
         v-on="$listeners">
@@ -85,14 +85,41 @@
         {% endblock %}
     </sw-modal>
 
-    <div v-else-if="variant === 'inline'">
-        {% block sw_media_gravatar_form_values %}{% endblock %}
+    <div
+        v-else-if="variant === 'inline'"
+        class="sw-media-gravatar-form is--inline">
+        <template v-if="url">
+            {% block sw_media_gravatar_form_avatar %}
+                <sw-avatar
+                    class="sw-media-gravatar-form__avatar"
+                    size="96px"
+                    color="transparent"
+                    :imageUrl="url">
+                </sw-avatar>
+            {% endblock %}
+        </template>
 
-        <sw-button class="sw-media-gravatar-form__submit-button"
-                   size="small"
-                   variant="primary"
-                   @click="emitUrl">
-            {{ $tc('global.sw-media-gravatar-form.import') }}
-        </sw-button>
+        <template v-else>
+            {% block sw_media_gravatar_form_not_found_alert %}
+                <sw-alert
+                    variant="error"
+                    appearance="default"
+                    :showIcon="true"
+                    :closable="false">
+                    {{ $t('global.sw-media-gravatar-form.notFoundAlert', { email }) }}
+                </sw-alert>
+            {% endblock %}
+        </template>
+
+        {% block sw_media_gravatar_form_submit_button %}
+            <sw-button
+                class="sw-media-gravatar-form__submit-button"
+                size="small"
+                variant="primary"
+                :disabled="!isValid"
+                @click="emitUrl">
+                {{ $t('global.sw-media-gravatar-form.import') }}
+            </sw-button>
+        {% endblock %}
     </div>
 {% endblock %}

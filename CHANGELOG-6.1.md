@@ -78,6 +78,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 * Storefront
     * Fixed the cookie privacy hint to use the correct link `privacyPage` instead of `shippingPaymentInfoPage`
     * Added the parameter `useBackdrop` to the `page-loading-indicator.utils.js` `remove` and `create` methods. Defaults to `true`
+    * The `CountryStateController` returns country states now sorted by their position/name.
 
 * Recovery
     * The database connection now supports sockets
@@ -445,9 +446,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * `src/Storefront/Resources/app/storefront/src/scss/abstract/variables/_bootstrap.scss`
         * `src/Storefront/Resources/app/storefront/src/scss/abstract/variables/_custom.scss`
         * `src/Storefront/Resources/app/storefront/src/scss/skin/shopware/abstract/variables/_bootstrap.scss`
-        * `src/Storefront/Resources/app/storefront/src/scss/skin/shopware/abstract/variables/_custom.scss`
-    * The `CountryStateController` returns country states now sorted by their position/name.
-    
+        * `src/Storefront/Resources/app/storefront/src/scss/skin/shopware/abstract/variables/_custom.scss`    
+
 * Elasticsearch	
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.
         * You can set them with a parameter.yml too.

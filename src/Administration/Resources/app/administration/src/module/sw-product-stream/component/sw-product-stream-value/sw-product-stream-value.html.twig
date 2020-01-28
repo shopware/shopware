@@ -36,6 +36,7 @@
                         v-if="actualCondition.type === 'equals'"
                         size="medium"
                         :entity="definition.entity"
+                        :context="context"
                         v-model="actualCondition.value">
                     </sw-entity-single-select>
                 {% endblock %}
@@ -45,6 +46,7 @@
                         v-else-if="actualCondition.type === 'equalsAny'"
                         size="medium"
                         :repository="repository"
+                        :context="context"
                         v-model="multiValue">
                     </sw-entity-multi-id-select>
                 {% endblock %}

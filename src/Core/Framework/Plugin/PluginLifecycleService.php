@@ -231,13 +231,19 @@ class PluginLifecycleService
             $shopwareContext,
             $this->shopwareVersion,
             $plugin->getVersion(),
-            $keepUserData
+            $keepUserData,
+            /* @deprecated tag:v6.3.0 - This default value will change to `true` */
+            false
         );
 
         $this->eventDispatcher->dispatch(new PluginPreUninstallEvent($plugin, $uninstallContext));
         $this->assetInstaller->removeAssetsOfBundle($pluginBaseClassString);
 
         $pluginBaseClass->uninstall($uninstallContext);
+
+        if (!$uninstallContext->keepMigrations()) {
+            $pluginBaseClass->removeMigrations();
+        }
 
         $this->updatePluginData(
             [
@@ -450,16 +456,10 @@ class PluginLifecycleService
         }
 
         $this->migrationCollection->addDirectory($migrationPath, $pluginBaseClass->getMigrationNamespace());
+
         $this->migrationLoader->syncMigrationCollection($pluginBaseClass->getNamespace());
+
         iterator_to_array($this->migrationRunner->migrate());
-    }
-
-    private function removeMigrations(Plugin $pluginBaseClass): void
-    {
-        $class = $pluginBaseClass->getMigrationNamespace() . '\%';
-        $class = str_replace('\\', '\\\\', $class);
-
-        $this->connection->executeQuery('DELETE FROM migration WHERE class LIKE :class', ['class' => $class]);
     }
 
     private function hasPluginUpdate(string $updateVersion, string $currentVersion): bool

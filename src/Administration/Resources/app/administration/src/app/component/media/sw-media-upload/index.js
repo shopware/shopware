@@ -4,6 +4,9 @@ import './sw-media-upload.scss';
 
 const { Component, Mixin, StateDeprecated } = Shopware;
 const { fileReader } = Shopware.Utils;
+const inputTypeFileUpload = 'file-upload';
+const inputTypeUrlUpload = 'url-upload';
+const inputTypeGravatarImport = 'gravatar-import';
 
 /**
  * @status ready
@@ -37,9 +40,9 @@ Component.register('sw-media-upload', {
         variant: {
             type: String,
             required: false,
-            validValues: ['compact', 'regular', 'gravatar'],
+            validValues: ['compact', 'regular'],
             validator(value) {
-                return ['compact', 'regular', 'gravatar'].includes(value);
+                return ['compact', 'regular'].includes(value);
             },
             default: 'regular'
         },
@@ -91,8 +94,7 @@ Component.register('sw-media-upload', {
     data() {
         return {
             multiSelect: this.allowMultiSelect,
-            showUrlInput: false,
-            showGravatarImport: false,
+            urlInputType: inputTypeFileUpload,
             preview: null,
             isDragActive: false,
             defaultFolderId: null
@@ -151,6 +153,18 @@ Component.register('sw-media-upload', {
 
         mediaFolderId() {
             return this.defaultFolderId || this.targetFolderId;
+        },
+
+        isUrlUpload() {
+            return this.urlInputType === inputTypeUrlUpload;
+        },
+
+        isFileUpload() {
+            return this.urlInputType === inputTypeFileUpload;
+        },
+
+        isGravatarImport() {
+            return this.urlInputType === inputTypeGravatarImport;
         }
     },
 
@@ -252,24 +266,16 @@ Component.register('sw-media-upload', {
             this.$refs.fileInput.click();
         },
 
-        openUrlModal() {
-            this.showUrlInput = true;
+        useUrlUpload() {
+            this.urlInputType = inputTypeUrlUpload;
         },
 
-        closeUrlModal() {
-            this.showUrlInput = false;
+        useFileUpload() {
+            this.urlInputType = inputTypeFileUpload;
         },
 
-        openGravatarModal() {
-            this.showGravatarImport = true;
-        },
-
-        closeGravatarModal() {
-            this.showGravatarImport = false;
-        },
-
-        toggleShowGravatarImport() {
-            this.showGravatarImport = !this.showGravatarImport;
+        useGravatarImport() {
+            this.urlInputType = inputTypeGravatarImport;
         },
 
         onClickOpenMediaSidebar() {

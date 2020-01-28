@@ -133,6 +133,13 @@ $sw-media-upload-caption-icon-color:           $color-steam-cloud;
         }
     }
 
+    .sw-media-upload__gravatar-form {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        width: 100%;
+    }
+
     .sw-media-upload__button-compact-upload {
         margin-right: 0 !important;
     }

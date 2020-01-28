@@ -256,6 +256,7 @@
     "sw-media-upload": {
       "buttonFileUpload": "Dateien hochladen",
       "buttonUrlUpload": "Über URL hochladen",
+      "buttonGravatarImport": "Von Gravatar importieren",
       "buttonSwitchToFileUpload": "Datei von Deinem Computer hochladen",
       "buttonSwitchToUrlUpload": "Datei von URL hochladen",
       "buttonOpenMedia": "Medien öffnen",

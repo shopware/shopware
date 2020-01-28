@@ -17,8 +17,12 @@
                                 </sw-button>
                             </template>
 
-                            <sw-context-menu-item @click="openUrlModal" class="sw-media-upload__button-url-upload">
+                            <sw-context-menu-item @click="useUrlUpload" class="sw-media-upload__button-url-upload">
                                 {{ $tc('global.sw-media-upload.buttonUrlUpload') }}
+                            </sw-context-menu-item>
+
+                            <sw-context-menu-item v-if="gravatarEmail" @click="useGravatarImport" class="sw-media-upload__button-gravatar-import">
+                                {{ $tc('global.sw-media-upload.buttonGravatarImport') }}
                             </sw-context-menu-item>
                         </sw-context-button>
                     {% endblock %}
@@ -26,11 +30,21 @@
 
                 {% block sw_media_upload_compact_url_form %}
                     <sw-media-url-form
-                        v-if="showUrlInput"
+                        v-if="isUrlUpload"
                         variant="modal"
-                        @modal-close="closeUrlModal"
+                        @modal-close="useFileUpload"
                         @media-url-form-submit="onUrlUpload">
                     </sw-media-url-form>
+                {% endblock %}
+
+                {% block sw_media_upload_compact_gravatar_form %}
+                    <sw-media-gravatar-form
+                        v-if="isGravatarImport"
+                        :email="gravatarEmail"
+                        variant="modal"
+                        @modal-close="useFileUpload"
+                        @media-gravatar-form-submit="onUrlUpload">
+                    </sw-media-gravatar-form>
                 {% endblock %}
             </div>
         {% endblock %}
@@ -54,17 +68,24 @@
                                 v-if="!source"
                                 class="sw-media-upload__switch-mode">
                                 <sw-context-menu-item
-                                    v-if="showUrlInput"
-                                    @click="closeUrlModal"
+                                    v-if="!isFileUpload"
+                                    @click="useFileUpload"
                                     class="sw-media-upload__button-file-upload">
                                     {{ $tc('global.sw-media-upload.buttonFileUpload') }}
                                 </sw-context-menu-item>
 
                                 <sw-context-menu-item
-                                    v-if="!showUrlInput"
-                                    @click="openUrlModal"
+                                    v-if="!isUrlUpload"
+                                    @click="useUrlUpload"
                                     class="sw-media-upload__button-url-upload">
                                     {{ $tc('global.sw-media-upload.buttonUrlUpload') }}
+                                </sw-context-menu-item>
+
+                                <sw-context-menu-item
+                                    v-if="gravatarEmail && !isGravatarImport"
+                                    @click="useGravatarImport"
+                                    class="sw-media-upload__button-gravatar-import">
+                                    {{ $tc('global.sw-media-upload.buttonGravatarImport') }}
                                 </sw-context-menu-item>
                             </sw-context-button>
                         {% endblock %}
@@ -121,14 +142,14 @@
                                     {% block sw_media_upload_regular_actions_url %}
                                         <sw-media-url-form
                                             class="sw-media-upload__url-form"
-                                            v-if="showUrlInput"
+                                            v-if="isUrlUpload"
                                             variant="inline"
                                             @media-url-form-submit="onUrlUpload">
                                         </sw-media-url-form>
                                     {% endblock %}
 
                                     {% block sw_media_upload_regular_actions_add %}
-                                        <template v-if="!showUrlInput">
+                                        <template v-if="isFileUpload">
                                             {% block sw_media_upload_regular_upload_button %}
                                                 <sw-button class="sw-media-upload__button upload"
                                                             variant="ghost"
@@ -147,6 +168,17 @@
                                                     {{ $tc('global.sw-media-upload.buttonOpenMedia') }}
                                                 </sw-button>
                                             {% endblock %}
+                                        </template>
+                                    {% endblock %}
+
+                                    {% block sw_media_upload_regular_actions_gravatar %}
+                                        <template v-if="isGravatarImport">
+                                            <sw-media-gravatar-form
+                                                class="sw-media-upload__gravatar-form"
+                                                variant="inline"
+                                                :email="gravatarEmail"
+                                                @media-gravatar-form-submit="onUrlUpload">
+                                            </sw-media-gravatar-form>
                                         </template>
                                     {% endblock %}
                                 </template>

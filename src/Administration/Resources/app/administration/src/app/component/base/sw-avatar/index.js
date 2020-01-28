@@ -33,6 +33,10 @@ const colors = [
  * <sw-avatar size="48px"
  *            imageUrl="https://randomuser.me/api/portraits/women/68.jpg"></sw-avatar>
  * </div>
+ *
+ * <sw-avatar size="48px"
+ *            gravatarEmail="info@example.com"></sw-avatar>
+ * </div>
  */
 Component.register('sw-avatar', {
     template,

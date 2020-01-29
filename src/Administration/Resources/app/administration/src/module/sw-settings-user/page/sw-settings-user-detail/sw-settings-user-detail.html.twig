@@ -19,7 +19,7 @@
                         class="sw-settings-user-detail__save-action"
                         :isLoading="isLoading"
                         :processSuccess="isSaveSuccessful"
-                        :disabled="isLoading || isError"
+                        :disabled="isLoading"
                         variant="primary"
                         @process-finish="saveFinish"
                         v-tooltip.bottom="tooltipSave"
@@ -42,6 +42,7 @@
                                         <sw-text-field
                                             class="sw-settings-user-detail__grid-firstName"
                                             v-model="user.firstName"
+                                            required
                                             :label="$tc('sw-settings-user.user-detail.labelFirstName')">
                                         </sw-text-field>
                                     {% endblock %}
@@ -50,6 +51,8 @@
                                         <sw-text-field
                                             class="sw-settings-user-detail__grid-lastName"
                                             v-model="user.lastName"
+                                            :error="userLastNameError"
+                                            required
                                             :label="$tc('sw-settings-user.user-detail.labelLastName')">
                                         </sw-text-field>
                                     {% endblock %}
@@ -59,6 +62,8 @@
                                             class="sw-settings-user-detail__grid-eMail"
                                             :errorMessage="isEmailUsed ? $tc('sw-settings-user.user-detail.errorEmailUsed') : ''"
                                             v-model="user.email"
+                                            :error="userEmailError"
+                                            required
                                             :label="$tc('sw-settings-user.user-detail.labelEmail')"
                                             @change="checkEmail()">
                                         </sw-text-field>
@@ -69,6 +74,8 @@
                                             class="sw-settings-user-detail__grid-username"
                                             :errorMessage="isUsernameUsed ? $tc('sw-settings-user.user-detail.errorUsernameUsed') : ''"
                                             v-model="user.username"
+                                            :error="userUsernameError"
+                                            required
                                             :label="$tc('sw-settings-user.user-detail.labelUsername')"
                                             @change="checkUsername">
                                         </sw-text-field>
@@ -115,6 +122,8 @@
                                                 class="sw-settings-user-detail__grid-language"
                                                 :label="$tc('sw-settings-user.user-detail.labelLanguage')"
                                                 v-model="user.localeId"
+                                                :error="userLocaleIdError"
+                                                required
                                                 :placeholder="$tc('sw-settings-user.user-detail.labelLanguagePlaceholder')">
                                             <option v-for="language in languages"
                                                     :value="language.locale.id"

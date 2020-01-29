@@ -26,6 +26,7 @@
       "notificationNewPasswordIsSameAsOldErrorMessage": "Dein neues Passwort stimmt mit dem alten überein. Bitte überlege dir ein neues Passwort.",
       "notificationInvalidEmailErrorMessage": "Bitte gib eine valide E-Mail Adresse ein.",
       "notificationSaveSuccessMessage": "Deine Profilinformationen wurden erfolgreich gespeichert.",
+      "notificationSaveErrorMessage": "Deine Profilinformationen konnten nicht gespeichert werden.",
       "labelUploadAvatar": "Lade ein Profilbild hoch",
       "labelUseAsAvatar": "Als Profilbild nutzen"
     }

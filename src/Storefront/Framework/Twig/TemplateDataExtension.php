@@ -77,8 +77,8 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         return [
             'shopware' => [
                 'config' => array_merge(
-                    $this->systemConfigService->all($context->getSalesChannel()->getId()),
-                    $this->getDefaultConfiguration()
+                    $this->getDefaultConfiguration(),
+                    $this->systemConfigService->all($context->getSalesChannel()->getId())
                 ),
                 'theme' => $this->getThemeConfig($context->getSalesChannel()->getId(), $themeId),
                 'dateFormat' => DATE_ATOM,

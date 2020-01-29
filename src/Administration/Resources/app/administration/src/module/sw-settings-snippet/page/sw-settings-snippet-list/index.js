@@ -126,7 +126,7 @@ Component.register('sw-settings-snippet-list', {
         getColumns() {
             const columns = [{
                 property: 'id',
-                label: this.$tc('sw-settings-snippet.list.columnKey'),
+                label: 'sw-settings-snippet.list.columnKey',
                 inlineEdit: true,
                 allowResize: true,
                 rawData: true,

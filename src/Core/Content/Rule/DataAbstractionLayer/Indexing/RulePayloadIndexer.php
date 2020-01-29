@@ -174,7 +174,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
             try {
                 $nested = $this->buildNested($rule, null);
 
-                $tags[] = $this->cacheKeyGenerator->getEntityTag(Uuid::fromBytesToHex($id), $this->ruleDefinition);
+                $tags[] = $this->cacheKeyGenerator->getEntityTag(Uuid::fromBytesToHex($id), RuleDefinition::ENTITY_NAME);
 
                 //ensure the root rule is an AndRule
                 $nested = new AndRule($nested);

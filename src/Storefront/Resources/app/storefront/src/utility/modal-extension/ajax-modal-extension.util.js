@@ -61,7 +61,7 @@ export default class AjaxModalExtensionUtil {
 
         const trigger = event.currentTarget;
         const url = DomAccess.getAttribute(trigger, URL_DATA_ATTRIBUTE);
-        PageLoadingIndicatorUtil.create();
+        PageLoadingIndicatorUtil.create(this.useModalBackdrop);
 
         this._currentModalClass = trigger.getAttribute('data-modal-class');
 
@@ -69,13 +69,14 @@ export default class AjaxModalExtensionUtil {
     }
 
     /**
-     * opens the ajax modal
+     * Opens the ajax modal
+     * If called from within a offcanvas, the existing backdrop should not be removed by the PageLoadingIndicatorUtils
      *
      * @param response
      * @private
      */
     _openModal(response) {
-        PageLoadingIndicatorUtil.remove();
+        PageLoadingIndicatorUtil.remove(this.useModalBackdrop);
         const pseudoModal = new PseudoModalUtil(response, this.useModalBackdrop);
 
         pseudoModal.open(() => {

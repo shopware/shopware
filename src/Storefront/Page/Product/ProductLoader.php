@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Page\Product;
 
-use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
@@ -53,8 +52,7 @@ class ProductLoader
             ->addAssociation('manufacturer.media')
             ->addAssociation('cover')
             ->addAssociation('properties.group')
-            ->addAssociation('mainCategories.category')
-            ->addAssociation('crossSellings');
+            ->addAssociation('mainCategories.category');
 
         $criteria->getAssociation('media')->addSorting(new FieldSorting('position'));
 
@@ -72,10 +70,6 @@ class ProductLoader
         $product->setSortedProperties(
             $this->sortProperties($product)
         );
-
-        $product->getCrossSellings()->sort(function (ProductCrossSellingEntity $a, ProductCrossSellingEntity $b) {
-            return $a->getPosition() <=> $b->getPosition();
-        });
 
         return $product;
     }

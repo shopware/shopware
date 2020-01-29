@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Context;
 
+use Shopware\Core\Framework\Api\Acl\Permission\AclPermission;
 use Shopware\Core\Framework\Api\Acl\Permission\AclPermissionCollection;
 
 class AdminApiSource implements ContextSource
@@ -51,6 +52,7 @@ class AdminApiSource implements ContextSource
     public function addPermissions(array $permissions): void
     {
         foreach ($permissions as $permission) {
+            $permission = new AclPermission($permission['resource'], $permission['privilege']);
             $this->permissions->add($permission);
         }
     }

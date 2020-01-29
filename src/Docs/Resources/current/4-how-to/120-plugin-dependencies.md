@@ -40,11 +40,12 @@ own `composer.json` as a key value pair:
     "license": "MIT",
     "authors": [
         {
-            "name": "shopware AG"
+            "name": "shopware AG",
+            "role": "Manufacturer"
         }
     ],
     "require": {
-        "shopware/core": "*",
+        "shopware/core": "6.1.*",
         "swag/plugin-quick-start": "v1.0.0"
     },
     "extra": {

@@ -126,12 +126,6 @@ Component.register('sw-sales-channel-detail-domains', {
 
             this.$nextTick(() => {
                 this.salesChannel.domains.remove(domain.id);
-
-                if (domain.isNew()) {
-                    return;
-                }
-
-                this.domainRepository.delete(domain.id, Context.api);
             });
         },
 

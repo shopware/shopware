@@ -13,3 +13,20 @@
         max-width: 246px;
     }
 }
+
+.sw-multi-ip-select-validation-popover {
+    .sw-multi-ip-select-valid-ip,
+    .sw-multi-ip-select-invalid-ip {
+        padding: 5px 8px;
+        margin: 5px 8px;
+    }
+
+    .sw-multi-ip-select-valid-ip {
+        cursor: pointer;
+        background: $color-shopware-brand-50;
+    }
+
+    .sw-multi-ip-select-invalid-ip {
+        background: $color-gray-50;
+    }
+}

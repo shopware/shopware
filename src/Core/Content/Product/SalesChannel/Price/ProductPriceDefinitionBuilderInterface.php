@@ -7,5 +7,5 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 interface ProductPriceDefinitionBuilderInterface
 {
-    public function build(ProductEntity $product, SalesChannelContext $salesChannelContext, int $quantity = 1): ProductPriceDefinitions;
+    public function build(ProductEntity $product, SalesChannelContext $context, int $quantity = 1): ProductPriceDefinitions;
 }

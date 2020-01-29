@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -37,7 +38,10 @@ class CountryStateController extends StorefrontController
         $criteria = new Criteria([$countryId]);
         $criteria->addAssociation('states');
 
+        /** @var CountryEntity|null $country */
         $country = $this->countryRepository->search($criteria, $context)->getEntities()->get($countryId);
+
+        $country->getStates()->sortByPositionAndName();
 
         return new JsonResponse([
             'stateRequired' => $country->getForceStateInRegistration(),

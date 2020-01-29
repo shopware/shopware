@@ -67,26 +67,26 @@ Component.register('sw-promotion-list', {
         getPromotionColumns() {
             return [{
                 property: 'name',
-                label: this.$tc('sw-promotion.list.columnName'),
+                label: 'sw-promotion.list.columnName',
                 routerLink: 'sw.promotion.detail',
                 inlineEdit: 'string',
                 allowResize: true,
                 primary: true
             }, {
                 property: 'active',
-                label: this.$tc('sw-promotion.list.columnActive'),
+                label: 'sw-promotion.list.columnActive',
                 inlineEdit: 'boolean',
                 allowResize: true,
                 align: 'center'
             }, {
                 property: 'validFrom',
-                label: this.$tc('sw-promotion.list.columnValidFrom'),
+                label: 'sw-promotion.list.columnValidFrom',
                 inlineEdit: 'date',
                 allowResize: true,
                 align: 'center'
             }, {
                 property: 'validUntil',
-                label: this.$tc('sw-promotion.list.columnValidUntil'),
+                label: 'sw-promotion.list.columnValidUntil',
                 inlineEdit: 'date',
                 allowResize: true,
                 align: 'center'

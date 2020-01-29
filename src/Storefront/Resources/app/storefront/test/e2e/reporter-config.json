@@ -1,0 +1,12 @@
+{
+  "reporterEnabled": "mocha-junit-reporter, mochawesome",
+  "mochaJunitReporterReporterOptions": {
+    "mochaFile": "./../app/build/artifacts/e2e/my-test-output-[hash].xml"
+  },
+  "mochawesomeReporterOptions": {
+    "reportDir": "./../app/build/artifacts/e2e",
+    "overwrite": false,
+    "html": false,
+    "json": true
+  }
+}

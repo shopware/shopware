@@ -1,7 +1,7 @@
 import './sw-single-select.scss';
 import template from './sw-single-select.html.twig';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 const { debounce, get } = Shopware.Utils;
 
 Component.register('sw-single-select', {
@@ -11,6 +11,10 @@ Component.register('sw-single-select', {
         prop: 'value',
         event: 'change'
     },
+
+    mixins: [
+        Mixin.getByName('remove-api-error')
+    ],
 
     props: {
         options: {
@@ -45,13 +49,15 @@ Component.register('sw-single-select', {
             required: false,
             default: 'value'
         },
+
+        /**
+         * @deprecated tag:v6.3.0
+         */
         popoverConfig: {
             type: Object,
             required: false,
             default() {
-                return {
-                    active: false
-                };
+                return { active: false };
             }
         },
 
@@ -88,7 +94,7 @@ Component.register('sw-single-select', {
                 return this.value;
             },
             set(newValue) {
-                /** @deprecated Html select don't have an onInput event */
+                /** @deprecated tag:v6.3.0 Html select don't have an onInput event */
                 this.$emit('input', newValue);
                 this.$emit('change', newValue);
             }

@@ -188,6 +188,7 @@
         "availableAddresses": "Available addresses",
         "selectAddress": "Select address",
         "addressCreateBtn": "Add address",
+        "addressEditBtn": "Edit address",
         "addressCreateWelcome": "Create a new address",
         "addressEditWelcome": "Change address",
         "addressSaveChange": "Save address",
@@ -333,7 +334,8 @@
         "payment-method-blocked": "The payment method %name% is blocked for your current shopping cart.",
         "lineItemDeliveryDate": "Delivery period: %earliest% - %latest%",
         "promotion-discount-deleted": "Discount \"%name%\" has been removed",
-        "promotion-discount-added": "Discount \"%name%\" has been added"
+        "promotion-discount-added": "Discount \"%name%\" has been added",
+       "shipping-address-blocked": "Shipping to the selected shipping address is currently not possible."
     },
     "listing": {
         "filterTitleText": "Filter",
@@ -402,6 +404,7 @@
         "priceUnitName": "Content:",
         "priceDataInfoUntil": "To",
         "priceDataInfoFrom": "From",
+        "listPricePercentage": "(%price%% saved)",
         "dataColumnQuantity": "Quantity",
         "dataColumnPrice": "Unit price",
         "dataColumnReferencePrice": "Reference price",
@@ -434,7 +437,7 @@
         "reviewExistsTeaserTitle": "Edit your review!",
         "reviewExistsTeaserText": "It looks like you already handed in a review for this particular product.",
         "reviewExistsTeaserButton": "Edit review",
-        "reviewLanguageFilterLabel": "Show reviews written in all languages.",
+        "reviewLanguageFilterLabel": "Display reviews in current language only.",
         "reviewSortLabel" : "Sort by",
         "reviewSortTopRatedLabel" : "Top rated",
         "reviewSortNewLabel" : "Most recent",

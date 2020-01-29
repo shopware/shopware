@@ -169,7 +169,7 @@ class ProductCategoryTreeIndexer implements IndexerInterface
 
         $tags = ['product.id'];
         foreach ($categories as $productId => $mapping) {
-            $tags[] = $this->cacheKeyGenerator->getEntityTag($productId, $this->productDefinition);
+            $tags[] = $this->cacheKeyGenerator->getEntityTag($productId, ProductDefinition::ENTITY_NAME);
 
             $productId = Uuid::fromHexToBytes($productId);
 

@@ -63,18 +63,18 @@ Component.register('sw-settings-salutation-list', {
         getColumns() {
             return [{
                 property: 'salutationKey',
-                label: this.$tc('sw-settings-salutation.list.columnSalutationKey'),
+                label: 'sw-settings-salutation.list.columnSalutationKey',
                 inlineEdit: 'string',
                 routerLink: 'sw.settings.salutation.detail',
                 primary: true
             }, {
                 property: 'displayName',
-                label: this.$tc('sw-settings-salutation.list.columnDisplayName'),
+                label: 'sw-settings-salutation.list.columnDisplayName',
                 inlineEdit: 'string',
                 primary: true
             }, {
                 property: 'letterName',
-                label: this.$tc('sw-settings-salutation.list.columnLetterName'),
+                label: 'sw-settings-salutation.list.columnLetterName',
                 inlineEdit: 'string'
             }];
         }

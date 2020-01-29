@@ -17,11 +17,12 @@ Have a look at the [composer schema](https://getcomposer.org/doc/04-schema.md), 
     "authors": [
         {
             "name": "Example Company",
-            "homepage": "https://my.example.com"
+            "homepage": "https://my.example.com",
+            "role": "Manufacturer"
         }
     ],
     "require": {
-        "shopware/core": "*",
+        "shopware/core": "6.1.*",
         "example-plugin": "1.0.0"
     },
     "extra": {
@@ -62,8 +63,8 @@ Have a look at the [composer schema](https://getcomposer.org/doc/04-schema.md), 
 | version                         | Current version of your plugin                                                                                                   |
 | type                            | Set the type to `shopware-platform-plugin`. Otherwise Shopware won't be able to recognize your plugin                            |
 | license                         | Provide the license model of your plugin, e.g. `MIT` or `proprietary`                                                            |
-| authors                         | Collection of the authors of your plugin                                                                                         |
-| require                         | Add your dependencies here. This should be `shopware/platform`, but could also be another plugin or composer package             |
+| authors                         | Collection of the authors of your plugin. If one or more authors with the role `Manufacturer` are provided, only these will be written to the database.|
+| require                         | Add your dependencies here. This should be at least `shopware/core`                                                              |
 | extra                           | The `extra` property is used to provide some Shopware specific information                                                       |
 | extra - shopware-plugin-class   | The fully qualified class name of your plugin's base class                                                                       |
 | extra - plugin-icon             | The path to the plugin's icon file. This is optional if you don't have any custom plugin icon                                    |
@@ -73,6 +74,13 @@ Have a look at the [composer schema](https://getcomposer.org/doc/04-schema.md), 
 | extra - manufacturerLink        | Link to your homepage. [Translatable](./050-plugin-information.md#translations)                                                  |
 | extra - supportLink             | A link to your support homepage. [Translatable](./050-plugin-information.md#translations)                                        |
 | autoload                        | Required to have a custom [PSR-4 autoloader](https://getcomposer.org/doc/04-schema.md#psr-4) for your custom plugin directory |
+
+## Requirements
+
+The `require` field in the composer.json file defines on which dependencies your plugin relies.
+As you want to develop a plugin for Shopware, you should have at least an entry for `shopware/core` here.
+If you also rely on other parts of Shopware 6 you should als require them, e.g. `shopware/storefront`.
+In addition to that, it is also possible to define dependencies on other plugins or even every other composer package.
 
 ## Translations
 

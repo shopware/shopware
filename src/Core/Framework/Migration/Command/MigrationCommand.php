@@ -125,7 +125,7 @@ class MigrationCommand extends Command
         $this->io->table(
             ['Action', 'Number of migrations'],
             [
-                ['Migrated', $migrated . ' from ' . $total],
+                ['Migrated', $migrated . ' out of ' . $total],
             ]
         );
     }

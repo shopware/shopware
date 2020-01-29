@@ -56,27 +56,33 @@ describe('Product: Editing context prices', () => {
 
         // change quantityEnd of first rule
         cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--0 input[name="sw-field--item-quantityEnd"]`)
+            .scrollIntoView()
             .type(`${quantityEnd00}{enter}`);
 
         // change quantityEnd of second rule
         cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--1 input[name="sw-field--item-quantityEnd"]`)
+            .scrollIntoView()
             .type(`${quantityEnd01}{enter}`);
 
         // Change price in third rule
         cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--2 ${priceCell}-EUR input[name="sw-price-field-gross"]`)
+            .scrollIntoView()
             .clear()
             .type(`${priceGross02EUR}{enter}`);
 
         // Add price link in third rule
         cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--2 ${priceCell}-EUR .sw-price-field__lock`)
+            .scrollIntoView()
             .click();
 
         // Uninherit the US-Dollar price in second rule in second price group
         cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--1 ${priceCell}-USD .sw-inheritance-switch`)
+            .scrollIntoView()
             .click();
 
         // Add custom dollar price to second rule in second price group
         cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--1 ${priceCell}-USD input[name="sw-price-field-gross"]`)
+            .scrollIntoView()
             .clear()
             .type(`${priceGross11USD}{enter}`);
 
@@ -113,17 +119,20 @@ describe('Product: Editing context prices', () => {
                 .should('have.value', `${quantityEnd01}`);
 
             cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--2 ${priceCell}-EUR input[name="sw-price-field-gross"]`)
+                .scrollIntoView()
                 .should('have.value', `${priceGross02EUR}`);
 
             cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--2 ${priceCell}-EUR .sw-price-field__lock.is--locked`)
+                .scrollIntoView()
                 .should('be.visible');
 
             cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--1 ${priceCell}-USD .sw-inheritance-switch .icon--custom-uninherited`)
+                .scrollIntoView()
                 .should('be.visible');
 
             cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--1 ${priceCell}-USD input[name="sw-price-field-gross"]`)
+                .scrollIntoView()
                 .should('have.value', `${priceGross11USD}`);
-
         });
 
         // change quantityStart in first price group and third price rule to an unallowed value
@@ -157,7 +166,6 @@ describe('Product: Editing context prices', () => {
 
         // check if new first rule in price group were adjusted to the deletion
         cy.get(`${priceGroup}-1 ${page.elements.dataGridRow}--0 input[name="sw-field--item-quantityStart"]`)
-            .should('have.value', `1`);
-
+            .should('have.value', '1');
     });
 });

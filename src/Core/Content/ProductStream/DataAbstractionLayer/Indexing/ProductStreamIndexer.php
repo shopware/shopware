@@ -177,7 +177,7 @@ class ProductStreamIndexer implements IndexerInterface
                     throw $searchException;
                 }
 
-                $tags[] = $this->cacheKeyGenerator->getEntityTag(Uuid::fromBytesToHex($id), $this->productStreamRepository->getDefinition());
+                $tags[] = $this->cacheKeyGenerator->getEntityTag(Uuid::fromBytesToHex($id), ProductStreamDefinition::ENTITY_NAME);
 
                 $serialized = $this->serializer->serialize($streamFilter, 'json');
             } catch (InvalidFilterQueryException | SearchRequestException $exception) {

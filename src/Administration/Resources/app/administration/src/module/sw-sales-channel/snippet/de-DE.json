@@ -15,7 +15,8 @@
       "buttonShowDetails": "Details",
       "buttonBack": "Zurück",
       "buttonCancel": "Abbrechen",
-      "titleDescription": "Informationen"
+      "titleDescription": "Informationen",
+      "messageNoProductStreams": "Um Produktvergleiche anzulegen, muss zunächst eine dynamische Produktgruppe erstellt werden."
     },
     "detail": {
       "titleSaveSuccess": "Erfolg",
@@ -186,6 +187,9 @@
           }
         }
       }
+    },
+    "sw-sales-channel-defaults-select": {
+      "messageError": "Der Wert wird von der Domain \"%{url}\" verwendet"
     }
   }
 }

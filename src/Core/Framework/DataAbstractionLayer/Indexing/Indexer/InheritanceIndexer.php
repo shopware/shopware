@@ -230,6 +230,10 @@ class InheritanceIndexer implements IndexerInterface
 
         /** @var ManyToOneAssociationField $association */
         foreach ($associations as $association) {
+            if (!$association instanceof ManyToOneAssociationField) {
+                continue;
+            }
+
             $parameters = [
                 '#root#' => EntityDefinitionQueryHelper::escape($definition->getEntityName()),
                 '#field#' => EntityDefinitionQueryHelper::escape($association->getStorageName()),
@@ -240,7 +244,7 @@ class InheritanceIndexer implements IndexerInterface
                     SET #root#.#property# = IFNULL(#root#.#field#, parent.#field#)
                     WHERE #root#.parent_id = parent.id
                     AND #root#.parent_id IS NOT NULL
-                    AND #root#.id IN (:ids)';
+                    AND (#root#.id IN (:ids) OR #root#.parent_id IN (:ids))';
 
             $params = ['ids' => $bytes];
 

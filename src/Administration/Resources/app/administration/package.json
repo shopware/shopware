@@ -121,7 +121,7 @@
         "launch-editor-middleware": "2.2.1",
         "less": "3.9.0",
         "less-loader": "5.0.0",
-        "node-sass": "4.12.0",
+        "node-sass": "4.13.0",
         "opn": "6.0.0",
         "prismjs": "1.17.1",
         "sass-loader": "7.1.0",

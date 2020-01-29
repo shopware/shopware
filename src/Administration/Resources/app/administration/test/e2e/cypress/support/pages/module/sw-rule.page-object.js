@@ -1,8 +1,9 @@
-const GeneralPageObject = require('../sw-general.page-object');
+/* global cy */
+import GeneralPageObject from '../sw-general.page-object';
 
 export default class RuleBuilderPageObject extends GeneralPageObject {
-    constructor(browser) {
-        super(browser);
+    constructor() {
+        super();
 
         this.elements = {
             ...this.elements,
@@ -14,26 +15,28 @@ export default class RuleBuilderPageObject extends GeneralPageObject {
         };
     }
 
-    createBasicSelectCondition({ selector, type, operator, value}) {
+    createBasicSelectCondition({ selector, type, operator, value }) {
         this.selectTypeAndOperator(selector, type, operator);
 
         if (value !== undefined) {
             cy.get(selector).within(() => {
                 cy.get('.sw-select').last().as('value-select');
                 cy.get('@value-select').click();
-                cy.get('.sw-select-result-list').should('be.visible').contains(value).click();
+                selectResultList().should('be.visible').contains(value).click();
             });
         }
     }
 
-    createBasicSelectConditionFromSearch({ selector, type, operator, value}) {
+    createBasicSelectConditionFromSearch({ selector, type, operator, value }) {
         this.selectTypeAndOperator(selector, type, operator);
 
         if (value !== undefined) {
             cy.get(selector).within(() => {
                 cy.get('.sw-select input').last().type(value);
-                cy.get('.sw-select-result-list').should('be.visible');
-                cy.get('.sw-select-result-list .sw-select-result')
+                selectResultList().should('be.visible');
+
+                selectResultList()
+                    .find('.sw-select-result')
                     .should('have.length', 1)
                     .contains(value)
                     .click();
@@ -41,7 +44,7 @@ export default class RuleBuilderPageObject extends GeneralPageObject {
         }
     }
 
-    createBasicInputCondition({ selector, type, operator, inputName, value}) {
+    createBasicInputCondition({ selector, type, operator, inputName, value }) {
         this.selectTypeAndOperator(selector, type, operator);
 
         if (value !== undefined) {
@@ -55,9 +58,9 @@ export default class RuleBuilderPageObject extends GeneralPageObject {
         if (isNonEmptyString(type)) {
             cy.get(selector).within(() => {
                 cy.get('.sw-condition-type-select .sw-select').click();
-                cy.get('.sw-condition-type-select .sw-select .sw-select-result-list')
-                    .scrollIntoView();
-                cy.get('.sw-condition-type-select .sw-select .sw-select-result-list')
+
+                selectResultList().scrollIntoView();
+                selectResultList()
                     .contains(type)
                     .scrollIntoView()
                     .click();
@@ -67,8 +70,8 @@ export default class RuleBuilderPageObject extends GeneralPageObject {
         if (isNonEmptyString(operator)) {
             cy.get(selector).within(() => {
                 cy.get('.sw-condition-operator-select .sw-select').click();
-                cy.get('.sw-condition-operator-select .sw-select .sw-select-result-list').should('be.visible');
-                cy.get('.sw-condition-operator-select .sw-select .sw-select-result-list').contains(operator).click();
+                selectResultList().should('be.visible');
+                selectResultList().contains(operator).click();
             });
         }
     }
@@ -76,4 +79,10 @@ export default class RuleBuilderPageObject extends GeneralPageObject {
 
 function isNonEmptyString(value) {
     return typeof value === 'string' && value !== '';
+}
+
+function selectResultList() {
+    return cy.window().then(() => {
+        return cy.wrap(Cypress.$('.sw-select-result-list-popover-wrapper'));
+    });
 }

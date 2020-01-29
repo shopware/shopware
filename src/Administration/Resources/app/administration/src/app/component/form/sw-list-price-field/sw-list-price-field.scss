@@ -1,0 +1,15 @@
+.sw-list-price-field {
+    display: flex;
+
+    .sw-list-price-field__list-price {
+        margin-left: 24px;
+    }
+}
+
+.sw-list-price-field__vertical {
+    flex-direction: column;
+
+    .sw-list-price-field__list-price {
+        margin-left: 0;
+    }
+}

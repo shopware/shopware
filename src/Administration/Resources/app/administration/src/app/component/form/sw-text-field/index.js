@@ -16,6 +16,7 @@ Component.register('sw-text-field', {
 
     mixins: [
         Mixin.getByName('sw-form-field'),
+        Mixin.getByName('remove-api-error'),
         Mixin.getByName('validation')
     ],
 

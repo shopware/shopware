@@ -18,11 +18,14 @@ export default class CookieStorageHelper {
      * @param {number} expirationDays
      */
     static setItem(key, value, expirationDays) {
+        if (typeof key === 'undefined' || key === null) {
+            throw new Error('You must specify a key to set a cookie');
+        }
+
         const date = new Date();
         date.setTime(date.getTime() + (expirationDays * 24 * 60 * 60 * 1000));
 
-        const expires = 'expires=' + date.toUTCString();
-        document.cookie = key + '=' + value + ';' + expires + ';path=/';
+        document.cookie = `${key}=${value};expires)${date.toUTCString()};path=/`;
     }
 
     /**
@@ -33,6 +36,10 @@ export default class CookieStorageHelper {
      * @returns {string} cookieValue
      */
     static getItem(key) {
+        if (!key) {
+            return false;
+        }
+
         const name = key + '=';
         const allCookies = document.cookie.split(';');
 
@@ -57,7 +64,7 @@ export default class CookieStorageHelper {
      * @param key
      */
     static removeItem(key) {
-        document.cookie = `${key}}= ; expires = Thu, 01 Jan 1970 00:00:00 GMT`;
+        document.cookie = `${key}= ; expires = Thu, 01 Jan 1970 00:00:00 GMT`;
     }
 
     /**

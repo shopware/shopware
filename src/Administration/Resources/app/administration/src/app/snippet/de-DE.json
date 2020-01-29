@@ -3,7 +3,8 @@
     "error-codes": {
       "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "Dieses Feld darf nicht leer sein",
       "INVALID_MEDIA_URL": "Bitte gib eine valide URL ein, um eine Datei hochzuladen.",
-      "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "Du musst einen Typ für diese Regel auswählen."
+      "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "Du musst einen Typ für diese Regel auswählen.",
+      "SHOPWARE_INVALID_IP": "Invalide IP-Adresse"
     },
     "default": {
       "add": "Hinzufügen",
@@ -97,6 +98,10 @@
     "sw-price-field": {
       "labelPriceGross": "Preis (Brutto)",
       "labelPriceNet": "Preis (Netto)"
+    },
+    "sw-list-price-field": {
+      "labelListPriceGross": "Streichpreis (Brutto)",
+      "labelListPriceNet": "Streichpreis (Netto)"
     },
     "sw-text-editor": {
       "labelTextLength": "{count} Zeichen | {count} Zeichen"
@@ -326,6 +331,10 @@
     },
     "sw-multi-select": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
+    },
+    "sw-multi-ip-select": {
+      "enterValidIp": "Bitte gib eine valide IPv4- oder IPv6-Adresse ein",
+      "addIpAdress": "IP-Adresse hinzufügen"
     },
     "sw-entity-multi-select": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
@@ -711,6 +720,7 @@
   },
   "sw-maintain-currencies-modal": {
     "title": "Währungen pflegen",
-    "columnPrice": "Preise (Brutto / Netto)"
+    "columnPrice": "Preise (Brutto / Netto)",
+    "columnListPriceHeader": "Streichpreise (Brutto / Netto)"
   }
 }

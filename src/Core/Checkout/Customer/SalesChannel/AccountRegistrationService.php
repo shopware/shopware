@@ -143,12 +143,10 @@ class AccountRegistrationService
         $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->first();
 
         if ($customerEntity->getDoubleOptInRegistration()) {
-            $event = $this->getDoubleOptInEvent($customerEntity, $context);
-        } else {
-            $event = new CustomerRegisterEvent($context, $customerEntity);
+            $this->eventDispatcher->dispatch($this->getDoubleOptInEvent($customerEntity, $context));
+        } elseif (!$customerEntity->getGuest()) {
+            $this->eventDispatcher->dispatch(new CustomerRegisterEvent($context, $customerEntity));
         }
-
-        $this->eventDispatcher->dispatch($event);
 
         return $customer['id'];
     }

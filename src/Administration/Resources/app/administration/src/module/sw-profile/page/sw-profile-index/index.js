@@ -17,7 +17,6 @@ Component.register('sw-profile-index', {
 
     data() {
         return {
-            userProfile: {},
             user: { username: '', email: '' },
             languages: [],
             imageSize: 140,
@@ -101,13 +100,8 @@ Component.register('sw-profile-index', {
                 resolve(this.languageId);
             });
 
-            if (this.$route.params.user) {
-                this.userPromise = this.setUserData(this.$route.params.user);
-            } else {
-                this.userPromise = this.userService.getUser().then((response) => {
-                    return this.setUserData(response.data);
-                });
-            }
+            this.userPromise = this.getUserData();
+
             const promises = [
                 languagePromise,
                 this.userPromise
@@ -163,15 +157,19 @@ Component.register('sw-profile-index', {
             });
         },
 
-        setUserData(userProfile) {
-            this.userProfile = userProfile;
-            return new Promise((resolve) => {
-                resolve(this.userRepository.get(this.userProfile.id, Shopware.Context.api));
-            });
+        async getUserData() {
+            const routeUser = this.$route.params.user;
+            if (routeUser) {
+                return this.userRepository.get(routeUser.id, Shopware.Context.api);
+            }
+
+            const user = await this.userService.getUser();
+            return this.userRepository.get(user.data.id, Shopware.Context.api);
         },
 
-        saveFinish() {
+        async saveFinish() {
             this.isSaveSuccessful = false;
+            this.user = await this.getUserData();
         },
 
         onSave() {
@@ -249,17 +247,7 @@ Component.register('sw-profile-index', {
             this.userRepository.save(this.user, Shopware.Context.api).then(() => {
                 this.$refs.mediaSidebarItem.getList();
 
-                this.localeRepository.get(this.user.localeId, Shopware.Context.api).then(async ({ code }) => {
-                    Shopware.State.dispatch('setAdminLocale', code);
-
-                    const factoryContainer = Shopware.Application.getContainer('factory');
-                    const localeFactory = factoryContainer.locale;
-                    const snippetService = Shopware.Service('snippetService');
-
-                    if (snippetService) {
-                        await snippetService.getSnippets(localeFactory);
-                    }
-                });
+                Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
 
                 this.oldPassword = '';
                 this.newPassword = '';

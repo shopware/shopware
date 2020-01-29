@@ -22,7 +22,7 @@ export default class MagnifierPlugin extends Plugin {
          *
          * @type number
          */
-        zoomFactor: 5,
+        zoomFactor: 3,
 
         /**
          * container for the image
@@ -152,8 +152,12 @@ export default class MagnifierPlugin extends Plugin {
                 const imageDimensions = this._getImageDimensions(image);
                 const imageSize = this._getImageSize(image);
                 const overlaySize = this._getOverlaySize(imageSize);
-                const imageOffset = containerPos.subtract(imagePos).abs();
+                const imageOffset = containerPos.subtract(imagePos);
+                imageOffset.x = Math.abs(imageOffset.x);
+                imageOffset.y = Math.abs(imageOffset.y);
+
                 const mousePos = new Vector2(event.pageX, event.pageY).subtract(imagePos);
+
                 const mousePosPercent = mousePos.divide(imageSize).clamp(0, 1);
 
                 this._setOverlayPosition(imageOffset, overlaySize, imageSize, mousePosPercent);
@@ -236,19 +240,19 @@ export default class MagnifierPlugin extends Plugin {
      * @returns {Vector2}
      */
     calculateZoomImageBackgroundPosition(mousePos, imageSize, overlaySize, imageDimensions, zoomImageBackgroundSize) {
-        const maxOverlayRange = imageSize.subtract(imageSize.divide(this.options.zoomFactor)).subtract(1);
+        const maxOverlayRange = imageSize.subtract(imageSize.divide(this.options.zoomFactor)).subtract(new Vector2(1, 1));
         let position = mousePos.subtract(overlaySize.divide(2)).clamp(0, imageSize.subtract(overlaySize)).divide(maxOverlayRange).clamp(0, 1);
         const orientation = this.getImageOrientation(imageDimensions, imageSize);
         const percentWidthWithoutLens = 1 - 1 / this.options.zoomFactor;
 
         if (orientation === LANDSCAPE_ORIENTATION) {
-            position = position.multiply(percentWidthWithoutLens, 1);
+            position = position.multiply(new Vector2(percentWidthWithoutLens, 1));
             position = this.calculateImagePosition(position, imageSize, imageDimensions, 'y', 'x');
-            position = position.multiply(1, percentWidthWithoutLens);
+            position = position.multiply(Vector2(1, percentWidthWithoutLens));
         } else if (orientation === PORTRAIT_ORIENTATION) {
-            position = position.multiply(1, percentWidthWithoutLens);
+            position = position.multiply(new Vector2(1, percentWidthWithoutLens));
             position = this.calculateImagePosition(position, imageSize, imageDimensions, 'x', 'y');
-            position = position.multiply(percentWidthWithoutLens, 1);
+            position = position.multiply(new Vector2(percentWidthWithoutLens, 1));
 
         }
 
@@ -264,7 +268,6 @@ export default class MagnifierPlugin extends Plugin {
      *
      * @returns {*}
      */
-    // calculateImagePosition(position, imageSize, imageDimensions, coordOne, coordTwo) {
     calculateImagePosition(position, imageSize, imageDimensions, coordOne, coordTwo) {
         const compressedImageSize = (imageDimensions[coordOne] * (imageSize[coordTwo] / imageSize[coordOne]));
         const offsetPercent = (1 - (compressedImageSize / (imageDimensions[coordTwo] / 1))) / 2;
@@ -285,7 +288,7 @@ export default class MagnifierPlugin extends Plugin {
     calculateZoomBackgroundImageSize(imageDimensions, imageSize) {
         const orientation = this.getImageOrientation(imageDimensions, imageSize);
         const zoomImageSize = this._getZoomImageSize();
-        let size = new Vector2();
+        let size = new Vector2(0, 0);
 
         if (orientation === PORTRAIT_ORIENTATION) {
             size = new Vector2(zoomImageSize.x, zoomImageSize.x * imageDimensions.y / imageDimensions.x);
@@ -385,9 +388,10 @@ export default class MagnifierPlugin extends Plugin {
      * @private
      */
     _getOverlaySize(zoomImageSize) {
-        const overlaySize = zoomImageSize.divide(this.options.zoomFactor).ceil();
-        this._overlay.style.width = `${overlaySize.x}px`;
-        this._overlay.style.height = `${overlaySize.y}px`;
+        const overlaySize = zoomImageSize.divide(this.options.zoomFactor);
+
+        this._overlay.style.width = `${Math.ceil(overlaySize.x)}px`;
+        this._overlay.style.height = `${Math.ceil(overlaySize.y)}px`;
         return overlaySize;
     }
 

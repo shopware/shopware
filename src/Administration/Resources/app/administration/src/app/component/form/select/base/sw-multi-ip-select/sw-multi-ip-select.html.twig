@@ -1,21 +1,23 @@
 {% block sw_ip_multi_select %}
     <sw-select-base class="sw-multi-ip-select"
                     :isLoading="isLoading"
+                    :error="errorObject"
                     v-bind="$attrs"
-                    v-on="$listeners">
+                    v-on="$listeners"
+                    @select-expanded="toggleDropDown(true)"
+                    @select-collapsed="toggleDropDown(false)">
         {% block sw_ip_multi_select_base %}
             {% block sw_ip_multi_select_base_selection %}
                 <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse }">
                     {% block sw_ip_multi_select_base_selection_slot %}
-                        <sw-select-selection-list
-                            :selections="objectValues"
-                            ref="selectionList"
-                            @item-remove="remove"
-                            @last-item-delete="removeLastItem"
-                            @search-term-change="onSearchTermChange"
-                            labelProperty="value"
-                            valueProperty="value"
-                            v-bind="{ size, placeholder, searchTerm }">
+                        <sw-select-selection-list :selections="objectValues"
+                                                  ref="selectionList"
+                                                  @item-remove="remove"
+                                                  @last-item-delete="removeLastItem"
+                                                  @search-term-change="onSearchTermChange"
+                                                  labelProperty="value"
+                                                  valueProperty="value"
+                                                  v-bind="{ size, placeholder, searchTerm }">
                             {% block sw_ip_multi_select_base_selection_list %}
                                 {% block sw_ip_multi_select_base_selection_list_label %}
                                     <template #label-property="{ item, index, labelProperty, valueProperty }">
@@ -31,6 +33,32 @@
                     {% endblock %}
                 </template>
             {% endblock %}
+        {% endblock %}
+
+        {% block sw_ip_multi_select_validation %}
+            <template #results-list>
+                <div v-if="hasFocus" class="sw-multi-ip-select-validation sw-select-result-list">
+                    <sw-popover class="sw-select-result-list-popover"
+                                popoverClass="sw-multi-ip-select-validation-popover"
+                                :zIndex="1100"
+                                :resizeWidth="true">
+                        <div class="sw-select-result-list__content">
+
+                            {% block sw_ip_multi_select_validation_valid %}
+                                <div @click="addItem" v-if="inputIsValidIp" class="sw-multi-ip-select-valid-ip">
+                                    {{ $tc('global.sw-multi-ip-select.addIpAdress') }}
+                                </div>
+                            {% endblock %}
+
+                            {% block sw_ip_multi_select_validation_invalid %}
+                                <div v-else class="sw-multi-ip-select-invalid-ip">
+                                    {{ $tc('global.sw-multi-ip-select.enterValidIp') }}
+                                </div>
+                            {% endblock %}
+                        </div>
+                    </sw-popover>
+                </div>
+            </template>
         {% endblock %}
     </sw-select-base>
 {% endblock %}

@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Optional;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -84,7 +85,22 @@ class PriceFieldSerializer extends AbstractFieldSerializer
 
         $prices = [];
         foreach ($value as $row) {
-            $prices[] = new Price($row['currencyId'], (float) $row['net'], (float) $row['gross'], (bool) $row['linked']);
+            $price = new Price($row['currencyId'], (float) $row['net'], (float) $row['gross'], (bool) $row['linked']);
+
+            if (isset($row['listPrice']) && isset($row['listPrice']['gross'])) {
+                $listPrice = $row['listPrice'];
+
+                $price->setListPrice(
+                    new Price(
+                        $row['currencyId'],
+                        (float) $listPrice['net'],
+                        (float) $listPrice['gross'],
+                        (bool) $listPrice['linked']
+                    )
+                );
+            }
+
+            $prices[] = $price;
         }
 
         return new PriceCollection($prices);
@@ -94,13 +110,24 @@ class PriceFieldSerializer extends AbstractFieldSerializer
     {
         $constraints = [
             new Collection([
-                'allowExtraFields' => false,
+                'allowExtraFields' => true,
                 'allowMissingFields' => false,
                 'fields' => [
                     'currencyId' => [new NotBlank(), new Uuid()],
                     'gross' => [new NotBlank(), new Type('numeric')],
                     'net' => [new NotBlank(), new Type('numeric')],
                     'linked' => [new Type('boolean')],
+                    'listPrice' => [new Optional(
+                        new Collection([
+                            'allowExtraFields' => true,
+                            'allowMissingFields' => false,
+                            'fields' => [
+                                'gross' => [new NotBlank(), new Type('numeric')],
+                                'net' => [new NotBlank(), new Type('numeric')],
+                                'linked' => [new Type('boolean')],
+                            ],
+                        ])
+                    )],
                 ],
             ]),
         ];

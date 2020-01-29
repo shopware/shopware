@@ -37,6 +37,7 @@ module.exports = function createProxyServer({ appPort, originalHost, proxyHost, 
                     return;
                 }
 
+                client_res.writeHead(response.statusCode, response.headers);
                 response.pipe(client_res, {  end: true });
             }),
             {  end: true }

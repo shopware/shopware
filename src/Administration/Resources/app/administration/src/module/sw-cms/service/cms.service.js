@@ -93,7 +93,7 @@ function getEntityData(element, configKey) {
     if (Array.isArray(configValue)) {
         const entityIds = [];
 
-        if (configValue[0].mediaId) {
+        if (configValue.length && configValue[0].mediaId) {
             configValue.forEach((val) => {
                 entityIds.push(val.mediaId);
             });

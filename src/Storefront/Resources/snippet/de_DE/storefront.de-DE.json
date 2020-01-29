@@ -188,6 +188,7 @@
         "availableAddresses": "Verfügbare Adressen",
         "selectAddress": "Adresse wählen",
         "addressCreateBtn": "Neue Adresse hinzufügen",
+        "addressEditBtn": "Adresse bearbeiten",
         "addressCreateWelcome": "Neue Adresse erstellen",
         "addressEditWelcome": "Adresse bearbeiten",
         "addressSaveChange": "Adresse speichern",
@@ -333,7 +334,8 @@
         "payment-method-blocked": "Die Zahlungsart %name% ist für Ihren aktuellen Warenkorb gesperrt.",
         "lineItemDeliveryDate": "Lieferzeitraum: %earliest% - %latest%",
         "promotion-discount-deleted": "Der Rabatt \"%name%\" wurde aus dem Warenkorb gelöscht",
-        "promotion-discount-added": "Der Rabatt \"%name%\" wurde dem Warenkorb hinzugefügt"
+        "promotion-discount-added": "Der Rabatt \"%name%\" wurde dem Warenkorb hinzugefügt",
+        "shipping-address-blocked": "Lieferungen an die gewählte Lieferadresse sind nicht möglich."
     },
     "listing": {
         "filterTitleText": "Filter",
@@ -402,6 +404,7 @@
         "priceUnitName": "Inhalt:",
         "priceDataInfoUntil": "bis",
         "priceDataInfoFrom": "ab",
+        "listPricePercentage": "(%price%% gespart)",
         "dataColumnQuantity": "Menge",
         "dataColumnPrice": "Stückpreis",
         "dataColumnReferencePrice": "Grundpreis",
@@ -434,7 +437,7 @@
         "reviewExistsTeaserTitle": "Bearbeiten Sie Ihre Bewertung",
         "reviewExistsTeaserText": "Sie können hier Ihre bestehende Bewertung anpassen.",
         "reviewExistsTeaserButton": "Bewertung bearbeiten",
-        "reviewLanguageFilterLabel": "Bewertungen einblenden, die in anderen Sprachen verfasst wurden.",
+        "reviewLanguageFilterLabel": "Bewertungen nur in aktueller Sprache anzeigen.",
         "reviewSortLabel" : "Sortiert nach",
         "reviewSortTopRatedLabel" : "Am besten bewertet",
         "reviewSortNewLabel" : "Neueste Bewertung",

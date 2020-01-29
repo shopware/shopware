@@ -64,18 +64,22 @@
                                                 {% block sw_data_grid_header_columns_content %}
                                                     <div class="sw-data-grid__cell-content">
 
-                                                        {% block sw_data_grid_header_columns_icon %}
-                                                            <sw-icon v-if="column.iconLabel"
-                                                                    :name="column.iconLabel">
-                                                                {{ column.label }}
-                                                            </sw-icon>
-                                                        {% endblock %}
+                                                        <slot :name="`column-label-${column.property}`"
+                                                                  v-bind="{ column, columnIndex }">
 
-                                                        {% block sw_data_grid_header_columns_label %}
-                                                            <template v-else>
-                                                                {{ column.label }}
-                                                            </template>
-                                                        {% endblock %}
+                                                            {% block sw_data_grid_header_columns_icon %}
+                                                                <sw-icon v-if="column.iconLabel"
+                                                                        :name="column.iconLabel">
+                                                                    {{ $te(column.label) ? $tc(column.label) : column.label }}
+                                                                </sw-icon>
+                                                            {% endblock %}
+
+                                                            {% block sw_data_grid_header_columns_label %}
+                                                                <template v-else>
+                                                                    {{ $te(column.label) ? $tc(column.label) : column.label }}
+                                                                </template>
+                                                            {% endblock %}
+                                                        </slot>
 
                                                         {% block sw_data_grid_column_actions %}
                                                             <sw-context-button v-if="allowColumnEdit && !isInlineEditActive" class="sw-data-grid__action-edit-column">

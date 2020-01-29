@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Plugin;
 
 use Composer\IO\IOInterface;
+use Composer\Package\CompletePackageInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -18,6 +19,8 @@ use Shopware\Core\System\Language\LanguageEntity;
 
 class PluginService
 {
+    public const COMPOSER_AUTHOR_ROLE_MANUFACTURER = 'Manufacturer';
+
     /**
      * @var string
      */
@@ -96,13 +99,7 @@ class PluginService
 
             $pluginVersion = $this->versionSanitizer->sanitizePluginVersion($info->getVersion());
             $extra = $info->getExtra();
-
-            $authors = null;
-            $composerAuthors = $info->getAuthors();
-            if ($composerAuthors !== null) {
-                $authorNames = array_column($info->getAuthors(), 'name');
-                $authors = implode(', ', $authorNames);
-            }
+            $authors = $this->getAuthors($info);
             $license = $info->getLicense();
             $pluginIconPath = $extra['plugin-icon'] ?? 'src/Resources/config/plugin.png';
 
@@ -237,5 +234,27 @@ class PluginService
         }
 
         return file_get_contents($pluginIconPath);
+    }
+
+    private function getAuthors(CompletePackageInterface $info): ?string
+    {
+        $authors = null;
+        /** @var array|null $composerAuthors */
+        $composerAuthors = $info->getAuthors();
+
+        if ($composerAuthors !== null) {
+            $manufacturersAuthors = array_filter($composerAuthors, function (array $author): bool {
+                return ($author['role'] ?? '') === self::COMPOSER_AUTHOR_ROLE_MANUFACTURER;
+            });
+
+            if (empty($manufacturersAuthors)) {
+                $manufacturersAuthors = $composerAuthors;
+            }
+
+            $authorNames = array_column($manufacturersAuthors, 'name');
+            $authors = implode(', ', $authorNames);
+        }
+
+        return $authors;
     }
 }

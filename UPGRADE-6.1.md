@@ -243,6 +243,11 @@ Core
            return $validation;              
        }
     ```
+ * We will change the `\Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator::getEntityTag` signature from
+    * Before: `public function getEntityTag(string $id, EntityDefinition $definition): string`
+    * After:  `public function getEntityTag(string $id, string $entityName): string`
+    * If you called this function, simply replace the second function parameter to your entity name
+    * Currently both ways are supported. The `string $entityName` type hint will be added with `v6.3.0`
 
 Administration
 --------------
@@ -747,6 +752,18 @@ To migrate your existing data run `bin/console database:migrate --all Shopware\\
        </router-view>
     {% endblock %}
    ```
+* Deprecated all `sw_sales_channel_detail_base_general_input_*_selection` and `sw_sales_channel_detail_base_general_input_*_assignment` blocks from `sw-sales-channel-detail-base` from `sw-sales-channel-detail-base`-view component due to its tight coupling.
+Components overriding this blocks must now override the complete row in the form by overriding `sw_sales_channel_detail_base_general_input_*` blocks.
+    * Deprecated `sw_sales_channel_detail_base_general_input_payments_methods_selection` use `sw_sales_channel_detail_base_general_input_payments_methods` instead
+    * Deprecated `sw_sales_channel_detail_base_general_input_payments_methods_assignment` use `sw_sales_channel_detail_base_general_input_payments_methods` instead
+    * Deprecated `sw_sales_channel_detail_base_general_input_shipping_methods_selection` use `sw_sales_channel_detail_base_general_input_shipping_methods` instead
+    * Deprecated `sw_sales_channel_detail_base_general_input_shipping_methods_assignment` use `sw_sales_channel_detail_base_general_input_shipping_methods` instead
+    * Deprecated `sw_sales_channel_detail_base_general_input_countries_selection` use `sw_sales_channel_detail_base_general_input_countries` instead
+    * Deprecated `sw_sales_channel_detail_base_general_input_countries_assignment` use `sw_sales_channel_detail_base_general_input_countries` instead
+    * Deprecated `sw_sales_channel_detail_base_general_input_currencies_selection` use `sw_sales_channel_detail_base_general_input_currencies` instead
+    * Deprecated `sw_sales_channel_detail_base_general_input_currencies_assignment` use `sw_sales_channel_detail_base_general_input_currencies` instead
+    * Deprecated `sw_sales_channel_detail_base_general_input_languages_selection` use `sw_sales_channel_detail_base_general_input_languages` instead
+    * Deprecated `sw_sales_channel_detail_base_general_input_languages_assignment` use `sw_sales_channel_detail_base_general_input_languages` instead
 
 Storefront
 ----------
@@ -805,7 +822,7 @@ SHOPWARE_HTTP_DEFAULT_TTL=7200
     * Every `POST` method needs to append a CSRF token now
     * CSRF tokens can be generated in twig or via ajax, if configured. Here is a small twig example for a typical form:
     ```twig
-      <form name="ExampleForm" method="post" action="{{ path("exmaple.route") }}" data-form-csrf-handler="true">
+      <form name="ExampleForm" method="post" action="{{ path("example.route") }}" data-form-csrf-handler="true">
           <!-- some form fields -->
         
           {{ sw_csrf('example.route') }}

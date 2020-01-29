@@ -56,18 +56,18 @@ Component.register('sw-mail-header-footer-list', {
             return [{
                 property: 'name',
                 dataIndex: 'name',
-                label: this.$tc('sw-mail-header-footer.list.columnName'),
+                label: 'sw-mail-header-footer.list.columnName',
                 allowResize: true,
                 primary: true
             }, {
                 property: 'description',
                 dataIndex: 'description',
-                label: this.$tc('sw-mail-header-footer.list.columnDescription'),
+                label: 'sw-mail-header-footer.list.columnDescription',
                 allowResize: true
             }, {
                 property: 'salesChannels.name',
                 dataIndex: 'salesChannels.name',
-                label: this.$tc('sw-mail-header-footer.list.columnSalesChannels'),
+                label: 'sw-mail-header-footer.list.columnSalesChannels',
                 allowResize: true,
                 sortable: false
             }];

@@ -50,21 +50,17 @@ class SalesChannelProductSubscriber implements EventSubscriberInterface
         /** @var SalesChannelProductEntity $product */
         foreach ($event->getEntities() as $product) {
             $this->calculatePrices($event->getSalesChannelContext(), $product);
+
+            $product->setCalculatedMaxPurchase(
+                $this->calculateMaxPurchase($product, $event->getSalesChannelContext()->getSalesChannel()->getId())
+            );
+
+            $this->markAsNew($event->getSalesChannelContext(), $product);
         }
     }
 
     private function calculatePrices(SalesChannelContext $context, SalesChannelProductEntity $product): void
     {
-        $markAsNewDayRange = $this->systemConfigService->get('core.listing.markAsNew', $context->getSalesChannel()->getId());
-
-        $now = new \DateTime();
-
-        /* @var SalesChannelProductEntity $product */
-        $product->setIsNew(
-            $product->getReleaseDate() instanceof \DateTimeInterface
-            && $product->getReleaseDate()->diff($now)->days <= $markAsNewDayRange
-        );
-
         $prices = $this->priceDefinitionBuilder->build($product, $context);
 
         //calculate listing price
@@ -86,6 +82,32 @@ class SalesChannelProductSubscriber implements EventSubscriberInterface
         //calculate simple price
         $product->setCalculatedPrice(
             $this->priceCalculator->calculate($prices->getPrice(), $context)
+        );
+    }
+
+    private function calculateMaxPurchase(SalesChannelProductEntity $product, string $salesChannelId): int
+    {
+        $fallback = (int) $this->systemConfigService->get('core.cart.maxQuantity', $salesChannelId);
+
+        $max = $product->getMaxPurchase() ?? $fallback;
+
+        if ($product->getIsCloseout() && $product->getAvailableStock() < $max) {
+            $max = $product->getAvailableStock();
+        }
+
+        return max($max, 0);
+    }
+
+    private function markAsNew(SalesChannelContext $context, SalesChannelProductEntity $product): void
+    {
+        $markAsNewDayRange = $this->systemConfigService->get('core.listing.markAsNew', $context->getSalesChannel()->getId());
+
+        $now = new \DateTime();
+
+        /* @var SalesChannelProductEntity $product */
+        $product->setIsNew(
+            $product->getReleaseDate() instanceof \DateTimeInterface
+            && $product->getReleaseDate()->diff($now)->days <= $markAsNewDayRange
         );
     }
 }

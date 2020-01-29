@@ -20,17 +20,50 @@ Component.register('sw-popover', {
             required: false,
             default: null
         },
+        resizeWidth: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+        popoverClass: {
+            type: String,
+            required: false,
+            default: ''
+        },
+        /**
+         * @deprecated tag:v6.2.0
+         */
         isPopover: {
             type: Boolean,
             required: false,
             default: true
+        },
+        /**
+         * @deprecated tag:v6.3.0
+         */
+        popoverConfigExtension: {
+            type: Object,
+            required: false,
+            default() {
+                return {};
+            }
         }
+
     },
 
     computed: {
         componentStyle() {
             return {
                 'z-Index': this.zIndex
+            };
+        },
+        popoverConfig() {
+            const popoverConfigBase = this.popoverConfigExtension || {};
+
+            return {
+                ...popoverConfigBase,
+                active: true,
+                resizeWidth: this.resizeWidth
             };
         }
     }

@@ -196,7 +196,7 @@ class MediaFolderConfigIndexer implements IndexerInterface
 
         $tags = array_map(function ($id) {
             return $this->cacheKeyGenerator
-                ->getEntityTag(Uuid::fromBytesToHex($id), $this->folderRepository->getDefinition());
+                ->getEntityTag(Uuid::fromBytesToHex($id), MediaFolderDefinition::ENTITY_NAME);
         }, $ids);
 
         $this->cache->invalidateTags($tags);

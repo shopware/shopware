@@ -1,0 +1,22 @@
+{% block sw_sales_channel_defaults_select %}
+    <sw-container class="sw-sales-channel-defaults-select" gap="0px 30px" columns="1fr 200px">
+        <template v-if="salesChannel">
+            <sw-entity-multi-select
+                :class="multiSelectClass"
+                :label="propertyLabel"
+                :entityCollection="propertyCollection"
+                @change="updateCollection">
+            </sw-entity-multi-select>
+
+            <sw-entity-single-select
+                :class="singleSelectClass"
+                :label="defaultPropertyLabel"
+                required
+                :entity="propertyEntityName"
+                :value="defaultId"
+                :error="defaultsValueError"
+                @change="updateDefault">
+            </sw-entity-single-select>
+        </template>
+    </sw-container>
+{% endblock %}

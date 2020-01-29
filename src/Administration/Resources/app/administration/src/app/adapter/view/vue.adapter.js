@@ -313,7 +313,18 @@ export default class VueAdapter extends ViewAdapter {
             }
         });
 
+        this.setLocaleFromUser(store);
+
         return i18n;
+    }
+
+    setLocaleFromUser(store) {
+        const currentUser = store.state.session.currentUser;
+
+        if (currentUser) {
+            const userLocaleId = currentUser.localeId;
+            Shopware.Service('localeHelper').setLocaleWithId(userLocaleId);
+        }
     }
 
     /**

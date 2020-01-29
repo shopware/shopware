@@ -7,6 +7,85 @@ in 6.1 minor versions.
 To get the diff for a specific change, go to https://github.com/shopware/platform/commit/XXX where XXX is the change hash
 To get the diff between two versions, go to https://github.com/shopware/platform/compare/v6.1.0-rc1...v6.1.0-rc2
 
+### 6.1.1
+
+**Addition / Changes**
+
+* Administration
+    * Refactored tooltip directive to automatically change the position if it does not fit in the screen on the desired position.
+    * Added possibility to show a tooltip also on disabled input fields with the option `showOnDisabledElements`. This will generate a wrapper element around the original element.
+    * Prevent adding a product comparison sales channel if there are no product streams available
+    * Prevent adding a product comparison sales channel if there are no product streams available.
+    * Changed `sw-system-config` component to render boolean field types with undefined value as falsy.
+    * Replace old currency isDefault with isSystemDefault
+    * Replace block `sw_property_detail_content_option_list` in `sw-property-create` with empty content
+    * Add `setLocaleFromUser` method to vue adapter
+    * Add service `localeHelper` for changing the locale
+    * Use service `localeHelper` on every place where you can change the locale
+    * Refactor `session.store.js`: action `setAdminLocale` return now a Promise
+    * Refactor `snippet.api.service.js`: add paramter code which expects the locale code
+    * Refactor `sw-profile-index`
+        * Remove data `userProfile`
+        * Replace `setUserData` to `getUserData`
+        * `saveFinish` is now an asynchronous method
+    * Fix `sw-multi-ip-select` value property if it is undefined
+    * Removed property type check for value property of `sw-multi-select` and `sw-multi-ip-select` because the value is already checked in a custom validator function
+    * To make the headers of a column in the `sw-data-grid` translatable you have to specify only the path to the snippet. `this.$tc('path.to.snippet')` will still work.
+    * Refactored sw-context-button
+        * Added popover directive for automatic detection for opening
+        * Remove property `menuOffsetTop`
+        * Remove property `menuOffsetLeft`
+        * Remove method `mountedComponent`
+        * Remove method `beforeDestroyComponent`
+        * Refactor method `openMenu`
+        * Refactor method `closeMenu`
+        * Added method `handleClickEvent`
+        * Remove method `addMenuToBody`
+        * Remove method `removeMenuFromBody`
+        * Remove data `positionTop`, `positionLeft`, `paddingTop`, `menuUuid`
+    * Removed property `popoverConfig` in `sw-select-result-list`, `sw-single-select`, `sw-entity-single-select`
+    * Removed property `isPopover` in `sw-popover`
+    * Added property `resizeWidth` and `popoverClass` to `sw-popover`
+    * Move `created` and `destroyed` to `createdComponent` and `destroyedComponent` in `sw-select-result`
+    * Ignore `.html.twig` in code coverage reports
+    * Fixed the inheritance reset for the price field in the variant listing.
+    * Fixed product name column in product review listing
+    * Fixed inheritance switches in product detail view on main products when you come from an child product
+    * Added block `sw_cms_element_product_listing_config_layout_select_options` in `sw-cms-el-config-product-listing`
+    * Fix quickview of product in the checkout process
+    * Catch `FRAMEWORK_LANGUAGE_NOT_FOUND` error when user has invalid `sw-admin-current-language` in localStorage
+    * Fix that the loginListener calls directly get destroyed through an refresh of the page
+  * Product images inside the product listing and cart won't get smaller anymore when the window gets to big and then gets smaller.
+    * Added optional `productStreamsExist` and `productStreamsLoading` properties to `sw-sales-channel-modal-grid` component.
+    * Added component `sw-sales-channel-defaults-select`. This component is used to handle each to-many association and its corresponding default id in sales channels.
+    * Unified css classes of select fields in `sw-sales-channel-detail-base`. All css classes no reference to the sales channels collection names (e.g. `payment-methods` instead of `payment-method`)
+    * Deprecated all `sw_sales_channel_detail_base_general_input_*_selection` and `sw_sales_channel_detail_base_general_input_*_assignment` blocks from `sw-sales-channel-detail-base` by refactoring them into `sw-sales-channel-defaults-select`.
+    * Deprecated the events `onDefaultItemAdd` and `onRemoveItem` in `sales-channel-detail-base/index.js`. Those events are no longer needed and the add/remove logic is now handled by the `sw-sales-channel-defaults-select` component.
+    * We refactored the logic to remove api errors from the store into a separate mixin ('remove-api-error' mixin). Additionally, to remove the the errors, we changed from listening to the models event to watch the models prop.
+    * Additionally you can now change the default behaviour to remove api errors in your custom components. This can be done by overriding the `$apiErrorHandler` custom option for components that include the `remove-api-error` mixin.
+
+    * Added new slot for `sw-data-grid` column headers
+    * Added new component `sw-list-price-field`
+* Core
+    * Added a check for the author role in plugin composer.json files. If one or more authors have the role `Manufacturer`, only these will be written to the database.
+    * Added new `searchMedia` twig function to resolve media ids to media objects.
+        * `{% set media = searchMedia(ids, context) %}`
+    * Changed `MailService` to add `bcc` instead `to` for `deliveryAddress`
+    * We added the `Inherited` flag to the `listingPrices` property of the `\Shopware\Core\Content\Product\ProductDefinition`
+    * The `\Shopware\Storefront\Page\Product\Review\ProductReviewLoader::load` returns now the reviews of all variants.
+    * The `\Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField` can now contains a `listPrice`
+    * `\Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice` supports now list prices.
+* Storefront
+    * Fixed the cookie privacy hint to use the correct link `privacyPage` instead of `shippingPaymentInfoPage`
+    * Added the parameter `useBackdrop` to the `page-loading-indicator.utils.js` `remove` and `create` methods. Defaults to `true`
+    * The `CountryStateController` returns country states now sorted by their position/name.
+
+* Recovery
+    * The database connection now supports sockets
+    
+* Storefront
+    * You can now change your addresses during checkout
+
 ### 6.1.0
 
 **Addition / Changes**
@@ -101,7 +180,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new block `sw_promotion_cart_condition_form_allow_experimental`
     * When updating domains in a sales channel you can only select one of the available languages for the sales channel
     * Fix module meta information in extended module routes with the routeMiddleware
-
 * Core    
 	* We did some refactoring on how we use `WriteConstraintsViolationExceptions`.	
         It's path `property` should now point to the object that is inspected by an validator while the `propertyPath` property in `WriteConstraint` objects should only point to the invalid property. 	
@@ -287,7 +365,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed a bug in storefront search that occurred when keywords such as \0\0 were entered.
     * Added a position field on the `\Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition`, used for sorting the line items
     * Changed default `shopware.cdn.strategy` to the new `physical_pathname` strategy that behaves like the old `md5` strategy. For new installations the default is `id`
-    * Deprecated `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoader::load` use `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoader::loadForProduct` instead
     * Deprecated `\Shopware\Core\Framework\Plugin::getExtraBundles`, use `getAdditionalBundles`
     * Added method `\Shopware\Core\Framework\Plugin::getAdditionalBundles` method with additional parameters compared to `getExtraBundles`, to allow loading bundles depending on other plugins/bundles and kernel parameters.
     * Change default `shopware.cdn.strategy` to the new `physical_pathname` strategy that behaves like the old `md5` strategy. For new installations the default is `id`
@@ -301,7 +378,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * We deprecated the `\Shopware\Core\Content\Seo\SeoUrlGenerator::checkUpdateAffectsTemplate` function
     * `@Framework/documents/style_base_portrait.css.twig` and `@Framework/documents/style_base_landscape.css.twig` are now included by `sw_include`.
     * Added new `$depth` parameter to `\Shopware\Core\Content\Category\Service\NavigationLoader::load`
-    * Added new field `navigation_category_depth` to `\Shopware\Core\System\SalesChannel\SalesChannelDefinition` 
+    * Added new field `navigation_category_depth` to `\Shopware\Core\System\SalesChannel\SalesChannelDefinition`
 * Storefront
     * Changed `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer` signatures	
     * Moved most of the seo module into the core. Only storefront(route) specific logic/extensions remain	
@@ -369,7 +446,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * `src/Storefront/Resources/app/storefront/src/scss/abstract/variables/_bootstrap.scss`
         * `src/Storefront/Resources/app/storefront/src/scss/abstract/variables/_custom.scss`
         * `src/Storefront/Resources/app/storefront/src/scss/skin/shopware/abstract/variables/_bootstrap.scss`
-        * `src/Storefront/Resources/app/storefront/src/scss/skin/shopware/abstract/variables/_custom.scss`
+        * `src/Storefront/Resources/app/storefront/src/scss/skin/shopware/abstract/variables/_custom.scss`    
+
 * Elasticsearch	
     * The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.
         * You can set them with a parameter.yml too.
@@ -449,5 +527,4 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter-upright.var.woff2`	
         * Removed `src/Storefront/Resources/app/storefront/dist/assets/font/Inter.var.woff2`	
     * Removed `ContactPageController` and the `contact page`	
-    * Removed `newsletter page` and its route `/newsletter`  
-    * Fixed the cookie privacy hint to use the correct link `privacyPage` instead of `shippingPaymentInfoPage` 
+    * Removed `newsletter page` and its route `/newsletter`

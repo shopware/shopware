@@ -22,6 +22,13 @@ return [
     'select_language_de' => 'Deutsch',
     'select_language_en' => 'English',
     'select_language_nl' => 'Nederlands',
+    'select_language_it' => 'Italiano',
+    'select_language_fr' => 'Français',
+    'select_language_es' => 'Español',
+    'select_language_pt' => 'Português',
+    'select_language_pl' => 'Polski',
+    'select_language_cz' => 'Czech',
+    'select_language_sv' => 'Swedish',
 
     'noaccess_title' => 'Zugang Verweigert',
     'noaccess_info' => 'Bitte fügen Sie Ihre IP-Adresse "<strong>%s</strong>" der Datei <strong>%s</strong> hinzu.',

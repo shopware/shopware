@@ -202,7 +202,7 @@ class AddressController extends StorefrontController
         }
 
         $viewData = [];
-        $viewData = $this->handleChangeableAddresses($viewData, $dataBag);
+        $viewData = $this->handleChangeableAddresses($viewData, $dataBag, $context);
         $viewData = $this->handleAddressCreation($viewData, $dataBag, $context);
         $viewData = $this->handleAddressSelection($viewData, $dataBag, $context);
 
@@ -244,7 +244,7 @@ class AddressController extends StorefrontController
         return $viewData;
     }
 
-    private function handleChangeableAddresses(array $viewData, RequestDataBag $dataBag): array
+    private function handleChangeableAddresses(array $viewData, RequestDataBag $dataBag, SalesChannelContext $context): array
     {
         $changeableAddresses = $dataBag->get('changeableAddresses');
 
@@ -254,6 +254,14 @@ class AddressController extends StorefrontController
 
         $viewData['changeShipping'] = $changeableAddresses->get('changeShipping');
         $viewData['changeBilling'] = $changeableAddresses->get('changeBilling');
+
+        $addressId = $dataBag->get('id');
+
+        if (!$addressId) {
+            return $viewData;
+        }
+
+        $viewData['address'] = $this->addressService->getById($addressId, $context);
 
         return $viewData;
     }

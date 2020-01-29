@@ -10,6 +10,7 @@
                           :compactMode="false"
                           :showActions="false">
 
+
                 {% block sw_maintain_currencies_modal_grid_column_name %}
                     <template slot="column-name" slot-scope="{ item }">
 
@@ -29,16 +30,25 @@
                 {% endblock %}
 
                 {% block sw_maintain_currencies_modal_grid_column_price %}
-                    <template slot="column-price" slot-scope="{ item }">
+                    <template slot="column-label-price">
+                        {% block sw_maintain_currencies_modal_grid_column_price_field_label %}
+                            <div class="sw-maintain-currencies-modal__price-label-wrapper">
+                                <div>{{ $tc('sw-maintain-currencies-modal.columnPrice') }}</div>
+                                <div>{{ $tc('sw-maintain-currencies-modal.columnListPriceHeader') }}</div>
+                            </div>
+                        {% endblock %}
+                    </template>
 
+                    <template slot="column-price" slot-scope="{ item }">
                         {% block sw_maintain_currencies_modal_grid_column_price_field %}
-                            <sw-price-field :price="prices"
+                            <sw-list-price-field :price="prices"
                                             :defaultPrice="defaultPrice"
                                             :taxRate="taxRate"
                                             :label="false"
+                                            :disableSuffix="true"
                                             enableInheritance
                                             :currency="item">
-                            </sw-price-field>
+                            </sw-list-price-field>
                         {% endblock %}
                     </template>
                 {% endblock %}

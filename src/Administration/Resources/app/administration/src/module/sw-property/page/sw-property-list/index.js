@@ -88,18 +88,18 @@ Component.register('sw-property-list', {
         getPropertyColumns() {
             return [{
                 property: 'name',
-                label: this.$tc('sw-property.list.columnName'),
+                label: 'sw-property.list.columnName',
                 routerLink: 'sw.property.detail',
                 inlineEdit: 'string',
                 allowResize: true,
                 primary: true
             }, {
                 property: 'options',
-                label: this.$tc('sw-property.list.columnOptions'),
+                label: 'sw-property.list.columnOptions',
                 allowResize: true
             }, {
                 property: 'description',
-                label: this.$tc('sw-property.list.columnDescription'),
+                label: 'sw-property.list.columnDescription',
                 allowResize: true
             }];
         }

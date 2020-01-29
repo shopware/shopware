@@ -98,25 +98,25 @@ Component.register('sw-settings-country-list', {
                 property: 'name',
                 dataIndex: 'name',
                 inlineEdit: 'string',
-                label: this.$tc('sw-settings-country.list.columnName'),
+                label: 'sw-settings-country.list.columnName',
                 routerLink: 'sw.settings.country.detail',
                 primary: true
             }, {
                 property: 'position',
                 inlineEdit: 'number',
-                label: this.$tc('sw-settings-country.list.columnPosition')
+                label: 'sw-settings-country.list.columnPosition'
             }, {
                 property: 'iso',
                 inlineEdit: 'string',
-                label: this.$tc('sw-settings-country.list.columnIso')
+                label: 'sw-settings-country.list.columnIso'
             }, {
                 property: 'iso3',
                 inlineEdit: 'string',
-                label: this.$tc('sw-settings-country.list.columnIso3')
+                label: 'sw-settings-country.list.columnIso3'
             }, {
                 property: 'active',
                 inlineEdit: 'string',
-                label: this.$tc('sw-settings-country.list.columnActive')
+                label: 'sw-settings-country.list.columnActive'
             }];
         }
     }

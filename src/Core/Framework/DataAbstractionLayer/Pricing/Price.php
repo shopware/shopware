@@ -26,12 +26,18 @@ class Price extends Struct
      */
     protected $linked;
 
-    public function __construct(string $currencyId, float $net, float $gross, bool $linked)
+    /**
+     * @var Price|null
+     */
+    protected $listPrice;
+
+    public function __construct(string $currencyId, float $net, float $gross, bool $linked, ?Price $listPrice = null)
     {
         $this->net = $net;
         $this->gross = $gross;
         $this->linked = $linked;
         $this->currencyId = $currencyId;
+        $this->listPrice = $listPrice;
     }
 
     public function getNet(): float
@@ -78,5 +84,15 @@ class Price extends Struct
     public function setCurrencyId(string $currencyId): void
     {
         $this->currencyId = $currencyId;
+    }
+
+    public function setListPrice(?Price $listPrice): void
+    {
+        $this->listPrice = $listPrice;
+    }
+
+    public function getListPrice(): ?Price
+    {
+        return $this->listPrice;
     }
 }

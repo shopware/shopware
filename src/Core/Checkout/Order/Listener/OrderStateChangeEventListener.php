@@ -2,9 +2,14 @@
 
 namespace Shopware\Core\Checkout\Order\Listener;
 
+use Shopware\Core\Checkout\Cart\Exception\OrderDeliveryNotFoundException;
+use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
+use Shopware\Core\Checkout\Cart\Exception\OrderTransactionNotFoundException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\StateMachine\Event\StateMachineStateChangeEvent;
@@ -44,50 +49,95 @@ class OrderStateChangeEventListener
         $this->eventDispatcher = $eventDispatcher;
     }
 
+    /**
+     * @throws OrderDeliveryNotFoundException
+     * @throws OrderNotFoundException
+     */
     public function onOrderDeliveryStateChange(StateMachineStateChangeEvent $event): void
     {
-        /** @var OrderDeliveryEntity $orderDelivery */
-        $orderDelivery = $this->orderDeliveryRepository->search(
-            new Criteria([$event->getTransition()->getEntityId()]),
-            $event->getContext()
-        )->first();
-        $orderCriteria = $this->getOrderCriteria($orderDelivery->getOrderId());
-        /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($orderCriteria, $event->getContext())->first();
+        $orderDeliveryId = $event->getTransition()->getEntityId();
+        $context = $event->getContext();
 
-        $this->eventDispatcher->dispatch(
-            new OrderStateMachineStateChangeEvent($event->getStateEventName(), $order, $order->getSalesChannelId(), $event->getContext()),
-            $event->getStateEventName()
-        );
+        /** @var OrderDeliveryEntity|null $orderDelivery */
+        $orderDelivery = $this->orderDeliveryRepository->search(
+            new Criteria([$orderDeliveryId]),
+            $context
+        )->first();
+
+        if ($orderDelivery === null) {
+            throw new OrderDeliveryNotFoundException($orderDeliveryId);
+        }
+
+        $orderId = $orderDelivery->getOrderId();
+
+        $this->dispatchEvent($event->getStateEventName(), $orderId, $context);
     }
 
+    /**
+     * @throws OrderNotFoundException
+     * @throws OrderTransactionNotFoundException
+     */
     public function onOrderTransactionStateChange(StateMachineStateChangeEvent $event): void
     {
-        /** @var OrderDeliveryEntity $orderDelivery */
-        $orderDelivery = $this->orderTransactionRepository->search(
-            new Criteria([$event->getTransition()->getEntityId()]),
-            $event->getContext()
+        $orderTransactionId = $event->getTransition()->getEntityId();
+        $context = $event->getContext();
+
+        /** @var OrderTransactionEntity|null $orderTransaction */
+        $orderTransaction = $this->orderTransactionRepository->search(
+            new Criteria([$orderTransactionId]),
+            $context
         )->first();
-        $orderCriteria = $this->getOrderCriteria($orderDelivery->getOrderId());
-        /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($orderCriteria, $event->getContext())->first();
+
+        if ($orderTransaction === null) {
+            throw new OrderTransactionNotFoundException($orderTransactionId);
+        }
+
+        $orderId = $orderTransaction->getOrderId();
+
+        $this->dispatchEvent($event->getStateEventName(), $orderId, $context);
+    }
+
+    /**
+     * @throws OrderNotFoundException
+     */
+    public function onOrderStateChange(StateMachineStateChangeEvent $event): void
+    {
+        $orderId = $event->getTransition()->getEntityId();
+
+        $this->dispatchEvent($event->getStateEventName(), $orderId, $event->getContext());
+    }
+
+    /**
+     * @throws OrderNotFoundException
+     */
+    private function dispatchEvent(string $stateEventName, string $orderId, Context $context): void
+    {
+        $order = $this->getOrder($orderId, $context);
 
         $this->eventDispatcher->dispatch(
-            new OrderStateMachineStateChangeEvent($event->getStateEventName(), $order, $order->getSalesChannelId(), $event->getContext()),
-            $event->getStateEventName()
+            new OrderStateMachineStateChangeEvent(
+                $stateEventName,
+                $order,
+                $order->getSalesChannelId(),
+                $context
+            ),
+            $stateEventName
         );
     }
 
-    public function onOrderStateChange(StateMachineStateChangeEvent $event): void
+    /**
+     * @throws OrderNotFoundException
+     */
+    private function getOrder(string $orderId, Context $context): OrderEntity
     {
-        $orderCriteria = $this->getOrderCriteria($event->getTransition()->getEntityId());
-        /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($orderCriteria, $event->getContext())->first();
+        $orderCriteria = $this->getOrderCriteria($orderId);
+        /** @var OrderEntity|null $order */
+        $order = $this->orderRepository->search($orderCriteria, $context)->first();
+        if ($order === null) {
+            throw new OrderNotFoundException($orderId);
+        }
 
-        $this->eventDispatcher->dispatch(
-            new OrderStateMachineStateChangeEvent($event->getStateEventName(), $order, $order->getSalesChannelId(), $event->getContext()),
-            $event->getStateEventName()
-        );
+        return $order;
     }
 
     private function getOrderCriteria(string $orderId): Criteria
@@ -96,6 +146,7 @@ class OrderStateChangeEventListener
         $orderCriteria->addAssociation('orderCustomer.salutation');
         $orderCriteria->addAssociation('stateMachineState');
         $orderCriteria->addAssociation('transactions');
+        $orderCriteria->addAssociation('deliveries');
         $orderCriteria->addAssociation('salesChannel');
 
         return $orderCriteria;

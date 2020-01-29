@@ -98,7 +98,6 @@ $sw-context-menu-color-warning:          $color-pumpkin-spice;
     &.is--disabled {
         opacity: 0.5;
         cursor: default;
-        pointer-events: none;
 
         &:hover {
             color: $sw-context-menu-color-text;

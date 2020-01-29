@@ -85,7 +85,7 @@ PHP analysis:
         - php dev-ops/analyze/generate-composer.php
         - php dev-ops/analyze/vendor/bin/ecs check vendor/shopware/platform/src --config vendor/shopware/platform/easy-coding-standard.yml
         - php dev-ops/analyze/phpstan-config-generator.php
-        - php dev-ops/analyze/vendor/bin/phpstan analyze --configuration vendor/shopware/platform/phpstan.neon --error-format gitlab | tee phpstan-report.json
+        - php dev-ops/analyze/vendor/bin/phpstan analyze --autoload-file=dev-ops/analyze/vendor/autoload.php --configuration vendor/shopware/platform/phpstan.neon --error-format gitlab | tee phpstan-report.json
         - >
             for module in $(ls vendor/shopware/platform/src/); do
                 echo "[PSALM: scan $module]"
@@ -293,42 +293,19 @@ Storefront (Jest):
         reports:
             junit: development/build/artifacts/e2e/*.xml
 
-.storefront_script:
-    script:  &storefront_definition
-        - ./psh.phar init --APP_ENV="prod"
-        - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
-        - ./psh.phar e2e:dump-db --APP_ENV="prod"
-        - chown -R 1000:1000 .
-        - docker run --name cypress -d -t --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/vendor/shopware/platform/src/Storefront/Resources/app/storefront/test/e2e:/e2e-Storefront -v $(pwd):/app cypress/browsers:node10.11.0-chrome75
-        - docker exec cypress npm clean-install --prefix /e2e-Storefront
-        - forever start vendor/shopware/platform/src/Storefront/Resources/app/storefront/test/e2e/routes/cypress.js
-        - docker exec cypress npx cypress run --project /e2e-Storefront --browser chrome --config baseUrl=http://docker.vm:8000
-        - docker rm -f cypress
-
-.administration_script:
-    script: &administration_definition
-        - ./psh.phar init --APP_ENV="prod"
-        - ./psh.phar administration:init --APP_ENV="prod"
-        - ./psh.phar e2e:dump-db --APP_ENV="prod"
-        - chown -R 1000:1000 .
-        - docker run --name cypress -d -t --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e:/e2e-Administration -v $(pwd):/app cypress/browsers:node10.11.0-chrome75
-        - docker exec cypress npm clean-install --prefix /e2e-Administration
-        - forever start vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e/routes/cypress.js
-        - docker exec cypress npx cypress run --project /e2e-Administration --browser chrome --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0 --spec $TEST_DIRECTORY
-        - docker rm -f cypress
-
 .mixed_script:
     script: &mixed_definition
         - ./psh.phar init --APP_ENV="prod"
         - ./psh.phar administration:init --APP_ENV="prod"
         - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
         - ./psh.phar e2e:dump-db --APP_ENV="prod"
+        - E2E_BASE_PATH=vendor/shopware/platform/src/${SECTION}/Resources/app/$(echo ${SECTION} | tr '[:upper:]' '[:lower:]')/test/e2e
+        - npm i @shopware-ag/e2e-testsuite-platform --prefix $E2E_BASE_PATH
+        - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - chown -R 1000:1000 .
-        - docker run --name cypress -d -t --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e:/e2e-Administration -v $(pwd):/app cypress/browsers:node10.11.0-chrome75
-        - docker exec cypress npm clean-install --prefix /e2e-Administration
-        - forever start vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e/routes/cypress.js
-        - docker exec cypress npx cypress run --project /e2e-Administration --browser chrome --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0 --spec $TEST_DIRECTORY
-        - docker rm -f cypress
+        - docker run --rm --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:3.8.1 -c "npm install --production --prefix /e2e && node_modules/.bin/cypress run --project /e2e --browser chrome --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0 --spec $TEST_DIRECTORY"
+        - npx mochawesome-merge build/artifacts/e2e/mochawesome*.json > build/artifacts/e2e/report-final.json
+        - npx mochawesome-report-generator build/artifacts/e2e/report-final.json --cdn true --reportDir build/artifacts/e2e/
 
 General (Storefront):
     only:
@@ -336,8 +313,11 @@ General (Storefront):
         - master
         - "6.1"
     <<: *e2e_definition
-    script: *storefront_definition
+    script: *mixed_definition
     needs: [Storefront (Jest)]
+    variables:
+        SECTION: 'Storefront'
+        TEST_DIRECTORY: "cypress/integration/**/*"
 
 Content (Mixed):
     only:
@@ -347,7 +327,8 @@ Content (Mixed):
     <<: *e2e_definition
     script: *mixed_definition
     variables:
-        TEST_DIRECTORY: e2e-Administration/cypress/integration/content/**/*
+        SECTION: 'Administration'
+        TEST_DIRECTORY: "cypress/integration/content/**/*"
 
 Catalogues  (Mixed):
     only:
@@ -357,7 +338,8 @@ Catalogues  (Mixed):
     <<: *e2e_definition
     script: *mixed_definition
     variables:
-        TEST_DIRECTORY: e2e-Administration/cypress/integration/catalogue/**/*
+        SECTION: 'Administration'
+        TEST_DIRECTORY: "cypress/integration/catalogue/**/*"
 
 Customers (Mixed):
     only:
@@ -367,7 +349,8 @@ Customers (Mixed):
     <<: *e2e_definition
     script: *mixed_definition
     variables:
-        TEST_DIRECTORY: e2e-Administration/cypress/integration/customer/**/*
+        SECTION: 'Administration'
+        TEST_DIRECTORY: "cypress/integration/customer/**/*"
 
 Media and Marketing (Mixed):
     only:
@@ -377,7 +360,8 @@ Media and Marketing (Mixed):
     <<: *e2e_definition
     script: *mixed_definition
     variables:
-        TEST_DIRECTORY: e2e-Administration/cypress/integration/media-marketing/**/*
+        SECTION: 'Administration'
+        TEST_DIRECTORY: "cypress/integration/media-marketing/**/*"
 
 General (Administration):
     only:
@@ -385,9 +369,10 @@ General (Administration):
         - master
         - "6.1"
     <<: *e2e_definition
-    script: *administration_definition
+    script: *mixed_definition
     variables:
-        TEST_DIRECTORY: e2e-Administration/cypress/integration/general/**/*
+        SECTION: 'Administration'
+        TEST_DIRECTORY: "cypress/integration/general/**/*"
 
 Orders (Administration):
     only:
@@ -395,9 +380,10 @@ Orders (Administration):
         - master
         - "6.1"
     <<: *e2e_definition
-    script: *administration_definition
+    script: *mixed_definition
     variables:
-        TEST_DIRECTORY: e2e-Administration/cypress/integration/order/**/*
+        SECTION: 'Administration'
+        TEST_DIRECTORY: "cypress/integration/order/**/*"
 
 Rules and Product Groups (Administration):
     only:
@@ -405,9 +391,10 @@ Rules and Product Groups (Administration):
         - master
         - "6.1"
     <<: *e2e_definition
-    script: *administration_definition
+    script: *mixed_definition
     variables:
-        TEST_DIRECTORY: e2e-Administration/cypress/integration/rule-product-stream/**/*
+        SECTION: 'Administration'
+        TEST_DIRECTORY: "cypress/integration/rule-product-stream/**/*"
 
 Settings (Administration):
     only:
@@ -415,9 +402,10 @@ Settings (Administration):
         - master
         - "6.1"
     <<: *e2e_definition
-    script: *administration_definition
+    script: *mixed_definition
     variables:
-        TEST_DIRECTORY: e2e-Administration/cypress/integration/settings/**/*
+        SECTION: 'Administration'
+        TEST_DIRECTORY: "cypress/integration/settings/**/*"
 
 # Stage: build
 

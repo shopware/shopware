@@ -63,7 +63,7 @@
                                     <sw-field :disabled="column.primary"
                                               @change="onChangeColumnVisibility($event, index)"
                                               type="checkbox"
-                                              :label="column.label"
+                                              :label="$te(column.label) ? $tc(column.label) : column.label"
                                               :value="currentColumns[index].visible">
                                     </sw-field>
                                 {% endblock %}

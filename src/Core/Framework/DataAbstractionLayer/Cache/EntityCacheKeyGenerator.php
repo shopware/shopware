@@ -21,18 +21,12 @@ use Shopware\Core\System\Language\LanguageDefinition;
 class EntityCacheKeyGenerator
 {
     /**
-     * @var LanguageDefinition
-     */
-    private $languageDefinition;
-
-    /**
      * @var string
      */
     private $cacheHash;
 
-    public function __construct(LanguageDefinition $languageDefinition, string $cacheHash)
+    public function __construct(string $cacheHash)
     {
-        $this->languageDefinition = $languageDefinition;
         $this->cacheHash = $cacheHash;
     }
 
@@ -105,10 +99,19 @@ class EntityCacheKeyGenerator
 
     /**
      * Defines the tag for a single entity. Used for invalidation if this entity is written
+     *
+     * @param string|EntityDefinition $entityName
      */
-    public function getEntityTag(string $id, EntityDefinition $definition): string
+    public function getEntityTag(string $id, $entityName): string
     {
-        $keys = [$definition->getEntityName(), $id];
+        if ($entityName instanceof EntityDefinition) {
+            $entity = $entityName->getEntityName();
+            @trigger_error('Providing an entity definition to `getEntityTag` is deprecated since 6.1, please provide the entity name instead. String type hint will be added in 6.3', E_USER_DEPRECATED);
+        } else {
+            $entity = $entityName;
+        }
+
+        $keys = [$entity, $id];
 
         return implode('-', $keys);
     }
@@ -155,10 +158,10 @@ class EntityCacheKeyGenerator
     {
         $associations = $definition->getFields()->filterInstance(AssociationField::class);
 
-        $keys = [$this->getEntityTag($entity->getUniqueIdentifier(), $definition)];
+        $keys = [$this->getEntityTag($entity->getUniqueIdentifier(), $definition->getEntityName())];
 
         foreach ($context->getLanguageIdChain() as $languageId) {
-            $keys[] = $this->getEntityTag($languageId, $this->languageDefinition);
+            $keys[] = $this->getEntityTag($languageId, LanguageDefinition::ENTITY_NAME);
         }
 
         $translationDefinition = $definition->getTranslationDefinition();

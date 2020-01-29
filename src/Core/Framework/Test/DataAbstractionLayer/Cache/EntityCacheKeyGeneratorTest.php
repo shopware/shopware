@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
 
 class EntityCacheKeyGeneratorTest extends TestCase
@@ -32,7 +31,6 @@ class EntityCacheKeyGeneratorTest extends TestCase
     {
         parent::setUp();
         $this->generator = new EntityCacheKeyGenerator(
-            $this->getContainer()->get(LanguageDefinition::class),
             $this->getContainer()->getParameter('kernel.cache.hash')
         );
     }

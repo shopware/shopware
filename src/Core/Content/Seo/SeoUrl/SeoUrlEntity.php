@@ -146,12 +146,12 @@ class SeoUrlEntity extends Entity
         $this->seoPathInfo = $seoPathInfo;
     }
 
-    public function getIsCanonical(): bool
+    public function getIsCanonical(): ?bool
     {
         return $this->isCanonical;
     }
 
-    public function setIsCanonical(bool $isCanonical): void
+    public function setIsCanonical(?bool $isCanonical): void
     {
         $this->isCanonical = $isCanonical;
     }

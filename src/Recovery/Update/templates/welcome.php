@@ -23,6 +23,27 @@ echo $renderer->fetch('_header.php', ['tab' => 'start']); ?>
                 <option value="en"<?php if ($selectedLanguage === 'en') : ?> selected="selected"<?php endif; ?>>
                     <?= $language['select_language_en']; ?>
                 </option>
+                <option value="cz"<?php if ($selectedLanguage === 'cz') : ?> selected="selected"<?php endif; ?>>
+                    <?= $language['select_language_cz']; ?>
+                </option>
+                <option value="es"<?php if ($selectedLanguage === 'es') : ?> selected="selected"<?php endif; ?>>
+                    <?= $language['select_language_es']; ?>
+                </option>
+                <option value="fr"<?php if ($selectedLanguage === 'fr') : ?> selected="selected"<?php endif; ?>>
+                    <?= $language['select_language_fr']; ?>
+                </option>
+                <option value="it"<?php if ($selectedLanguage === 'it') : ?> selected="selected"<?php endif; ?>>
+                    <?= $language['select_language_it']; ?>
+                </option>
+                <option value="nl"<?php if ($selectedLanguage === 'nl') : ?> selected="selected"<?php endif; ?>>
+                    <?= $language['select_language_nl']; ?>
+                </option>
+                <option value="pt"<?php if ($selectedLanguage === 'pt') : ?> selected="selected"<?php endif; ?>>
+                    <?= $language['select_language_pt']; ?>
+                </option>
+                <option value="sv"<?php if ($selectedLanguage === 'sv') : ?> selected="selected"<?php endif; ?>>
+                    <?= $language['select_language_sv']; ?>
+                </option>
             </select>
         </div>
     </div>

@@ -52,6 +52,7 @@
                                            detailRoute="sw.customer.detail"
                                            :showSelection="true"
                                            :isLoading="isLoading"
+                                           identifier="sw-customer-list"
                                            @inline-edit-save="onInlineEditSave">
 
                             {% block sw_customer_list_grid_columns %}
@@ -183,9 +184,11 @@
                                 @click="onRefresh">
                         </sw-sidebar-item>
                     {% endblock %}
+
                     {% block sw_customer_list_sidebar_filter %}
                         <sw-sidebar-item icon="default-action-filter"
                                          :title="$tc('sw-customer.list.titleSidebarItemFilter')">
+
                             {% block sw_customer_list_sidebar_filter_affiliate_code %}
                                 <sw-multi-select
                                     :label="$tc('sw-customer.list.titleSidebarItemFilterAffiliateCode')"

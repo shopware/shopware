@@ -10,6 +10,8 @@ services:
     PhpCsFixer\Fixer\CastNotation\ModernizeTypesCastingFixer: ~
     PhpCsFixer\Fixer\ClassNotation\ClassAttributesSeparationFixer:
         elements: ['property', 'method']
+    PhpCsFixer\Fixer\FunctionNotation\MethodArgumentSpaceFixer:
+        on_multiline: 'ensure_fully_multiline'
     PhpCsFixer\Fixer\FunctionNotation\VoidReturnFixer: ~
     PhpCsFixer\Fixer\Operator\ConcatSpaceFixer:
         spacing: 'one'
@@ -29,6 +31,7 @@ services:
     PhpCsFixer\Fixer\Whitespace\CompactNullableTypehintFixer: ~
     PhpCsFixerCustomFixers\Fixer\NoImportFromGlobalNamespaceFixer: ~
     PhpCsFixerCustomFixers\Fixer\NoUnneededConcatenationFixer: ~
+    PhpCsFixerCustomFixers\Fixer\NoUselessCommentFixer: ~
     PhpCsFixerCustomFixers\Fixer\NullableParamStyleFixer: ~
     PhpCsFixerCustomFixers\Fixer\OperatorLinebreakFixer: ~
     PhpCsFixerCustomFixers\Fixer\PhpdocNoIncorrectVarAnnotationFixer: ~
@@ -43,4 +46,6 @@ parameters:
         PhpCsFixer\Fixer\PhpTag\BlankLineAfterOpeningTagFixer: ~
         PhpCsFixer\Fixer\Phpdoc\PhpdocSummaryFixer: ~
         PhpCsFixer\Fixer\StringNotation\ExplicitStringVariableFixer: ~
+        PhpCsFixerCustomFixers\Fixer\NoUselessCommentFixer: # would otherwise destroy the example in the annotation
+            - 'src/Core/System/Annotation/Concept/DeprecationPattern/ReplaceDecoratedInterface.php'
         PHP_CodeSniffer\Standards\Generic\Sniffs\CodeAnalysis\AssignmentInConditionSniff: ~

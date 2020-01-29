@@ -115,9 +115,9 @@ Component.register('sw-product-detail-context-prices', {
         },
 
         currencyColumns() {
-            return this.currencies.sort((a, b) => {
-                return b.isSystemDefault ? 1 : -1;
-            }).map((currency) => {
+            this.sortCurrencies();
+
+            return this.currencies.map((currency) => {
                 return {
                     property: `price-${currency.isoCode}`,
                     label: currency.translated.name || currency.name,
@@ -134,7 +134,7 @@ Component.register('sw-product-detail-context-prices', {
             return [
                 {
                     property: 'quantityStart',
-                    label: this.$tc('sw-product.advancedPrices.columnFrom'),
+                    label: 'sw-product.advancedPrices.columnFrom',
                     visible: true,
                     allowResize: true,
                     primary: true,
@@ -142,7 +142,7 @@ Component.register('sw-product-detail-context-prices', {
                     width: '95px'
                 }, {
                     property: 'quantityEnd',
-                    label: this.$tc('sw-product.advancedPrices.columnTo'),
+                    label: 'sw-product.advancedPrices.columnTo',
                     visible: true,
                     allowResize: true,
                     primary: true,
@@ -174,6 +174,24 @@ Component.register('sw-product-detail-context-prices', {
                 this.totalRules = res.total;
 
                 Shopware.State.commit('swProductDetail/setLoading', ['rules', false]);
+            });
+        },
+
+        sortCurrencies() {
+            this.currencies.sort((a, b) => {
+                if (a.isSystemDefault) {
+                    return -1;
+                }
+                if (b.isSystemDefault) {
+                    return 1;
+                }
+                if (a.translated.name < b.translated.name) {
+                    return -1;
+                }
+                if (a.translated.name > b.translated.name) {
+                    return 1;
+                }
+                return 0;
             });
         },
 

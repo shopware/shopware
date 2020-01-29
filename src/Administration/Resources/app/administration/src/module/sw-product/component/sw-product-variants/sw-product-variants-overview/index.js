@@ -315,6 +315,10 @@ Component.register('sw-product-variants-overview', {
             if (foundVariantIndex >= 0) {
                 this.$delete(variant.price, foundVariantIndex);
             }
+
+            if (variant.price.length <= 0) {
+                variant.price = null;
+            }
         },
 
         onInheritanceRemove(variant, currency) {

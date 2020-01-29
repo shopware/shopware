@@ -30,18 +30,6 @@ Component.register('sw-context-button', {
             default: 220
         },
 
-        menuOffsetTop: {
-            type: Number,
-            required: false,
-            default: 10
-        },
-
-        menuOffsetLeft: {
-            type: Number,
-            required: false,
-            default: 15
-        },
-
         menuHorizontalAlign: {
             type: String,
             required: false,
@@ -95,22 +83,16 @@ Component.register('sw-context-button', {
 
     data() {
         return {
-            showMenu: this.showMenuOnStartup,
-            positionTop: 0,
-            positionLeft: 0,
-            paddingTop: 0,
-            menuUuid: 0
+            showMenu: this.showMenuOnStartup
         };
     },
 
     computed: {
         menuStyles() {
             return {
-                left: `${this.positionLeft}px`,
-                top: `${this.positionTop}px`,
-                display: this.showMenu ? 'block' : 'none',
-                width: `${this.menuWidth}px`,
-                'padding-top': `${this.paddingTop}px`
+                right: '-34px',
+                top: '10px',
+                width: `${this.menuWidth}px`
             };
         },
 
@@ -136,78 +118,50 @@ Component.register('sw-context-button', {
         }
     },
 
-    mounted() {
-        this.mountedComponent();
-    },
-
-    beforeDestroy() {
-        this.beforeDestroyComponent();
-    },
-
     methods: {
-        mountedComponent() {
+        onClickButton() {
             if (this.showMenu) {
-                return;
+                this.closeMenu();
+            } else {
+                this.openMenu();
             }
-            this.removeMenuFromBody();
-        },
-
-        beforeDestroyComponent() {
-            this.removeMenuFromBody();
         },
 
         openMenu() {
-            if (this.disabled) {
-                return;
-            }
-
-            const boundingBox = this.$el.getBoundingClientRect();
-            const secureOffset = 5;
-
-            this.positionTop = boundingBox.top - secureOffset;
-
-            if (this.menuHorizontalAlign === 'left') {
-                this.positionLeft = boundingBox.left - secureOffset;
-            } else {
-                this.positionLeft = (boundingBox.left + boundingBox.width + this.menuOffsetLeft) - this.menuWidth;
-            }
-            this.paddingTop = boundingBox.height + secureOffset + this.menuOffsetTop;
-
-            this.addMenuToBody();
             this.showMenu = true;
-            this.$emit('context-menu-after-open');
+            document.addEventListener('click', this.handleClickEvent);
         },
 
-        closeMenu(event) {
-            const el = this.$refs.swContextButton;
-            const target = event.target;
-            const excludedElements = this.autoClose ?
-                !target.classList.contains('is--disabled') :
-                !target.closest('.sw-context-menu__content');
-
-            if ((el !== target) && !el.contains(target) && excludedElements) {
-                this.showMenu = false;
-                this.removeMenuFromBody();
-                this.$emit('context-menu-after-close');
+        handleClickEvent(event) {
+            // when target is disabled dont close the context menu item
+            const isTargetDisabled = event && event.target.classList.contains('is--disabled');
+            if (isTargetDisabled) {
+                return false;
             }
+
+            // close menu when no context button exists (when component gets destroyed)
+            const contextButton = this.$refs.swContextButton;
+            if (!contextButton) {
+                return this.closeMenu();
+            }
+
+            // check if the user clicked inside the context menu
+            const clickedInside = contextButton ? contextButton.contains(event.target) : false;
+
+            // only close the menu on inside clicks if autoclose is active
+            const shouldCloseOnInsideClick = (this.autoClose && !clickedInside);
+
+            // close menu when there is no native event (when vue event is triggered) or user clicked outside
+            if ((!event || !event.target) || shouldCloseOnInsideClick) {
+                return this.closeMenu();
+            }
+
+            return false;
         },
 
-        addMenuToBody() {
-            const menuEl = this.$refs.swContextMenu;
-
-            if (menuEl) {
-                document.body.appendChild(menuEl.$el);
-                document.addEventListener('click', this.closeMenu);
-            }
-        },
-
-        removeMenuFromBody() {
-            const menuEl = this.$refs.swContextMenu;
-
-            if (menuEl) {
-                document.removeEventListener('click', this.closeMenu);
-                menuEl.$el.remove();
-            }
+        closeMenu() {
+            this.showMenu = false;
+            document.removeEventListener('click', this.handleClickEvent);
         }
     }
 });

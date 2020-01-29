@@ -7,7 +7,7 @@
         {% endblock %}
 
         {% block cms_element_form_textarea_textarea %}
-            {% spaceless %}
+            {% apply spaceless %}
                 <textarea name="{{ fieldName }}"
                           id="form-{{ fieldName }}"
                           placeholder="{{ placeholder|trans }}"
@@ -16,7 +16,7 @@
                           class="form-control{% if formViolations.getViolations( '/' ~ fieldName ) %} is-invalid{% endif %}">
                     {{ data.get(fieldName) }}
                 </textarea>
-            {% endspaceless %}
+            {% endapply %}
 
             {% if formViolations.getViolations( '/' ~ fieldName ) is not empty %}
                 {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {

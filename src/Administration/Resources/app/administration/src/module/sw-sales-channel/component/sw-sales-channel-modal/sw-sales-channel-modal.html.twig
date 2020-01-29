@@ -23,6 +23,8 @@
 
         {% block sw_sales_channel_modal_grid %}
             <sw-sales-channel-modal-grid v-if="!detailType"
+                                         :productStreamsExist="productStreamsExist"
+                                         :productStreamsLoading="productStreamsLoading"
                                          @grid-detail-open="onGridOpenDetails"
                                          @grid-channel-add="onAddChannel">
             </sw-sales-channel-modal-grid>
@@ -43,7 +45,18 @@
                         {% endblock %}
 
                         {% block sw_sales_channel_modal_footer_add_channel %}
-                            <sw-button class="sw-sales-channel-modal__add-sales-channel-action" variant="primary" size="small" @click="onAddChannel(detailType.id)">
+                            <sw-button
+                                class="sw-sales-channel-modal__add-sales-channel-action"
+                                variant="primary"
+                                size="small"
+                                @click="onAddChannel(detailType.id)"
+                                :isLoading="isProductComparisonSalesChannelType(detailType.id) && productStreamsLoading"
+                                :disabled="isProductComparisonSalesChannelType(detailType.id) && !productStreamsExist"
+                                v-tooltip="{
+                                    message: $tc('sw-sales-channel.modal.messageNoProductStreams'),
+                                    showOnDisabledElements: true,
+                                    disabled: !isProductComparisonSalesChannelType(detailType.id) && !productStreamsExist
+                                }">
                                 {{ $tc('sw-sales-channel.modal.buttonAddChannel') }}
                             </sw-button>
                         {% endblock %}

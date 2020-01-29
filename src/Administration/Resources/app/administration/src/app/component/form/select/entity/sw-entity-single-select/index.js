@@ -1,7 +1,7 @@
 import './sw-entity-single-select.scss';
 import template from './sw-entity-single-select.html.twig';
 
-const { Component, Utils } = Shopware;
+const { Component, Mixin, Utils } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 const { debounce, get } = Shopware.Utils;
 
@@ -12,6 +12,10 @@ Component.register('sw-entity-single-select', {
         prop: 'value',
         event: 'change'
     },
+
+    mixins: [
+        Mixin.getByName('remove-api-error')
+    ],
 
     inject: { repositoryFactory: 'repositoryFactory' },
 
@@ -57,13 +61,14 @@ Component.register('sw-entity-single-select', {
                 return Shopware.Context.api;
             }
         },
+        /**
+         * @deprecated tag:v6.3.0
+         */
         popoverConfig: {
             type: Object,
             required: false,
             default() {
-                return {
-                    active: false
-                };
+                return { active: false };
             }
         }
     },
@@ -277,7 +282,7 @@ Component.register('sw-entity-single-select', {
             // This is a little against v-model. But so we dont need to load the selected item on every selection
             // from the server
             this.lastSelection = item;
-            /** @deprecated Html select don't have an onInput event */
+            /** @deprecated tag:v6.3.0 Html select don't have an onInput event */
             this.$emit('input', item.id, item);
             this.$emit('change', item.id, item);
 
@@ -286,7 +291,7 @@ Component.register('sw-entity-single-select', {
 
         clearSelection() {
             this.$emit('before-selection-clear', this.singleSelection, this.value);
-            /** @deprecated Html select don't have an onInput event */
+            /** @deprecated tag:v6.3.0 Html select don't have an onInput event */
             this.$emit('input', null);
             this.$emit('change', null);
 

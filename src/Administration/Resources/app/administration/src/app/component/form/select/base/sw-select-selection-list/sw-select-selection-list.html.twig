@@ -3,7 +3,7 @@
         {% block sw_select_selection_list_item %}
             <li v-for="(selection, index) in selections"
                 class="sw-select-selection-list__item-holder"
-                :class="`sw-select-selection-list__item-holder--${index}`"
+                :class="'sw-select-selection-list__item-holder--' + index"
                 :key="selection[valueProperty]"
                 :data-id="selection[valueProperty]">
 

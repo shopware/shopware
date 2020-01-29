@@ -109,23 +109,23 @@ Component.register('sw-order-document-card', {
             const columns = [{
                 property: 'createdAt',
                 dataIndex: 'createdAt',
-                label: this.$tc('sw-order.documentCard.labelDate'),
+                label: 'sw-order.documentCard.labelDate',
                 allowResize: false,
                 primary: true
             }, {
                 property: 'config.documentNumber',
                 dataIndex: 'config.documentNumber',
-                label: this.$tc('sw-order.documentCard.labelNumber'),
+                label: 'sw-order.documentCard.labelNumber',
                 allowResize: false
             }, {
                 property: 'documentType.name',
                 dataIndex: 'documentType.name',
-                label: this.$tc('sw-order.documentCard.labelType'),
+                label: 'sw-order.documentCard.labelType',
                 allowResize: false
             }, {
                 property: 'sent',
                 dataIndex: 'sent',
-                label: this.$tc('sw-order.documentCard.labelSent'),
+                label: 'sw-order.documentCard.labelSent',
                 allowResize: false,
                 align: 'center'
             }];
@@ -134,7 +134,7 @@ Component.register('sw-order-document-card', {
                 columns.push({
                     property: 'attach',
                     dataIndex: 'attach',
-                    label: this.$tc('sw-order.documentCard.labelAttach'),
+                    label: 'sw-order.documentCard.labelAttach',
                     allowResize: false,
                     align: 'center'
                 });

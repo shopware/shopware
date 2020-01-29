@@ -41,7 +41,7 @@
                 {% if productReviewCount > 0 %}
                     <div class="js-review-filter">
                         <form class="review-filter-form"
-						  action="{{ path('frontend.product.reviews', { productId: reviews.productId }) }}"
+						  action="{{ path('frontend.product.reviews', { productId: reviews.productId, parentId: reviews.parentId }) }}"
 						  method="post"
 						  data-form-ajax-submit="true"
 						  data-form-ajax-submit-options='{

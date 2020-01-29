@@ -1,8 +1,9 @@
-const GeneralPageObject = require('../sw-general.page-object');
+/* global cy */
+import GeneralPageObject from '../sw-general.page-object';
 
 export default class OrderPageObject extends GeneralPageObject {
-    constructor(browser) {
-        super(browser);
+    constructor() {
+        super();
 
         this.elements = {
             ...this.elements,
@@ -12,7 +13,7 @@ export default class OrderPageObject extends GeneralPageObject {
         };
     }
 
-    setOrderState({stateTitle, type, signal = 'neutral', scope = 'select', call = null}, isMailTemplateAssigned) {
+    setOrderState({ stateTitle, type, signal = 'neutral', scope = 'select', call = null }, isMailTemplateAssigned) {
         const stateColor = `.sw-order-state__${signal}-select`;
         const callType = type === 'payment' ? '_transaction' : '';
 
@@ -29,18 +30,18 @@ export default class OrderPageObject extends GeneralPageObject {
             .should('be.visible')
             .select(stateTitle);
 
-        cy.get(`.sw-order-state-change-modal`)
+        cy.get('.sw-order-state-change-modal')
             .should('be.visible');
 
         if (!isMailTemplateAssigned) {
             cy.get('.sw-order-state-change-modal-assign-mail-template__entity-listing .sw-data-grid__row--0 input')
                 .click();
 
-            cy.get(`.sw-order-state-change-modal-assign-mail-template__button`)
+            cy.get('.sw-order-state-change-modal-assign-mail-template__button')
                 .click();
         }
 
-        cy.get(`.sw-order-state-change-modal-attach-documents__button`)
+        cy.get('.sw-order-state-change-modal-attach-documents__button')
             .click();
 
         cy.wait(`@${call}Call`).then((xhr) => {
@@ -53,10 +54,10 @@ export default class OrderPageObject extends GeneralPageObject {
             if (scope === 'select') {
                 cy.get(stateColor).should('be.visible');
             }
-        })
+        });
     }
 
-    checkOrderHistoryEntry({type, stateTitle, signal = 'neutral', position = 0}) {
+    checkOrderHistoryEntry({ type, stateTitle, signal = 'neutral', position = 0 }) {
         const currentStatusIcon = `.sw-order-state__${signal}-icon`;
         const item = `.sw-order-state-history-card__${type}-state .sw-order-state-history__entry--${position}`;
 

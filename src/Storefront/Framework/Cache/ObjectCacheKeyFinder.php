@@ -102,7 +102,7 @@ class ObjectCacheKeyFinder
                 return [];
             }
 
-            $keys[] = $this->entityCacheKeyGenerator->getEntityTag($item->getUniqueIdentifier(), $definition);
+            $keys[] = $this->entityCacheKeyGenerator->getEntityTag($item->getUniqueIdentifier(), $definition->getEntityName());
         }
 
         $data = $item->getVars();

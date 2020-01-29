@@ -4,7 +4,8 @@
         {% block sw_cms_sidebar_page_settings %}
             <sw-sidebar-item icon="default-action-settings"
                              :title="$tc('sw-cms.detail.sidebar.titlePageSettings')"
-                             ref="pageConfigSidebar">
+                             ref="pageConfigSidebar"
+                             :disabled="page.locked">
 
                 {% block sw_cms_sidebar_page_settings_content %}
                     <sw-sidebar-collapse :expandOnLoading="true">
@@ -68,7 +69,7 @@
         {% block sw_cms_sidebar_block_overview %}
             <sw-sidebar-item icon="default-basic-plus-circle"
                              :title="addBlockTitle"
-                             :disabled="currentDeviceView === 'form' || !isSystemDefaultLanguage"
+                             :disabled="currentDeviceView === 'form' || !isSystemDefaultLanguage || page.locked"
                              ref="blockSelectionSidebar">
                 {% block sw_cms_sidebar_block_overview_content %}
                     <div class="sw-cms-sidebar__block-overview">
@@ -123,7 +124,7 @@
             <sw-sidebar-item icon="default-documentation-paper-pencil"
                          :title="sidebarItemSettings"
                          ref="itemConfigSidebar"
-                         :disabled="selectedBlock === null && selectedSection === null"
+                         :disabled="(selectedBlock === null && selectedSection === null) || page.locked"
                          @close-content="onCloseBlockConfig">
 
                 {% block sw_cms_sidebar_block_settings %}
@@ -198,7 +199,7 @@
         {% block sw_cms_sidebar_navigator %}
             <sw-sidebar-item icon="default-os-layers"
                              :title="$tc('sw-cms.detail.sidebar.titleNavigator')"
-                             :disabled="!page.sections.length === 0 || currentDeviceView === 'form'"
+                             :disabled="!page.sections.length === 0 || currentDeviceView === 'form' || page.locked"
                              ref="blockNavigator">
                 {% block sw_cms_sidebar_navigator_content %}
                     <div class="sw-cms-sidebar__navigator">

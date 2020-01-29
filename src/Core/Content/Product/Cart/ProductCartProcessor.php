@@ -14,7 +14,6 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\QuantityInformation;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
@@ -110,7 +109,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 continue;
             }
 
-            /** @var ProductEntity $product */
+            /** @var SalesChannelProductEntity $product */
             $product = $data->get('product-' . $lineItem->getReferencedId());
 
             // container products can not be bought
@@ -120,7 +119,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 continue;
             }
 
-            $available = $this->getAvailableStock($product, $lineItem);
+            $available = $product->getCalculatedMaxPurchase() ?? $lineItem->getQuantity();
 
             if ($available <= 0 || $available < $product->getMinPurchase()) {
                 $original->remove($lineItem->getId());
@@ -203,26 +202,17 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $quantityInformation = new QuantityInformation();
 
-        $productMinPurchase = $product->getMinPurchase();
-        if ($productMinPurchase > 0) {
-            $quantityInformation->setMinPurchase($productMinPurchase);
-        }
+        $quantityInformation->setMinPurchase(
+            $product->getMinPurchase() ?? 1
+        );
 
-        if ($product->getIsCloseout()) {
-            $max = $product->getAvailableStock();
+        $quantityInformation->setMaxPurchase(
+            $product->getCalculatedMaxPurchase()
+        );
 
-            $productMaxPurchase = $product->getMaxPurchase();
-            if ($productMaxPurchase > 0 && $productMaxPurchase < $max) {
-                $max = $productMaxPurchase;
-            }
-
-            $quantityInformation->setMaxPurchase($max);
-        }
-
-        $productPurchaseSteps = $product->getPurchaseSteps();
-        if ($productPurchaseSteps > 0) {
-            $quantityInformation->setPurchaseSteps($productPurchaseSteps);
-        }
+        $quantityInformation->setPurchaseSteps(
+            $product->getPurchaseSteps() ?? 1
+        );
 
         $lineItem->setQuantityInformation($quantityInformation);
 
@@ -303,15 +293,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
 
         return false;
-    }
-
-    private function getAvailableStock(ProductEntity $product, LineItem $lineItem): int
-    {
-        if (!$product->getIsCloseout()) {
-            return $lineItem->getQuantity();
-        }
-
-        return $product->getAvailableStock();
     }
 
     private function getOptions(SalesChannelProductEntity $product): array

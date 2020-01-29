@@ -36,25 +36,25 @@ Component.register('sw-settings-shipping-price-matrix', {
         },
         labelQuantityStart() {
             const calculationType = {
-                1: this.$tc('sw-settings-shipping.priceMatrix.columnQuantityStart'),
-                2: this.$tc('sw-settings-shipping.priceMatrix.columnPriceStart'),
-                3: this.$tc('sw-settings-shipping.priceMatrix.columnWeightStart'),
-                4: this.$tc('sw-settings-shipping.priceMatrix.columnVolumeStart')
+                1: 'sw-settings-shipping.priceMatrix.columnQuantityStart',
+                2: 'sw-settings-shipping.priceMatrix.columnPriceStart',
+                3: 'sw-settings-shipping.priceMatrix.columnWeightStart',
+                4: 'sw-settings-shipping.priceMatrix.columnVolumeStart'
             };
 
             return calculationType[this.priceGroup.calculation]
-                || this.$tc('sw-settings-shipping.priceMatrix.columnQuantityStart');
+                || 'sw-settings-shipping.priceMatrix.columnQuantityStart';
         },
         labelQuantityEnd() {
             const calculationType = {
-                1: this.$tc('sw-settings-shipping.priceMatrix.columnQuantityEnd'),
-                2: this.$tc('sw-settings-shipping.priceMatrix.columnPriceEnd'),
-                3: this.$tc('sw-settings-shipping.priceMatrix.columnWeightEnd'),
-                4: this.$tc('sw-settings-shipping.priceMatrix.columnVolumeEnd')
+                1: 'sw-settings-shipping.priceMatrix.columnQuantityEnd',
+                2: 'sw-settings-shipping.priceMatrix.columnPriceEnd',
+                3: 'sw-settings-shipping.priceMatrix.columnWeightEnd',
+                4: 'sw-settings-shipping.priceMatrix.columnVolumeEnd'
             };
 
             return calculationType[this.priceGroup.calculation]
-                || this.$tc('sw-settings-shipping.priceMatrix.columnQuantityEnd');
+                || 'sw-settings-shipping.priceMatrix.columnQuantityEnd';
         },
         confirmDeleteText() {
             const name = this.priceGroup.rule ? this.priceGroup.rule.name : '';
@@ -68,7 +68,7 @@ Component.register('sw-settings-shipping-price-matrix', {
             if (this.priceGroup && this.priceGroup.prices.some(priceRule => priceRule.calculationRuleId)) {
                 columns.push({
                     property: 'calculationRule.name',
-                    label: this.$tc('sw-settings-shipping.priceMatrix.columnCalculationRule'),
+                    label: 'sw-settings-shipping.priceMatrix.columnCalculationRule',
                     allowResize: true,
                     primary: true,
                     rawData: true

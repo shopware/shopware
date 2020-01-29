@@ -125,13 +125,13 @@ Component.register('sw-plugin-list', {
                 property: 'label',
                 dataProperty: 'label',
                 primary: true,
-                label: this.$tc('sw-plugin.list.columnPluginName')
+                label: 'sw-plugin.list.columnPluginName'
             }, {
                 property: 'active',
-                label: this.$tc('sw-plugin.list.columnActive')
+                label: 'sw-plugin.list.columnActive'
             }, {
                 property: 'version',
-                label: this.$tc('sw-plugin.list.columnVersion')
+                label: 'sw-plugin.list.columnVersion'
             }];
         }
     },

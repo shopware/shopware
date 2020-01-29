@@ -46,7 +46,7 @@ Component.register('sw-order-line-items-grid', {
             const columnDefinitions = [{
                 property: 'label',
                 dataIndex: 'label',
-                label: this.$tc('sw-order.detailBase.columnProductName'),
+                label: 'sw-order.detailBase.columnProductName',
                 allowResize: false,
                 primary: true,
                 inlineEdit: true,
@@ -55,8 +55,8 @@ Component.register('sw-order-line-items-grid', {
                 property: 'unitPrice',
                 dataIndex: 'unitPrice',
                 label: this.order.taxStatus === 'net' ?
-                    this.$tc('sw-order.detailBase.columnPriceNet') :
-                    this.$tc('sw-order.detailBase.columnPriceGross'),
+                    'sw-order.detailBase.columnPriceNet' :
+                    'sw-order.detailBase.columnPriceGross',
                 allowResize: false,
                 align: 'right',
                 inlineEdit: true,
@@ -64,7 +64,7 @@ Component.register('sw-order-line-items-grid', {
             }, {
                 property: 'quantity',
                 dataIndex: 'quantity',
-                label: this.$tc('sw-order.detailBase.columnQuantity'),
+                label: 'sw-order.detailBase.columnQuantity',
                 allowResize: false,
                 align: 'right',
                 inlineEdit: true,
@@ -73,8 +73,8 @@ Component.register('sw-order-line-items-grid', {
                 property: 'totalPrice',
                 dataIndex: 'totalPrice',
                 label: this.order.taxStatus === 'net' ?
-                    this.$tc('sw-order.detailBase.columnTotalPriceNet') :
-                    this.$tc('sw-order.detailBase.columnTotalPriceGross'),
+                    'sw-order.detailBase.columnTotalPriceNet' :
+                    'sw-order.detailBase.columnTotalPriceGross',
                 allowResize: false,
                 align: 'right',
                 width: '80px'
@@ -84,7 +84,7 @@ Component.register('sw-order-line-items-grid', {
                 columnDefinitions.push(
                     {
                         property: 'price.taxRules[0]',
-                        label: this.$tc('sw-order.detailBase.columnTax'),
+                        label: 'sw-order.detailBase.columnTax',
                         allowResize: false,
                         align: 'right',
                         inlineEdit: true,

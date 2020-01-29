@@ -71,7 +71,7 @@ export default class AddressEditorPlugin extends Plugin {
      */
     _getRequestData() {
         const data = {
-            id: this.options.id,
+            id: this.options.addressId,
             changeableAddresses: {
                 changeShipping: this.options.changeShipping,
                 changeBilling: this.options.changeBilling,

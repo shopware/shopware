@@ -14,7 +14,11 @@
                 {% block sw_cms_slot_overlay_content %}
                     <div class="sw-cms-slot__actions">
                         {% block sw_cms_slot_overlay_action_settings %}
-                            <div class="sw-cms-slot__settings-action" :class="cmsSlotSettingsClasses" @click="onSettingsButtonClick" v-tooltip.bottom="tooltipDisabled">
+                            <div
+                                class="sw-cms-slot__settings-action"
+                                :class="cmsSlotSettingsClasses"
+                                @click="onSettingsButtonClick"
+                                v-tooltip.bottom="tooltipDisabled">
                                 <sw-icon name="default-action-settings" size="16"></sw-icon>
                             </div>
                         {% endblock %}

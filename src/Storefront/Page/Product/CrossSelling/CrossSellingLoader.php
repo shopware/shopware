@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Page\Product\CrossSelling;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -23,8 +22,6 @@ class CrossSellingLoader
     private $eventDispatcher;
 
     /**
-     * @deprecated tag:v6.3.0
-     *
      * @var EntityRepositoryInterface
      */
     private $crossSellingRepository;
@@ -39,9 +36,6 @@ class CrossSellingLoader
      */
     private $productRepository;
 
-    /**
-     * @deprecated tag:v6.3.0 the crossSellingRepositoryParameter will be removed
-     */
     public function __construct(
         EntityRepositoryInterface $crossSellingRepository,
         EventDispatcherInterface $eventDispatcher,
@@ -54,16 +48,9 @@ class CrossSellingLoader
         $this->productRepository = $productRepository;
     }
 
-    /**
-     * @deprecated tag:v6.3.0 use loadForProduct() instead
-     */
-    public function load(string $productId, SalesChannelContext $context, ?ProductEntity $product = null): CrossSellingLoaderResult
+    public function load(string $productId, SalesChannelContext $context): CrossSellingLoaderResult
     {
-        if (!$product || !$product->getCrossSellings()) {
-            $crossSellings = $this->loadCrossSellingsForProduct($productId, $context);
-        } else {
-            $crossSellings = $product->getCrossSellings();
-        }
+        $crossSellings = $this->loadCrossSellingsForProduct($productId, $context);
 
         $result = new CrossSellingLoaderResult();
 
@@ -76,23 +63,19 @@ class CrossSellingLoader
         return $result;
     }
 
-    public function loadForProduct(ProductEntity $product, SalesChannelContext $context): CrossSellingLoaderResult
-    {
-        // this call should not break decoration as decorators have to extend this service
-        return $this->load($product->getId(), $context, $product);
-    }
-
     private function loadCrossSellingsForProduct(string $productId, SalesChannelContext $context): ProductCrossSellingCollection
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('id', $productId))
-            ->getAssociation('crossSellings')
-                ->addSorting(new FieldSorting('position', FieldSorting::ASCENDING));
+        $criteria
+            ->addFilter(new EqualsFilter('product.id', $productId))
+            ->addSorting(new FieldSorting('position', FieldSorting::ASCENDING));
 
-        /** @var ProductEntity $product */
-        $product = $this->productRepository->search($criteria, $context)->get($productId);
+        /** @var ProductCrossSellingCollection $crossSellings */
+        $crossSellings = $this->crossSellingRepository
+            ->search($criteria, $context->getContext())
+            ->getEntities();
 
-        return $product->getCrossSellings();
+        return $crossSellings;
     }
 
     private function loadCrossSellingElement(ProductCrossSellingEntity $crossSelling, SalesChannelContext $context): CrossSellingElement

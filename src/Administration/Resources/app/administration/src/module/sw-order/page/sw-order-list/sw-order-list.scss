@@ -17,4 +17,8 @@ $sw-order-list-color-success: $color-emerald;
     .is--active {
         color: $sw-order-list-color-success;
     }
+
+    .sw-order-list__sidebar .sw-sidebar-item__scrollable-container {
+        padding: 0 25px;
+    }
 }

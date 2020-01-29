@@ -114,7 +114,7 @@ class Utils
      */
     public static function getLanguage($lang = null)
     {
-        $allowedLanguages = ['de', 'en'];
+        $allowedLanguages = ['de', 'en', 'cz', 'es', 'fr', 'it', 'nl', 'pt', 'sv'];
         $selectedLanguage = 'en';
 
         if ($lang && in_array($lang, $allowedLanguages, true)) {

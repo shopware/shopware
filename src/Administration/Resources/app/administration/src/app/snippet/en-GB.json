@@ -3,7 +3,8 @@
     "error-codes": {
       "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "This value should not be blank",
       "INVALID_MEDIA_URL": "Please enter a valid URL to upload a file.",
-      "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "You must choose a type for this rule."
+      "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "You must choose a type for this rule.",
+      "SHOPWARE_INVALID_IP": "Invalid IP address"
     },
     "default": {
       "add": "Add",
@@ -97,6 +98,10 @@
     "sw-price-field": {
       "labelPriceGross": "Price (gross)",
       "labelPriceNet": "Price (net)"
+    },
+    "sw-list-price-field": {
+      "labelListPriceGross": "List price (gross)",
+      "labelListPriceNet": "List price (net)"
     },
     "sw-text-editor": {
       "labelTextLength": "{count} character | {count} characters"
@@ -326,6 +331,10 @@
     },
     "sw-multi-select": {
       "messageNoResults": "No results found for \"{term}\"."
+    },
+    "sw-multi-ip-select": {
+      "enterValidIp": "Please enter a valid IPv4 or IPv6 address",
+      "addIpAdress": "Add IP address"
     },
     "sw-entity-multi-select": {
       "messageNoResults": "No results found for \"{term}\"."
@@ -711,6 +720,7 @@
   },
   "sw-maintain-currencies-modal": {
     "title": "Currency dependent pricing",
-    "columnPrice": "Prices (gross / net)"
+    "columnPrice": "Prices (gross / net)",
+    "columnListPriceHeader": "List prices (gross / net)"
   }
 }

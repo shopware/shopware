@@ -45,9 +45,9 @@
                 <template #results-list>
                     {% block sw_entity_single_select_base_results_slot %}
                         <sw-select-result-list ref="resultsList"
+                                               :popoverConfig="popoverConfig" {# @deprecated tag:v6.3.0 #}
                                                :options="results"
                                                :isLoading="isLoading"
-                                               :popoverConfig="popoverConfig"
                                                :emptyMessage="$tc('global.sw-single-select.messageNoResults', searchTerm, { term: searchTerm })"
                                                :focusEl="$refs.swSelectInput"
                                                @paginate="paginate"

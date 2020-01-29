@@ -176,12 +176,10 @@
                                                            value="frontend.checkout.cart.page">
                                                 {% endblock %}
 
-                                                {% if lineItem.quantityInformation.maxPurchase %}
-                                                    {% if lineItem.deliveryInformation.stock < lineItem.quantityInformation.maxPurchase %}
-                                                        {% set maxQuantity = lineItem.deliveryInformation.stock %}
-                                                    {% else %}
-                                                        {% set maxQuantity = lineItem.quantityInformation.maxPurchase %}
-                                                    {% endif %}
+                                                {# @var quantityInformation \Shopware\Core\Checkout\Cart\LineItem\QuantityInformation #}
+                                                {% set quantityInformation = lineItem.quantityInformation %}
+                                                {% if quantityInformation.maxPurchase %}
+                                                    {% set maxQuantity = quantityInformation.maxPurchase %}
                                                 {% else %}
                                                     {% set maxQuantity = shopware.config.core.cart.maxQuantity %}
                                                 {% endif %}

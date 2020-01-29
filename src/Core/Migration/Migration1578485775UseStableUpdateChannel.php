@@ -14,10 +14,10 @@ class Migration1578485775UseStableUpdateChannel extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
-            UPDATE system_config
-            SET configuration_value = :value
-            WHERE configuration_key = :key',
+        $connection->executeUpdate(
+            'UPDATE system_config
+             SET configuration_value = :value
+             WHERE configuration_key = :key',
             [
                 'key' => 'core.update.channel',
                 'value' => json_encode(['_value' => 'stable']),

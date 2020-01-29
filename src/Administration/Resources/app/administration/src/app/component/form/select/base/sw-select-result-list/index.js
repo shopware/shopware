@@ -44,15 +44,18 @@ Component.register('sw-select-result-list', {
             required: false,
             default: false
         },
+
+        /**
+         * @deprecated tag:v6.3.0
+         */
         popoverConfig: {
             type: Object,
             required: false,
             default() {
-                return {
-                    active: false
-                };
+                return {};
             }
         }
+
     },
 
     data() {
@@ -151,7 +154,7 @@ Component.register('sw-select-result-list', {
         updateScrollPosition() {
             // wait until the new active item is rendered and has the active class
             this.$nextTick(() => {
-                const resultContainer = this.$el;
+                const resultContainer = document.querySelector('.sw-select-result-list__content');
                 const activeItem = resultContainer.querySelector('.is--active');
                 const itemHeight = activeItem.offsetHeight;
                 const activeItemPosition = activeItem.offsetTop;

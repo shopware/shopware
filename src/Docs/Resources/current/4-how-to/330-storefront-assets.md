@@ -25,18 +25,17 @@ This also means that you have to ship your plugin with the javascript already bu
 If you don't want to create a custom webpack configuration, you can use the Shopware webpack build 
 configuration. In order to do that, you have to define an entry-point, so webpack knows where to get started.
 In Shopware 6, this entry-point is a `main.js` file inside of the following directory:
-`<plugin root>/src/Resources/storefront/`
+`<plugin root>/src/Resources/app/storefront/src`
 
-*Note: For administration files, the path would be same, but ending with `administration` of course.*
+*Note: For administration files, the path would be same, but ending with `administration/src` of course.*
 
 Go ahead and create a `main.js` in that directory.
 
 ### Adding styles
 
-By default, Shopware looks in the `<plugin root>/src/Resources/storefront/style` folder of your plugin
-and collects all *.css and *.scss file in that folder (non recursive).
+By default, Shopware looks in the `<plugin root>/src/Resources/app/storefront/src/scss` folder of your plugin to load a `base.scss` file.
 
-To try it out, create a main.scss file in the folder mentioned above 
+To try it out, create a `base.scss` file in the folder mentioned above.
 
 Inside of the `.scss` file, add some styles to see if it's working. In this example, 
 the background of the `body` will be changed.
@@ -49,16 +48,16 @@ body {
 
 In case you want to use the same color in several places, but want to define it just one time you can use variables for this.
 
-Create a `variables.scss` file inside your styles folder and define your background color variable:
+Create a `abstract/variables.scss` file inside your styles folder and define your background color variable.
 ```scss
 // in variables.scss
 $sw-storefront-assets-color-background: blue;
 ```
 
-Inside your `main.scss` file you can now import your previously defined variables and use them:
+Inside your `base.scss` file you can now import your previously defined variables and use them:
 ```scss
-// in main.scss
-@import 'variables.scss';
+// in base.scss
+@import 'abstract/variables.scss';
 
 body {
     background: $sw-storefront-assets-color-background;
@@ -72,26 +71,8 @@ This has the advantage that when you want to change the values of your variables
 Since Shopware knows where your style files are located, they are automatically compiled, compressed 
 and loaded in the storefront. For javascript you normally would have two locations where your *.js files
 are located. You have your main.js as an entry point and by default the compiled js file is saved at
-`<plugin root>/src/Resources/dist/storefront/js/<plugin-name>.js`
-You can tell shopware to include this file by changing the storefront script path in your plugin
-bootstrap file.
-
-Example:
-```php
-<?php declare(strict_types=1);
-
-namespace Swag\PluginQuickStart;
-
-use Shopware\Core\Framework\Plugin;
-
-class PluginQuickStart extends Plugin
-{
-    public function getStorefrontScriptPath(): string
-    {
-        return 'Resources/dist/storefront/js';
-    }
-}
-```
+`<plugin root>/src/Resources/app/storefront/dist/storefront/js/<plugin-name>.js`.
+This file will be recognized automatically by shopware.
 
 ### Testing its functionality
 

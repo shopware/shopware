@@ -213,7 +213,11 @@ $sw-media-base-item-preview-background:      $color-white;
         }
 
         .sw-context-button {
-            position: static;
+            position: relative;
+            top: 0;
+            right: 0;
+            width: 20px;
+            height: 30px;
             grid-row: 1 / span 2;
             visibility: visible;
         }

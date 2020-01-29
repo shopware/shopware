@@ -2,7 +2,7 @@ import AccountPageObject from '../../support/pages/account.page-object';
 
 describe('Account: Forgot password', () => {
     beforeEach(() => {
-        return cy.createCustomerFixture()
+        return cy.createCustomerFixtureStorefront()
     });
 
     it('Request a new password with existing customer mail', () => {

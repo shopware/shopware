@@ -1,0 +1,38 @@
+{% block sw_list_price_field %}
+    <div :class="{
+            'sw-list-price-field': true,
+            'sw-list-price-field__vertical': vertical
+        }">
+
+        {% block sw_list_price_field_price %}
+            <sw-price-field :price="price"
+                            required
+                            :compact="compact"
+                            :disableSuffix="disableSuffix"
+                            :taxRate="taxRate"
+                            :error="error"
+                            :disabled="disabled"
+                            :enableInheritance="enableInheritance"
+                            :label="label"
+                            :currency="currency">
+            </sw-price-field>
+        {% endblock %}
+
+        {% block sw_list_price_field_list_price %}
+            <sw-price-field :price="listPrice"
+                            :taxRate="taxRate"
+                            :disabled="disabled"
+                            :grossLabel="$tc('global.sw-list-price-field.labelListPriceGross')"
+                            :netLabel="$tc('global.sw-list-price-field.labelListPriceNet')"
+                            :compact="compact"
+                            :disableSuffix="disableSuffix"
+                            :label="label"
+                            :enableInheritance="enableInheritance"
+                            class="sw-list-price-field__list-price"
+                            @change="listPriceChanged"
+                            :error="error"
+                            :currency="currency">
+            </sw-price-field>
+        {% endblock %}
+    </div>
+{% endblock %}

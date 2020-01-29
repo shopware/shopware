@@ -21,6 +21,14 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
             $jsonAccessor = 'gross';
         }
 
+        $parts = explode('.', $accessor);
+
+        // filter / search / sort for list prices? => extend selector
+        $listPrice = array_pop($parts) === 'listPrice';
+        if ($listPrice) {
+            $jsonAccessor = 'listPrice.' . $jsonAccessor;
+        }
+
         $select = [];
 
         /*

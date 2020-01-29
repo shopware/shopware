@@ -82,16 +82,16 @@ Component.register('sw-settings-number-range-list', {
             return [{
                 property: 'name',
                 dataIndex: 'name',
-                label: this.$tc('sw-settings-number-range.list.columnName'),
+                label: 'sw-settings-number-range.list.columnName',
                 routerLink: 'sw.settings.number.range.detail',
                 primary: true,
                 inlineEdit: 'string'
             }, {
                 property: 'type.typeName',
-                label: this.$tc('sw-settings-number-range.list.columnUsedIn')
+                label: 'sw-settings-number-range.list.columnUsedIn'
             }, {
                 property: 'global',
-                label: this.$tc('sw-settings-number-range.list.columnAssignment')
+                label: 'sw-settings-number-range.list.columnAssignment'
             }];
         },
 

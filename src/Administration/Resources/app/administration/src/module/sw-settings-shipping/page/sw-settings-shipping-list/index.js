@@ -45,19 +45,19 @@ Component.register('sw-settings-shipping-list', {
         getColumns() {
             return [{
                 property: 'name',
-                label: this.$tc('sw-settings-shipping.list.columnName'),
+                label: 'sw-settings-shipping.list.columnName',
                 inlineEdit: 'string',
                 routerLink: 'sw.settings.shipping.detail',
                 allowResize: true,
                 primary: true
             }, {
                 property: 'description',
-                label: this.$tc('sw-settings-shipping.list.columnDescription'),
+                label: 'sw-settings-shipping.list.columnDescription',
                 inlineEdit: 'string',
                 allowResize: true
             }, {
                 property: 'active',
-                label: this.$tc('sw-settings-shipping.list.columnActive'),
+                label: 'sw-settings-shipping.list.columnActive',
                 inlineEdit: 'boolean',
                 allowResize: true,
                 align: 'center'

@@ -10,7 +10,8 @@
       "buttonShowDetails": "Show details",
       "buttonBack": "Back",
       "buttonCancel": "Cancel",
-      "titleDescription": "Information"
+      "titleDescription": "Information",
+      "messageNoProductStreams": "In order to use product comparisons a dynamic product group has to be created first."
     },
     "detail": {
       "titleSaveSuccess": "Success",
@@ -181,6 +182,9 @@
           }
         }
       }
+    },
+    "sw-sales-channel-defaults-select": {
+      "messageError": "The value is in use by domain: \"%{url}\"."
     }
   }
 }

@@ -59,11 +59,9 @@ describe('Rule builder: Test crud operations', () => {
             cy.get('.sw-condition-type-select', { withinSubject: conditionElement })
                 .then((conditionTypeSelect) => {
                     cy.wrap(conditionTypeSelect).click();
-                    cy.get('.sw-select-result-list', { withinSubject: conditionTypeSelect })
-                        .should('be.visible');
+                    cy.get('.sw-select-result-list-popover-wrapper').should('be.visible');
 
-                    cy.get('.sw-select-result-list', { withinSubject: conditionTypeSelect })
-                        .contains('Time range')
+                    cy.get('.sw-select-result-list-popover-wrapper',).contains('Time range')
                         .click();
                 })
         });

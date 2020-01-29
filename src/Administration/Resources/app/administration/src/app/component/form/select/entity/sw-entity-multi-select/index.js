@@ -1,6 +1,6 @@
 import template from './sw-entity-multi-select.html.twig';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 const { debounce, get } = Shopware.Utils;
 const { Criteria, EntityCollection } = Shopware.Data;
 
@@ -14,6 +14,10 @@ Component.register('sw-entity-multi-select', {
     },
 
     inject: { repositoryFactory: 'repositoryFactory' },
+
+    mixins: [
+        Mixin.getByName('remove-api-error')
+    ],
 
     props: {
         labelProperty: {
@@ -119,11 +123,7 @@ Component.register('sw-entity-multi-select', {
         },
 
         refreshCurrentCollection() {
-            this.currentCollection = this.createEmptyCollection();
-
-            this.entityCollection.forEach(entity => {
-                this.currentCollection.push(entity);
-            });
+            this.currentCollection = EntityCollection.fromCollection(this.entityCollection);
         },
 
         createEmptyCollection() {
@@ -201,10 +201,10 @@ Component.register('sw-entity-multi-select', {
             this.loadData();
         },
 
-        emitChanges() {
-            /** @deprecated Html select don't have an onInput event */
-            this.$emit('input', this.currentCollection);
-            this.$emit('change', this.currentCollection);
+        emitChanges(newCollection) {
+            /** @deprecated tag:v6.3.0 Html select don't have an onInput event */
+            this.$emit('input', newCollection);
+            this.$emit('change', newCollection);
         },
 
         addItem(item) {
@@ -215,8 +215,10 @@ Component.register('sw-entity-multi-select', {
 
             this.$emit('item-add', item);
 
-            this.currentCollection.add(item);
-            this.emitChanges();
+            const newCollection = EntityCollection.fromCollection(this.currentCollection);
+            newCollection.add(item);
+
+            this.emitChanges(newCollection);
 
             this.$refs.selectionList.focus();
             this.$refs.selectionList.select();
@@ -225,8 +227,10 @@ Component.register('sw-entity-multi-select', {
         remove(item) {
             this.$emit('item-remove', item);
 
-            this.currentCollection.remove(item.id);
-            this.emitChanges();
+            const newCollection = EntityCollection.fromCollection(this.currentCollection);
+            newCollection.remove(item.id);
+
+            this.emitChanges(newCollection);
         },
 
         removeLastItem() {

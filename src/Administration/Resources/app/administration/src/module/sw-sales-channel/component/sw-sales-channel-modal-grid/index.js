@@ -6,6 +6,22 @@ const { Component, StateDeprecated } = Shopware;
 Component.register('sw-sales-channel-modal-grid', {
     template,
 
+    inject: { repositoryFactory: 'repositoryFactory' },
+
+    props: {
+        productStreamsExist: {
+            type: Boolean,
+            required: false,
+            default: true
+        },
+
+        productStreamsLoading: {
+            type: Boolean,
+            required: false,
+            default: false
+        }
+    },
+
     data() {
         return {
             salesChannelTypes: [],
@@ -30,10 +46,11 @@ Component.register('sw-sales-channel-modal-grid', {
                 limit: 500,
                 page: 1
             };
+            const { languageId } = Shopware.State.get('session');
 
             this.isLoading = true;
 
-            this.salesChannelTypeStore.getList(params).then((response) => {
+            this.salesChannelTypeStore.getList(params, false, languageId).then((response) => {
                 this.total = response.total;
                 this.salesChannelTypes = response.items;
                 this.isLoading = false;
@@ -47,6 +64,10 @@ Component.register('sw-sales-channel-modal-grid', {
         onOpenDetail(id) {
             const detailType = this.salesChannelTypes.find(a => a.id === id);
             this.$emit('grid-detail-open', detailType);
+        },
+
+        isProductComparisonSalesChannelType(salesChannelTypeId) {
+            return salesChannelTypeId === 'ed535e5722134ac1aa6524f73e26881b';
         }
     }
 });

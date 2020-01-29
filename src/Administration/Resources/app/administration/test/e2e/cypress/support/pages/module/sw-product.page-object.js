@@ -1,4 +1,5 @@
-const GeneralPageObject = require('../sw-general.page-object');
+/* global cy */
+import GeneralPageObject from '../sw-general.page-object';
 
 export default class ProductPageObject extends GeneralPageObject {
     constructor() {
@@ -16,10 +17,10 @@ export default class ProductPageObject extends GeneralPageObject {
     createTag(value) {
         cy.get('.sw-product-category-form__tag-field input')
             .type(value);
-        cy.get('.sw-select-result-list').contains(`Add "${value}"`);
+        cy.get('.sw-select-result-list-popover-wrapper').contains(`Add "${value}"`);
         cy.get('.sw-product-category-form__tag-field input')
             .type('{enter}');
-        cy.get('.sw-select-result-list').contains(value);
+        cy.get('.sw-select-result-list-popover-wrapper').contains(value);
         cy.get('.sw-product-category-form__tag-field input').type('{esc}');
     }
 

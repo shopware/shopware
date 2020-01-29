@@ -8,6 +8,7 @@ use Shopware\Core\Content\Seo\SeoResolver;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Routing\RequestTransformer as CoreRequestTransformer;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -41,7 +42,9 @@ class RequestTransformerTest extends TestCase
         $this->requestTransformer = new RequestTransformer(
             new CoreRequestTransformer(),
             $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(SeoResolver::class)
+            $this->getContainer()->get(SeoResolver::class),
+            $this->getContainer()->get('cache.object'),
+            $this->getContainer()->get(EntityCacheKeyGenerator::class)
         );
 
         $this->deLanguageId = $this->getDeDeLanguageId();

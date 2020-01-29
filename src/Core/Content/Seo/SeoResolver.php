@@ -3,7 +3,11 @@
 namespace Shopware\Core\Content\Seo;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class SeoResolver implements SeoResolverInterface
 {
@@ -12,9 +16,21 @@ class SeoResolver implements SeoResolverInterface
      */
     private $connection;
 
-    public function __construct(Connection $connection)
+    /**
+     * @var TagAwareAdapterInterface
+     */
+    private $cache;
+
+    /**
+     * @var EntityCacheKeyGenerator
+     */
+    private $cacheKeyGenerator;
+
+    public function __construct(Connection $connection, TagAwareAdapterInterface $cache, EntityCacheKeyGenerator $cacheKeyGenerator)
     {
         $this->connection = $connection;
+        $this->cache = $cache;
+        $this->cacheKeyGenerator = $cacheKeyGenerator;
     }
 
     public function resolveSeoPath(string $languageId, string $salesChannelId, string $pathInfo): array
@@ -22,6 +38,13 @@ class SeoResolver implements SeoResolverInterface
         $seoPathInfo = ltrim($pathInfo, '/');
         if ($seoPathInfo === '') {
             return ['pathInfo' => '/', 'isCanonical' => false];
+        }
+
+        $key = md5($languageId . '-' . $salesChannelId . '-' . $pathInfo);
+
+        $item = $this->cache->getItem($key);
+        if ($item->isHit()) {
+            return $item->get();
         }
 
         $query = $this->connection->createQueryBuilder()
@@ -65,6 +88,21 @@ class SeoResolver implements SeoResolverInterface
         }
 
         $seoPath['pathInfo'] = '/' . ltrim($seoPath['pathInfo'], '/');
+
+        $item->set($seoPath);
+
+        if ($item instanceof ItemInterface) {
+            $tags = [SeoUrlDefinition::ENTITY_NAME . '.id'];
+
+            if (isset($seoPath['id'])) {
+                $id = Uuid::fromBytesToHex($seoPath['id']);
+                $tags[] = $this->cacheKeyGenerator->getEntityTag($id, SeoUrlDefinition::ENTITY_NAME);
+            }
+
+            $item->tag($tags);
+        }
+
+        $this->cache->save($item);
 
         return $seoPath;
     }

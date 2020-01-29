@@ -8,6 +8,11 @@ use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 class ReviewLoaderResult extends StorefrontSearchResult
 {
     /**
+     * @var string|null
+     */
+    protected $parentId;
+
+    /**
      * @var string
      */
     protected $productId;
@@ -75,5 +80,15 @@ class ReviewLoaderResult extends StorefrontSearchResult
     public function setTotalReviews(int $totalReviews): void
     {
         $this->totalReviews = $totalReviews;
+    }
+
+    public function getParentId(): ?string
+    {
+        return $this->parentId;
+    }
+
+    public function setParentId(?string $parentId): void
+    {
+        $this->parentId = $parentId;
     }
 }

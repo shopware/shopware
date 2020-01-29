@@ -37,6 +37,11 @@ class SalesChannelProductEntity extends ProductEntity
      */
     protected $isNew = false;
 
+    /**
+     * @var int
+     */
+    protected $calculatedMaxPurchase;
+
     public function getCalculatedListingPrice(): CalculatedListingPrice
     {
         return $this->calculatedListingPrice;
@@ -90,5 +95,15 @@ class SalesChannelProductEntity extends ProductEntity
     public function setIsNew(bool $isNew): void
     {
         $this->isNew = $isNew;
+    }
+
+    public function getCalculatedMaxPurchase(): int
+    {
+        return $this->calculatedMaxPurchase;
+    }
+
+    public function setCalculatedMaxPurchase(int $calculatedMaxPurchase): void
+    {
+        $this->calculatedMaxPurchase = $calculatedMaxPurchase;
     }
 }

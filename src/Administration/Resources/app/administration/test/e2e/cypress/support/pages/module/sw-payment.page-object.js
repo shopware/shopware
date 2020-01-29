@@ -1,8 +1,8 @@
-const GeneralPageObject = require('../sw-general.page-object');
+import GeneralPageObject from '../sw-general.page-object';
 
 export default class PaymentPageObject extends GeneralPageObject {
-    constructor(browser) {
-        super(browser);
+    constructor() {
+        super();
 
         this.elements = {
             ...this.elements,

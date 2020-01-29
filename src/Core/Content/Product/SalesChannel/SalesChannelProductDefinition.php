@@ -4,7 +4,9 @@ namespace Shopware\Core\Content\Product\SalesChannel;
 
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -47,6 +49,12 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
         );
         $fields->add(
             (new ListField('calculated_prices', 'calculatedPrices'))->addFlags(new Runtime())
+        );
+        $fields->add(
+            (new IntField('calculated_max_purchase', 'calculatedMaxPurchase'))->addFlags(new Runtime())
+        );
+        $fields->add(
+            (new BoolField('is_new', 'isNew'))->addFlags(new Runtime())
         );
 
         return $fields;

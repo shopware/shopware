@@ -97,7 +97,7 @@ class CrossSellingLoaderTest extends TestCase
         $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
 
         $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->get($productId);
-        $result = $this->crossSellingLoader->loadForProduct($product, $this->salesChannelContext);
+        $result = $this->crossSellingLoader->load($product->getId(), $this->salesChannelContext);
 
         static::assertEquals(1, $result->count());
 

@@ -15,7 +15,7 @@
 
                 {% block sw_colorpicker_input_field %}
                     <template #sw-field-input="{ disabled }">
-                        <input class="sw-colorpicker__input" v-model="colorValue" :disabled="disabled" spellcheck="false">
+                        <input class="sw-colorpicker__input" v-model="colorValue" :readonly="readonly" :disabled="disabled" spellcheck="false">
                     </template>
                 {% endblock %}
 

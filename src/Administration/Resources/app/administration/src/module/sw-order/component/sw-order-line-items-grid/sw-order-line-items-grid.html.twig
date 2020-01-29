@@ -181,7 +181,7 @@
                             {% block sw_order_line_items_grid_grid_actions_show %}
                             <sw-context-menu-item :disabled="item.type !== 'product'"
                                                   icon="default-eye-open"
-                                                  :routerLink="{ name: 'sw.product.detail', params: { id: item.identifier } }">
+                                                  :routerLink="{ name: 'sw.product.detail', params: { id: item.productId } }">
                                 {% block sw_order_line_items_grid_grid_actions_show_label %}
                                     {{ $tc('sw-order.detailBase.contextMenuShowProduct') }}
                                 {% endblock %}

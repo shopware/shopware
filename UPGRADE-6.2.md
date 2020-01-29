@@ -61,6 +61,12 @@ Administration
     * Remove method selectHasSaleschannel
     * Remove method undeleteSaleschannel
 
+* Refactored `sw-newsletter-recipient-list`
+    * Removed LocalStore
+    * Removed StateDeprecated
+    * Removed Computed salesChannelStore, use salesChannelRepository instead
+    * Removed Computed tagStore, use tagRepository instead
+    * Removed Computed tagAssociationStore
 
 Storefront
 ----------

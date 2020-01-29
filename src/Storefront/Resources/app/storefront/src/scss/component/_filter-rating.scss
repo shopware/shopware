@@ -6,13 +6,13 @@ This filter item should only be used inside a filter panel.
 */
 
 .filter-rating-dropdown {
-    padding: 10px;
     overflow: hidden;
 }
 
 .filter-rating-container {
     display: flex;
     align-items: center;
+    margin: 10px;
 }
 
 .filter-rating-star {

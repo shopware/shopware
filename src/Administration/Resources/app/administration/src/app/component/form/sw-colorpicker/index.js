@@ -58,6 +58,12 @@ Component.register('sw-colorpicker', {
             default: false
         },
 
+        readonly: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
         colorLabels: {
             type: Boolean,
             required: false,

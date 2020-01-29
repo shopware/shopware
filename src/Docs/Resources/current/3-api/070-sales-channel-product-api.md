@@ -20,5 +20,11 @@ Description: Returns detailed information about a specific product.
 
 **GET /sales-channel-api/v1/product/{productId}?associations[media][]**
 
+You can also load deep associations by providing multiple associations keys.
+
+**GET /sales-channel-api/v1/product/{productId}?associations[categories][associations][media][]**
+
+This will load the category association and the media association of the category.     
+
 Description: Not every association of an entity is loaded by default.
 If you are missing an association like the product images, just add them like shown in the example above

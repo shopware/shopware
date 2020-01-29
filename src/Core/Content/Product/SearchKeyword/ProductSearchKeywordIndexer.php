@@ -224,7 +224,7 @@ class ProductSearchKeywordIndexer implements IndexerInterface
         $products = $context->disableCache(function (Context $context) use ($ids) {
             $context->setConsiderInheritance(true);
 
-            return $this->productRepository->search(new Criteria($ids), $context);
+            return $this->productRepository->search((new Criteria($ids))->addAssociation('manufacturer'), $context);
         });
 
         $versionId = Uuid::fromHexToBytes($context->getVersionId());

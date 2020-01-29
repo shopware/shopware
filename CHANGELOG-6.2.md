@@ -24,6 +24,14 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Added `customFieldSetCriteria` as an computed property
 
     *
+    * The component sw-integration-list was refactored to use the "repositoryFactory" instead of "StateDeprecated" to fetch and save data
+	    - deprecated "StateDeprecated"
+	    - change default data "integrations" from "[]" to "null"
+	    - deprecated computed "id"
+	    - deprecated computed "integrationStore"
+	    - deprecated block "sw_integration_list_grid_inner"
+	    - deprecated block "sw_integration_list_grid_inner_slot_columns"
+	    - deprecated block "sw_integration_list_grid_pagination"
 
 * Core    
     *

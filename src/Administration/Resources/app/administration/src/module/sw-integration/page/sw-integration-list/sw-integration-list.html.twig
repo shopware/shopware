@@ -8,7 +8,7 @@
 
         <template slot="smart-bar-actions">
             {% block sw_integration_list_smart_bar_actions %}
-                <sw-button @click="onShowDetailModal()" variant="primary" class="sw-integration-list__add-integration-action">
+                <sw-button @click="onCreateIntegration" variant="primary" class="sw-integration-list__add-integration-action">
                     {{ $tc('sw-integration.general.buttonCreateIntegration') }}
                 </sw-button>
             {% endblock %}
@@ -131,99 +131,95 @@
                             {% endblock %}
 
                             {% block sw_integration_list_grid %}
-                                <sw-grid v-show="total"
-                                         :isLoading="isLoading"
-                                         :items="integrations"
-                                         :selectable="false"
-                                         :header="true"
-                                         :table="true"
-                                         slot="grid">
-                                    {% block sw_integration_list_grid_inner %}
-                                        <template slot="columns" slot-scope="{ item }">
-                                            {% block sw_integration_list_grid_inner_slot_columns %}
+                                <sw-entity-listing
+                                    :items="integrations"
+                                    :columns="integrationColumns"
+                                    :repository="integrationRepository"
+                                    :fullPage="false"
+                                    :compactMode="false"
+                                    :allowColumnEdit="false"
+                                    :showSelection="false"
+                                    :showSettings="false"
+                                    :isLoading="isLoading">
 
-                                                {% block sw_integration_list_grid_inner_slot_columns_label %}
-                                                    <sw-grid-column flex="minmax(150px, 1fr)" class="sw-integration-list__column-integration-name" dataIndex="label" :label="$tc('sw-integration.list.integrationName')">
-                                                        <span class="sw-integration-list__app-icon">
-                                                            <sw-icon name="default-action-share"></sw-icon>
-                                                        </span>
-                                                        <a href="#" @click.prevent="onShowDetailModal(item.id)">
-                                                            {{ item.label }}
-                                                        </a>
-                                                    </sw-grid-column>
-                                                {% endblock %}
-
-                                                {% block sw_integration_list_grid_inner_slot_columns_writeAccess %}
-                                                    <sw-grid-column flex="minmax(150px, 1fr)" class="sw-integration-list__column-integration-writeAccess" dataIndex="writeAccess" :label="$tc('sw-integration.list.permissions')">
-                                                        <sw-label size="medium" ghost caps light>{{ $tc('sw-integration.list.readAccess') }}</sw-label>
-                                                        <sw-label v-if="item.writeAccess" size="medium" ghost caps light>{{ $tc('sw-integration.list.writeAccess') }}</sw-label>
-                                                    </sw-grid-column>
-                                                {% endblock %}
-
-                                                {% block sw_integration_list_grid_inner_slot_columns_actions %}
-                                                    <sw-grid-column flex="minmax(100px, 100px)"
-                                                                    dataIndex="actions">
-                                                        <sw-context-button>
-                                                            {% block sw_integration_list_grid_inner_slot_columns_actions_edit %}
-                                                                <sw-context-menu-item
-                                                                        class="sw_integration_list__edit-action"
-                                                                        @click="onShowDetailModal(item.id)">
-                                                                    {{ $tc('sw-integration.list.contextMenuEdit') }}
-                                                                </sw-context-menu-item>
-                                                            {% endblock %}
-                                                            {% block sw_integration_list_grid_inner_slot_columns_actions_delete %}
-                                                                <sw-context-menu-item variant="danger"
-                                                                                      @click="showDeleteModal = item.id">
-                                                                    {{ $tc('sw-integration.list.contextMenuDelete') }}
-                                                                </sw-context-menu-item>
-                                                            {% endblock %}
-                                                        </sw-context-button>
-                                                    </sw-grid-column>
-                                                {% endblock %}
-
-                                                {% block sw_integration_list_grid_inner_slot_delete_modal %}
-                                                    <sw-modal v-if="showDeleteModal === item.id"
-                                                              :title="$tc('sw-integration.detail.deleteModalTitle')"
-                                                              @modal-close="onCloseDeleteModal">
-                                                        {% block sw_integration_list_grid_inner_slot_delete_modal_confirmtext %}
-                                                            <p>
-                                                                {{ $tc('sw-integration.detail.confirmDelete') }}
-                                                                <strong>"{{ item.label }}"</strong>
-                                                            </p>
-                                                        {% endblock %}
-
-                                                        {% block sw_integration_list_grid_inner_slot_delete_modal_footer %}
-                                                            <template slot="modal-footer">
-                                                                <sw-button size="small"
-                                                                           @click="onCloseDeleteModal">
-                                                                    {{ $tc('sw-integration.detail.buttonCancel') }}
-                                                                </sw-button>
-                                                                <sw-button size="small"
-                                                                           variant="primary"
-                                                                           @click="onConfirmDelete(item.id)">
-                                                                    {{ $tc('sw-integration.detail.buttonDelete') }}
-                                                                </sw-button>
-                                                            </template>
-                                                        {% endblock %}
-                                                    </sw-modal>
-                                                {% endblock %}
-                                            {% endblock %}
+                                    {% block sw_integration_list_grid_inner_slot_columns_label %}
+                                        <template #column-label="{ item }">
+                                            <span class="sw-integration-list__app-icon">
+                                                <sw-icon name="default-action-share"></sw-icon>
+                                            </span>
+                                            <a href="#" @click.prevent="onShowDetailModal(item)">
+                                                {{ item.label }}
+                                            </a>
                                         </template>
                                     {% endblock %}
-                                    <template slot="pagination">
-                                        {% block sw_integration_list_grid_pagination %}
-                                            <sw-pagination :page="page"
-                                                           :limit="limit"
-                                                           :total="total"
-                                                           :total-visible="7"
-                                                           @page-change="onPageChange">
-                                            </sw-pagination>
+
+                                    {% block sw_integration_list_grid_inner_slot_columns_writeAccess %}
+                                        <template #column-writeAccess="{ item }">
+                                            <sw-label size="medium" ghost caps light>{{ $tc('sw-integration.list.readAccess') }}</sw-label>
+                                            <sw-label v-if="item.writeAccess" size="medium" ghost caps light>{{ $tc('sw-integration.list.writeAccess') }}</sw-label>
+                                        </template>
+                                    {% endblock %}
+
+                                    <template #actions="{ item }">
+                                        {% block sw_integration_list_grid_inner_slot_columns_actions_edit %}
+                                            <sw-context-menu-item
+                                                    class="sw_integration_list__edit-action"
+                                                    @click="onShowDetailModal(item)">
+                                                {{ $tc('sw-integration.list.contextMenuEdit') }}
+                                            </sw-context-menu-item>
+                                        {% endblock %}
+
+                                        {% block sw_integration_list_grid_inner_slot_columns_actions_delete %}
+                                            <sw-context-menu-item variant="danger"
+                                                                  @click="showDeleteModal = item.id">
+                                                {{ $tc('sw-integration.list.contextMenuDelete') }}
+                                            </sw-context-menu-item>
                                         {% endblock %}
                                     </template>
-                                </sw-grid>
+
+                                    <template #action-modals="{ item }">
+                                        {% block sw_integration_list_grid_inner_slot_delete_modal %}
+                                            <sw-modal v-if="showDeleteModal === item.id"
+                                                      :title="$tc('sw-integration.detail.deleteModalTitle')"
+                                                      @modal-close="onCloseDeleteModal">
+                                                {% block sw_integration_list_grid_inner_slot_delete_modal_confirmtext %}
+                                                    <p>
+                                                        {{ $tc('sw-integration.detail.confirmDelete') }}
+                                                        <strong>"{{ item.label }}"</strong>
+                                                    </p>
+                                                {% endblock %}
+
+                                                {% block sw_integration_list_grid_inner_slot_delete_modal_footer %}
+                                                    <template slot="modal-footer">
+                                                        <sw-button size="small"
+                                                                   @click="onCloseDeleteModal">
+                                                            {{ $tc('sw-integration.detail.buttonCancel') }}
+                                                        </sw-button>
+
+                                                        <sw-button size="small"
+                                                                   variant="primary"
+                                                                   @click="onConfirmDelete(item.id)">
+                                                            {{ $tc('sw-integration.detail.buttonDelete') }}
+                                                        </sw-button>
+                                                    </template>
+                                                {% endblock %}
+                                            </sw-modal>
+                                        {% endblock %}
+                                    </template>
+                                </sw-entity-listing>
                             {% endblock %}
+
+                            {# @deprecated tag:v6.4.0 #}
+                            {% block sw_integration_list_grid_inner %}{% endblock %}
+
+                            {# @deprecated tag:v6.4.0 - use computed "integrationColumns" instead #}
+                            {% block sw_integration_list_grid_inner_slot_columns %}{% endblock %}
+
+                            {# @deprecated tag:v6.4.0 #}
+                            {% block sw_integration_list_grid_pagination %}{% endblock %}
+
                             {% block sw_product_list_empty_state %}
-                                <sw-empty-state v-if="!isLoading && !total"
+                                <sw-empty-state v-if="!integrations"
                                                 :title="$tc('sw-integration.list.messageEmpty')"
                                                 :subline="$tc('sw-integration.list.sublineEmpty')">
                                 </sw-empty-state>

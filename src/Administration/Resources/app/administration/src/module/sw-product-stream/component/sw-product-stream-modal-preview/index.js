@@ -111,7 +111,10 @@ Component.register('sw-product-stream-modal-preview', {
             criteria.filters = this.mapFiltersForSearch(this.filters);
             criteria.addAssociation('manufacturer');
 
-            return this.productRepository.search(criteria, Context.api).then((products) => {
+            return this.productRepository.search(criteria, {
+                ...Context.api,
+                inheritance: true
+            }).then((products) => {
                 this.products = products;
                 this.total = products.total;
                 this.criteria = products.criteria;

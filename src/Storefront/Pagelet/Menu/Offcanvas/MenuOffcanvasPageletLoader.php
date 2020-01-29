@@ -10,7 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class MenuOffcanvasPageletLoader
+class MenuOffcanvasPageletLoader implements MenuOffcanvasPageletLoaderInterface
 {
     /**
      * @var EventDispatcherInterface
@@ -40,14 +40,14 @@ class MenuOffcanvasPageletLoader
             throw new MissingRequestParameterException('navigationId');
         }
 
-        $tree = $this->navigationLoader->loadLevel($navigationId, $salesChannelContext);
+        $navigation = $this->navigationLoader->loadLevel($navigationId, $salesChannelContext);
 
-        $page = new MenuOffcanvasPagelet($tree);
+        $pagelet = new MenuOffcanvasPagelet($navigation);
 
         $this->eventDispatcher->dispatch(
-            new MenuOffcanvasPageletLoadedEvent($page, $salesChannelContext, $request)
+            new MenuOffcanvasPageletLoadedEvent($pagelet, $salesChannelContext, $request)
         );
 
-        return $page;
+        return $pagelet;
     }
 }

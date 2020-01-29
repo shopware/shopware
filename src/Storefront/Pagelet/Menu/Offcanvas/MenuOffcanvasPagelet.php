@@ -3,25 +3,10 @@
 namespace Shopware\Storefront\Pagelet\Menu\Offcanvas;
 
 use Shopware\Core\Content\Category\Tree\Tree;
-use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Storefront\Pagelet\NavigationPagelet;
 
-class MenuOffcanvasPagelet extends Struct
+class MenuOffcanvasPagelet extends NavigationPagelet
 {
-    /**
-     * @var Tree
-     */
-    protected $navigation;
-
-    public function __construct(Tree $navigation)
-    {
-        $this->setNavigation($navigation);
-    }
-
-    public function getNavigation(): Tree
-    {
-        return $this->navigation;
-    }
-
     public function setNavigation(Tree $navigation): void
     {
         $this->navigation = $navigation;

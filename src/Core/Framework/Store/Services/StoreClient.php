@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Store\Struct\StoreLicenseViolationTypeStruct;
 use Shopware\Core\Framework\Store\Struct\StoreUpdateStruct;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
-final class StoreClient
+class StoreClient
 {
     public const PLUGIN_LICENSE_VIOLATION_EXTENSION_KEY = 'licenseViolation';
     private const SHOPWARE_PLATFORM_TOKEN_HEADER = 'X-Shopware-Platform-Token';
@@ -57,7 +57,7 @@ final class StoreClient
      */
     private $storeService;
 
-    public function __construct(
+    final public function __construct(
         StoreService $storeService,
         EntityRepositoryInterface $pluginRepo,
         SystemConfigService $configService

@@ -60,25 +60,25 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): HeaderPagelet
     {
-        $navigationId = $request->get('navigationId', $salesChannelContext->getSalesChannel()->getNavigationCategoryId());
+        $navigationCategoryId = $salesChannelContext->getSalesChannel()->getNavigationCategoryId();
+        $navigationId = $request->get('navigationId', $navigationCategoryId);
 
         if (!$navigationId) {
             throw new MissingRequestParameterException('navigationId');
         }
 
-        $category = $this->navigationLoader->load(
+        $navigation = $this->navigationLoader->load(
             (string) $navigationId,
             $salesChannelContext,
-            $salesChannelContext->getSalesChannel()->getNavigationCategoryId(),
+            $navigationCategoryId,
             $salesChannelContext->getSalesChannel()->getNavigationCategoryDepth()
         );
 
         $languages = $this->loadLanguages($salesChannelContext);
-
         $currencies = $this->loadCurrencies($salesChannelContext);
 
-        $page = new HeaderPagelet(
-            $category,
+        $pagelet = new HeaderPagelet(
+            $navigation,
             $languages,
             $currencies,
             $languages->get($salesChannelContext->getContext()->getLanguageId()),
@@ -86,11 +86,9 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
             $this->loadServiceMenu($salesChannelContext)
         );
 
-        $this->eventDispatcher->dispatch(
-            new HeaderPageletLoadedEvent($page, $salesChannelContext, $request)
-        );
+        $this->eventDispatcher->dispatch(new HeaderPageletLoadedEvent($pagelet, $salesChannelContext, $request));
 
-        return $page;
+        return $pagelet;
     }
 
     private function loadLanguages(SalesChannelContext $salesChannelContext): LanguageCollection
@@ -98,14 +96,13 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
         $criteria = new Criteria();
         $criteria->addAssociation('translationCode');
 
-        $criteria->addFilter(
-            new EqualsFilter('language.salesChannelDomains.salesChannelId', $salesChannelContext->getSalesChannel()->getId())
-        );
+        $criteria->addFilter(new EqualsFilter(
+            'language.salesChannelDomains.salesChannelId',
+            $salesChannelContext->getSalesChannel()->getId()
+        ));
 
         /** @var LanguageCollection $languages */
-        $languages = $this->languageRepository
-            ->search($criteria, $salesChannelContext)
-            ->getEntities();
+        $languages = $this->languageRepository->search($criteria, $salesChannelContext)->getEntities();
 
         return $languages;
     }
@@ -122,12 +119,11 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
     {
         $serviceId = $salesChannelContext->getSalesChannel()->getServiceCategoryId();
 
-        if (!$serviceId) {
+        if ($serviceId === null) {
             return new CategoryCollection();
         }
 
-        $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('category.parentId', $serviceId));
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('category.parentId', $serviceId));
 
         /** @var CategoryCollection $categories */
         $categories = $this->categoryRepository->search($criteria, $salesChannelContext)->getEntities();

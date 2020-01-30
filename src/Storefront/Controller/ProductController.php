@@ -52,7 +52,7 @@ class ProductController extends StorefrontController
     /**
      * @var ProductReviewLoader
      */
-    private $reviewPageletLoader;
+    private $productReviewLoader;
 
     public function __construct(
         ProductPageLoader $productPageLoader,
@@ -60,14 +60,14 @@ class ProductController extends StorefrontController
         MinimalQuickViewPageLoader $minimalQuickViewPageLoader,
         ProductReviewService $productReviewService,
         SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
-        ProductReviewLoader $reviewPageletLoader
+        ProductReviewLoader $productReviewLoader
     ) {
         $this->productPageLoader = $productPageLoader;
         $this->combinationFinder = $combinationFinder;
         $this->minimalQuickViewPageLoader = $minimalQuickViewPageLoader;
         $this->productReviewService = $productReviewService;
         $this->seoUrlPlaceholderHandler = $seoUrlPlaceholderHandler;
-        $this->reviewPageletLoader = $reviewPageletLoader;
+        $this->productReviewLoader = $productReviewLoader;
     }
 
     /**
@@ -157,7 +157,7 @@ class ProductController extends StorefrontController
      */
     public function loadReviews(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
-        $reviews = $this->reviewPageletLoader->load($request, $context);
+        $reviews = $this->productReviewLoader->load($request, $context);
 
         return $this->renderStorefront('storefront/page/product-detail/review/review.html.twig', [
             'reviews' => $reviews,

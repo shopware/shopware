@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Routing;
 
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
-use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,10 +20,6 @@ class SalesChannelApiRouteScope extends AbstractRouteScope implements SalesChann
     {
         /** @var Context $requestContext */
         $requestContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
-
-        if (!$request->attributes->get('auth_required', true)) {
-            return $requestContext->getSource() instanceof SystemSource;
-        }
 
         return $requestContext->getSource() instanceof SalesChannelApiSource;
     }

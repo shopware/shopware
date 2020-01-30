@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Framework\Routing;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Util\Random;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -40,28 +42,37 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
      */
     private $routeScopeRegistry;
 
+    /**
+     * @var Connection
+     */
+    private $connection;
+
     public function __construct(
         RequestContextResolverInterface $decorated,
         SalesChannelContextServiceInterface $contextService,
         EventDispatcherInterface $eventDispatcher,
-        RouteScopeRegistry $routeScopeRegistry
+        RouteScopeRegistry $routeScopeRegistry,
+        Connection $connection
     ) {
         $this->decorated = $decorated;
         $this->contextService = $contextService;
         $this->eventDispatcher = $eventDispatcher;
         $this->routeScopeRegistry = $routeScopeRegistry;
+        $this->connection = $connection;
     }
 
     public function resolve(SymfonyRequest $request): void
     {
-        if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID)) {
-            $this->decorated->resolve($request);
+        $salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+        $validRequest = $this->isRequestScoped($request, SalesChannelContextRouteScopeDependant::class);
 
+        if (!$validRequest) {
+            $this->decorated->resolve($request);
             return;
         }
 
-        if (!$this->isRequestScoped($request, SalesChannelContextRouteScopeDependant::class)) {
-            return;
+        if ($salesChannelId === null) {
+            $salesChannelId = $this->getSalesChannelIdFromDomain($request->getSchemeAndHttpHost());
         }
 
         if (!$request->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)) {
@@ -69,7 +80,6 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         }
 
         $contextToken = $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        $salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
         $language = $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID);
 
         $cacheKey = $salesChannelId . $contextToken . $language;
@@ -101,6 +111,24 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+    }
+
+    private function getSalesChannelIdFromDomain(string $domain): ?string
+    {
+        /** @var string|false $salesChannelId */
+        $salesChannelId = $this->connection->createQueryBuilder()
+            ->select('sales_channel_id')
+            ->from('sales_channel_domain')
+            ->andWhere('url = :domain')
+            ->setParameter('domain', $domain)
+            ->execute()
+            ->fetchColumn();
+
+        if ($salesChannelId !== false) {
+            return Uuid::fromBytesToHex($salesChannelId);
+        }
+
+        return null;
     }
 
     protected function getScopeRegistry(): RouteScopeRegistry

@@ -213,7 +213,7 @@
 
         {% block sw_sales_channel_detail_base_options_domains %}
             <sw-sales-channel-detail-domains
-                v-if="salesChannel && isStoreFront"
+                v-if="salesChannel"
                 :salesChannel="salesChannel"
                 :isLoading="isLoading">
             </sw-sales-channel-detail-domains>

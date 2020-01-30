@@ -13,7 +13,19 @@
   ],
   "style": [
     {
+      "filepath": "\/app\/custom\/plugins\/CustomTheme\/src\/Resources\/app\/storefront\/src\/scss\/overrides.scss",
+      "resolveMapping": [],
+      "extensions": []
+    },
+    {
       "filepath": "\/app\/platform\/src\/Storefront\/Resources\/app\/storefront\/src\/scss\/base.scss",
+      "resolveMapping": {
+        "vendor": "\/app\/platform\/src\/Storefront\/Resources\/app\/storefront\/vendor"
+      },
+      "extensions": []
+    },
+    {
+      "filepath": "\/app\/platform\/src\/Storefront\/Resources\/app\/storefront\/src\/scss\/skin\/shopware\/_base.scss",
       "resolveMapping": {
         "vendor": "\/app\/platform\/src\/Storefront\/Resources\/app\/storefront\/vendor"
       },

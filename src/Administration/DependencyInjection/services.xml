@@ -21,25 +21,6 @@
             </call>
         </service>
 
-        <service id="Shopware\Administration\Controller\OrderController"
-                 public="true">
-            <argument type="service" id="sales_channel.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
-            <argument type="service" id="serializer"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Product\Cart\ProductLineItemFactory"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
-            <argument type="service" id="order.repository"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
-
         <service id="Shopware\Administration\Framework\Routing\AdministrationRouteScope">
             <tag name="shopware.route_scope"/>
         </service>

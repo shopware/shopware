@@ -7,34 +7,42 @@ use Shopware\Core\Framework\Struct\Struct;
 class CartBehavior extends Struct
 {
     /**
+     * @deprecated tag:v6.3.0 Use fine granular context permissions instead
+     *
      * @var bool
      */
     protected $isRecalculation = false;
 
     /**
-     * @var bool
+     * @var array
      */
-    protected $isAdminOrder = false;
+    private $permissions = [];
 
+    public function __construct(array $permissions = [])
+    {
+        $this->permissions = $permissions;
+    }
+
+    public function hasPermission(string $permission)
+    {
+        return in_array($permission, $this->permissions, true);
+    }
+
+    /**
+     * @deprecated tag:v6.3.0 Use fine granular context permissions instead
+     */
     public function isRecalculation(): bool
     {
         return $this->isRecalculation;
     }
 
+    /**
+     * @deprecated tag:v6.3.0 Use fine granular context permissions instead
+     */
     public function setIsRecalculation(bool $isRecalculation): CartBehavior
     {
         $this->isRecalculation = $isRecalculation;
 
         return $this;
-    }
-
-    public function isAdminOrder(): bool
-    {
-        return $this->isAdminOrder;
-    }
-
-    public function setIsAdminOrder(bool $isAdminOrder): void
-    {
-        $this->isAdminOrder = $isAdminOrder;
     }
 }

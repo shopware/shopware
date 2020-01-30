@@ -14,6 +14,8 @@ class PromotionProcessor implements CartProcessorInterface
     public const DATA_KEY = 'promotions';
     public const LINE_ITEM_TYPE = 'promotion';
 
+    public const SKIP_PROMOTION = 'skipPromotion';
+
     /**
      * @var PromotionCalculator
      */
@@ -40,7 +42,7 @@ class PromotionProcessor implements CartProcessorInterface
 
         // if we are in recalculation,
         // we must not re-add any promotions. just leave it as it is.
-        if ($behavior->isRecalculation()) {
+        if ($behavior->hasPermission(self::SKIP_PROMOTION)) {
             return;
         }
 

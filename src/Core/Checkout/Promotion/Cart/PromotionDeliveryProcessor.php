@@ -11,6 +11,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class PromotionDeliveryProcessor implements CartProcessorInterface
 {
+    public const SKIP_DELIVERY_RECALCULATION = 'skipDeliveryRecalculation';
+
     /**
      * @var PromotionDeliveryCalculator
      */
@@ -30,7 +32,7 @@ class PromotionDeliveryProcessor implements CartProcessorInterface
 
         // if we are in recalculation,
         // we must not re-add any promotions. just leave it as it is.
-        if ($behavior->isRecalculation()) {
+        if ($behavior->hasPermission(self::SKIP_DELIVERY_RECALCULATION)) {
             return;
         }
 

@@ -24,7 +24,7 @@ class ErrorResult
      * @param \Throwable $exception
      * @param array      $args
      */
-    public function __construct($message, \Throwable $exception = null, $args = [])
+    public function __construct($message, ?\Throwable $exception = null, $args = [])
     {
         $this->message = $message;
         $this->exception = $exception;

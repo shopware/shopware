@@ -52,7 +52,7 @@ class Requirements
                 continue;
             }
 
-            if ($name === 'mod_rewrite' && isset($_SERVER['SERVER_SOFTWARE']) && stripos($_SERVER['SERVER_SOFTWARE'], 'apache') === false) {
+            if ($name === 'mod_rewrite' && isset($_SERVER['SERVER_SOFTWARE']) && mb_stripos($_SERVER['SERVER_SOFTWARE'], 'apache') === false) {
                 continue;
             }
 
@@ -120,11 +120,11 @@ class Requirements
         if (($value = ini_get($name)) !== false) {
             $value = (string) $value;
 
-            if (strtolower($value) === 'off') {
+            if (mb_strtolower($value) === 'off') {
                 return false;
             }
 
-            if (strtolower($value) === 'on') {
+            if (mb_strtolower($value) === 'on') {
                 return true;
             }
 
@@ -203,11 +203,11 @@ class Requirements
      */
     private function checkPhp()
     {
-        if (strpos(phpversion(), '-')) {
-            return substr(phpversion(), 0, strpos(phpversion(), '-'));
+        if (mb_strpos(PHP_VERSION, '-')) {
+            return mb_substr(PHP_VERSION, 0, mb_strpos(PHP_VERSION, '-'));
         }
 
-        return phpversion();
+        return PHP_VERSION;
     }
 
     /**
@@ -300,7 +300,7 @@ class Requirements
         if (function_exists('gd_info')) {
             $gd = gd_info();
             if (preg_match('#[0-9.]+#', $gd['GD Version'], $match)) {
-                if (substr_count($match[0], '.') === 1) {
+                if (mb_substr_count($match[0], '.') === 1) {
                     $match[0] .= '.0';
                 }
 
@@ -414,8 +414,8 @@ class Requirements
      */
     private function decodePhpSize($val)
     {
-        $val = strtolower(trim($val));
-        $last = substr($val, -1);
+        $val = mb_strtolower(trim($val));
+        $last = mb_substr($val, -1);
 
         $val = (float) $val;
         switch ($last) {
@@ -446,7 +446,7 @@ class Requirements
         $val = trim($val);
         list($val, $last) = explode(' ', $val);
         $val = (float) $val;
-        switch (strtoupper($last)) {
+        switch (mb_strtoupper($last)) {
             /* @noinspection PhpMissingBreakStatementInspection */
             case 'TB':
                 $val *= 1024;

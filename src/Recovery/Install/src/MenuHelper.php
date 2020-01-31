@@ -2,10 +2,6 @@
 
 namespace Shopware\Recovery\Install;
 
-use function current;
-use Exception;
-use function next;
-use function prev;
 use Shopware\Recovery\Install\Service\TranslationService;
 use Slim\App;
 
@@ -59,12 +55,12 @@ class MenuHelper
     /**
      * @param string $name
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function setCurrent($name): void
     {
         if (!in_array($name, $this->entries, true)) {
-            throw new Exception('could not find entrie');
+            throw new \Exception('could not find entry');
         }
 
         reset($this->entries);

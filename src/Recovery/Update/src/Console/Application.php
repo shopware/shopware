@@ -81,7 +81,7 @@ class Application extends BaseApplication
         return $defaultCommands;
     }
 
-    private function registerErrorHandler()
+    private function registerErrorHandler(): void
     {
         set_error_handler(function ($errno, $errstr, $errfile, $errline, array $errcontext) {
             // error was suppressed with the @-operator

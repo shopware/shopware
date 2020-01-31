@@ -8,7 +8,7 @@ class Utils
      * Clear opcode caches to make sure that the
      * updated files are used in the following requests.
      */
-    public static function clearOpcodeCache()
+    public static function clearOpcodeCache(): void
     {
         if (function_exists('opcache_reset')) {
             opcache_reset();
@@ -33,7 +33,7 @@ class Utils
         } else {
             $basePath = $baseUrl;
         }
-        if (strpos(PHP_OS, 'WIN') === 0) {
+        if (mb_strpos(PHP_OS, 'WIN') === 0) {
             $basePath = str_replace('\\', '/', $basePath);
         }
         $basePath = rtrim($basePath, '/') . '/';

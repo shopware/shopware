@@ -33,7 +33,7 @@ class UpdateCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('update');
         $this->setDescription('Updates shopware');
@@ -87,7 +87,7 @@ class UpdateCommand extends Command
         $ioService->writeln('');
     }
 
-    private function unpackFiles()
+    private function unpackFiles(): void
     {
         $this->IOHelper->writeln('Replace system files...');
         if (!UPDATE_FILES_PATH || !is_dir(UPDATE_FILES_PATH)) {
@@ -132,10 +132,10 @@ class UpdateCommand extends Command
             $this->IOHelper->writeln('Apply database destructive migrations...');
         }
 
-        /** @var MigrationCollectionLoader $migrationManger */
+        /** @var MigrationCollectionLoader $migrationCollectionLoader */
         $migrationCollectionLoader = $this->container->get('migration.collection.loader');
 
-        /** @var array $paths */
+        /** @var array $identifiers */
         $identifiers = array_column($this->container->get('migration.paths'), 'name');
 
         foreach ($identifiers as &$identifier) {
@@ -163,14 +163,14 @@ class UpdateCommand extends Command
         $this->IOHelper->writeln('');
     }
 
-    private function cleanup()
+    private function cleanup(): void
     {
         $this->IOHelper->writeln('Cleanup old files, clearing caches...');
 
         $this->cleanupFiles();
     }
 
-    private function cleanupFiles()
+    private function cleanupFiles(): void
     {
         /** @var CleanupFilesFinder $cleanupFilesFinder */
         $cleanupFilesFinder = $this->container->get('cleanup.files.finder');
@@ -200,7 +200,7 @@ class UpdateCommand extends Command
         }
     }
 
-    private function writeLockFile()
+    private function writeLockFile(): void
     {
         if (is_dir(SW_PATH . '/recovery/install')) {
             /** @var \Shopware\Recovery\Common\SystemLocker $systemLocker */

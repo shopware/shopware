@@ -33,28 +33,34 @@ $autoloader = require_once __DIR__ . '/Common/vendor/autoload.php';
 
 if (file_exists(SW_PATH . '/vendor/shopware/platform/composer.json')) {
     $autoloader->addPsr4(
-        'Shopware\\Core\\', SW_PATH . '/vendor/shopware/platform/src/Core/'
+        'Shopware\\Core\\',
+        SW_PATH . '/vendor/shopware/platform/src/Core/'
     );
     $autoloader->addPsr4(
-        'Shopware\\Storefront\\', SW_PATH . '/vendor/shopware/platform/src/Storefront/'
+        'Shopware\\Storefront\\',
+        SW_PATH . '/vendor/shopware/platform/src/Storefront/'
     );
     $autoloader->addPsr4(
-        'Shopware\\Elasticsearch\\', SW_PATH . '/vendor/shopware/platform/src/Elasticsearch/'
+        'Shopware\\Elasticsearch\\',
+        SW_PATH . '/vendor/shopware/platform/src/Elasticsearch/'
     );
-} else if (file_exists(SW_PATH . '/vendor/shopware/core/composer.json')) {
+} elseif (file_exists(SW_PATH . '/vendor/shopware/core/composer.json')) {
     $autoloader->addPsr4(
-        'Shopware\\Core\\', SW_PATH . '/vendor/shopware/core/'
+        'Shopware\\Core\\',
+        SW_PATH . '/vendor/shopware/core/'
     );
 
     if (file_exists(SW_PATH . '/vendor/shopware/storefront/composer.json')) {
         $autoloader->addPsr4(
-            'Shopware\\Storefront\\', SW_PATH . '/vendor/shopware/storefront/'
+            'Shopware\\Storefront\\',
+            SW_PATH . '/vendor/shopware/storefront/'
         );
     }
 
     if (file_exists(SW_PATH . '/vendor/shopware/elasticsearch/composer.json')) {
         $autoloader->addPsr4(
-            'Shopware\\Elasticsearch\\', SW_PATH . '/vendor/shopware/elasticsearch/'
+            'Shopware\\Elasticsearch\\',
+            SW_PATH . '/vendor/shopware/elasticsearch/'
         );
     }
 }

@@ -37,8 +37,6 @@ services:
     PhpCsFixerCustomFixers\Fixer\SingleSpaceAfterStatementFixer: ~
 
 parameters:
-    exclude_files:
-        - 'src/Recovery/*'
     skip:
         PhpCsFixer\Fixer\ClassNotation\SelfAccessorFixer: ~
         PhpCsFixer\Fixer\LanguageConstruct\ExplicitIndirectVariableFixer: ~

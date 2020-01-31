@@ -2,8 +2,6 @@
 
 namespace Shopware\Recovery\Install\Service;
 
-use PDO;
-
 class DatabaseService
 {
     /**
@@ -60,6 +58,7 @@ class DatabaseService
                 $this->checkPrivilegeOnSchema($name, 'CREATE');
             } catch (\Exception $e) {
                 $msg = "Database \"$name\" does not exists, additionally you have no privilege to create said database";
+
                 throw new \RuntimeException($msg);
             }
         }
@@ -74,6 +73,7 @@ class DatabaseService
                 $this->checkPrivilegeOnSchema($name, 'ALTER');
             } catch (\Exception $e) {
                 $msg = "Your user has not enough privileges for database \"$name\" the ALTER privilege is required";
+
                 throw new \RuntimeException($msg);
             }
         }
@@ -126,6 +126,7 @@ class DatabaseService
 
         if (!is_string($permissions) && !is_array($permissions)) {
             $msg = sprintf('String or array expected, got: %s', gettype($permissions));
+
             throw new \InvalidArgumentException($msg);
         }
 
@@ -210,6 +211,7 @@ EOL;
     {
         if (!is_string($privileges) && !is_array($privileges)) {
             $msg = sprintf('String or array expected, got: %s', gettype($privileges));
+
             throw new \InvalidArgumentException($msg);
         }
 
@@ -274,7 +276,7 @@ EOL;
 
         if ($omit) {
             // IN parameters string creation (?,?,?,?)
-            $in = substr(str_repeat('?,', count($omit)), 0, -1);
+            $in = mb_substr(str_repeat('?,', count($omit)), 0, -1);
             $sql .= " WHERE SCHEMA_NAME NOT IN($in)";
         }
 
@@ -298,7 +300,7 @@ EOL;
         $this->connection->exec('USE `' . $databaseName . '`');
         $tables = $this->connection
             ->query('SHOW TABLES')
-            ->fetchAll(PDO::FETCH_COLUMN);
+            ->fetchAll(\PDO::FETCH_COLUMN);
 
         return !empty($tables);
     }

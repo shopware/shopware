@@ -2,7 +2,6 @@
 
 namespace Shopware\Recovery\Update\Controller;
 
-use DirectoryIterator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Shopware\Recovery\Update\Cleanup;
@@ -81,7 +80,7 @@ class CleanupController
 
             $result = array_map(
                 static function ($path) {
-                    return substr($path, strlen(SW_PATH) + 1);
+                    return mb_substr($path, mb_strlen(SW_PATH) + 1);
                 },
                 $result
             );
@@ -91,7 +90,7 @@ class CleanupController
 
         $cleanupList = array_map(
             static function ($path) {
-                return substr($path, strlen(SW_PATH) + 1);
+                return mb_substr($path, mb_strlen(SW_PATH) + 1);
             },
             $cleanupList
         );
@@ -102,7 +101,7 @@ class CleanupController
     /**
      * Deletes outdated folders from earlier shopware versions.
      */
-    public function deleteOutdatedFolders()
+    public function deleteOutdatedFolders(): void
     {
         echo $this->cleanupService->cleanup();
         exit();
@@ -111,12 +110,12 @@ class CleanupController
     /**
      * @param string $path
      *
-     * @return array|DirectoryIterator
+     * @return array|\DirectoryIterator
      */
     private function getDirectoryIterator($path)
     {
         if (is_dir($path)) {
-            return new DirectoryIterator($path);
+            return new \DirectoryIterator($path);
         }
 
         return [];

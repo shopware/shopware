@@ -28,7 +28,7 @@ abstract class Container implements ContainerInterface
      * @param string $id      The service identifier
      * @param object $service The service instance
      */
-    public function set($id, $service)
+    public function set($id, $service): void
     {
         $this->pimple[$id] = $service;
     }
@@ -116,7 +116,7 @@ abstract class Container implements ContainerInterface
      *
      * @api
      */
-    public function setParameter($name, $value)
+    public function setParameter($name, $value): void
     {
         $config = $this->pimple->offsetGet('config');
         $config[$name] = $value;

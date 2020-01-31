@@ -19,6 +19,7 @@ class MigrationStep
      * @var MigrationCollectionLoader
      */
     private $migrationCollectionLoader;
+
     /**
      * @var array
      */
@@ -34,7 +35,7 @@ class MigrationStep
     /**
      * @return ErrorResult|FinishResult|ValidResult
      */
-    public function run(string $modus, int $offset, int $totalCount = null)
+    public function run(string $modus, int $offset, ?int $totalCount = null)
     {
         if ($offset === 0) {
             foreach ($this->identifiers as $identifier) {

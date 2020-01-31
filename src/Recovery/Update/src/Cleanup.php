@@ -2,9 +2,6 @@
 
 namespace Shopware\Recovery\Update;
 
-use DirectoryIterator;
-use FilesystemIterator;
-use RecursiveIteratorIterator;
 use Shopware\Recovery\Update\Results\DeleteResult;
 
 class Cleanup
@@ -95,7 +92,7 @@ class Cleanup
      */
     private function deleteCacheDirectories($deletedFileCount)
     {
-        /** @var DirectoryIterator $cacheDirectoryIterator */
+        /** @var \DirectoryIterator $cacheDirectoryIterator */
         $cacheDirectoryIterator = $this->getDirectoryIterator($this->shopwarePath . '/var/cache');
         $deleteResult = new DeleteResult($deletedFileCount);
 
@@ -104,9 +101,9 @@ class Cleanup
                 continue;
             }
 
-            $iterator = new RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($directory->getRealPath(), FilesystemIterator::SKIP_DOTS),
-                RecursiveIteratorIterator::CHILD_FIRST
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($directory->getRealPath(), \FilesystemIterator::SKIP_DOTS),
+                \RecursiveIteratorIterator::CHILD_FIRST
             );
 
             /** @var \SplFileInfo $path */
@@ -149,12 +146,13 @@ class Cleanup
 
             if ($directory->isFile()) {
                 $this->delete($directory, $deleteResult);
+
                 continue;
             }
 
-            $iterator = new RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($directory->getRealPath(), FilesystemIterator::SKIP_DOTS),
-                RecursiveIteratorIterator::CHILD_FIRST
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($directory->getRealPath(), \FilesystemIterator::SKIP_DOTS),
+                \RecursiveIteratorIterator::CHILD_FIRST
             );
 
             /** @var \SplFileInfo $path */
@@ -179,7 +177,7 @@ class Cleanup
     /**
      * Deletes a file / directory
      */
-    private function delete(\SplFileInfo $file, DeleteResult &$deleteResult)
+    private function delete(\SplFileInfo $file, DeleteResult &$deleteResult): void
     {
         $file->isFile() ? @unlink($file->getRealPath()) : @rmdir($file->getRealPath());
         $deleteResult->countUp();
@@ -188,12 +186,12 @@ class Cleanup
     /**
      * @param string $path
      *
-     * @return array|DirectoryIterator
+     * @return array|\DirectoryIterator
      */
     private function getDirectoryIterator($path)
     {
         if (is_dir($path)) {
-            return new DirectoryIterator($path);
+            return new \DirectoryIterator($path);
         }
 
         return [];

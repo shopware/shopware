@@ -26,11 +26,10 @@ use Shopware\Recovery\Update\StoreApi;
 use Shopware\Recovery\Update\Utils;
 use Slim\App;
 use Slim\Views\PhpRenderer;
-use Throwable;
 
 class Container extends BaseContainer
 {
-    public function setup(\Pimple\Container $container)
+    public function setup(\Pimple\Container $container): void
     {
         $backupDir = SW_PATH . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'backup' . DIRECTORY_SEPARATOR . 'auto_update';
 
@@ -73,7 +72,7 @@ class Container extends BaseContainer
             $path = SW_PATH . '/vendor/shopware/';
 
             $bundleDirs = array_filter(array_map(static function (string $name) use ($path) {
-                if (strpos($name, '.') === 0) {
+                if (mb_strpos($name, '.') === 0) {
                     return null;
                 }
 
@@ -175,7 +174,7 @@ class Container extends BaseContainer
         };
 
         $container['errorHandler'] = function ($c) {
-            return static function (ServerRequestInterface $request, ResponseInterface $response, Throwable $e) use ($c) {
+            return static function (ServerRequestInterface $request, ResponseInterface $response, \Throwable $e) use ($c) {
                 if (empty($request->getHeader('X-Requested-With'))) {
                     throw $e;
                 }

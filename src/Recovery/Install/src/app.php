@@ -2,6 +2,7 @@
 use HansOtt\PSR7Cookies\SetCookie;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Recovery\Common\HttpClient\Client;
 use Shopware\Recovery\Common\MigrationRuntime;
 use Shopware\Recovery\Common\Service\JwtCertificateService;
@@ -58,7 +59,7 @@ if (isset($_SESSION['databaseConnectionInfo'])) {
 }
 
 $localeForLanguage = static function (string $language): string {
-    switch (strtolower($language)) {
+    switch (mb_strtolower($language)) {
         case 'de':
             return 'de-DE';
         case 'en':
@@ -77,7 +78,7 @@ $localeForLanguage = static function (string $language): string {
             return 'pl-PL';
     }
 
-    return strtolower($language) . '_' . strtoupper($language);
+    return mb_strtolower($language) . '_' . mb_strtoupper($language);
 };
 
 $app->add(function (ServerRequestInterface $request, ResponseInterface $response, callable $next) use ($container, $localeForLanguage) {
@@ -88,7 +89,7 @@ $app->add(function (ServerRequestInterface $request, ResponseInterface $response
         $selectedLanguage = 'de';
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             $selectedLanguage = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
-            $selectedLanguage = strtolower(substr($selectedLanguage[0], 0, 2));
+            $selectedLanguage = mb_strtolower(mb_substr($selectedLanguage[0], 0, 2));
         }
         if (empty($selectedLanguage) || !in_array($selectedLanguage, $allowedLanguages, true)) {
             $selectedLanguage = 'en';
@@ -121,7 +122,7 @@ $app->add(function (ServerRequestInterface $request, ResponseInterface $response
 
     if ($request->getParsedBody()) {
         foreach ($request->getParsedBody() as $key => $value) {
-            if (strpos($key, 'c_') !== false) {
+            if (mb_strpos($key, 'c_') !== false) {
                 $_SESSION['parameters'][$key] = $value;
             }
         }
@@ -231,6 +232,7 @@ $app->any('/license', function (ServerRequestInterface $request, ResponseInterfa
 
     /** @var Client $client */
     $client = $container->offsetGet('http-client');
+
     try {
         $tosResponse = $client->get($tosUrl);
         $viewAttributes['tos'] = $tosResponse->getBody();
@@ -399,6 +401,7 @@ $app->any('/configuration/', function (ServerRequestInterface $request, Response
         $configWriter->writeConfig($_SESSION['databaseConnectionInfo'], $shop);
 
         $hasErrors = false;
+
         try {
             $shopService->updateShop($shop);
             $adminService->createAdmin($adminUser);
@@ -461,7 +464,7 @@ $app->any('/finish/', function (ServerRequestInterface $request, ResponseInterfa
 
     $schema = 'http';
     // This is for supporting Apache 2.2
-    if (array_key_exists('HTTPS', $_SERVER) && strtolower($_SERVER['HTTPS']) === 'on') {
+    if (array_key_exists('HTTPS', $_SERVER) && mb_strtolower($_SERVER['HTTPS']) === 'on') {
         $schema = 'https';
     }
     if (array_key_exists('REQUEST_SCHEME', $_SERVER)) {
@@ -502,12 +505,12 @@ $app->any('/database-import/importDatabase', function (ServerRequestInterface $r
     /** @var MigrationRuntime $migrationManger */
     $migrationManger = $container->get('migration.manager');
 
-    /** @var MigrationCollectionLoader $migrationManger */
+    /** @var MigrationCollectionLoader $migrationCollectionLoader */
     $migrationCollectionLoader = $container->get('migration.collection.loader');
 
     $resultMapper = new ResultMapper();
 
-    /** @var array $paths */
+    /** @var array $identifiers */
     $identifiers = array_column($container->get('migration.paths'), 'name');
 
     foreach ($identifiers as &$identifier) {

@@ -2,7 +2,6 @@
 
 namespace Shopware\Recovery\Install\Service;
 
-use PDO;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Recovery\Common\Service\SystemConfigService;
@@ -69,7 +68,7 @@ class ShopService
             throw new \RuntimeException('Default currency not found');
         }
 
-        if (strtoupper($currentCurrencyIso) === strtoupper($shop->currency)) {
+        if (mb_strtoupper($currentCurrencyIso) === mb_strtoupper($shop->currency)) {
             return;
         }
 
@@ -89,32 +88,32 @@ class ShopService
             'oldId' => $newDefaultCurrencyId,
         ]);
 
-        $stmt = $this->connection->prepare('
-            SET @fixFactor = (SELECT 1/factor FROM currency WHERE iso_code = :newDefault);
-            UPDATE currency
-            SET factor = IF(iso_code = :newDefault, 1, factor * @fixFactor);'
+        $stmt = $this->connection->prepare(
+            'SET @fixFactor = (SELECT 1/factor FROM currency WHERE iso_code = :newDefault);
+             UPDATE currency
+             SET factor = IF(iso_code = :newDefault, 1, factor * @fixFactor);'
         );
         $stmt->execute(['newDefault' => $shop->currency]);
     }
 
     private function getLocaleTranslations(string $localeId): array
     {
-        $stmt = $this->connection->prepare('
-            SELECT locale_id, language_id, name, territory 
-            FROM locale_translation 
-            WHERE locale_id = :locale_id'
+        $stmt = $this->connection->prepare(
+            'SELECT locale_id, language_id, name, territory
+             FROM locale_translation
+             WHERE locale_id = :locale_id'
         );
         $stmt->execute(['locale_id' => $localeId]);
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     private function swapDefaultLanguageId(string $newLanguageId): void
     {
-        $stmt = $this->connection->prepare('
-            UPDATE language
-            SET id = :newId
-            WHERE id = :oldId'
+        $stmt = $this->connection->prepare(
+            'UPDATE language
+             SET id = :newId
+             WHERE id = :oldId'
         );
 
         // assign new uuid to old DEFAULT
@@ -132,14 +131,14 @@ class ShopService
 
     private function setDefaultLanguage(Shop $shop): void
     {
-        $currentLocaleStmt = $this->connection->prepare('
-            SELECT locale.id, locale.code
-            FROM language 
-            INNER JOIN locale ON translation_code_id = locale.id 
-            WHERE language.id = ?'
+        $currentLocaleStmt = $this->connection->prepare(
+            'SELECT locale.id, locale.code
+             FROM language
+             INNER JOIN locale ON translation_code_id = locale.id
+             WHERE language.id = ?'
         );
         $currentLocaleStmt->execute([Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]);
-        $currentLocale = $currentLocaleStmt->fetch(PDO::FETCH_ASSOC);
+        $currentLocale = $currentLocaleStmt->fetch(\PDO::FETCH_ASSOC);
 
         if (!$currentLocale) {
             throw new \RuntimeException('Default language locale not found');
@@ -164,7 +163,7 @@ class ShopService
 
     private function getSalesChannelAccessKey(): string
     {
-        return 'SWSC' . strtoupper(str_replace(['+', '/', '='], ['-', '_', ''], base64_encode(random_bytes(16))));
+        return 'SWSC' . mb_strtoupper(str_replace(['+', '/', '='], ['-', '_', ''], base64_encode(random_bytes(16))));
     }
 
     private function changeDefaultLanguageData(string $newDefaultLanguageId, array $currentLocaleData, Shop $shop): void
@@ -176,28 +175,28 @@ class ShopService
         $newDefaultLocaleId = $this->getLocaleId($shop->locale);
 
         if (!$newDefaultLanguageId && $enGbLanguageId) {
-            $stmt = $this->connection->prepare('
-                SELECT name FROM locale_translation
-                WHERE language_id = :language_id
-                AND locale_id = :locale_id
-            ');
+            $stmt = $this->connection->prepare(
+                'SELECT name FROM locale_translation
+                 WHERE language_id = :language_id
+                 AND locale_id = :locale_id'
+            );
             $stmt->execute(['language_id' => $enGbLanguageId, 'locale_id' => $newDefaultLocaleId]);
             $name = $stmt->fetchColumn();
         }
 
         // swap locale.code
-        $stmt = $this->connection->prepare('
-            UPDATE locale SET code = :code WHERE id = :locale_id'
+        $stmt = $this->connection->prepare(
+            'UPDATE locale SET code = :code WHERE id = :locale_id'
         );
         $stmt->execute(['code' => 'x-' . $shop->locale . '_tmp', 'locale_id' => $currentLocaleId]);
         $stmt->execute(['code' => $currentLocaleData['code'], 'locale_id' => $newDefaultLocaleId]);
         $stmt->execute(['code' => $shop->locale, 'locale_id' => $currentLocaleId]);
 
         // swap locale_translation.{name,territory}
-        $setTrans = $this->connection->prepare('
-                UPDATE locale_translation
-                SET name = :name, territory = :territory
-                WHERE locale_id = :locale_id AND language_id = :language_id'
+        $setTrans = $this->connection->prepare(
+            'UPDATE locale_translation
+             SET name = :name, territory = :territory
+             WHERE locale_id = :locale_id AND language_id = :language_id'
         );
 
         $currentTrans = $this->getLocaleTranslations($currentLocaleId);
@@ -235,7 +234,8 @@ class ShopService
 
     private function createSalesChannel(Shop $shop): void
     {
-        $id = $shop->salesChannelId = Uuid::randomBytes();
+        $shop->salesChannelId = Uuid::randomBytes();
+        $id = $shop->salesChannelId;
         $typeId = Defaults::SALES_CHANNEL_TYPE_STOREFRONT;
 
         $paymentMethod = $this->getFirstActivePaymentMethodId();
@@ -250,18 +250,18 @@ class ShopService
 
         $date = date(Defaults::STORAGE_DATE_FORMAT);
 
-        $statement = $this->connection->prepare('
-            INSERT INTO sales_channel (
-                id, 
-                type_id, access_key, navigation_category_id, navigation_category_version_id,
-                language_id, currency_id, payment_method_id, 
-                shipping_method_id, country_id, customer_group_id, created_at
-            ) VALUES (
-                ?,
-                UNHEX(?), ?, ?, UNHEX(?),
-                ?, ?, ?,
-                ?, ?, UNHEX(?), ?
-            )'
+        $statement = $this->connection->prepare(
+            'INSERT INTO sales_channel (
+                 id,
+                 type_id, access_key, navigation_category_id, navigation_category_version_id,
+                 language_id, currency_id, payment_method_id,
+                 shipping_method_id, country_id, customer_group_id, created_at
+             ) VALUES (
+                 ?,
+                 UNHEX(?), ?, ?, UNHEX(?),
+                 ?, ?, ?,
+                 ?, ?, UNHEX(?), ?
+             )'
         );
         $statement->execute([
             $id,
@@ -270,57 +270,39 @@ class ShopService
             $shippingMethod, $countryId, Defaults::FALLBACK_CUSTOMER_GROUP, $date,
         ]);
 
-        $statement = $this->connection->prepare('
-            INSERT INTO sales_channel_translation (
-                sales_channel_id, language_id, `name`, created_at
-            ) VALUES (
-                ?, UNHEX(?), ?, ?
-            )'
+        $statement = $this->connection->prepare(
+            'INSERT INTO sales_channel_translation (sales_channel_id, language_id, `name`, created_at)
+             VALUES (?, UNHEX(?), ?, ?)'
         );
         $statement->execute([$id, Defaults::LANGUAGE_SYSTEM, $shop->name, $date]);
 
-        $statement = $this->connection->prepare('
-            INSERT INTO sales_channel_language (
-                sales_channel_id, language_id
-            ) VALUES (
-                ?, UNHEX(?)
-            )'
+        $statement = $this->connection->prepare(
+            'INSERT INTO sales_channel_language (sales_channel_id, language_id)
+             VALUES (?, UNHEX(?))'
         );
         $statement->execute([$id, Defaults::LANGUAGE_SYSTEM]);
 
-        $statement = $this->connection->prepare('
-            INSERT INTO sales_channel_currency (
-                sales_channel_id, currency_id
-            ) VALUES (
-                ?, ?
-            )'
+        $statement = $this->connection->prepare(
+            'INSERT INTO sales_channel_currency (sales_channel_id, currency_id)
+             VALUES (?, ?)'
         );
         $statement->execute([$id, $currencyId]);
 
-        $statement = $this->connection->prepare('
-            INSERT INTO sales_channel_payment_method (
-                sales_channel_id, payment_method_id
-            ) VALUES (
-                ?, ?
-            )'
+        $statement = $this->connection->prepare(
+            'INSERT INTO sales_channel_payment_method (sales_channel_id, payment_method_id)
+             VALUES (?, ?)'
         );
         $statement->execute([$id, $paymentMethod]);
 
-        $statement = $this->connection->prepare('
-            INSERT INTO sales_channel_shipping_method (
-                sales_channel_id, shipping_method_id
-            ) VALUES (
-                ?, ?
-            )'
+        $statement = $this->connection->prepare(
+            'INSERT INTO sales_channel_shipping_method (sales_channel_id, shipping_method_id)
+             VALUES (?, ?)'
         );
         $statement->execute([$id, $shippingMethod]);
 
-        $statement = $this->connection->prepare('
-            INSERT INTO sales_channel_country (
-                sales_channel_id, country_id
-            ) VALUES (
-                ?, ?
-            )'
+        $statement = $this->connection->prepare(
+            'INSERT INTO sales_channel_country (sales_channel_id, country_id)
+             VALUES (?, ?)'
         );
         $statement->execute([$id, $countryId]);
     }
@@ -383,10 +365,10 @@ SQL;
         $stmt->execute([$key]);
         $id = $stmt->fetchColumn() ?: null;
         if ($id) {
-            $prepareStmt = $this->connection->prepare('
-                UPDATE system_config
-                SET configuration_value = ?
-                WHERE id = ?'
+            $prepareStmt = $this->connection->prepare(
+                'UPDATE system_config
+                 SET configuration_value = ?
+                 WHERE id = ?'
             );
             $prepareStmt->execute([$value, $id]);
 
@@ -395,9 +377,9 @@ SQL;
 
         $id = Uuid::randomBytes();
 
-        $prepareStmt = $this->connection->prepare('
-            INSERT INTO system_config (id, configuration_key, configuration_value, sales_channel_id)
-            VALUES (?, ?, ?, NULL)'
+        $prepareStmt = $this->connection->prepare(
+            'INSERT INTO system_config (id, configuration_key, configuration_value, sales_channel_id)
+             VALUES (?, ?, ?, NULL)'
         );
         $prepareStmt->execute([$id, $key, $value]);
     }
@@ -410,11 +392,11 @@ SQL;
 
     private function getLanguageId(string $iso): ?string
     {
-        $stmt = $this->connection->prepare('
-            SELECT language.id 
-            FROM `language` 
-            INNER JOIN locale ON locale.id = language.translation_code_id 
-            WHERE LOWER(locale.code) = LOWER(?)'
+        $stmt = $this->connection->prepare(
+            'SELECT language.id
+             FROM `language`
+             INNER JOIN locale ON locale.id = language.translation_code_id
+             WHERE LOWER(locale.code) = LOWER(?)'
         );
         $stmt->execute([$iso]);
 

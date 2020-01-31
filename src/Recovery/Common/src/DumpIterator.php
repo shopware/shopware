@@ -19,9 +19,6 @@ class DumpIterator implements \SeekableIterator, \Countable
      */
     protected $position;
 
-    /**
-     * @var
-     */
     protected $current;
 
     /**
@@ -59,7 +56,7 @@ class DumpIterator implements \SeekableIterator, \Countable
      *
      * @throws \OutOfBoundsException
      */
-    public function seek($position)
+    public function seek($position): void
     {
         $this->rewind();
 
@@ -80,7 +77,7 @@ class DumpIterator implements \SeekableIterator, \Countable
         return $this->count;
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         rewind($this->stream);
         $this->current = stream_get_line($this->stream, 1000000, ";\n");
@@ -101,7 +98,7 @@ class DumpIterator implements \SeekableIterator, \Countable
         return $this->position;
     }
 
-    public function next()
+    public function next(): void
     {
         ++$this->position;
 

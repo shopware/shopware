@@ -90,7 +90,7 @@ class DatabaseFactory
         $mariaDBRequiredVersion = '10.3.0';
 
         $version = $conn->query($sql)->fetchColumn();
-        if (stripos($version, 'mariadb') !== false) {
+        if (mb_stripos($version, 'mariadb') !== false) {
             if (version_compare($version, $mariaDBRequiredVersion, '<')) {
                 throw new \RuntimeException(sprintf(
                     'Database error!: Your database server is running MariaDB %s, but Shopware 6 requires at least MariaDB %s OR MySQL %s',
@@ -132,7 +132,7 @@ class DatabaseFactory
         $sql = 'SELECT @@SESSION.sql_mode;';
         $result = $conn->query($sql)->fetchColumn(0);
 
-        if (strpos($result, 'STRICT_TRANS_TABLES') !== false || strpos($result, 'STRICT_ALL_TABLES') !== false) {
+        if (mb_strpos($result, 'STRICT_TRANS_TABLES') !== false || mb_strpos($result, 'STRICT_ALL_TABLES') !== false) {
             throw new \RuntimeException("Database error!: The MySQL strict mode is active ($result). Please consult your hosting provider to solve this problem.");
         }
     }

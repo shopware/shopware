@@ -186,6 +186,20 @@
             "template-applied-message": "Die Daten aus der Vorlage wurden übernommen. Bitte speichere den Sales Channel um die Änderungen dauerhaft zu übernehmen."
           }
         }
+      },
+      "hreflang": {
+        "title": "Hreflang",
+        "titleCard": "Hreflang Integration",
+        "titleDescription": "Das hreflang-Metatag dient der eindeutigen Zuordnung eines Inhalts zu einer Sprache. Google zeigt die jeweiligen Sprachen explizit in den Suchergebnissen an.",
+        "enableCheckbox": "Hreflang aktivieren",
+        "defaultDomain": "Standard-Domain für Hreflang",
+        "domainSettings": {
+          "label": "Hreflang-Lokalisierung",
+          "byIso": "Lokalisierung nach ISO-Norm",
+          "byIsoHelpText": "Die Lokalisierung wird über die genaue ISO vorgenommen. Zusätzlich zur Sprache wird auch das Bestimmungsland mit ausgeliefert.",
+          "byAbbreviation": "Lokalisierung nach Sprache",
+          "byAbbreviationHelpText": "Die Lokalisierung wird nur über die Sprache vorgenommen. Hier werden über die ausgegebene Sprache mehrere Bestimmungsländer angesprochen"
+        }
       }
     },
     "sw-sales-channel-defaults-select": {

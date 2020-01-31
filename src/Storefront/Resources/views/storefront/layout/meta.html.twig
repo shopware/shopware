@@ -65,7 +65,9 @@
             {% endblock %}
 
             {% block layout_head_meta_tags_hreflangs %}
-                {#TODO: NEXT-1891 - hreflang#}
+                {% for link in hrefLang %}
+                    <link rel="alternate" hreflang="{{ link.locale }}" href="{{ link.url }}" />
+                {% endfor %}
             {% endblock %}
         {% endblock %}
 

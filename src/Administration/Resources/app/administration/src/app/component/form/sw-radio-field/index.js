@@ -34,6 +34,18 @@ Component.register('sw-radio-field', {
         Mixin.getByName('remove-api-error')
     ],
 
+    data() {
+        return {
+            /** @deprecated tag:v6.4.0 */
+            currentValue: this.value
+        };
+    },
+
+    watch: {
+        /** @deprecated tag:v6.4.0 */
+        value() { this.currentValue = this.value; }
+    },
+
     props: {
         bordered: {
             type: Boolean,
@@ -54,27 +66,32 @@ Component.register('sw-radio-field', {
         }
     },
 
-    data() {
-        return {
-            currentValue: this.value
-        };
-    },
-
-    watch: {
-        value() { this.currentValue = this.value; }
-    },
-
     computed: {
         classes() {
             return [{
                 'sw-field--radio-bordered': this.bordered
             }];
+        },
+        currentIndex() {
+            const foundIndex = this.options.findIndex((item) => item.value === this.value);
+
+            if (foundIndex < 0) {
+                console.warn(`Given value "${this.value}" does not exists in given options`);
+            }
+
+            return foundIndex;
         }
     },
 
     methods: {
         onChange(event) {
-            this.$emit('change', event.target.value);
+            const selectedIndex = event.target.value;
+
+            if (this.options[selectedIndex] === undefined) {
+                console.warn(`Selected index "${this.value}" does not exists in given options`);
+            }
+
+            this.$emit('change', this.options[selectedIndex].value);
         }
     }
 });

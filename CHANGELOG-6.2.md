@@ -22,6 +22,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Deprecated import of `StateDeprecated`
         * Rewritten `loadEntityData` so it uses the new data handling
         * Added `customFieldSetCriteria` as an computed property
+    * Added `disabled` attribute of fields to `sw-customer-address-form` component
+    * Refactored sw-radio-field
+        * Deprecated currentValue, use value instead
+        * Deprecated watcher for value
 
     *
     * The component sw-integration-list was refactored to use the "repositoryFactory" instead of "StateDeprecated" to fetch and save data
@@ -49,3 +53,5 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
 * Storefront
     *	
+* Core
+    * Added hreflang support

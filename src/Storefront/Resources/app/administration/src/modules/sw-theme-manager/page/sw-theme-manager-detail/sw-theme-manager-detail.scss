@@ -109,7 +109,11 @@
         gap: 28px;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 
-        .sw-field {
+        .sw-media-upload {
+            height: 192px;
+        }
+
+        :not(div.sw-media-upload) .sw-field {
             margin: 0;
         }
     }

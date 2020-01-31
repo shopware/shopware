@@ -1,7 +1,7 @@
 import template from './sw-settings-document-list.html.twig';
 import './sw-settings-document-list.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Data: { Criteria } } = Shopware;
 
 Component.register('sw-settings-document-list', {
     template,
@@ -36,29 +36,20 @@ Component.register('sw-settings-document-list', {
             return {
                 'is--hidden': !this.expanded
             };
-        }
-    },
+        },
+        listingCriteria() {
+            const criteria = new Criteria();
 
-    methods: {
-        getList() {
-            this.isLoading = true;
+            if (this.term) {
+                criteria.setTerm(this.term);
+            }
 
-            const params = this.getListingParams();
-            params.associations = {
-                documentType: {},
-                salesChannels: {
-                    associations: {
-                        salesChannel: {}
-                    }
-                }
-            };
-            return this.store.getList(params, true).then((response) => {
-                this.total = response.total;
-                this.items = response.items;
-                this.isLoading = false;
+            criteria
+                .addAssociation('documentType')
+                .getAssociation('salesChannels')
+                .addAssociation('salesChannel');
 
-                return this.items;
-            });
+            return criteria;
         }
     }
 });

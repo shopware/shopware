@@ -1,8 +1,7 @@
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-settings-custom-field-set-list.html.twig';
 import './sw-settings-custom-field-set-list.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Locale, Mixin, Data: { Criteria } } = Shopware;
 
 Component.register('sw-settings-custom-field-set-list', {
     template,
@@ -41,41 +40,48 @@ Component.register('sw-settings-custom-field-set-list', {
                 );
             }
             return '';
+        },
+        listingCriteria() {
+            const criteria = new Criteria();
+
+            const params = this.getListingParams();
+
+            criteria.addFilter(Criteria.multi(
+                'OR',
+                [
+                    ...this.getLocaleCriterias(params.term),
+                    ...this.getTermCriteria(params.term)
+                ]
+            ));
+
+            return criteria;
         }
     },
 
     methods: {
-        // Settings Listing mixin override
-        getList() {
-            this.isLoading = true;
-            const params = this.getListingParams();
-
-            if (params.term) {
-                params.criteria = CriteriaFactory.multi(
-                    'OR',
-                    ...this.getLocaleCriterias(params.term),
-                    CriteriaFactory.contains('name', params.term)
-                );
-
-                params.term = '';
-            }
-            this.items = [];
-
-            return this.store.getList(params).then((response) => {
-                this.total = response.total;
-                this.items = response.items;
-                this.isLoading = false;
-
-                return this.items;
-            });
-        },
         getLocaleCriterias(term) {
-            const criterias = [];
-            const locales = Object.keys(this.$root.$i18n.messages);
+            if (!term) {
+                return [];
+            }
 
-            locales.forEach(locale => {
-                criterias.push(CriteriaFactory.contains(`config.label.\"${locale}\"`, term));
+            const criterias = [];
+            const locales = Locale.getLocaleRegistry();
+
+            locales.forEach((value, key) => {
+                criterias.push(Criteria.contains(
+                    `config.label.\"${key}\"`, term
+                ));
             });
+
+            return criterias;
+        },
+
+        getTermCriteria(term) {
+            const criterias = [];
+
+            if (term) {
+                criterias.push(Criteria.contains('name', term));
+            }
 
             return criterias;
         }

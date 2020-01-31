@@ -42,7 +42,7 @@
                     <sw-card :isLoading="isLoading" class="sw-settings-custom-field-set-list__card">
                         {% block sw_settings_custom_field_set_list_grid %}
                             <sw-grid slot="grid"
-                                     v-show="total"
+                                     v-show="items.length > 0"
                                      class="sw-settings-custom-field-set-list-grid"
                                      :selectable="false"
                                      :items="items"
@@ -127,7 +127,7 @@
                             </sw-grid>
                         {% endblock %}
                         {% block sw_settings_custom_fields_set_list_empty_message %}
-                            <sw-empty-state v-if="!isLoading && !total"
+                            <sw-empty-state v-if="!isLoading && items.length <= 0"
                                             :title="$tc('sw-settings-custom-field.set.list.messageEmpty')">
                             </sw-empty-state>
                         {% endblock %}

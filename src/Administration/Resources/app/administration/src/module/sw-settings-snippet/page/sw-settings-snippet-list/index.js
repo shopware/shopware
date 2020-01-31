@@ -1,13 +1,17 @@
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import Sanitizer from 'src/core/helper/sanitizer.helper';
 import template from './sw-settings-snippet-list.html.twig';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin, Data: { Criteria } } = Shopware;
 
 Component.register('sw-settings-snippet-list', {
     template,
 
-    inject: ['snippetSetService', 'snippetService', 'userService'],
+    inject: [
+        'snippetSetService',
+        'snippetService',
+        'userService',
+        'repositoryFactory'
+    ],
 
     mixins: [
         Mixin.getByName('sw-settings-list')
@@ -57,8 +61,25 @@ Component.register('sw-settings-snippet-list', {
             return this.getColumns();
         },
 
-        snippetSetStore() {
-            return StateDeprecated.getStore('snippet_set');
+        snippetSetRepository() {
+            return this.repositoryFactory.create('snippet_set');
+        },
+
+        snippetSetCriteria() {
+            const criteria = new Criteria();
+
+            this.queryIds = Array.isArray(this.$route.query.ids) ? this.$route.query.ids : [this.$route.query.ids];
+
+            criteria.addFilter(Criteria.equalsAny('id', this.queryIds));
+            criteria.addSorting(
+                Criteria.sort('name', 'ASC')
+            );
+
+            if (this.term) {
+                this.criteria.setTerm(this.term);
+            }
+
+            return criteria;
         },
 
         queryIdCount() {
@@ -100,11 +121,10 @@ Component.register('sw-settings-snippet-list', {
 
     methods: {
         createdComponent() {
-            this.queryIds = Array.isArray(this.$route.query.ids) ? this.$route.query.ids : [this.$route.query.ids];
-            const criteria = CriteriaFactory.equalsAny('id', this.queryIds);
-            this.snippetSetStore.getList({ sortBy: 'name', sortDirection: 'ASC', criteria }).then((sets) => {
-                this.snippetSets = sets.items;
-            });
+            this.snippetSetRepository.search(this.snippetSetCriteria, Shopware.Context.api)
+                .then((sets) => {
+                    this.snippetSets = sets;
+                });
 
             this.userService.getUser().then((response) => {
                 this.currentAuthor = `user/${response.data.username}`;
@@ -292,34 +312,35 @@ Component.register('sw-settings-snippet-list', {
         },
 
         onReset(item) {
-            const ids = Array.isArray(this.$route.query.ids) ? this.$route.query.ids : [this.$route.query.ids];
-            const criteria = CriteriaFactory.equalsAny('id', ids);
             this.isLoading = true;
 
-            this.snippetSetStore.getList({ criteria }).then((response) => {
-                const resetItems = [];
-                Object.values(item).forEach((currentItem, index) => {
-                    if (!(currentItem instanceof Object) || !ids.find(id => id === currentItem.setId)) {
-                        return;
-                    }
+            this.snippetSetRepository.search(this.snippetSetCriteria, Shopware.Context.api)
+                .then((response) => {
+                    const resetItems = [];
+                    const ids = Array.isArray(this.$route.query.ids) ? this.$route.query.ids : [this.$route.query.ids];
 
-                    currentItem.setName = this.getName(response.items, currentItem.setId);
-                    if (currentItem.id === null) {
-                        currentItem.id = index;
-                        currentItem.isFileSnippet = true;
-                    }
+                    Object.values(item).forEach((currentItem, index) => {
+                        if (!(currentItem instanceof Object) || !ids.find(id => id === currentItem.setId)) {
+                            return;
+                        }
 
-                    resetItems.push(currentItem);
+                        currentItem.setName = this.getName(response, currentItem.setId);
+                        if (currentItem.id === null) {
+                            currentItem.id = index;
+                            currentItem.isFileSnippet = true;
+                        }
+
+                        resetItems.push(currentItem);
+                    });
+
+                    this.resetItems = resetItems.sort((a, b) => {
+                        return a.setName <= b.setName ? -1 : 1;
+                    });
+                    this.showDeleteModal = item;
+                })
+                .finally(() => {
+                    this.isLoading = false;
                 });
-
-                this.resetItems = resetItems.sort((a, b) => {
-                    return a.setName <= b.setName ? -1 : 1;
-                });
-                this.showDeleteModal = item;
-                this.isLoading = false;
-            }).catch(() => {
-                this.isLoading = false;
-            });
         },
 
         getName(list, id) {

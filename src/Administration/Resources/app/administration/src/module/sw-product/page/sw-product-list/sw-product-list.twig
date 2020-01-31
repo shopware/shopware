@@ -116,6 +116,10 @@
                     {% block sw_product_list_empty_state %}
                         <sw-empty-state v-if="!isLoading && !total" :title="$tc('sw-product.list.messageEmpty')"></sw-empty-state>
                     {% endblock %}
+
+                    {% block sw_product_list_grid_loader %}
+                        <sw-loader v-if="isLoading"></sw-loader>
+                    {% endblock %}
                 </div>
             {% endblock %}
         </template>

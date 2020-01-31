@@ -12,6 +12,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 **Addition / Changes**
 
 * Administration
+    * Added an `sw_product_list_grid_loader` block to sw-product-list which includes the sw-loader component
     * Refactored tooltip directive to automatically change the position if it does not fit in the screen on the desired position.
     * Added possibility to show a tooltip also on disabled input fields with the option `showOnDisabledElements`. This will generate a wrapper element around the original element.
     * Prevent adding a product comparison sales channel if there are no product streams available

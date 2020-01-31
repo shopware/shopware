@@ -1,7 +1,7 @@
 import template from './sw-settings-payment-detail.html.twig';
 import './sw-settings-payment-detail.scss';
 
-const { Component, StateDeprecated, Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 
@@ -14,6 +14,8 @@ Component.register('sw-settings-payment-detail', {
         Mixin.getByName('discard-detail-page-changes')('paymentMethod')
     ],
 
+    inject: ['repositoryFactory'],
+
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
         ESCAPE: 'onCancel'
@@ -21,7 +23,7 @@ Component.register('sw-settings-payment-detail', {
 
     data() {
         return {
-            paymentMethod: {},
+            paymentMethod: null,
             mediaItem: null,
             uploadTag: 'sw-payment-method-upload-tag',
             isLoading: false,
@@ -48,16 +50,16 @@ Component.register('sw-settings-payment-detail', {
             return this.placeholder(this.paymentMethod, 'name');
         },
 
-        paymentMethodStore() {
-            return StateDeprecated.getStore('payment_method');
+        paymentMethodRepository() {
+            return this.repositoryFactory.create('payment_method');
         },
 
-        ruleStore() {
-            return StateDeprecated.getStore('rule');
+        ruleRepository() {
+            return this.repositoryFactory.create('rule');
         },
 
-        mediaStore() {
-            return StateDeprecated.getStore('media');
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
         },
 
         tooltipSave() {
@@ -123,10 +125,16 @@ Component.register('sw-settings-payment-detail', {
         },
 
         loadEntityData() {
-            this.paymentMethod = this.paymentMethodStore.getById(this.paymentMethodId);
-            if (this.paymentMethod.mediaId) {
-                this.setMediaItem({ targetId: this.paymentMethod.mediaId });
-            }
+            this.isLoading = true;
+
+            this.paymentMethodRepository.get(this.paymentMethodId, Shopware.Context.api)
+                .then((paymentMethod) => {
+                    this.paymentMethod = paymentMethod;
+                    this.setMediaItem({ targetId: this.paymentMethod.mediaId });
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         saveFinish() {
@@ -142,19 +150,22 @@ Component.register('sw-settings-payment-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return this.paymentMethod.save().then(() => {
-                this.isLoading = false;
-                this.isSaveSuccessful = true;
-                this.$refs.mediaSidebarItem.getList();
-            }).catch((exception) => {
-                this.createNotificationError({
-                    title: titleSaveError,
-                    message: messageSaveError
+            return this.paymentMethodRepository.save(this.paymentMethod, Shopware.Context.api)
+                .then(() => {
+                    this.isSaveSuccessful = true;
+                    this.$refs.mediaSidebarItem.getList();
+                })
+                .catch((exception) => {
+                    this.createNotificationError({
+                        title: titleSaveError,
+                        message: messageSaveError
+                    });
+                    warn(this._name, exception.message, exception.response);
+                    throw exception;
+                })
+                .finally(() => {
+                    this.isLoading = false;
                 });
-                warn(this._name, exception.message, exception.response);
-                this.isLoading = false;
-                throw exception;
-            });
         },
 
         onCancel() {
@@ -162,10 +173,11 @@ Component.register('sw-settings-payment-detail', {
         },
 
         setMediaItem({ targetId }) {
-            this.mediaStore.getByIdAsync(targetId).then((updatedMedia) => {
-                this.mediaItem = updatedMedia;
-            });
-            this.paymentMethod.mediaId = targetId;
+            this.mediaRepository.get(targetId, Shopware.Context.api)
+                .then((updatedMedia) => {
+                    this.mediaItem = updatedMedia;
+                    this.paymentMethod.mediaId = targetId;
+                });
         },
 
         setMediaFromSidebar(mediaEntity) {

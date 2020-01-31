@@ -26,11 +26,7 @@ Component.extend('sw-settings-payment-create', 'sw-settings-payment-detail', {
                 this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
             }
 
-            if (this.$route.params.id) {
-                this.paymentMethodStore.create(this.$route.params.id);
-            }
-
-            this.$super('createdComponent');
+            this.paymentMethod = this.paymentMethodRepository.create(Shopware.Context.api, this.$route.params.id);
         },
 
         saveFinish() {

@@ -217,6 +217,19 @@ Component.register('sw-order-line-items-grid-sales-channel', {
                 return 0;
             }
             return null;
+        },
+
+        isNotPromotion(item) {
+            return item.type !== 'promotion';
+        },
+
+        isNotAutoPromotion(item) {
+            if (!this.isNotPromotion(item)) {
+                if (item.payload.code === '') {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 });

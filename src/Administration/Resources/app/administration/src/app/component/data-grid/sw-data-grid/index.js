@@ -126,6 +126,22 @@ Component.register('sw-data-grid', {
             type: Boolean,
             required: false,
             default: true
+        },
+
+        isRecordEditable: {
+            type: Function,
+            required: false,
+            default() {
+                return true;
+            }
+        },
+
+        isRecordSelectable: {
+            type: Function,
+            required: false,
+            default() {
+                return true;
+            }
         }
     },
 
@@ -411,6 +427,10 @@ Component.register('sw-data-grid', {
         },
 
         selectItem(selected, item) {
+            if (!this.isRecordSelectable(item)) {
+                return;
+            }
+
             const selection = this.selection;
 
             if (selected === true) {
@@ -445,7 +465,7 @@ Component.register('sw-data-grid', {
         },
 
         onDbClickCell(record) {
-            if (!this.allowInlineEdit) {
+            if (!this.allowInlineEdit || !this.isRecordEditable(record)) {
                 return;
             }
 

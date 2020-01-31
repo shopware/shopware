@@ -8,6 +8,7 @@
         <!-- Filesystem -->
         <service id="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory">
             <argument type="tagged" tag="shopware.filesystem.factory"/>
+            <argument type="tagged" tag="shopware.filesystem.plugin"/>
         </service>
 
         <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.public">
@@ -37,5 +38,8 @@
             <argument>media</argument>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch">
+            <tag name="shopware.filesystem.plugin" />
+        </service>
     </services>
 </container>

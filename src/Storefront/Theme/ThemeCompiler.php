@@ -7,6 +7,7 @@ use Padaliyajay\PHPAutoprefixer\Autoprefixer;
 use ScssPhp\ScssPhp\Compiler;
 use ScssPhp\ScssPhp\Formatter\Crunched;
 use ScssPhp\ScssPhp\Formatter\Expanded;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
@@ -130,23 +131,23 @@ class ThemeCompiler
 
             $finder = new Finder();
             $files = $finder->files()->in($asset);
+            $assets = [];
 
             foreach ($files as $file) {
                 $relativePathname = $file->getRelativePathname();
                 $assetDir = basename($asset);
 
-                $content = file_get_contents($asset . DIRECTORY_SEPARATOR . $relativePathname);
-
-                $this->publicFilesystem->put(
-                    'bundles' . DIRECTORY_SEPARATOR . mb_strtolower($configuration->getTechnicalName()) . DIRECTORY_SEPARATOR . $assetDir . DIRECTORY_SEPARATOR . $relativePathname,
-                    $content
-                );
-
-                $this->publicFilesystem->put(
-                    $outputPath . DIRECTORY_SEPARATOR . $assetDir . DIRECTORY_SEPARATOR . $relativePathname,
-                    $content
+                $assets[] = new CopyBatchInput(
+                    $asset . DIRECTORY_SEPARATOR . $relativePathname,
+                    [
+                        'bundles' . DIRECTORY_SEPARATOR . mb_strtolower($configuration->getTechnicalName()) . DIRECTORY_SEPARATOR . $assetDir . DIRECTORY_SEPARATOR . $relativePathname,
+                        $outputPath . DIRECTORY_SEPARATOR . $assetDir . DIRECTORY_SEPARATOR . $relativePathname,
+                    ]
                 );
             }
+
+            // method copyBatch is provided by copyBatch filesystem plugin
+            $this->publicFilesystem->copyBatch(...$assets);
         }
     }
 

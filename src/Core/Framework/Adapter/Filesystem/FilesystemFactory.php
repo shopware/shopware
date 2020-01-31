@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Filesystem;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Filesystem as LeagueFilesystem;
 use League\Flysystem\FilesystemInterface;
+use League\Flysystem\PluginInterface;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AdapterFactoryInterface;
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\AdapterFactoryNotFoundException;
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\DuplicateFilesystemFactoryException;
@@ -18,14 +19,21 @@ class FilesystemFactory
     private $adapterFactories;
 
     /**
+     * @var PluginInterface[]
+     */
+    private $filesystemPlugins;
+
+    /**
      * @param AdapterFactoryInterface[]|iterable $adapterFactories
+     * @param PluginInterface[]|iterable         $filesystemPlugins
      *
      * @throws DuplicateFilesystemFactoryException
      */
-    public function __construct(iterable $adapterFactories)
+    public function __construct(iterable $adapterFactories, iterable $filesystemPlugins)
     {
         $this->checkDuplicates($adapterFactories);
         $this->adapterFactories = $adapterFactories;
+        $this->filesystemPlugins = $filesystemPlugins;
     }
 
     public function factory(array $config): FilesystemInterface
@@ -33,10 +41,18 @@ class FilesystemFactory
         $config = $this->resolveFilesystemConfig($config);
         $factory = $this->findAdapterFactory($config['type']);
 
-        return new LeagueFilesystem(
+        $filesystem = new LeagueFilesystem(
             $factory->create($config['config']),
             ['visibility' => $config['visibility']]
         );
+
+        foreach ($this->filesystemPlugins as $plugin) {
+            $plugin = clone $plugin;
+            $plugin->setFilesystem($filesystem);
+            $filesystem->addPlugin($plugin);
+        }
+
+        return $filesystem;
     }
 
     /**

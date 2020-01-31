@@ -34,7 +34,7 @@
                         {% block sw_maintain_currencies_modal_grid_column_price_field_label %}
                             <div class="sw-maintain-currencies-modal__price-label-wrapper">
                                 <div>{{ $tc('sw-maintain-currencies-modal.columnPrice') }}</div>
-                                <div>{{ $tc('sw-maintain-currencies-modal.columnListPriceHeader') }}</div>
+                                <div v-if="!hideListPrices">{{ $tc('sw-maintain-currencies-modal.columnListPriceHeader') }}</div>
                             </div>
                         {% endblock %}
                     </template>
@@ -46,6 +46,7 @@
                                             :taxRate="taxRate"
                                             :label="false"
                                             :disableSuffix="true"
+                                            :hideListPrices="hideListPrices"
                                             enableInheritance
                                             :currency="item">
                             </sw-list-price-field>

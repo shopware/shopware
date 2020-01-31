@@ -227,6 +227,25 @@ $modal-backdrop-bg: rgba(255, 0, 0, 0.5);
 
 Please only add variable overrides in this file. You should not write CSS code like `.container { background: #f00 }` in this file. When running `storefront:hot` or `storefront:hot-proxy` SCSS variables will be injected dynamically by webpack. When writing selectors and properties in the `overrides.scss` the code can appear multiple times in your built CSS.
 
+### Using Bootstrap SCSS only
+
+The Shopware default theme is using [Bootstrap](https://getbootstrap.com/) with additional custom styling.
+
+If you want to build your theme only upon the Bootstrap SCSS you can use the `@StorefrontBootstrap` placeholder instead of the `@Storefront` bundle in the `style` section of your `theme.json`.
+This gives you the ability to use the Bootstrap SCSS without the Shopware Storefront "skin". Therefore all the SCSS from `src/Storefront/Resources/app/storefront/src/scss/skin` will not be available in your theme.
+
+```json
+{
+  "style": [
+    "@StorefrontBootstrap",
+    "app/storefront/src/scss/base.scss"
+  ]
+}
+```
+* This option can only be used in the `style` section of the `theme.json`. You must not use it in `views` or `script`.
+* All theme variables like `$sw-color-brand-primary` are also available when using the Bootstrap option.
+* You can only use either `@StorefrontBootstrap` or `@Storefront`. They should not be used at the same time. The `@Storefront` bundle **includes** the Bootstrap SCSS already.
+
 ## Theme Configuration
 
 One of the benefits of creating a theme is that you can overwrite the theme configuration of 

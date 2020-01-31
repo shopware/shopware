@@ -9,8 +9,13 @@ Contains custom styles for the minimal header which is used on checkout pages.
     border-bottom: 1px solid var(--text-color-brand-primary);
 }
 
+.header-minimal.fixed-top {
+    position: static;
+}
+
 .header-minimal-row {
     justify-content: space-between;
+    align-items: center;
 }
 
 .header-minimal-contact {

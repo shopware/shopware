@@ -36,6 +36,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 	    - deprecated block "sw_integration_list_grid_inner"
 	    - deprecated block "sw_integration_list_grid_inner_slot_columns"
 	    - deprecated block "sw_integration_list_grid_pagination"
+    * Deprecated the use of `fixed-top` class in `header-minimal.html.twig`
 
 * Core    
     *

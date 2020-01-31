@@ -12,16 +12,16 @@
         ]
     },
     "require": {
-        "cocur/slugify": "3.2",
-        "composer/composer": "1.9.1",
-        "erusev/parsedown-extra": "0.7.1",
-        "guzzlehttp/guzzle": "6.4.1",
+        "cocur/slugify": "4.0.0",
+        "composer/composer": "1.9.2",
+        "erusev/parsedown-extra": "0.8.1",
+        "guzzlehttp/guzzle": "6.5.2",
         "shopware/core": "*",
-        "symfony/config": "4.4.1",
-        "symfony/console": "4.4.1",
-        "symfony/dependency-injection": "4.4.1",
-        "symfony/filesystem": "4.4.1",
-        "symfony/finder": "4.4.1",
-        "symfony/http-kernel": "4.4.1"
+        "symfony/config": "4.4.4",
+        "symfony/console": "4.4.4",
+        "symfony/dependency-injection": "4.4.4",
+        "symfony/filesystem": "4.4.4",
+        "symfony/finder": "4.4.4",
+        "symfony/http-kernel": "4.4.4"
     }
 }

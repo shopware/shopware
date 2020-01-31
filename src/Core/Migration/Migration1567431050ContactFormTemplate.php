@@ -40,7 +40,7 @@ class Migration1567431050ContactFormTemplate extends MigrationStep
             $connection->update(
                 'mail_template',
                 [
-                    'updated_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'updated_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ],
                 ['id' => $contactTemplateId]
             );
@@ -53,7 +53,7 @@ class Migration1567431050ContactFormTemplate extends MigrationStep
                     'id' => $contactTemplateId,
                     'mail_template_type_id' => $contactTemplateTypeId,
                     'system_default' => 1,
-                    'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );
         }
@@ -66,7 +66,7 @@ class Migration1567431050ContactFormTemplate extends MigrationStep
                 'sender_name' => '{{ salesChannel.name }}',
                 'content_html' => $this->getRegistrationHtmlTemplateEn(),
                 'content_plain' => $this->getRegistrationPlainTemplateEn(),
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'mail_template_id' => $contactTemplateId,
                 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
             ]

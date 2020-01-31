@@ -162,7 +162,7 @@ class RulePayloadSubscriberTest extends TestCase
             ->values(['id' => ':id', 'name' => ':name', 'priority' => 3, 'invalid' => '0', 'created_at' => ':createdAt'])
             ->setParameter('name', 'Rule')
             ->setParameter('id', Uuid::fromHexToBytes($id))
-            ->setParameter('createdAt', date(Defaults::STORAGE_DATE_TIME_FORMAT))
+            ->setParameter('createdAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT))
             ->execute();
 
         $this->connection->createQueryBuilder()
@@ -171,7 +171,7 @@ class RulePayloadSubscriberTest extends TestCase
             ->setParameter('id', Uuid::randomBytes())
             ->setParameter('type', (new AndRule())->getName())
             ->setParameter('ruleId', Uuid::fromHexToBytes($id))
-            ->setParameter('createdAt', date(Defaults::STORAGE_DATE_TIME_FORMAT))
+            ->setParameter('createdAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT))
             ->execute();
 
         /** @var RuleEntity $rule */
@@ -201,7 +201,7 @@ class RulePayloadSubscriberTest extends TestCase
             ->values(['id' => ':id', 'name' => ':name', 'priority' => 3, 'invalid' => '0', 'created_at' => ':createdAt'])
             ->setParameter('name', 'Rule')
             ->setParameter('id', Uuid::fromHexToBytes($id))
-            ->setParameter('createdAt', date(Defaults::STORAGE_DATE_TIME_FORMAT))
+            ->setParameter('createdAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT))
             ->execute();
 
         $this->connection->createQueryBuilder()
@@ -210,7 +210,7 @@ class RulePayloadSubscriberTest extends TestCase
             ->setParameter('id', Uuid::randomBytes())
             ->setParameter('type', 'invalid')
             ->setParameter('ruleId', Uuid::fromHexToBytes($id))
-            ->setParameter('createdAt', date(Defaults::STORAGE_DATE_TIME_FORMAT))
+            ->setParameter('createdAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT))
             ->execute();
 
         /** @var RuleEntity $rule */

@@ -27,7 +27,7 @@ class Migration1568120302CmsBlockUpdate extends MigrationStep
         foreach ($pages as $page) {
             $section = [
                 'id' => Uuid::randomBytes(),
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'cms_page_id' => $page['id'],
                 'locked' => 0,
                 'position' => 0,

@@ -20,21 +20,21 @@ class Migration1561452005Update extends MigrationStep
             'id' => Uuid::randomBytes(),
             'configuration_key' => 'core.update.apiUri',
             'configuration_value' => '{"_value": "https://update-api.shopware.com"}',
-            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('system_config', [
             'id' => Uuid::randomBytes(),
             'configuration_key' => 'core.update.channel',
             'configuration_value' => '{"_value": "ea"}',
-            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('system_config', [
             'id' => Uuid::randomBytes(),
             'configuration_key' => 'core.update.code',
             'configuration_value' => '{"_value": ""}',
-            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
 

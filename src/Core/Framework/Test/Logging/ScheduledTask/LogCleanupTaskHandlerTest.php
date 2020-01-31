@@ -105,27 +105,25 @@ class LogCleanupTaskHandlerTest extends TestCase
 
     private function writeLogs(): void
     {
-        $year = 60 * 60 * 24 * 31 * 12;
-
         $this->logEntryRepository->create(
             [
                 [
                     'message' => 'test1',
                     'level' => 12,
                     'channel' => 'test',
-                    'createdAt' => date(Defaults::STORAGE_DATE_TIME_FORMAT, time() - $year),
+                    'createdAt' => (new \DateTime('- 1 year'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ],
                 [
                     'message' => 'test2',
                     'level' => 42,
                     'channel' => 'test',
-                    'createdAt' => date(Defaults::STORAGE_DATE_TIME_FORMAT, time() - 2 * $year),
+                    'createdAt' => (new \DateTime('- 2 years'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ],
                 [
                     'message' => 'test3',
                     'level' => 1337,
                     'channel' => 'test',
-                    'createdAt' => date(Defaults::STORAGE_DATE_TIME_FORMAT, time() - 3 * $year),
+                    'createdAt' => (new \DateTime('- 3 years'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ],
             ],
             $this->context

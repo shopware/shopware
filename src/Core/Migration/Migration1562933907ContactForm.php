@@ -33,7 +33,7 @@ class Migration1562933907ContactForm extends MigrationStep
                 'id' => $mailTemplateTypeId,
                 'technical_name' => MailTemplateTypes::MAILTYPE_CONTACT_FORM,
                 'available_entities' => $contactFormEmailTemplate['availableEntities'],
-                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -43,7 +43,7 @@ class Migration1562933907ContactForm extends MigrationStep
                 'mail_template_type_id' => $mailTemplateTypeId,
                 'name' => $contactFormEmailTemplate['name'],
                 'language_id' => $this->getLanguageIdByLocale($connection, 'en-GB'),
-                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -53,7 +53,7 @@ class Migration1562933907ContactForm extends MigrationStep
                 'mail_template_type_id' => $mailTemplateTypeId,
                 'name' => $contactFormEmailTemplate['nameDe'],
                 'language_id' => $this->getLanguageIdByLocale($connection, 'de-DE'),
-                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -64,7 +64,7 @@ class Migration1562933907ContactForm extends MigrationStep
                 'event_name' => ContactFormEvent::EVENT_NAME,
                 'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
                 'config' => json_encode(['mail_template_type_id' => $contactFormEmailTemplate['id']]),
-                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
     }

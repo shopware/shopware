@@ -132,7 +132,7 @@ class MigrationRuntime
                SET `message` = NULL,
                    `update_destructive` = :dateTime
              WHERE `class` = :class',
-            ['class' => \get_class($migrationStep), 'dateTime' => date(Defaults::STORAGE_DATE_FORMAT)]
+            ['class' => \get_class($migrationStep), 'dateTime' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]
         );
     }
 
@@ -143,7 +143,7 @@ class MigrationRuntime
                SET `message` = NULL,
                    `update` = :dateTime
              WHERE `class` = :class',
-            ['class' => \get_class($migrationStep), 'dateTime' => date(Defaults::STORAGE_DATE_FORMAT)]
+            ['class' => \get_class($migrationStep), 'dateTime' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]
         );
     }
 }

@@ -26,14 +26,14 @@ class Migration1573729158AddSitemapConfig extends MigrationStep
             'id' => Uuid::randomBytes(),
             'configKey' => 'core.sitemap.sitemapRefreshTime',
             'configValue' => '{"_value": 3600}',
-            'createdAt' => date(Defaults::STORAGE_DATE_FORMAT),
+            'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->executeUpdate($query, [
             'id' => Uuid::randomBytes(),
             'configKey' => 'core.sitemap.sitemapRefreshStrategy',
             'configValue' => '{"_value": "2"}',
-            'createdAt' => date(Defaults::STORAGE_DATE_FORMAT),
+            'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
 

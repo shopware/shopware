@@ -763,6 +763,14 @@ Component.register('sw-colorpicker', {
             }
 
             return hslValue;
+        },
+
+        onClickInput() {
+            if (!this.readonly) {
+                return;
+            }
+
+            this.toggleColorPicker();
         }
     }
 });

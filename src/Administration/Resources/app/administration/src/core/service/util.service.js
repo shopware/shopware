@@ -57,7 +57,7 @@ export const string = {
     capitalizeString: stringUtils.capitalizeString,
     camelCase: stringUtils.camelCase,
     kebabCase: stringUtils.kebabCase,
-    md5: stringUtils.md5,
+    md5: md5,
     isEmptyOrSpaces: stringUtils.isEmptyOrSpaces,
     isUrl: stringUtils.isUrl,
     isValidIp: stringUtils.isValidIp

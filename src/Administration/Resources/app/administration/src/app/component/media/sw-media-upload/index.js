@@ -4,6 +4,8 @@ import './sw-media-upload.scss';
 
 const { Component, Mixin, StateDeprecated } = Shopware;
 const { fileReader } = Shopware.Utils;
+const INPUT_TYPE_FILE_UPLOAD = 'file-upload';
+const INPUT_TYPE_URL_UPLOAD = 'url-upload';
 
 /**
  * @status ready
@@ -91,7 +93,7 @@ Component.register('sw-media-upload', {
     data() {
         return {
             multiSelect: this.allowMultiSelect,
-            showUrlInput: false,
+            inputType: INPUT_TYPE_FILE_UPLOAD,
             preview: null,
             isDragActive: false,
             defaultFolderId: null
@@ -131,12 +133,6 @@ Component.register('sw-media-upload', {
             return this.preview !== null;
         },
 
-        toggleButtonCaption() {
-            return this.showUrlInput ?
-                this.$tc('global.sw-media-upload.buttonSwitchToFileUpload') :
-                this.$tc('global.sw-media-upload.buttonSwitchToUrlUpload');
-        },
-
         hasOpenMediaButtonListener() {
             return Object.keys(this.$listeners).includes('media-upload-sidebar-open');
         },
@@ -156,6 +152,14 @@ Component.register('sw-media-upload', {
 
         mediaFolderId() {
             return this.defaultFolderId || this.targetFolderId;
+        },
+
+        isUrlUpload() {
+            return this.inputType === INPUT_TYPE_URL_UPLOAD;
+        },
+
+        isFileUpload() {
+            return this.inputType === INPUT_TYPE_FILE_UPLOAD;
         }
     },
 
@@ -257,16 +261,12 @@ Component.register('sw-media-upload', {
             this.$refs.fileInput.click();
         },
 
-        openUrlModal() {
-            this.showUrlInput = true;
+        useUrlUpload() {
+            this.inputType = INPUT_TYPE_URL_UPLOAD;
         },
 
-        closeUrlModal() {
-            this.showUrlInput = false;
-        },
-
-        toggleShowUrlFields() {
-            this.showUrlInput = !this.showUrlInput;
+        useFileUpload() {
+            this.inputType = INPUT_TYPE_FILE_UPLOAD;
         },
 
         onClickOpenMediaSidebar() {

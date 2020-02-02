@@ -33,6 +33,11 @@ const colors = [
  * <sw-avatar size="48px"
  *            imageUrl="https://randomuser.me/api/portraits/women/68.jpg"></sw-avatar>
  * </div>
+ *
+ * <sw-avatar size="48px"
+ *            imageUrl="https://randomuser.me/api/portraits/men/68.jpg"
+ *            :sourceContext="user"></sw-avatar>
+ * </div>
  */
 Component.register('sw-avatar', {
     template,
@@ -65,6 +70,12 @@ Component.register('sw-avatar', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        sourceContext: {
+            type: Object,
+            required: false,
+            default: null
         }
     },
 
@@ -109,7 +120,7 @@ Component.register('sw-avatar', {
 
         avatarImage() {
             if (!this.imageUrl) {
-                return '';
+                return null;
             }
 
             return {
@@ -136,11 +147,11 @@ Component.register('sw-avatar', {
         },
 
         showPlaceholder() {
-            return this.placeholder && (!this.imageUrl || !this.imageUrl.length);
+            return this.placeholder && (!this.avatarImage || !this.avatarImage['background-image']);
         },
 
         showInitials() {
-            return !this.placeholder && (!this.imageUrl || !this.imageUrl.length);
+            return !this.placeholder && (!this.avatarImage || !this.avatarImage['background-image']);
         }
     },
 

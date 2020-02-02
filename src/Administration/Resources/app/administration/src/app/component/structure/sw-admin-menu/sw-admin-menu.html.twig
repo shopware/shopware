@@ -74,6 +74,7 @@
                         {% block sw_admin_menu_user_actions_avatar %}
                             <sw-avatar class="sw-admin-menu__avatar"
                                        :imageUrl="avatarUrl"
+                                       :sourceContext="currentUser"
                                        :firstName="firstName"
                                        :lastName="lastName">
                             </sw-avatar>

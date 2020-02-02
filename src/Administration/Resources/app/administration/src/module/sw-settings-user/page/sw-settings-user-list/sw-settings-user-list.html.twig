@@ -67,6 +67,17 @@
                             </template>
                         {% endblock %}
 
+                        {% block sw_settings_user_list_column_username_preview %}
+                            <template #preview-username="{ item, compact }">
+                                <sw-avatar
+                                    :size="compact ? '32px' : '48px'"
+                                    :firstName="item.firstName"
+                                    :lastName="item.lastName"
+                                    :sourceContext="item">
+                                </sw-avatar>
+                            </template>
+                        {% endblock %}
+
                         {% block sw_settings_user_list_column_username %}
                             <template #column-username="{ item }">
                                 {% block sw_settings_user_list_column_username_content %}

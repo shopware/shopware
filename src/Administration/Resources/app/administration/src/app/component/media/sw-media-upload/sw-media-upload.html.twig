@@ -17,18 +17,20 @@
                                 </sw-button>
                             </template>
 
-                            <sw-context-menu-item @click="openUrlModal" class="sw-media-upload__button-url-upload">
-                                {{ $tc('global.sw-media-upload.buttonUrlUpload') }}
-                            </sw-context-menu-item>
+                            {% block sw_media_upload_compact_button_context_menu_actions %}
+                                <sw-context-menu-item @click="useUrlUpload" class="sw-media-upload__button-url-upload">
+                                    {{ $tc('global.sw-media-upload.buttonUrlUpload') }}
+                                </sw-context-menu-item>
+                            {% endblock %}
                         </sw-context-button>
                     {% endblock %}
                 </sw-button-group>
 
                 {% block sw_media_upload_compact_url_form %}
                     <sw-media-url-form
-                        v-if="showUrlInput"
+                        v-if="isUrlUpload"
                         variant="modal"
-                        @modal-close="closeUrlModal"
+                        @modal-close="useFileUpload"
                         @media-url-form-submit="onUrlUpload">
                     </sw-media-url-form>
                 {% endblock %}
@@ -50,9 +52,27 @@
                         {% endblock %}
 
                         {% block sw_media_upload_regular_header_switch %}
-                            <a v-if="!source" class="sw-media-upload__switch-mode" @click="toggleShowUrlFields">
-                                {{ toggleButtonCaption }}
-                            </a>
+                            <sw-context-button
+                                v-if="!source"
+                                class="sw-media-upload__switch-mode">
+                                {% block sw_media_upload_regular_header_switch_file_upload %}
+                                    <sw-context-menu-item
+                                        v-if="!isFileUpload"
+                                        @click="useFileUpload"
+                                        class="sw-media-upload__button-file-upload">
+                                        {{ $t('global.sw-media-upload.buttonFileUpload') }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
+
+                                {% block sw_media_upload_regular_header_switch_url_upload %}
+                                    <sw-context-menu-item
+                                        v-if="!isUrlUpload"
+                                        @click="useUrlUpload"
+                                        class="sw-media-upload__button-url-upload">
+                                        {{ $t('global.sw-media-upload.buttonUrlUpload') }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
+                            </sw-context-button>
                         {% endblock %}
                     </div>
                 {% endblock %}
@@ -107,14 +127,14 @@
                                     {% block sw_media_upload_regular_actions_url %}
                                         <sw-media-url-form
                                             class="sw-media-upload__url-form"
-                                            v-if="showUrlInput"
+                                            v-if="isUrlUpload"
                                             variant="inline"
                                             @media-url-form-submit="onUrlUpload">
                                         </sw-media-url-form>
                                     {% endblock %}
 
                                     {% block sw_media_upload_regular_actions_add %}
-                                        <template v-if="!showUrlInput">
+                                        <template v-if="isFileUpload">
                                             {% block sw_media_upload_regular_upload_button %}
                                                 <sw-button class="sw-media-upload__button upload"
                                                             variant="ghost"

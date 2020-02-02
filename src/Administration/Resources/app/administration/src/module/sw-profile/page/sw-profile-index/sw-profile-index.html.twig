@@ -95,6 +95,7 @@
                                     :allowMultiSelect="false"
                                     :label="$tc('sw-profile.index.labelUploadAvatar')"
                                     :defaultFolder="userRepository.schema.entity"
+                                    :sourceContext="user"
                                     @media-drop="onDropMedia"
                                     @media-upload-sidebar-open="openMediaSidebar"
                                     @media-upload-remove-image="onUnlinkAvatar">

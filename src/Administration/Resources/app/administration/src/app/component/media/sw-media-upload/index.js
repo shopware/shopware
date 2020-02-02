@@ -79,6 +79,12 @@ Component.register('sw-media-upload', {
             type: String,
             required: false,
             default: null
+        },
+
+        sourceContext: {
+            type: Object,
+            required: false,
+            default: null
         }
     },
 

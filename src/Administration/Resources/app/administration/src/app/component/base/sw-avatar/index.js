@@ -120,7 +120,7 @@ Component.register('sw-avatar', {
 
         avatarImage() {
             if (!this.imageUrl) {
-                return '';
+                return null;
             }
 
             return {
@@ -147,11 +147,11 @@ Component.register('sw-avatar', {
         },
 
         showPlaceholder() {
-            return this.placeholder && (!this.imageUrl || !this.imageUrl.length);
+            return this.placeholder && (!this.avatarImage || !this.avatarImage['background-image']);
         },
 
         showInitials() {
-            return !this.placeholder && (!this.imageUrl || !this.imageUrl.length);
+            return !this.placeholder && (!this.avatarImage || !this.avatarImage['background-image']);
         }
     },
 

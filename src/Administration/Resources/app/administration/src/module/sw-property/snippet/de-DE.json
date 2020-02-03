@@ -35,6 +35,8 @@
       "labelOptionName": "Name",
       "labelOptionColor": "Farbe",
       "labelOptionMedia": "Bild",
+      "labelPosition": "Position",
+      "placeholderPosition": "Gib einen Rang für diese Gruppe ein...",
       "placeholderOptionName": "Namen eingeben",
       "labelOptionPosition": "Position",
       "placeholderOptionPosition":  "Gib einen Rang für diese Option ein ...",

@@ -377,6 +377,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
         // group options by their property-group
         $grouped = $options->groupByPropertyGroups();
+        $grouped->sortByPositions();
 
         // remove id results to prevent wrong usages
         $event->getResult()->getAggregations()->remove('properties');

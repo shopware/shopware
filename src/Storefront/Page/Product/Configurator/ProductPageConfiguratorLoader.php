@@ -48,7 +48,7 @@ class ProductPageConfiguratorLoader
 
         $groups = $this->loadSettings($product, $salesChannelContext);
 
-        $groups = $this->sortSettings($groups);
+        $groups = $this->sortSettings($groups, $product);
 
         $combinations = $this->combinationLoader->load(
             $product->getParentId(),
@@ -132,7 +132,7 @@ class ProductPageConfiguratorLoader
         return $groups;
     }
 
-    private function sortSettings(array $groups): PropertyGroupCollection
+    private function sortSettings(array $groups, SalesChannelProductEntity $product): PropertyGroupCollection
     {
         if (!$groups) {
             return new PropertyGroupCollection();
@@ -150,13 +150,6 @@ class ProductPageConfiguratorLoader
 
             $sorted[$group->getId()] = $group;
         }
-
-        usort(
-            $sorted,
-            static function (PropertyGroupEntity $a, PropertyGroupEntity $b) {
-                return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
-            }
-        );
 
         /** @var PropertyGroupEntity $group */
         foreach ($sorted as $group) {
@@ -179,7 +172,24 @@ class ProductPageConfiguratorLoader
             );
         }
 
-        return new PropertyGroupCollection($sorted);
+        $collection = new PropertyGroupCollection($sorted);
+
+        // check if product has an individual sorting configuration for property groups
+        $config = $product->getConfiguratorGroupConfig();
+        if (!$config) {
+            $collection->sortByPositions();
+
+            return $collection;
+        }
+
+        $sortedGroupIds = array_column($config, 'id');
+
+        // ensure all ids are in the array (but only once)
+        $sortedGroupIds = array_unique(array_merge($sortedGroupIds, $collection->getIds()));
+
+        $collection->sortByIdArray($sortedGroupIds);
+
+        return $collection;
     }
 
     private function isCombinable(

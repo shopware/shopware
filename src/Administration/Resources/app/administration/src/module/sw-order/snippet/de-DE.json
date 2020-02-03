@@ -99,7 +99,7 @@
       "columnTotalPrice": "Gesamt",
       "columnTotalPriceGross": "Gesamt",
       "columnTax": "Steuersatz",
-      "textCreditTax": "Auto",
+      "textCreditTax": "auto",
       "columnPriceNet": "Nettopreis",
       "columnTotalPriceNet": "Gesamt",
       "contextMenuShowProduct": "Produkt anzeigen",
@@ -111,7 +111,36 @@
       "summaryLabelAmountWithoutTaxes": "Gesamtsumme ohne MwSt.",
       "summaryLabelAmountTotal": "Gesamtsumme inkl. MwSt.",
       "summaryLabelShippingCosts": "Versandkosten",
-      "summaryLabelTaxes": "zzgl. {taxRate}% MwSt."
+      "discountLabelShippingCosts": "discount shipping costs",
+      "summaryLabelTaxes": "zzgl. {taxRate}% MwSt.",
+      "labelAddPromotion": "Add promotion",
+      "placeholderAddPromotion": "Gutscheincode eingeben ...",
+      "textInvalidPromotionCode": "Invalid promotion code",
+      "textPromotionDescription": {
+        "cart": {
+          "percentage": "{value}% Rabatt auf den Warenkorb",
+          "absolute": "{value} Rabatt auf den Warenkorb",
+          "fixed_unit": "Festpreis von {value} auf jeden Artikel im Warenkorb"
+        },
+        "delivery": {
+          "percentage": "{value}% Rabatt auf die Versandkosten",
+          "absolute": "{value} Rabatt auf die Versandkosten",
+          "fixed_unit": "Festpreis von {value} auf die Versandkosten",
+          "fixed": "Festpreis von {value} auf die Versandkosten"
+        },
+        "set": {
+          "percentage": "{value}% Rabatt auf Produkt-Set",
+          "absolute": "{value} Rabatt auf Produkt-Set",
+          "fixed_unit": "Fester Stückpreis von {value} auf jeden Artikel im Produkt-Set",
+          "fixed": "Festpreis von {value} auf Produkt-Set"
+        },
+        "setgroup": {
+          "percentage": "{value}% Rabatt auf die Set-Gruppe {groupId}",
+          "absolute": "{value} Rabatt auf die Set-Gruppe {groupId}",
+          "fixed_unit": "Fester Stückpreis von {value} auf jeden Artikel in der Set-Gruppe {groupId}",
+          "fixed": "Festpreis von {value} auf die Set-Gruppe {groupId}"
+        }
+      }
     },
     "detailBase": {
       "cardTitleDetails": "Details",

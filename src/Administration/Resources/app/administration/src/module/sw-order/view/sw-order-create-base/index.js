@@ -2,7 +2,7 @@ import template from './sw-order-create-base.html.twig';
 
 const { Component, State, Utils, Data, Service } = Shopware;
 const { Criteria } = Data;
-const { get, format } = Utils;
+const { get, format, array } = Utils;
 
 Component.register('sw-order-create-base', {
     template,
@@ -13,8 +13,20 @@ Component.register('sw-order-create-base', {
             address: {
                 data: null
             },
-            showAddressModal: false
+            showAddressModal: false,
+            promotionError: null
         };
+    },
+
+    watch: {
+        cart: {
+            deep: true,
+            handler: 'updatePromotionList'
+        },
+
+        promotionCodeTags: {
+            handler: 'handlePromotionCodeTags'
+        }
     },
 
     computed: {
@@ -91,12 +103,34 @@ Component.register('sw-order-create-base', {
             return get(this.cart, 'deliveries[0]', null);
         },
 
+        promotionCodeTags: {
+            get() {
+                return State.get('swOrder').promotionCodes;
+            },
+
+            set(promotionCodeTags) {
+                State.commit('swOrder/setPromotionCodes', promotionCodeTags);
+            }
+        },
+
+        cartDeliveryDiscounts() {
+            return array.slice(this.cart.deliveries, 1) || [];
+        },
+
         filteredCalculatedTaxes() {
             if (!this.cartPrice || !this.cartPrice.calculatedTaxes) {
                 return [];
             }
 
             return this.sortByTaxRate(this.cartPrice.calculatedTaxes).filter(price => price.tax !== 0);
+        },
+
+        promotionCodeLineItems() {
+            return this.cartLineItems.filter(item => item.type === 'promotion' && get(item, 'payload.code'));
+        },
+
+        hasLineItem() {
+            return this.cartLineItems.filter(item => item.hasOwnProperty('id')).length > 0;
         }
     },
 
@@ -218,6 +252,15 @@ Component.register('sw-order-create-base', {
                 contextToken: this.cart.token,
                 lineItemKeys: lineItemKeys
             })
+                .then(() => {
+                    // Remove promotion code tag if corresponding line item removed
+                    lineItemKeys.forEach(key => {
+                        const removedTag = this.promotionCodeTags.find(tag => tag.discountId === key);
+                        if (removedTag) {
+                            this.promotionCodeTags = this.promotionCodeTags.filter(item => item.discountId !== removedTag.discountId);
+                        }
+                    });
+                })
                 .finally(() => this.updateLoading(false));
         },
 
@@ -229,6 +272,66 @@ Component.register('sw-order-create-base', {
             return price.sort((prev, current) => {
                 return prev.taxRate - current.taxRate;
             });
+        },
+
+        onSubmitCode(code) {
+            this.updateLoading(true);
+
+            State.dispatch('swOrder/addPromotionCode', {
+                salesChannelId: this.customer.salesChannelId,
+                contextToken: this.cart.token,
+                code
+            })
+                .finally(() => this.updateLoading(false));
+        },
+
+        onRemoveExistingCode(item) {
+            if (item.isInvalid) {
+                this.promotionCodeTags = this.promotionCodeTags.filter(tag => tag.code !== item.code);
+            } else {
+                this.onRemoveItems([item.discountId]);
+            }
+        },
+
+        updatePromotionList() {
+            // Update data and isInvalid flag for each item in promotionCodeTags
+            this.promotionCodeTags = this.promotionCodeTags.map(tag => {
+                const matchedItem = this.promotionCodeLineItems.find(lineItem => lineItem.payload.code === tag.code);
+
+                if (matchedItem) {
+                    return { ...matchedItem.payload, isInvalid: false };
+                }
+
+                return { ...tag, isInvalid: true };
+            });
+
+            // Add new items from promotionCodeLineItems which promotionCodeTags doesn't contain
+            this.promotionCodeLineItems.forEach(lineItem => {
+                const matchedItem = this.promotionCodeTags.find(tag => tag.code === lineItem.payload.code);
+
+                if (!matchedItem) {
+                    this.promotionCodeTags = [...this.promotionCodeTags, { ...lineItem.payload, isInvalid: false }];
+                }
+            });
+        },
+
+        handlePromotionCodeTags(newValue, oldValue) {
+            this.promotionError = null;
+
+            if (newValue.length < oldValue.length) {
+                return;
+            }
+
+            const promotionCodeLength = this.promotionCodeTags.length;
+            const latestTag = this.promotionCodeTags[promotionCodeLength - 1];
+
+            if (newValue.length > oldValue.length) {
+                this.onSubmitCode(latestTag.code);
+            }
+
+            if (promotionCodeLength > 0 && latestTag.isInvalid) {
+                this.promotionError = { detail: this.$tc('sw-order.createBase.textInvalidPromotionCode') };
+            }
         }
     }
 });

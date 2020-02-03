@@ -35,7 +35,7 @@
                                             <sw-button variant="ghost"
                                                        size="small"
                                                        square
-                                                       :disabled="!isCustomerActive">
+                                                       :disabled="isAddNewItemButtonDisabled">
                                                 <sw-icon name="small-arrow-small-down" decorative></sw-icon>
                                             </sw-button>
                                         </template>
@@ -74,11 +74,10 @@
                               :showSettings="false"
                               :showSelection="isCustomerActive"
                               showActions
-                              :isLoading="isLoading"
                               :allowColumnEdit="false"
                               :allowInlineEdit="isCustomerActive"
-                              :isRecordEditable="isNotPromotion"
-                              :isRecordSelectable="isNotAutoPromotion"
+                              :isRecordEditable="(item) => !isPromotionItem(item)"
+                              :isRecordSelectable="(item) => !isAutoPromotionItem(item)"
                               :compactMode="false"
                               identifier="sw-order-line-item-grid-sales-channel"
                               class="sw-order-line-items-grid-sales-channel__data-grid"
@@ -185,7 +184,7 @@
 
                                 {% block sw_order_line_items_grid_sales_channel_grid_columns_tax_content %}
                                     <template v-else-if="item.price && item.price.taxRules.length">
-                                        {{ isCreditItem(item) && item.price.taxRules.length > 1 ? $tc('sw-order.createBase.textCreditTax') : `${item.price.taxRules[0].taxRate} %` }}
+                                        {{ showTaxValue(item) }}
                                     </template>
                                 {% endblock %}
 

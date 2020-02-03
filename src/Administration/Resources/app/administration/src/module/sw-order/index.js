@@ -24,6 +24,7 @@ import './component/sw-order-create-details-body';
 import './component/sw-order-create-details-footer';
 import './component/sw-order-create-address-modal';
 import './component/sw-order-new-customer-modal';
+import './component/sw-order-promotion-tag-field';
 
 const { Module } = Shopware;
 

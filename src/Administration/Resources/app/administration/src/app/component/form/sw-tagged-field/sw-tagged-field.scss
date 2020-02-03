@@ -3,11 +3,15 @@
         display: flex;
         flex-wrap: wrap;
         list-style: none;
-        padding: 0 8px;
+        padding: 8px 8px 0;
     }
 
     .sw-tagged-field__input {
-        padding: 12px 8px;
+        padding: 4px 8px 12px;
+    }
+
+    .sw-label {
+        margin: 0 8px 8px 0;
     }
 
     &.sw-field--medium {
@@ -39,7 +43,7 @@
     }
 
     .sw-tagged-field__input--full-width {
-        width: 100%
+        width: 100%;
     }
 
     .sw-tagged-field__input.sw-tagged-field__input--hidden {

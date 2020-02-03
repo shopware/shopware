@@ -37,6 +37,30 @@ Administration
     - removed computed "paymentMethodStore" use "paymentMethodRepository" instead
     - removed computed "ruleStore" use "ruleRepository" instead
     - removed computed "mediaStore" use "mediaRepository" instead
+* Refactor the module `sw-settings-number-range-detail`
+    * Remove LocalStore
+    * Remove StateDeprecated
+    * Remove data typeCriteria
+    * Remove data numberRangeSalesChannelsStore
+    * Remove data numberRangeSalesChannels
+    * Remove data numberRangeSalesChannelsAssoc
+    * Remove data salesChannelsTypeCriteria
+    * Remove computed numberRangeStore use numberRangeRepository instead
+    * Remove computed firstSalesChannel
+    * Remove computed salesChannelAssociationStore
+    * Remove computed numberRangeStateStore use numberRangeStateRepository instead
+    * Remove computed salesChannelStore use salesChannelRepository instead
+    * Remove computed numberRangeTypeStore use numberRangeTypeRepository instead
+    * Remove method onChange
+    * Remove method showOption
+    * Remove method getPossibleSalesChannels
+    * Remove method setSalesChannelCriteria
+    * Remove method enrichAssocStores
+    * Remove method onChangeSalesChannel
+    * Remove method configHasSaleschannel
+    * Remove method selectHasSaleschannel
+    * Remove method undeleteSaleschannel
+
 
 Storefront
 ----------

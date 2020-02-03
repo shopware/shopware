@@ -2,7 +2,7 @@
 
 Time to show your Bundle where it really counts: On the detail page in the Storefront!
 
-### Loading the association
+## Loading the association
 
 When the product detail page in the Storefront is opened, a product is loaded by a `Criteria` object, which also contains the associations to be loaded.
 Those are for example associations like the product's prices or the associated media for the product.
@@ -82,14 +82,14 @@ You'll have to define your subscriber as a service using the `kernel.event_subsc
 </services>
 ```
 
-### Editing the detail template
+## Editing the detail template
 
 By default, Shopware 6 is looking for a directory called `Resources/views` relative to your plugin's base class.
 Its default location can be changed by overriding your plugin's base class [getViewPaths](./../../2-internals/4-plugins/020-plugin-base-class.md#getViewPaths) method.
 This directory is then considered by the Twig FileSystemLoader, so all templates in this directory will be loaded automatically.
 In this example, the path therefore would be: `<plugin root>/src/Resources/views` - guess you know what to do now, create this directory.
 
-#### Adding a badge
+### Adding a badge
 
 The first thing you want to do, is to show a neat `Bundle` badge on top of the detail page. There's several steps necessary now:
 1. Figuring out which template and which block contains the name
@@ -182,7 +182,7 @@ You're accessing the `product` entity from the `page` variable now. From there o
 
 Now you should see a badge on every product detail page, whose product is part of at least a single bundle.
 
-#### Adding the bundle itself
+### Adding the bundle itself
 
 More important than just a badge, is to show the available bundle themselves. You could just render them above the products description,
 but in case of multiple bundles, this would totally bloat the product detail page.
@@ -236,7 +236,7 @@ We will neither explaining the classes and IDs here, they'll simply be used in t
 Only make sure to set the `aria-selected` attribute to false here.
 Instead, the really important attributes are `data-toggle`, `data-offcanvas-tab` and `href`.
 
-- `data-toggle="tab"`: Necessary for the [Bootstrap JS Tab](https://www.w3schools.com/bootstrap/bootstrap_ref_js_tab.asp) to work. Without this, your tab wouldn't be clickable and thus the content wouldn't be renderer when clicking it.
+- `data-toggle="tab"`: Necessary for the [Bootstrap JS Tab](https://www.w3schools.com/bootstrap/bootstrap_ref_js_tab.asp) to work. Without this, your tab wouldn't be clickable and thus the content wouldn't be rendered when clicking it.
 - `data-offcanvas-tab`: Opens the tab's content in the off canvas menu when using a smaller viewport
 - `href`: Links to the element, which contains the tab's contents and thus must be rendered
 
@@ -383,7 +383,7 @@ Since the 'addToCart' route responds with a JSON object containing the status of
 show the cart's details inside of the ajax cart. This is done using the `redirectTo`, which will call the cart's detail page's route in order to get an actual
 template for the off canvas cart.
 
-#### Final bundle template
+### Final bundle template
 
 Your `tabs.html.twig` file should now look like this:
 
@@ -448,13 +448,13 @@ Your `tabs.html.twig` file should now look like this:
 
 ```
 
-### Adding translations to the Storefront
+## Adding translations to the Storefront
 
 You might have noticed multiple occurrences of static texts, which still need some translations. Applying translations to the Storefront works a little bit different than
 in the Administration.
 It's not that much of a deal though, so don't worry.
 
-#### Adding SnippetFiles
+### Adding SnippetFiles
 
 Adding snippets via plugins works by registering services via the DI container tag `shopware.snippet.file`.
 Those services implement the `Shopware\Core\System\Snippet\Files\SnippetFileInterface` interface, which needs five methods to be implemented:
@@ -509,7 +509,7 @@ class SnippetFile_en_GB implements SnippetFileInterface
 As you might notice, it points to a `storefront.en-GB.json` file in the same directory. This is also the file you need to create now.
 In there, you can store all the translations you want to use, just like you've done in the administration snippets.
 
-##### Register to services.xml
+### Register to services.xml
 
 Now register your `SnippetFile` in the DI container using the `shopware.snippet.file` tag.
 
@@ -521,7 +521,7 @@ Now register your `SnippetFile` in the DI container using the `shopware.snippet.
 
 That's it already.
 
-#### Filling the translations
+### Filling the translations
 
 Now you can fill the `storefront.en-GB.json` file with all the translations you need.
 There's several occurrences in the code so far, that would need a proper translation:
@@ -565,3 +565,8 @@ In your template:
     {{ 'swag-bundle.detail.buyButtonText'|trans({ '%bundleDiscount%': bundle.discountType == 'absolute' ? bundle.discount|currency : (bundle.discount ~ '%') }) }}
 </button>
 ```
+
+**And with that, your extension for the product detail pages is ready to go and working!**
+
+Now, that you can extend from other templates, start working on the checkout logic.
+This is done in [next step](./090-checkout.md).

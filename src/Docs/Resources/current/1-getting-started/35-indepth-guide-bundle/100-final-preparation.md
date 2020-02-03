@@ -2,7 +2,7 @@
 
 You're almost done with the whole plugin. There's just one more thing to do before being completely done.
 
-### Removing the plugin's data
+## Removing the plugin's data
 
 Upon installation, you setup database tables necessary for your plugin to function properly.
 When the shop manager uninstalls your plugin though, the database tables will always remain. Since the shop manager will be asked if he wants to keep
@@ -11,17 +11,26 @@ the plugin's data when uninstalling it, this **can** be good. But what if he act
 In that case, you have to remove everything connected to your plugin, such as the database tables.
 You do this in your plugin base class' `uninstall` method.
 
-```phpf
+```php
 <?php declare(strict_types=1);
 
 namespace Swag\BundleExample;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\InheritanceIndexer;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IndexerMessageSender;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 
 class BundleExample extends Plugin
 {
+    public function activate(ActivateContext $activateContext): void
+    {
+        $indexerMessageSender = $this->container->get(IndexerMessageSender::class);
+        $indexerMessageSender->partial(new \DateTimeImmutable(), [InheritanceIndexer::getName()]);
+    }
+
     public function uninstall(UninstallContext $context): void
     {
         parent::uninstall($context);
@@ -35,6 +44,7 @@ class BundleExample extends Plugin
         $connection->executeQuery('DROP TABLE IF EXISTS `swag_bundle_product`');
         $connection->executeQuery('DROP TABLE IF EXISTS `swag_bundle_translation`');
         $connection->executeQuery('DROP TABLE IF EXISTS `swag_bundle`');
+        $connection->executeQuery('ALTER TABLE `product` DROP COLUMN `bundles`');
     }
 }
 ```

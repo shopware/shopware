@@ -11,14 +11,14 @@ to learn more about the framework itself.
 
 Of course any Shopware 6 specific code will be explained, don't worry about that.
 
-### Setting up the the administration
+## Setting up the the administration
 
 Each plugin has a main entry point to add custom javascript code to the administration. By default, Shopware 6 is looking for a 
 `main.js` file inside a `Resources/app/administration/src` directory in your plugin.
 Thus, create a new file `main.js` in the directory `<plugin root>/src/Resources/app/administration/src`. That's it, this file will now be considered when building
 the administration.
 
-### Setting up a new module
+## Setting up a new module
 
 You want to have your very own menu entry in the administration, which then should lead to a custom  bundle module.
 In the `Administration` core code, each module is defined in a directory called `module`, so simply stick to it.
@@ -37,7 +37,7 @@ import './module/swag-bundle';
 
 Now your module's `index.js` will be executed.
 
-#### Registering the module
+### Registering the module
 
 Your `index.js` is still empty now, so let's get going to actually create a new module.
 This is technically done by calling the method `registerModule` method of our [ModuleFactory](https://github.com/shopware/platform/blob/master/src/Administration/Resources/app/administration/src/core/factory/module.factory.js),
@@ -55,7 +55,7 @@ Shopware.Module.register('swag-bundle', {
 });
 ```
 
-#### Configuring the module
+### Configuring the module
 
 So, what do you configure here?
 For example the color of your module. Each module asks for a color, which will be used automatically throughout your module.
@@ -75,7 +75,7 @@ Also very important are the routes, that your module is going to use, such as `s
 `swag-bundle-create` for creating a new bundle entry.
 Those routes are configured as an object in a property named `routes`.
 
-##### Setting up routes
+### Setting up routes
 
 Before continuing to explain how they are defined, let's have a look at the actual routes and how they have to look like:
 
@@ -147,7 +147,7 @@ The same applies for the `create` route, nothing special about it here.
 
 There are several components linked with those routes, that do not exist yet. Don't worry, you didn't miss anything. Those are created later in this tutorial.
 
-##### Setting up the menu entry
+### Setting up the menu entry
 
 Let's continue with the module configuration, what else is missing?
 What about the menu entry, which opens your module in the first place? This is defined using the `navigation` key in your module configuration.
@@ -198,7 +198,7 @@ navigation: [{
 }]
 ```
 
-##### Additional meta info
+### Additional meta info
 
 You've got a menu entry now, which points to a `swag.bundle.list` route. The related routes are also setup already and linked to components, which will be
 created in the next main step.
@@ -213,7 +213,7 @@ Wouldn't it be way cooler, if you could just disable all plugins (hence the `typ
 If you have a suspicion, wouldn't you want to just disable this special plugin from the administration, without actually disabling its full functionality?
 The unique `name` would be required in that case, so just provide those two values as well.
 
-##### Implementing snippets
+### Implementing snippets
 
 You've already set a label for your module's menu entry. Yet, by default the `Administration` expects the value in there to be a [Vuei18n](https://kazupon.github.io/vue-i18n/started.html#html) variable, a translation key that is.
 It's looking for a translation key `Bundle` now and since you did not provide any translations at all yet, it can't find any translation for it and will just print
@@ -285,8 +285,6 @@ There are more non-translated strings in your module, such as the `description` 
 `description` and `title`.
 The title will be the same as the main menu entry by default.
 
-##### 
-
 This should be your snippet file now:
 ```json
 {
@@ -298,6 +296,8 @@ This should be your snippet file now:
     }
 }
 ```
+
+### Final bundle module
 
 And here's your final module:
 
@@ -354,7 +354,7 @@ Shopware.Module.register('swag-bundle', {
 
 The `page` imports in the first few lines will be created in the next few steps.
 
-### The list component
+## The list component
 
 Let's start with the main component for now: The list of bundles. You've already linked it in your module file and it's supposed to be named `swag-bundle-list` inside
 a directory called `page`, so go ahead and create that directory.
@@ -386,7 +386,7 @@ Shopware.Component.register('swag-bundle-list', {
 });
 ```
 
-#### Setting a template
+### Setting a template
 
 You want to create a listing now, which is done by using the `sw-entity-listing` element in a `twig` template, so let's start with creating a template for your
 component.
@@ -451,7 +451,7 @@ the content of the `sw-page` component.
 </template>
 ```
 
-##### Theory: Slots vs Blocks
+### Theory: Slots vs Blocks
 
 You might wonder now: Why didn't we use twig blocks for this case as well? When to use blocks, when to use the VueJs slots?
 While this question can be a bit tricky, I'll try to explain it as simple as possible.
@@ -462,9 +462,9 @@ Overriding a twig block would override it for all occurrences of this template.
 You use the VueJs slots, when you're **using** an element instead. You use the `sw-page` element and you're technically just configuring
 your single instance of it, not extending and changing the element as a whole.
 
-#### Setting up the listing
+### Setting up the listing
 
-##### Listing template
+#### Listing template
 
 You want to show a list of your bundle entities with the `swag-bundle-list` component.
 Fortunately Shopware 6 comes with a neat component to be used for this specific case: `sw-entity-listing`
@@ -524,7 +524,7 @@ So add the `sw-entity-listing` element like this:
 Those attributes prefixed with a colon are a short-hand for [v-bind](https://vuejs.org/v2/api/#v-bind), so `:items` is the shorthand of `v-bind:items`.
 Have a look at the documentation about `v-bind` linked above to understand what it does. In short: Each of those values are expressions, that can be filled dynamically.
 
-##### Listing logic
+#### Listing logic
 
 In this example, all of those attributes will be processed in the `index.js` of your `swag-bundle-list` component.
 
@@ -735,7 +735,73 @@ Just remove those import lines from your module's `index.js` for testing purpose
 $ ./psh.phar administration:build
 ```
 
-### The detail component
+### Final list component
+
+Your file should look like this:
+```js
+import template from './swag-bundle-list.html.twig';
+
+const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
+
+Component.register('swag-bundle-list', {
+    template,
+
+    inject: [
+        'repositoryFactory'
+    ],
+
+    data() {
+        return {
+            repository: null,
+            bundles: null
+        };
+    },
+
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
+    computed: {
+        columns() {
+            return [{
+                property: 'name',
+                dataIndex: 'name',
+                label: this.$t('swag-bundle.list.columnName'),
+                routerLink: 'swag.bundle.detail',
+                inlineEdit: 'string',
+                allowResize: true,
+                primary: true
+            }, {
+                property: 'discount',
+                dataIndex: 'discount',
+                label: this.$t('swag-bundle.list.columnDiscount'),
+                inlineEdit: 'number',
+                allowResize: true
+            }, {
+                property: 'discountType',
+                dataIndex: 'discountType',
+                label: this.$t('swag-bundle.list.columnDiscountType'),
+                allowResize: true
+            }];
+        }
+    },
+
+    created() {
+        this.repository = this.repositoryFactory.create('swag_bundle');
+
+        this.repository
+            .search(new Criteria(), Shopware.Context.api)
+            .then((result) => {
+                this.bundles = result;
+            });
+    }
+});
+```
+
+## The detail component
 
 Let's focus on the next component, the `swag-bundle-detail` component. This one is opened when somebody clicks either on the bundle name or on the `Edit` button of a
 row. Since the process of creating a new component was explained in detail already, we'll speed this up a little bit here.
@@ -760,7 +826,7 @@ Shopware.Component.register('swag-bundle-detail', {
 
 Also create the template file `swag-bundle-detail.html.twig` already, so we can focus on that at first.
 
-#### Detail template
+### Detail template
 
 Another page, so which component has to be used first in your template? The `sw-page` component, remember? In there you override
 the 'content' template slot to fill the page's template.
@@ -799,7 +865,7 @@ property to be set, so you gotta take care of that property in the respective co
 But let's continue with the template for now, what would you want to show on a detail page? Probably some fields to edit the values, right?
 That's what's going to happen next.
 
-##### Filling the card
+### Filling the card
 
 For this purpose, we've created a component called `sw-field`, which is quite easy to configure.
 Each field has a label, no need to explain that, a `v-model`, which points to the property name to be displayed in this field and, if necessary, the field's type, e.g. 'number'.
@@ -834,15 +900,15 @@ always needs some options to display. That's also the last property you'll need:
 The `options` will be defined in your `swag-bundle-detail` component.
 
 There's only one more field missing right now. With those fields, you will be able to handle all the bundle's basic data. But how do you assign products?
-For this purpose, Shopware 6 another neat component to handle this situation easily: `sw-many-to-many-select`
+For this purpose, Shopware 6 another neat component to handle this situation easily: `sw-entity-many-to-many-select`
 
 Here's the code, before we have a look at what it does:
 ```twig
-<sw-many-to-many-select
+<sw-entity-many-to-many-select
     :label="$t('swag-bundle.detail.assignProductsLabel')"
     :localMode="bundle.isNew()"
-    :collection="bundle.products">
-</sw-many-to-many-select>
+    :entityCollection="bundle.products">
+</sw-entity-many-to-many-select>
 ```
 
 This component would render a field into your card, which loads all available products upon clicking the field. You can then click on a product to assign
@@ -852,16 +918,16 @@ and can easily be removed again. This field automatically provides a search func
 Now have a look at the field in the code and its attributes.
 The simplest one is the `label` again, just like in every other field.
 The next one is rather interesting though: `localMode`
-As mentioned previously, the `sw-many-to-many-select` component saves the clicked associated entities, products in this case, **immediately** after clicking them.
+As mentioned previously, the `sw-entity-many-to-many-select` component saves the clicked associated entities, products in this case, **immediately** after clicking them.
 But what if you were to create a new bundle, that does not exist in the database yet? Which `bundle_id` would he save to the association?
 That's where the `localMode` comes into place, which defines if the values should be saved upon clicking on them. If `localMode` is set to `true`, this association
 will only be saved when actually saving the whole entity.
 Since your `swag-bundle-create` component is going to extend from `swag-bundle-detail`, you can ensure this works for both cases by checking if the bundle is new.
 This method, `bundle.isNew()`, is automatically available with each entity in the Administration.
 
-The `:collection` attribute is just like `v-model`, you simply point to the association's property name here.
+The `:entityCollection` attribute is just like `v-model`, you simply point to the association's property name here.
 
-##### Adding action buttons
+### Adding action buttons
 
 Your card contains all necessary fields now, but there's no save or cancel button yet.
 You always want your custom module and components to look like it was from the official Shopware 6 Administration itself,
@@ -930,7 +996,7 @@ The `:isLoading` directive is necessary to show a loading indicator if the save 
 Its value `processSuccess` is a property you need to set in your component in the next step, don't mind it for now.
 Finally there's the `@process-finish` event being used. You need that in order to update the `processSuccess` property upon the save process being fully finished.
 
-#### Final detail template
+### Final detail template
 
 Quite much text for this template, here's the full example and how it should look like now:
 ```twig
@@ -962,18 +1028,18 @@ Quite much text for this template, here's the full example and how it should loo
                       :options="options">
                 </sw-field>
 
-                <sw-many-to-many-select
+                <sw-entity-many-to-many-select
                     :localMode="bundle.isNew()"
                     :label="$t('swag-bundle.detail.assignProductsLabel')"
-                    :collection="bundle.products">
-                </sw-many-to-many-select>
+                    :entityCollection="bundle.products">
+                </sw-entity-many-to-many-select>
             </sw-card>
         </sw-card-view>
     </template>
 </sw-page>
 ```
 
-#### Detail logic
+### Detail logic
 
 That's it for your `swag-bundle-detail` component's template, time to handle the logic necessary to make that template working.
 This is the list of things you need to take care of now, due to your template:
@@ -1013,7 +1079,7 @@ This is the list of things you need to take care of now, due to your template:
     </dd>
 </dl>
 
-##### Loading the detail information
+#### Loading the detail information
 
 Let's work through this step by step, starting with loading the `bundle` for the detail page.
 The `bundle` property has to contain the bundle data for the current detail page. This has to be loaded very early.
@@ -1069,7 +1135,7 @@ Shopware.Component.register('swag-bundle-detail', {
 If you were wondering why the method `getBundle` exists, that's due to the fact that you'll need the same code in the next step again.
 Therefore the `repository` is saved as a property to the component, otherwise it wouldn't be available in the `getBundle` method, right?
 
-##### Saving the data
+#### Saving the data
 
 The method `onClickSave` is executed once the user clicks the button and has to save the bundle using the repository again.
 That's where you can use the repository's `save` method, which asks for the entity itself and, again, the `Shopware.Context.api`. As always,
@@ -1157,7 +1223,7 @@ onClickSave() {
 
 That's it for the saving process.
 
-##### Handling state for process button
+#### Handling state for process button
 
 You've added a `sw-button-process` which asks for two things to be set in order to work properly.
 First of all, there's the `processSuccess` property, that you need to set to true upon a successful save. For this, just add the property
@@ -1191,9 +1257,9 @@ methods: {
 }
 ```
 
-##### Adding options for the multi select
+#### Adding options for the multi select
 
-You're almost done with the detail component! Just the `options` for the `sw-many-to-many-select` are still missing.
+You're almost done with the detail component! Just the `options` for the `sw-entity-many-to-many-select` are still missing.
 But, what's the best time to set the options? When using the `data` method, you might not have access to the translation variable `this.$t` yet.
 Thus, you could use the `created` method for that purpose, yet this method is only executed once after creating. What happens then, if you switch
 the language in the Administration, so the options translation also has to change?
@@ -1211,7 +1277,7 @@ computed: {
 },
 ```
 
-##### Final detail component
+### Final detail component
 
 And that's it for your detail component! You've set a template for it, you took care of both reading and saving the data, you took care of translations,
 the user gets notified about issues saving his data and even the save button shows the success state of the save.
@@ -1297,7 +1363,7 @@ Component.register('swag-bundle-detail', {
 });
 ```
 
-### The create component
+## The create component
 
 The component `swag-bundle-create` is rather easy, since you can extend from your detail component here. You're supposed show the very same form,
 using the very same fields with the same configuration. There's just two things to be done in this case.
@@ -1357,7 +1423,7 @@ onClickSave() {
 
 That's it,you're done already! No need to set a custom template here or anything else, the `swag-bundle-create` component is already fully working.
 
-#### Final create component
+### Final create component
 
 That's how your `swag-bundle-create` should look like now:
 ```js
@@ -1389,7 +1455,7 @@ Shopware.Component.extend('swag-bundle-create', 'swag-bundle-detail', {
 });
 ```
 
-### Providing the public directory
+## Providing the public directory
 
 Changes to the administration are loaded by our Webpack configuration. For this to work properly, a `public` directory is created in the `<plugin root>/Resources` directory when building
 the administration via the command `./psh.phar administration:build`. It contains a minified file containing your administration JS code.

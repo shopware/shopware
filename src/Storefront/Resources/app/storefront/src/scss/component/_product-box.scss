@@ -136,21 +136,16 @@ $box-image-height-img: 332px;
     z-index: 10;
 
     .badge {
-        height: 24px;
+        padding: 0 8px;
+        height: 32px;
         margin: 0 0 8px;
-        line-height: 24px;
-        font-size: 12px;
+        line-height: 32px;
         font-weight: $font-weight-bold;
         color: $white;
         border-radius: 0 3px 3px 0;
         border-color: transparent;
-
-        &.badge-discount {
-            font-size: 18px;
-            font-weight: bold;
-            letter-spacing: 0;
-            width: 16px;
-        }
+        font-size: 18px;
+        letter-spacing: 0;
     }
 }
 

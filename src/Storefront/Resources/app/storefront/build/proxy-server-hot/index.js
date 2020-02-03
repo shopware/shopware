@@ -76,7 +76,7 @@ function replaceOriginalUrl(response, clientResponse, originalUrl, proxyUrl) {
     // when request is finished
     response.on('end', () => {
         // replace original url with proxy url
-        const responseBody = responseData.replace(new RegExp(`${originalUrl}`, 'g'), `${proxyUrl}`);
+        const responseBody = responseData.replace(new RegExp(`${originalUrl}/`, 'g'), `${proxyUrl}/`);
 
         // end the client response with sufficient headers
         clientResponse.writeHead(response.statusCode, response.headers);

@@ -61,9 +61,6 @@ class ProductStreamIndexerTest extends TestCase
     {
         $this->context = Context::createDefaultContext();
         $this->productRepo = $this->getContainer()->get('product.repository');
-
-        $this->context = Context::createDefaultContext();
-        $this->productRepo = $this->getContainer()->get('product.repository');
         $this->productStreamRepository = $this->getContainer()->get('product_stream.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
 

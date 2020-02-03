@@ -51,7 +51,7 @@ First comes definition class, `BundleTranslationDefinition` in this case, which 
 with a new database table to contain the translated fields. This new table will have a column `swag_bundle_id` pointing at the ID of the respective bundle's ID.
 And that's also the second parameter of this association field, the `referenceField` will be `swag_bundle_id`.
 
-### Adding the migration
+## Adding the migration
 
 Extend your `Migration` class by the new translation table. Once again, only do this when you're
 still developing your plugin, **never touch an existing Migration when your plugin is already being used!**
@@ -116,7 +116,7 @@ class Migration1554708925Bundle extends MigrationStep
 }
 ```
 
-### Setting up the translation definition
+## Setting up the translation definition
 
 The translation is another aggregation to the `BundleEntity`, just like the `BundleProductDefinition`. Hence you're also supposed to place it in the `Aggregate` directory that you've
 already used when adding the `BundleProductDefinition`.
@@ -206,7 +206,7 @@ class BundleTranslationDefinition extends EntityTranslationDefinition
 Just as explained previously, the methods `getEntityClass` and `getCollectionClass` are pointing to classes, that do not exist yet.
 Those will be created in the next step.
 
-### Creating the entity
+## Creating the entity
 
 Create a new class called `BundleTranslationEntity` in the same directory as the `BundleTranslationDefinition` and have it extend from
 `Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity`. This just takes of handling the `language_id` property.
@@ -277,7 +277,7 @@ class BundleTranslationEntity extends TranslationEntity
 
 Nothing too special about this custom entity.
 
-### BundleTranslationCollection
+## BundleTranslationCollection
 
 Now create a class called `BundleTranslationCollection` in the same directory again. Since an `EntityCollection` does not have to handle
 any field related stuff, there's no `TranslatedEntityCollection` or something alike, so just extend from the default `EntityCollection` here.
@@ -309,7 +309,7 @@ class BundleTranslationCollection extends EntityCollection
 }
 ```
 
-### Registering the translation definition
+## Registering the translation definition
 
 Do not forget to register your custom definitions in the `services.xml` file, just like you've done for both the `BundleDefinition` as well as for the `BundleProductDefinition`.
 

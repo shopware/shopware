@@ -9,9 +9,9 @@ class MultiFilter extends Filter
     public const CONNECTION_XOR = 'XOR';
 
     public const VALID_OPERATORS = [
-        'AND', '&&',
-        'OR', '||',
-        'XOR',
+        self::CONNECTION_AND,
+        self::CONNECTION_OR,
+        self::CONNECTION_XOR,
     ];
 
     /**

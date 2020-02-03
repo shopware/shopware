@@ -1,0 +1,21 @@
+<div class="sw-settings-import-export-view-export">
+    <sw-card title="Export">
+
+        <sw-settings-import-export-exporter></sw-settings-import-export-exporter>
+
+    </sw-card>
+
+    <sw-card class="sw-settings-import-export-view-export__activity">
+        <template slot="title">
+            <div class="sw-card__title">
+                Export activity
+                <p class="sw-settings-import-export__card-subtitle">
+                    Activity older then 30 days will automatically be removed.
+                </p>
+            </div>
+        </template>
+
+        <sw-settings-import-export-activity slot="grid"></sw-settings-import-export-activity>
+
+    </sw-card>
+</div>

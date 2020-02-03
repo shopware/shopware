@@ -1,0 +1,14 @@
+{% block sw_settings_content_card_slot_shop %}
+    {% parent %}
+
+    {% block sw_settings_import_export_item %}
+        <sw-settings-item v-if="next6009"
+                          id="sw-settings-import-export"
+                          :label="$tc('sw-settings-import-export.general.mainMenuItemGeneral')"
+                          :to="{ name: 'sw.settings.import.export.index' }">
+            <template slot="icon">
+                <sw-icon name="default-device-database"></sw-icon>
+            </template>
+        </sw-settings-item>
+    {% endblock %}
+{% endblock %}

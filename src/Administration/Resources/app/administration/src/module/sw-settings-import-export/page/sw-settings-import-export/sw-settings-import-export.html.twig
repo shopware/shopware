@@ -1,0 +1,23 @@
+<sw-page class="sw-settings-import-export">
+
+    <sw-card-view slot="content">
+
+        <sw-tabs>
+            <sw-tabs-item :route="{ name: 'sw.settings.import.export.index.import' }">
+                Import
+            </sw-tabs-item>
+
+            <sw-tabs-item :route="{ name: 'sw.settings.import.export.index.export' }">
+                Export
+            </sw-tabs-item>
+
+            <sw-tabs-item :route="{ name: 'sw.settings.import.export.index.profiles' }">
+                Profiles
+            </sw-tabs-item>
+        </sw-tabs>
+
+        <router-view></router-view>
+
+    </sw-card-view>
+
+</sw-page>

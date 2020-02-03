@@ -1,0 +1,76 @@
+<div class="sw-settings-import-export-view-profiles">
+    <sw-card title="Profiles" class="sw-settings-import-export-view-profiles__grid-card">
+
+        <div class="sw-settings-import-export-view-profiles__toolbar">
+            {# TODO: implement search functionality #}
+            <sw-simple-search-field
+                size="small"
+                variant="form"
+                 v-model="searchTerm"
+                 @search-term-change="onSearch">
+            </sw-simple-search-field>
+
+            <sw-button
+                variant="ghost"
+                :disabled="isLoading"
+                @click="onAddNewProfile"
+                size="small">
+                    Add new profile
+            </sw-button>
+        </div>
+
+        {# TODO: add context menu and change to profiles #}
+        <sw-entity-listing
+            slot="grid"
+            :repository="profileRepository"
+            :items="profiles"
+            :isLoading="isLoading"
+            :columns="profilesColumns"
+            :showSettings="false"
+            :showSelection="false"
+            :allowColumnEdit="false"
+            :fullPage="true">
+
+            <template #actions="{ item }">
+                <sw-context-menu-item @click="onEditProfile(item.id)">
+                    Open
+                </sw-context-menu-item>
+
+                <sw-context-menu-item @click="onDuplicateProfile(item.id)">
+                    Duplicate
+                </sw-context-menu-item>
+
+                <sw-context-menu-item variant="danger" @click="onDeleteProfile(item.id)">
+                    Delete profile
+                </sw-context-menu-item>
+            </template>
+
+        </sw-entity-listing>
+    </sw-card>
+
+    {# TODO: This ist just for testing the modal: #}
+    <sw-card title="Profiles">
+        <p>
+            TODO: Hier kommt das Modul hin, womit man die Profile pflegen kann. Das Data Grid erst wieder später bauen.
+            Das Modal zum Erstellen von neuen Profilen kann jedoch schon erstellt werden.
+        </p>
+
+        <p>
+            Die Funktionen, Computed und Data in dieser Komponente kannst du frei verändern. Hab nur was kurz erstellt,
+            damit es funktional ist.
+        </p>
+
+        <p>
+            <br>
+        </p>
+
+        <sw-button @click="onAddNewProfile">Add new profile</sw-button>
+        <sw-button @click="onEditProfile">Edit profile</sw-button>
+    </sw-card>
+
+    <sw-settings-import-export-edit-profile-modal
+        :profile="selectedProfile"
+        @profile-save="saveSelectedProfile"
+        @profile-close="closeSelectedProfile"
+    ></sw-settings-import-export-edit-profile-modal>
+</div>

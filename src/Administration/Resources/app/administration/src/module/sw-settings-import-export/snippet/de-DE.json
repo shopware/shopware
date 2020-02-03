@@ -1,0 +1,8 @@
+{
+  "sw-settings-import-export": {
+    "general": {
+      "mainMenuItemGeneral": "Import/Export",
+      "descriptionTextModule": "Verwaltung von Imports und Exports."
+    }
+  }
+}

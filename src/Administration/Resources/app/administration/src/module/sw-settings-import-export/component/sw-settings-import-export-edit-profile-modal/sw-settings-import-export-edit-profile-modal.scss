@@ -1,0 +1,12 @@
+@import "~scss/variables";
+
+.sw-settings-import-export-edit-profile-modal {
+    .sw-settings-import-export-edit-profile-modal-mapping {
+        margin-left: -30px;
+        margin-right: -30px;
+    }
+
+    .sw-modal__footer {
+        border-top: 1px solid $color-gray-300;
+    }
+}

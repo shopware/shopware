@@ -134,7 +134,7 @@ class WriteCommandExtractor
                     continue;
                 }
 
-                if (!$field->is(Required::class)) {
+                if (!$field->is(Required::class) && !$field instanceof UpdatedAtField) {
                     //not required and childhood not changed
                     continue;
                 }
@@ -338,6 +338,7 @@ class WriteCommandExtractor
     private function getMainFields(array $fields): array
     {
         $main = [];
+
         foreach ($fields as $field) {
             if ($field instanceof ChildrenAssociationField) {
                 continue;

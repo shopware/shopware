@@ -31,6 +31,9 @@ class SitemapController extends StorefrontController
     {
         $page = $this->sitemapPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/storefront/page/sitemap/sitemap.xml.twig', ['page' => $page]);
+        $response = $this->renderStorefront('@Storefront/storefront/page/sitemap/sitemap.xml.twig', ['page' => $page]);
+        $response->headers->set('content-type', 'text/xml; charset=utf-8');
+
+        return $response;
     }
 }

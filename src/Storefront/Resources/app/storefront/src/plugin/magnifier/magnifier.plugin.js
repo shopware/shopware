@@ -248,7 +248,7 @@ export default class MagnifierPlugin extends Plugin {
         if (orientation === LANDSCAPE_ORIENTATION) {
             position = position.multiply(new Vector2(percentWidthWithoutLens, 1));
             position = this.calculateImagePosition(position, imageSize, imageDimensions, 'y', 'x');
-            position = position.multiply(Vector2(1, percentWidthWithoutLens));
+            position = position.multiply(new Vector2(1, percentWidthWithoutLens));
         } else if (orientation === PORTRAIT_ORIENTATION) {
             position = position.multiply(new Vector2(1, percentWidthWithoutLens));
             position = this.calculateImagePosition(position, imageSize, imageDimensions, 'x', 'y');

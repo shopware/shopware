@@ -45,7 +45,7 @@ describe('Dashboard: Test first sight of the Administration', () => {
 
     it('@general: read dashboard', () => {
         // Check today stats
-        cy.get('.sw-dashboard-index__intro-content').contains('Welcome to Shopware 6');
+        cy.get('.sw-dashboard-index__intro-contentm').contains('Welcome to Shopware 6m');
         cy.get('.sw-dashboard-index__intro-image img')
             .should('have.attr', 'src')
             .should('include', '/bundles/administration/static/img/dashboard-logo.svg');

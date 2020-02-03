@@ -16,7 +16,8 @@ Component.register('sw-order-create', {
         return {
             isLoading: false,
             isSaveSuccessful: false,
-            orderId: null
+            orderId: null,
+            showInvalidCodeModal: false
         };
     },
 
@@ -29,8 +30,15 @@ Component.register('sw-order-create', {
             return State.get('swOrder').cart;
         },
 
+        invalidPromotionCodes() {
+            return State.getters['swOrder/invalidPromotionCodes'];
+        },
+
         isSaveOrderValid() {
-            return this.customer && this.cart.token && this.cart.lineItems.length;
+            return this.customer &&
+                this.cart.token &&
+                this.cart.lineItems.length &&
+                !this.invalidPromotionCodes.length;
         }
     },
 
@@ -86,6 +94,8 @@ Component.register('sw-order-create', {
                     .finally(() => {
                         this.isLoading = false;
                     });
+            } else if (this.invalidPromotionCodes.length > 0) {
+                this.openInvalidCodeModal();
             } else {
                 this.showError();
             }
@@ -110,6 +120,19 @@ Component.register('sw-order-create', {
                 title: this.$tc('sw-order.create.titleSaveError'),
                 message: this.$tc('sw-order.create.messageSaveError')
             });
+        },
+
+        openInvalidCodeModal() {
+            this.showInvalidCodeModal = true;
+        },
+
+        closeInvalidCodeModal() {
+            this.showInvalidCodeModal = false;
+        },
+
+        removeInvalidCode() {
+            this.promotionCodeTags = this.promotionCodeTags.filter(item => !item.isInvalid);
+            this.closeInvalidCodeModal();
         }
     }
 });

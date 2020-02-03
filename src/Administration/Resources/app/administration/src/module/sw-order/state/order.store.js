@@ -81,6 +81,10 @@ export default {
 
         currencyId(state) {
             return get(state, 'currency.id', '');
+        },
+
+        invalidPromotionCodes(state) {
+            return state.promotionCodes.filter(item => item.isInvalid);
         }
     },
 

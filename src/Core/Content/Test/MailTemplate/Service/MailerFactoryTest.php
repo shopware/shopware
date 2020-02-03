@@ -16,12 +16,28 @@ class MailerFactoryTest extends TestCase
 
         $mailer = $factory->create(
             new ConfigService([
-                'core.mailerSettings.emailAgent' => 'local',
+                'core.mailerSettings.emailAgent' => null,
             ]),
             $original
         );
 
         static::assertSame($original, $mailer);
+    }
+
+    public function testFactoryWithLocal(): void
+    {
+        $original = new \Swift_Mailer(new \Swift_SendmailTransport());
+
+        $factory = new MailerFactory();
+
+        $mailer = $factory->create(
+            new ConfigService([
+                'core.mailerSettings.emailAgent' => 'local',
+            ]),
+            $original
+        );
+
+        static::assertInstanceOf(\Swift_SendmailTransport::class, $mailer->getTransport());
     }
 
     public function testFactoryWithConfig(): void

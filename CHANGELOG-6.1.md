@@ -77,6 +77,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * The `\Shopware\Storefront\Page\Product\Review\ProductReviewLoader::load` returns now the reviews of all variants.
     * The `\Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField` can now contains a `listPrice`
     * `\Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice` supports now list prices.
+    * Fix mail sending via sendmail transport
 * Storefront
     * Fixed the cookie privacy hint to use the correct link `privacyPage` instead of `shippingPaymentInfoPage`
     * Added the parameter `useBackdrop` to the `page-loading-indicator.utils.js` `remove` and `create` methods. Defaults to `true`

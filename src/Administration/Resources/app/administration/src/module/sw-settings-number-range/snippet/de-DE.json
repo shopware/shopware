@@ -49,7 +49,7 @@
       "placeholderSimpleModeImpossible": "Erweiterter Modus aktiv",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
-      "helpTextAdvancedField": "Erweiterte Pattern-Definition: <br/>&#x007B;Präfix&#x007D;_&#x007B;n&#x007D_&#x007B;Suffix&#x007D;<br/>'n' entspricht der definierten Startnummer<br/>('_' ist ein beliebiges Trennzeichen)<br/><br/>Verwendung von 'date' (PHP-Parameter): <br/>&#x007B;date&#x007D;:<br/>Internationales Datums-Format (YYYY-MM-DD)<br/>&#x007B;date_dmy&#x007D;:<br/>Benutzerdefiniertes Datums-Format (DD-MM-YY)<br/><br/>usw.",
+      "helpTextAdvancedField": "Erweiterte Pattern-Definition: <br/>{Präfix}_{n}_{Suffix}<br/>'n' entspricht der definierten Startnummer<br/>('_' ist ein beliebiges Trennzeichen)<br/><br/>Verwendung von 'date' (PHP-Parameter): <br/>{date}:<br/>Internationales Datums-Format (YYYY-MM-DD)<br/>{date_dmy}:<br/>Benutzerdefiniertes Datums-Format (DD-MM-YY)<br/><br/>usw.",
       "errorSalesChannelNeededTitle": "Kein Verkaufskanal ausgewählt!",
       "errorSalesChannelNeededMessage": "Bitte wähle mindestens einen Verkaufskanal.",
       "errorPatternNeededTitle": "Kein Pattern eingegeben!",

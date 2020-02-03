@@ -9,7 +9,7 @@ const { spawn } = require('child_process');
 
 module.exports = function createProxyServer({ appPort, originalHost, proxyHost, proxyPort }) {
     const proxyUrl = `${proxyHost}:${proxyPort}`;
-
+    
     const originalUrl = appPort !== 80 && appPort !== 443 ? `${originalHost}:${appPort}` : originalHost;
 
     // Create the HTTP proxy
@@ -20,7 +20,7 @@ module.exports = function createProxyServer({ appPort, originalHost, proxyHost, 
             method: client_req.method,
             headers: {
                 ...client_req.headers,
-                host: originalHost,
+                host: originalUrl,
                 'hot-reload-mode': true,
                 'accept-encoding': 'identity',
             },

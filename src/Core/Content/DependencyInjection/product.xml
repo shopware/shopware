@@ -98,7 +98,12 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\Cart\ProductGateway">
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition">
+            <tag name="shopware.entity.definition" entity="product_cross_selling_assigned_products"/>
+        </service>
+
+
+    <service id="Shopware\Core\Content\Product\Cart\ProductGateway">
             <argument type="service" id="sales_channel.product.repository"/>
         </service>
 

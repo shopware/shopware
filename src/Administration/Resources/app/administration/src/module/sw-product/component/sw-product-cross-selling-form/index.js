@@ -23,6 +23,8 @@ Component.register('sw-product-cross-selling-form', {
             showModalPreview: false,
             productStream: null,
             productStreamFilter: [],
+            optionSearchTerm: '',
+            useManualAssignment: false,
             sortBy: 'name',
             sortDirection: 'ASC'
         };
@@ -34,6 +36,10 @@ Component.register('sw-product-cross-selling-form', {
             'displayType',
             'sortingType'
         ]),
+
+        productCrossSellingRepository() {
+            return this.repositoryFactory.create('product_cross_selling');
+        },
 
         product() {
             const state = Shopware.State.get('swProductDetail');
@@ -47,6 +53,10 @@ Component.register('sw-product-cross-selling-form', {
 
         productStreamRepository() {
             return this.repositoryFactory.create('product_stream');
+        },
+
+        crossSellingAssigmentRepository() {
+            return this.repositoryFactory.create('product_cross_selling_assigned_products');
         },
 
         displayTitle() {
@@ -76,28 +86,48 @@ Component.register('sw-product-cross-selling-form', {
             }];
         },
 
+        crossSellingTypes() {
+            return [{
+                label: this.$tc('sw-product.crossselling.productStreamType'),
+                value: 'productStream'
+            }, {
+                label: this.$tc('sw-product.crossselling.productListType'),
+                value: 'productList'
+            }];
+        },
+
         previewDisabled() {
             return !this.productStream;
         },
 
         sortingConCat() {
             return `${this.crossSelling.sortBy}:${this.crossSelling.sortDirection}`;
+        },
+
+        disablePositioning() {
+            return (!!this.term) || (this.sortBy !== 'position');
         }
     },
 
     watch: {
         'crossSelling.productStreamId'() {
-            this.loadStreamPreview();
+            if (!this.useManualAssignment) {
+                this.loadStreamPreview();
+            }
         }
     },
 
     created() {
+        console.log('crossselling', this.crossSelling)
         this.createdComponent();
     },
 
     methods: {
         createdComponent() {
-            this.loadStreamPreview();
+            this.useManualAssignment = this.crossSelling.type === 'productList';
+            if (!this.useManualAssignment && this.productStream !== null) {
+                this.loadStreamPreview();
+            }
         },
 
         onShowDeleteModal() {
@@ -149,6 +179,34 @@ Component.register('sw-product-cross-selling-form', {
 
         onSortingChanged(value) {
             [this.crossSelling.sortBy, this.crossSelling.sortDirection] = value.split(':');
+        },
+
+        onTypeChanged(value) {
+            this.useManualAssignment = value === 'productList';
+        },
+
+        getAssignedProductColumns() {
+            return [{
+                property: 'product.name',
+                label: this.$tc('sw-product.list.columnName'),
+                primary: true,
+                allowResize: true,
+                sortable: false
+            }, {
+                property: 'product.productNumber',
+                label: this.$tc('sw-product.list.columnProductNumber'),
+                allowResize: true,
+                sortable: false
+            }, {
+                property: 'position',
+                label: this.$tc('sw-product.crossselling.inputCrossSellingPosition'),
+                allowResize: true,
+                sortable: false
+            }];
+        },
+
+        productCriteria() {
+            return new Criteria(1, 10);
         }
     }
 });

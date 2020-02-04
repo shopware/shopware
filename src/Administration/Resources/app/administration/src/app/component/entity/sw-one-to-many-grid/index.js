@@ -31,9 +31,17 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
         };
     },
 
+    watch: {
+        collection() {
+            console.log('watch grid collection', this.collection);
+        }
+    },
+
     methods: {
         createdComponent() {
             this.$super('createdComponent');
+
+            // this.collection.criteria.addAssociation('product');
 
             // assign collection as records for the sw-data-grid
             this.applyResult(this.collection);

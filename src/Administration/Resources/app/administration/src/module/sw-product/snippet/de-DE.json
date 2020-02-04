@@ -292,9 +292,11 @@
       "buttonDeleteCrossSelling": "Löschen",
       "inputCrossSellingTitle": "Titel",
       "inputCrossSellingActive": "Aktiv",
+      "inputCrossSellingType": "Typ",
       "inputCrossSellingPosition": "Position",
       "inputCrossSellingSorting": "Sortierung",
       "inputCrossSellingProductStream": "Produktgruppe",
+      "inputCrossSellingProductList": "Product Zuordnung",
       "inputCrossSellingTitlePlaceholder": "Wähle einen Titel ...",
       "inputCrossSellingPositionPlaceholder": "Wähle eine Position ...",
       "inputCrossSellingProductStreamPlaceholder": "Wähle eine Produktgruppe ...",
@@ -302,13 +304,17 @@
       "priceAscendingSortingType": "Preis, aufsteigend",
       "priceDescendingSortingType": "Preis",
       "nameSortingType": "Name",
+      "productStreamType": "Dynamische Produktgruppe",
+      "productListType": "Manuelle Zuweisung",
       "releaseDateSortingType": "Erscheinungsdatum",
       "deleteConfirmTitle": "Cross Selling löschen",
       "deleteConfirmText": "Möchtest Du die Cross Selling Konfiguration wirklich löschen?",
       "deleteButtonCancel": "Zurück",
       "deleteButtonDelete": "Löschen",
       "linkOpenStreamPreview": "Vorschau öffnen",
-      "emptyStateDescription": "Für dieses Produkt existiert noch keine Cross Selling Konfiguration."
+      "emptyStateDescription": "Für dieses Produkt existiert noch keine Cross Selling Konfiguration.",
+      "assignEmptyStateDescription": "Speichere Dein ausgefülltes Cross Selling, um Produkte hinzuzufügen.",
+      "assignPlaceholder": "Suche nach Produkten ..."
     }
   }
 }

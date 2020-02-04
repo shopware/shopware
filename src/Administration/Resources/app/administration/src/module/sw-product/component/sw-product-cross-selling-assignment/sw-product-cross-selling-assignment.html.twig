@@ -1,0 +1,149 @@
+<div class="sw-product-cross-selling-assignment">
+    {% block sw_product_cross_selling_assignment_container %}
+        <div v-if="!localMode" class="sw-product-cross-selling-assignment__select-container">
+            {% block sw_product_cross_selling_assignment_select %}
+                <sw-select-base
+                    class="sw-entity-many-to-many-select"
+                    ref="selectBase"
+                    :label="$tc('sw-product.crossselling.inputCrossSellingProductList')"
+                    :isLoading="isLoadingResults"
+                    @select-expanded="onSelectExpanded"
+                    @select-collapsed="onSelectCollapsed"
+                    v-bind="$attrs"
+                    v-on="$listeners">
+
+                    <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse }">
+                        {% block sw_product_cross_selling_assignment_search_field %}
+                            <input ref="searchInput"
+                                   tabindex="-1"
+                                   :placeholder="$tc('sw-product.crossselling.assignPlaceholder')"
+                                   :value="searchTerm"
+                                   @input="onSearchTermChange">
+                        {% endblock %}
+                    </template>
+
+                    <template #results-list>
+                        {% block sw_product_cross_selling_assignment_results_list%}
+                            <sw-select-result-list
+                                ref="swSelectResultList"
+                                :options="resultCollection"
+                                :isLoading="isLoadingResults"
+                                :emptyMessage="$tc('global.sw-entity-many-to-many-select.messageNoResults', 0, { term: searchTerm })"
+                                :focusEl="$refs.searchInput"
+                                @paginate="paginateResult"
+                                @item-select="onItemSelect">
+
+                                <template #before-item-list>
+                                    {% block sw_product_cross_selling_assignment__results_list_before %}
+                                        <slot name="before-item-list"></slot>
+                                    {% endblock %}
+                                </template>
+
+                                <template #result-item="{ item, index }">
+                                    {% block sw_product_cross_selling_assignment_results_list_result %}
+                                        <slot name="result-item"
+                                              v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, isSelected, onItemSelect, getKey }">
+
+                                            {% block sw_product_cross_selling_assignment_results_list_list_item %}
+                                                <li is="sw-select-result"
+                                                    :selected="isSelected(item)"
+                                                    @item-select="onItemSelect"
+                                                    v-bind="{ item, index }">
+
+                                                    {% block sw_product_cross_selling_assignment_results_list_list_item_label %}
+                                                    <slot name="result-label-property"
+                                                          v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey }">
+
+                                                        <sw-highlight-text v-if="highlightSearchTerm"
+                                                                           :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                                                                           :searchTerm="searchTerm">
+                                                        </sw-highlight-text>
+
+                                                        <template v-else>
+                                                            {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                                                        </template>
+                                                    </slot>
+                                                    {% endblock %}
+                                                </li>
+                                            {% endblock %}
+                                        </slot>
+                                    {% endblock %}
+                                </template>
+
+                                <template #after-item-list>
+                                    {% block sw_product_cross_selling_assignment_results_list_after %}
+                                        <slot name="after-item-list"></slot>
+                                    {% endblock %}
+                                </template>
+
+                            </sw-select-result-list>
+                        {% endblock %}
+                    </template>
+                </sw-select-base>
+            {% endblock %}
+
+            {% block sw_product_cross_selling_assignment_option_grid %}
+                <sw-one-to-many-grid
+                    v-if="total"
+                    :collection="gridData"
+                    sortBy="position"
+                    sortDirection="ASC"
+                    :localMode="localMode"
+                    :columns="columns"
+                    :showSelection="false"
+                    :allowInlineEdit="false"
+                    ref="optionGrid">
+                        {% block sw_product_cross_selling_assignment_option_grid_column_position %}
+                            <template #column-position="{ item }">
+                                <sw-data-grid-column-position
+                                    ref="columnPosition"
+                                    v-model="gridData"
+                                    :key="positionColumnKey"
+                                    :showValue="true"
+                                    :item="item">
+                                </sw-data-grid-column-position>
+                            </template>
+                        {% endblock %}
+                        {% block sw_product_cross_selling_assignment_grid_column_actions %}
+                            <template #actions="{ item }">
+                                <sw-context-menu-item
+                                    variant="danger"
+                                    @click="removeFromGrid(item)">
+                                        {{ $tc('global.entity-components.labelRemoveAssociation') }}
+                                </sw-context-menu-item>
+                            </template>
+                        {% endblock %}
+{#                    <template #pagination>#}
+{#                        <template v-if="!localMode">#}
+{#                            <sw-pagination#}
+{#                                v-if="total > 0"#}
+{#                                v-bind="{ limit, page, total }"#}
+{#                                @page-change="paginateGrid">#}
+{#                            </sw-pagination>#}
+{#                        </template>#}
+{#                    </template>#}
+                </sw-one-to-many-grid>
+            {% endblock %}
+            {% block sw_product_cross_selling_assignment_option_empty_state %}
+                <sw-empty-state v-if="!total"
+                                class="sw-product-cross-selling-assignment__empty-state"
+                                title=""
+                                :subline="$tc('sw-product.crossselling.assignEmptyStateDescription')">
+                    <template #icon>
+                        <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                    </template>
+                </sw-empty-state>
+            {% endblock %}
+        </div>
+    {% endblock %}
+    {% block sw_product_cross_selling_assignment_empty_state %}
+        <sw-empty-state v-if="localMode"
+            class="sw-product-cross-selling-assignment__option-list-empty-state"
+            title=""
+            :subline="$tc('sw-product.crossselling.assignEmptyStateDescription')">
+                <template #icon>
+                    <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                </template>
+        </sw-empty-state>
+    {% endblock %}
+</div>

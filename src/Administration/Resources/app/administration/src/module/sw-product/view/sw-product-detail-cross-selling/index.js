@@ -45,6 +45,8 @@ Component.register('sw-product-detail-cross-selling', {
             );
             this.crossSelling = crossSellingRepository.create(Shopware.Context.api);
             this.crossSelling.productId = this.product.id;
+            this.crossSelling.position = this.crossSellings.length + 1;
+            this.crossSelling.type = 'productStream';
             this.crossSelling.sortBy = 'name';
             this.crossSelling.sortDirection = 'ASC';
             this.crossSelling.limit = 24;

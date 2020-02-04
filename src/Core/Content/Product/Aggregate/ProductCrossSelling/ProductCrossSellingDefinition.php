@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductCrossSelling;
 
+use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
@@ -15,7 +16,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -30,6 +33,8 @@ class ProductCrossSellingDefinition extends EntityDefinition
     public const SORT_BY_PRICE = 'price';
     public const SORT_BY_RELEASE_DATE = 'releaseDate';
     public const SORT_BY_NAME = 'name';
+    public const TYPE_PRODUCT_STREAM = 'productStream';
+    public const TYPE_PRODUCT_LIST = 'productList';
 
     public function getEntityName(): string
     {
@@ -57,6 +62,7 @@ class ProductCrossSellingDefinition extends EntityDefinition
             'position' => 0,
             'sortBy' => self::SORT_BY_PRICE,
             'sortDirection' => FieldSorting::ASCENDING,
+            'type' =>  self::TYPE_PRODUCT_STREAM,
             'active' => false,
             'limit' => 24,
         ];
@@ -70,6 +76,7 @@ class ProductCrossSellingDefinition extends EntityDefinition
             new IntField('position', 'position', 0),
             new StringField('sort_by', 'sortBy'),
             new StringField('sort_direction', 'sortDirection'),
+            new StringField('type', 'type'),
             new BoolField('active', 'active'),
             new IntField('limit', 'limit', 0),
 
@@ -77,8 +84,9 @@ class ProductCrossSellingDefinition extends EntityDefinition
             (new ReferenceVersionField(ProductDefinition::class))->addFlags(new Required()),
             (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class))->addFlags(new ReverseInherited('crossSellings')),
 
-            (new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class))->addFlags(new Required()),
+            (new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class)),
             (new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
+            new OneToManyAssociationField('assignedProduct', ProductCrossSellingAssignedProductsDefinition::class, 'cross_selling_id'),
 
             new TranslationsAssociationField(ProductCrossSellingTranslationDefinition::class, 'product_cross_selling_id'),
         ]);

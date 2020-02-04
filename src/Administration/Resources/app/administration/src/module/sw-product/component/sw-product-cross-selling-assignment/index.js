@@ -1,41 +1,27 @@
-import template from './sw-many-to-many-assignment-card.html.twig';
-import './sw-many-to-many-assignment-card.scss';
+import template from './sw-product-cross-selling-assignment.html.twig';
+import './sw-product-cross-selling-assignment.scss';
 
-const { Component } = Shopware;
-const { debounce, get } = Shopware.Utils;
-const { Criteria, EntityCollection } = Shopware.Data;
+const {debounce, get} = Shopware.Utils;
+const {Criteria, EntityCollection} = Shopware.Data;
 
-/**
- * @public
- * @status ready
- * @example-type code-only
- * @component-example
- * <sw-many-to-many-assignment-card
- *     title="your card title"
- *     :entityCollection="entity.association"
- *     :localMode="entity.isNew()"
- *     :searchableFields="['entity.fieldName', 'entity.otherFieldName']">
- *
- * <sw-many-to-many-assignment-card>
- */
-Component.register('sw-many-to-many-assignment-card', {
+const {Component, Context, Mixin} = Shopware;
+
+Component.register('sw-product-cross-selling-assignment', {
     template,
-    inheritAttrs: false,
-
-    model: {
-        property: 'entityCollection',
-        event: 'change'
-    },
 
     inject: ['repositoryFactory'],
 
+    mixins: [
+        Mixin.getByName('position')
+    ],
+
     props: {
-        columns: {
+        assignedProducts: {
             type: Array,
             required: true
         },
 
-        entityCollection: {
+        columns: {
             type: Array,
             required: true
         },
@@ -48,7 +34,7 @@ Component.register('sw-many-to-many-assignment-card', {
         resultLimit: {
             type: Number,
             required: false,
-            default: 25
+            default: 10
         },
 
         criteria: {
@@ -69,6 +55,11 @@ Component.register('sw-many-to-many-assignment-card', {
             type: String,
             required: false,
             default: 'name'
+        },
+
+        crossSellingId: {
+            type: String,
+            required: true
         },
 
         placeholder: {
@@ -95,8 +86,10 @@ Component.register('sw-many-to-many-assignment-card', {
             isLoadingResults: false,
             isLoadingGrid: false,
             selectedIds: [],
+            total: 0,
             resultCollection: null,
-            gridData: [],
+            gridData: this.assignedProducts,
+            positionColumnKey: 0,
             searchTerm: '',
             totalAssigned: 0,
             loadingGridState: false
@@ -104,8 +97,12 @@ Component.register('sw-many-to-many-assignment-card', {
     },
 
     computed: {
+        crossSellingAssigmentRepository() {
+            return this.repositoryFactory.create('product_cross_selling_assigned_products');
+        },
+
         context() {
-            return this.entityCollection.context;
+            return this.assignedProducts.context;
         },
 
         languageId() {
@@ -114,29 +111,33 @@ Component.register('sw-many-to-many-assignment-card', {
 
         assignmentRepository() {
             return this.repositoryFactory.create(
-                this.entityCollection.entity,
-                this.entityCollection.source
+                this.assignedProducts.entity,
+                this.assignedProducts.source
             );
         },
 
         searchRepository() {
             return this.repositoryFactory.create(
-                this.entityCollection.entity
+                'product'
             );
         },
 
         page: {
-            get() { return this.gridCriteria.page; },
-            set(page) { this.gridCriteria.page = page; }
+            get() {
+                return this.gridCriteria.page;
+            },
+            set(page) {
+                this.gridCriteria.page = page;
+            }
         },
 
         limit: {
-            get() { return this.gridCriteria.limit; },
-            set(limit) { this.gridCriteria.page = limit; }
-        },
-
-        total() {
-            return this.localMode ? this.entityCollection.length : this.gridData.total || 0;
+            get() {
+                return this.gridCriteria.limit;
+            },
+            set(limit) {
+                this.gridCriteria.page = limit;
+            }
         },
 
         focusEl() {
@@ -154,28 +155,28 @@ Component.register('sw-many-to-many-assignment-card', {
             handler() {
                 this.gridCriteria = Criteria.fromCriteria(this.criteria);
                 this.searchCriteria = Criteria.fromCriteria(this.criteria);
-
-                if (!this.localMode) {
-                    this.paginateGrid();
-                }
             }
         },
 
-        entityCollection() {
-            this.selectedIds = this.entityCollection.getIds();
+        assignedProducts() {
+            this.selectedIds = this.assignedProducts.map(product => product.productId);
 
             if (!this.localMode) {
-                this.paginateGrid();
+                // this.paginateGrid();
                 return;
             }
 
-            this.gridData = this.entityCollection;
+            this.gridData = this.assignedProducts;
         },
 
         languageId() {
             if (!this.localMode) {
-                this.paginateGrid();
+                // this.paginateGrid();
             }
+        },
+
+        'selectedIds.length'() {
+            this.total = this.selectedIds.length;
         }
     },
 
@@ -191,10 +192,10 @@ Component.register('sw-many-to-many-assignment-card', {
         initData() {
             this.page = 1;
             if (!this.localMode) {
-                this.selectedIds = this.entityCollection.getIds();
+                this.selectedIds = this.assignedProducts.map(product => product.productId);
                 return;
             }
-            this.gridData = this.entityCollection;
+            this.gridData = this.assignedProducts;
         },
 
         onSearchTermChange(input) {
@@ -216,6 +217,7 @@ Component.register('sw-many-to-many-assignment-card', {
 
         onSelectExpanded() {
             this.resetSearchCriteria();
+
             this.focusEl.select();
 
             this.searchItems().then((searchResult) => {
@@ -241,9 +243,9 @@ Component.register('sw-many-to-many-assignment-card', {
                     const criteria = new Criteria(1, this.searchCriteria.limit);
                     criteria.setIds(result.getIds());
 
-                    this.assignmentRepository.searchIds(criteria, this.context).then(({ data }) => {
+                    this.assignmentRepository.searchIds(criteria, this.context).then(({data}) => {
                         data.forEach((id) => {
-                            if (!this.isSelected({ id })) {
+                            if (!this.isSelected({id})) {
                                 this.selectedIds.push(id);
                             }
                         });
@@ -261,7 +263,7 @@ Component.register('sw-many-to-many-assignment-card', {
             }
 
             if (this.localMode) {
-                const newCollection = EntityCollection.fromCollection(this.entityCollection);
+                const newCollection = EntityCollection.fromCollection(this.gridData);
                 newCollection.push(item);
 
                 this.selectedIds = newCollection.getIds();
@@ -271,27 +273,31 @@ Component.register('sw-many-to-many-assignment-card', {
                 return;
             }
 
-            this.assignmentRepository.assign(item.id, this.context).then(() => {
-                this.selectedIds.push(item.id);
+            const entity = this.assignmentRepository.create(this.context);
+
+            this.getMaximumPosition().then((maximumPosition) => {
+                entity.crossSellingId = this.crossSellingId;
+                entity.productId = item.id;
+                entity.position = maximumPosition;
+
+                this.assignmentRepository.save(entity, this.context).then(() => {
+                    this.selectedIds.push(item.id);
+                });
             });
         },
 
         removeItem(item) {
-            if (this.localMode) {
-                const newCollection = this.entityCollection.filter((selected) => {
-                    return selected.id !== item.id;
-                });
+            const productId = item.productId ? item.productId : item.id;
+            const itemCriteria = new Criteria();
+            itemCriteria.addPostFilter(Criteria.equals('productId', productId));
 
-                this.selectedIds = newCollection.getIds();
-                this.gridData = newCollection;
+            return this.assignmentRepository.search(itemCriteria, this.context).then((result) => {
+                const assigmentIds = result.getIds();
 
-                this.$emit('change', newCollection);
-                return Promise.resolve();
-            }
-
-            return this.assignmentRepository.delete(item.id, this.context).then(() => {
-                this.selectedIds = this.selectedIds.filter((selectedId) => {
-                    return selectedId !== item.id;
+                return this.assignmentRepository.delete(assigmentIds[0], this.context).then(() => {
+                    this.selectedIds = this.selectedIds.filter((selectedId) => {
+                        return selectedId !== productId;
+                    });
                 });
             });
         },
@@ -311,8 +317,12 @@ Component.register('sw-many-to-many-assignment-card', {
             this.focusEl.blur();
 
             if (!this.localMode) {
-                this.paginateGrid();
+                // this.paginateGrid();
             }
+        },
+
+        onPositionChanged() {
+            this.$refs.optionGrid.load();
         },
 
         resetSearchCriteria() {
@@ -327,7 +337,7 @@ Component.register('sw-many-to-many-assignment-card', {
             return get(object, keyPath, defaultValue);
         },
 
-        paginateGrid({ page, limit } = this.gridCriteria) {
+        paginateGrid({page, limit} = this.gridCriteria) {
             this.gridCriteria.page = page;
             this.gridCriteria.limit = limit;
             this.setGridFilter();
@@ -368,10 +378,19 @@ Component.register('sw-many-to-many-assignment-card', {
 
         removeFromGrid(item) {
             this.removeItem(item).then(() => {
+                this.resultCollection = null;
                 if (!this.localMode) {
-                    this.paginateGrid();
+                    // this.paginateGrid();
                 }
             });
+        },
+
+        getMaximumPosition() {
+            return this.getNewPosition(this.assignmentRepository, this.criteria, Context.api);
+        },
+
+        forceRerender() {
+            this.positionColumnKey += 1;
         }
     }
 });

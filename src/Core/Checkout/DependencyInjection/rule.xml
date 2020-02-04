@@ -119,5 +119,16 @@
         <service id="Shopware\Core\Checkout\Cart\Rule\LineItemPropertyRule">
             <tag name="shopware.rule.definition"/>
         </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\PaymentMethodRule">
+            <tag name="shopware.rule.definition"/>
+            <tag name="shopware.feature" flag="next6013" />
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\ShippingMethodRule">
+            <tag name="shopware.rule.definition"/>
+            <tag name="shopware.feature" flag="next6013" />
+        </service>
+
     </services>
 </container>

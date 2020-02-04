@@ -454,7 +454,9 @@
         "weightOfCartRule": "Weight of cart",
         "dayOfWeekRule": "Day of the week",
         "lineItemTagRule": "Line item tag",
-        "lineItemPropertyRule": "Line item property"
+        "lineItemPropertyRule": "Line item property",
+        "paymentMethodRule": "Payment method",
+        "shippingMethodRule": "Shipping method"
       }
     },
     "sw-product-image": {

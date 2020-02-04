@@ -9,7 +9,8 @@ const { spawn } = require('child_process');
 
 module.exports = function createProxyServer({ appPort, originalHost, proxyHost, proxyPort }) {
     const proxyUrl = `${proxyHost}:${proxyPort}`;
-    const originalUrl = `${originalHost}:${appPort}`;
+    
+    const originalUrl = appPort !== 80 && appPort !== 443 ? `${originalHost}:${appPort}` : originalHost;
 
     // Create the HTTP proxy
     const server = createServer((client_req, client_res) => {
@@ -75,7 +76,7 @@ function replaceOriginalUrl(response, clientResponse, originalUrl, proxyUrl) {
     // when request is finished
     response.on('end', () => {
         // replace original url with proxy url
-        const responseBody = responseData.replace(new RegExp(`${originalUrl}`, 'g'), `${proxyUrl}`);
+        const responseBody = responseData.replace(new RegExp(`${originalUrl}/`, 'g'), `${proxyUrl}/`);
 
         // end the client response with sufficient headers
         clientResponse.writeHead(response.statusCode, response.headers);

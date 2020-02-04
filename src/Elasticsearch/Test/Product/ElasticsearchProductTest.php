@@ -1001,6 +1001,33 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
+    public function testEntityAggregationWithTermQuery(TestDataCollection $data): void
+    {
+        $aggregator = $this->createEntityAggregator();
+
+        // check simple search without any restrictions
+        $criteria = (new Criteria($data->prefixed('p')))->setTerm('Grouped');
+        $criteria->addAggregation(new EntityAggregation('manufacturers', 'product.manufacturerId', ProductManufacturerDefinition::ENTITY_NAME));
+
+        $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $data->getContext());
+
+        static::assertCount(1, $aggregations);
+
+        static::assertTrue($aggregations->has('manufacturers'));
+
+        /** @var EntityResult $result */
+        $result = $aggregations->get('manufacturers');
+        static::assertInstanceOf(EntityResult::class, $result);
+
+        static::assertCount(2, $result->getEntities());
+
+        static::assertTrue($result->getEntities()->has($data->get('m2')));
+        static::assertTrue($result->getEntities()->has($data->get('m3')));
+    }
+
+    /**
+     * @depends testIndexing
+     */
     public function testFilterAggregation(TestDataCollection $data): void
     {
         $aggregator = $this->createEntityAggregator();

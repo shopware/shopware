@@ -79,6 +79,7 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
         $this->helper->addFilters($definition, $criteria, $search, $context);
         $this->helper->addQueries($definition, $criteria, $search, $context);
         $this->helper->addAggregations($definition, $criteria, $search, $context);
+        $this->helper->addTerm($criteria, $search, $context);
 
         $search->setSize(0);
 

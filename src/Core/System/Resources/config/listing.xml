@@ -11,6 +11,13 @@
             <label lang="de-DE">Kaufen-Button im Produktlisting anzeigen</label>
         </input-field>
 
+        <input-field type="bool">
+            <name>hideCloseoutProductsWhenOutOfStock</name>
+            <label>hide clearance sale products when they are out of stock</label>
+            <label lang="de-DE">Abverkauf-Produkte ohne Lagerbestand ausblenden</label>
+            <flag>next6025</flag>
+        </input-field>
+
         <input-field type="int">
             <name>markAsNew</name>
             <label>mark products as new</label>

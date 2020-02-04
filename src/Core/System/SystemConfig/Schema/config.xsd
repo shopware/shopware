@@ -37,6 +37,7 @@
             <xs:element name="helpText" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="defaultValue" type="xs:string" minOccurs="0"/>
             <xs:element name="options" type="option-collection" minOccurs="0"/>
+            <xs:element name="flag" type="xs:string" minOccurs="0"/>
             <xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="type" type="type" default="text"/>

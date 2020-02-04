@@ -8,26 +8,28 @@
 
                     {% block sw_cms_create_wizard_page_type %}
                         <div class="sw-cms-create-wizard__page-type-selection">
-                            <div class="sw-cms-create-wizard__page-type" @click="onPageTypeSelect('page')">
-                                <sw-icon name="default-object-lightbulb" size="24"></sw-icon>
-                                <p>{{ $tc('sw-cms.detail.label.pageTypeShopPage') }}</p>
-                            </div>
+                            {% block sw_cms_create_wizard_page_type_options %}
+                                <div class="sw-cms-create-wizard__page-type" @click="onPageTypeSelect('page')">
+                                    <sw-icon name="default-object-lightbulb" size="24"></sw-icon>
+                                    <p>{{ $tc('sw-cms.detail.label.pageTypeShopPage') }}</p>
+                                </div>
 
-                            <div class="sw-cms-create-wizard__page-type" @click="onPageTypeSelect('landingpage')">
-                                <sw-icon name="default-web-dashboard" size="24"></sw-icon>
-                                <p>{{ $tc('sw-cms.detail.label.pageTypeLandingpage') }}</p>
-                            </div>
+                                <div class="sw-cms-create-wizard__page-type" @click="onPageTypeSelect('landingpage')">
+                                    <sw-icon name="default-web-dashboard" size="24"></sw-icon>
+                                    <p>{{ $tc('sw-cms.detail.label.pageTypeLandingpage') }}</p>
+                                </div>
 
-                            <div class="sw-cms-create-wizard__page-type" @click="onPageTypeSelect('product_list')">
-                                <sw-icon name="default-shopping-basket" size="24"></sw-icon>
-                                <p>{{ $tc('sw-cms.detail.label.pageTypeCategory') }}</p>
-                            </div>
+                                <div class="sw-cms-create-wizard__page-type" @click="onPageTypeSelect('product_list')">
+                                    <sw-icon name="default-shopping-basket" size="24"></sw-icon>
+                                    <p>{{ $tc('sw-cms.detail.label.pageTypeCategory') }}</p>
+                                </div>
 
-                            {# Will be implemented in the future #}
-{#                            <div class="sw-cms-create-wizard__page-type is--disabled">#}
-{#                                <sw-icon name="default-action-tags" size="24"></sw-icon>#}
-{#                                <p>{{ $tc('sw-cms.detail.label.pageTypeProduct') }}</p>#}
-{#                            </div>#}
+                                {# Will be implemented in the future #}
+{#                              <div class="sw-cms-create-wizard__page-type is--disabled">#}
+{#                                  <sw-icon name="default-action-tags" size="24"></sw-icon>#}
+{#                                  <p>{{ $tc('sw-cms.detail.label.pageTypeProduct') }}</p>#}
+{#                              </div>#}
+                            {% endblock %}
                         </div>
                     {% endblock %}
 

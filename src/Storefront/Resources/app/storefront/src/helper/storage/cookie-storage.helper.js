@@ -25,7 +25,7 @@ export default class CookieStorageHelper {
         const date = new Date();
         date.setTime(date.getTime() + (expirationDays * 24 * 60 * 60 * 1000));
 
-        document.cookie = `${key}=${value};expires)${date.toUTCString()};path=/`;
+        document.cookie = `${key}=${value};expires=${date.toUTCString()};path=/`;
     }
 
     /**

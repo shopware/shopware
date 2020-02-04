@@ -150,7 +150,7 @@ class ProductStreamIndexer implements IndexerInterface
         $bytes = Uuid::fromHexToBytesList($ids);
 
         $filters = $this->connection->fetchAll(
-            'SELECT product_stream_id as array_key, product_stream_filter.* FROM product_stream_filter  WHERE product_stream_id IN (:ids) ORDER BY product_stream_id',
+            'SELECT product_stream_id as array_key, product_stream_filter.* FROM product_stream_filter WHERE product_stream_id IN (:ids) ORDER BY product_stream_id',
             ['ids' => $bytes],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );

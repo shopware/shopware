@@ -66,7 +66,6 @@ class OpenApiPathBuilder
                     'description' => 'List of ' . $humanReadableName . ' resources.',
                     'content' => [
                         'application/vnd.api+json' => [
-                            'mediaType' => 'application/vnd.api+json',
                             'schema' => [
                                 'allOf' => [
                                     ['$ref' => '#/components/schemas/success'],
@@ -74,7 +73,6 @@ class OpenApiPathBuilder
                                         'type' => 'object',
                                         'properties' => [
                                             'data' => [
-                                                'property' => 'data',
                                                 'allOf' => [
                                                     ['$ref' => '#/components/schemas/data'],
                                                     [
@@ -86,16 +84,15 @@ class OpenApiPathBuilder
                                                 ],
                                             ],
                                             'links' => [
-                                                'property' => 'links',
                                                 'allOf' => [
                                                     ['$ref' => '#/components/schemas/pagination'],
                                                     [
                                                         'type' => 'object',
                                                         'properties' => [
-                                                            'first' => ['example' => $path . '?limit=25', 'property' => 'first'],
-                                                            'last' => ['example' => $path . '?limit=25&page=11', 'property' => 'last'],
-                                                            'next' => ['example' => $path . '?limit=25&page=4', 'property' => 'next'],
-                                                            'prev' => ['example' => $path . '?limit=25&page=2', 'property' => 'prev'],
+                                                            'first' => ['example' => $path . '?limit=25'],
+                                                            'last' => ['example' => $path . '?limit=25&page=11'],
+                                                            'next' => ['example' => $path . '?limit=25&page=4'],
+                                                            'prev' => ['example' => $path . '?limit=25&page=2'],
                                                         ],
                                                     ],
                                                 ],
@@ -106,13 +103,11 @@ class OpenApiPathBuilder
                             ],
                         ],
                         'application/json' => [
-                            'mediaType' => 'application/json',
                             'schema' => [
                                 'type' => 'object',
                                 'properties' => [
-                                    'total' => ['type' => 'integer', 'property' => 'total'],
+                                    'total' => ['type' => 'integer'],
                                     'data' => [
-                                        'property' => 'data',
                                         'type' => 'array',
                                         'items' => [
                                             '$ref' => '#/components/schemas/' . $schemaName . '_flat',
@@ -161,17 +156,14 @@ class OpenApiPathBuilder
             'requestBody' => [
                 'content' => [
                     'application/vnd.api+json' => [
-                        'mediaType' => 'application/vnd.api+json',
                         'schema' => [
                             'type' => 'object',
                             'properties' => [
                                 'data' => [
                                     '$ref' => '#/components/schemas/' . $definition->getEntityName(),
-                                    'property' => 'data',
                                 ],
                                 'included' => [
                                     'type' => 'array',
-                                    'property' => 'included',
                                     'items' => ['$ref' => '#/components/schemas/resource'],
                                     'uniqueItems' => true,
                                 ],
@@ -179,7 +171,6 @@ class OpenApiPathBuilder
                         ],
                     ],
                     'application/json' => [
-                        'mediaType' => 'application/json',
                         'schema' => [
                             '$ref' => '#/components/schemas/' . $definition->getEntityName() . '_flat',
                         ],
@@ -205,16 +196,13 @@ class OpenApiPathBuilder
                 'description' => 'Partially update information about a ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resource.',
                 'content' => [
                     'application/vnd.api+json' => [
-                        'mediaType' => 'application/vnd.api+json',
                         'schema' => [
                             'type' => 'object',
                             'properties' => [
                                 'data' => [
                                     '$ref' => '#/components/schemas/' . $definition->getEntityName(),
-                                    'property' => 'data',
                                 ],
                                 'included' => [
-                                    'property' => 'included',
                                     'type' => 'array',
                                     'items' => ['$ref' => '#/components/schemas/resource'],
                                     'uniqueItems' => true,
@@ -223,7 +211,6 @@ class OpenApiPathBuilder
                         ],
                     ],
                     'application/json' => [
-                        'mediaType' => 'application/json',
                         'schema' => [
                             '$ref' => '#/components/schemas/' . $definition->getEntityName() . '_flat',
                         ],

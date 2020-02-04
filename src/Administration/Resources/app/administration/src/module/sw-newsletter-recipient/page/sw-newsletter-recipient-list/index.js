@@ -1,9 +1,7 @@
-import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-newsletter-recipient-list.html.twig';
 import './sw-newsletter-recipient-list.scss';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
+const { Component, Mixin, Data: { Criteria, EntityCollection } } = Shopware;
 
 Component.register('sw-newsletter-recipient-list', {
     template,
@@ -50,17 +48,12 @@ Component.register('sw-newsletter-recipient-list', {
             return this.repositoryFactory.create('language');
         },
 
-        salesChannelStore() {
+        salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
         },
 
-        /** @deprecated tag:v6.4.0 */
-        tagStore() {
-            return StateDeprecated.getStore('tag');
-        },
-
-        tagAssociationStore() {
-            return new LocalStore([], 'id', 'name');
+        tagRepository() {
+            return this.repositoryFactory.create('tag');
         }
     },
 
@@ -73,8 +66,8 @@ Component.register('sw-newsletter-recipient-list', {
                 this.languageFilters = items;
             });
 
-            this.salesChannelStore.search(criteria, Shopware.Context.api).then((items) => {
-                this.salesChannelFilters = items;
+            this.salesChannelRepository.search(new Criteria(1, 100), Shopware.Context.api).then((salesChannels) => {
+                this.salesChannelFilters = salesChannels;
             });
 
             this.getList();

@@ -454,7 +454,9 @@
         "weightOfCartRule": "Warenkorb Gewicht",
         "dayOfWeekRule": "Wochentag",
         "lineItemTagRule": "Positionen mit Tag",
-        "lineItemPropertyRule": "Positionen mit Eigenschaften"
+        "lineItemPropertyRule": "Positionen mit Eigenschaften",
+        "paymentMethodRule": "Zahlungsart",
+        "shippingMethodRule": "Versandart"
       }
     },
     "sw-product-image": {

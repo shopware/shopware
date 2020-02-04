@@ -1,0 +1,16 @@
+{% block sw_condition_value_content %}
+    <div class="sw-condition-payment-method sw-condition__condition-value">
+        {% block sw_condition_payment_method_field_operator %}
+            <sw-condition-operator-select v-bind="{ operators, condition }"></sw-condition-operator-select>
+        {% endblock %}
+
+        {% block sw_condition_payment_method_field_payment_method_ids %}
+            <sw-entity-multi-select
+                size="medium"
+                entity="payment_method"
+                :entityCollection="paymentMethods"
+                @change="setPaymentMethodIds">
+            </sw-entity-multi-select>
+        {% endblock %}
+    </div>
+{% endblock %}

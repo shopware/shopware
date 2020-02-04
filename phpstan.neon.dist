@@ -38,6 +38,8 @@ parameters:
         -
              message: '#Unsafe usage of new static()#'
              path: src/Core/Framework/Struct/Collection.php
+        # Exception for CopyBatch file system plugin. It is called via magic method
+        - '#Call to an undefined method League\\Flysystem\\FilesystemInterface::copyBatch\(\)\.#'
 
 services:
     -

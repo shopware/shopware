@@ -99,6 +99,10 @@ class CacheWarmer extends AbstractMessageHandler
 
     private function callRoute(WarmUpMessage $message): void
     {
+        if ($this->cacheIdLoader->load() !== $message->getCacheId()) {
+            return;
+        }
+
         $kernel = $this->createHttpCacheKernel($message->getCacheId());
 
         foreach ($message->getParameters() as $parameters) {

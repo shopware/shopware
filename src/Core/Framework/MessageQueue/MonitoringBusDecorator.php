@@ -38,13 +38,21 @@ class MonitoringBusDecorator implements MessageBusInterface
     {
         $messageName = $this->getMessageName($message);
 
-        if ($this->isIncoming($message)) {
-            $this->decrementMessageQueueSize($messageName);
-        } else {
+        if (!$this->isIncoming($message)) {
             $this->incrementMessageQueueSize($messageName);
         }
 
-        return $this->innerBus->dispatch($message);
+        try {
+            $ret = $this->innerBus->dispatch($message);
+
+            if ($this->isIncoming($message)) {
+                $this->decrementMessageQueueSize($messageName);
+            }
+
+            return $ret;
+        } catch (\Exception $e) {
+            throw $e;
+        }
     }
 
     /**

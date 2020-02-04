@@ -22,6 +22,7 @@ class WorkerNotificationListener {
         this._isRunning = true;
         this._middlewareHelper = WorkerNotification.initialize();
         this._timeoutId = setTimeout(this._checkQueue.bind(this), this._interval);
+        this.setupIntervalWatcher();
     }
 
     terminate() {
@@ -37,7 +38,7 @@ class WorkerNotificationListener {
             return;
         }
 
-        this._getApplicationRootReference().$store.watch((state) => {
+        Shopware.State.watch((state) => {
             return state.notification.workerProcessPollInterval;
         }, this._onPollIntervalChanged.bind(this));
 
@@ -57,7 +58,6 @@ class WorkerNotificationListener {
     }
 
     _checkQueue() {
-        this.setupIntervalWatcher();
         this._isRequestRunning = true;
         this._messageQueueStatsService.getList({}).then((res) => {
             this._isRequestRunning = false;

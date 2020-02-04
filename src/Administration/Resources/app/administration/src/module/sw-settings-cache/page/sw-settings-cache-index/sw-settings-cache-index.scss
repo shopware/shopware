@@ -1,0 +1,27 @@
+@import "~scss/variables";
+
+.sw-settings-cache {
+    .sw-card .sw-card__content {
+        padding-top: 0;
+    }
+
+    .sw-card-section {
+        padding: 30px 0;
+
+        &--secondary {
+            padding: 0;
+        }
+    }
+}
+
+.sw-settings-cache__card-toolbar {
+    row-gap: 25px;
+
+    &-heading {
+        font-weight: 600;
+    }
+}
+
+.sw-settings-cache__card-section-heading {
+    font-weight: 600;
+}

@@ -40,6 +40,9 @@ parameters:
              path: src/Core/Framework/Struct/Collection.php
         # Exception for CopyBatch file system plugin. It is called via magic method
         - '#Call to an undefined method League\\Flysystem\\FilesystemInterface::copyBatch\(\)\.#'
+        -
+             message: '#Access to private property#'
+             path: src/Core/Framework/Api/Controller/CacheController.php
 
 services:
     -

@@ -186,6 +186,21 @@ Component.register('sw-shortcut-overview', {
                         id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionSpecialShortcutCancelDetailView'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutSpecialShortcutCancelDetailView')
+                    },
+                    {
+                        id: utils.createId(),
+                        title: this.$tc('sw-shortcut-overview.functionSpecialShortcutClearCacheWindows'),
+                        content: this.$tc('sw-shortcut-overview.keyboardShortcutSpecialShortcutClearCacheWindows')
+                    },
+                    {
+                        id: utils.createId(),
+                        title: this.$tc('sw-shortcut-overview.functionSpecialShortcutClearCacheMac'),
+                        content: this.$tc('sw-shortcut-overview.keyboardShortcutSpecialShortcutClearCacheMac')
+                    },
+                    {
+                        id: utils.createId(),
+                        title: this.$tc('sw-shortcut-overview.functionSpecialShortcutClearCacheLinux'),
+                        content: this.$tc('sw-shortcut-overview.keyboardShortcutSpecialShortcutClearCacheLinux')
                     }
                 ]
             };

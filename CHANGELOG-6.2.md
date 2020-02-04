@@ -26,6 +26,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Refactored sw-radio-field
         * Deprecated currentValue, use value instead
         * Deprecated watcher for value
+    * Added "Cache & Indexes" Module to system settings
 
     *
     * The component sw-integration-list was refactored to use the "repositoryFactory" instead of "StateDeprecated" to fetch and save data

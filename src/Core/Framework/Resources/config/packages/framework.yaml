@@ -14,7 +14,7 @@ framework:
     php_errors:
         log: true
     cache:
-        prefix_seed: shopware
+        prefix_seed: "%kernel.cache.hash%"
         app: cache.adapter.filesystem
         pools:
             cache.object:

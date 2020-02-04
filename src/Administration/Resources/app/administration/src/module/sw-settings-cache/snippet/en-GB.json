@@ -1,0 +1,53 @@
+{
+  "sw-settings-cache": {
+    "general": {
+      "mainMenuItemGeneral": "Caches & Indexes"
+    },
+    "toolbar": {
+        "environment": "Environment",
+        "environmentDev": "Development",
+        "environmentProd": "Production",
+        "httpCache": "HTTP cache",
+        "httpCacheOff": "Off",
+        "httpCacheOn": "On",
+        "cacheAdapter": "Cache adapters"
+    },
+    "section": {
+        "clearCachesHeadline": "Clear caches",
+        "clearCachesText": "The cache is immediately cleared synchronously for all used adapters.",
+        "clearCachesButton": "Clear caches",
+        "clearAndWarmUpHeadline": "Clear and warm up caches",
+        "clearAndWarmUpText": "After the cache has been cleared, new cache entries are generated asynchronously.",
+        "clearAndWarmUpButton": "Clear and warm up caches",
+        "indexesHeadline": "Indexes",
+        "indexesText": "All indexes are updated asynchronously. The progress can be viewed in the Notification Center. This includes for example the product and category indexes or the SEO URLs.",
+        "indexesButton": "Update indexes"
+    },
+    "notifications": {
+      "clearCache": {
+        "title": "Cache",
+        "started": "All caches will be cleared.",
+        "success": "All caches successfully cleared.",
+        "error": "A unknown error occurred, while deleting cache."
+      },
+      "clearCacheAndWarmup": {
+        "title": "Cache",
+        "started": "All caches cleared. Warmup starts now.",
+        "success": "Warmup successfully completed."
+      },
+      "index": {
+        "title": "Indexes",
+        "started": "All indexes will be built.",
+        "success": "All indexes successfully built."
+      }
+    },
+    "modal": {
+      "title": "Clear Caches",
+      "message": "Are you sure you want to clear all caches?",
+      "actions": {
+        "cancel": "Cancel",
+        "clear": "Clear"
+      }
+    }
+  }
+}

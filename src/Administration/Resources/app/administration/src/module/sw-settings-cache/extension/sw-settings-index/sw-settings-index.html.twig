@@ -1,0 +1,13 @@
+{% block sw_settings_content_card_slot_system %}
+    {% parent %}
+
+    {% block sw_settings_basic_information_item %}
+        <sw-settings-item
+                :label="$tc('sw-settings-cache.general.mainMenuItemGeneral')"
+                :to="{ name: 'sw.settings.cache.index' }">
+            <template slot="icon">
+                <sw-icon name="default-action-replace"></sw-icon>
+            </template>
+        </sw-settings-item>
+    {% endblock %}
+{% endblock %}

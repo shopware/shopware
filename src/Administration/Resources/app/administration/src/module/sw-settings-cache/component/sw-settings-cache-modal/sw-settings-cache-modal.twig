@@ -1,0 +1,23 @@
+{% block sw_settings_cache_modal %}
+    <sw-modal
+        v-if="open"
+        variant="small"
+        :title="$t('sw-settings-cache.modal.title')"
+        @modal-close="closeModal">
+        {{ $tc('sw-settings-cache.modal.message') }}
+
+        <template slot="modal-footer">
+            <sw-button @click="closeModal"
+                       size="small">
+                {{ $tc('sw-settings-cache.modal.actions.cancel') }}
+            </sw-button>
+
+            <sw-button @click="clearCache"
+                       variant="primary"
+                       ref="button"
+                       size="small">
+                {{ $tc('sw-settings-cache.modal.actions.clear') }}
+            </sw-button>
+        </template>
+    </sw-modal>
+{% endblock %}

@@ -1,18 +1,18 @@
 {
     "minimum-stability": "stable",
     "require": {
-        "php": "^7.2",
-        "slim/slim": "3.12.1",
-        "symfony/console": "4.2.8",
-        "symfony/dotenv": "4.2.8",
-        "pimple/pimple": "3.2.3",
-        "knplabs/gaufrette": "0.8.1",
+        "php": ">=7.2.0",
+        "defuse/php-encryption": "2.2.1",
+        "doctrine/dbal": "2.10.1",
+        "hansott/psr7-cookies": "3.0.0",
+        "knplabs/gaufrette": "0.9.0",
         "paragonie/random_compat": "2.0.18",
-        "slim/php-view": "^2.2",
-        "hansott/psr7-cookies": "^3.0",
-        "doctrine/dbal": "^2.9",
-        "psr/log": "*",
-        "defuse/php-encryption": "v2.2.1"
+        "pimple/pimple": "3.2.3",
+        "psr/log": "1.1.2",
+        "slim/php-view": "2.2.1",
+        "slim/slim": "3.12.3",
+        "symfony/console": "4.4.4",
+        "symfony/dotenv": "4.4.4"
     },
     "autoload": {
         "psr-4": {

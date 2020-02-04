@@ -110,8 +110,8 @@ class TranslatorTest extends TestCase
 
         $catalogue = $this->translator->getCatalogue('en-GB');
         $fallback = $catalogue->getFallbackCatalogue();
-        static::assertEquals('en_GB', $fallback->getLocale());
-        static::assertEquals('en', $fallback->getFallbackCatalogue()->getLocale());
+        static::assertEquals('en', $fallback->getLocale());
+        static::assertEquals('en_GB', $fallback->getFallbackCatalogue()->getLocale());
 
         $catalogue = $this->translator->getCatalogue('de');
         $fallback = $catalogue->getFallbackCatalogue();

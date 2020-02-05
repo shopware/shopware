@@ -440,7 +440,7 @@ Quite simple, right?
 {% block sw_cms_element_image_config %}
 <div class="sw-cms-el-config-youtube">
     <sw-field class="swag-youtube-field"
-          v-model="element.config.showControls.value"
+          v-model="element.config.videoSrc.value"
           type="text"
           label="YouTube Video ID"
           placeholder="Enter ID...">

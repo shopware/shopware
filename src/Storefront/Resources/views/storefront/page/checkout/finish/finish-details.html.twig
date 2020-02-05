@@ -22,16 +22,11 @@
                             <p class="finish-teaser">{{ "checkout.finishInfoConfirmationMail"|trans|sw_sanitize }}</p>
                         {% endblock %}
 
+                        {# @depracted tag:6.4.0 #}
                         {% block page_checkout_finish_action %}
-                            <div class="finish-action">
-                                {% block page_checkout_finish_action_back %}
-                                    <a href="{{ path('frontend.home.page') }}"
-                                       class="btn btn-primary finish-back-button"
-                                       title="{{ "checkout.finishButtonBackToShop"|trans|striptags }}">
-                                        {{ "checkout.finishButtonBackToShop"|trans|sw_sanitize }}
-                                    </a>
-                                {% endblock %}
-                            </div>
+
+                            {# @depracted tag:6.4.0 #}
+                            {% block page_checkout_finish_action_back %}{% endblock %}
                         {% endblock %}
                     </div>
                 {% endblock %}

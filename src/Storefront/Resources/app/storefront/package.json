@@ -23,6 +23,7 @@
     "watch": "NODE_ENV=development MODE=watch webpack --watch --config webpack.config.js"
   },
   "dependencies": {
+    "@shopware-ag/e2e-testsuite-platform": "^1.1.9",
     "@shopware-ag/webpack-plugin-injector": "1.0.3",
     "are-you-es5": "1.3.3",
     "bootstrap": "4.3.1",

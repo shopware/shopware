@@ -87,6 +87,7 @@ class AccountOverviewPageLoader
     {
         $criteria = (new Criteria())
             ->addSorting(new FieldSorting('orderDateTime', FieldSorting::DESCENDING))
+            ->addAssociation('lineItems')
             ->addAssociation('transactions.paymentMethod')
             ->addAssociation('deliveries.shippingMethod')
             ->setLimit(1)

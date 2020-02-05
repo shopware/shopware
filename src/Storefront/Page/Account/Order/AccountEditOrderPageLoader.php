@@ -1,10 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Page\Checkout\Finish;
+namespace Shopware\Storefront\Page\Account\Order;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
@@ -13,15 +11,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
-use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Page\GenericPageLoaderInterface;
+use Shopware\Storefront\Page\GenericPageLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class CheckoutFinishPageLoader
+class AccountEditOrderPageLoader
 {
+    /**
+     * @var GenericPageLoader
+     */
+    private $genericLoader;
+
     /**
      * @var EventDispatcherInterface
      */
@@ -33,20 +35,20 @@ class CheckoutFinishPageLoader
     private $orderRepository;
 
     /**
-     * @var GenericPageLoaderInterface
+     * @var SalesChannelRepositoryInterface
      */
-    private $genericLoader;
+    private $paymentMethodRepository;
 
     public function __construct(
-        SalesChannelRepositoryInterface $paymentMethodRepository,
+        GenericPageLoader $genericLoader,
         EventDispatcherInterface $eventDispatcher,
         EntityRepositoryInterface $orderRepository,
-        GenericPageLoaderInterface $genericLoader
+        SalesChannelRepositoryInterface $paymentMethodRepository
     ) {
-        $this->paymentMethodRepository = $paymentMethodRepository;
+        $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->orderRepository = $orderRepository;
-        $this->genericLoader = $genericLoader;
+        $this->paymentMethodRepository = $paymentMethodRepository;
     }
 
     /**
@@ -54,63 +56,40 @@ class CheckoutFinishPageLoader
      * @throws CustomerNotLoggedInException
      * @throws InconsistentCriteriaIdsException
      * @throws MissingRequestParameterException
-     * @throws OrderNotFoundException
      */
-    public function load(Request $request, SalesChannelContext $salesChannelContext): CheckoutFinishPage
+    public function load(Request $request, SalesChannelContext $salesChannelContext): AccountEditOrderPage
     {
+        if (!$salesChannelContext->getCustomer()) {
+            throw new CustomerNotLoggedInException();
+        }
+
         $page = $this->genericLoader->load($request, $salesChannelContext);
-        $paymentMethods = $this->getPaymentMethods($salesChannelContext);
-        $page->paymentMethods = $paymentMethods;
 
-        $page = CheckoutFinishPage::createFrom($page);
+        $page = AccountEditOrderPage::createFrom($page);
 
-        $page->setOrder($this->getOrder($request, $salesChannelContext));
+        $orders = $this->orderRepository->search(
+            $this->createCriteria($salesChannelContext->getCustomer()->getId(), $request),
+            $salesChannelContext->getContext()
+        );
+
+        $page->setOrder($orders->first());
+
+        $page->setPaymentMethods($this->getPaymentMethods($salesChannelContext));
 
         $this->eventDispatcher->dispatch(
-            new CheckoutFinishPageLoadedEvent($page, $salesChannelContext, $request)
+            new AccountEditOrderPageLoadedEvent($page, $salesChannelContext, $request)
         );
 
         return $page;
     }
 
-    /**
-     * @throws CustomerNotLoggedInException
-     * @throws InconsistentCriteriaIdsException
-     * @throws MissingRequestParameterException
-     * @throws OrderNotFoundException
-     */
-    private function getOrder(Request $request, SalesChannelContext $salesChannelContext): OrderEntity
+    private function createCriteria(string $customerId, Request $request): Criteria
     {
-        $customer = $salesChannelContext->getCustomer();
-        if ($customer === null) {
-            throw new CustomerNotLoggedInException();
-        }
-
-        $orderId = $request->get('orderId');
-        if (!$orderId) {
-            throw new MissingRequestParameterException('orderId', '/orderId');
-        }
-
-        $criteria = (new Criteria([$orderId]))
-            ->addFilter(new EqualsFilter('order.orderCustomer.customerId', $customer->getId()))
+        return (new Criteria([$request->get('orderId')]))
+            ->addFilter(new EqualsFilter('order.orderCustomer.customerId', $customerId))
             ->addAssociation('lineItems.cover')
             ->addAssociation('transactions.paymentMethod')
             ->addAssociation('deliveries.shippingMethod');
-
-        try {
-            $searchResult = $this->orderRepository->search($criteria, $salesChannelContext->getContext());
-        } catch (InvalidUuidException $e) {
-            throw new OrderNotFoundException($orderId);
-        }
-
-        /** @var OrderEntity|null $order */
-        $order = $searchResult->get($orderId);
-
-        if (!$order) {
-            throw new OrderNotFoundException($orderId);
-        }
-
-        return $order;
     }
 
     /**

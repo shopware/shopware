@@ -1,0 +1,11 @@
+{% sw_extends '@Storefront/storefront/layout/header/header-minimal.html.twig' %}
+
+{% block layout_header_minimal_button %}
+    <div class="col-md-4 header-minimal-back-to-shop">
+        <a href="{{ path('frontend.account.home.page') }}"
+           class="btn btn-outline-primary header-minimal-back-to-shop-button"
+           title="{{ "account.editOrderBackToAccountButton"|trans|striptags }}">
+            {{ "account.editOrderBackToAccountButton"|trans|striptags }}
+        </a>
+    </div>
+{% endblock %}

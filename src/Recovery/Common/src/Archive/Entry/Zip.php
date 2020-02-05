@@ -2,8 +2,6 @@
 
 namespace Shopware\Recovery\Common\Archive\Entry;
 
-use ZipArchive;
-
 class Zip
 {
     /**
@@ -12,7 +10,7 @@ class Zip
     protected $position;
 
     /**
-     * @var ZipArchive
+     * @var \ZipArchive
      */
     protected $stream;
 
@@ -22,8 +20,8 @@ class Zip
     protected $name;
 
     /**
-     * @param ZipArchive $stream
-     * @param int        $position
+     * @param \ZipArchive $stream
+     * @param int         $position
      */
     public function __construct($stream, $position)
     {
@@ -50,7 +48,7 @@ class Zip
      */
     public function isDir()
     {
-        return substr($this->name, -1) === '/';
+        return mb_substr($this->name, -1) === '/';
     }
 
     /**
@@ -58,7 +56,7 @@ class Zip
      */
     public function isFile()
     {
-        return substr($this->name, -1) !== '/';
+        return mb_substr($this->name, -1) !== '/';
     }
 
     /**
@@ -67,8 +65,8 @@ class Zip
     public function getName()
     {
         $name = $this->name;
-        if (strpos($name, './') === 0) {
-            $name = substr($name, 2);
+        if (mb_strpos($name, './') === 0) {
+            $name = mb_substr($name, 2);
         }
 
         return $name;

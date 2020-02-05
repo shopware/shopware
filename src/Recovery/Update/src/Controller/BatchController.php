@@ -46,10 +46,10 @@ class BatchController
         /** @var MigrationRuntime $migrationManger */
         $migrationManger = $this->container->get('migration.manager');
 
-        /** @var MigrationCollectionLoader $migrationManger */
+        /** @var MigrationCollectionLoader $migrationCollectionLoader */
         $migrationCollectionLoader = $this->container->get('migration.collection.loader');
 
-        /** @var array $paths */
+        /** @var array $identifiers */
         $identifiers = array_column($this->container->get('migration.paths'), 'name');
 
         foreach ($identifiers as &$identifier) {
@@ -107,7 +107,7 @@ class BatchController
     /**
      * @throws \RuntimeException
      */
-    private function validateFilesytems(Filesystem $localFilesyste, Filesystem $remoteFilesyste)
+    private function validateFilesytems(Filesystem $localFilesyste, Filesystem $remoteFilesyste): void
     {
         if (!$remoteFilesyste->has('src/Kernel.php')) {
             throw new \RuntimeException('shopware.php not found in remote filesystem');

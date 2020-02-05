@@ -96,7 +96,7 @@ class ContainerProvider implements ServiceProviderInterface
             return $check;
         };
 
-        $container['db'] = static function () {
+        $container['db'] = static function (): void {
             throw new \RuntimeException('Identifier DB not initialized yet');
         };
 

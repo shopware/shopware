@@ -48,7 +48,7 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
                 <select name="c_config_shop_language" id="c_config_shop_language">
                     <?php foreach ($languageIsos as $iso): ?>
                         <option value="<?= $iso; ?>" <?= $parameters['c_config_shop_language'] === $iso ? 'selected' : ''; ?>>
-                            <?= $t->t('select_language_' . substr($iso, 0, 2)); ?>
+                            <?= $t->t('select_language_' . mb_substr($iso, 0, 2)); ?>
                         </option>
                     <?php endforeach; ?>
                 </select>

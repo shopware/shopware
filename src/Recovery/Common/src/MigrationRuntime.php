@@ -127,22 +127,22 @@ class MigrationRuntime
 
     private function setExecutedDestructive(MigrationStep $migrationStep): void
     {
-        $this->connection->executeUpdate('
-            UPDATE `migration`
-               SET `message` = NULL,
-                   `update_destructive` = :dateTime
-             WHERE `class` = :class',
+        $this->connection->executeUpdate(
+            'UPDATE `migration`
+                SET `message` = NULL,
+                    `update_destructive` = :dateTime
+              WHERE `class` = :class',
             ['class' => \get_class($migrationStep), 'dateTime' => date(Defaults::STORAGE_DATE_FORMAT)]
         );
     }
 
     private function setExecuted(MigrationStep $migrationStep): void
     {
-        $this->connection->executeUpdate('
-            UPDATE `migration`
-               SET `message` = NULL,
-                   `update` = :dateTime
-             WHERE `class` = :class',
+        $this->connection->executeUpdate(
+            'UPDATE `migration`
+                SET `message` = NULL,
+                    `update` = :dateTime
+              WHERE `class` = :class',
             ['class' => \get_class($migrationStep), 'dateTime' => date(Defaults::STORAGE_DATE_FORMAT)]
         );
     }

@@ -63,7 +63,8 @@ SHOPWARE_CDN_STRATEGY_DEFAULT="id"
 
         $key = Key::createNewRandomKey();
         $secret = $key->saveToAsciiSafeString();
-        $dbUrl = sprintf('mysql://%s:%s@%s:%s/%s',
+        $dbUrl = sprintf(
+            'mysql://%s:%s@%s:%s/%s',
             rawurlencode($info->username),
             rawurlencode($info->password),
             rawurlencode($info->hostname),

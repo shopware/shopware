@@ -62,7 +62,7 @@ class Utils
      * @param string $dir
      * @param bool   $includeDir
      */
-    public static function deleteDir($dir, $includeDir = false)
+    public static function deleteDir($dir, $includeDir = false): void
     {
         $dir = rtrim($dir, '/') . '/';
         if (!is_dir($dir)) {
@@ -123,7 +123,7 @@ class Utils
 
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             $selectedLanguage = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
-            $selectedLanguage = substr($selectedLanguage[0], 0, 2);
+            $selectedLanguage = mb_substr($selectedLanguage[0], 0, 2);
         }
 
         if (empty($selectedLanguage) || !in_array($selectedLanguage, $allowedLanguages, true)) {
@@ -155,7 +155,7 @@ class Utils
 
         if (getenv('DATABASE_URL') && $db = parse_url(getenv('DATABASE_URL'))) {
             $db = array_map('rawurldecode', $db);
-            $db['path'] = substr($db['path'], 1);
+            $db['path'] = mb_substr($db['path'], 1);
             if (!isset($db['pass'])) {
                 $db['pass'] = '';
             }
@@ -244,7 +244,7 @@ class Utils
         return array_keys($errorFiles);
     }
 
-    protected static function setNonStrictSQLMode(\PDO $conn)
+    protected static function setNonStrictSQLMode(\PDO $conn): void
     {
         $conn->exec("SET @@session.sql_mode = ''");
     }
@@ -252,12 +252,12 @@ class Utils
     /**
      * @throws \RuntimeException
      */
-    private static function checkSQLMode(\PDO $conn)
+    private static function checkSQLMode(\PDO $conn): void
     {
         $sql = 'SELECT @@SESSION.sql_mode;';
         $result = $conn->query($sql)->fetchColumn(0);
 
-        if (strpos($result, 'STRICT_TRANS_TABLES') !== false || strpos($result, 'STRICT_ALL_TABLES') !== false) {
+        if (mb_strpos($result, 'STRICT_TRANS_TABLES') !== false || mb_strpos($result, 'STRICT_ALL_TABLES') !== false) {
             throw new \RuntimeException("Database error!: The MySQL strict mode is active ($result). Please consult your hosting provider to solve this problem.");
         }
     }

@@ -10,6 +10,7 @@ use Shopware\Recovery\Common\Steps\ValidResult;
 class SnippetStep
 {
     private $conn;
+
     private $dumper;
 
     public function __construct(\PDO $connection, DumpIterator $dumper)
@@ -41,6 +42,7 @@ class SnippetStep
             $current = trim($dump->current());
             if (empty($current)) {
                 $dump->next();
+
                 continue;
             }
 

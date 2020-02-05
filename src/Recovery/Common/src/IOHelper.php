@@ -91,7 +91,7 @@ class IOHelper
      *
      * @param string $message
      */
-    public function write($message)
+    public function write($message): void
     {
         $this->output->write($message);
     }
@@ -101,7 +101,7 @@ class IOHelper
      *
      * @param string $message
      */
-    public function writeln($message)
+    public function writeln($message): void
     {
         $this->output->write($message, true);
     }
@@ -196,7 +196,7 @@ class IOHelper
     /**
      * Clear screen
      */
-    public function cls()
+    public function cls(): void
     {
         if (!$this->input->isInteractive()) {
             return;
@@ -210,7 +210,7 @@ class IOHelper
     /**
      * Prints banner to output interface
      */
-    public function printBanner()
+    public function printBanner(): void
     {
         $this->output->writeln($this->getBanner());
     }

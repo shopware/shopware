@@ -28,7 +28,7 @@ class FilePermissionChanger
     /**
      * Performs the chmod command on all permission arrays previously provided.
      */
-    public function changePermissions()
+    public function changePermissions(): void
     {
         foreach ($this->filePermissions as $filePermission) {
             if (array_key_exists('filePath', $filePermission)

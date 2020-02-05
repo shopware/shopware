@@ -3,6 +3,7 @@
 namespace Shopware\Recovery\Install\Command;
 
 use Pimple\Container;
+use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Recovery\Common\DumpIterator;
 use Shopware\Recovery\Common\IOHelper;
 use Shopware\Recovery\Common\MigrationRuntime;
@@ -43,7 +44,7 @@ class InstallCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('install');
         $this->setDescription('Installs and does the initial configuration of Shopware');
@@ -148,7 +149,7 @@ class InstallCommand extends Command
         }
     }
 
-    protected function checkRequirements(Container $container)
+    protected function checkRequirements(Container $container): void
     {
         $shopwareSystemCheck = $container->offsetGet('install.requirements');
         $systemCheckResults = $shopwareSystemCheck->toArray();
@@ -190,6 +191,7 @@ class InstallCommand extends Command
         /** @var WebserverCheck $webserverCheck */
         $webserverCheck = $container->offsetGet('webserver.check');
         $pingUrl = $webserverCheck->buildPingUrl($shop);
+
         try {
             $this->IOHelper->writeln('Checking ping to: ' . $pingUrl);
             $webserverCheck->checkPing($shop);
@@ -361,7 +363,8 @@ class InstallCommand extends Command
         }
 
         $question = new ConfirmationQuestion(
-            'The database already contains shopware tables. Skip import? (yes/no) [yes]', true
+            'The database already contains shopware tables. Skip import? (yes/no) [yes]',
+            true
         );
         $skipImport = $this->IOHelper->ask($question);
 
@@ -390,6 +393,7 @@ class InstallCommand extends Command
 
         do {
             $pdo = null;
+
             try {
                 $pdo = $databaseFactory->createPDOConnection($databaseConnectionInformation);
             } catch (\PDOException $e) {
@@ -491,7 +495,7 @@ class InstallCommand extends Command
         return $content;
     }
 
-    private function addDbOptions()
+    private function addDbOptions(): void
     {
         $this
             ->addOption(
@@ -542,7 +546,7 @@ class InstallCommand extends Command
         ;
     }
 
-    private function addShopOptions()
+    private function addShopOptions(): void
     {
         $this
             ->addOption(
@@ -587,7 +591,7 @@ class InstallCommand extends Command
         ;
     }
 
-    private function addAdminOptions()
+    private function addAdminOptions(): void
     {
         $this
             ->addOption(
@@ -647,7 +651,7 @@ class InstallCommand extends Command
     /**
      * Import database.
      */
-    private function importDatabase()
+    private function importDatabase(): void
     {
         /** @var \PDO $conn */
         $conn = $this->getContainer()->offsetGet('db');
@@ -670,7 +674,7 @@ EOT;
         $this->runMigrations();
     }
 
-    private function dumpProgress(\PDO $conn, DumpIterator $dump)
+    private function dumpProgress(\PDO $conn, DumpIterator $dump): void
     {
         $totalCount = $dump->count();
 
@@ -688,15 +692,15 @@ EOT;
         $this->IOHelper->writeln('');
     }
 
-    private function runMigrations()
+    private function runMigrations(): void
     {
         /** @var MigrationRuntime $migrationManger */
         $migrationManger = $this->container->offsetGet('migration.manager');
 
-        /** @var MigrationCollectionLoader $migrationManger */
+        /** @var MigrationCollectionLoader $migrationCollectionLoader */
         $migrationCollectionLoader = $this->container->offsetGet('migration.collection.loader');
 
-        /** @var array $paths */
+        /** @var array $identifiers */
         $identifiers = array_column($this->container->offsetGet('migration.paths'), 'name');
 
         foreach ($identifiers as &$identifier) {
@@ -725,7 +729,7 @@ EOT;
         $this->IOHelper->writeln('');
     }
 
-    private function printStartMessage()
+    private function printStartMessage(): void
     {
         $version = $this->container->offsetGet('shopware.version');
 

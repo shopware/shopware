@@ -28,7 +28,7 @@ class DeleteResult
      */
     public function getType()
     {
-        return __CLASS__;
+        return self::class;
     }
 
     /**
@@ -50,7 +50,7 @@ class DeleteResult
     /**
      * sets $this->isReady to "true"
      */
-    public function setReady()
+    public function setReady(): void
     {
         $this->isReady = true;
     }
@@ -58,7 +58,7 @@ class DeleteResult
     /**
      * Counts a $this->fileCount high
      */
-    public function countUp()
+    public function countUp(): void
     {
         ++$this->fileCount;
     }

@@ -2,15 +2,13 @@
 
 namespace Shopware\Recovery\Common\Archive;
 
-use Countable;
-use SeekableIterator;
-
-abstract class Adapter implements SeekableIterator, Countable
+abstract class Adapter implements \SeekableIterator, \Countable
 {
     /**
      * @var int
      */
     protected $position;
+
     /**
      * @var int
      */
@@ -19,7 +17,7 @@ abstract class Adapter implements SeekableIterator, Countable
     /**
      * @param int $position
      */
-    public function seek($position)
+    public function seek($position): void
     {
         $this->position = (int) $position;
     }
@@ -29,7 +27,7 @@ abstract class Adapter implements SeekableIterator, Countable
         return $this->count;
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         $this->position = 0;
     }
@@ -39,7 +37,7 @@ abstract class Adapter implements SeekableIterator, Countable
         return $this->position;
     }
 
-    public function next()
+    public function next(): void
     {
         ++$this->position;
     }

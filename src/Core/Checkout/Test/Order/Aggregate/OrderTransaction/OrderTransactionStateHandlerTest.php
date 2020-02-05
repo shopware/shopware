@@ -79,7 +79,9 @@ class OrderTransactionStateHandlerTest extends TestCase
         $orderId = $this->createOrder($customerId, $context);
         $transactionId = $this->createOrderTransaction($orderId, $context);
 
-        $this->orderTransactionStateHelper->pay($transactionId, $context);
+        $this->orderTransactionStateHelper->process($transactionId, $context);
+
+        $this->orderTransactionStateHelper->paid($transactionId, $context);
 
         $criteria = new Criteria([$transactionId]);
         $criteria->addAssociation('stateMachineState');

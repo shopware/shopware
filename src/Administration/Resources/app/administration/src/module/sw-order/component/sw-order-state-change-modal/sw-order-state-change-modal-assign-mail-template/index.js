@@ -122,6 +122,10 @@ Component.register('sw-order-state-change-modal-assign-mail-template', {
             this.$emit('on-assigned-mail-template');
         },
 
+        onConfirmNoMail() {
+            this.$emit('on-no-mail-confirm');
+        },
+
         onCreateMailTemplate() {
             const closeModal = new Promise((resolve) => {
                 resolve(this.$emit('on-create-mail-template'));

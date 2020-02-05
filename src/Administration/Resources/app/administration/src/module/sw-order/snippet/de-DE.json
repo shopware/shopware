@@ -213,6 +213,7 @@
         "alertMessage": "Diese Zuweisung wirkt sich auf alle nachfolgenden Bestellungen dieses Verkaufskanals aus.",
         "buttonCreateMailTemplate": "Erstelle eine E-Mail-Vorlage",
         "buttonAssignMailTemplate": "E-Mail-Vorlage zuweisen",
+        "buttonNotAssignMailTemplate": "Keine E-Mail-Vorlage zuweisen",
         "gridColumnType": "Typ",
         "gridColumnDescription": "Beschreibung"
     },

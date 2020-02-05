@@ -57,6 +57,10 @@ Component.register('sw-order-state-change-modal', {
             this.$emit('page-leave-confirm', docIds);
         },
 
+        onNoMailConfirm() {
+            this.$emit('page-leave-confirm', []);
+        },
+
         onAssignMailTemplate() {
             this.userHasAssignedMailTemplate = true;
         }

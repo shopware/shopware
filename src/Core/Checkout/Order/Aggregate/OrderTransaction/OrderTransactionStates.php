@@ -12,4 +12,6 @@ final class OrderTransactionStates
     public const STATE_PARTIALLY_REFUNDED = 'refunded_partially';
     public const STATE_CANCELLED = 'cancelled';
     public const STATE_REMINDED = 'reminded';
+    public const STATE_FAILED = 'failed';
+    public const STATE_IN_PROGRESS = 'in_progress';
 }

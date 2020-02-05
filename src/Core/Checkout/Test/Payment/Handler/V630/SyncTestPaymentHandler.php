@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Payment\Handler;
+namespace Shopware\Core\Checkout\Test\Payment\Handler\V630;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/** @deprecated tag:v6.3.0 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler */
 class SyncTestPaymentHandler implements SynchronousPaymentHandlerInterface
 {
     /**
@@ -38,6 +37,6 @@ class SyncTestPaymentHandler implements SynchronousPaymentHandlerInterface
         }
 
         $context = $salesChannelContext->getContext();
-        $this->transactionStateHandler->pay($transactionId, $context);
+        $this->transactionStateHandler->process($transactionId, $context);
     }
 }

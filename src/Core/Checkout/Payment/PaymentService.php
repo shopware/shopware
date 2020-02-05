@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTransactionException;
+use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
@@ -93,8 +94,8 @@ class PaymentService
 
         try {
             return $this->paymentProcessor->process($orderId, $dataBag, $context, $finishUrl);
-        } catch (AsyncPaymentProcessException | SyncPaymentProcessException $e) {
-            $this->cancelOrderTransaction($e->getOrderTransactionId(), $context->getContext());
+        } catch (PaymentProcessException $e) {
+            $this->transactionStateHandler->fail($e->getOrderTransactionId(), $context->getContext());
 
             throw $e;
         }
@@ -125,8 +126,8 @@ class PaymentService
 
         try {
             $paymentHandler->finalize($paymentTransactionStruct, $request, $salesChannelContext);
-        } catch (CustomerCanceledAsyncPaymentException | AsyncPaymentFinalizeException $e) {
-            $this->cancelOrderTransaction($e->getOrderTransactionId(), $context);
+        } catch (PaymentProcessException $e) {
+            $this->transactionStateHandler->fail($e->getOrderTransactionId(), $context);
 
             throw $e;
         }
@@ -181,10 +182,5 @@ class PaymentService
         }
 
         return new AsyncPaymentTransactionStruct($orderTransaction, $orderTransaction->getOrder(), '');
-    }
-
-    private function cancelOrderTransaction(string $transactionId, Context $context): void
-    {
-        $this->transactionStateHandler->cancel($transactionId, $context);
     }
 }

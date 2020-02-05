@@ -12,7 +12,7 @@ class DefaultPayment implements SynchronousPaymentHandlerInterface
     /**
      * @var OrderTransactionStateHandler
      */
-    private $transactionStateHandler;
+    protected $transactionStateHandler;
 
     public function __construct(OrderTransactionStateHandler $transactionStateHandler)
     {

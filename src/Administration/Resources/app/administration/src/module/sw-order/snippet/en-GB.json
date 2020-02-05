@@ -213,6 +213,7 @@
         "alertMessage": "This assignment affects all following orders received through this sales channel.",
         "buttonCreateMailTemplate": "Create email template",
         "buttonAssignMailTemplate": "Assign email template",
+        "buttonNotAssignMailTemplate": "Don't assign an email template",
         "gridColumnType": "Type",
         "gridColumnDescription": "Description"
     },

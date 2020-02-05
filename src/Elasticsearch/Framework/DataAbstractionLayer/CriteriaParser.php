@@ -309,7 +309,36 @@ class CriteriaParser
 
     private function parseMultiFilter(MultiFilter $filter, EntityDefinition $definition, string $root, Context $context): BuilderInterface
     {
+        switch ($filter->getOperator()) {
+            case MultiFilter::CONNECTION_OR:
+                return $this->parseOrMultiFilter($filter, $definition, $root, $context);
+            case MultiFilter::CONNECTION_AND:
+                return $this->parseAndMultiFilter($filter, $definition, $root, $context);
+            case MultiFilter::CONNECTION_XOR:
+                return $this->parseXorMultiFilter($filter, $definition, $root, $context);
+        }
+
+        throw new \InvalidArgumentException('Operator ' . $filter->getOperator() . ' not allowed');
+    }
+
+    private function parseAndMultiFilter(MultiFilter $filter, EntityDefinition $definition, string $root, Context $context): BuilderInterface
+    {
         $bool = new BoolQuery();
+
+        foreach ($filter->getQueries() as $nested) {
+            $bool->add(
+                $this->parseFilter($nested, $definition, $root, $context),
+                BoolQuery::MUST
+            );
+        }
+
+        return $bool;
+    }
+
+    private function parseOrMultiFilter(MultiFilter $filter, EntityDefinition $definition, string $root, Context $context): BuilderInterface
+    {
+        $bool = new BoolQuery();
+
         foreach ($filter->getQueries() as $nested) {
             $bool->add(
                 $this->parseFilter($nested, $definition, $root, $context),
@@ -317,10 +346,29 @@ class CriteriaParser
             );
         }
 
-        if ($filter->getOperator() === MultiFilter::CONNECTION_OR) {
-            $bool->addParameter('minimum_should_match', '1');
-        } else {
-            $bool->addParameter('minimum_should_match', (string) count($filter->getQueries()));
+        return $bool;
+    }
+
+    private function parseXorMultiFilter(MultiFilter $filter, EntityDefinition $definition, string $root, Context $context): BuilderInterface
+    {
+        $bool = new BoolQuery();
+
+        foreach ($filter->getQueries() as $nested) {
+            $xorQuery = new BoolQuery();
+            foreach ($filter->getQueries() as $mustNot) {
+                if ($nested === $mustNot) {
+                    $xorQuery->add($this->parseFilter($nested, $definition, $root, $context), BoolQuery::MUST);
+
+                    continue;
+                }
+
+                $xorQuery->add($this->parseFilter($mustNot, $definition, $root, $context), BoolQuery::MUST_NOT);
+            }
+
+            $bool->add(
+                $xorQuery,
+                BoolQuery::SHOULD
+            );
         }
 
         return $bool;

@@ -13,7 +13,7 @@ describe('Sales Channel: Test crud operations', () => {
             });
     });
 
-    it('@package @general: create and read sales channel', () => {
+    it('@base @general: create and read sales channel', () => {
         const page = new SalesChannelPageObject();
 
         // Request we want to wait for later
@@ -53,7 +53,7 @@ describe('Sales Channel: Test crud operations', () => {
             .typeSingleSelectAndCheck('1st Epic Sales Channel', '.sw-customer-base-form__sales-channel-select');
     });
 
-    it('@package @general: update and read sales channel', () => {
+    it('@base @general: update and read sales channel', () => {
         const page = new SalesChannelPageObject();
 
         // Request we want to wait for later
@@ -74,7 +74,7 @@ describe('Sales Channel: Test crud operations', () => {
         cy.contains('Channel No 9');
     });
 
-    it('@package @general: delete sales channel', () => {
+    it('@base @general: delete sales channel', () => {
         const page = new SalesChannelPageObject();
 
         // Request we want to wait for later

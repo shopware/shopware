@@ -5,7 +5,7 @@ describe('Account: Login as customer', () => {
         return cy.createCustomerFixtureStorefront()
     });
 
-    it('Login with wrong credentials', () => {
+    it('@login: Login with wrong credentials', () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
 
@@ -19,7 +19,7 @@ describe('Account: Login as customer', () => {
         });
     });
 
-    it('Login with valid credentials', () => {
+    it('@package @login: Login with valid credentials', () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
 

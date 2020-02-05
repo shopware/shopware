@@ -16,7 +16,7 @@ describe('Rule builder: Test crud operations', () => {
             });
     });
 
-    it('@package @rule: create and read rule', () => {
+    it('@base @rule: create and read rule', () => {
         const page = new RulePageObject();
 
         // Request we want to wait for later
@@ -78,7 +78,7 @@ describe('Rule builder: Test crud operations', () => {
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('Rule 1st');
     });
 
-    it('@package @rule: delete rule', () => {
+    it('@base @rule: delete rule', () => {
         const page = new RulePageObject();
 
         // Request we want to wait for later

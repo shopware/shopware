@@ -279,7 +279,6 @@ Storefront (Jest):
 
 .job_template: &e2e_definition
     stage: E2E
-    needs: [Administration (Jest)]
     services:
         -   name: docker:18.09.7-dind
             alias: docker
@@ -311,15 +310,29 @@ Storefront (Jest):
         - npx mochawesome-report-generator development/build/artifacts/e2e/mochawesome/report-final.json --cdn true --reportDir development/build/artifacts/e2e/mochawesome
         - docker rm -f cypress
 
+.scheduled_script:
+    script: &scheduled_definition
+        - ./psh.phar init --APP_ENV="prod"
+        - ./psh.phar administration:init --APP_ENV="prod"
+        - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
+        - ./psh.phar e2e:dump-db --APP_ENV="prod"
+        - E2E_BASE_PATH=vendor/shopware/platform/src/${SECTION}/Resources/app/$(echo ${SECTION} | tr '[:upper:]' '[:lower:]')/test/e2e
+        - npm i @shopware-ag/e2e-testsuite-platform --prefix $E2E_BASE_PATH
+        - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
+        - chown -R 1000:1000 .
+        - docker run --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:3.8.1 -c "npm install --production --prefix /e2e && node_modules/.bin/cypress run --project /e2e --browser chrome --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0"
+
 General (Storefront):
     only:
         - merge_requests
         - master
         - "6.1"
+    except:
+        - schedules
     <<: *e2e_definition
+    needs: [Storefront (Jest)]
     script: *mixed_definition
     after_script: *mochawesome_report_definition
-    needs: [Storefront (Jest)]
     variables:
         SECTION: 'Storefront'
         TEST_DIRECTORY: "cypress/integration/**/*"
@@ -329,19 +342,25 @@ Content (Mixed):
         - merge_requests
         - master
         - "6.1"
+    except:
+        - schedules
     <<: *e2e_definition
+    needs: [Administration (Jest)]
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
         SECTION: 'Administration'
         TEST_DIRECTORY: "cypress/integration/content/**/*"
 
-Catalogues  (Mixed):
+Catalogues (Mixed):
     only:
         - merge_requests
         - master
         - "6.1"
+    except:
+        - schedules
     <<: *e2e_definition
+    needs: [Administration (Jest)]
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
@@ -353,7 +372,10 @@ Customers (Mixed):
         - merge_requests
         - master
         - "6.1"
+    except:
+        - schedules
     <<: *e2e_definition
+    needs: [Administration (Jest)]
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
@@ -365,7 +387,10 @@ Media and Marketing (Mixed):
         - merge_requests
         - master
         - "6.1"
+    except:
+        - schedules
     <<: *e2e_definition
+    needs: [Administration (Jest)]
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
@@ -377,7 +402,10 @@ General (Administration):
         - merge_requests
         - master
         - "6.1"
+    except:
+        - schedules
     <<: *e2e_definition
+    needs: [Administration (Jest)]
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
@@ -389,8 +417,12 @@ Orders (Administration):
         - merge_requests
         - master
         - "6.1"
+    except:
+        - schedules
     <<: *e2e_definition
+    needs: [Administration (Jest)]
     script: *mixed_definition
+    after_script: *mochawesome_report_definition
     variables:
         SECTION: 'Administration'
         TEST_DIRECTORY: "cypress/integration/order/**/*"
@@ -400,8 +432,12 @@ Rules and Product Groups (Administration):
         - merge_requests
         - master
         - "6.1"
+    except:
+        - schedules
     <<: *e2e_definition
+    needs: [Administration (Jest)]
     script: *mixed_definition
+    after_script: *mochawesome_report_definition
     variables:
         SECTION: 'Administration'
         TEST_DIRECTORY: "cypress/integration/rule-product-stream/**/*"
@@ -411,11 +447,36 @@ Settings (Administration):
         - merge_requests
         - master
         - "6.1"
+    except:
+        - schedules
     <<: *e2e_definition
+    needs: [Administration (Jest)]
     script: *mixed_definition
+    after_script: *mochawesome_report_definition
     variables:
         SECTION: 'Administration'
         TEST_DIRECTORY: "cypress/integration/settings/**/*"
+
+Admin (Total):
+    only:
+        - schedules
+    <<: *e2e_definition
+    timeout: 2h 00m
+    script: *mixed_definition
+    after_script: *mochawesome_report_definition
+    variables:
+        SECTION: 'Administration'
+        TEST_DIRECTORY: "cypress/integration/**/*"
+
+Storefront (Total):
+    only:
+        - schedules
+    <<: *e2e_definition
+    script: *scheduled_definition
+    after_script: *mochawesome_report_definition
+    variables:
+        SECTION: 'Storefront'
+        TEST_DIRECTORY: "cypress/integration/**/*"
 
 # Stage: build
 

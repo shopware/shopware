@@ -12,7 +12,7 @@ describe('Administration: Check module navigation in settings', () => {
             });
     });
 
-    it('@general: navigate to scale unit module', () => {
+    it('@navigation: navigate to scale unit module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/search/unit',
@@ -30,7 +30,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-settings-units-card-empty').should('be.visible');
     });
 
-    it('@general: navigate to tax module', () => {
+    it('@base @navigation: navigate to tax module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/search/tax',
@@ -48,7 +48,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-page__main-content').should('be.visible');
     });
 
-    it('@general: navigate to snippet module', () => {
+    it.skip('@navigation: navigate to snippet module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/search/snippet-set',
@@ -68,7 +68,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-grid').should('be.visible');
     });
 
-    it('@general: navigate to sitemap module', () => {
+    it('@navigation: navigate to sitemap module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/_action/system-config/schema?domain=core.sitemap',
@@ -86,7 +86,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-system-config').should('be.visible');
     });
 
-    it('@general: navigate to shipping module', () => {
+    it('@base @navigation: navigate to shipping module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/search/shipping-method',
@@ -104,7 +104,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-settings-shipping-list__content').should('exist');
     });
 
-    it('@general: navigate to seo module', () => {
+    it('@navigation: navigate to seo module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/search/seo-url-template',
@@ -122,7 +122,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-seo-url-template-card').should('be.visible');
     });
 
-    it('@general: navigate to salutation module', () => {
+    it('@navigation: navigate to salutation module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/search/salutation',
@@ -140,7 +140,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-settings-salutation-list-grid').should('be.visible');
     });
 
-    it('@general: navigate to rule builder module', () => {
+    it('@base @navigation: navigate to rule builder module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/search/rule',
@@ -159,7 +159,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-settings-rule-list__content').should('exist');
     });
 
-    it('@general: navigate to payment module', () => {
+    it('@base @navigation: navigate to payment module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/search/payment-method',
@@ -177,7 +177,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-settings-payment-list').should('be.visible');
     });
 
-    it('@general: navigate to number ranges module', () => {
+    it('@navigation: navigate to number ranges module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/search/number-range',
@@ -195,7 +195,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-settings-number-range-list-grid').should('be.visible');
     });
 
-    it('@general: navigate to newsletter configuration module', () => {
+    it('@navigation: navigate to newsletter configuration module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/_action/system-config?domain=core.newsletter',
@@ -213,7 +213,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-card__title').contains('Newsletter configuration');
     });
 
-    it('@general: navigate to login registration module', () => {
+    it('@navigation: navigate to logging module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/_action/system-config/schema?domain=core.loginRegistration',
@@ -231,7 +231,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-card__title').contains('Login / registration');
     });
 
-    it('@general: navigate to listing setting module', () => {
+    it('@navigation: navigate to listing setting module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/_action/system-config/schema?domain=core.listing',
@@ -249,7 +249,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-card__title').contains('Listing');
     });
 
-    it('@general: navigate to language module', () => {
+    it('@base @navigation: navigate to language module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/search/language',
@@ -267,7 +267,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-settings-language-list').should('be.visible');
     });
 
-    it('@general: navigate to document module', () => {
+    it('@navigation: navigate to document module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/search/document-base-config',
@@ -285,7 +285,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-settings-document-list-grid').should('be.visible');
     });
 
-    it('@general: navigate to delivery time module', () => {
+    it('@navigation: navigate to delivery time module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/search/delivery-time',
@@ -303,7 +303,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-data-grid').should('be.visible');
     });
 
-    it('@general: navigate to customer group module', () => {
+    it('@navigation: navigate to customer group module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/search/customer-group',
@@ -321,7 +321,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-settings-customer-group-list-grid').should('be.visible');
     });
 
-    it('@general: navigate to currency module', () => {
+    it('@navigation: navigate to currency module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/search/currency',
@@ -339,7 +339,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-settings-currency-list-grid').should('be.visible');
     });
 
-    it('@general: navigate to country module', () => {
+    it('@navigation: navigate to country module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/search/country',
@@ -357,7 +357,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-settings-country-list-grid').should('be.visible');
     });
 
-    it('@general: navigate to cart settings module', () => {
+    it('@navigation: navigate to cart settings module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/_action/system-config/schema?domain=core.cart',
@@ -375,7 +375,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-card__title').contains('Cart');
     });
 
-    it('@general: navigate to basic information module', () => {
+    it('@navigation: navigate to basic information module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/_action/system-config/schema?domain=core.basicInformation',
@@ -393,7 +393,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-card__title').contains('Basic information');
     });
 
-    it('@general: navigate to address settings module', () => {
+    it('@navigation: navigate to address settings module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/_action/system-config/schema?domain=core.address',
@@ -411,7 +411,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-card__title').contains('Address');
     });
 
-    it('@general: navigate to email templates module', () => {
+    it('@navigation: navigate to email templates module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/search/mail-template',

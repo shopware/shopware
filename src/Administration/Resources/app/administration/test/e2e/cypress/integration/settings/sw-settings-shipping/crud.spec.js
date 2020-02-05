@@ -16,7 +16,7 @@ describe('Shipping: Test crud operations', () => {
             });
     });
 
-    it('@package @settings: create and read shipping method', () => {
+    it('@base @settings: create and read shipping method', () => {
         const page = new ShippingPageObject();
 
         // Request we want to wait for later
@@ -41,7 +41,7 @@ describe('Shipping: Test crud operations', () => {
             .contains('Automated test shipping');
     });
 
-    it('@package @settings: update and read shipping method', () => {
+    it('@base @settings: update and read shipping method', () => {
         const page = new ShippingPageObject();
 
         // Request we want to wait for later
@@ -73,7 +73,7 @@ describe('Shipping: Test crud operations', () => {
             .contains('Wasserpost');
     });
 
-    it('@package @settings: delete shipping method', () => {
+    it('@base @settings: delete shipping method', () => {
         const page = new ShippingPageObject();
 
         // Request we want to wait for later

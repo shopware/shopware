@@ -12,7 +12,7 @@ describe('Theme: Test loading and saving of theme', () => {
             });
     });
 
-    it('@package @content: opens and loads theme config', () => {
+    it('@base @content: opens and loads theme config', () => {
         cy.server();
         cy.get('.sw-theme-list-item')
             .last()
@@ -23,7 +23,7 @@ describe('Theme: Test loading and saving of theme', () => {
         cy.get('.sw-theme-manager-detail__area').its('length').should('be.gte', 1);
     });
 
-    it('@package @content: saves theme config', () => {
+    it('@base @content: saves theme config', () => {
         cy.server();
         cy.route({
             url: '/api/v1/_action/theme/*',

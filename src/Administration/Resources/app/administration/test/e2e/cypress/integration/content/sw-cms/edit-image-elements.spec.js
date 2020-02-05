@@ -17,7 +17,7 @@ describe('CMS: Check usage and editing of image elements', () => {
             });
     });
 
-    it('@package @content: use simple image block' , () => {
+    it('@base @content: use simple image block' , () => {
         const page = new MediaPageObject();
 
         cy.server();
@@ -95,7 +95,7 @@ describe('CMS: Check usage and editing of image elements', () => {
             .and('match', /sw-login-background/);
     });
 
-    it('@package @content: use image slider block', () => {
+    it('@content: use image slider block', () => {
         const page = new MediaPageObject();
 
         cy.server();

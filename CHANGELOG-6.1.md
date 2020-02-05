@@ -68,6 +68,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new slot for `sw-data-grid` column headers
     * Added new component `sw-list-price-field`
     * Fix empty labels in product stream rule conditions
+    * Fix content-type of Sitemap controller response
+    * Fix sitemap unlocking after generation
 * Core
     * Added a check for the author role in plugin composer.json files. If one or more authors have the role `Manufacturer`, only these will be written to the database.
     * Added new `searchMedia` twig function to resolve media ids to media objects.

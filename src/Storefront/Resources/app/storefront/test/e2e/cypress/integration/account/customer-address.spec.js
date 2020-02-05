@@ -1,11 +1,11 @@
 import AccountPageObject from '../../support/pages/account.page-object';
 
-describe('Account: Login as customer', () => {
+describe('Account: Handle addresses as customer', () => {
     beforeEach(() => {
         return cy.createCustomerFixtureStorefront()
     });
 
-    it('Add new address and swap roles of these two addresses', () => {
+    it('@package @customer: Add new address and swap roles of these two addresses', () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
 

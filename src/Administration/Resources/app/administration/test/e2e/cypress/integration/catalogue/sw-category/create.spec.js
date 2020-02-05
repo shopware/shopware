@@ -80,7 +80,7 @@ describe('Category: Create several categories', () => {
         cy.get(`${page.elements.categoryTreeItem}:nth-child(1)`).contains('Categorian');
     });
 
-    it('@package @catalogue: create a subcategory', () => {
+    it('@base @catalogue: create a subcategory', () => {
         const page = new CategoryPageObject();
 
         // Request we want to wait for later

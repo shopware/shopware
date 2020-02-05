@@ -8,7 +8,7 @@ describe('Login: Test login', () => {
             });
     });
 
-    it('@general: login as admin user', () => {
+    it('@base @general: login as admin user', () => {
         cy.login('admin');
     });
 });

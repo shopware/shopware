@@ -14,7 +14,7 @@ describe('Admin menu: Toggle different admin menu appearances, change and assert
             });
     });
 
-    it('@general: toggle different menu appearances', () => {
+    it('@navigation: toggle different menu appearances', () => {
         const page = new MenuPageObject();
 
         // Check expanded and collapsed menu

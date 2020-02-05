@@ -23,7 +23,7 @@ describe('Media: Move folder and image', () => {
             });
     });
 
-    it('@content: move folder and medium', () => {
+    it('@media: move folder and medium', () => {
         const page = new MediaPageObject();
 
         cy.get(page.elements.loader).should('not.exist');

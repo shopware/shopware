@@ -36,7 +36,7 @@ describe('Customer: Edit customer\'s addresses', () => {
             });
     });
 
-    it('@package @customer: add new billing address', () => {
+    it('@base @customer: add new billing address', () => {
         const page = new CustomerPageObject();
 
         // Open customer
@@ -59,7 +59,7 @@ describe('Customer: Edit customer\'s addresses', () => {
         cy.contains(`Mr. ${customer.firstName} ${customer.lastName}`);
     });
 
-    it('@package @customer: remove address', () => {
+    it('@base @customer: remove address', () => {
         const page = new CustomerPageObject();
 
         // Open customer

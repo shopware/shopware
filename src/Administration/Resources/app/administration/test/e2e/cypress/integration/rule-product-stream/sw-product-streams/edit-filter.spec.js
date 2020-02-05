@@ -19,7 +19,7 @@ describe('Dynamic product group: Test various filters', () => {
             });
     });
 
-    it('@rule: edit filter', () => {
+    it('@base @rule: edit filter', () => {
         const page = new ProductStreamObject();
 
         // Verify product stream details

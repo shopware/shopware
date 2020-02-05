@@ -32,7 +32,7 @@ describe('Customer: Test crud operations', () => {
             });
     });
 
-    it('@package @customer: create customer', () => {
+    it('@base @customer: create customer', () => {
         const page = new CustomerPageObject();
         // Request we want to wait for later
         cy.server();
@@ -91,7 +91,7 @@ describe('Customer: Test crud operations', () => {
         cy.contains('tester@example.com');
     });
 
-    it('@package @customer: edit customers\' base data', () => {
+    it('@base @customer: edit customers\' base data', () => {
         const page = new CustomerPageObject();
 
         // Request we want to wait for later

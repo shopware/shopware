@@ -2,11 +2,8 @@
 @import "~scss/mixins";
 
 $sw-field: '.sw-field';
-$sw-button: '.sw-button';
 $sw-order-user-card: '.sw-order-user-card';
 $sw-highlight-text: '.sw-highlight-text';
-
-$font-weight-normal: 400;
 $font-weight-semi-bold: 600;
 
 $select-result-customer-item-first-width: 40px;
@@ -18,15 +15,46 @@ $select-result-customer-item-gutter: 10px;
             margin-bottom: 0;
         }
     }
-
-    &__select {
-        .sw-select__selection {
-            padding-right: 32px;
-        }
-    }
 }
 
 .sw-order-create-details-header {
+    &__customer-result-item {
+        min-width: calc(50% - (#{$select-result-customer-item-first-width} + #{$select-result-customer-item-gutter}));
+        max-width: calc(50% - (#{$select-result-customer-item-first-width} + #{$select-result-customer-item-gutter}));
+        margin: 0 $select-result-customer-item-gutter;
+
+        &.has-many-childrens {
+            display: flex;
+            white-space: nowrap;
+
+            #{$sw-highlight-text} {
+                @include reset-truncate;
+
+                display: inline-block;
+                width: auto;
+
+                &:last-child {
+                    @include truncate;
+
+                    margin-left: 5px;
+                }
+            }
+        }
+
+        &:first-child {
+            min-width: $select-result-customer-item-first-width;
+            max-width: $select-result-customer-item-first-width;
+            color: $color-gray-500;
+        }
+
+        #{$sw-highlight-text} {
+            @include truncate;
+
+            display: inline-block;
+            width: 100%;
+        }
+    }
+
     #{$sw-order-user-card}__container {
         margin: 0 0 8px;
     }
@@ -49,10 +77,6 @@ $select-result-customer-item-gutter: 10px;
         #{$sw-field}__label {
             font-weight: $font-weight-semi-bold;
         }
-
-        textarea {
-            resize: none !important;
-        }
     }
 
     &__item-label {
@@ -65,14 +89,24 @@ $select-result-customer-item-gutter: 10px;
     }
 
     &__item-label-button {
-        &#{$sw-button} {
-            @extend %customize-sw-button;
+        @extend %customize-sw-button;
+    }
 
-            margin: 0 0 0 8px !important;
+    &__address-identical-text {
+        font-size: $font-size-small;
+    }
 
-            &:hover,
-            &:focus {
-                background: transparent !important;
+    &__address-identical-button {
+        @extend %customize-sw-button;
+
+        width: 100%;
+        margin: 12px 0 0;
+    }
+
+    .sw-field {
+        &.sw-block-field.sw-field--textarea {
+            textarea {
+                resize: none;
             }
         }
     }
@@ -121,50 +155,15 @@ $select-result-customer-item-gutter: 10px;
     }
 }
 
-.select-result-customer {
-    &__item {
-        min-width: calc(50% - (#{$select-result-customer-item-first-width} + #{$select-result-customer-item-gutter}));
-        max-width: calc(50% - (#{$select-result-customer-item-first-width} + #{$select-result-customer-item-gutter}));
-        margin: 0 $select-result-customer-item-gutter;
+.sw-select-result {
+    $this: &;
 
-        &.has-many-childrens {
-            display: flex;
-            white-space: nowrap;
-
-            #{$sw-highlight-text} {
-                @include reset-truncate;
-
-                display: inline-block;
-                width: auto;
-
-                &:last-child {
-                    @include truncate;
-
-                    margin-left: 5px;
-                }
-            }
-        }
-
-        &:first-child {
-            min-width: $select-result-customer-item-first-width;
-            max-width: $select-result-customer-item-first-width;
-            color: $color-gray-500;
-        }
-
-        #{$sw-highlight-text} {
-            @include truncate;
-
-            display: inline-block;
-            width: 100%;
-        }
-    }
-
-    .sw-select-result {
+    &.sw-order-create-details-header__customer-result {
         @include transition;
 
         border-bottom: 0;
 
-        &__result-item-text {
+        #{$this}__result-item-text {
             width: 100%;
         }
 
@@ -175,12 +174,19 @@ $select-result-customer-item-gutter: 10px;
 }
 
 %customize-sw-button {
-    outline: none;
-    border: 0;
-    padding: 0;
-    background: transparent;
-    color: rgb(24, 158, 255);
-    font-weight: $font-weight-normal;
-    line-height: 1;
-    cursor: pointer;
+    &.sw-button {
+        outline: none;
+        border: 0;
+        padding: 0 5px;
+        background: transparent;
+        color: rgb(24, 158, 255);
+        font-size: $font-size-extra-small;
+        line-height: 12px;
+        cursor: pointer;
+
+        &:hover:not(.sw-button--disabled),
+        &:hover:hover:not([disabled]) {
+            background: transparent;
+        }
+    }
 }

@@ -37,7 +37,6 @@
                             {% block sw_order_create_search_customer %}
                                 <sw-entity-single-select
                                     size="small"
-                                    class="sw-order-create__select select-result-customer"
                                     entity="customer"
                                     labelProperty="firstName"
                                     :value="customerId"
@@ -51,43 +50,53 @@
                                         </template>
                                     {% endblock %}
 
-                                    {% block sw_order_create_search_customer_slot_result_label_property %}
-                                        <template #result-label-property="{ item, searchTerm, highlightSearchTerm, getKey }">
-                                            <div class="select-result-customer__item">
-                                                {% block sw_order_create_search_customer_slot_result_label_property_number %}
-                                                    <sw-highlight-text
-                                                        v-if="highlightSearchTerm"
-                                                        :text="getKey(item, 'customerNumber') || getKey(item, `translated.customerNumber`)"
-                                                        :searchTerm="searchTerm">
-                                                    </sw-highlight-text>
-                                                {% endblock %}
-                                            </div>
-                                            <div class="select-result-customer__item has-many-childrens">
-                                                {% block sw_order_create_search_customer_slot_result_label_property_firstname %}
-                                                    <sw-highlight-text
-                                                        v-if="highlightSearchTerm"
-                                                        :text="getKey(item, 'firstName') || getKey(item, `translated.firstName`)"
-                                                        :searchTerm="searchTerm">
-                                                    </sw-highlight-text>
-                                                {% endblock %}
+                                    {% block sw_order_create_search_customer_slot_result_item %}
+                                        <template #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
+                                            <li is="sw-select-result"
+                                                :selected="isSelected(item)"
+                                                @item-select="setValue"
+                                                v-bind="{ item, index }"
+                                                class="sw-order-create-details-header__customer-result">
+                                                {% block sw_order_create_search_customer_slot_result_item_content_container %}
+                                                    <div class="sw-order-create-details-header__customer-result-item">
+                                                        {% block sw_order_create_search_customer_slot_result_item_number %}
+                                                            <sw-highlight-text
+                                                                v-if="highlightSearchTerm"
+                                                                :text="getKey(item, 'customerNumber') || getKey(item, `translated.customerNumber`)"
+                                                                :searchTerm="searchTerm">
+                                                            </sw-highlight-text>
+                                                        {% endblock %}
+                                                    </div>
 
-                                                {% block sw_order_create_search_customer_slot_result_label_property_lastname %}
-                                                    <sw-highlight-text
-                                                        v-if="highlightSearchTerm"
-                                                        :text="getKey(item, 'lastName') || getKey(item, `translated.lastName`)"
-                                                        :searchTerm="searchTerm">
-                                                    </sw-highlight-text>
+                                                    <div class="sw-order-create-details-header__customer-result-item has-many-childrens">
+                                                        {% block sw_order_create_search_customer_slot_result_item_firstname %}
+                                                            <sw-highlight-text
+                                                                v-if="highlightSearchTerm"
+                                                                :text="getKey(item, 'firstName') || getKey(item, `translated.firstName`)"
+                                                                :searchTerm="searchTerm">
+                                                            </sw-highlight-text>
+                                                        {% endblock %}
+
+                                                        {% block sw_order_create_search_customer_slot_result_item_lastname %}
+                                                            <sw-highlight-text
+                                                                v-if="highlightSearchTerm"
+                                                                :text="getKey(item, 'lastName') || getKey(item, `translated.lastName`)"
+                                                                :searchTerm="searchTerm">
+                                                            </sw-highlight-text>
+                                                        {% endblock %}
+                                                    </div>
+
+                                                    <div class="sw-order-create-details-header__customer-result-item">
+                                                        {% block sw_order_create_search_customer_slot_result_item_company %}
+                                                            <sw-highlight-text
+                                                                v-if="highlightSearchTerm"
+                                                                :text="getKey(item, 'company') || getKey(item, `translated.company`)"
+                                                                :searchTerm="searchTerm">
+                                                            </sw-highlight-text>
+                                                        {% endblock %}
+                                                    </div>
                                                 {% endblock %}
-                                            </div>
-                                            <div class="select-result-customer__item">
-                                                {% block sw_order_create_search_customer_slot_result_label_property_company %}
-                                                    <sw-highlight-text
-                                                        v-if="highlightSearchTerm"
-                                                        :text="getKey(item, 'company') || getKey(item, `translated.company`)"
-                                                        :searchTerm="searchTerm">
-                                                    </sw-highlight-text>
-                                                {% endblock %}
-                                            </div>
+                                            </li>
                                         </template>
                                     {% endblock %}
                                 </sw-entity-single-select>

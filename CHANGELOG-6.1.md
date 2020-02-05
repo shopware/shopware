@@ -7,6 +7,15 @@ in 6.1 minor versions.
 To get the diff for a specific change, go to https://github.com/shopware/platform/commit/XXX where XXX is the change hash
 To get the diff between two versions, go to https://github.com/shopware/platform/compare/v6.1.0-rc1...v6.1.0-rc2
 
+
+### 6.1.2
+
+**Addition / Changes**
+
+* Core
+    * Fixed a seo indexing bug where all navigations were reindexed on product update 
+
+
 ### 6.1.1
 
 **Addition / Changes**
@@ -82,12 +91,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed the cookie privacy hint to use the correct link `privacyPage` instead of `shippingPaymentInfoPage`
     * Added the parameter `useBackdrop` to the `page-loading-indicator.utils.js` `remove` and `create` methods. Defaults to `true`
     * The `CountryStateController` returns country states now sorted by their position/name.
+    * You can now change your addresses during checkout
 
 * Recovery
     * The database connection now supports sockets
-    
-* Storefront
-    * You can now change your addresses during checkout
 
 ### 6.1.0
 

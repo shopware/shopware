@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\Acl\Resource;
 
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
@@ -24,6 +25,10 @@ class AclPermissionValidator implements EventSubscriberInterface
 
     public function preValidate(PreWriteValidationEvent $event): void
     {
+        if ($event->getContext()->getScope() === Context::SYSTEM_SCOPE) {
+            return;
+        }
+
         $commands = $event->getCommands();
         $source = $event->getContext()->getSource();
         if (!$source instanceof AdminApiSource) {

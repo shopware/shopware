@@ -32,6 +32,7 @@ class AdminApiSource implements ContextSource
         $this->userId = $userId;
         $this->integrationId = $integrationId;
         $this->permissions = new AclPermissionCollection();
+        $this->isAdmin = false;
     }
 
     public function getUserId(): ?string

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -28,6 +29,10 @@ class CartHasDeliveryFreeItemRule extends Rule
 
     public function match(RuleScope $scope): bool
     {
+        if ($scope instanceof LineItemScope) {
+            return $this->isFreeDeliveryItem($scope->getLineItem()) === $this->allowed;
+        }
+
         if (!$scope instanceof CartRuleScope) {
             return false;
         }
@@ -47,14 +52,20 @@ class CartHasDeliveryFreeItemRule extends Rule
     private function hasFreeDeliveryItems(LineItemCollection $lineItems): bool
     {
         foreach ($lineItems->getIterator() as $lineItem) {
-            if (!$lineItem->getDeliveryInformation()) {
-                continue;
-            }
-            if ($lineItem->getDeliveryInformation()->getFreeDelivery()) {
+            if ($this->isFreeDeliveryItem($lineItem) === true) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    private function isFreeDeliveryItem(LineItem $lineItem): bool
+    {
+        if (!$lineItem->getDeliveryInformation()) {
+            return false;
+        }
+
+        return $lineItem->getDeliveryInformation()->getFreeDelivery();
     }
 }

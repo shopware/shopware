@@ -101,7 +101,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Remove method undeleteSaleschannel
 
 * Core    
-    *
+    * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.
 
 * Storefront	
     * The `theme.json` now supports a new option for the `style` files. The placeholder `@StorefrontBootstrap` gives you the ability to use the Bootstrap SCSS without the Shopware Storefront "skin":

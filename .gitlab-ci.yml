@@ -487,8 +487,8 @@ Component Library:
             - master
             - "6.1"
         changes:
-            - src/Administration/*
-            - src/Storefront/*
+            - src/Administration/**/*
+            - src/Storefront/**/*
     stage: Build
     image: node:10.8
     before_script: []
@@ -518,7 +518,7 @@ Generating docs:
             - master
             - "6.1"
         changes:
-            - src/Docs/*
+            - src/Docs/**/*
     stage: Generate docs
     dependencies: []
     services:
@@ -573,8 +573,12 @@ Upload Component Library:
     image: python:latest
     before_script: []
     only:
-        - master
-        - "6.1"
+        refs:
+            - master
+            - "6.1"
+        changes:
+            - src/Administration/**/*
+            - src/Storefront/**/*
     dependencies:
         - Component Library
     script:

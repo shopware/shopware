@@ -166,6 +166,10 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
 
     private function fetchChildren(array $ids): array
     {
+        if (empty($ids)) {
+            return [];
+        }
+
         $query = $this->connection->createQueryBuilder();
 
         $query->select('category.id');

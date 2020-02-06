@@ -455,6 +455,7 @@
         "dayOfWeekRule": "Day of the week",
         "lineItemTagRule": "Line item tag",
         "lineItemPropertyRule": "Line item property",
+        "lineItemNoveltyRule": "Novelties",
         "paymentMethodRule": "Payment method",
         "shippingMethodRule": "Shipping method"
       }

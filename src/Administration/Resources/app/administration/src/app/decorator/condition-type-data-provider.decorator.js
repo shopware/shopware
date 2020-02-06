@@ -168,6 +168,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.lineItemPropertyRule',
         scopes: ['lineItem']
     });
+    ruleConditionService.addCondition('cartLineItemNovelty', {
+        component: 'sw-condition-line-item-novelty',
+        label: 'global.sw-condition.condition.lineItemNoveltyRule',
+        scopes: ['lineItem']
+    });
 
     if (next6013()) {
         ruleConditionService.addCondition('paymentMethod', {

@@ -132,7 +132,7 @@ class ProductPageConfiguratorLoader
         return $groups;
     }
 
-    private function sortSettings(array $groups): PropertyGroupCollection
+    private function sortSettings(?array $groups): PropertyGroupCollection
     {
         if (!$groups) {
             return new PropertyGroupCollection();

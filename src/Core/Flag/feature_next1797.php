@@ -1,5 +1,9 @@
 <?php declare(strict_types=1);
 
+/**
+ * Enables features for composer 2.0 usage
+ */
+
 namespace Flag {
     use PHPUnit\Framework\TestCase;
     use Shopware\Core\Framework\FeatureFlag\FeatureConfig;

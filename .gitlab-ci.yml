@@ -307,9 +307,8 @@ Storefront (Jest):
 
 .generate_mochawesome_reports:
     after_script: &mochawesome_report_definition
-        - ls
-        - npx mochawesome-merge development/build/artifacts/e2e/mochawesome*.json > development/build/artifacts/e2e/report-final.json
-        - npx mochawesome-report-generator development/build/artifacts/e2e/report-final.json --cdn true --reportDir development/build/artifacts/e2e/
+        - npx mochawesome-merge development/build/artifacts/e2e/mochawesome/mochawesome*.json > development/build/artifacts/e2e/mochawesome/report-final.json
+        - npx mochawesome-report-generator development/build/artifacts/e2e/mochawesome/report-final.json --cdn true --reportDir development/build/artifacts/e2e/mochawesome
         - docker rm -f cypress
 
 General (Storefront):

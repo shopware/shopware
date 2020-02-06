@@ -303,9 +303,13 @@ Storefront (Jest):
         - npm i @shopware-ag/e2e-testsuite-platform --prefix $E2E_BASE_PATH
         - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - chown -R 1000:1000 .
-        - docker run --rm --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:3.8.1 -c "npm install --production --prefix /e2e && node_modules/.bin/cypress run --project /e2e --browser chrome --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0 --spec $TEST_DIRECTORY"
-        - npx mochawesome-merge build/artifacts/e2e/mochawesome*.json > build/artifacts/e2e/report-final.json
-        - npx mochawesome-report-generator build/artifacts/e2e/report-final.json --cdn true --reportDir build/artifacts/e2e/
+        - docker run --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:3.8.1 -c "npm install --production --prefix /e2e && node_modules/.bin/cypress run --project /e2e --browser chrome --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0 --spec $TEST_DIRECTORY"
+
+.generate_mochawesome_reports:
+    after_script: &mochawesome_report_definition
+        - npx mochawesome-merge development/build/artifacts/e2e/mochawesome/mochawesome*.json > development/build/artifacts/e2e/mochawesome/report-final.json
+        - npx mochawesome-report-generator development/build/artifacts/e2e/mochawesome/report-final.json --cdn true --reportDir development/build/artifacts/e2e/mochawesome
+        - docker rm -f cypress
 
 General (Storefront):
     only:
@@ -314,6 +318,7 @@ General (Storefront):
         - "6.1"
     <<: *e2e_definition
     script: *mixed_definition
+    after_script: *mochawesome_report_definition
     needs: [Storefront (Jest)]
     variables:
         SECTION: 'Storefront'
@@ -326,6 +331,7 @@ Content (Mixed):
         - "6.1"
     <<: *e2e_definition
     script: *mixed_definition
+    after_script: *mochawesome_report_definition
     variables:
         SECTION: 'Administration'
         TEST_DIRECTORY: "cypress/integration/content/**/*"
@@ -337,6 +343,7 @@ Catalogues  (Mixed):
         - "6.1"
     <<: *e2e_definition
     script: *mixed_definition
+    after_script: *mochawesome_report_definition
     variables:
         SECTION: 'Administration'
         TEST_DIRECTORY: "cypress/integration/catalogue/**/*"
@@ -348,6 +355,7 @@ Customers (Mixed):
         - "6.1"
     <<: *e2e_definition
     script: *mixed_definition
+    after_script: *mochawesome_report_definition
     variables:
         SECTION: 'Administration'
         TEST_DIRECTORY: "cypress/integration/customer/**/*"
@@ -359,6 +367,7 @@ Media and Marketing (Mixed):
         - "6.1"
     <<: *e2e_definition
     script: *mixed_definition
+    after_script: *mochawesome_report_definition
     variables:
         SECTION: 'Administration'
         TEST_DIRECTORY: "cypress/integration/media-marketing/**/*"
@@ -370,6 +379,7 @@ General (Administration):
         - "6.1"
     <<: *e2e_definition
     script: *mixed_definition
+    after_script: *mochawesome_report_definition
     variables:
         SECTION: 'Administration'
         TEST_DIRECTORY: "cypress/integration/general/**/*"

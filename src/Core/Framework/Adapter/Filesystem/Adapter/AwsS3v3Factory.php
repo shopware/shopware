@@ -28,13 +28,15 @@ class AwsS3v3Factory implements AdapterFactoryInterface
         $options = new OptionsResolver();
 
         $options->setRequired(['bucket', 'region']);
-        $options->setDefined(['credentials', 'version', 'root', 'options']);
+        $options->setDefined(['credentials', 'version', 'root', 'options', 'endpoint', 'use_path_style_endpoint']);
 
         $options->setAllowedTypes('credentials', 'array');
         $options->setAllowedTypes('region', 'string');
         $options->setAllowedTypes('version', 'string');
         $options->setAllowedTypes('root', 'string');
         $options->setAllowedTypes('options', 'array');
+        $options->setAllowedTypes('endpoint', 'string');
+        $options->setAllowedTypes('use_path_style_endpoint', 'bool');
 
         $options->setDefault('version', 'latest');
         $options->setDefault('root', '');

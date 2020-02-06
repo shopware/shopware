@@ -41,6 +41,7 @@ shopware:
       config:
         bucket: "{your-public-bucket-name}"
         region: "{your-bucket-region}"
+        endpoint: "{your-s3-provider-endpoint}"
         options:
           visibility: "public"
     private:

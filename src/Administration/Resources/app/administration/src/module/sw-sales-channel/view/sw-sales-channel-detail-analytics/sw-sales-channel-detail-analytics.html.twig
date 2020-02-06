@@ -1,0 +1,60 @@
+{% block sw_sales_channel_detail_analytics %}
+    <sw-card :title="$tc('sw-sales-channel.detail.analytics.cardTitle')" :isLoading="isLoading">
+        <template v-if="salesChannel && salesChannel.analytics">
+            {% block sw_sales_channel_detail_analytics_headline %}
+                <div class="sw-sales-channel-detail-analytics__headline-text">
+                    {{ $tc('sw-sales-channel.detail.analytics.headline') }}
+                </div>
+            {% endblock %}
+
+            {% block sw_sales_channel_detail_analytics_description %}
+                <p class="sw-sales-channel-detail-analytics__description"
+                   v-html="$tc('sw-sales-channel.detail.analytics.description')">
+                </p>
+            {% endblock %}
+
+            {% block sw_sales_channel_detail_analytics_fields_tracking_id %}
+                <sw-field type="text"
+                          :label="$tc('sw-sales-channel.detail.analytics.fields.trackingId.label')"
+                          :placeholder="$tc('sw-sales-channel.detail.analytics.fields.trackingId.placeHolder')"
+                          name="trackingId"
+                          :helpText="$tc('sw-sales-channel.detail.analytics.fields.trackingId.helpText')"
+                          v-model="salesChannel.analytics.trackingId"
+                >
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_sales_channel_detail_analytics_fields_container %}
+                <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0 30px">
+                    {% block sw_sales_channel_detail_analytics_fields_active %}
+                        <sw-field
+                            type="switch"
+                            :label="$tc('sw-sales-channel.detail.analytics.fields.active.label')"
+                            name="analyticsActive"
+                            v-model="salesChannel.analytics.active"
+                        >
+                        </sw-field>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_detail_analytics_fields_track_orders %}
+                        <sw-field
+                            type="switch"
+                            :label="$tc('sw-sales-channel.detail.analytics.fields.trackOrders.label')"
+                            name="trackOrders"
+                            v-model="salesChannel.analytics.trackOrders"
+                        >
+                        </sw-field>
+                    {% endblock %}
+                </sw-container>
+            {% endblock %}
+
+            <sw-field type="text"
+                      :label="$tc('sw-sales-channel.detail.analytics.fields.metaTagVerification.label')"
+                      :placeholder="$tc('sw-sales-channel.detail.analytics.fields.metaTagVerification.placeHolder')"
+                      name="metaTag"
+                      v-model="salesChannel.analytics.metaTag"
+            >
+            </sw-field>
+        </template>
+    </sw-card>
+{% endblock %}

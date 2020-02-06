@@ -99,9 +99,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Remove method configHasSaleschannel
         * Remove method selectHasSaleschannel
         * Remove method undeleteSaleschannel
+    * Added block `sw_sales_channel_detail_content_tab_analytics` to `sw-sales-channel-detail`, which contains the new Google Analytics tab
 
 * Core    
-    *
+    * Added `SalesChannelAnalyticsEntity` to define the Google Analytics configuration
 
 * Storefront	
     * The `theme.json` now supports a new option for the `style` files. The placeholder `@StorefrontBootstrap` gives you the ability to use the Bootstrap SCSS without the Shopware Storefront "skin":

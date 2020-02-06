@@ -23,7 +23,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Add service `localeHelper` for changing the locale
     * Use service `localeHelper` on every place where you can change the locale
     * Refactor `session.store.js`: action `setAdminLocale` return now a Promise
-    * Refactor `snippet.api.service.js`: add paramter code which expects the locale code
+    * Refactor `snippet.api.service.js`: add parameter code which expects the locale code
     * Refactor `sw-profile-index`
         * Remove data `userProfile`
         * Replace `setUserData` to `getUserData`
@@ -55,7 +55,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fix quickview of product in the checkout process
     * Catch `FRAMEWORK_LANGUAGE_NOT_FOUND` error when user has invalid `sw-admin-current-language` in localStorage
     * Fix that the loginListener calls directly get destroyed through an refresh of the page
-  * Product images inside the product listing and cart won't get smaller anymore when the window gets to big and then gets smaller.
+    * Product images inside the product listing and cart won't get smaller anymore when the window gets to big and then gets smaller.
     * Added optional `productStreamsExist` and `productStreamsLoading` properties to `sw-sales-channel-modal-grid` component.
     * Added component `sw-sales-channel-defaults-select`. This component is used to handle each to-many association and its corresponding default id in sales channels.
     * Unified css classes of select fields in `sw-sales-channel-detail-base`. All css classes no reference to the sales channels collection names (e.g. `payment-methods` instead of `payment-method`)
@@ -63,7 +63,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated the events `onDefaultItemAdd` and `onRemoveItem` in `sales-channel-detail-base/index.js`. Those events are no longer needed and the add/remove logic is now handled by the `sw-sales-channel-defaults-select` component.
     * We refactored the logic to remove api errors from the store into a separate mixin ('remove-api-error' mixin). Additionally, to remove the the errors, we changed from listening to the models event to watch the models prop.
     * Additionally you can now change the default behaviour to remove api errors in your custom components. This can be done by overriding the `$apiErrorHandler` custom option for components that include the `remove-api-error` mixin.
-
     * Added new slot for `sw-data-grid` column headers
     * Added new component `sw-list-price-field`
 * Core

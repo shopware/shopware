@@ -30,6 +30,7 @@
       "buttonCreateNewApiKeys": "API-Zugangsdaten neu generieren",
       "tabBase": "Allgemein",
       "tabTheme": "Theme",
+      "tabAnalytics": "Analytics",
       "tabProductComparison": "Template",
       "titleProductComparisonTemplate": "Template",
       "titleProductComparisonPreview": "Vorschau",
@@ -199,6 +200,28 @@
           "byIsoHelpText": "Die Lokalisierung wird über die genaue ISO vorgenommen. Zusätzlich zur Sprache wird auch das Bestimmungsland mit ausgeliefert.",
           "byAbbreviation": "Lokalisierung nach Sprache",
           "byAbbreviationHelpText": "Die Lokalisierung wird nur über die Sprache vorgenommen. Hier werden über die ausgegebene Sprache mehrere Bestimmungsländer angesprochen"
+        }
+      },
+      "analytics": {
+        "cardTitle": "Google Analytics",
+        "headline": "Google Analytics Integration",
+        "description": "Mit Google Analytics können Sie Daten aus Ihrem Shop sammeln und messen. Um diese Funktion nutzen zu können, benötigen Sie ein Google Analytics-Konto. Wenn Sie noch kein Analytics-Konto haben, können Sie sich hier registrieren: <a href=\"https://analytics.google.com/\" target=\"_blank\">Google Analytics</a>. Nach der Registrierung erhalten Sie eine Tracking ID, die Sie hier eingeben müssen, um die Integration zu aktivieren.",
+        "fields": {
+          "trackingId": {
+            "label": "Tracking ID",
+            "placeHolder": "Tracking ID eingeben...",
+            "helpText": "Nach der Anmeldung in Ihrem Google Analytics-Konto erhalten Sie eine Tracking ID. Eine Tracking ID kann wie folgt aussehen: UA-12345678-1"
+          },
+          "active": {
+            "label": "Google Analytics aktivieren"
+          },
+          "trackOrders": {
+            "label": "Bestellungen tracken"
+          },
+          "metaTagVerification": {
+            "label": "Domain Verifizierung",
+            "placeHolder": "Meta Tag eingeben..."
+          }
         }
       }
     },

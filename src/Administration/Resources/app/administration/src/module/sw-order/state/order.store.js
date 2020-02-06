@@ -122,28 +122,16 @@ export default {
                 .checkout(salesChannelId, contextToken);
         },
 
-        addProductItem({ commit }, { salesChannelId, contextToken, productId, quantity }) {
-            return Service('cartSalesChannelService')
-                .addProduct(salesChannelId, contextToken, productId, quantity)
-                .then(response => commit('setCart', response.data.data));
-        },
-
         removeLineItems({ commit }, { salesChannelId, contextToken, lineItemKeys }) {
             return Service('cartSalesChannelService')
                 .removeLineItems(salesChannelId, contextToken, lineItemKeys)
                 .then(response => commit('setCart', response.data.data));
         },
 
-        updateLineItem({ commit }, { salesChannelId, contextToken, item }) {
+        saveLineItem({ commit }, { salesChannelId, contextToken, item }) {
             return Service('cartSalesChannelService')
-                .updateLineItem(salesChannelId, contextToken, item)
+                .saveLineItem(salesChannelId, contextToken, item)
                 .then((response) => commit('setCart', response.data.data));
-        },
-
-        addCustomItem({ commit }, { salesChannelId, contextToken, item }) {
-            return Service('cartSalesChannelService')
-                .addCustomItem(salesChannelId, contextToken, item)
-                .then(response => commit('setCart', response.data.data));
         }
     }
 };

@@ -99,6 +99,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Remove method configHasSaleschannel
         * Remove method selectHasSaleschannel
         * Remove method undeleteSaleschannel
+    * Added a new component `sw-order-line-items-grid-sales-channel` which can be used to display line items list in create order page
 
 * Core    
     * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.

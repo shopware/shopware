@@ -50,6 +50,28 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-system-config').should('be.visible');
     });
 
+    it('@general: navigate to logging module', () => {
+        cy.server();
+        cy.route({
+            url: '/api/v1/search/log-entry',
+            method: 'post'
+        }).as('getData');
+
+        cy.clickMainMenuItem({
+            targetPath: '#/sw/settings/index',
+            mainMenuId: 'sw-settings'
+        });
+
+        cy.get('.sw-settings__tab-system').should('be.visible');
+        cy.get('.sw-settings__tab-system').click();
+
+        cy.get('#sw-settings-logging').click();
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+        cy.get('.sw-data-grid').should('be.visible');
+    });
+
     it('@general: navigate to shopware update module', () => {
         cy.server();
         cy.route({

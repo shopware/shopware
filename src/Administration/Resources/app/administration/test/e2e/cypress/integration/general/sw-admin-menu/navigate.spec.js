@@ -48,6 +48,24 @@ describe('Administration: Check module navigation', () => {
         cy.get('.sw-product-list__content').should('be.visible');
     });
 
+    it('@package @general: navigate to review module', () => {
+        cy.server();
+        cy.route({
+            url: '/api/v1/search/product-review',
+            method: 'post'
+        }).as('getData');
+
+        cy.clickMainMenuItem({
+            targetPath: '#/sw/review/index',
+            mainMenuId: 'sw-catalogue',
+            subMenuId: 'sw-review'
+        });
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+        cy.get('.sw-review-list').should('be.visible');
+    });
+
     it('@package @general: navigate to manufacturer module', () => {
         cy.server();
         cy.route({

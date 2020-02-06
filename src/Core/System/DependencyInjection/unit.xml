@@ -6,12 +6,11 @@
 
     <services>
         <service id="Shopware\Core\System\Unit\UnitDefinition">
-            <tag name="shopware.entity.definition" entity="unit"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="unit_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
     </services>
-</container>                
-                
+</container>

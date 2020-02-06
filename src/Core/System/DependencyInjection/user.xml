@@ -6,7 +6,7 @@
 
     <services>
         <service id="Shopware\Core\System\User\UserDefinition">
-            <tag name="shopware.entity.definition" entity="user"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\User\Command\UserCreateCommand">
@@ -16,11 +16,11 @@
         </service>
 
         <service id="Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition">
-            <tag name="shopware.entity.definition" entity="user_access_key"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryDefinition">
-            <tag name="shopware.entity.definition" entity="user_recovery"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\User\Recovery\UserRecoveryService">

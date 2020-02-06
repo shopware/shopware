@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\DependencyInjection\CompilerPass;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
@@ -29,9 +30,14 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
         $repositoryNameMap = [];
 
         $salesChannelDefinitions = $this->formatData(
-            $container->findTaggedServiceIds('shopware.sales_channel.entity.definition')
+            $container->findTaggedServiceIds('shopware.sales_channel.entity.definition'),
+            $container
         );
-        $baseDefinitions = $this->formatData($container->findTaggedServiceIds('shopware.entity.definition'));
+
+        $baseDefinitions = $this->formatData(
+            $container->findTaggedServiceIds('shopware.entity.definition'),
+            $container
+        );
 
         $sortedData = $this->sortData($salesChannelDefinitions, $baseDefinitions);
 
@@ -40,6 +46,10 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
             if (isset($definitions['extended'])) {
                 $serviceId = $definitions['extended'];
                 $entityNameMap[$entityName] = $serviceId;
+
+                if (isset($definitions['alias'])) {
+                    $entityNameMap[$definitions['alias']] = $serviceId;
+                }
 
                 $this->setUpEntityDefinitionService($container, $serviceId);
                 $container->setAlias(self::PREFIX . $serviceId, new Alias($serviceId, true));
@@ -51,7 +61,7 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
             }
 
             // if base only clone definition
-            if (\count($definitions) === 1 && isset($definitions['base'])) {
+            if (!isset($definitions['extended']) && isset($definitions['base'])) {
                 $service = $container->getDefinition($definitions['base']);
 
                 $clone = clone $service;
@@ -61,14 +71,18 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
                 $this->setUpEntityDefinitionService($container, self::PREFIX . $definitions['base']);
 
                 $entityNameMap[$entityName] = $definitions['base'];
+
+                if (isset($definitions['alias'])) {
+                    $entityNameMap[$definitions['alias']] = $definitions['base'];
+                }
             }
         }
 
         /** @var string $serviceId */
-        foreach ($salesChannelDefinitions as $entityName => $serviceId) {
+        foreach ($salesChannelDefinitions as $serviceId => $entityNames) {
             $service = $container->getDefinition($serviceId);
 
-            $repositoryId = 'sales_channel.' . $entityName . '.repository';
+            $repositoryId = 'sales_channel.' . $entityNames['entityName'] . '.repository';
 
             try {
                 $container->getDefinition($repositoryId);
@@ -86,9 +100,17 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
                 $repository->setPublic(true);
 
                 $container->setDefinition($repositoryId, $repository);
+
+                if (isset($entityNames['fallBack'])) {
+                    $container->setAlias('sales_channel.' . $entityNames['fallBack'] . '.repository', new Alias($repositoryId, true));
+                }
             }
 
-            $repositoryNameMap[$entityName] = $repositoryId;
+            $repositoryNameMap[$entityNames['entityName']] = $repositoryId;
+
+            if (isset($entityNames['fallBack'])) {
+                $repositoryNameMap[$entityNames['fallBack']] = $repositoryId;
+            }
         }
 
         $definitionRegistry = $container->getDefinition(SalesChannelDefinitionInstanceRegistry::class);
@@ -97,17 +119,25 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
         $definitionRegistry->replaceArgument(3, $repositoryNameMap);
     }
 
-    private function formatData(array $taggedServiceIds): array
-    {
+    private function formatData(
+        array $taggedServiceIds,
+        ContainerBuilder $container
+    ): array {
         $result = [];
 
         foreach ($taggedServiceIds as $serviceId => $tags) {
-            if (!isset($tags[0]['entity'])) {
-                throw new \RuntimeException(sprintf('Missing attribute "entity" on tag "shopware.entity.definition" for definition with id "%s"', $serviceId));
-            }
+            $service = $container->getDefinition($serviceId);
 
-            $entityName = $tags[0]['entity'];
-            $result[$entityName] = $serviceId;
+            /** @var string $class */
+            $class = $service->getClass();
+            /** @var EntityDefinition $instance */
+            $instance = new $class();
+            $entityName = $instance->getEntityName();
+            $result[$serviceId]['entityName'] = $entityName;
+
+            if (isset($tags[0]['entity'])) {
+                $result[$serviceId]['fallBack'] = $tags[0]['entity'];
+            }
         }
 
         return $result;
@@ -117,14 +147,20 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
     {
         $sorted = [];
 
-        foreach ($baseDefinitions as $entityName => $serviceId) {
-            $sorted[$entityName] = [
-                'base' => $serviceId,
-            ];
+        foreach ($baseDefinitions as $serviceId => $entityNames) {
+            $sorted[$entityNames['entityName']]['base'] = $serviceId;
+
+            if (isset($entityNames['fallBack'])) {
+                $sorted[$entityNames['entityName']]['alias'] = $entityNames['fallBack'];
+            }
         }
 
-        foreach ($salesChannelDefinitions as $entityName => $serviceId) {
-            $sorted[$entityName]['extended'] = $serviceId;
+        foreach ($salesChannelDefinitions as $serviceId => $entityNames) {
+            $sorted[$entityNames['entityName']]['extended'] = $serviceId;
+
+            if (isset($entityNames['fallBack'])) {
+                $sorted[$entityNames['entityName']]['alias'] = $entityNames['fallBack'];
+            }
         }
 
         return $sorted;

@@ -34,11 +34,11 @@
         </service>
 
         <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NamedDefinition">
-            <tag name="shopware.entity.definition" entity="named"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NamedOptionalGroupDefinition">
-            <tag name="shopware.entity.definition" entity="named_optional_group"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Version\CalculatedPriceFieldTestDefinition">

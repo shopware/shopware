@@ -6,27 +6,27 @@
 
     <services>
         <service id="Shopware\Core\System\Country\CountryDefinition">
-            <tag name="shopware.entity.definition" entity="country"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\Country\SalesChannel\SalesChannelCountryDefinition">
-            <tag name="shopware.sales_channel.entity.definition" entity="country"/>
+            <tag name="shopware.sales_channel.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition">
-            <tag name="shopware.entity.definition" entity="country_state"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\Country\Aggregate\CountryState\SalesChannel\SalesChannelCountryStateDefinition">
-            <tag name="shopware.sales_channel.entity.definition" entity="country_state"/>
+            <tag name="shopware.sales_channel.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="country_state_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="country_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
     </services>
 </container>

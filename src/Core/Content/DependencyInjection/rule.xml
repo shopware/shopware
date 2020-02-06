@@ -5,10 +5,10 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
         <service id="Shopware\Core\Content\Rule\RuleDefinition">
-            <tag name="shopware.entity.definition" entity="rule"/>
+            <tag name="shopware.entity.definition"/>
         </service>
         <service id="Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition">
-            <tag name="shopware.entity.definition" entity="rule_condition"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\RulePayloadIndexer">

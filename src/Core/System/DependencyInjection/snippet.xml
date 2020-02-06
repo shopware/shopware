@@ -6,11 +6,11 @@
 
     <services>
         <service id="Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetDefinition">
-            <tag name="shopware.entity.definition" entity="snippet_set"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\Snippet\SnippetDefinition">
-            <tag name="shopware.entity.definition" entity="snippet"/>
+            <tag name="shopware.entity.definition"/>
         </service>
     </services>
 </container>

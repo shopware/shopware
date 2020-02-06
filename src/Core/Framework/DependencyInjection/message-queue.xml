@@ -7,11 +7,11 @@
     <services>
         <!--Entity Definitions-->
         <service id="Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageDefinition">
-            <tag name="shopware.entity.definition" entity="dead_message"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\MessageQueue\MessageQueueStatsDefinition">
-            <tag name="shopware.entity.definition" entity="message_queue_stats"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <!--  ConnectionFactory -->

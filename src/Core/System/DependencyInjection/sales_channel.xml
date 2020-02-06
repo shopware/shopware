@@ -6,43 +6,43 @@
 
     <services>
         <service id="Shopware\Core\System\SalesChannel\SalesChannelDefinition">
-            <tag name="shopware.entity.definition" entity="sales_channel"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="sales_channel_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannelCountryDefinition">
-            <tag name="shopware.entity.definition" entity="sales_channel_country"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition">
-            <tag name="shopware.entity.definition" entity="sales_channel_currency"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition">
-            <tag name="shopware.entity.definition" entity="sales_channel_domain"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition">
-            <tag name="shopware.entity.definition" entity="sales_channel_language"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod\SalesChannelPaymentMethodDefinition">
-            <tag name="shopware.entity.definition" entity="sales_channel_payment_method"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelShippingMethod\SalesChannelShippingMethodDefinition">
-            <tag name="shopware.entity.definition" entity="sales_channel_shipping_method"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeDefinition">
-            <tag name="shopware.entity.definition" entity="sales_channel_type"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="sales_channel_type_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister">

@@ -6,15 +6,15 @@
 
     <services>
         <service id="Shopware\Core\System\Currency\CurrencyDefinition">
-            <tag name="shopware.entity.definition" entity="currency"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\Currency\SalesChannel\SalesChannelCurrencyDefinition">
-            <tag name="shopware.sales_channel.entity.definition" entity="currency"/>
+            <tag name="shopware.sales_channel.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="currency_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\Currency\CurrencyLoadSubscriber">
@@ -33,4 +33,4 @@
             <argument type="service" id="language.repository"/>
         </service>
     </services>
-</container>                
+</container>

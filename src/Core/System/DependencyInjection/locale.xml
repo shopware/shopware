@@ -6,12 +6,11 @@
 
     <services>
         <service id="Shopware\Core\System\Locale\LocaleDefinition">
-            <tag name="shopware.entity.definition" entity="locale"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="locale_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
     </services>
-</container>                
-                
+</container>

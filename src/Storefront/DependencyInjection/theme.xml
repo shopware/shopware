@@ -40,19 +40,19 @@
 
         <!-- Entity definitions -->
         <service id="Shopware\Storefront\Theme\ThemeDefinition">
-            <tag name="shopware.entity.definition" entity="theme"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\Aggregate\ThemeTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="theme_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\Aggregate\ThemeSalesChannelDefinition">
-            <tag name="shopware.entity.definition" entity="theme_sales_channel"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\Aggregate\ThemeMediaDefinition">
-            <tag name="shopware.entity.definition" entity="theme_media"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <!-- Entity extensions -->

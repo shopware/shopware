@@ -6,12 +6,12 @@
 
     <services>
         <service id="Shopware\Core\Checkout\Order\OrderDefinition">
-            <tag name="shopware.entity.definition" entity="order"/>
+            <tag name="shopware.entity.definition"/>
             <tag name="shopware.composite_search.definition"  priority="1000"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition">
-            <tag name="shopware.entity.definition" entity="order_address"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\OrderExceptionHandler">
@@ -19,27 +19,27 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerDefinition">
-            <tag name="shopware.entity.definition" entity="order_customer"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition">
-            <tag name="shopware.entity.definition" entity="order_delivery"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition">
-            <tag name="shopware.entity.definition" entity="order_delivery_position"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition">
-            <tag name="shopware.entity.definition" entity="order_line_item"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\Aggregate\OrderTag\OrderTagDefinition">
-            <tag name="shopware.entity.definition" entity="order_tag"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition">
-            <tag name="shopware.entity.definition" entity="order_transaction"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\SalesChannel\OrderService">

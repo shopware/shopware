@@ -6,28 +6,28 @@
 
     <services>
         <service id="Shopware\Core\Checkout\Customer\CustomerDefinition">
-            <tag name="shopware.entity.definition" entity="customer"/>
+            <tag name="shopware.entity.definition"/>
             <tag name="shopware.composite_search.definition" priority="900"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="customer_group_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition">
-            <tag name="shopware.entity.definition" entity="customer_address"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryDefinition">
-            <tag name="shopware.entity.definition" entity="customer_recovery"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition">
-            <tag name="shopware.entity.definition" entity="customer_group"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerTag\CustomerTagDefinition">
-            <tag name="shopware.entity.definition" entity="customer_tag"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService">

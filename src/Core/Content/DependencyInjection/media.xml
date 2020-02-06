@@ -13,40 +13,40 @@
     <services>
         <!-- Entity definitions -->
         <service id="Shopware\Core\Content\Media\MediaDefinition">
-            <tag name="shopware.entity.definition" entity="media"/>
+            <tag name="shopware.entity.definition"/>
             <tag name="shopware.composite_search.definition" priority="400"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderDefinition">
-            <tag name="shopware.entity.definition" entity="media_default_folder"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailDefinition">
-            <tag name="shopware.entity.definition" entity="media_thumbnail"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="media_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition">
-            <tag name="shopware.entity.definition" entity="media_folder"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeDefinition">
-            <tag name="shopware.entity.definition" entity="media_thumbnail_size"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationDefinition">
-            <tag name="shopware.entity.definition" entity="media_folder_configuration"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Aggregate\MediaFolderConfigurationMediaThumbnailSize\MediaFolderConfigurationMediaThumbnailSizeDefinition">
-            <tag name="shopware.entity.definition" entity="media_folder_configuration_media_thumbnail_size"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Aggregate\MediaTag\MediaTagDefinition">
-            <tag name="shopware.entity.definition" entity="media_tag"/>
+            <tag name="shopware.entity.definition"/>
         </service>
         <!-- end of Entity definitions -->
 

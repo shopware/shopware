@@ -10,55 +10,55 @@
         <!-- ==================================================================================================================== -->
 
         <service id="Shopware\Core\Checkout\Promotion\PromotionDefinition">
-            <tag name="shopware.entity.definition" entity="promotion"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSalesChannelDefinition">
-            <tag name="shopware.entity.definition" entity="promotion_sales_channel"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeDefinition">
-            <tag name="shopware.entity.definition" entity="promotion_individual_code"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition">
-            <tag name="shopware.entity.definition" entity="promotion_discount"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountRule\PromotionDiscountRuleDefinition">
-            <tag name="shopware.entity.definition" entity="promotion_discount_rule"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupDefinition">
-            <tag name="shopware.entity.definition" entity="promotion_setgroup"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroupRule\PromotionSetGroupRuleDefinition">
-            <tag name="shopware.entity.definition" entity="promotion_setgroup_rule"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionOrderRule\PromotionOrderRuleDefinition">
-            <tag name="shopware.entity.definition" entity="promotion_order_rule"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionPersonaCustomer\PromotionPersonaCustomerDefinition">
-            <tag name="shopware.entity.definition" entity="promotion_persona_customer"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionPersonaRule\PromotionPersonaRuleDefinition">
-            <tag name="shopware.entity.definition" entity="promotion_persona_rule"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionCartRule\PromotionCartRuleDefinition">
-            <tag name="shopware.entity.definition" entity="promotion_cart_rule"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation\PromotionTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="promotion_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceDefinition">
-            <tag name="shopware.entity.definition" entity="promotion_discount_prices"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Validator\PromotionValidator">

@@ -3,11 +3,13 @@
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -34,24 +36,37 @@ class EntityCompilerPass implements CompilerPassInterface
         foreach ($services as $serviceId => $tag) {
             $service = $container->getDefinition($serviceId);
 
-            if (!isset($tag[0]['entity'])) {
-                throw new \RuntimeException(sprintf('Missing attribute "entity" on tag "shopware.entity.definition" for definition with id "%s"', $serviceId));
-            }
-
             $service->addMethodCall('compile', [
                 new Reference(DefinitionInstanceRegistry::class),
             ]);
             $service->setPublic(true);
 
-            $entity = $tag[0]['entity'];
-            $entityNameMap[$entity] = $serviceId;
+            /** @var string $class */
+            $class = $service->getClass();
+            /** @var EntityDefinition $instance */
+            $instance = new $class();
 
-            $service->setPublic(true);
+            $entityNameMap[$instance->getEntityName()] = $serviceId;
+            $entity = $instance->getEntityName();
+            $fallBackEntity = $tag[0]['entity'] ?? null;
 
-            $repositoryId = $entity . '.repository';
+            $repositoryId = $instance->getEntityName() . '.repository';
+            $fallBackRepositoryId = null;
+
+            /*
+             * @deprecated tag:v6.4.0 use getEntityName instead
+             */
+            if ($entity !== null && $entity !== $fallBackEntity) {
+                $entityNameMap[$fallBackEntity] = $serviceId;
+                $fallBackRepositoryId = $fallBackEntity . '.repository';
+            }
 
             try {
                 $container->getDefinition($repositoryId);
+
+                if ($fallBackRepositoryId) {
+                    $container->getDefinition($fallBackRepositoryId);
+                }
             } catch (ServiceNotFoundException $exception) {
                 $repository = new Definition(
                     EntityRepository::class,
@@ -67,8 +82,16 @@ class EntityCompilerPass implements CompilerPassInterface
                 $repository->setPublic(true);
 
                 $container->setDefinition($repositoryId, $repository);
+
+                if ($fallBackRepositoryId) {
+                    $container->setAlias($fallBackRepositoryId, new Alias($repositoryId, true));
+                }
             }
             $repositoryNameMap[$entity] = $repositoryId;
+
+            if ($fallBackRepositoryId) {
+                $repositoryNameMap[$fallBackEntity] = $fallBackRepositoryId;
+            }
         }
 
         $definitionRegistry = $container->getDefinition(DefinitionInstanceRegistry::class);

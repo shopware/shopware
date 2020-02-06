@@ -6,27 +6,27 @@
 
     <services>
         <service id="Shopware\Core\System\NumberRange\NumberRangeDefinition">
-            <tag name="shopware.entity.definition" entity="number_range"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRangeSalesChannelDefinition">
-            <tag name="shopware.entity.definition" entity="number_range_sales_channel"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\NumberRange\Aggregate\NumberRangeState\NumberRangeStateDefinition">
-            <tag name="shopware.entity.definition" entity="number_range_state"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeDefinition">
-            <tag name="shopware.entity.definition" entity="number_range_type"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\NumberRange\Aggregate\NumberRangeTypeTranslation\NumberRangeTypeTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="number_range_type_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\System\NumberRange\Aggregate\NumberRangeTranslation\NumberRangeTranslationDefinition">
-            <tag name="shopware.entity.definition" entity="number_range_translation"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <!-- Value Generator -->

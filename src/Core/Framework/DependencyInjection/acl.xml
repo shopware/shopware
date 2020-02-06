@@ -38,11 +38,11 @@
 
     <services>
         <service id="Shopware\Core\Framework\Api\Acl\Resource\AclResourceDefinition">
-            <tag name="shopware.entity.definition" entity="acl_resource"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition">
-            <tag name="shopware.entity.definition" entity="acl_role"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Acl\Role\AclUserRoleDefinition">

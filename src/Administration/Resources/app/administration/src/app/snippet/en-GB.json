@@ -38,17 +38,14 @@
           "messageSuccess": "Thumbnails have been generated."
         },
         "esIndexing": {
-          "title": "Elasticsearch indexing",
           "message": "Elasticsearch indexed. | One remaining. | {n} remaining.",
           "messageSuccess": "Elasticsearch successfully indexed."
         },
         "dalIndexing": {
-          "title": "Data indexing",
           "message": "All data indexed. | Indexing data.",
           "messageSuccess": "Indexing finished."
         },
         "warmupIndexing": {
-          "title": "Cache warmup",
           "message": "Cache warmed-up. | One page remaining. | Approximately {n} pages remaining..",
           "messageSuccess": "Cache successfully warmed-up."
         }

@@ -111,7 +111,7 @@ function registerThumbnailMiddleware(factory) {
         name: 'Shopware\\Core\\Framework\\DataAbstractionLayer\\Indexing\\MessageQueue\\IndexerMessage',
         fn: function middleware(next, { entry, $root, notification }) {
             messageQueueNotification('dalIndexing', ids, next, entry, $root, notification, {
-                title: 'global.notification-center.worker-listener.dalIndexing.title',
+                title: 'global.default.success',
                 message: 'global.notification-center.worker-listener.dalIndexing.message',
                 success: 'global.notification-center.worker-listener.dalIndexing.messageSuccess',
                 foregroundSuccessMessage: 'sw-settings-cache.notifications.index.success'
@@ -123,7 +123,7 @@ function registerThumbnailMiddleware(factory) {
         name: 'Shopware\\Storefront\\Framework\\Cache\\CacheWarmer\\WarmUpMessage',
         fn: function middleware(next, { entry, $root, notification }) {
             messageQueueNotification('warmupMessage', ids, next, entry, $root, notification, {
-                title: 'global.notification-center.worker-listener.warmupIndexing.title',
+                title: 'global.default.success',
                 message: 'global.notification-center.worker-listener.warmupIndexing.message',
                 success: 'global.notification-center.worker-listener.warmupIndexing.messageSuccess',
                 foregroundSuccessMessage: 'sw-settings-cache.notifications.clearCacheAndWarmup.success'
@@ -135,7 +135,7 @@ function registerThumbnailMiddleware(factory) {
         name: 'Shopware\\Elasticsearch\\Framework\\Indexing\\IndexingMessage',
         fn: function middleware(next, { entry, $root, notification }) {
             messageQueueNotification('esIndexing', ids, next, entry, $root, notification, {
-                title: 'global.notification-center.worker-listener.esIndexing.title',
+                title: 'global.default.success',
                 message: 'global.notification-center.worker-listener.esIndexing.message',
                 success: 'global.notification-center.worker-listener.esIndexing.messageSuccess'
             });
@@ -217,6 +217,8 @@ function messageQueueNotification(key, ids, next, entry, $root, notification, me
                     didSendForegroundMessage: true
                 };
             }
+
+            delete ids[key];
         }
         notification.update(config);
     }

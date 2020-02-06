@@ -38,17 +38,14 @@
           "messageSuccess": "Generierung der Vorschaubilder wurde abgeschlossen."
         },
         "esIndexing": {
-          "title": "Elasticsearch Indizierung",
           "message": "Elasticsearch wurde indexiert. | Ein Indizierungsaufruf verbleibt. | {n} verbleibende Indizierungsaufrufe.",
           "messageSuccess": "Elasticsearch wurde indexiert."
         },
         "dalIndexing": {
-          "title": "Datenindizierung",
           "message": "Alle Daten werden indexiert. | Daten indexieren verbleibt.",
           "messageSuccess": "Datenindizierung wurde beendet."
         },
         "warmupIndexing": {
-          "title": "Cache aufwärmen",
           "message": "Cache wurde aufgewärmt. | Eine Seite übrig. | Circa {n} Seiten übrig.",
           "messageSuccess": "Cache-Aufwärmen wurde beendet."
         }

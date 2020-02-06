@@ -25,18 +25,15 @@
     },
     "notifications": {
       "clearCache": {
-        "title": "Cache",
         "started": "Cache wird gelöscht.",
         "success": "Cache wurde gelöscht",
         "error": "Beim Löschen des Caches ist ein unbekannter Fehler aufgetreten."
       },
       "clearCacheAndWarmup": {
-        "title": "Cache",
         "started": "Alle Caches wurden gelöscht. Der Cache wird aufgewärmt.",
         "success": "Aufwärmen erfolgreich abgeschlossen."
       },
       "index": {
-        "title": "Indizes",
         "started": "Alle Indizes werden aufgebaut.",
         "success": "Alle Indizes erfolgreich aufgebaut."
       }

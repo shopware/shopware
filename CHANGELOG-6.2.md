@@ -99,6 +99,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Remove method configHasSaleschannel
         * Remove method selectHasSaleschannel
         * Remove method undeleteSaleschannel
+     * Fixed disabled click event of `router-link` in `sw-context-menu-item`
+        - Add `event` and `target` attribute to `<router-link>` to handle with `disabled` prop
+        - Add `target` prop to set target options for `<router-link>`
 
 * Core    
     * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.

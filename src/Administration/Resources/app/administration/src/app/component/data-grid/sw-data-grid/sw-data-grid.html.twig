@@ -170,6 +170,7 @@
                                                     <div class="sw-data-grid__cell-content">
                                                         {% block sw_data_grid_select_item_checkbox %}
                                                             <sw-checkbox-field
+                                                                :disabled="!isRecordSelectable(item)"
                                                                 :value="isSelected(item.id)"
                                                                 @change="selectItem($event, item)">
                                                             </sw-checkbox-field>

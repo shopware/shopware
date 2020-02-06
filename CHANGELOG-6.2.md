@@ -104,6 +104,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         - Add `event` and `target` attribute to `<router-link>` to handle with `disabled` prop
         - Add `target` prop to set target options for `<router-link>`
 
+    * Added property `isRecordEditable` and `isRecordselectable` to `sw-data-grid`
 * Core    
     * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.
     * The usage of `entity` in the `shopware.entity.definition` tag is deprecated and will be removed with 6.4. 

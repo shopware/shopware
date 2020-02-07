@@ -103,7 +103,7 @@ describe('Order: Read order', () => {
             });
     });
 
-    it('@package @order: can add existing product', () => {
+    it('@base @order: can add existing product', () => {
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -134,7 +134,7 @@ describe('Order: Read order', () => {
 
     });
 
-    it('@package @order: can add new products', () => {
+    it('@base @order: can add new products', () => {
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -169,7 +169,7 @@ describe('Order: Read order', () => {
 
     });
 
-    it('@package @order: can add custom products', () => {
+    it('@base @order: can add custom products', () => {
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -215,7 +215,7 @@ describe('Order: Read order', () => {
         assertPriceBreakdownContains(/^plus 10\% VAT$/,/^133,70.€$/);
     });
 
-    it('@package @order: can add custom credit items', () => {
+    it('@base @order: can add custom credit items', () => {
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -255,7 +255,7 @@ describe('Order: Read order', () => {
         assertPriceBreakdownContains(/^Total including VAT$/,/^-[0-9.]+,[0-9]{2}.€$/);
     });
 
-    it('@package @order: can delete items', () => {
+    it('@base @order: can delete items', () => {
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -290,7 +290,7 @@ describe('Order: Read order', () => {
         });
     });
 
-    it.skip('@package @order: can edit existing line items', () => {
+    it.skip('@base @order: can edit existing line items', () => {
 
         const page = new OrderPageObject();
 

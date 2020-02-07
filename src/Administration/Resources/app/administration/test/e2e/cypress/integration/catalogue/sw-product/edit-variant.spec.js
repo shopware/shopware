@@ -21,7 +21,7 @@ describe('Product: Test variants', () => {
             });
     });
 
-    it('@package @catalogue: add variant to product', () => {
+    it('@base @catalogue: add variant to product', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

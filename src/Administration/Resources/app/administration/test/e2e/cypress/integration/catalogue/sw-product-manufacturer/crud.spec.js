@@ -41,7 +41,6 @@ describe('Manufacturer: Test crud operations', () => {
         cy.get(page.elements.smartBarBack).click();
     });
 
-
     it('@catalogue: edit and read manufacturer', () => {
         const page = new ManufacturerPageObject();
 

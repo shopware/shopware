@@ -16,7 +16,7 @@ describe('Media: Dissolve folder', () => {
             });
     });
 
-    it('@content: dissolve folder', () => {
+    it('@media: dissolve folder', () => {
         const page = new MediaPageObject();
 
         cy.get(page.elements.loader).should('not.exist');

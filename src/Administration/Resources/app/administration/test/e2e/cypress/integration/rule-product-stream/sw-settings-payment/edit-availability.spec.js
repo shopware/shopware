@@ -17,7 +17,7 @@ describe('Payment: Test crud operations', () => {
             });
     });
 
-    it('@package @rule: edit availability rule', () => {
+    it('@base @rule: edit availability rule', () => {
         const page = new PaymentPageObject();
         const rulePage = new RulePageObject();
 

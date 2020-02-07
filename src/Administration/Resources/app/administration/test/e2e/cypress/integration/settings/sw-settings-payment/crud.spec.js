@@ -16,7 +16,7 @@ describe('Payment: Test crud operations', () => {
             });
     });
 
-    it('@settings: create and read payment method', () => {
+    it('@base @settings: create and read payment method', () => {
         const page = new PaymentPageObject();
 
         // Request we want to wait for later
@@ -45,7 +45,7 @@ describe('Payment: Test crud operations', () => {
             .contains('Bar bei Abholung');
     });
 
-    it('@settings: update and read payment method', () => {
+    it('@base @settings: update and read payment method', () => {
         const page = new PaymentPageObject();
 
         // Request we want to wait for later
@@ -77,7 +77,7 @@ describe('Payment: Test crud operations', () => {
             .contains('In Schokoladentafeln');
     });
 
-    it('@settings: delete payment method', () => {
+    it('@base @settings: delete payment method', () => {
         const page = new PaymentPageObject();
 
         // Request we want to wait for later

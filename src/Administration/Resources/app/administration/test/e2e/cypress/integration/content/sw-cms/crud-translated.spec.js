@@ -20,7 +20,7 @@ describe('CMS: Test crud operations of layouts', () => {
             });
     });
 
-    it.skip('@package @content: create, translate and read layout', () => {
+    it.skip('@base @content: create, translate and read layout', () => {
         const page = new MediaPageObject();
 
         cy.server();
@@ -105,7 +105,7 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Deutscher Titel');
     });
 
-    it('@package @content: update translation and read layout', () => {
+    it('@base @content: update translation and read layout', () => {
         const page = new MediaPageObject();
 
         cy.server();

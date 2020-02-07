@@ -24,7 +24,7 @@ describe('Index page on various viewports', () => {
             cy.viewport('iphone-6');
         });
 
-        it('displays mobile menu on click', () => {
+        it('@navigation: Displays mobile menu on click', () => {
             cy.get('.nav.main-navigation-menu').should('not.be.visible');
             cy.get('.header-main .menu-button .nav-main-toggle-btn').should('be.visible').click();
             cy.get('.offcanvas.is-left.is-open').should('be.visible');

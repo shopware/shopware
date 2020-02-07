@@ -37,7 +37,7 @@ describe('Checkout: Login as customer and run checkout in various viewports', ()
                 cy.viewport(device.model, device.orientation)
             });
 
-            it('run checkout', () => {
+            it('@checkout: Run checkout', () => {
                 const page = new CheckoutPageObject();
                 const accountPage = new AccountPageObject();
 

@@ -14,7 +14,7 @@ describe('Customer group: Test crud operations', () => {
         });
     });
 
-    it('@package @settings: create and read customer group', () => {
+    it('@settings: create and read customer group', () => {
         const page = new SettingsPageObject();
         const salesChannelPage = new SalesChannelPageObject();
 
@@ -61,7 +61,7 @@ describe('Customer group: Test crud operations', () => {
             .typeSingleSelectAndCheck('E2E Merchant', '.sw-sales-channel-detail__select-customer-group');
     });
 
-    it('@package @settings: update and read customer group', () => {
+    it('@settings: update and read customer group', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
@@ -93,7 +93,7 @@ describe('Customer group: Test crud operations', () => {
             .contains('E2E Merchant');
     });
 
-    it('@package @settings: delete customer group', () => {
+    it('@settings: delete customer group', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later

@@ -19,7 +19,7 @@ describe('Dynamic product groups: Test dynamic product group preview', () => {
             });
     });
 
-    it('@catalogue: check preview while editing', () => {
+    it('@base @catalogue: check preview while editing', () => {
         const page = new ProductStreamObject();
 
         cy.get(page.elements.smartBarHeader).contains('Dynamic product groups');

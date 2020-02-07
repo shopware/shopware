@@ -16,7 +16,7 @@ describe('Media: Test thumbnails', () => {
             });
     });
 
-    it('@content: create and use thumbnail sizes', () => {
+    it('@media: create and use thumbnail sizes', () => {
         // TODO: Divide this tests into smaller ones if running time is allowing that
 
         const page = new MediaPageObject();

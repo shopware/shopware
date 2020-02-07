@@ -16,7 +16,7 @@ describe('Media: Test crud operations of folders', () => {
             });
     });
 
-    it('@package @content: create and read folder', () => {
+    it('@base @media: create and read folder', () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later
@@ -36,7 +36,7 @@ describe('Media: Test crud operations of folders', () => {
             .should('be.visible');
     });
 
-    it('@package @content: update and read folder using rename', () => {
+    it('@base @media: update and read folder using rename', () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later
@@ -65,7 +65,7 @@ describe('Media: Test crud operations of folders', () => {
         cy.get('.sw-media-base-item__name[title="An Edith gets a new name"]').should('be.visible');
     });
 
-    it('@package @content: create a subfolder and check configuration', () => {
+    it('@base @media: create a subfolder and check configuration', () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later
@@ -88,7 +88,7 @@ describe('Media: Test crud operations of folders', () => {
         });
     });
 
-    it('@package @content: delete folder', () => {
+    it('@base @media: delete folder', () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later

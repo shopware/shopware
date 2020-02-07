@@ -462,7 +462,7 @@ Admin (Total):
         - schedules
     <<: *e2e_definition
     timeout: 2h 00m
-    script: *mixed_definition
+    script: *scheduled_definition
     after_script: *mochawesome_report_definition
     variables:
         SECTION: 'Administration'
@@ -472,6 +472,7 @@ Storefront (Total):
     only:
         - schedules
     <<: *e2e_definition
+    timeout: 2h 00m
     script: *scheduled_definition
     after_script: *mochawesome_report_definition
     variables:

@@ -19,6 +19,9 @@ Core
         `<tag name="shopware.entity.definition"/>`
     * As a fallback, this function is used first 
 * We deprecated the `LongTextWithHtmlField` in 6.2, use `LongTextField` with `AllowHtml` flag instead
+* The Mailer is not overwritten anymore, instead the swiftmailer.transport is decorated.
+    * Therefore the MailerFactory returns a Swift_Transport Instance instead of Swift_Mailer
+    * The MailerFactory::create Method is deprecated now
 
     Before: 
     ```

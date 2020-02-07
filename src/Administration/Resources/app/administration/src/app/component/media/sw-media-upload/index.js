@@ -3,7 +3,7 @@ import template from './sw-media-upload.html.twig';
 import './sw-media-upload.scss';
 
 const { Component, Mixin, StateDeprecated } = Shopware;
-const { fileReader } = Shopware.Utils;
+const { fileReader, debug } = Shopware.Utils;
 const INPUT_TYPE_FILE_UPLOAD = 'file-upload';
 const INPUT_TYPE_URL_UPLOAD = 'url-upload';
 
@@ -160,6 +160,31 @@ Component.register('sw-media-upload', {
 
         isFileUpload() {
             return this.inputType === INPUT_TYPE_FILE_UPLOAD;
+        },
+
+        // @deprecated tag:v6.4.0
+        showUrlInput: {
+            get() {
+                debug.warn(
+                    'sw-media-upload',
+                    'showUrlInput is deprecated and will be removed in 6.4.0. Use isFileUpload or isUrlUpload instead'
+                );
+
+                return this.isUrlUpload();
+            },
+
+            set(value) {
+                debug.warn(
+                    'sw-media-upload',
+                    'showUrlInput is deprecated and will be removed in 6.4.0. Use useFileUpload or useUrlUpload instead'
+                );
+
+                if (value) {
+                    this.useUrlUpload();
+                } else {
+                    this.useFileUpload();
+                }
+            }
         }
     },
 
@@ -259,6 +284,40 @@ Component.register('sw-media-upload', {
          */
         onClickUpload() {
             this.$refs.fileInput.click();
+        },
+
+        // @deprecated tag:v6.4.0
+        closeUrlModal() {
+            debug.warn(
+                'sw-media-upload',
+                'closeUrlModal is deprecated and will be removed in 6.4.0. Use useUrlUpload instead'
+            );
+
+            return this.useUrlUpload();
+        },
+
+        // @deprecated tag:v6.4.0
+        openUrlModal() {
+            debug.warn(
+                'sw-media-upload',
+                'openUrlModal is deprecated and will be removed in 6.4.0. Use useFileUpload instead'
+            );
+
+            return this.useFileUpload();
+        },
+
+        // @deprecated tag:v6.4.0
+        toggleShowUrlFields() {
+            debug.warn(
+                'sw-media-upload',
+                'toggleShowUrlFields is deprecated and will be removed in 6.4.0. Use useUrlUpload or useFileUpload instead'
+            );
+
+            if (this.isUrlUpload()) {
+                return this.useFileUpload();
+            }
+
+            return this.useUrlUpload();
         },
 
         useUrlUpload() {

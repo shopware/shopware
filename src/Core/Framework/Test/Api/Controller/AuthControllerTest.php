@@ -46,10 +46,6 @@ class AuthControllerTest extends TestCase
         ];
 
         $client = $this->getBrowser();
-        $client->setServerParameters([
-            'CONTENT_TYPE' => 'application/json',
-            'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
-        ]);
         $client->request('POST', '/api/oauth/token', $authPayload);
 
         static::assertEquals(Response::HTTP_UNAUTHORIZED, $client->getResponse()->getStatusCode());
@@ -66,8 +62,6 @@ class AuthControllerTest extends TestCase
     {
         $client = $this->getBrowser();
         $client->setServerParameters([
-            'CONTENT_TYPE' => 'application/json',
-            'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
             'HTTP_Authorization' => 'Bearer invalid_token_provided',
         ]);
         $client->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
@@ -122,10 +116,6 @@ class AuthControllerTest extends TestCase
     public function testInvalidRefreshToken(): void
     {
         $client = $this->getBrowser();
-        $client->setServerParameters([
-            'CONTENT_TYPE' => 'application/json',
-            'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
-        ]);
 
         $refreshPayload = [
             'grant_type' => 'refresh_token',
@@ -150,11 +140,7 @@ class AuthControllerTest extends TestCase
 
     public function testRefreshToken(): void
     {
-        $client = $this->getBrowser();
-        $client->setServerParameters([
-            'CONTENT_TYPE' => 'application/json',
-            'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
-        ]);
+        $client = $this->getBrowser(false);
 
         $username = Uuid::randomHex();
         $password = Uuid::randomHex();
@@ -241,11 +227,7 @@ class AuthControllerTest extends TestCase
         if (next3722()) {
             static::markTestSkipped('Reactivate if Integrations can have their own acls');
         }
-        $client = $this->getBrowser();
-        $client->setServerParameters([
-            'CONTENT_TYPE' => 'application/json',
-            'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
-        ]);
+        $client = $this->getBrowser(false);
 
         $accessKey = AccessKeyHelper::generateAccessKey('integration');
         $secretKey = AccessKeyHelper::generateSecretAccessKey();

@@ -30,4 +30,15 @@ class MysqlVersionCheckTest extends TestCase
 
         static::assertFalse($validationResultArray['result']);
     }
+
+    public function testSupports(): void
+    {
+        $check = new MysqlVersionCheck($this->createMock(Connection::class));
+
+        static::assertTrue($check->supports('mysqlversion'));
+        static::assertFalse($check->supports('phpversion'));
+        static::assertFalse($check->supports('licensecheck'));
+        static::assertFalse($check->supports('writable'));
+        static::assertFalse($check->supports(''));
+    }
 }

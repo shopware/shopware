@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -32,8 +32,14 @@ class StringFieldSerializer extends AbstractFieldSerializer
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);
 
-        /* @var LongTextField $field */
-        yield $field->getStorageName() => $data->getValue() !== null ? strip_tags((string) $data->getValue()) : null;
+        $value = $data->getValue();
+
+        if ($value !== null && !$field->is(AllowHtml::class)) {
+            $value = strip_tags((string) $value);
+        }
+
+        /* @var StringField $field */
+        yield $field->getStorageName() => $value !== null ? (string) $value : null;
     }
 
     public function decode(Field $field, $value): ?string

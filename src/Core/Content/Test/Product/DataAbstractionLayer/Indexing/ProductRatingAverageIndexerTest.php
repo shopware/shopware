@@ -327,6 +327,7 @@ SQL;
             'languageId' => $languageId,
             'status' => $active,
             'points' => $points,
+            'content' => 'Lorem',
             'title' => $title,
         ];
 

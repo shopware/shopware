@@ -54,7 +54,7 @@ class EntityCompilerPass implements CompilerPassInterface
             $fallBackRepositoryId = null;
 
             /*
-             * @deprecated tag:v6.4.0 use getEntityName instead
+             * @deprecated tag:v6.3.0 use getEntityName instead
              */
             if ($entity !== null && $entity !== $fallBackEntity) {
                 $entityNameMap[$fallBackEntity] = $serviceId;

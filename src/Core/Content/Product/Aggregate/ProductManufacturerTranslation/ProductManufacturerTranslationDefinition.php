@@ -5,8 +5,9 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
@@ -38,7 +39,7 @@ class ProductManufacturerTranslationDefinition extends EntityTranslationDefiniti
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new Required()),
-            new LongTextWithHtmlField('description', 'description'),
+            (new LongTextField('description', 'description'))->addFlags(new AllowHtml()),
 
             new CustomFields(),
         ]);

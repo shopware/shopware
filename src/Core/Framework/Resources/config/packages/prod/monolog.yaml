@@ -5,9 +5,9 @@ monolog:
             action_level: error
             handler: nested
         nested:
-            type: stream
+            type: rotating_file
             path: "%kernel.logs_dir%/%kernel.environment%.log"
-            level: debug
+            level: error
         console:
             type:   console
             process_psr_3_messages: false

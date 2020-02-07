@@ -30,6 +30,7 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRangeSalesChannelCollection;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationCollection;
@@ -319,6 +320,16 @@ class SalesChannelEntity extends Entity
      * @var SalesChannelDomainEntity|null
      */
     protected $hreflangDefaultDomain;
+
+    /**
+     * @var string
+     */
+    protected $analyticsId;
+
+    /**
+     * @var SalesChannelAnalyticsEntity
+     */
+    protected $analytics;
 
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {
@@ -884,5 +895,25 @@ class SalesChannelEntity extends Entity
     public function setHreflangDefaultDomain(?SalesChannelDomainEntity $hreflangDefaultDomain): void
     {
         $this->hreflangDefaultDomain = $hreflangDefaultDomain;
+    }
+
+    public function getAnalyticsId(): ?string
+    {
+        return $this->analyticsId;
+    }
+
+    public function setAnalyticsId(?string $analyticsId): void
+    {
+        $this->analyticsId = $analyticsId;
+    }
+
+    public function getAnalytics(): ?SalesChannelAnalyticsEntity
+    {
+        return $this->analytics;
+    }
+
+    public function setAnalytics(?SalesChannelAnalyticsEntity $analytics): void
+    {
+        $this->analytics = $analytics;
     }
 }

@@ -106,12 +106,14 @@ To get the diff between two versions, go to https://github.com/shopware/platform
      * Fixed disabled click event of `router-link` in `sw-context-menu-item`
         - Add `event` and `target` attribute to `<router-link>` to handle with `disabled` prop
         - Add `target` prop to set target options for `<router-link>`
+    * Added block `sw_sales_channel_detail_content_tab_analytics` to `sw-sales-channel-detail`, which contains the new Google Analytics tab
 
     * Added property `isRecordEditable` and `isRecordselectable` to `sw-data-grid`
 * Core    
     * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.
     * The usage of `entity` in the `shopware.entity.definition` tag is deprecated and will be removed with 6.4. 
     * Added `novelty` rule builder condition-type
+    * Added `SalesChannelAnalyticsEntity` to define the Google Analytics configuration
 
 * Storefront	
     * The `theme.json` now supports a new option for the `style` files. The placeholder `@StorefrontBootstrap` gives you the ability to use the Bootstrap SCSS without the Shopware Storefront "skin":

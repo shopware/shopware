@@ -45,6 +45,10 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsDefinition">
+            <tag name="shopware.entity.definition" entity="sales_channel_analytics" />
+        </service>
+
         <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>

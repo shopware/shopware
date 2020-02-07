@@ -455,6 +455,7 @@
         "dayOfWeekRule": "Wochentag",
         "lineItemTagRule": "Positionen mit Tag",
         "lineItemPropertyRule": "Positionen mit Eigenschaften",
+        "lineItemNoveltyRule": "Neuheiten",
         "paymentMethodRule": "Zahlungsart",
         "shippingMethodRule": "Versandart"
       }

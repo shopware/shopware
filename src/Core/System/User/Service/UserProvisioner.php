@@ -37,7 +37,7 @@ class UserProvisioner
             'locale_id' => $this->getLocaleOfSystemLanguage(),
             'active' => true,
             'admin' => $additionalData['admin'] ?? true,
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
         $this->connection->insert('user', $userPayload);

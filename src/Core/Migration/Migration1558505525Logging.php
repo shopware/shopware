@@ -35,21 +35,21 @@ class Migration1558505525Logging extends MigrationStep
             'id' => Uuid::randomBytes(),
             'configuration_key' => 'core.logging.cleanupInterval',
             'configuration_value' => '{"_value": "86400"}',
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('system_config', [
             'id' => Uuid::randomBytes(),
             'configuration_key' => 'core.logging.entryLimit',
             'configuration_value' => '{"_value": "10000000"}',
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('system_config', [
             'id' => Uuid::randomBytes(),
             'configuration_key' => 'core.logging.entryLifetimeSeconds',
             'configuration_value' => '{"_value": "2678400"}', // one month
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
 

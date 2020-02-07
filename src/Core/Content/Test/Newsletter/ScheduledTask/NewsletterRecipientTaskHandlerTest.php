@@ -67,7 +67,7 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
         $this->getContainer()->get(Connection::class)->exec($salutationSql);
 
         $recipientSql = file_get_contents(__DIR__ . '/../fixtures/recipient.sql');
-        $recipientSql = str_replace(':createdAt', date(Defaults::STORAGE_DATE_TIME_FORMAT), $recipientSql);
+        $recipientSql = str_replace(':createdAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT), $recipientSql);
         $this->getContainer()->get(Connection::class)->exec($recipientSql);
 
         $templateSql = file_get_contents(__DIR__ . '/../fixtures/template.sql');

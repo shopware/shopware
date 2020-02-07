@@ -337,7 +337,7 @@ EOF;
             'INSERT INTO `tax` (id, tax_rate, name, created_at) VALUES(UNHEX(%s), %s, "foo", %s)',
             $connection->quote($taxId),
             $taxRate,
-            date(Defaults::STORAGE_DATE_TIME_FORMAT)
+            (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)
         );
         $keyWithQuotes = sprintf(
             'data.%s\')) = "%s"); %s; SELECT 1 FROM ((("',

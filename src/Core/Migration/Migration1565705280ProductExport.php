@@ -69,7 +69,7 @@ class Migration1565705280ProductExport extends MigrationStep
             [
                 'id' => $salesChannelTypeId,
                 'icon_name' => 'default-object-rocket',
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
         $connection->insert(
@@ -80,7 +80,7 @@ class Migration1565705280ProductExport extends MigrationStep
                 'name' => 'Product comparison',
                 'manufacturer' => 'shopware AG',
                 'description' => 'Sales channel for product comparison platforms',
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
         $connection->insert(
@@ -91,7 +91,7 @@ class Migration1565705280ProductExport extends MigrationStep
                 'name' => 'Produktvergleich',
                 'manufacturer' => 'shopware AG',
                 'description' => 'Verkaufskanal für Produktvergleichsportale',
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
     }

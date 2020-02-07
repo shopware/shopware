@@ -40,19 +40,19 @@ class Migration1575010262AddCmsFormLayouts extends MigrationStep
             'id' => Uuid::randomBytes(),
             'type' => 'page',
             'locked' => 1,
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
         $pageEng = [
             'cms_page_id' => $page['id'],
             'language_id' => $languageEn,
             'name' => 'Default shop page layout with ' . $formType . ' form',
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
         $pageDeu = [
             'cms_page_id' => $page['id'],
             'language_id' => $languageDe,
             'name' => 'Standard Shopseiten-Layout mit ' . $formTypeDe . 'formular',
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
         $connection->insert('cms_page', $page);
@@ -66,7 +66,7 @@ class Migration1575010262AddCmsFormLayouts extends MigrationStep
             'cms_page_id' => $page['id'],
             'position' => 0,
             'type' => 'default',
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
         $connection->insert('cms_section', $section);
@@ -75,7 +75,7 @@ class Migration1575010262AddCmsFormLayouts extends MigrationStep
         $name = ucfirst($formType) . ' form';
         $block = [
             'id' => Uuid::randomBytes(),
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'cms_section_id' => $section['id'],
             'locked' => 1,
             'position' => 1,
@@ -97,7 +97,7 @@ class Migration1575010262AddCmsFormLayouts extends MigrationStep
             'cms_block_id' => $block['id'],
             'type' => 'form',
             'slot' => 'content',
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'version_id' => $versionId,
         ];
 
@@ -105,7 +105,7 @@ class Migration1575010262AddCmsFormLayouts extends MigrationStep
             'cms_slot_id' => $slot['id'],
             'cms_slot_version_id' => $versionId,
             'language_id' => $languageEn,
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'config' => json_encode([
                 'type' => ['source' => 'static', 'value' => $formType],
                 'mailReceiver' => ['source' => 'static', 'value' => []],

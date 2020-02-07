@@ -49,7 +49,7 @@ class Migration1561370284AddImportExportProductProfile extends MigrationStep
             'delimiter' => ';',
             'enclosure' => '"',
             'mapping' => json_encode($mapping),
-            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
 

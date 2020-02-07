@@ -32,5 +32,8 @@ final class Defaults
 
     public const STORAGE_DATE_TIME_FORMAT = 'Y-m-d H:i:s.v';
 
+    /**
+     * Do not use STORAGE_DATE_FORMAT for createdAt fields, use STORAGE_DATE_TIME_FORMAT instead
+     */
     public const STORAGE_DATE_FORMAT = 'Y-m-d';
 }

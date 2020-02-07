@@ -434,7 +434,7 @@ class RulePayloadIndexerTest extends TestCase
                 ->setParameter('id', Uuid::randomBytes())
                 ->setParameter('payload', $payload)
                 ->setParameter('name', 'Rule' . $i)
-                ->setParameter('createdAt', date(Defaults::STORAGE_DATE_TIME_FORMAT))
+                ->setParameter('createdAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT))
                 ->execute();
         }
 

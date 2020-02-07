@@ -248,8 +248,6 @@ class ShopService
         // TODO: fix
         $countryId = $this->getCountryId('deu');
 
-        $date = date(Defaults::STORAGE_DATE_FORMAT);
-
         $statement = $this->connection->prepare('
             INSERT INTO sales_channel (
                 id, 
@@ -267,7 +265,7 @@ class ShopService
             $id,
             $typeId, $this->getSalesChannelAccessKey(), $this->getRootCategoryId(), Defaults::LIVE_VERSION,
             $languageId, $currencyId, $paymentMethod,
-            $shippingMethod, $countryId, Defaults::FALLBACK_CUSTOMER_GROUP, $date,
+            $shippingMethod, $countryId, Defaults::FALLBACK_CUSTOMER_GROUP, (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $statement = $this->connection->prepare('
@@ -277,7 +275,7 @@ class ShopService
                 ?, UNHEX(?), ?, ?
             )'
         );
-        $statement->execute([$id, Defaults::LANGUAGE_SYSTEM, $shop->name, $date]);
+        $statement->execute([$id, Defaults::LANGUAGE_SYSTEM, $shop->name, (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         $statement = $this->connection->prepare('
             INSERT INTO sales_channel_language (
@@ -346,8 +344,6 @@ SQL;
 
         $insertSalesChannel = $this->connection->prepare($insertSql);
 
-        $createdAt = date(Defaults::STORAGE_DATE_FORMAT);
-
         $insertSalesChannel->execute([
             'id' => Uuid::randomBytes(),
             'salesChannelId' => $shop->salesChannelId,
@@ -355,7 +351,7 @@ SQL;
             'url' => 'http://' . $shop->host . $shop->basePath,
             'currencyId' => $currencyId,
             'snippetSetId' => $snippetSetId,
-            'createdAt' => $createdAt,
+            'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $insertSalesChannel->execute([
@@ -365,7 +361,7 @@ SQL;
             'url' => 'https://' . $shop->host . $shop->basePath,
             'currencyId' => $currencyId,
             'snippetSetId' => $snippetSetId,
-            'createdAt' => $createdAt,
+            'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
 

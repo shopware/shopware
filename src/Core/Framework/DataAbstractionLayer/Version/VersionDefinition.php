@@ -39,9 +39,11 @@ class VersionDefinition extends EntityDefinition
 
     public function getDefaults(): array
     {
+        $dateTime = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
         return [
-            'name' => sprintf('Draft %s', date(Defaults::STORAGE_DATE_TIME_FORMAT)),
-            'createdAt' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'name' => sprintf('Draft %s', $dateTime),
+            'createdAt' => $dateTime,
         ];
     }
 

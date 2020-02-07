@@ -101,7 +101,7 @@ class ProductStreamIndexerTest extends TestCase
                 'id' => Uuid::fromHexToBytes($id),
                 'api_filter' => null,
                 'invalid' => 1,
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -111,7 +111,7 @@ class ProductStreamIndexerTest extends TestCase
                 'product_stream_id' => Uuid::fromHexToBytes($id),
                 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
                 'name' => 'Stream',
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -124,7 +124,7 @@ class ProductStreamIndexerTest extends TestCase
                 'value' => $productId,
                 'position' => 1,
                 'product_stream_id' => Uuid::fromHexToBytes($id),
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -165,7 +165,7 @@ class ProductStreamIndexerTest extends TestCase
                 'id' => Uuid::fromHexToBytes($id),
                 'api_filter' => null,
                 'invalid' => 1,
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -175,7 +175,7 @@ class ProductStreamIndexerTest extends TestCase
                 'product_stream_id' => Uuid::fromHexToBytes($id),
                 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
                 'name' => 'Stream',
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -187,7 +187,7 @@ class ProductStreamIndexerTest extends TestCase
                 'type' => 'multi',
                 'position' => 1,
                 'product_stream_id' => Uuid::fromHexToBytes($id),
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -202,7 +202,7 @@ class ProductStreamIndexerTest extends TestCase
                 'position' => 1,
                 'parent_id' => Uuid::fromHexToBytes($multiId),
                 'product_stream_id' => Uuid::fromHexToBytes($id),
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -248,7 +248,7 @@ class ProductStreamIndexerTest extends TestCase
                 'id' => Uuid::fromHexToBytes($id),
                 'api_filter' => null,
                 'invalid' => 1,
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -258,7 +258,7 @@ class ProductStreamIndexerTest extends TestCase
                 'product_stream_id' => Uuid::fromHexToBytes($id),
                 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
                 'name' => 'Stream',
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -272,7 +272,7 @@ class ProductStreamIndexerTest extends TestCase
                 'value' => $productId,
                 'position' => 1,
                 'product_stream_id' => Uuid::fromHexToBytes($id),
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -311,7 +311,7 @@ class ProductStreamIndexerTest extends TestCase
                 'id' => Uuid::fromHexToBytes($id),
                 'api_filter' => null,
                 'invalid' => 1,
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -321,7 +321,7 @@ class ProductStreamIndexerTest extends TestCase
                 'product_stream_id' => Uuid::fromHexToBytes($id),
                 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
                 'name' => 'Stream',
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -334,7 +334,7 @@ class ProductStreamIndexerTest extends TestCase
                 'value' => $productId,
                 'position' => 1,
                 'product_stream_id' => Uuid::fromHexToBytes($id),
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -373,7 +373,7 @@ class ProductStreamIndexerTest extends TestCase
                 'id' => Uuid::fromHexToBytes($id),
                 'api_filter' => null,
                 'invalid' => 1,
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -383,7 +383,7 @@ class ProductStreamIndexerTest extends TestCase
                 'product_stream_id' => Uuid::fromHexToBytes($id),
                 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
                 'name' => 'Stream',
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -396,7 +396,7 @@ class ProductStreamIndexerTest extends TestCase
                 'value' => '',
                 'position' => 1,
                 'product_stream_id' => Uuid::fromHexToBytes($id),
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -434,7 +434,7 @@ class ProductStreamIndexerTest extends TestCase
                 'id' => Uuid::fromHexToBytes($id),
                 'api_filter' => null,
                 'invalid' => 1,
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -444,7 +444,7 @@ class ProductStreamIndexerTest extends TestCase
                 'product_stream_id' => Uuid::fromHexToBytes($id),
                 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
                 'name' => 'Stream',
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -457,7 +457,7 @@ class ProductStreamIndexerTest extends TestCase
                 'parameters' => json_encode([RangeFilter::GTE => 10]),
                 'position' => 1,
                 'product_stream_id' => Uuid::fromHexToBytes($id),
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 

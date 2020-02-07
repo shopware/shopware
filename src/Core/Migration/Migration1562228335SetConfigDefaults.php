@@ -26,14 +26,14 @@ class Migration1562228335SetConfigDefaults extends MigrationStep
             'id' => Uuid::randomBytes(),
             'configKey' => 'core.basicInformation.shopName',
             'configValue' => '{"_value": "Demostore"}',
-            'createdAt' => date(Defaults::STORAGE_DATE_FORMAT),
+            'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->executeUpdate($query, [
             'id' => Uuid::randomBytes(),
             'configKey' => 'core.listing.allowBuyInListing',
             'configValue' => '{"_value": true}',
-            'createdAt' => \date(Defaults::STORAGE_DATE_FORMAT),
+            'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
 

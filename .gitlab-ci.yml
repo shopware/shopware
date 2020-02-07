@@ -304,12 +304,6 @@ Storefront (Jest):
         - chown -R 1000:1000 .
         - docker run --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:3.8.1 -c "npm install --production --prefix /e2e && node_modules/.bin/cypress run --project /e2e --browser chrome --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0 --spec $TEST_DIRECTORY"
 
-.generate_mochawesome_reports:
-    after_script: &mochawesome_report_definition
-        - npx mochawesome-merge development/build/artifacts/e2e/mochawesome/mochawesome*.json > development/build/artifacts/e2e/mochawesome/report-final.json
-        - npx mochawesome-report-generator development/build/artifacts/e2e/mochawesome/report-final.json --cdn true --reportDir development/build/artifacts/e2e/mochawesome
-        - docker rm -f cypress
-
 .scheduled_script:
     script: &scheduled_definition
         - ./psh.phar init --APP_ENV="prod"
@@ -321,6 +315,12 @@ Storefront (Jest):
         - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - chown -R 1000:1000 .
         - docker run --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:3.8.1 -c "npm install --production --prefix /e2e && node_modules/.bin/cypress run --project /e2e --browser chrome --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0"
+
+.generate_mochawesome_reports:
+    after_script: &mochawesome_report_definition
+        - npx mochawesome-merge development/build/artifacts/e2e/mochawesome/mochawesome*.json > development/build/artifacts/e2e/mochawesome/report-final.json
+        - npx mochawesome-report-generator development/build/artifacts/e2e/mochawesome/report-final.json --cdn true --reportDir development/build/artifacts/e2e/mochawesome
+        - docker rm -f cypress
 
 General (Storefront):
     only:
@@ -462,7 +462,7 @@ Admin (Total):
         - schedules
     <<: *e2e_definition
     timeout: 2h 00m
-    script: *mixed_definition
+    script: *scheduled_definition
     after_script: *mochawesome_report_definition
     variables:
         SECTION: 'Administration'
@@ -472,6 +472,7 @@ Storefront (Total):
     only:
         - schedules
     <<: *e2e_definition
+    timeout: 2h 00m
     script: *scheduled_definition
     after_script: *mochawesome_report_definition
     variables:

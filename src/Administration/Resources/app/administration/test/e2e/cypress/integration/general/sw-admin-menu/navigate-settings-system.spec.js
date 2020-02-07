@@ -139,8 +139,8 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to integrations module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/integration',
-            method: 'post'
+            url: '/api/v1/integration?page=1&limit=25',
+            method: 'get'
         }).as('getData');
 
         cy.clickMainMenuItem({

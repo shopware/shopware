@@ -216,8 +216,8 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to logging module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/log-entry',
-            method: 'post'
+            url: '/api/v1/_action/system-config/schema?domain=core.loginRegistration',
+            method: 'get'
         }).as('getData');
 
         cy.clickMainMenuItem({

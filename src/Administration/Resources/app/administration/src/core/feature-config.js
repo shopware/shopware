@@ -20,7 +20,8 @@ export default class FeatureConfig {
 
     static isActive(flagName) {
         if (!this.flags.hasOwnProperty(flagName)) {
-            throw new Error(`Unable to retrieve flag ${flagName}, not registered`);
+            // if not set, its false
+            return false;
         }
 
         return this.flags[flagName];

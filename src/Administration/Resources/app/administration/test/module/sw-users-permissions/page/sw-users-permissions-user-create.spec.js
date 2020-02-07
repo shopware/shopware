@@ -7,10 +7,8 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
 
     beforeEach(() => {
         Shopware.State.get('session').languageId = '123456789';
-
         wrapper = shallowMount(Shopware.Component.build('sw-users-permissions-user-create'), {
             provide: {
-                next3722: true,
                 userService: {
                     getUser: () => Promise.resolve()
                 },

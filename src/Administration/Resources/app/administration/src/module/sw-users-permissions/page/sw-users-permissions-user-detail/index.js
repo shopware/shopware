@@ -2,7 +2,7 @@ import { email } from 'src/core/service/validation.service';
 import template from './sw-users-permissions-user-detail.html.twig';
 import './sw-users-permissions-user-detail.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin, State, FeatureConfig } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { warn } = Shopware.Utils.debug;
@@ -32,6 +32,7 @@ Component.register('sw-users-permissions-user-detail', {
     data() {
         return {
             isLoading: false,
+            FeatureConfig: FeatureConfig,
             userId: '',
             user: null,
             currentUser: null,

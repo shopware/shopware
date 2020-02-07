@@ -1,6 +1,6 @@
 import template from './sw-sales-channel-detail.html.twig';
 
-const { Component, Mixin, Context, Defaults } = Shopware;
+const { Component, Mixin, Context, Defaults, FeatureConfig } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-sales-channel-detail', {
@@ -139,6 +139,10 @@ Component.register('sw-sales-channel-detail', {
             this.loadProductExportTemplates();
         },
 
+        featureIsActive(flag) {
+            return FeatureConfig.isActive(flag);
+        },
+
         loadEntityData() {
             if (!this.$route.params.id) {
                 return;
@@ -155,7 +159,6 @@ Component.register('sw-sales-channel-detail', {
             this.loadSalesChannel();
             this.loadCustomFieldSets();
         },
-
 
         loadSalesChannel() {
             this.isLoading = true;

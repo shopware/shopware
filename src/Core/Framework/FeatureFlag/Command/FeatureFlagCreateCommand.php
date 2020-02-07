@@ -29,6 +29,7 @@ class FeatureFlagCreateCommand extends Command
     {
         parent::configure();
         $this->addArgument('name', InputArgument::REQUIRED, 'What is the feature gonna be called?');
+        $this->addArgument('description', InputArgument::OPTIONAL, 'What is the feature for? A Descriptional Sentence in Quotes');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -38,13 +39,12 @@ class FeatureFlagCreateCommand extends Command
         /** @var string $name */
         $name = $input->getArgument('name');
 
+        $description = $input->getArgument('description');
+
         $io->title("Creating feature flag: $name");
 
         $phpFlag = $this->generator
-            ->exportPhp('Flag', $name, __DIR__ . '/../../../Flag');
-
-        $jsFlag = $this->generator
-            ->exportJs($name, __DIR__ . '/../../../../Administration/Resources/app/administration/src/flag');
+            ->exportPhp('Shopware\Core\Flag', $name, __DIR__ . '/../../../Flag', $description);
 
         $envName = $this->generator
             ->getEnvironmentName($name);
@@ -53,12 +53,11 @@ class FeatureFlagCreateCommand extends Command
             ['Type', 'Value'],
             [
                 ['PHP-Flag', realpath($phpFlag)],
-                ['JS-Flag', realpath($jsFlag)],
                 ['Constant', $envName],
             ]
         );
 
-        $io->success("Created flag: $name");
+        $io->success("Created flag: $envName");
         $io->note('Please remember to add and commit the files');
 
         return 0;

@@ -11,6 +11,7 @@ final class CustomFieldTypes
     public const JSON = 'json';
     public const TEXT = 'text';
     public const HTML = 'html';
+    public const SELECT = 'select';
 
     private function __construct()
     {

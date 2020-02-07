@@ -14,6 +14,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
 * Core
     * Fixed a seo indexing bug where all navigations were reindexed on product update 
+    * Added const for custom field type select to `\Shopware\Core\System\CustomField\CustomFieldTypes`
 
     * Added `Shopware\Core\Migration\Test\DateTimeTest` to ensure usage of (new \DateTime())->format(STORAGE_DATE_TIME_FORMAT) instead of date(Defaults::STORAGE_DATE_TIME_FORMAT) since date only supports seconds and no milliseconds.
 

@@ -248,6 +248,7 @@ Core
     * After:  `public function getEntityTag(string $id, string $entityName): string`
     * If you called this function, simply replace the second function parameter to your entity name
     * Currently both ways are supported. The `string $entityName` type hint will be added with `v6.3.0`
+ * We'll stop deleting the plugin migration data on plugin uninstall in `v6.3.0` If you want to keep removing it anyway you have to call `\Shopware\Core\Framework\Plugin::removeMigrations`.
 
 Administration
 --------------

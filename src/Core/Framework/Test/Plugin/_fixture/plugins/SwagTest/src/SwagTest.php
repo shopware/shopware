@@ -4,6 +4,7 @@ namespace SwagTest;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class SwagTest extends Plugin
@@ -57,5 +58,17 @@ class SwagTest extends Plugin
     public function manualSetter(EntityRepositoryInterface $categoryRepository): void
     {
         $this->categoryRepository = $categoryRepository;
+    }
+
+    public function uninstall(UninstallContext $uninstallContext): void
+    {
+        if (isset($_SERVER['TEST_KEEP_MIGRATIONS'])) {
+            $uninstallContext->enableKeepMigrations();
+        }
+    }
+
+    public function getMigrationNamespace(): string
+    {
+        return $_SERVER['FAKE_MIGRATION_NAMESPACE'] ?? parent::getMigrationNamespace();
     }
 }

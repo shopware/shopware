@@ -89,7 +89,9 @@ describe('Rule builder: Test crud operations', () => {
         }).as('deleteData');
 
         // Delete rule
+        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible');
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Ruler');
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('be.visible');
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('Ruler');
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',

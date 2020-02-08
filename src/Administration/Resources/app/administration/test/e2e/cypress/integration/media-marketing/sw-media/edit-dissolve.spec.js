@@ -2,8 +2,8 @@
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
-const ignoreOn = (browser, fn) => {
-    if (!Cypress.isBrowser(browser)) {
+const runOn = (browser, fn) => {
+    if (Cypress.isBrowser(browser)) {
         fn()
     }
 };
@@ -34,10 +34,10 @@ describe('Media: Dissolve folder', () => {
 
         // Upload image in folder
         cy.get(page.elements.smartBarHeader).contains('A thing to fold about');
-        ignoreOn('firefox', () => {
+        runOn('chrome', () => {
             page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
         });
-        ignoreOn('chrome', () => {
+        runOn('firefox', () => {
             // Upload medium
             cy.clickContextMenuItem(
                 '.sw-media-upload__button-url-upload',

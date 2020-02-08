@@ -2,8 +2,8 @@
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
-const ignoreOn = (browser, fn) => {
-    if (!Cypress.isBrowser(browser)) {
+const runOn = (browser, fn) => {
+    if (Cypress.isBrowser(browser)) {
         fn()
     }
 };
@@ -46,7 +46,7 @@ describe('Product: Test crud operations', () => {
         cy.get('#sw-price-field-gross').type('10');
 
 
-        ignoreOn('firefox', () => {
+        runOn('chrome', () => {
             // Add image to product
             cy.fixture('img/sw-login-background.png').then(fileContent => {
                 cy.get('#files').upload(

@@ -2,8 +2,8 @@
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
-const ignoreOn = (browser, fn) => {
-    if (!Cypress.isBrowser(browser)) {
+const runOn = (browser, fn) => {
+    if (Cypress.isBrowser(browser)) {
         fn()
     }
 };
@@ -29,10 +29,10 @@ describe('Media: Test crud operations', () => {
             method: 'post'
         }).as('saveData');
 
-        ignoreOn('firefox', () => {
+        runOn('chrome', () => {
             page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
         });
-        ignoreOn('chrome', () => {
+        runOn('firefox', () => {
             // Upload medium
             cy.clickContextMenuItem(
                 '.sw-media-upload__button-url-upload',
@@ -93,10 +93,10 @@ describe('Media: Test crud operations', () => {
             method: 'delete'
         }).as('deleteData');
 
-        ignoreOn('firefox', () => {
+        runOn('chrome', () => {
             page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
         });
-        ignoreOn('chrome', () => {
+        runOn('firefox', () => {
             // Upload medium
             cy.clickContextMenuItem(
                 '.sw-media-upload__button-url-upload',
@@ -106,8 +106,9 @@ describe('Media: Test crud operations', () => {
         });
 
         // Delete image
+        cy.awaitAndCheckNotification('File has been saved.');
         cy.get(`${page.elements.mediaItem} ${page.elements.previewItem}`).should('be.visible');
-        cy.get(`${page.elements.mediaItem} ${page.elements.previewItem}:not(${page.elements.previewPlaceholder}`).click();
+        cy.get(`${page.elements.mediaItem} ${page.elements.previewItem}`).click();
         cy.get('li.quickaction--delete').click();
         cy.get(`${page.elements.modal}__body`).contains('Are you sure you want to delete "sw-login-background.png"?');
         cy.get('.sw-media-modal-delete__confirm').click();

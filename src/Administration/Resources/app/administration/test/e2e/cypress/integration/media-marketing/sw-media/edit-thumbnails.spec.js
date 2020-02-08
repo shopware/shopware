@@ -2,14 +2,13 @@
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
-const ignoreOn = (browser, fn) => {
-    if (!Cypress.isBrowser(browser)) {
+const runOn = (browser, fn) => {
+    if (Cypress.isBrowser(browser)) {
         fn()
     }
 };
 
-ignoreOn('firefox', () => {
-
+runOn('chrome', () => {
     describe('Media: Test thumbnails', () => {
         beforeEach(() => {
             cy.setToInitialState()

@@ -2,8 +2,8 @@
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
-const ignoreOn = (browser, fn) => {
-    if (!Cypress.isBrowser(browser)) {
+const runOn = (browser, fn) => {
+    if (Cypress.isBrowser(browser)) {
         fn()
     }
 };
@@ -22,7 +22,7 @@ describe('Product: Edit product media', () => {
             });
     });
 
-    ignoreOn('firefox', () => {
+    runOn('chrome', () => {
         it('@catalogue: change media sorting', () => {
             const page = new ProductPageObject();
 
@@ -98,7 +98,7 @@ describe('Product: Edit product media', () => {
         });
     });
 
-    ignoreOn('firefox', () => {
+    runOn('chrome', () => {
         it('@base @catalogue: set another cover image', () => {
             const page = new ProductPageObject();
 
@@ -206,7 +206,7 @@ describe('Product: Edit product media', () => {
         // Add first image to product
         cy.get('.sw-product-media-form__previews').scrollIntoView();
 
-        ignoreOn('firefox', () => {
+        runOn('chrome', () => {
             cy.fixture('img/sw-login-background.png').then(fileContent => {
                 cy.get('#files').upload(
                     {
@@ -219,9 +219,10 @@ describe('Product: Edit product media', () => {
                 );
             });
         });
-        ignoreOn('chrome', () => {
+        runOn('firefox', () => {
             // Upload medium
             cy.get('.sw-media-upload__switch-mode').click();
+            cy.contains('Upload file from URL').click();
             cy.get('input[name=sw-field--url]').should('be.visible')
                 .type(`${Cypress.config('baseUrl')}/bundles/administration/static/img/sw-login-background.png`);
             cy.get('.sw-media-url-form__submit-button').click();

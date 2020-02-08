@@ -16,7 +16,7 @@ describe('Product: Edit in various ways', () => {
             });
     });
 
-    it.skip('@base @catalogue: edit a product\'s translation', () => {
+    it('@base @catalogue: edit a product\'s translation', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -47,7 +47,7 @@ describe('Product: Edit in various ways', () => {
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('Sauerkraut');
     });
 
-    it.skip('@catalogue: edit product via inline edit', () => {
+    it('@catalogue: edit product via inline edit', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
@@ -68,7 +68,7 @@ describe('Product: Edit in various ways', () => {
         cy.get('.sw-data-grid__cell--name').contains('That\'s not my name');
     });
 
-    it('@catalogue: test the text editor\'s link functionality', () => {
+    it.skip('@catalogue: test the text editor\'s link functionality', () => {
         const page = new ProductPageObject();
         const productName = 'This is an example product with links';
         const exampleDomain = 'example.com';

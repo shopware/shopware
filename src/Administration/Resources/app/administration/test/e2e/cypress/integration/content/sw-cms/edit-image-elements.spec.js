@@ -2,13 +2,13 @@
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
-const ignoreOn = (browser, fn) => {
-    if (!Cypress.isBrowser(browser)) {
+const runOn = (browser, fn) => {
+    if (Cypress.isBrowser(browser)) {
         fn()
     }
 };
 
-ignoreOn('firefox', () => {
+runOn('chrome', () => {
     describe('CMS: Check usage and editing of image elements', () => {
         beforeEach(() => {
             cy.setToInitialState()
@@ -25,6 +25,7 @@ ignoreOn('firefox', () => {
         });
 
         it('@base @content: use simple image block', () => {
+            const page = new MediaPageObject();
             cy.server();
             cy.route({
                 url: '/api/v1/cms-page/*',

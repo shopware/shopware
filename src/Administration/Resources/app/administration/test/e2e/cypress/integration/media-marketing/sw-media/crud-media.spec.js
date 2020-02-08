@@ -2,6 +2,12 @@
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
+const ignoreOn = (browser, fn) => {
+    if (!Cypress.isBrowser(browser)) {
+        fn()
+    }
+};
+
 describe('Media: Test crud operations', () => {
     beforeEach(() => {
         cy.setToInitialState()
@@ -23,7 +29,17 @@ describe('Media: Test crud operations', () => {
             method: 'post'
         }).as('saveData');
 
-        page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
+        ignoreOn('firefox', () => {
+            page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
+        });
+        ignoreOn('chrome', () => {
+            // Upload medium
+            cy.clickContextMenuItem(
+                '.sw-media-upload__button-url-upload',
+                '.sw-media-upload__button-context-menu'
+            );
+            page.uploadImageUsingUrl(`${Cypress.config('baseUrl')}/bundles/administration/static/img/sw-login-background.png`);
+        });
 
         cy.wait('@saveData').then((xhr) => {
             cy.awaitAndCheckNotification('File has been saved.');
@@ -77,8 +93,17 @@ describe('Media: Test crud operations', () => {
             method: 'delete'
         }).as('deleteData');
 
-        page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
-        cy.awaitAndCheckNotification('File has been saved.');
+        ignoreOn('firefox', () => {
+            page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
+        });
+        ignoreOn('chrome', () => {
+            // Upload medium
+            cy.clickContextMenuItem(
+                '.sw-media-upload__button-url-upload',
+                '.sw-media-upload__button-context-menu'
+            );
+            page.uploadImageUsingUrl(`${Cypress.config('baseUrl')}/bundles/administration/static/img/sw-login-background.png`);
+        });
 
         // Delete image
         cy.get(`${page.elements.mediaItem} ${page.elements.previewItem}`).should('be.visible');

@@ -46,6 +46,9 @@
     "mailerSmtp": {
       "headline": "SMTP-Server"
     },
+    "mailerLocal": {
+      "headline": "Lokalen E-Mail-Agenten"
+    },
     "paypalInfo": {
       "modalTitle": "PayPal einrichten",
       "headline": "Jetzt vorintegriert in Shopware mit noch einfacherer und schnellerer Aktivierung der beliebtesten Zahlarten*",

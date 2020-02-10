@@ -33,16 +33,15 @@ Shopware.Component.register('sw-settings-mailer', {
     },
 
     computed: {
-        emailAgentOptions() {
+        emailSendmailOptions() {
             return [
                 {
-                    value: 'local',
-                    name: this.$tc('sw-settings-mailer.mailer-configuration.local-agent'),
-                    helpText: this.$tc('sw-settings-mailer.mailer-configuration.local-helptext')
+                    value: '-bs',
+                    name: this.$tc('sw-settings-mailer.sendmail.sync')
                 },
                 {
-                    value: 'smtp',
-                    name: this.$tc('sw-settings-mailer.mailer-configuration.smtp-server')
+                    value: '-t',
+                    name: this.$tc('sw-settings-mailer.sendmail.async')
                 }
             ];
         },
@@ -69,6 +68,15 @@ Shopware.Component.register('sw-settings-mailer', {
         async loadMailerSettings() {
             this.isLoading = true;
             this.mailerSettings = await this.systemConfigApiService.getValues('core.mailerSettings');
+
+            // Default when config is empty
+            if (Object.keys(this.mailerSettings).length === 0) {
+                this.mailerSettings = {
+                    'core.mailerSettings.emailAgent': '',
+                    'core.mailerSettings.sendMailOptions': '-t'
+                };
+            }
+
             this.isLoading = false;
         },
 

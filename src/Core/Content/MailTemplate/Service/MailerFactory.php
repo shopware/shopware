@@ -18,7 +18,7 @@ class MailerFactory
             case 'smtp':
                 return $this->createSmtpMailer($configService);
             case 'local':
-                return new \Swift_Mailer(new \Swift_SendmailTransport());
+                return new \Swift_Mailer(new \Swift_SendmailTransport($this->getSendMailCommandLineArgument($configService)));
 
             default:
                 throw new \RuntimeException('Invalid mail agent given "%s"', $emailAgent);
@@ -76,5 +76,22 @@ class MailerFactory
             default:
                 return null;
         }
+    }
+
+    private function getSendMailCommandLineArgument(SystemConfigService $configService): string
+    {
+        $command = '/usr/sbin/sendmail ';
+
+        $option = $configService->get('core.mailerSettings.sendMailOptions');
+
+        if (empty($option)) {
+            $option = '-t';
+        }
+
+        if ($option !== '-bs' && $option !== '-t') {
+            throw new \RuntimeException('Given sendmail option "%s" is invalid', $option);
+        }
+
+        return $command . $option;
     }
 }

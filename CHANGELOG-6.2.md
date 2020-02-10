@@ -423,6 +423,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 * Storefront
     Deprecated `$connection->executeQuery()` for write operations
     * Added `\Shopware\Core\Framework\Api\Controller\CaptchaController` which provides a list of all available captchas to the administration
+    * Added new Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule to check available attributes in cart 
+
+* Storefront    
+    * Deprecated `$connection->executeQuery()` for write operations
     * The `theme.json` now supports a new option for the `style` files. The placeholder `@StorefrontBootstrap` gives you the ability to use the Bootstrap SCSS without the Shopware Storefront "skin":
         ```json
         {

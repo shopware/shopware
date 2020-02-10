@@ -460,6 +460,8 @@
         "lineItemClearanceSale": "Positionen mit Abverkauf",
         "lineItemTopsellerRule": "Top-Seller Positionen",
         "lineItemInCategoryRule": "Positionen in Kategorie",
+        "lineItemNoveltyRule": "Neuheiten",
+        "lineItemTaxationRule": "Positionen mit Steuersatz",
         "paymentMethodRule": "Zahlungsart",
         "shippingMethodRule": "Versandart"
       }

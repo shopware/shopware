@@ -208,6 +208,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.lineItemInCategoryRule',
         scopes: ['lineItem']
     });
+    ruleConditionService.addCondition('cartLineItemTaxation', {
+        component: 'sw-condition-line-item-taxation',
+        label: 'global.sw-condition.condition.lineItemTaxationRule',
+        scopes: ['lineItem']
+    });
 
     if (next6013()) {
         ruleConditionService.addCondition('paymentMethod', {

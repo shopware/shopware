@@ -95,6 +95,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `\Shopware\Core\Framework\Plugin::removeMigrations` to remove plugin migration entries.
     * Fix cache warmup during cache clearing to fix template inheritance problems
     * Missing migration files will be now ignored
+    * Added new env variable `SHOPWARE_UPDATE_TEST` to trigger auto update test mode.
 * Storefront
     * Fixed the cookie privacy hint to use the correct link `privacyPage` instead of `shippingPaymentInfoPage`
     * Added the parameter `useBackdrop` to the `page-loading-indicator.utils.js` `remove` and `create` methods. Defaults to `true`

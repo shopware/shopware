@@ -73,7 +73,9 @@
         "placeholderPhoneNumber": "Enter phone number...",
         "labelBillingAddress": "Billing address",
         "labelShippingAddress": "Shipping address",
-        "placeholder": "Select or add customer first..."
+        "placeholder": "Select or add customer first...",
+        "textIdentical": "Billing and shipping address are identical",
+        "buttonAddNewAddress": "Add new address"
       },
       "detailsFooter": {
         "labelSalesChannel": "Sales channel",
@@ -159,7 +161,7 @@
       "labelAffiliateCode": "Affiliate-Code",
       "labelCampaignCode": "Campaign-Code",
       "buttonAddDeliveryAddress" : "Add new address",
-      "labelSameDeliveryAndBillingAddress" : "Billing and shipping address identical",
+      "labelSameDeliveryAndBillingAddress" : "Billing and shipping address are identical",
       "buttonContinueOnVersionedOrder" : "Load",
       "tax": "Included taxes:",
       "shippingCostsTax": "{taxRate}%: {tax}",

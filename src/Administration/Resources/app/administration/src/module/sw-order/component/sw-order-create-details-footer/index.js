@@ -56,13 +56,6 @@ Component.register('sw-order-create-details-footer', {
             return Service('repositoryFactory').create('currency');
         },
 
-        entitySingleSelectClasses() {
-            return [
-                'sw-order-create__select',
-                'sw-order-create-details-footer__item'
-            ];
-        },
-
         currentCurrencyId() {
             return State.getters['swOrder/currencyId'];
         },

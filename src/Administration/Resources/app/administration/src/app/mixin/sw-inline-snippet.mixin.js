@@ -13,7 +13,7 @@ Mixin.register('sw-inline-snippet', {
 
     methods: {
         getInlineSnippet(value) {
-            if (!value) {
+            if (types.isEmpty(value)) {
                 return '';
             }
             if (value[this.swInlineSnippetLocale]) {

@@ -18,7 +18,7 @@ export default class DatePickerPlugin extends Plugin {
         allowInput: true,
         minDate: null,
         maxDate: null,
-        locale: 'default',
+        locale: 'default'
     };
 
     // ToDo NEXT-5602: Remove this temporary solution until formats are linked to languages
@@ -58,12 +58,12 @@ export default class DatePickerPlugin extends Plugin {
         const options = {
             altFormat: this.getAltFormat(localeIndex),
             locale: Locales[localeIndex],
-            time_24hr: Locales[localeIndex].time_24hr,
+            time_24hr: Locales[localeIndex].time_24hr
         };
 
         flatpickr(this.el, {
             ...this.options,
-            ...options,
+            ...options
         });
     }
 }

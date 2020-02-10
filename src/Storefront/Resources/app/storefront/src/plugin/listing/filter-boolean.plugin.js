@@ -6,7 +6,7 @@ export default class FilterBooleanPlugin extends FilterBasePlugin {
 
     static options = deepmerge(FilterBasePlugin.options, {
         checkboxSelector: '.filter-boolean-input',
-        activeClass: 'is-active',
+        activeClass: 'is-active'
     });
 
     init() {
@@ -62,7 +62,7 @@ export default class FilterBooleanPlugin extends FilterBasePlugin {
         if (this.checkbox.checked) {
             labels.push({
                 label: this.options.displayName,
-                id: this.options.name,
+                id: this.options.name
             });
         } else {
             labels = [];

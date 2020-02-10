@@ -34,7 +34,7 @@ export default class FormFieldTogglePlugin extends Plugin {
          * the class which gets applied
          * when the field previously had the disabled attribute
          */
-        wasDisabledCls: 'js-field-toggle-was-disabled',
+        wasDisabledCls: 'js-field-toggle-was-disabled'
     };
 
     init() {

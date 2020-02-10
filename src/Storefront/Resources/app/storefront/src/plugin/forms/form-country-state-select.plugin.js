@@ -9,7 +9,7 @@ export default class CountryStateSelectPlugin extends Plugin {
         initialCountryAttribute: 'initial-country-id',
         countryStateSelectSelector: '.country-state-select',
         initialCountryStateAttribute: 'initial-country-state-id',
-        countryStatePlaceholderSelector: '[data-placeholder-option="true"]',
+        countryStatePlaceholderSelector: '[data-placeholder-option="true"]'
     };
 
     init() {

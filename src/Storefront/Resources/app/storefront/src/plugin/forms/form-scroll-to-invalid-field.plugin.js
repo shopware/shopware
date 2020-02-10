@@ -25,13 +25,13 @@ export default class FormScrollToInvalidFieldPlugin extends Plugin {
          * body classes on which the scroll should not be triggered
          */
         noScrollClasses: [
-            'modal-open',
+            'modal-open'
         ],
 
         /**
          * selector for the fixed header element
          */
-        fixedHeaderSelector: 'header.fixed-top',
+        fixedHeaderSelector: 'header.fixed-top'
 
     };
 
@@ -180,7 +180,7 @@ export default class FormScrollToInvalidFieldPlugin extends Plugin {
         } else if (this._shouldScroll()) {
             window.scrollTo({
                 top: offset,
-                behavior: 'smooth',
+                behavior: 'smooth'
             });
         } else {
             this._onScrollEnd();

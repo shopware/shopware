@@ -45,7 +45,7 @@ export default class FormAjaxSubmitPlugin extends Plugin {
          * route which should be forwarded to
          * when submitted
          */
-        forwardTo: false,
+        forwardTo: false
     };
 
     init() {

@@ -78,7 +78,7 @@ export default class ImageZoomPlugin extends Plugin {
          *
          * @type string
          */
-        gallerySliderSelector: '[data-modal-gallery-slider]',
+        gallerySliderSelector: '[data-modal-gallery-slider]'
     };
 
     /**

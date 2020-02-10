@@ -7,7 +7,7 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
 
     static options = deepmerge(FilterBasePlugin.options, {
         checkboxSelector: '.filter-multi-select-checkbox',
-        countSelector: '.filter-multi-select-count',
+        countSelector: '.filter-multi-select-count'
     });
 
     init() {
@@ -69,7 +69,7 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
             Iterator.iterate(activeCheckboxes, (checkbox) => {
                 labels.push({
                     label: checkbox.dataset.label,
-                    id: checkbox.id,
+                    id: checkbox.id
                 });
             });
         } else {

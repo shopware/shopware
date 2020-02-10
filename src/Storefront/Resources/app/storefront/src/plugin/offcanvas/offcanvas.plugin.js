@@ -88,7 +88,7 @@ class OffCanvasSingleton {
 
         setTimeout(() => {
             this.$emitter.publish('onCloseOffcanvas', {
-                offCanvasContent: OffCanvasElements,
+                offCanvasContent: OffCanvasElements
             });
         }, delay);
     }

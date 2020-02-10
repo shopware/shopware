@@ -12,7 +12,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
 
     static options = {
         useAjax: false,
-        ajaxContainerSelector: false,
+        ajaxContainerSelector: false
     };
 
     init() {

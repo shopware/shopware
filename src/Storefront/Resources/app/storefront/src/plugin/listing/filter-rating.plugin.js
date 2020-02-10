@@ -11,8 +11,8 @@ export default class FilterRatingPlugin extends FilterBasePlugin {
         radioSelector: '.product-detail-review-form-radio',
         snippets: {
             filterRatingActiveLabelStart: 'Minimum',
-            filterRatingActiveLabelEnd: 'stars',
-        },
+            filterRatingActiveLabelEnd: 'stars'
+        }
     });
 
     init() {
@@ -94,7 +94,7 @@ export default class FilterRatingPlugin extends FilterBasePlugin {
                 label: `${this.options.snippets.filterRatingActiveLabelStart} 
                         ${currentRating} 
                         ${this.options.snippets.filterRatingActiveLabelEnd}`,
-                id: 'rating',
+                id: 'rating'
             });
         } else {
             labels = [];

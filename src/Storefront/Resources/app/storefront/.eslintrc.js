@@ -15,7 +15,7 @@ module.exports = {
         'sourceType': 'module',
     },
     'rules': {
-        'comma-dangle': ['error', 'always-multiline'],
+        'comma-dangle': ['error', 'never'],
         'no-console': 0,
         'no-debugger': (isDevMode ? 0 : 2),
         'prefer-const': 'warn',

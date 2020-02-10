@@ -13,7 +13,7 @@ export default class VariantSwitchPlugin extends Plugin {
 
     static options = {
         url: '',
-        radioFieldSelector: '.product-detail-configurator-option-input',
+        radioFieldSelector: '.product-detail-configurator-option-input'
     };
 
     init() {
@@ -76,7 +76,7 @@ export default class VariantSwitchPlugin extends Plugin {
 
         this._redirectToVariant({
             switched: switchedOptionId,
-            options: selectedOptions,
+            options: selectedOptions
         });
     }
 

@@ -43,7 +43,7 @@ export default class ZoomModalPlugin extends Plugin {
         /**
          * selector for the container of the gallery and the zoom modal
          */
-        galleryZoomModalContainerSelector: '.js-gallery-zoom-modal-container',
+        galleryZoomModalContainerSelector: '.js-gallery-zoom-modal-container'
     };
 
     init() {
@@ -139,24 +139,24 @@ export default class ZoomModalPlugin extends Plugin {
         PluginManager.initializePlugin('GallerySlider', slider, {
             slider: {
                 startIndex: parentSliderIndex,
-                touch: false,
+                touch: false
             },
             thumbnailSlider: {
                 startIndex: parentSliderIndex,
                 autoWidth: true,
                 responsive: {
                     md: {
-                        enabled: true,
+                        enabled: true
                     },
                     lg: {
-                        enabled: true,
+                        enabled: true
                     },
                     xl: {
                         enabled: true,
-                        axis: 'horizontal',
-                    },
-                },
-            },
+                        axis: 'horizontal'
+                    }
+                }
+            }
         });
 
         this.gallerySliderPlugin = PluginManager.getPluginInstanceFromElement(slider, 'GallerySlider');

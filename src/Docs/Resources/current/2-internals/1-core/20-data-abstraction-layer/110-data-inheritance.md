@@ -15,7 +15,7 @@ To start using inheritance, you have to update your definition and database.
 ### 1. Make fields nullable
 
 ```sql
-ALTER TABLE `employee` MODIFY `supervisor` VARHCAR(255) NULL;
+ALTER TABLE `employee` MODIFY `supervisor` VARCHAR(255) NULL;
 ```
 
 ### 2. Add the ParentFkField

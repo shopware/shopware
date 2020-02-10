@@ -164,7 +164,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
      */
     private function createLineItem(float $width): LineItem
     {
-        $deliveryInformation = (new DeliveryInformation(1, 1, false))->setWidth($width);
+        $deliveryInformation = (new DeliveryInformation(1, 1, false, null, null, null, $width));
 
         return (new LineItem(Uuid::randomHex(), 'product', null, 3))
             ->setDeliveryInformation($deliveryInformation);

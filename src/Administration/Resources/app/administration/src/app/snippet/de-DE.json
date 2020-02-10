@@ -468,6 +468,7 @@
         "lineItemOfManufacturerRule": "Hersteller",
         "lineItemPurchasePriceRule": "Positionen Einkaufspreis",
         "lineItemCreationDateRule": "Positionen mit Erstelldatum",
+        "lineItemListPriceRule": "Positionen mit Streichpreis",
         "paymentMethodRule": "Zahlungsart",
         "shippingMethodRule": "Versandart"
       }

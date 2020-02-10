@@ -468,6 +468,7 @@
         "lineItemOfManufacturerRule": "Manufacturer",
         "lineItemPurchasePriceRule": "Line item purchase price",
         "lineItemCreationDateRule": "Line item with creation date",
+        "lineItemListPriceRule": "Line item list price",
         "paymentMethodRule": "Payment method",
         "shippingMethodRule": "Shipping method"
       }

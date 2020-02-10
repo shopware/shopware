@@ -248,6 +248,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.lineItemCreationDateRule',
         scopes: ['lineItem']
     });
+    ruleConditionService.addCondition('cartLineItemListPrice', {
+        component: 'sw-condition-line-item-list-price',
+        label: 'global.sw-condition.condition.lineItemListPriceRule',
+        scopes: ['lineItem']
+    });
 
     if (next6013()) {
         ruleConditionService.addCondition('paymentMethod', {

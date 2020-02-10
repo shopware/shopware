@@ -1,0 +1,14 @@
+<div data-ellipsis>
+    <span class="swag-ellipsis-span">
+        {{ text|slice(0, truncateSize)  }}...
+        <a href="#" class="swag-ellipsis-expand-link">
+            {{ "ellipsis.expandLabel"|trans }}
+        </a>
+    </span>
+    <span class="swag-ellipsis-total-span swag-ellipsis-hidden">
+        {{ text }}
+        <a href="#" class="swag-ellipsis-shrink-link">
+            {{ "ellipsis.shrinkLabel"|trans }}
+        </a>
+    </span>
+</div>

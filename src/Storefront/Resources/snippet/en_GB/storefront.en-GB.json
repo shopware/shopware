@@ -476,5 +476,9 @@
         "groupRequiredDescription": "These cookies are required by the shops core functionality.",
         "groupRequiredSession": "Session",
         "groupRequiredTimezone": "Timezone"
-    }
+    },
+  "ellipsis": {
+    "expandLabel": "show more",
+    "shrinkLabel": "show less"
+  }
 }

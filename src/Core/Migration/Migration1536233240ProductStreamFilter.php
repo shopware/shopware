@@ -14,7 +14,7 @@ class Migration1536233240ProductStreamFilter extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `product_stream_filter` (
               `id` BINARY(16) NOT NULL,
               `product_stream_id` BINARY(16) NOT NULL,

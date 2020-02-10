@@ -15,7 +15,7 @@ class Migration1558443337PromotionSalesChannel extends MigrationStep
     public function update(Connection $connection): void
     {
         foreach ($this->getQueries() as $query) {
-            $connection->executeQuery($query);
+            $connection->executeUpdate($query);
         }
     }
 

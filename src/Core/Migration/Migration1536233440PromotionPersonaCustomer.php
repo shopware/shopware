@@ -14,7 +14,7 @@ class Migration1536233440PromotionPersonaCustomer extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `promotion_persona_customer` (
                 promotion_id BINARY(16) NOT NULL,
                 customer_id BINARY(16) NOT NULL,

@@ -14,7 +14,7 @@ class Migration1536233220PluginTranslation extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `plugin_translation` (
                 `plugin_id`          BINARY(16)  NOT NULL,
                 `language_id`        BINARY(16)  NOT NULL,

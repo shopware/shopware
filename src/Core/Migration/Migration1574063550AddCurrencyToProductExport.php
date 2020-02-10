@@ -14,7 +14,7 @@ class Migration1574063550AddCurrencyToProductExport extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('ALTER TABLE product_export ADD COLUMN currency_id BINARY(16) NOT NULL');
+        $connection->executeUpdate('ALTER TABLE product_export ADD COLUMN currency_id BINARY(16) NOT NULL');
     }
 
     public function updateDestructive(Connection $connection): void

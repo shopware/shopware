@@ -14,7 +14,7 @@ class Migration1565640175RemoveSalesChannelTheme extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('DROP TABLE IF EXISTS `sales_channel_theme`;');
+        $connection->executeUpdate('DROP TABLE IF EXISTS `sales_channel_theme`;');
     }
 
     public function updateDestructive(Connection $connection): void

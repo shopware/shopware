@@ -21,13 +21,13 @@ class Migration1571832058v3 extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             ALTER TABLE _test_bundle
             MODIFY `name` VARCHAR(255) NULL,
             ADD COLUMN `pseudo_price` DOUBLE NOT NULL DEFAULT 0.0 AFTER `discount`;
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE IF NOT EXISTS `_test_bundle_translation` (
               `_test_bundle_id` BINARY(16) NOT NULL,
               `language_id` BINARY(16) NOT NULL,
@@ -43,7 +43,7 @@ class Migration1571832058v3 extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE IF NOT EXISTS `_test_bundle_price` (
               `id` BINARY(16) NOT NULL,
               `bundle_id` BINARY(16) NOT NULL,
@@ -59,7 +59,7 @@ class Migration1571832058v3 extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             INSERT INTO `_test_bundle_translation` (`_test_bundle_id`, `language_id`, `name`, `translated_description`,  `created_at`)
                 SELECT id as _test_bundle_id, :languageId as language_id, name, description, NOW()
                 FROM _test_bundle;
@@ -127,7 +127,7 @@ class Migration1571832058v3 extends MigrationStep
         $this->removeTrigger($connection, self::BACKWARD_INSERT_TRIGGER_NAME);
         $this->removeTrigger($connection, self::FORWARD_INSERT_TRIGGER_NAME);
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             ALTER TABLE `_test_bundle` 
             DROP COLUMN `name`,
             DROP COLUMN `description`;

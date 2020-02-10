@@ -17,7 +17,7 @@ class Migration1574695657ProductCrossSelling extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `product_cross_selling` (
                 `id` BINARY(16) NOT NULL,
                 `position` INT(11) NOT NULL,
@@ -37,7 +37,7 @@ class Migration1574695657ProductCrossSelling extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `product_cross_selling_translation` (
                 `product_cross_selling_id` BINARY(16) NOT NULL,
                 `language_id` BINARY(16) NOT NULL,

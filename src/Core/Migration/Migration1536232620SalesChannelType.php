@@ -14,7 +14,7 @@ class Migration1536232620SalesChannelType extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `sales_channel_type` (
               `id`              BINARY(16)                              NOT NULL,
               `cover_url`       VARCHAR(500) COLLATE utf8mb4_unicode_ci NULL,
@@ -27,7 +27,7 @@ class Migration1536232620SalesChannelType extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `sales_channel_type_translation` (
               `sales_channel_type_id`   BINARY(16)                              NOT NULL,
               `language_id`             BINARY(16)                              NOT NULL,

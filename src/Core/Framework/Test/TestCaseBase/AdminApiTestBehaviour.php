@@ -50,12 +50,12 @@ trait AdminApiTestBehaviour
             ->get(Connection::class);
 
         try {
-            $connection->executeQuery(
+            $connection->executeUpdate(
                 'DELETE FROM user WHERE username IN (:usernames)',
                 ['usernames' => $this->apiUsernames],
                 ['usernames' => Connection::PARAM_STR_ARRAY]
             );
-            $connection->executeQuery(
+            $connection->executeUpdate(
                 'DELETE FROM integration WHERE id IN (:ids)',
                 ['ids' => $this->apiIntegrations],
                 ['ids' => Connection::PARAM_STR_ARRAY]

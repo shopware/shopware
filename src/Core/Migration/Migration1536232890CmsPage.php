@@ -31,7 +31,7 @@ class Migration1536232890CmsPage extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
 
-        $connection->executeQuery($sql);
+        $connection->executeUpdate($sql);
 
         $sql = <<<SQL
             CREATE TABLE `cms_page_translation` (
@@ -50,7 +50,7 @@ SQL;
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
 
-        $connection->executeQuery($sql);
+        $connection->executeUpdate($sql);
     }
 
     public function updateDestructive(Connection $connection): void

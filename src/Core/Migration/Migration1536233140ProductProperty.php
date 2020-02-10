@@ -14,7 +14,7 @@ class Migration1536233140ProductProperty extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `product_property` (
               `product_id` BINARY(16) NOT NULL,
               `product_version_id` BINARY(16) NOT NULL,

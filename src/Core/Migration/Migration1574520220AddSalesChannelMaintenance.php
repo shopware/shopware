@@ -14,10 +14,10 @@ class Migration1574520220AddSalesChannelMaintenance extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             ALTER TABLE `sales_channel` ADD `maintenance` tinyint(1) NOT NULL DEFAULT 0 AFTER `active`
         ');
-        $connection->executeQuery('
+        $connection->executeUpdate('
             ALTER TABLE `sales_channel` ADD `maintenance_ip_whitelist` JSON NULL AFTER `maintenance`
         ');
     }

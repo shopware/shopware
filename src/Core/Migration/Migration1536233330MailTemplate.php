@@ -14,7 +14,7 @@ class Migration1536233330MailTemplate extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `mail_template_type` (
               `id` BINARY(16) NOT NULL,
               `technical_name` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -27,7 +27,7 @@ class Migration1536233330MailTemplate extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `mail_template_type_translation` (
               `mail_template_type_id` BINARY(16) NOT NULL,
               `language_id` BINARY(16) NOT NULL,
@@ -44,7 +44,7 @@ class Migration1536233330MailTemplate extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `mail_template` (
               `id` BINARY(16) NOT NULL,
               `mail_template_type_id` BINARY(16) NULL,
@@ -57,7 +57,7 @@ class Migration1536233330MailTemplate extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `mail_template_translation` (
               `mail_template_id` BINARY(16) NOT NULL,
               `language_id` BINARY(16) NOT NULL,
@@ -76,7 +76,7 @@ class Migration1536233330MailTemplate extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `mail_template_sales_channel` (
               `id` BINARY(16) NOT NULL,
               `mail_template_id` BINARY(16) NOT NULL,

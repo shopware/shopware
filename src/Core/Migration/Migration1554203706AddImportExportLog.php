@@ -14,7 +14,7 @@ class Migration1554203706AddImportExportLog extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `import_export_log` (
               `id` binary(16) NOT NULL,
               `activity` varchar(255) NOT NULL,

@@ -68,9 +68,9 @@ class ApiVersioningV3Test extends TestCase
         static::clearCache();
 
         $connection = static::container()->get(Connection::class);
-        $connection->executeQuery('DROP TABLE IF EXISTS `_test_bundle_translation`');
-        $connection->executeQuery('DROP TABLE IF EXISTS `_test_bundle_price`');
-        $connection->executeQuery('DROP TABLE IF EXISTS `_test_bundle`');
+        $connection->executeUpdate('DROP TABLE IF EXISTS `_test_bundle_translation`');
+        $connection->executeUpdate('DROP TABLE IF EXISTS `_test_bundle_price`');
+        $connection->executeUpdate('DROP TABLE IF EXISTS `_test_bundle`');
     }
 
     public function setUp(): void

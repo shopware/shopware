@@ -19,12 +19,12 @@ class Migration1572528079v4 extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             ALTER TABLE _test_bundle_price
             ADD COLUMN `pseudo_price` DOUBLE NOT NULL DEFAULT 0.0 AFTER `price`;
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             UPDATE _test_bundle_price
             SET `pseudo_price` = (SELECT bundle.pseudo_price FROM _test_bundle AS bundle WHERE bundle.id = bundle_id)
             WHERE `quantity_start` = 0;
@@ -91,7 +91,7 @@ class Migration1572528079v4 extends MigrationStep
      */
     public function updateDestructive(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             ALTER TABLE _test_bundle
             DROP COLUMN `pseudo_price`;
         ');

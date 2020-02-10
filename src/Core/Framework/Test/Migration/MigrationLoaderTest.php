@@ -36,7 +36,7 @@ class MigrationLoaderTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->connection->executeQuery(
+        $this->connection->executeUpdate(
             'DELETE FROM `migration`
               WHERE `class` LIKE \'%_test_migrations_valid%\'
               OR `class` LIKE \'%_test_migrations_invalid_namespace%\''

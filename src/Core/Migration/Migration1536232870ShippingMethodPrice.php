@@ -14,7 +14,7 @@ class Migration1536232870ShippingMethodPrice extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `shipping_method_price` (
               `id`                  BINARY(16)      NOT NULL,
               `shipping_method_id`  BINARY(16)      NOT NULL,

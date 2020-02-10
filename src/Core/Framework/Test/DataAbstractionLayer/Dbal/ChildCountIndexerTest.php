@@ -168,7 +168,7 @@ class ChildCountIndexerTest extends TestCase
 
         $categoryD = $this->createCategory($categoryC);
 
-        $this->connection->executeQuery(
+        $this->connection->executeUpdate(
             'UPDATE category SET child_count = 0 WHERE HEX(id) IN (:ids)',
             [
                 'ids' => [

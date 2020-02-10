@@ -14,7 +14,7 @@ class Migration1536232860ShippingMethod extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `shipping_method` (
               `id`                      BINARY(16)          NOT NULL,
               `active`                  TINYINT(1) unsigned NOT NULL DEFAULT 1,
@@ -33,7 +33,7 @@ class Migration1536232860ShippingMethod extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `shipping_method_translation` (
               `shipping_method_id`  BINARY(16)                                  NOT NULL,
               `language_id`         BINARY(16)                                  NOT NULL,

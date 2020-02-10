@@ -14,7 +14,7 @@ class Migration1565270366PromotionSetGroupRule extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `promotion_setgroup_rule` (
                 setgroup_id BINARY(16) NOT NULL,
                 rule_id BINARY(16) NOT NULL,

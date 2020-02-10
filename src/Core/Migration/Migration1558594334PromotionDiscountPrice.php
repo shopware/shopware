@@ -14,7 +14,7 @@ class Migration1558594334PromotionDiscountPrice extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
           CREATE TABLE `promotion_discount_prices` (
               `id` BINARY(16) NOT NULL,
               `discount_id` BINARY(16) NOT NULL,

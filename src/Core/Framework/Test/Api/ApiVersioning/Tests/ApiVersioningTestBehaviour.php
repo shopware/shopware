@@ -28,7 +28,7 @@ trait ApiVersioningTestBehaviour
     protected static function clearCache(): void
     {
         $cacheId = Uuid::randomHex();
-        static::container()->get(Connection::class)->executeQuery('
+        static::container()->get(Connection::class)->executeUpdate('
             UPDATE `app_config`
             SET `value` = :cacheId
             WHERE `key` = "cache-id"

@@ -254,7 +254,7 @@ class TreeIndexerTest extends TestCase
             return [$categoryA, $categoryB, $categoryC, $categoryD];
         });
 
-        $this->connection->executeQuery(
+        $this->connection->executeUpdate(
             'UPDATE category SET path = NULL, level = 0 WHERE HEX(id) IN (:ids)',
             [
                 'ids' => [

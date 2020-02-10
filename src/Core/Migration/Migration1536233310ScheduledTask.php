@@ -14,7 +14,7 @@ class Migration1536233310ScheduledTask extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `scheduled_task` (
               `id` BINARY(16) NOT NULL,
               `name` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,

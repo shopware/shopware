@@ -14,7 +14,7 @@ class Migration1536233090MediaThumbnail extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `media_thumbnail` (
               `id` BINARY(16) NOT NULL,
               `media_id` BINARY(16) NOT NULL,

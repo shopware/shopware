@@ -14,7 +14,7 @@ class Migration1536232600Language extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `language` (
               `id`                  BINARY(16)                              NOT NULL,
               `name`                VARCHAR(50) COLLATE utf8mb4_unicode_ci  NOT NULL,

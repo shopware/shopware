@@ -14,7 +14,7 @@ class Migration1536232650CustomerGroup extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `customer_group` (
               `id`              BINARY(16)  NOT NULL,
               `display_gross`   TINYINT(1)  NOT NULL DEFAULT 1,
@@ -24,7 +24,7 @@ class Migration1536232650CustomerGroup extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `customer_group_translation` (
               `customer_group_id`   BINARY(16)                              NOT NULL,
               `language_id`         BINARY(16)                              NOT NULL,

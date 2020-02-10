@@ -14,7 +14,7 @@ class Migration1536233470PromotionOrderRule extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `promotion_order_rule` (
                 promotion_id BINARY(16) NOT NULL,
                 rule_id BINARY(16) NOT NULL,

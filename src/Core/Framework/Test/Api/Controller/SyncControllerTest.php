@@ -137,10 +137,10 @@ class SyncControllerTest extends TestCase
     public function testDuplicateProductNumberInsertKeyChanged(): void
     {
         $this->connection->rollBack();
-        $this->connection->executeQuery('
+        $this->connection->executeUpdate('
             ALTER TABLE `product` DROP INDEX `uniq.product.product_number__version_id`
         ');
-        $this->connection->executeQuery('
+        $this->connection->executeUpdate('
             ALTER TABLE `product` ADD CONSTRAINT `uniq.product.product_number__version_idTEST` UNIQUE (`product_number`, `version_id`)
         ');
         $this->connection->beginTransaction();
@@ -193,11 +193,11 @@ class SyncControllerTest extends TestCase
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
 
         $this->connection->rollBack();
-        $this->connection->executeQuery('
+        $this->connection->executeUpdate('
             ALTER TABLE `product` DROP INDEX `uniq.product.product_number__version_idTEST`
         ');
 
-        $this->connection->executeQuery('
+        $this->connection->executeUpdate('
             ALTER TABLE `product` ADD CONSTRAINT `uniq.product.product_number__version_id` UNIQUE (`product_number`, `version_id`)
         ');
         $this->connection->beginTransaction();

@@ -14,8 +14,8 @@ class Migration1578470886FixPurchaseSteps extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('UPDATE product SET purchase_steps = 1 WHERE purchase_steps < 1');
-        $connection->executeQuery('UPDATE product SET min_purchase = 1 WHERE min_purchase < 1');
+        $connection->executeUpdate('UPDATE product SET purchase_steps = 1 WHERE purchase_steps < 1');
+        $connection->executeUpdate('UPDATE product SET min_purchase = 1 WHERE min_purchase < 1');
     }
 
     public function updateDestructive(Connection $connection): void

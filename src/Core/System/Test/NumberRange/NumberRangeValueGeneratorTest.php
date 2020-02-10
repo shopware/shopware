@@ -145,6 +145,6 @@ class NumberRangeValueGeneratorTest extends TestCase
         $sql = <<<SQL
             DELETE FROM `number_range_state`;
 SQL;
-        $this->connection->executeQuery($sql);
+        $this->connection->executeUpdate($sql);
     }
 }

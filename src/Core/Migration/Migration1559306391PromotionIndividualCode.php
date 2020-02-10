@@ -14,7 +14,7 @@ class Migration1559306391PromotionIndividualCode extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE IF NOT EXISTS `promotion_individual_code` (
               `id` BINARY(16) NOT NULL,
               `promotion_id` BINARY(16) NOT NULL,

@@ -14,7 +14,7 @@ class Migration1536233450PromotionPersonaRules extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `promotion_persona_rule` (
                 `promotion_id` BINARY(16) NOT NULL,
                 `rule_id` BINARY(16) NOT NULL,

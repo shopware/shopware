@@ -225,7 +225,7 @@ class ChildCountIndexer implements IndexerInterface
             $params['version'] = $versionId;
         }
 
-        $this->connection->executeQuery(
+        $this->connection->executeUpdate(
             $sql,
             $params,
             ['ids' => Connection::PARAM_STR_ARRAY]

@@ -153,7 +153,7 @@ class ElasticsearchProductTest extends TestCase
             ->getContainer()
             ->get(Connection::class);
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             DROP TABLE IF EXISTS `extended_product`;
             CREATE TABLE `extended_product` (
                 `id` BINARY(16) NOT NULL,
@@ -181,7 +181,7 @@ class ElasticsearchProductTest extends TestCase
             ->get(Connection::class);
 
         $connection->rollBack();
-        $connection->executeQuery('DROP TABLE `extended_product`');
+        $connection->executeUpdate('DROP TABLE `extended_product`');
     }
 
     public function testIndexing()

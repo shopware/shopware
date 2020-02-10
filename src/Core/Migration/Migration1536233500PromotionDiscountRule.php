@@ -14,7 +14,7 @@ class Migration1536233500PromotionDiscountRule extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `promotion_discount_rule` (
                 discount_id BINARY(16) NOT NULL,
                 rule_id BINARY(16) NOT NULL,

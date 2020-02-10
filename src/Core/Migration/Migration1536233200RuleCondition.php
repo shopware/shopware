@@ -14,7 +14,7 @@ class Migration1536233200RuleCondition extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `rule_condition` (
               `id` BINARY(16) NOT NULL,
               `type` VARCHAR(255) NOT NULL,

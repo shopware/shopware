@@ -14,7 +14,7 @@ class Migration1562306893MakeCustomerFirstLoginDateTime extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             ALTER TABLE `customer`
             MODIFY COLUMN `first_login` DATETIME(3) NULL;
         ');

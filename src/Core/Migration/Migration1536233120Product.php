@@ -14,7 +14,7 @@ class Migration1536233120Product extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `product` (
               `id` BINARY(16) NOT NULL,
               `version_id` BINARY(16) NOT NULL,
@@ -98,7 +98,7 @@ class Migration1536233120Product extends MigrationStep
             ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `product_translation` (
               `product_id` BINARY(16) NOT NULL,
               `product_version_id` BINARY(16) NOT NULL,

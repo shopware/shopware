@@ -14,7 +14,7 @@ class Migration1554200141ImportExportFile extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `import_export_file` (
               `id` binary(16) NOT NULL,
               `original_name` VARCHAR(255) NOT NULL,

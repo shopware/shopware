@@ -14,7 +14,7 @@ class Migration1536233030OrderLineItem extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `order_line_item` (
               `id` BINARY(16) NOT NULL,
               `version_id` BINARY(16) NOT NULL,

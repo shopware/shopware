@@ -112,7 +112,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
                 // set inherited association fields, normally set in Indexer
                 // these are needed in Order generation
-                $this->connection->executeQuery(
+                $this->connection->executeUpdate(
                     'UPDATE product SET visibilities = id, prices = id WHERE id IN (:ids);',
                     ['ids' => Uuid::fromHexToBytesList($ids)],
                     ['ids' => Connection::PARAM_STR_ARRAY]
@@ -125,7 +125,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
             // set inherited association fields, normally set in Indexer
             // these are needed in Order generation
-            $this->connection->executeQuery(
+            $this->connection->executeUpdate(
                 'UPDATE product SET visibilities = id, prices = id WHERE id IN (:ids);',
                 ['ids' => Uuid::fromHexToBytesList($ids)],
                 ['ids' => Connection::PARAM_STR_ARRAY]

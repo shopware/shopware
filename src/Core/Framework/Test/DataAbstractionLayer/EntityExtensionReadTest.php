@@ -54,7 +54,7 @@ class EntityExtensionReadTest extends TestCase
 
         $this->connection->rollBack();
 
-        $this->connection->executeQuery('
+        $this->connection->executeUpdate('
             DROP TABLE IF EXISTS `extended_product`; 
             CREATE TABLE `extended_product` (
                 `id` BINARY(16) NOT NULL,
@@ -69,7 +69,7 @@ class EntityExtensionReadTest extends TestCase
             )
         ');
 
-        $this->connection->executeQuery('
+        $this->connection->executeUpdate('
             ALTER TABLE `product` ADD COLUMN `linked_product_id` binary(16) NULL, ADD COLUMN `linked_product_version_id` binary(16) NULL
         ');
 
@@ -79,8 +79,8 @@ class EntityExtensionReadTest extends TestCase
     protected function tearDown(): void
     {
         $this->connection->rollBack();
-        $this->connection->executeQuery('DROP TABLE `extended_product`');
-        $this->connection->executeQuery('
+        $this->connection->executeUpdate('DROP TABLE `extended_product`');
+        $this->connection->executeUpdate('
             ALTER TABLE `product` DROP COLUMN `linked_product_id`, DROP COLUMN `linked_product_version_id`;
         ');
         $this->connection->beginTransaction();

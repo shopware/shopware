@@ -7,7 +7,7 @@ function resolve(dir) {
 }
 
 // Refactor the usage of eslint
-const eslintDisable = (process.env.ESLINT_DISABLE === 'true');
+const eslintDisable = (process.env.ESLINT_DISABLE === 'true' || process.env.NODE_ENV === 'production');
 const includeDirectories = [...[resolve('src'), resolve('test')]];
 
 module.exports = {
@@ -78,6 +78,7 @@ module.exports = {
                 include: includeDirectories,
                 options: {
                     compact: true,
+                    cacheDirectory: true,
                     presets: [[
                         '@babel/preset-env', {
                             modules: false,

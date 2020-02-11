@@ -458,6 +458,7 @@
         "lineItemCreationDateRule": "Positionen mit Erstelldatum",
         "lineItemReleaseDateRule": "Positionen mit Erscheinungsdatum",
         "lineItemClearanceSale": "Positionen mit Abverkauf",
+        "lineItemTopsellerRule": "Top-Seller Positionen",
         "paymentMethodRule": "Zahlungsart",
         "shippingMethodRule": "Versandart"
       }

@@ -464,6 +464,7 @@
         "lineItemDimensionWidthRule": "Line item width",
         "lineItemDimensionHeightRule": "Line item height",
         "lineItemDimensionLengthRule": "Line item length",
+        "lineItemDimensionWeightRule": "Line item weight",
         "paymentMethodRule": "Payment method",
         "shippingMethodRule": "Shipping method"
       }

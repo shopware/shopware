@@ -464,6 +464,7 @@
         "lineItemDimensionWidthRule": "Positionen mit Breite",
         "lineItemDimensionHeightRule": "Positionen mit Höhe",
         "lineItemDimensionLengthRule": "Positionen mit Länge",
+        "lineItemDimensionWeightRule": "Positionen mit Gewicht",
         "paymentMethodRule": "Zahlungsart",
         "shippingMethodRule": "Versandart"
       }

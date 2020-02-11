@@ -1,3 +1,5 @@
+[titleEn]: <>(Commands)
+
 # Commands
 
 The both [e2e-testsuite-platform](https://github.com/shopware/e2e-testsuite-platform) and Shopware platform contain 

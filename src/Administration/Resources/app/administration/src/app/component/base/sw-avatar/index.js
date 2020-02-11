@@ -71,7 +71,6 @@ Component.register('sw-avatar', {
             required: false,
             default: false
         },
-
         sourceContext: {
             type: Object,
             required: false,
@@ -119,13 +118,19 @@ Component.register('sw-avatar', {
         },
 
         avatarImage() {
-            if (!this.imageUrl) {
+            if (this.imageUrl) {
+                return { 'background-image': `url('${this.imageUrl}')` };
+            }
+
+            if (!this.sourceContext || !this.sourceContext.avatarMedia || !this.sourceContext.avatarMedia.url) {
                 return null;
             }
 
-            return {
-                'background-image': `url('${this.imageUrl}')`
-            };
+            const avatarMedia = this.sourceContext.avatarMedia;
+            const thumbnailImage = avatarMedia.thumbnails.sort((a, b) => a.width - b.width)[0];
+            const previewImageUrl = thumbnailImage ? thumbnailImage.url : avatarMedia.url;
+
+            return { 'background-image': `url('${previewImageUrl}')` };
         },
 
         avatarColor() {
@@ -146,12 +151,16 @@ Component.register('sw-avatar', {
             };
         },
 
+        hasAvatarImage() {
+            return !!this.avatarImage && !!this.avatarImage['background-image'];
+        },
+
         showPlaceholder() {
-            return this.placeholder && (!this.avatarImage || !this.avatarImage['background-image']);
+            return this.placeholder && !this.hasAvatarImage;
         },
 
         showInitials() {
-            return !this.placeholder && (!this.avatarImage || !this.avatarImage['background-image']);
+            return !this.placeholder && !this.hasAvatarImage;
         }
     },
 

@@ -6,7 +6,7 @@ const express = require('express');
 const webpack = require('webpack');
 const openInEditor = require('launch-editor-middleware');
 const proxy = require('http-proxy-middleware');
-const WebpackPluginInjector = require('@shopware/webpack-plugin-injector');
+const WebpackPluginInjector = require('@shopware-ag/webpack-plugin-injector');
 const config = require('../config');
 
 const injector = new WebpackPluginInjector('var/plugins.json', {}, 'administration');

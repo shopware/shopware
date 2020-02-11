@@ -461,6 +461,7 @@
         "lineItemTopsellerRule": "Line item topseller",
         "lineItemInCategoryRule": "Line item in category",
         "lineItemTaxationRule": "Line item with tax rate",
+        "lineItemDimensionWidthRule": "Line item width",
         "paymentMethodRule": "Payment method",
         "shippingMethodRule": "Shipping method"
       }

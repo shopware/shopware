@@ -462,6 +462,7 @@
         "lineItemInCategoryRule": "Positionen in Kategorie",
         "lineItemNoveltyRule": "Neuheiten",
         "lineItemTaxationRule": "Positionen mit Steuersatz",
+        "lineItemDimensionWidthRule": "Positionen mit Breite",
         "paymentMethodRule": "Zahlungsart",
         "shippingMethodRule": "Versandart"
       }

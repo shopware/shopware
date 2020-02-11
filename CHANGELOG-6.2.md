@@ -138,6 +138,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new `Shopware\Core\Checkout\Cart\Rule\LineItemTopsellerRule` to check if a top seller product is in cart
     * Added new `Shopware\Core\Checkout\Cart\Rule\LineItemInCategoryRule` to check product categories in cart 
     * Added new `Shopware\Core\Checkout\Cart\Rule\LineItemTaxationRule to check specific taxations in cart 
+    * Added new `Shopware\Core\Checkout\Cart\Rule\LineItemDimensionWidthRule` to check the width of a product in cart
 
 * Storefront	
     * The `theme.json` now supports a new option for the `style` files. The placeholder `@StorefrontBootstrap` gives you the ability to use the Bootstrap SCSS without the Shopware Storefront "skin":

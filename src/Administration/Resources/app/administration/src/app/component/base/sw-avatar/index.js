@@ -33,6 +33,11 @@ const colors = [
  * <sw-avatar size="48px"
  *            imageUrl="https://randomuser.me/api/portraits/women/68.jpg"></sw-avatar>
  * </div>
+ *
+ * <sw-avatar size="48px"
+ *            imageUrl="https://randomuser.me/api/portraits/men/68.jpg"
+ *            :sourceContext="user"></sw-avatar>
+ * </div>
  */
 Component.register('sw-avatar', {
     template,
@@ -65,6 +70,11 @@ Component.register('sw-avatar', {
             type: Boolean,
             required: false,
             default: false
+        },
+        sourceContext: {
+            type: Object,
+            required: false,
+            default: null
         }
     },
 
@@ -108,13 +118,19 @@ Component.register('sw-avatar', {
         },
 
         avatarImage() {
-            if (!this.imageUrl) {
-                return '';
+            if (this.imageUrl) {
+                return { 'background-image': `url('${this.imageUrl}')` };
             }
 
-            return {
-                'background-image': `url('${this.imageUrl}')`
-            };
+            if (!this.sourceContext || !this.sourceContext.avatarMedia || !this.sourceContext.avatarMedia.url) {
+                return null;
+            }
+
+            const avatarMedia = this.sourceContext.avatarMedia;
+            const thumbnailImage = avatarMedia.thumbnails.sort((a, b) => a.width - b.width)[0];
+            const previewImageUrl = thumbnailImage ? thumbnailImage.url : avatarMedia.url;
+
+            return { 'background-image': `url('${previewImageUrl}')` };
         },
 
         avatarColor() {
@@ -135,12 +151,16 @@ Component.register('sw-avatar', {
             };
         },
 
+        hasAvatarImage() {
+            return !!this.avatarImage && !!this.avatarImage['background-image'];
+        },
+
         showPlaceholder() {
-            return this.placeholder && (!this.imageUrl || !this.imageUrl.length);
+            return this.placeholder && !this.hasAvatarImage;
         },
 
         showInitials() {
-            return !this.placeholder && (!this.imageUrl || !this.imageUrl.length);
+            return !this.placeholder && !this.hasAvatarImage;
         }
     },
 

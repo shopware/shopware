@@ -15,6 +15,7 @@
                                 {% block sw_user_card_avatar %}
                                     <sw-avatar :color="moduleColor"
                                                size="80px"
+                                               :sourceContext="user"
                                                :firstName="user.firstName"
                                                :lastName="user.lastName">
                                     </sw-avatar>

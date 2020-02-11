@@ -9,6 +9,7 @@
                                 <sw-container columns="80px 1fr max-content" gap="0px 30px">
                                     {% block sw_customer_card_avatar %}
                                         <sw-avatar size="80px"
+                                                   :sourceContext="customer"
                                                    :firstName="customer.firstName"
                                                    :lastName="customer.lastName">
                                         </sw-avatar>

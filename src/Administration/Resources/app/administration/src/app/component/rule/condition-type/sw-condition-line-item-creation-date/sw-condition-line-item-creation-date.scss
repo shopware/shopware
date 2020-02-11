@@ -1,0 +1,7 @@
+.sw-condition .sw-condition-line-item-creation-date {
+    grid-template-columns: auto 1fr 1fr;
+
+    .sw-field--datepicker .sw-field__addition {
+        display: none;
+    }
+}

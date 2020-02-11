@@ -455,6 +455,7 @@
         "lineItemNoveltyRule": "Neuheiten",
         "lineItemOfManufacturerRule": "Hersteller",
         "lineItemPurchasePriceRule": "Positionen Einkaufspreis",
+        "lineItemCreationDateRule": "Positionen mit Erstelldatum",
         "paymentMethodRule": "Zahlungsart",
         "shippingMethodRule": "Versandart"
       }

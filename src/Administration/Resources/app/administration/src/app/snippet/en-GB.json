@@ -459,6 +459,7 @@
         "lineItemReleaseDateRule": "Line item with release date",
         "lineItemClearanceSale": "Line item with clearance sale",
         "lineItemTopsellerRule": "Line item topseller",
+        "lineItemInCategoryRule": "Line item in category",
         "paymentMethodRule": "Payment method",
         "shippingMethodRule": "Shipping method"
       }

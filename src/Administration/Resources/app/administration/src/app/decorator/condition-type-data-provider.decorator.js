@@ -203,6 +203,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.lineItemTopsellerRule',
         scopes: ['lineItem']
     });
+    ruleConditionService.addCondition('cartLineItemInCategory', {
+        component: 'sw-condition-line-item-in-category',
+        label: 'global.sw-condition.condition.lineItemInCategoryRule',
+        scopes: ['lineItem']
+    });
 
     if (next6013()) {
         ruleConditionService.addCondition('paymentMethod', {

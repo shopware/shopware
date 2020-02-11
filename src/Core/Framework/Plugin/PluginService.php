@@ -136,6 +136,9 @@ class PluginService
                         $this->changelogService->getLocaleFromChangelogFile($file),
                         $shopwareContext
                     );
+                    if ($languageId === '') {
+                        continue;
+                    }
 
                     try {
                         $pluginData['translations'][$languageId]['changelog'] = $this->changelogService->parseChangelog($file);

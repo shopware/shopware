@@ -218,6 +218,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.lineItemDimensionWidthRule',
         scopes: ['lineItem']
     });
+    ruleConditionService.addCondition('cartLineItemDimensionHeight', {
+        component: 'sw-condition-line-item-dimension-height',
+        label: 'global.sw-condition.condition.lineItemDimensionHeightRule',
+        scopes: ['lineItem']
+    });
 
     if (next6013()) {
         ruleConditionService.addCondition('paymentMethod', {

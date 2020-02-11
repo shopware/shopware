@@ -25,18 +25,15 @@
     },
     "notifications": {
       "clearCache": {
-        "title": "Cache",
         "started": "All caches will be cleared.",
         "success": "All caches successfully cleared.",
         "error": "A unknown error occurred, while deleting cache."
       },
       "clearCacheAndWarmup": {
-        "title": "Cache",
         "started": "All caches cleared. Warmup starts now.",
         "success": "Warmup successfully completed."
       },
       "index": {
-        "title": "Indexes",
         "started": "All indexes will be built.",
         "success": "All indexes successfully built."
       }

@@ -457,6 +457,7 @@
         "lineItemPurchasePriceRule": "Positionen Einkaufspreis",
         "lineItemCreationDateRule": "Positionen mit Erstelldatum",
         "lineItemReleaseDateRule": "Positionen mit Erscheinungsdatum",
+        "lineItemClearanceSale": "Positionen mit Abverkauf",
         "paymentMethodRule": "Zahlungsart",
         "shippingMethodRule": "Versandart"
       }

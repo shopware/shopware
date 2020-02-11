@@ -140,6 +140,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemClearanceSaleRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Cart\Rule\PaymentMethodRule">
             <tag name="shopware.rule.definition"/>
             <tag name="shopware.feature" flag="next6013" />

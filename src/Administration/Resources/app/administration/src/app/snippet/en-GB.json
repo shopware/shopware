@@ -457,6 +457,7 @@
         "lineItemPurchasePriceRule": "Line item purchase price",
         "lineItemCreationDateRule": "Line item with creation date",
         "lineItemReleaseDateRule": "Line item with release date",
+        "lineItemClearanceSale": "Line item with clearance sale",
         "paymentMethodRule": "Payment method",
         "shippingMethodRule": "Shipping method"
       }

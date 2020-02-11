@@ -193,6 +193,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.lineItemReleaseDateRule',
         scopes: ['lineItem']
     });
+    ruleConditionService.addCondition('cartLineItemClearanceSale', {
+        component: 'sw-condition-line-item-clearance-sale',
+        label: 'global.sw-condition.condition.lineItemClearanceSale',
+        scopes: ['lineItem']
+    });
 
     if (next6013()) {
         ruleConditionService.addCondition('paymentMethod', {

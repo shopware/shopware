@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 
+use Symfony\Contracts\Service\ServiceProviderInterface;
+
 class PaymentHandlerRegistry
 {
     /**
@@ -9,29 +11,42 @@ class PaymentHandlerRegistry
      */
     private $handlers = [];
 
-    public function __construct(iterable $syncHandlers, iterable $asyncHandlers)
+    /** @deprecated tag:v6.3.0 TypeHint for both parameters will be changed to ServiceProviderInterface */
+    public function __construct($syncHandlers, $asyncHandlers)
     {
-        foreach ($syncHandlers as $handler) {
-            $this->addHandler($handler);
-        }
+        if ($syncHandlers instanceof ServiceProviderInterface && $asyncHandlers instanceof ServiceProviderInterface) {
+            foreach (array_keys($syncHandlers->getProvidedServices()) as $serviceId) {
+                $handler = $syncHandlers->get($serviceId);
+                $this->handlers[$serviceId] = $handler;
+            }
 
-        foreach ($asyncHandlers as $handler) {
-            $this->addHandler($handler);
+            foreach (array_keys($asyncHandlers->getProvidedServices()) as $serviceId) {
+                $handler = $asyncHandlers->get($serviceId);
+                $this->handlers[$serviceId] = $handler;
+            }
+        } else {
+            foreach ($syncHandlers as $handler) {
+                $this->addHandler($handler);
+            }
+
+            foreach ($asyncHandlers as $handler) {
+                $this->addHandler($handler);
+            }
         }
     }
 
-    public function getHandler(string $class)
+    public function getHandler(string $handlerId)
     {
-        if (!array_key_exists($class, $this->handlers)) {
+        if (!array_key_exists($handlerId, $this->handlers)) {
             return null;
         }
 
-        return $this->handlers[$class];
+        return $this->handlers[$handlerId];
     }
 
-    public function getSyncHandler(string $class): ?SynchronousPaymentHandlerInterface
+    public function getSyncHandler(string $handlerId): ?SynchronousPaymentHandlerInterface
     {
-        $handler = $this->getHandler($class);
+        $handler = $this->getHandler($handlerId);
         if (!$handler || !$handler instanceof SynchronousPaymentHandlerInterface) {
             return null;
         }
@@ -39,9 +54,9 @@ class PaymentHandlerRegistry
         return $handler;
     }
 
-    public function getAsyncHandler(string $class): ?AsynchronousPaymentHandlerInterface
+    public function getAsyncHandler(string $handlerId): ?AsynchronousPaymentHandlerInterface
     {
-        $handler = $this->getHandler($class);
+        $handler = $this->getHandler($handlerId);
         if (!$handler || !$handler instanceof AsynchronousPaymentHandlerInterface) {
             return null;
         }
@@ -49,6 +64,7 @@ class PaymentHandlerRegistry
         return $handler;
     }
 
+    /** @deprecated tag:v6.3.0 will be removed in 6.3.0 */
     private function addHandler($handler): void
     {
         $this->handlers[\get_class($handler)] = $handler;

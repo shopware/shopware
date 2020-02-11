@@ -62,6 +62,31 @@ class PaymentMethodRepositoryTest extends TestCase
         );
     }
 
+    public function testCreatePaymentMethodNoNamespace(): void
+    {
+        $defaultContext = Context::createDefaultContext();
+
+        $paymentMethod = $this->createPaymentMethodNoNamspaceHandlerDummyArray();
+
+        $this->paymentRepository->create($paymentMethod, $defaultContext);
+
+        $criteria = new Criteria([$this->paymentMethodId]);
+        $criteria->addAssociation('availabilityRule');
+
+        /** @var PaymentMethodCollection $resultSet */
+        $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
+
+        static::assertSame($this->paymentMethodId, $resultSet->first()->getId());
+        static::assertSame(
+            $paymentMethod[0]['availabilityRule']['id'],
+            $resultSet->first()->getAvailabilityRule()->getId()
+        );
+        static::assertSame(
+            'Object',
+            $resultSet->first()->getFormattedHandlerIdentifier()
+        );
+    }
+
     public function testUpdatePaymentMethod(): void
     {
         $defaultContext = Context::createDefaultContext();
@@ -208,6 +233,22 @@ class PaymentMethodRepositoryTest extends TestCase
                 'id' => $this->paymentMethodId,
                 'name' => 'test',
                 'handlerIdentifier' => AsyncTestPaymentHandler::class,
+                'availabilityRule' => [
+                    'id' => Uuid::randomHex(),
+                    'name' => 'asd',
+                    'priority' => 2,
+                ],
+            ],
+        ];
+    }
+
+    private function createPaymentMethodNoNamspaceHandlerDummyArray(): array
+    {
+        return [
+            [
+                'id' => $this->paymentMethodId,
+                'name' => 'test',
+                'handlerIdentifier' => 'Object',
                 'availabilityRule' => [
                     'id' => Uuid::randomHex(),
                     'name' => 'asd',

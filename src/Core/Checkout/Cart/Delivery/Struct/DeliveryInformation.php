@@ -31,18 +31,39 @@ class DeliveryInformation extends Struct
      */
     protected $deliveryTime;
 
+    /**
+     * @var float|null
+     */
+    protected $height;
+
+    /**
+     * @var float|null
+     */
+    protected $width;
+
+    /**
+     * @var float|null
+     */
+    protected $length;
+
     public function __construct(
         int $stock,
         float $weight,
         bool $freeDelivery,
         ?int $restockTime = null,
-        ?DeliveryTime $deliveryTime = null
+        ?DeliveryTime $deliveryTime = null,
+        ?float $height = null,
+        ?float $width = null,
+        ?float $length = null
     ) {
         $this->stock = $stock;
         $this->weight = $weight;
         $this->freeDelivery = $freeDelivery;
         $this->restockTime = $restockTime;
         $this->deliveryTime = $deliveryTime;
+        $this->height = $height;
+        $this->width = $width;
+        $this->length = $length;
     }
 
     public function getStock(): int
@@ -93,5 +114,35 @@ class DeliveryInformation extends Struct
     public function setDeliveryTime(?DeliveryTime $deliveryTime): void
     {
         $this->deliveryTime = $deliveryTime;
+    }
+
+    public function getHeight(): ?float
+    {
+        return $this->height;
+    }
+
+    public function setHeight(?float $height): void
+    {
+        $this->height = $height;
+    }
+
+    public function getWidth(): ?float
+    {
+        return $this->width;
+    }
+
+    public function setWidth(?float $width): void
+    {
+        $this->width = $width;
+    }
+
+    public function getLength(): ?float
+    {
+        return $this->length;
+    }
+
+    public function setLength(?float $length): void
+    {
+        $this->length = $length;
     }
 }

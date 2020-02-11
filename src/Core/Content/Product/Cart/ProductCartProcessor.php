@@ -178,9 +178,8 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
 
         $deliveryTime = null;
-        $productDeliveryTime = $product->getDeliveryTime();
-        if ($productDeliveryTime !== null) {
-            $deliveryTime = DeliveryTime::createFromEntity($productDeliveryTime);
+        if ($product->getDeliveryTime() !== null) {
+            $deliveryTime = DeliveryTime::createFromEntity($product->getDeliveryTime());
         }
 
         $lineItem->setDeliveryInformation(
@@ -189,7 +188,10 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 (float) $product->getWeight(),
                 $product->getShippingFree(),
                 $product->getRestockTime(),
-                $deliveryTime
+                $deliveryTime,
+                $product->getHeight(),
+                $product->getWidth(),
+                $product->getLength()
             )
         );
 

@@ -11,9 +11,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
 **Addition / Changes**
 
-* Core
-
-    * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField`, use `\Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField` with `AllowHtml` flag instead
 * Administration
 	* Added `disabled` attribute of fields to `sw-customer-address-form` component
     * Deprecated `tagStore` in `sw-newsletter-recipient-list`
@@ -38,8 +35,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Deprecated currentValue, use value instead
         * Deprecated watcher for value
     * Added "Cache & Indexes" Module to system settings
-
-    *
     * The component sw-integration-list was refactored to use the "repositoryFactory" instead of "StateDeprecated" to fetch and save data
 	    - deprecated "StateDeprecated"
 	    - change default data "integrations" from "[]" to "null"
@@ -115,7 +110,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * The usage of `entity` in the `shopware.entity.definition` tag is deprecated and will be removed with 6.4. 
     * Added `novelty` rule builder condition-type
     * Added `SalesChannelAnalyticsEntity` to define the Google Analytics configuration
-
+    * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField`, use `\Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField` with `AllowHtml` flag instead
+    * Added `lenght`, `width`, `height` variables to `\Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation`  
 * Storefront	
     * The `theme.json` now supports a new option for the `style` files. The placeholder `@StorefrontBootstrap` gives you the ability to use the Bootstrap SCSS without the Shopware Storefront "skin":
         ```json

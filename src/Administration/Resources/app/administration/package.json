@@ -12,7 +12,6 @@
             "email": "p.schuch@shopware.com"
         }
     ],
-    "private": true,
     "scripts": {
         "dev": "node build/dev-server.js",
         "build": "node build/build.js",

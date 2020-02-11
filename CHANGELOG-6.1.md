@@ -93,6 +93,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fix mail sending via sendmail transport
     * You can now opt-out of removing your plugin migrations on uninstall by calling `\Shopware\Core\Framework\Plugin\Context\UninstallContext::enableKeepMigrations`
     * Added `\Shopware\Core\Framework\Plugin::removeMigrations` to remove plugin migration entries.
+    * Fix cache warmup during cache clearing to fix template inheritance problems
 * Storefront
     * Fixed the cookie privacy hint to use the correct link `privacyPage` instead of `shippingPaymentInfoPage`
     * Added the parameter `useBackdrop` to the `page-loading-indicator.utils.js` `remove` and `create` methods. Defaults to `true`

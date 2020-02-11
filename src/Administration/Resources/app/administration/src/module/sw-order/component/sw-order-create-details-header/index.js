@@ -44,6 +44,11 @@ Component.register('sw-order-create-details-header', {
 
     methods: {
         onSelectExistingCustomer(customerId) {
+            // Keep the current value when user tries to delete it
+            if (!customerId) {
+                return;
+            }
+
             this.$emit('on-select-existing-customer', customerId);
         },
 

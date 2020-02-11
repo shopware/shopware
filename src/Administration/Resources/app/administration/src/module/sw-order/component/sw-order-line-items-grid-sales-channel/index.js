@@ -50,6 +50,14 @@ Component.register('sw-order-line-items-grid-sales-channel', {
             return Service('cartSalesChannelService').getLineItemTypes();
         },
 
+        isCartTokenAvailable() {
+            return State.getters['swOrder/isCartTokenAvailable'];
+        },
+
+        isAddNewItemButtonDisabled() {
+            return !this.isCustomerActive || !this.isCartTokenAvailable || this.isLoading;
+        },
+
         getLineItemColumns() {
             const columnDefinitions = [{
                 property: 'label',

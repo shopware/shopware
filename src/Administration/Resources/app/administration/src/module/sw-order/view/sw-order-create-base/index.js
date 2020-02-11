@@ -26,6 +26,10 @@ Component.register('sw-order-create-base', {
             return Service('repositoryFactory').create('customer_address');
         },
 
+        currencyRepository() {
+            return Service('repositoryFactory').create('currency');
+        },
+
         customerAddressCriteria() {
             const criteria = new Criteria();
 
@@ -101,38 +105,28 @@ Component.register('sw-order-create-base', {
             State.dispatch('swOrder/createCart', { salesChannelId: this.customer.salesChannelId });
         },
 
-        updateCustomerContext() {
-            if (!this.customer) return;
-
-            State.dispatch('swOrder/updateCustomerContext', {
-                customerId: this.customer.id,
-                salesChannelId: this.customer.salesChannelId,
-                contextToken: this.cart.token
-            }).then(() => {
-                if (!this.cart.token || this.cart.lineItems.length === 0) return;
-
-                this.updateLoading(true);
-
-                State.dispatch('swOrder/getCart', {
-                    salesChannelId: this.customer.salesChannelId,
-                    contextToken: this.cart.token
-                })
-                    .finally(() => this.updateLoading(false));
-            });
-        },
-
         onSelectExistingCustomer(customerId) {
             return this.customerRepository
                 .get(customerId, Shopware.Context.api, this.defaultCriteria)
                 .then((customer) => {
-                    State.dispatch('swOrder/selectExistingCustomer', { customer });
+                    this.setCustomer(customer);
 
-                    if (this.cart.token) {
-                        this.updateCustomerContext();
-                    } else {
+                    this.setCurrency(customer);
+
+                    if (!this.cart.token) {
                         this.createCart();
                     }
                 });
+        },
+
+        setCustomer(customer) {
+            State.dispatch('swOrder/selectExistingCustomer', { customer });
+        },
+
+        setCurrency(customer) {
+            this.currencyRepository.get(customer.salesChannel.currencyId, Shopware.Context.api).then((currency) => {
+                State.commit('swOrder/setCurrency', currency);
+            });
         },
 
         onEditBillingAddress() {

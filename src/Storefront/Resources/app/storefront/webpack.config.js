@@ -1,13 +1,5 @@
 const merge = require('webpack-merge');
-const fs = require('fs');
-const { resolve } = require('path');
-let WebpackPluginInjector;
-
-if (fs.existsSync(resolve('../../../../Administration/Resources/app/common/webpack-plugin-injector/index.js'))) {
-    WebpackPluginInjector = require('../../../../Administration/Resources/app/common/webpack-plugin-injector');
-} else {
-    WebpackPluginInjector = require('../../../../administration/Resources/app/common/webpack-plugin-injector');
-}
+const WebpackPluginInjector = require('@shopware-ag/webpack-plugin-injector');
 
 let file = 'dev';
 

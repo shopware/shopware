@@ -109,6 +109,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added block `sw_sales_channel_detail_content_tab_analytics` to `sw-sales-channel-detail`, which contains the new Google Analytics tab
 
     * Added property `isRecordEditable` and `isRecordselectable` to `sw-data-grid`
+    * `lerna` package management is marked as optional, got marked as deprecated and will be removed with 6.4
 * Core    
     * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.
     * The usage of `entity` in the `shopware.entity.definition` tag is deprecated and will be removed with 6.4. 
@@ -132,7 +133,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 **Removals**
 
 * Administration
-    *
+    * `common` folder with private packages got removed, the packages are public now and are installed from the NPM registry (see: [https://www.npmjs.com/org/shopware-ag](https://www.npmjs.com/org/shopware-ag))
 
 * Core
     *    

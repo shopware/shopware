@@ -2,7 +2,7 @@
 const webpack = require('webpack');
 const merge = require('webpack-merge');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const KillProcessOnFailedBuildPlugin = require('@shopware/webpack-kill-process-on-failed-build');
+const KillProcessOnFailedBuildPlugin = require('@shopware-ag/webpack-kill-process-on-failed-build');
 const baseConfig = require('./webpack.base.conf');
 const utils = require('./utils');
 

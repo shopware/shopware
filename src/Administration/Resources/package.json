@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "description": "Shopware Administration bundle",
   "scripts": {
-    "lerna": "lerna"
+    "lerna": "lerna",
+    "postinstall": "echo '! Deprecation Warning: lerna is marked as deprecated in Shopware version 6.2 and will be removed with 6.4'"
   },
   "dependencies": {
     "lerna": "3.16.4"

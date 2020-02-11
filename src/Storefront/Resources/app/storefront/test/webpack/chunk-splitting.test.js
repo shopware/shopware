@@ -2,7 +2,7 @@
 const webpack = require('webpack');
 const merge = require('webpack-merge');
 const path = require('path');
-const WebpackPluginInjector = require(path.join(__dirname,  '../../../../../../', 'Administration/Resources/app/common/webpack-plugin-injector'));
+const WebpackPluginInjector = require('@shopware-ag/webpack-plugin-injector');
 
 // Fake plugins.json to inject our test entry point for size comparison of the resulting chunk
 const entryPointConfig = {

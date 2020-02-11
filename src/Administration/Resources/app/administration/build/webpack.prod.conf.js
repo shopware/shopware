@@ -4,7 +4,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-const WebpackPluginInjector = require('@shopware/webpack-plugin-injector');
+const WebpackPluginInjector = require('@shopware-ag/webpack-plugin-injector');
 const config = require('../config');
 const utils = require('./utils');
 const env = process.env.NODE_ENV === 'testing'

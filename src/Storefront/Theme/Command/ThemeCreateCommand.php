@@ -108,6 +108,7 @@ class ThemeCreateCommand extends Command
         file_put_contents($themeConfigFile, $themeConfig);
         file_put_contents($variableOverridesFile, $this->getVariableOverridesTemplate());
 
+        touch($directory . '/src/Resources/app/storefront/src/assets/.gitkeep');
         touch($directory . '/src/Resources/app/storefront/src/scss/base.scss');
         touch($directory . '/src/Resources/app/storefront/src/main.js');
         touch($directory . '/src/Resources/app/storefront/dist/storefront/js/' . $snakeCaseName . '.js');

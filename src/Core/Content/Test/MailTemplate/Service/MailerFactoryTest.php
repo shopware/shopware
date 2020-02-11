@@ -33,6 +33,7 @@ class MailerFactoryTest extends TestCase
         $mailer = $factory->create(
             new ConfigService([
                 'core.mailerSettings.emailAgent' => 'local',
+                'core.mailerSettings.sendMailOptions' => null,
             ]),
             $original
         );

@@ -7,6 +7,7 @@ import './view/sw-first-run-wizard-data-import';
 import './view/sw-first-run-wizard-mailer-base';
 import './view/sw-first-run-wizard-mailer-selection';
 import './view/sw-first-run-wizard-mailer-smtp';
+import './view/sw-first-run-wizard-mailer-local';
 import './view/sw-first-run-wizard-paypal-base';
 import './view/sw-first-run-wizard-paypal-info';
 import './view/sw-first-run-wizard-paypal-credentials';
@@ -54,6 +55,10 @@ Module.register('sw-first-run-wizard', {
                         smtp: {
                             component: 'sw-first-run-wizard-mailer-smtp',
                             path: 'smtp'
+                        },
+                        local: {
+                            component: 'sw-first-run-wizard-mailer-local',
+                            path: 'local'
                         }
                     }
                 },

@@ -3,7 +3,7 @@ import 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-selection
 
 describe('module/sw-first-run-wizard/sw-first-run-wizard-modal', () => {
     const frwRedirectSmtp = 'sw.first.run.wizard.index.mailer.smtp';
-    const frwRedirectLocal = 'sw.first.run.wizard.index.paypal.info';
+    const frwRedirectLocal = 'sw.first.run.wizard.index.mailer.local';
 
     const CreateFirstRunWizardMailerSettings = function CreateFirstRunWizardMailerSettings() {
         const localVue = createLocalVue();
@@ -88,24 +88,5 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-modal', () => {
         await frwMailerSettings.vm.handleSelection();
         expect(spyButtonUpdateEmit).not.toBeCalledWith('frw-redirect', frwRedirectSmtp);
         expect(spyButtonUpdateEmit).toBeCalledWith('frw-redirect', frwRedirectLocal);
-    });
-
-    it('handleSelection: should save when user has select an local mailAgent', async () => {
-        const frwMailerSettings = new CreateFirstRunWizardMailerSettings();
-        const spySaveMailAgent = jest.spyOn(frwMailerSettings.vm.systemConfigApiService, 'saveValues');
-        frwMailerSettings.setData({ mailAgent: 'local' });
-
-        expect(spySaveMailAgent).not.toHaveBeenCalled();
-        await frwMailerSettings.vm.handleSelection();
-        expect(spySaveMailAgent).toHaveBeenCalled();
-    });
-
-    it('saveMailAgent: should call saveValues', async () => {
-        const frwMailerSettings = new CreateFirstRunWizardMailerSettings();
-        const spySaveMailAgent = jest.spyOn(frwMailerSettings.vm.systemConfigApiService, 'saveValues');
-
-        expect(spySaveMailAgent).not.toHaveBeenCalled();
-        await frwMailerSettings.vm.saveMailAgent();
-        expect(spySaveMailAgent).toHaveBeenCalled();
     });
 });

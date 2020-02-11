@@ -3,8 +3,10 @@
 namespace Shopware\Core\Checkout\Test\Rule\Rule\LineItem;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemTotalPriceRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -16,7 +18,8 @@ class LineItemTotalPriceRuleTest extends TestCase
 {
     public function testRuleWithExactAmountMatch(): void
     {
-        $rule = (new LineItemTotalPriceRule())->assign(['amount' => 200, 'operator' => Rule::OPERATOR_EQ]);
+        $rule = (new LineItemTotalPriceRule())
+            ->assign(['amount' => 200, 'operator' => Rule::OPERATOR_EQ]);
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -27,6 +30,12 @@ class LineItemTotalPriceRuleTest extends TestCase
 
         static::assertTrue(
             $rule->match(new LineItemScope($lineItem, $context))
+        );
+
+        $cart = new Cart('test', 'test');
+        $cart->add($lineItem);
+        static::assertTrue(
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -43,6 +52,12 @@ class LineItemTotalPriceRuleTest extends TestCase
 
         static::assertFalse(
             $rule->match(new LineItemScope($lineItem, $context))
+        );
+
+        $cart = new Cart('test', 'test');
+        $cart->add($lineItem);
+        static::assertFalse(
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 

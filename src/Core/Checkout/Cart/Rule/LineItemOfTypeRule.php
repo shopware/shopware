@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -31,20 +32,20 @@ class LineItemOfTypeRule extends Rule
 
     public function match(RuleScope $scope): bool
     {
-        if (!$scope instanceof LineItemScope) {
+        if ($scope instanceof LineItemScope) {
+            return $this->lineItemMatches($scope->getLineItem());
+        }
+        if (!$scope instanceof CartRuleScope) {
             return false;
         }
 
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                return strcasecmp($scope->getLineItem()->getType(), $this->lineItemType) === 0;
-
-            case self::OPERATOR_NEQ:
-                return strcasecmp($scope->getLineItem()->getType(), $this->lineItemType) !== 0;
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
+        foreach ($scope->getCart()->getLineItems() as $lineItem) {
+            if ($this->lineItemMatches($lineItem)) {
+                return true;
+            }
         }
+
+        return false;
     }
 
     public function getConstraints(): array
@@ -58,5 +59,19 @@ class LineItemOfTypeRule extends Rule
     public function getName(): string
     {
         return 'cartLineItemOfType';
+    }
+
+    private function lineItemMatches(LineItem $lineItem): bool
+    {
+        switch ($this->operator) {
+            case self::OPERATOR_EQ:
+                return strcasecmp($lineItem->getType(), $this->lineItemType) === 0;
+
+            case self::OPERATOR_NEQ:
+                return strcasecmp($lineItem->getType(), $this->lineItemType) !== 0;
+
+            default:
+                throw new UnsupportedOperatorException($this->operator, self::class);
+        }
     }
 }

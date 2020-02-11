@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -35,11 +36,51 @@ class LineItemTotalPriceRule extends Rule
      */
     public function match(RuleScope $scope): bool
     {
-        if (!$scope instanceof LineItemScope) {
+        if ($scope instanceof LineItemScope) {
+            return $this->lineItemMatches($scope->getLineItem());
+        }
+
+        if (!$scope instanceof CartRuleScope) {
             return false;
         }
 
-        $price = $scope->getLineItem()->getPrice();
+        foreach ($scope->getCart()->getLineItems() as $lineItem) {
+            if ($this->lineItemMatches($lineItem)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function getConstraints(): array
+    {
+        return [
+            'amount' => [new NotBlank(), new Type('numeric')],
+            'operator' => [
+                new NotBlank(),
+                new Choice(
+                    [
+                        self::OPERATOR_EQ,
+                        self::OPERATOR_LTE,
+                        self::OPERATOR_GTE,
+                        self::OPERATOR_NEQ,
+                        self::OPERATOR_GT,
+                        self::OPERATOR_LT,
+                    ]
+                ),
+            ],
+        ];
+    }
+
+    public function getName(): string
+    {
+        return 'cartLineItemTotalPrice';
+    }
+
+    private function lineItemMatches(LineItem $lineItem): bool
+    {
+        $price = $lineItem->getPrice();
 
         if ($price === null) {
             return false;
@@ -69,30 +110,5 @@ class LineItemTotalPriceRule extends Rule
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);
         }
-    }
-
-    public function getConstraints(): array
-    {
-        return [
-            'amount' => [new NotBlank(), new Type('numeric')],
-            'operator' => [
-                new NotBlank(),
-                new Choice(
-                    [
-                        self::OPERATOR_EQ,
-                        self::OPERATOR_LTE,
-                        self::OPERATOR_GTE,
-                        self::OPERATOR_NEQ,
-                        self::OPERATOR_GT,
-                        self::OPERATOR_LT,
-                    ]
-                ),
-            ],
-        ];
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemTotalPrice';
     }
 }

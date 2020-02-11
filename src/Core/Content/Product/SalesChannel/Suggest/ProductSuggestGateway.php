@@ -11,10 +11,14 @@ use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
+use function Flag\next6025;
 
 class ProductSuggestGateway implements ProductSuggestGatewayInterface
 {
@@ -33,14 +37,21 @@ class ProductSuggestGateway implements ProductSuggestGatewayInterface
      */
     private $searchBuilder;
 
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
+
     public function __construct(
         SalesChannelRepositoryInterface $repository,
         ProductSearchBuilderInterface $searchBuilder,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        SystemConfigService $systemConfigService
     ) {
         $this->repository = $repository;
         $this->eventDispatcher = $eventDispatcher;
         $this->searchBuilder = $searchBuilder;
+        $this->systemConfigService = $systemConfigService;
     }
 
     public function suggest(Request $request, SalesChannelContext $context): EntitySearchResult
@@ -52,6 +63,23 @@ class ProductSuggestGateway implements ProductSuggestGatewayInterface
         $criteria->addFilter(
             new ProductAvailableFilter($context->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_SEARCH)
         );
+
+        if (next6025()) {
+            $salesChannelId = $context->getSalesChannel()->getId();
+            $hideCloseoutProductsWhenOutOfStock = $this->systemConfigService->get('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId);
+
+            if ($hideCloseoutProductsWhenOutOfStock) {
+                $criteria->addFilter(
+                    new NotFilter(
+                        NotFilter::CONNECTION_AND,
+                        [
+                            new EqualsFilter('product.isCloseout', true),
+                            new EqualsFilter('product.available', false),
+                        ]
+                    )
+                );
+            }
+        }
 
         $this->searchBuilder->build($request, $criteria, $context);
 

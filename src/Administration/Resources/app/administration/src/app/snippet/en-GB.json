@@ -453,6 +453,10 @@
         "lineItemTagRule": "Line item tag",
         "lineItemPropertyRule": "Line item property",
         "lineItemNoveltyRule": "Novelties",
+        "lineItemOfManufacturerRule": "Manufacturer",
+        "lineItemPurchasePriceRule": "Line item purchase price",
+        "lineItemCreationDateRule": "Line item with creation date",
+        "lineItemReleaseDateRule": "Line item with release date",
         "paymentMethodRule": "Payment method",
         "shippingMethodRule": "Shipping method"
       }

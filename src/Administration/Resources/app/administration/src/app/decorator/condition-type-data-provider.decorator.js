@@ -168,9 +168,9 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.lineItemPropertyRule',
         scopes: ['lineItem']
     });
-    ruleConditionService.addCondition('cartLineItemNovelty', {
-        component: 'sw-condition-line-item-novelty',
-        label: 'global.sw-condition.condition.lineItemNoveltyRule',
+    ruleConditionService.addCondition('cartLineItemIsNew', {
+        component: 'sw-condition-line-item-is-new',
+        label: 'global.sw-condition.condition.lineItemIsNewRule',
         scopes: ['lineItem']
     });
     ruleConditionService.addCondition('cartLineItemOfManufacturer', {

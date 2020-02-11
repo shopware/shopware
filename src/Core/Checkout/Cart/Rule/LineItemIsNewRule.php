@@ -6,25 +6,26 @@ use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-class LineItemNoveltyRule extends Rule
+class LineItemIsNewRule extends Rule
 {
     /**
      * @var bool
      */
-    protected $isNovelty;
+    protected $isNew;
 
-    public function __construct(bool $isNovelty = false)
+    public function __construct(bool $isNew = false)
     {
         parent::__construct();
 
-        $this->isNovelty = $isNovelty;
+        $this->isNew = $isNew;
     }
 
     public function getName(): string
     {
-        return 'cartLineItemNovelty';
+        return 'cartLineItemIsNew';
     }
 
     /**
@@ -33,7 +34,7 @@ class LineItemNoveltyRule extends Rule
     public function match(RuleScope $scope): bool
     {
         if ($scope instanceof LineItemScope) {
-            return $this->isNoveltyItem($scope->getLineItem());
+            return $this->matchLineItemIsNew($scope->getLineItem());
         }
 
         if (!$scope instanceof CartRuleScope) {
@@ -41,7 +42,7 @@ class LineItemNoveltyRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems() as $lineItem) {
-            if ($this->isNoveltyItem($lineItem)) {
+            if ($this->matchLineItemIsNew($lineItem)) {
                 return true;
             }
         }
@@ -52,15 +53,15 @@ class LineItemNoveltyRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'isNovelty' => [new Type('bool')],
+            'isNew' => [new NotBlank(), new Type('bool')],
         ];
     }
 
     /**
      * @throws PayloadKeyNotFoundException
      */
-    private function isNoveltyItem(LineItem $lineItem): bool
+    private function matchLineItemIsNew(LineItem $lineItem): bool
     {
-        return (bool) $lineItem->getPayloadValue('isNew') === $this->isNovelty;
+        return (bool) $lineItem->getPayloadValue('isNew') === $this->isNew;
     }
 }

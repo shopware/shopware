@@ -120,7 +120,7 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemNoveltyRule">
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemIsNewRule">
             <tag name="shopware.rule.definition"/>
         </service>
 

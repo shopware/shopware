@@ -452,7 +452,7 @@
         "dayOfWeekRule": "Day of the week",
         "lineItemTagRule": "Line item tag",
         "lineItemPropertyRule": "Line item property",
-        "lineItemNoveltyRule": "Novelties",
+        "lineItemIsNewRule": "Line item is new",
         "lineItemOfManufacturerRule": "Manufacturer",
         "lineItemPurchasePriceRule": "Line item purchase price",
         "lineItemCreationDateRule": "Line item with creation date",

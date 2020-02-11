@@ -452,7 +452,7 @@
         "dayOfWeekRule": "Wochentag",
         "lineItemTagRule": "Positionen mit Tag",
         "lineItemPropertyRule": "Positionen mit Eigenschaften",
-        "lineItemNoveltyRule": "Neuheiten",
+        "lineItemIsNewRule": "Neuheiten",
         "lineItemOfManufacturerRule": "Hersteller",
         "lineItemPurchasePriceRule": "Positionen Einkaufspreis",
         "lineItemCreationDateRule": "Positionen mit Erstelldatum",

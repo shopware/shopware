@@ -1,20 +1,20 @@
-import template from './sw-condition-line-item-novelty.html.twig';
+import template from './sw-condition-line-item-is-new.html.twig';
 
 const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
-Component.extend('sw-condition-line-item-novelty', 'sw-condition-base', {
+Component.extend('sw-condition-line-item-is-new', 'sw-condition-base', {
     template,
 
     computed: {
-        isNovelty: {
+        isNew: {
             get() {
                 this.ensureValueExist();
-                return !!this.condition.value.isNovelty;
+                return !!this.condition.value.isNew;
             },
-            set(isNovelty) {
+            set(isNew) {
                 this.ensureValueExist();
-                this.condition.value = { ...this.condition.value, isNovelty };
+                this.condition.value = { ...this.condition.value, isNew };
             }
         },
         trueOption() {
@@ -28,10 +28,10 @@ Component.extend('sw-condition-line-item-novelty', 'sw-condition-base', {
             return [this.trueOption, this.falseOption];
         },
 
-        ...mapPropertyErrors('condition', ['value.isNovelty']),
+        ...mapPropertyErrors('condition', ['value.isNew']),
 
         currentError() {
-            return this.conditionValueAllowedError;
+            return this.conditionValueIsNewError;
         }
     }
 });

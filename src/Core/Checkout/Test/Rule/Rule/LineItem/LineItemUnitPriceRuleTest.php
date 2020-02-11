@@ -3,8 +3,10 @@
 namespace Shopware\Core\Checkout\Test\Rule\Rule\LineItem;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemUnitPriceRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -38,6 +40,12 @@ class LineItemUnitPriceRuleTest extends TestCase
         static::assertTrue(
             $rule->match(new LineItemScope($this->lineItem, $context))
         );
+
+        $cart = new Cart('test', 'test');
+        $cart->add($this->lineItem);
+        static::assertTrue(
+            $rule->match(new CartRuleScope($cart, $context))
+        );
     }
 
     public function testRuleWithExactAmountNotMatch(): void
@@ -48,6 +56,12 @@ class LineItemUnitPriceRuleTest extends TestCase
 
         static::assertFalse(
             $rule->match(new LineItemScope($this->lineItem, $context))
+        );
+
+        $cart = new Cart('test', 'test');
+        $cart->add($this->lineItem);
+        static::assertFalse(
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -60,6 +74,12 @@ class LineItemUnitPriceRuleTest extends TestCase
         static::assertTrue(
             $rule->match(new LineItemScope($this->lineItem, $context))
         );
+
+        $cart = new Cart('test', 'test');
+        $cart->add($this->lineItem);
+        static::assertTrue(
+            $rule->match(new CartRuleScope($cart, $context))
+        );
     }
 
     public function testRuleWithLowerThanEqualAmountMatch(): void
@@ -70,6 +90,12 @@ class LineItemUnitPriceRuleTest extends TestCase
 
         static::assertTrue(
             $rule->match(new LineItemScope($this->lineItem, $context))
+        );
+
+        $cart = new Cart('test', 'test');
+        $cart->add($this->lineItem);
+        static::assertTrue(
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -82,6 +108,12 @@ class LineItemUnitPriceRuleTest extends TestCase
         static::assertFalse(
             $rule->match(new LineItemScope($this->lineItem, $context))
         );
+
+        $cart = new Cart('test', 'test');
+        $cart->add($this->lineItem);
+        static::assertFalse(
+            $rule->match(new CartRuleScope($cart, $context))
+        );
     }
 
     public function testRuleWithGreaterThanEqualExactAmountMatch(): void
@@ -92,6 +124,12 @@ class LineItemUnitPriceRuleTest extends TestCase
 
         static::assertTrue(
             $rule->match(new LineItemScope($this->lineItem, $context))
+        );
+
+        $cart = new Cart('test', 'test');
+        $cart->add($this->lineItem);
+        static::assertTrue(
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -104,6 +142,12 @@ class LineItemUnitPriceRuleTest extends TestCase
         static::assertTrue(
             $rule->match(new LineItemScope($this->lineItem, $context))
         );
+
+        $cart = new Cart('test', 'test');
+        $cart->add($this->lineItem);
+        static::assertTrue(
+            $rule->match(new CartRuleScope($cart, $context))
+        );
     }
 
     public function testRuleWithGreaterThanEqualNotMatch(): void
@@ -114,6 +158,12 @@ class LineItemUnitPriceRuleTest extends TestCase
 
         static::assertFalse(
             $rule->match(new LineItemScope($this->lineItem, $context))
+        );
+
+        $cart = new Cart('test', 'test');
+        $cart->add($this->lineItem);
+        static::assertFalse(
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
@@ -126,6 +176,12 @@ class LineItemUnitPriceRuleTest extends TestCase
         static::assertTrue(
             $rule->match(new LineItemScope($this->lineItem, $context))
         );
+
+        $cart = new Cart('test', 'test');
+        $cart->add($this->lineItem);
+        static::assertTrue(
+            $rule->match(new CartRuleScope($cart, $context))
+        );
     }
 
     public function testRuleWithNotEqualNotMatch(): void
@@ -136,6 +192,12 @@ class LineItemUnitPriceRuleTest extends TestCase
 
         static::assertFalse(
             $rule->match(new LineItemScope($this->lineItem, $context))
+        );
+
+        $cart = new Cart('test', 'test');
+        $cart->add($this->lineItem);
+        static::assertFalse(
+            $rule->match(new CartRuleScope($cart, $context))
         );
     }
 }

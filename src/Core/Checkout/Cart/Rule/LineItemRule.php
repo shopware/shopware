@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -31,26 +32,21 @@ class LineItemRule extends Rule
 
     public function match(RuleScope $scope): bool
     {
-        if (!$scope instanceof LineItemScope) {
+        if ($scope instanceof LineItemScope) {
+            return $this->lineItemMatches($scope->getLineItem());
+        }
+
+        if (!$scope instanceof CartRuleScope) {
             return false;
         }
 
-        $referencedId = $scope->getLineItem()->getReferencedId();
-
-        if (!$referencedId) {
-            return false;
+        foreach ($scope->getCart()->getLineItems() as $lineItem) {
+            if ($this->lineItemMatches($lineItem)) {
+                return true;
+            }
         }
 
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                return \in_array($scope->getLineItem()->getId(), $this->identifiers, true);
-
-            case self::OPERATOR_NEQ:
-                return !\in_array($scope->getLineItem()->getId(), $this->identifiers, true);
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return false;
     }
 
     public function getIdentifiers(): array
@@ -69,5 +65,23 @@ class LineItemRule extends Rule
     public function getName(): string
     {
         return 'cartLineItem';
+    }
+
+    private function lineItemMatches(LineItem $lineItem): bool
+    {
+        if (!$lineItem->getReferencedId()) {
+            return false;
+        }
+
+        switch ($this->operator) {
+            case self::OPERATOR_EQ:
+                return \in_array($lineItem->getReferencedId(), $this->identifiers, true);
+
+            case self::OPERATOR_NEQ:
+                return !\in_array($lineItem->getReferencedId(), $this->identifiers, true);
+
+            default:
+                throw new UnsupportedOperatorException($this->operator, self::class);
+        }
     }
 }

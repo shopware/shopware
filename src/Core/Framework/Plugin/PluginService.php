@@ -136,7 +136,6 @@ class PluginService
                         $this->changelogService->getLocaleFromChangelogFile($file),
                         $shopwareContext
                     );
-                    
                     if ($languageId === '') {
                         continue;
                     }

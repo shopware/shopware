@@ -4,6 +4,7 @@ namespace Shopware\Recovery\Install\Service;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\Exception\LanguageNotFoundException;
 use Shopware\Recovery\Common\Service\SystemConfigService;
 use Shopware\Recovery\Install\Struct\Shop;
 
@@ -153,6 +154,10 @@ class ShopService
         }
 
         $newDefaultLanguageId = $this->getLanguageId($shop->locale);
+
+        if (!$newDefaultLanguageId) {
+            $newDefaultLanguageId = $this->createNewLanguageEntry($shop->locale);
+        }
 
         if ($shop->locale === 'de-DE' && $currentLocale['code'] === 'en-GB') {
             $this->swapDefaultLanguageId($newDefaultLanguageId);
@@ -449,5 +454,50 @@ SQL;
         }
 
         return (string) $fetchCountryId;
+    }
+
+    private function createNewLanguageEntry(string $iso)
+    {
+        $id = Uuid::randomBytes();
+
+        $stmt = $this->connection->prepare('
+            SELECT LOWER (HEX(locale.id))
+            FROM `locale`
+            WHERE LOWER(locale.code) = LOWER(?)'
+        );
+        $stmt->execute([$iso]);
+        $localeId = $stmt->fetchColumn();
+
+        $stmt = $this->connection->prepare('
+            SELECT LOWER(language.id)
+            FROM `language`
+            WHERE LOWER(language.name) = LOWER(?)'
+        );
+        $stmt->execute(['english']);
+        $englishId = $stmt->fetchColumn();
+
+        $stmt = $this->connection->prepare('
+            SELECT locale_translation.name
+            FROM `locale_translation`
+            WHERE LOWER(HEX(locale_id)) = ?
+            AND LOWER(language_id) = ?'
+        );
+        //Always use the English name since we dont have the name in the language itself
+        $stmt->execute([$localeId, $englishId]);
+        $name = $stmt->fetchColumn();
+        if (!$name) {
+            throw new LanguageNotFoundException("locale_translation.name for iso: '" . $iso . "', localeId: '" . $localeId . "' not found!");
+        }
+
+        $stmt = $this->connection->prepare('
+            INSERT INTO `language`
+            (id,name,locale_id,translation_code_id)
+            VALUES
+            (?,?,UNHEX(?),UNHEX(?))'
+        );
+
+        $stmt->execute([$id, $name, $localeId, $localeId]);
+
+        return $id;
     }
 }

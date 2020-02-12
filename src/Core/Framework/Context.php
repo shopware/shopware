@@ -212,9 +212,10 @@ class Context extends Struct
 
     public function disableCache(callable $function)
     {
+        $previous = $this->useCache;
         $this->useCache = false;
         $result = $function($this);
-        $this->useCache = true;
+        $this->useCache = $previous;
 
         return $result;
     }

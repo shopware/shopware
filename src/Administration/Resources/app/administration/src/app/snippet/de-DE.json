@@ -463,6 +463,7 @@
         "lineItemTaxationRule": "Positionen mit Steuersatz",
         "lineItemDimensionWidthRule": "Positionen mit Breite",
         "lineItemDimensionHeightRule": "Positionen mit Höhe",
+        "lineItemDimensionLengthRule": "Positionen mit Länge",
         "paymentMethodRule": "Zahlungsart",
         "shippingMethodRule": "Versandart"
       }

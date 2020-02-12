@@ -12,10 +12,10 @@
     },
     "sorting": {
       "labelSort": "Sort by:",
-      "labelSortByCreatedAsc": "Creation date, asc.",
-      "labelSortByCreatedDsc": "Creation date, desc.",
-      "labelSortByUpdatedAsc": "Modification date, asc.",
-      "labelSortByUpdatedDsc": "Modification date, desc.",
+      "labelSortByCreatedAsc": "Creation date, ascending",
+      "labelSortByCreatedDsc": "Creation date, descending",
+      "labelSortByUpdatedAsc": "Modification date, ascending",
+      "labelSortByUpdatedDsc": "Modification date, descending",
       "labelSortByAllPages": "All types",
       "labelSortByShopPages": "Shop pages",
       "labelSortByLandingPages": "Landing pages",
@@ -230,7 +230,7 @@
         "config": {
           "label": {
             "selection": "Product",
-            "layoutType": "layout type",
+            "layoutType": "Layout type",
             "layoutTypeStandard": "Standard",
             "layoutTypeImage": "Big image",
             "layoutTypeMinimal": "Minimal content"

@@ -8,9 +8,9 @@
     },
     "user-grid": {
       "labelUsername": "Username",
-      "labelFirstName": "First Name",
-      "labelLastName": "Last Name",
-      "labelEmail": "E-Mail",
+      "labelFirstName": "First name",
+      "labelLastName": "Last name",
+      "labelEmail": "Email address",
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
       "contextMenuDuplicate": "Duplicate",
@@ -29,7 +29,7 @@
         },
         "deleteUserLoggedInError": {
           "title": "Error",
-          "message": "The own user can not be deleted."
+          "message": "Users cannot delete themselves."
         }
       }
     },

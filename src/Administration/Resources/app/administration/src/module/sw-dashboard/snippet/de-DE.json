@@ -12,19 +12,19 @@
       "developerDocumentationLink": "https://docs.shopware.com/de/shopware-platform--dev-de",
       "migrationDocumentation": "Migrations-Dokumentation",
       "migrationDocumentationLink": "https://docs.shopware.com/de/migration-de",
-      "roadmap": "Roadmap für Shopware",
+      "roadmap": "Shopware Roadmap",
       "roadmapLink": "https://www.shopware.com/de/roadmap/",
-      "feedback": "Feedback geben",
+      "feedback": "Feedback",
       "feedbackLink": "https://issues.shopware.com"
     },
     "todayStats": {
-      "headline": "Statistik für heute",
+      "headline": "Statistik des Tages",
       "orders": "Bestellungen",
       "turnover": "Umsatz",
       "orderTime": "Zeitpunkt"
     },
     "monthStats": {
-      "headline": "Statistiken für die letzten 30 Tage",
+      "headline": "Statistik der letzten 30 Tage",
       "orderNumber": "Bestellungen",
       "turnover": "Umsatz",
       "numberOfOrders": "Anzahl"

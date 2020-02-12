@@ -9,7 +9,7 @@
       "textHeadline": "Tax",
       "textDeleteConfirm": "Are you sure you want to delete the tax \"{name}\"?",
       "columnName": "Name",
-      "columnDefaultTaxRate": "Default Rate",
+      "columnDefaultTaxRate": "Default tax rate",
       "buttonAddTax": "Add tax",
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
@@ -23,31 +23,31 @@
       "textHeadline": "New tax",
       "titleCard": "Settings",
       "labelName": "Name",
-      "labelDefaultTaxRate": "Default Rate",
+      "labelDefaultTaxRate": "Default tax rate",
       "placeholderName": "Enter name...",
       "placeholderDefaultTaxRate": "Enter default rate...",
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
       "notificationErrorTitle": "Error",
-      "notificationErrorMessage": "An error occurred while saving your tax rate."
+      "notificationErrorMessage": "An error occurred while saving the tax rate."
     },
     "taxRuleCard": {
       "labelTaxRate": "Rate",
-      "labelAppliesOn": "Applies On",
+      "labelAppliesOn": "Applies to",
       "labelCountryName": "Country",
       "cardTitle": "Countries",
-      "searchBarPlaceholder": "Search Countries",
+      "searchBarPlaceholder": "Search countries",
       "labelCreateNew": "Add country",
       "labelCancel": "Cancel",
       "labelStates": "States",
-      "labelZipCode": "Zip Code",
-      "labelFromZipCode": "From Zip Code",
-      "labelToZipCode": "To Zip Code",
-      "emptyStateDescription": "Add additional tax rates for different countries.",
-      "createStateDescription": "Save the tax rate first to be able to add more countries.",
-      "modalTitleDelete": "Delete Country",
-      "textDeleteConfirm": "Are you sure you want to delete the country \"{name}\"?",
-      "placeholderStates": "Add States"
+      "labelZipCode": "Postal code",
+      "labelFromZipCode": "From...",
+      "labelToZipCode": "To...",
+      "emptyStateDescription": "Add individual tax rates for different countries.",
+      "createStateDescription": "Save this tax rate first, then add more countries.",
+      "modalTitleDelete": "Delete country",
+      "textDeleteConfirm": "Are you sure you want to delete this country: \"{name}\"?",
+      "placeholderStates": "Add states"
     }
   }
 }

@@ -34,7 +34,7 @@ describe('Product: Edit in various ways', () => {
 
         page.changeTranslation('Deutsch', 1);
         cy.get(page.elements.loader).should('not.exist');
-        cy.get('.sw-language-info span').contains('"Product name" displayed in the root language "Deutsch".');
+        cy.get('.sw-language-info span').contains('"Product name" displayed in the content language "Deutsch".');
         cy.get('input[name=sw-field--product-name]').type('Sauerkraut');
         cy.get(page.elements.productSaveAction).click();
 

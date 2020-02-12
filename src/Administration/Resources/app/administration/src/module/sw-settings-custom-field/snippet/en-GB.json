@@ -72,7 +72,7 @@
         "labelNo": "No",
         "labelCustomFieldPosition": "Position",
         "labelMultiSelect": "Multi select",
-        "tooltipCustomFieldPosition": "Controls the custom field's position on detail pages.",
+        "tooltipCustomFieldPosition": "Controls this custom field's position on detail pages.",
         "tooltipRequired": "Makes this custom field required on detail pages."
       },
       "list": {
@@ -95,7 +95,7 @@
       "textEditor": "Text editor",
       "string": "Text",
       "int": "Number",
-      "colorpicker": "Color picker"
+      "colorpicker": "Colour picker"
     }
   }
 }

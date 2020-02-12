@@ -35,6 +35,7 @@
                     <sw-button
                         class="sw-sales-channel-modal__add-channel-action"
                         size="small"
+                        variant="primary"
                         @click="onAddChannel(item.id)"
                         :isLoading="isProductComparisonSalesChannelType(item.id) && productStreamsLoading"
                         :disabled="isProductComparisonSalesChannelType(item.id) && !productStreamsExist"

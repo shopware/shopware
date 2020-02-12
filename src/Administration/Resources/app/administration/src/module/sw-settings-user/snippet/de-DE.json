@@ -10,7 +10,7 @@
       "labelUsername": "Benutzername",
       "labelFirstName": "Vorname",
       "labelLastName": "Nachname",
-      "labelEmail": "E-Mail",
+      "labelEmail": "E-Mail-Adresse",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
       "contextMenuDuplicate": "Duplizieren",
@@ -29,7 +29,7 @@
         },
         "deleteUserLoggedInError": {
           "title": "Fehler",
-          "message": "Der eigene Benutzer kann nicht entfernt werden."
+          "message": "Benutzer können sich nicht selbst löschen."
         }
       }
     },
@@ -38,8 +38,8 @@
       "labelIntegrationsCard": "Integrationen",
       "labelFirstName": "Vorname",
       "labelLastName": "Nachname",
-      "labelEmail": "E-Mail",
-      "errorEmailUsed": "Diese E-Mail wird schon benutzt.",
+      "labelEmail": "E-Mail-Adresse",
+      "errorEmailUsed": "Diese E-Mail-Adresse wird schon benutzt.",
       "errorUsernameUsed": "Dieser Benutzername wird schon benutzt.",
       "labelUsername": "Benutzername",
       "labelPassword": "Passwort",
@@ -57,7 +57,7 @@
       "readAccess": "Lesen",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
-      "textChangePassword": "Mit einem Klick auf ändern wird das Passwort direkt gespeichert.",
+      "textChangePassword": "Mit einem Klick auf 'Ändern' wird das Passwort direkt gespeichert.",
       "addAccessKey": "Neuer Zugangsschlüssel",
       "labelAccessKey": "Zugangsschlüssel",
       "labelPermissions": "Berechtigungen",

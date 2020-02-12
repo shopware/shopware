@@ -11,8 +11,8 @@
             <label lang="de-DE">Aktualisierungsinterval</label>
             <placeholder>Enter refresh interval (seconds)...</placeholder>
             <placeholder lang="de-DE">Gib ein Aktualisierungsinterval an (Sekunden) ...</placeholder>
-            <helpText>Enter interval in seconds. (Valid only in live mode.)</helpText>
-            <helpText lang="de-DE">Gib einen Zeitraum in Sekunden ein. (Gültig nur im Live-Modus.)</helpText>
+            <helpText>Enter interval in seconds. (Active only in live mode.)</helpText>
+            <helpText lang="de-DE">Gib einen Zeitraum in Sekunden ein. (Aktiv nur im Live-Modus.)</helpText>
         </input-field>
 
         <input-field type="single-select">

@@ -59,28 +59,7 @@
       "labelOptionMedia": "Company logo",
       "placeholderName": "Enter name...",
       "buttonCancel": "Cancel",
-      "buttonSave": "Save",
-      "helpTextDisplayPrices": "Line item prices will be listed in the document",
-      "helpTextDisplayFooter": "Footer displayed and repeated on every page",
-      "helpTextDisplayHeader": "Header displayed and repeated on every page",
-      "helpTextDisplayLineItems": "Line items will be listed in the document",
-      "helpTextDisplayLineItemPosition": "Line items will be numbered",
-      "helpTextDisplayPageCount": "Pages in the document will be numbered",
-      "helpTextItemsPerPage": "Line item count per page...",
-      "helpTextDisplayCompanyAddress": "Show company address in login document",
-      "helpTextCompanyAddress": "Company address",
-      "helpTextCompanyName": "Company name",
-      "helpTextCompanyEmail": "Company email address",
-      "helpTextCompanyUrl": "Company website (URL)",
-      "helpTextTaxNumber": "Company tax number",
-      "helpTextTaxOffice": "Companys tax office",
-      "helpTextVatId": "Company VAT ID (value added tax identification number)",
-      "helpTextBankName": "House bank",
-      "helpTextBankIban": "IBAN (International Bank Account Number)",
-      "helpTextBankBic": "BIC/SWIFT (Bank Identifier Code)",
-      "helpTextPlaceOfJurisdiction": "Place of jurisdiction",
-      "helpTextPlaceOfFulfillment": "Place of fulfillment",
-      "helpTextExecutiveDirector": "Executive director"
+      "buttonSave": "Save"
     }
   }
 }

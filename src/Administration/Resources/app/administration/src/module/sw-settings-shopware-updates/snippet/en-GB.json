@@ -1,35 +1,35 @@
 {
   "sw-settings-shopware-updates": {
     "general": {
-      "menuTitle": "Shopware Updates",
-      "title": "Shopware Update ({version})",
-      "emptyTitle": "Shopware Updates",
-      "emptyState": "You are already on the latest version",
+      "menuTitle": "Shopware update",
+      "title": "Shopware update ({version})",
+      "emptyTitle": "Shopware update",
+      "emptyState": "You are already on the latest version.",
       "checkForUpdates": "Check for updates",
       "currentVersion": "current version:"
     },
     "cards": {
-      "info": "What's New",
+      "info": "What's new?",
       "requirements": "System requirements",
       "plugins": "Plugin compatibility",
-      "updating": "Updating"
+      "updating": "Updating..."
     },
     "notifications": {
-      "title": "Shopware-Updates",
-      "updateStarted": "Update process started",
-      "downloadFailed": "Download process is failed",
-      "unpackFailed": "Unpack process is failed",
-      "deactivationFailed": "Deactivate plugins failed",
-      "alreadyUpToDate": "You are already on the latest version"
+      "title": "Shopware update",
+      "updateStarted": "Update started.",
+      "downloadFailed": "Download has failed.",
+      "unpackFailed": "Unpacking has failed.",
+      "deactivationFailed": "Unable to deactivate plugins.",
+      "alreadyUpToDate": "You are already on the latest version."
     },
     "infos": {
-      "backupCheckboxLabel": "I created a backup and want to execute the update.",
+      "backupCheckboxLabel": "I have already created a backup and want to execute the update now.",
       "startUpdate": "Start update",
-      "requirementsNotMet": "Not all system requirements are met for this update",
+      "requirementsNotMet": "Not all system requirements are met.",
       "progress": {
-        "download": "Update file is being downloaded",
-        "deactivate": "Plugins are deactivated",
-        "unpack": "Update file is unpacked"
+        "download": "Downloading update file...",
+        "deactivate": "Plugins have been deactivated.",
+        "unpack": "Unpacking update file..."
       }
     },
     "requirements": {
@@ -38,12 +38,12 @@
         "status": "Status"
       },
       "message": {
-        "phpVersion": "Minimum PHP Version: {minVersion}. Installed PHP Version: {currentVersion}.",
-        "mysqlVersion": "Minimum MySQL Version: {minVersion}. Installed MySQL Version {currentVersion}.",
+        "phpVersion": "Minimum PHP Version: {minVersion}. Currently installed PHP Version: {currentVersion}.",
+        "mysqlVersion": "Minimum MySQL Version: {minVersion}. Currently installed MySQL Version {currentVersion}.",
         "writeableCheckValid": "The following directories and files are writable:<br/>{checkedDirectories}",
         "writeableCheckFailed": "The following directories and files are not writable:<br>{failedDirectories}",
-        "validShopwareLicense": "Your current Shopware is out of date. You may want to consider an update.",
-        "invalidShopwareLicense": "No active Shopware subscription could be found for your shop.<br>The automatic update cannot be performed.<br>You can purchase a Shopware subscription in the <a target=\"_blank\" href=\"https://account.shopware.com\">Shopware account page</a>"
+        "validShopwareLicense": "Your current Shopware version is out of date. You may want to consider updating to the latest version.",
+        "invalidShopwareLicense": "No active Shopware subscription found.<br>Automatic updates cannot be performed.<br>You may want to purchase a Shopware subscription via the <a target=\"_blank\" href=\"https://account.shopware.com\">Shopware account page.</a>"
       },
       "ready": "Ready",
       "notReady": "Not ready"
@@ -56,11 +56,11 @@
       "actions": {
         "openPluginManager": "Open plugin manager",
         "deactivateAll": "Deactivate all plugins.",
-        "deactivateIncompatible": "Deactivate all incompatible plugins.",
-        "deactivateNone": "I am aware of the dangers and want to update without deactivating incompatible plugins. I am conscious, that Shopware cannot guarantee the functionality of my installation after an incompatible update.",
+        "deactivateIncompatible": "Deactivate incompatible plugins.",
+        "deactivateNone": "I am aware of the implicit dangers and still want to update Shopware without deactivating incompatible plugins first. I am conscious, that Shopware cannot guarantee the functionality of my installation after an incompatible update.",
         "recommended": "(Recommended)"
       },
-      "pluginNotInStore": "The plugin is not available in the store. Please contact the author",
+      "pluginNotInStore": "This plugin is not available in the store. Please contact the plugin's author.",
       "pluginWillBeDeactivatedHint": "(This plugin will be deactivated on update)"
     },
     "updateModal": {
@@ -69,11 +69,11 @@
         "install": "Install",
         "goToUpdate": "Open update wizard"
       },
-      "messageIncompatible": "Some of the checked plugins are not compatible with the newest version. If you continue the update some unknown issues could occur, which could harm your system deeply. We can deactivate incompatible plugins for you during the update process to ensure the functionality of your installation. After the update you have the possibility to activate the plugins manually, when you have updated these plugins accordingly.",
-      "messageNotInStore": "You have some plugins that could not be tested for compatibility. Please contact the plugin author for more information. You should also create a backup before updating.",
-      "messageOkay": "All prerequisites are fulfilled. You should create a backup before updating.",
-      "messageUpdateCheck": "Your current version can be updated to version {version}. What do you want to do?",
-      "backupLabel": "Yes, I've created a backup"
+      "messageIncompatible": "Some of the plugins installed are not compatible with the latest Shopware version. If you continue updating now, unknown issues could occur and gravely harm your system. Shopware is able to automatically deactivate incompatible plugins during the update process in order to ensures the continued functionality of your installation. After updating these plugins accordingly, you will have the possibility to re-activate them manually.",
+      "messageNotInStore": "There are plugins installed that could not successfully be tested for compatibility. Please contact the plugin's author(s) for more information. In this case it is strongly recommended to create a backup before updating.",
+      "messageOkay": "All prerequisites fulfilled. Don't forget to create a backup before updating.",
+      "messageUpdateCheck": "Your current version can be updated to {version}. What do you want to do?",
+      "backupLabel": "Yes, I've already created a backup."
     }
   }
 }

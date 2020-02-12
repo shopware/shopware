@@ -136,7 +136,7 @@ describe('Promotion: Test promotion with codes', () => {
         cy.get('.offcanvas.is-open').should('be.visible');
         cy.get('#addPromotionOffcanvasCartInput').type('not_funicular');
         cy.get('#addPromotionOffcanvasCart').click();
-        cy.contains('Promotion code has been stored but hasn\'t been applied');
+        cy.contains('Promotion code valid - however, not all conditions were met and the discount was not applied. Once all conditions are met, the discount will be applied automatically.');
         cy.get('.cart-item-promotion').should('not.exist');
     });
 });

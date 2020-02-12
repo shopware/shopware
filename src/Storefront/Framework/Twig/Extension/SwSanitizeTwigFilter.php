@@ -111,6 +111,19 @@ class SwSanitizeTwigFilter extends AbstractExtension
      */
     private $purifiers = [];
 
+    /**
+     * @var string|null
+     */
+    private $cacheDir;
+
+    /**
+     * @deprecated tag:v6.3.0 cacheDir will be mandatory from 6.3.0 onwards
+     */
+    public function __construct(?string $cacheDir = null)
+    {
+        $this->cacheDir = $cacheDir;
+    }
+
     public function getFilters(): array
     {
         return [
@@ -136,6 +149,10 @@ class SwSanitizeTwigFilter extends AbstractExtension
     private function getConfig($options, bool $override): \HTMLPurifier_Config
     {
         $config = \HTMLPurifier_Config::createDefault();
+
+        if ($this->cacheDir) {
+            $config->set('Cache.SerializerPath', $this->cacheDir);
+        }
 
         if ($override && empty($options)) {
             $config->set('HTML.AllowedElements', []);

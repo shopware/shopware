@@ -12,7 +12,7 @@ class SwSanitizeTwigFilterTest extends TestCase
 
     public function testForbiddenElementAllowedAttribute(): void
     {
-        $filter = new SwSanitizeTwigFilter();
+        $filter = $this->getContainer()->get(SwSanitizeTwigFilter::class);
 
         $filteredString = $filter->sanitize($this->unfilteredString, ['h1' => ['style']], true);
         static::assertSame($filteredString, 'test');
@@ -20,7 +20,7 @@ class SwSanitizeTwigFilterTest extends TestCase
 
     public function testAllowedElementForbiddenAttribute(): void
     {
-        $filter = new SwSanitizeTwigFilter();
+        $filter = $this->getContainer()->get(SwSanitizeTwigFilter::class);
 
         $filteredString = $filter->sanitize($this->unfilteredString, ['div' => []], true);
         static::assertSame($filteredString, '<div>test</div>');
@@ -28,7 +28,7 @@ class SwSanitizeTwigFilterTest extends TestCase
 
     public function testForbiddenElementForbiddenAttribute(): void
     {
-        $filter = new SwSanitizeTwigFilter();
+        $filter = $this->getContainer()->get(SwSanitizeTwigFilter::class);
 
         $filteredString = $filter->sanitize($this->unfilteredString, '', true);
         static::assertSame($filteredString, 'test');
@@ -36,7 +36,7 @@ class SwSanitizeTwigFilterTest extends TestCase
 
     public function testAllowedElementAllowedAttribute(): void
     {
-        $filter = new SwSanitizeTwigFilter();
+        $filter = $this->getContainer()->get(SwSanitizeTwigFilter::class);
 
         $filteredString = $filter->sanitize($this->unfilteredString, ['div' => ['style']], true);
         static::assertSame($filteredString, $this->unfilteredString);

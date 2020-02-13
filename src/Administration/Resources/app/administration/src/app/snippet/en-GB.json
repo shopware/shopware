@@ -454,6 +454,7 @@
         "lineItemPropertyRule": "Line item property",
         "lineItemNoveltyRule": "Novelties",
         "lineItemOfManufacturerRule": "Manufacturer",
+        "lineItemPurchasePriceRule": "Line item purchase price",
         "paymentMethodRule": "Payment method",
         "shippingMethodRule": "Shipping method"
       }

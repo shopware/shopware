@@ -173,6 +173,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.lineItemNoveltyRule',
         scopes: ['lineItem']
     });
+    ruleConditionService.addCondition('cartLineItemOfManufacturer', {
+        component: 'sw-condition-line-item-of-manufacturer',
+        label: 'global.sw-condition.condition.lineItemOfManufacturerRule',
+        scopes: ['lineItem']
+    });
 
     if (next6013()) {
         ruleConditionService.addCondition('paymentMethod', {

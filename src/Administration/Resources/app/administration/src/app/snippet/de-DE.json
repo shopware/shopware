@@ -453,6 +453,7 @@
         "lineItemTagRule": "Positionen mit Tag",
         "lineItemPropertyRule": "Positionen mit Eigenschaften",
         "lineItemNoveltyRule": "Neuheiten",
+        "lineItemOfManufacturerRule": "Hersteller",
         "paymentMethodRule": "Zahlungsart",
         "shippingMethodRule": "Versandart"
       }

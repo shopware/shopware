@@ -453,6 +453,7 @@
         "lineItemTagRule": "Line item tag",
         "lineItemPropertyRule": "Line item property",
         "lineItemNoveltyRule": "Novelties",
+        "lineItemOfManufacturerRule": "Manufacturer",
         "paymentMethodRule": "Payment method",
         "shippingMethodRule": "Shipping method"
       }

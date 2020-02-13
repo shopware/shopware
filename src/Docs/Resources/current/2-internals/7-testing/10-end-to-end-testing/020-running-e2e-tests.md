@@ -1,7 +1,5 @@
 [titleEn]: <>(Running End-to-End Tests)
 
-# Running End-to-End Tests
-
 In this guide, we will show you how to run Shopware E2E tests correctly.
 
 ## Prerequisites

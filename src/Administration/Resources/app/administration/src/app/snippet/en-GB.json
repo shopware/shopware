@@ -465,6 +465,9 @@
         "lineItemDimensionHeightRule": "Line item height",
         "lineItemDimensionLengthRule": "Line item length",
         "lineItemDimensionWeightRule": "Line item weight",
+        "lineItemOfManufacturerRule": "Manufacturer",
+        "lineItemPurchasePriceRule": "Line item purchase price",
+        "lineItemCreationDateRule": "Line item with creation date",
         "paymentMethodRule": "Payment method",
         "shippingMethodRule": "Shipping method"
       }

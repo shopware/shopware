@@ -233,6 +233,21 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.lineItemDimensionWeightRule',
         scopes: ['lineItem']
     });
+    ruleConditionService.addCondition('cartLineItemOfManufacturer', {
+        component: 'sw-condition-line-item-of-manufacturer',
+        label: 'global.sw-condition.condition.lineItemOfManufacturerRule',
+        scopes: ['lineItem']
+    });
+    ruleConditionService.addCondition('cartLineItemPurchasePrice', {
+        component: 'sw-condition-line-item-purchase-price',
+        label: 'global.sw-condition.condition.lineItemPurchasePriceRule',
+        scopes: ['lineItem']
+    });
+    ruleConditionService.addCondition('cartLineItemCreationDate', {
+        component: 'sw-condition-line-item-creation-date',
+        label: 'global.sw-condition.condition.lineItemCreationDateRule',
+        scopes: ['lineItem']
+    });
 
     if (next6013()) {
         ruleConditionService.addCondition('paymentMethod', {

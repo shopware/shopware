@@ -118,6 +118,13 @@ class TwigSwExtendsTest extends TestCase
     {
         $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
 
+        /** @var BundleFixture $bundle */
+        foreach ($bundles as $bundle) {
+            $directory = $bundle->getPath() . '/Resources/views';
+            $loader->addPath($directory);
+            $loader->addPath($directory, $bundle->getName());
+        }
+
         $twig = new Environment($loader, ['cache' => $this->cache]);
 
         $templateFinder = new TemplateFinder($twig, $loader, $this->cacheDir);

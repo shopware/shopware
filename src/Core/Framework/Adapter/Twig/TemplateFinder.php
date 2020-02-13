@@ -7,7 +7,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use Twig\Cache\FilesystemCache;
 use Twig\Environment;
 use Twig\Error\LoaderError;
-use Twig\Loader\FilesystemLoader;
+use Twig\Loader\LoaderInterface;
 
 class TemplateFinder implements TemplateFinderInterface
 {
@@ -17,7 +17,7 @@ class TemplateFinder implements TemplateFinderInterface
     protected $twig;
 
     /**
-     * @var FilesystemLoader
+     * @var LoaderInterface
      */
     protected $loader;
 
@@ -31,7 +31,7 @@ class TemplateFinder implements TemplateFinderInterface
      */
     protected $cacheDir;
 
-    public function __construct(Environment $twig, FilesystemLoader $loader, string $cacheDir)
+    public function __construct(Environment $twig, LoaderInterface $loader, string $cacheDir)
     {
         $this->twig = $twig;
         $this->loader = $loader;
@@ -121,8 +121,6 @@ class TemplateFinder implements TemplateFinderInterface
         }
 
         array_unshift($bundles, $bundle->getName());
-        $this->loader->addPath($directory, $bundle->getName());
-        $this->loader->addPath($directory);
 
         $this->bundles = array_values(array_unique($bundles));
     }

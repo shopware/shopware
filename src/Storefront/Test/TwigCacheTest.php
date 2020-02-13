@@ -43,6 +43,14 @@ class TwigCacheTest extends TestCase
 
         $templateFinder = $this->getContainer()->get(TemplateFinder::class);
 
+        $loader = $this->getContainer()->get('twig.loader.native_filesystem');
+        /** @var BundleFixture $bundle */
+        foreach ($bundles as $bundle) {
+            $directory = $bundle->getPath() . '/Resources/views';
+            $loader->addPath($directory);
+            $loader->addPath($directory, $bundle->getName());
+        }
+
         $kernel = $this->createMock(Kernel::class);
         $kernel->expects(static::any())
                 ->method('getBundles')

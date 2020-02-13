@@ -213,6 +213,17 @@ Component.register('sw-settings-document-detail', {
                     }
                 },
                 {
+                    name: 'taxOffice',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: {
+                            'en-GB': this.$t('sw-settings-document.detail.labelTaxOffice', 'en-GB'),
+                            'de-DE': this.$t('sw-settings-document.detail.labelTaxOffice', 'de-DE')
+                        }
+                    }
+                },
+                {
                     name: 'vatId',
                     type: 'text',
                     config: {

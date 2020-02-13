@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Checkout\Cart\Event\CartCreatedEvent;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\Event\LineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\LineItemQuantityChangedEvent;
@@ -92,6 +93,8 @@ class CartService
     public function createNew(string $token, string $name = self::SALES_CHANNEL): Cart
     {
         $cart = new Cart($name, $token);
+
+        $this->eventDispatcher->dispatch(new CartCreatedEvent($cart));
 
         return $this->cart[$cart->getToken()] = $cart;
     }

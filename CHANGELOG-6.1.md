@@ -17,6 +17,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added const for custom field type select to `\Shopware\Core\System\CustomField\CustomFieldTypes`
 
     * Added `Shopware\Core\Migration\Test\DateTimeTest` to ensure usage of (new \DateTime())->format(STORAGE_DATE_TIME_FORMAT) instead of date(Defaults::STORAGE_DATE_TIME_FORMAT) since date only supports seconds and no milliseconds.
+    * Added `Shopware\Core\Checkout\Cart\Event\CartCreatedEvent` which is dispatched when a cart is created in the `Shopware\Core\Checkout\Cart\SalesChannel\CartService`. 
 
 ### 6.1.1
 

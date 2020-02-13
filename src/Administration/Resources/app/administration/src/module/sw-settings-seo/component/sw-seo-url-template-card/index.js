@@ -197,8 +197,6 @@ Component.register('sw-seo-url-template-card', {
 
             this.seoUrlTemplates.forEach((entry) => {
                 if (entry.template === null) {
-                    console.log('This entry template is null', entry.id);
-                    debugger;
                     this.seoUrlTemplates.remove(entry.id);
                 }
             });

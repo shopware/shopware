@@ -47,8 +47,7 @@ export function mapCollectionPropertyErrors(entityCollectionName, properties = [
         computedValues[computedValueName] = function getterCollectionError() {
             const entityCollection = this[entityCollectionName];
 
-            const isEntityCollection = Array.isArray(entityCollection);
-            if (!isEntityCollection) {
+            if (!Array.isArray(entityCollection)) {
                 return null;
             }
 

@@ -1,7 +1,5 @@
 [titleEn]: <>(Test data handling)
 
-# Test data handling
-
 It's important and necessary that the E2E tests are isolated. This means that the test should create all the data
 needed for running by itself beforehand. Afterwards, all changes in the application must be removed completely.
 This way, the spec avoids dependencies to demo data or data from other tests and cannot be disturbed by those.

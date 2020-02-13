@@ -2,9 +2,8 @@
     <div class="sw-system-config">
         <div class="sw-system-config__global-sales-channel-switch"
              v-if="salesChannelSwitchable && config.length > 1">
-            <sw-sales-channel-switch
-                     :label="$tc('sw-settings.system-config.labelSalesChannelSelect')"
-                     @change-sales-channel-id="onSalesChannelChanged">
+            <sw-sales-channel-switch :label="$tc('sw-settings.system-config.labelSalesChannelSelect')"
+                                     @change-sales-channel-id="onSalesChannelChanged">
             </sw-sales-channel-switch>
         </div>
         {% block sw_system_config_content_card %}
@@ -16,9 +15,8 @@
                 <slot name="beforeElements" v-bind="{ card, config: actualConfigData[currentSalesChannelId] }"></slot>
                 <template #toolbar
                           v-if="salesChannelSwitchable && config.length === 1">
-                    <sw-sales-channel-switch
-                            :label="$tc('sw-settings.system-config.labelSalesChannelSelect')"
-                            @change-sales-channel-id="onSalesChannelChanged">
+                    <sw-sales-channel-switch :label="$tc('sw-settings.system-config.labelSalesChannelSelect')"
+                                             @change-sales-channel-id="onSalesChannelChanged">
                     </sw-sales-channel-switch>
                 </template>
                 <template v-if="!isLoading">

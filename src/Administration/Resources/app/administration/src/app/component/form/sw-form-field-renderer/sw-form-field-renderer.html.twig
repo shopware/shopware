@@ -4,6 +4,7 @@
                ref="component"
                v-model="currentValue"
                class="sw-form-field-renderer">
+
         {% block sw_form_field_renderer_inner %}
             <slot>{% block sw_form_field_renderer_inner_slot %}{% endblock %}</slot>
         {% endblock %}

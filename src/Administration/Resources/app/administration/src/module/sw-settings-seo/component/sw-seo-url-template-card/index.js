@@ -2,6 +2,7 @@ import template from './sw-seo-url-template-card.html.twig';
 import './sw-seo-url-template-card.scss';
 
 const { Component, Mixin } = Shopware;
+const { mapCollectionPropertyErrors } = Shopware.Component.getComponentHelper();
 const EntityCollection = Shopware.Data.EntityCollection;
 const Criteria = Shopware.Data.Criteria;
 const utils = Shopware.Utils;
@@ -34,6 +35,8 @@ Component.register('sw-seo-url-template-card', {
     },
 
     computed: {
+        ...mapCollectionPropertyErrors('seoUrlTemplates', ['template']),
+
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
         },
@@ -191,33 +194,24 @@ Component.register('sw-seo-url-template-card', {
                 return;
             }
 
-            const removalPromises = [];
-            this.seoUrlTemplates.forEach(seoUrlTemplate => {
-                if (!seoUrlTemplate.template) {
-                    if (!seoUrlTemplate._isNew) {
-                        removalPromises.push(this.seoUrlTemplateRepository.delete(seoUrlTemplate.id, Shopware.Context.api));
-                    }
-                    this.seoUrlTemplates.remove(seoUrlTemplate.id);
+
+            this.seoUrlTemplates.forEach((entry) => {
+                if (entry.template === null) {
+                    console.log('This entry template is null', entry.id);
+                    debugger;
+                    this.seoUrlTemplates.remove(entry.id);
                 }
             });
 
-            Promise.all(removalPromises).then(() => {
-                this.seoUrlTemplates.forEach((entry) => {
-                    if (entry.template === null) {
-                        this.seoUrlTemplates.remove(entry.id);
-                    }
-                });
-
-                this.seoUrlTemplateRepository.sync(this.seoUrlTemplates, Shopware.Context.api).then(() => {
-                    this.seoUrlTemplates = new EntityCollection(
-                        this.seoUrlTemplateRepository.route,
-                        this.seoUrlTemplateRepository.schema.entity,
-                        Shopware.Context.api,
-                        new Criteria()
-                    );
-                    this.fetchSeoUrlTemplates(this.salesChannelId);
-                    this.createSaveSuccessNotification();
-                });
+            this.seoUrlTemplateRepository.sync(this.seoUrlTemplates, Shopware.Context.api).then(() => {
+                this.seoUrlTemplates = new EntityCollection(
+                    this.seoUrlTemplateRepository.route,
+                    this.seoUrlTemplateRepository.schema.entity,
+                    Shopware.Context.api,
+                    new Criteria()
+                );
+                this.fetchSeoUrlTemplates(this.salesChannelId);
+                this.createSaveSuccessNotification();
             }).catch(() => {
                 this.createSaveErrorNotification();
             });

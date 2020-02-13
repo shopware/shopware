@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Event\SalesChannelContextPermissionsChangedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
@@ -22,6 +23,7 @@ use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Tax\TaxRuleType\TaxRuleTypeFilterInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class SalesChannelContextFactory
 {
@@ -90,6 +92,11 @@ class SalesChannelContextFactory
      */
     private $taxRuleTypeFilter;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
     public function __construct(
         EntityRepositoryInterface $salesChannelRepository,
         EntityRepositoryInterface $currencyRepository,
@@ -103,7 +110,8 @@ class SalesChannelContextFactory
         Connection $connection,
         EntityRepositoryInterface $countryStateRepository,
         TaxDetector $taxDetector,
-        iterable $taxRuleTypeFilter
+        iterable $taxRuleTypeFilter,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->salesChannelRepository = $salesChannelRepository;
         $this->currencyRepository = $currencyRepository;
@@ -118,6 +126,7 @@ class SalesChannelContextFactory
         $this->countryStateRepository = $countryStateRepository;
         $this->taxDetector = $taxDetector;
         $this->taxRuleTypeFilter = $taxRuleTypeFilter;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function create(string $token, string $salesChannelId, array $options = []): SalesChannelContext
@@ -215,6 +224,15 @@ class SalesChannelContextFactory
             $customer,
             []
         );
+
+        if (array_key_exists(SalesChannelContextService::PERMISSIONS, $options)) {
+            $salesChannelContext->setPermissions($options[SalesChannelContextService::PERMISSIONS]);
+
+            $event = new SalesChannelContextPermissionsChangedEvent($salesChannelContext, $options[SalesChannelContextService::PERMISSIONS]);
+            $this->eventDispatcher->dispatch($event);
+
+            $salesChannelContext->lockPermissions();
+        }
 
         $salesChannelContext->setTaxState($this->taxDetector->getTaxState($salesChannelContext));
 

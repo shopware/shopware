@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Core\System\SalesChannel\Exception\ContextPermissionsLockedException;
 use Shopware\Core\System\SalesChannel\Exception\ContextRulesLockedException;
 use Shopware\Core\System\Tax\Exception\TaxNotFoundException;
 use Shopware\Core\System\Tax\TaxCollection;
@@ -79,6 +80,16 @@ class SalesChannelContext extends Struct
      * @var bool
      */
     protected $rulesLocked = false;
+
+    /**
+     * @var array
+     */
+    protected $permissions = [];
+
+    /**
+     * @var bool
+     */
+    protected $permisionsLocked = false;
 
     /**
      * @var Context
@@ -206,6 +217,11 @@ class SalesChannelContext extends Struct
         $this->rulesLocked = true;
     }
 
+    public function lockPermissions(): void
+    {
+        $this->permisionsLocked = true;
+    }
+
     public function getToken(): string
     {
         return $this->token;
@@ -219,5 +235,19 @@ class SalesChannelContext extends Struct
     public function setTaxState(string $taxState): void
     {
         $this->context->setTaxState($taxState);
+    }
+
+    public function getPermissions(): array
+    {
+        return $this->permissions;
+    }
+
+    public function setPermissions(array $permissions): void
+    {
+        if ($this->permisionsLocked) {
+            throw new ContextPermissionsLockedException();
+        }
+
+        $this->permissions = array_filter(array_values($permissions));
     }
 }

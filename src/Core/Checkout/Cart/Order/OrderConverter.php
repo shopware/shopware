@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Order;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
@@ -30,6 +31,8 @@ use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
+use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -51,6 +54,13 @@ class OrderConverter
     public const ORIGINAL_ID = 'originalId';
 
     public const ORIGINAL_ORDER_NUMBER = 'originalOrderNumber';
+
+    private const ADMIN_EDIT_ORDER_PERMISSIONS = [
+        ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES,
+        ProductCartProcessor::SKIP_PRODUCT_RECALCULATION,
+        DeliveryProcessor::SKIP_DELIVERY_RECALCULATION,
+        PromotionCollector::SKIP_PROMOTION,
+    ];
 
     /**
      * @var EntityRepositoryInterface
@@ -250,6 +260,7 @@ class OrderConverter
             SalesChannelContextService::CUSTOMER_ID => $customerId,
             SalesChannelContextService::COUNTRY_STATE_ID => $billingAddress->getCountryStateId(),
             SalesChannelContextService::CUSTOMER_GROUP_ID => $customerGroupId,
+            SalesChannelContextService::PERMISSIONS => self::ADMIN_EDIT_ORDER_PERMISSIONS,
         ];
 
         if ($order->getTransactions()) {

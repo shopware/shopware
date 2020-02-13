@@ -25,6 +25,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class PromotionCollector implements CartDataCollectorInterface
 {
+    public const SKIP_PROMOTION = 'skipPromotion';
+
     /**
      * @var PromotionGatewayInterface
      */
@@ -70,7 +72,7 @@ class PromotionCollector implements CartDataCollectorInterface
     {
         // if we are in recalculation,
         // we must not re-add any promotions. just leave it as it is.
-        if ($behavior->isRecalculation()) {
+        if ($behavior->hasPermission(self::SKIP_PROMOTION)) {
             return;
         }
 

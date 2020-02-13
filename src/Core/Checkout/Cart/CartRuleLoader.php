@@ -69,7 +69,7 @@ class CartRuleLoader
             $cart = new Cart($context->getSalesChannel()->getTypeId(), $cartToken);
         }
 
-        return $this->loadByCart($context, $cart, new CartBehavior());
+        return $this->loadByCart($context, $cart, new CartBehavior($context->getPermissions()));
     }
 
     public function loadByCart(SalesChannelContext $context, Cart $cart, CartBehavior $behaviorContext): RuleLoaderResult

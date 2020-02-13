@@ -225,8 +225,8 @@ class RecalculationService
 
     private function refresh(Cart $cart, SalesChannelContext $context): Cart
     {
-        $behavior = (new CartBehavior())
-            ->setIsRecalculation(true);
+        $behavior = new CartBehavior($context->getPermissions());
+        $behavior->setIsRecalculation(true);
 
         // all prices are now prepared for calculation -  starts the cart calculation
         return $this->processor->process($cart, $context, $behavior);
@@ -288,7 +288,7 @@ class RecalculationService
 
     private function recalculateCart(Cart $cart, SalesChannelContext $context): Cart
     {
-        $behavior = new CartBehavior();
+        $behavior = new CartBehavior($context->getPermissions());
         $behavior->setIsRecalculation(true);
 
         // all prices are now prepared for calculation -  starts the cart calculation

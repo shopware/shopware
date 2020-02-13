@@ -1,7 +1,7 @@
 import template from './sw-condition-payment-method.html.twig';
 
 const { Component, Context } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
@@ -42,7 +42,7 @@ Component.extend('sw-condition-payment-method', 'sw-condition-base', {
             }
         },
 
-        ...mapApiErrors('condition', ['value.operator', 'value.paymentMethodIds']),
+        ...mapPropertyErrors('condition', ['value.operator', 'value.paymentMethodIds']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValuePaymentMethodIdsError;

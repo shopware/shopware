@@ -1,7 +1,7 @@
 import template from './sw-condition-shipping-street.html.twig';
 
 const { Component } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -30,7 +30,7 @@ Component.extend('sw-condition-shipping-street', 'sw-condition-base', {
             }
         },
 
-        ...mapApiErrors('condition', ['value.operator', 'value.streetName']),
+        ...mapPropertyErrors('condition', ['value.operator', 'value.streetName']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueStreetNameError;

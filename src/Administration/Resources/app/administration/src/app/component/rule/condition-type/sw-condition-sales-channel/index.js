@@ -1,7 +1,7 @@
 import template from './sw-condition-sales-channel.html.twig';
 
 const { Component, Context } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
@@ -42,7 +42,7 @@ Component.extend('sw-condition-sales-channel', 'sw-condition-base', {
             }
         },
 
-        ...mapApiErrors('condition', ['value.operator', 'value.salesChannelIds']),
+        ...mapPropertyErrors('condition', ['value.operator', 'value.salesChannelIds']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueSalesChannelIdsError;

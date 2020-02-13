@@ -1,7 +1,7 @@
 import template from './sw-condition-line-item-of-type.html.twig';
 
 const { Component } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -43,7 +43,7 @@ Component.extend('sw-condition-line-item-of-type', 'sw-condition-base', {
             }
         },
 
-        ...mapApiErrors('condition', ['value.operator', 'value.lineItemType']),
+        ...mapPropertyErrors('condition', ['value.operator', 'value.lineItemType']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueLineItemTypeError;

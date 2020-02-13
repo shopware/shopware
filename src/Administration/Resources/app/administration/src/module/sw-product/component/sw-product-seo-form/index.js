@@ -1,7 +1,7 @@
 import template from './sw-product-seo-form.html.twig';
 
 const { Component, Mixin } = Shopware;
-const { mapApiErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-seo-form', {
     template,
@@ -20,7 +20,7 @@ Component.register('sw-product-seo-form', {
             'parentProduct'
         ]),
 
-        ...mapApiErrors('product', [
+        ...mapPropertyErrors('product', [
             'keywords',
             'metaDescription',
             'metaTitle'

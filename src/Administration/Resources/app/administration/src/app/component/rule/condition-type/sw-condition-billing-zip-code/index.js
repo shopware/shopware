@@ -1,7 +1,7 @@
 import template from './sw-condition-billing-zip-code.html.twig';
 
 const { Component } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -30,7 +30,7 @@ Component.extend('sw-condition-billing-zip-code', 'sw-condition-base', {
             }
         },
 
-        ...mapApiErrors('condition', ['value.operator', 'value.zipCodes']),
+        ...mapPropertyErrors('condition', ['value.operator', 'value.zipCodes']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueZipCodesError;

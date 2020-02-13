@@ -1,7 +1,7 @@
 import template from './sw-condition-days-since-last-order.html.twig';
 
 const { Component } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 Component.extend('sw-condition-days-since-last-order', 'sw-condition-base', {
     template,
@@ -22,7 +22,7 @@ Component.extend('sw-condition-days-since-last-order', 'sw-condition-base', {
             }
         },
 
-        ...mapApiErrors('condition', ['value.operator', 'value.daysPassed']),
+        ...mapPropertyErrors('condition', ['value.operator', 'value.daysPassed']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueDaysPassedError;

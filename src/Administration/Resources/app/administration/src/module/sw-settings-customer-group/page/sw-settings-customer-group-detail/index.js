@@ -1,7 +1,7 @@
 import template from './sw-settings-customer-group-detail.html.twig';
 
 const { Component, StateDeprecated, Mixin } = Shopware;
-const { mapApiErrors } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-settings-customer-group-detail', {
     template,
@@ -78,7 +78,7 @@ Component.register('sw-settings-customer-group-detail', {
             };
         },
 
-        ...mapApiErrors('customerGroup', ['name'])
+        ...mapPropertyErrors('customerGroup', ['name'])
     },
 
     watch: {

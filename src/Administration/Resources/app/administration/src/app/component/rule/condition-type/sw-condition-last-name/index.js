@@ -1,7 +1,7 @@
 import template from './sw-condition-last-name.html.twig';
 
 const { Component } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -30,7 +30,7 @@ Component.extend('sw-condition-last-name', 'sw-condition-base', {
             }
         },
 
-        ...mapApiErrors('condition', ['value.operator', 'value.lastName']),
+        ...mapPropertyErrors('condition', ['value.operator', 'value.lastName']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueLastNameError;

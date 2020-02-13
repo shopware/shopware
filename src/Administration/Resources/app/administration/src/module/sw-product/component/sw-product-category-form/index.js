@@ -2,7 +2,7 @@ import template from './sw-product-category-form.html.twig';
 
 const { Component } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
-const { mapApiErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-category-form', {
     template,
@@ -29,7 +29,7 @@ Component.register('sw-product-category-form', {
             'isChild'
         ]),
 
-        ...mapApiErrors('product', ['tags']),
+        ...mapPropertyErrors('product', ['tags']),
 
         hasSelectedVisibilities() {
             if (this.product && this.product.visibilities) {

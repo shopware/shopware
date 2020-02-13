@@ -1,7 +1,7 @@
 import template from './sw-condition-weight-of-cart.html.twig';
 
 const { Component } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -30,7 +30,7 @@ Component.extend('sw-condition-weight-of-cart', 'sw-condition-base', {
             }
         },
 
-        ...mapApiErrors('condition', ['value.operator', 'value.weight']),
+        ...mapPropertyErrors('condition', ['value.operator', 'value.weight']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueWeightError;

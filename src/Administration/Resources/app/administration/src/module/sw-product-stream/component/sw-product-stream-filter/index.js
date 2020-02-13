@@ -2,7 +2,7 @@ import template from './sw-product-stream-filter.html.twig';
 import './sw-product-stream-filter.scss';
 
 const { Component, EntityDefinition } = Shopware;
-// const { mapApiErrors } = Component.getComponentHelper();
+// const { mapPropertyErrors } = Component.getComponentHelper();
 
 Component.extend('sw-product-stream-filter', 'sw-condition-base', {
     template,

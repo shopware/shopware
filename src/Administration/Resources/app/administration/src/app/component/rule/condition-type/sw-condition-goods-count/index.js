@@ -2,7 +2,7 @@ import template from './sw-condition-goods-count.html.twig';
 import './sw-condition-goods-count.scss';
 
 const { Component } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -37,7 +37,7 @@ Component.extend('sw-condition-goods-count', 'sw-condition-base', {
             }
         },
 
-        ...mapApiErrors('condition', ['value.operator', 'value.count']),
+        ...mapPropertyErrors('condition', ['value.operator', 'value.count']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueCountError;

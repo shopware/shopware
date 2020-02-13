@@ -2,7 +2,7 @@ import template from './sw-customer-address-form.html.twig';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapApiErrors } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-customer-address-form', {
     template,
@@ -48,7 +48,7 @@ Component.register('sw-customer-address-form', {
             return this.repositoryFactory.create('country');
         },
 
-        ...mapApiErrors('address', [
+        ...mapPropertyErrors('address', [
             'company',
             'department',
             'salutationId',
@@ -65,7 +65,7 @@ Component.register('sw-customer-address-form', {
             'vatId'
         ]),
 
-        ...mapApiErrors('address', [
+        ...mapPropertyErrors('address', [
             'countryStateId',
             'countryId',
             'salutationId',

@@ -3,7 +3,7 @@ import './sw-rule-modal.scss';
 
 const { Component, Mixin, Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @status ready
@@ -57,7 +57,7 @@ Component.register('sw-rule-modal', {
             return this.placeholder(this.rule, 'name', this.$tc('sw-rule-modal.modalTitleModify'));
         },
 
-        ...mapApiErrors('rule', ['name', 'priority'])
+        ...mapPropertyErrors('rule', ['name', 'priority'])
     },
 
     data() {

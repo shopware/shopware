@@ -2,7 +2,7 @@ import template from './sw-condition-date-range.html.twig';
 import './sw-condition-date-range.scss';
 
 const { Component } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -70,7 +70,7 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
             return this.useTime ? 'datetime' : 'date';
         },
 
-        ...mapApiErrors('condition', ['value.useTime', 'value.fromDate', 'value.toDate']),
+        ...mapPropertyErrors('condition', ['value.useTime', 'value.fromDate', 'value.toDate']),
 
         currentError() {
             return this.conditionValueUseTimeError || this.conditionValueFromDateError || this.conditionValueToDateError;

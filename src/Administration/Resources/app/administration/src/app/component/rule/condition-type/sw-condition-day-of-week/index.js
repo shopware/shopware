@@ -1,7 +1,7 @@
 import template from './sw-condition-day-of-week.html.twig';
 
 const { Component } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -63,7 +63,7 @@ Component.extend('sw-condition-day-of-week', 'sw-condition-base', {
             ];
         },
 
-        ...mapApiErrors('condition', ['value.operator', 'value.dayOfWeek']),
+        ...mapPropertyErrors('condition', ['value.operator', 'value.dayOfWeek']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueDayOfWeekError;

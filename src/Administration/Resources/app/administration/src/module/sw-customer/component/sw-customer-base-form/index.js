@@ -1,7 +1,7 @@
 import template from './sw-customer-base-form.html.twig';
 
 const { Component } = Shopware;
-const { mapApiErrors } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-customer-base-form', {
     template,
@@ -14,7 +14,7 @@ Component.register('sw-customer-base-form', {
     },
 
     computed: {
-        ...mapApiErrors('customer', [
+        ...mapPropertyErrors('customer', [
             'salutationId',
             'firstName',
             'lastName',

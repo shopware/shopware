@@ -2,7 +2,7 @@ import template from './sw-product-stream-detail.html.twig';
 import './sw-product-stream-detail.scss';
 
 const { Component, Mixin, Context } = Shopware;
-const { mapApiErrors } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-product-stream-detail', {
@@ -113,7 +113,7 @@ Component.register('sw-product-stream-detail', {
             return this.isSystemLanguage;
         },
 
-        ...mapApiErrors('productStream', ['name'])
+        ...mapPropertyErrors('productStream', ['name'])
     },
 
     watch: {

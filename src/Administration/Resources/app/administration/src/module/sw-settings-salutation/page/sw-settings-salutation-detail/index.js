@@ -3,7 +3,7 @@ import template from './sw-settings-salutation-detail.html.twig';
 const { Component, Mixin, StateDeprecated } = Shopware;
 const { Criteria } = Shopware.Data;
 const ShopwareError = Shopware.Classes.ShopwareError;
-const { mapApiErrors } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const utils = Shopware.Utils;
 
 Component.register('sw-settings-salutation-detail', {
@@ -91,7 +91,7 @@ Component.register('sw-settings-salutation-detail', {
             };
         },
 
-        ...mapApiErrors('salutation', ['displayName', 'letterName'])
+        ...mapPropertyErrors('salutation', ['displayName', 'letterName'])
     },
 
     watch: {

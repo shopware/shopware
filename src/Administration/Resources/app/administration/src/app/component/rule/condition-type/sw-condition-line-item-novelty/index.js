@@ -1,7 +1,7 @@
 import template from './sw-condition-line-item-novelty.html.twig';
 
 const { Component } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 Component.extend('sw-condition-line-item-novelty', 'sw-condition-base', {
     template,
@@ -28,7 +28,7 @@ Component.extend('sw-condition-line-item-novelty', 'sw-condition-base', {
             return [this.trueOption, this.falseOption];
         },
 
-        ...mapApiErrors('condition', ['value.isNovelty']),
+        ...mapPropertyErrors('condition', ['value.isNovelty']),
 
         currentError() {
             return this.conditionValueAllowedError;

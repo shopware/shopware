@@ -2,7 +2,7 @@ import template from './sw-customer-card.html.twig';
 import './sw-customer-card.scss';
 
 const { Component, Mixin } = Shopware;
-const { mapApiErrors } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-customer-card', {
     template,
@@ -63,7 +63,7 @@ Component.register('sw-customer-card', {
             return Object.values(name).filter(item => item !== null).join(' - ').trim();
         },
 
-        ...mapApiErrors('customer', ['firstName', 'lastName'])
+        ...mapPropertyErrors('customer', ['firstName', 'lastName'])
     },
 
     methods: {

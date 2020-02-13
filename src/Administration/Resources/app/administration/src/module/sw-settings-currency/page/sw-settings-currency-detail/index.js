@@ -1,7 +1,7 @@
 import template from './sw-settings-currency-detail.html.twig';
 
 const { Component, Mixin, StateDeprecated } = Shopware;
-const { mapApiErrors } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-settings-currency-detail', {
     template,
@@ -69,7 +69,7 @@ Component.register('sw-settings-currency-detail', {
             };
         },
 
-        ...mapApiErrors('currency', ['name', 'isoCode', 'shortName', 'symbol', 'isDefault', 'decimalPrecision', 'factor'])
+        ...mapPropertyErrors('currency', ['name', 'isoCode', 'shortName', 'symbol', 'isDefault', 'decimalPrecision', 'factor'])
     },
 
     watch: {

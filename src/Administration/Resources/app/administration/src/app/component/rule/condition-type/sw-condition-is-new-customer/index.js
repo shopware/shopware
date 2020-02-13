@@ -1,7 +1,7 @@
 import template from './sw-condition-is-new-customer.html.twig';
 
 const { Component } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -39,7 +39,7 @@ Component.extend('sw-condition-is-new-customer', 'sw-condition-base', {
             }
         },
 
-        ...mapApiErrors('condition', ['value.isNew']),
+        ...mapPropertyErrors('condition', ['value.isNew']),
 
         currentError() {
             return this.conditionValueIsNewError;

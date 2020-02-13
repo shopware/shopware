@@ -1,7 +1,7 @@
 import template from './sw-settings-tax-detail.html.twig';
 
 const { Component, Mixin } = Shopware;
-const { mapApiErrors } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 
 Component.register('sw-settings-tax-detail', {
@@ -44,7 +44,7 @@ Component.register('sw-settings-tax-detail', {
             return this.repositoryFactory.create('tax');
         },
 
-        ...mapApiErrors('tax', ['name', 'taxRate'])
+        ...mapPropertyErrors('tax', ['name', 'taxRate'])
     },
 
     watch: {

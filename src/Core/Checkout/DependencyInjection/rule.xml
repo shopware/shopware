@@ -124,14 +124,26 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemOfManufacturerRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemPurchasePriceRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemCreationDateRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Cart\Rule\PaymentMethodRule">
             <tag name="shopware.rule.definition"/>
-            <tag name="shopware.feature" flag="next6013" />
+            <tag name="shopware.feature" flag="next6013"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Rule\ShippingMethodRule">
             <tag name="shopware.rule.definition"/>
-            <tag name="shopware.feature" flag="next6013" />
+            <tag name="shopware.feature" flag="next6013"/>
         </service>
 
     </services>

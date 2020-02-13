@@ -8,6 +8,12 @@ export function mapApiErrors(subject, properties = []) {
         'will be removed in 6.4.0 - use "mapPropertyErrors" instead'
     );
 
+    // Only for unit testing
+    if (process && process.env && process.env.NODE_ENV === 'test') {
+        return this.mapPropertyErrors(subject, properties);
+    }
+
+    /* istanbul ignore next */
     return mapPropertyErrors(subject, properties);
 }
 
@@ -17,13 +23,14 @@ export function mapPropertyErrors(entityName, properties = []) {
     properties.forEach((property) => {
         const computedValueName = string.camelCase(`${entityName}.${property}.error`);
 
-        computedValues[computedValueName] = function getterApiError() {
+        computedValues[computedValueName] = function getterPropertyError() {
             const entity = this[entityName];
 
             const isEntity = entity && typeof entity.getEntityName === 'function';
             if (!isEntity) {
                 return null;
             }
+
             return Shopware.State.getters['error/getApiError'](entity, property);
         };
     });
@@ -37,7 +44,7 @@ export function mapCollectionPropertyErrors(entityCollectionName, properties = [
     properties.forEach((property) => {
         const computedValueName = string.camelCase(`${entityCollectionName}.${property}.error`);
 
-        computedValues[computedValueName] = function getterApiError() {
+        computedValues[computedValueName] = function getterCollectionError() {
             const entityCollection = this[entityCollectionName];
 
             const isEntityCollection = Array.isArray(entityCollection);

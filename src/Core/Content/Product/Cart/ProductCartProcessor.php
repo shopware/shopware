@@ -23,7 +23,9 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 {
     public const CUSTOM_PRICE = 'customPrice';
 
-    public const IS_ADMIN_ORDER = 'isAdminOrder';
+    public const ALLOW_PRODUCT_PRICE_OVERWRITES = 'allowProductPriceOverwrites';
+
+    public const SKIP_PRODUCT_RECALCULATION = 'skipProductRecalculation';
 
     /**
      * @var ProductGatewayInterface
@@ -101,7 +103,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 throw new MissingLineItemPriceException($lineItem->getId());
             }
 
-            if ($behavior->isRecalculation() || $behavior->isAdminOrder()) {
+            if ($behavior->hasPermission(self::ALLOW_PRODUCT_PRICE_OVERWRITES)) {
                 $definition->setQuantity($lineItem->getQuantity());
                 $lineItem->setPrice($this->calculator->calculate($definition, $context));
                 $toCalculate->add($lineItem);
@@ -195,8 +197,9 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             )
         );
 
-        // check if the price has to be updated
-        if (!$this->shouldPriceBeRecalculated($lineItem, $behavior)) {
+        //Check if the price has to be updated
+        if ($this->shouldPriceBeRecalculated($lineItem, $behavior)) {
+            //In Case keep original Price of Product
             $prices = $this->priceDefinitionBuilder->build($product, $context, $lineItem->getQuantity());
 
             $lineItem->setPriceDefinition($prices->getQuantityPrice());
@@ -282,19 +285,18 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
     private function shouldPriceBeRecalculated(LineItem $lineItem, CartBehavior $behavior): bool
     {
-        if ($lineItem->hasExtension(self::CUSTOM_PRICE) && $behavior->isAdminOrder()) {
-            return true;
-        }
-
-        if (!$behavior->isRecalculation()) {
+        if ($lineItem->getPriceDefinition() !== null
+            && $lineItem->hasExtension(self::CUSTOM_PRICE)
+            && $behavior->hasPermission(self::ALLOW_PRODUCT_PRICE_OVERWRITES)) {
             return false;
         }
 
-        if ($lineItem->getPriceDefinition() !== null) {
-            return true;
+        if ($lineItem->getPriceDefinition() !== null
+            && $behavior->hasPermission(self::SKIP_PRODUCT_RECALCULATION)) {
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     private function getOptions(SalesChannelProductEntity $product): array

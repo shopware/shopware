@@ -13,13 +13,21 @@ use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
+use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPriceFieldTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -202,7 +210,6 @@ class SalesChannelCartController extends AbstractController
      * @throws LineItemCoverNotFoundException
      * @throws LineItemNotStackableException
      * @throws InvalidPayloadException
-     * @throws CartTokenNotFoundException
      */
     public function addLineItem(string $id, RequestDataBag $requestDataBag, SalesChannelContext $context): JsonResponse
     {
@@ -254,7 +261,6 @@ class SalesChannelCartController extends AbstractController
      * @throws LineItemNotFoundException
      * @throws LineItemNotStackableException
      * @throws LineItemCoverNotFoundException
-     * @throws CartTokenNotFoundException
      * @throws InvalidPayloadException
      */
     public function updateLineItem(string $id, RequestDataBag $requestDataBag, SalesChannelContext $context): JsonResponse
@@ -271,6 +277,44 @@ class SalesChannelCartController extends AbstractController
         $this->updateLineItemByRequest($lineItem, $requestDataBag, $context->getContext());
 
         $cart = $this->cartService->recalculate($cart, $context);
+
+        return new JsonResponse($this->serialize($cart));
+    }
+
+    /**
+     * @Route("/sales-channel-api/v{version}/checkout/cart", name="sales-channel-api.checkout.cart.cancel", methods={"DELETE"})
+     */
+    public function cancelCart(SalesChannelContext $context): JsonResponse
+    {
+        $this->cartService->deleteCart($context);
+
+        return new JsonResponse();
+    }
+
+    /**
+     * @Route("/sales-channel-api/v{version}/checkout/cart/line-items/delete", name="sales-channel-api.checkout.cart.line-items.delete", methods={"POST"})"
+     *
+     * @throws LineItemNotFoundException
+     * @throws LineItemNotRemovableException
+     * @throws MissingRequestParameterException
+     */
+    public function removeLineItems(Request $request, SalesChannelContext $context): JsonResponse
+    {
+        if (!$request->request->has('keys')) {
+            throw new MissingRequestParameterException('keys');
+        }
+
+        $lineItemKeys = $request->request->get('keys');
+
+        $cart = $this->cartService->getCart($context->getToken(), $context, CartService::SALES_CHANNEL);
+
+        foreach ($lineItemKeys as $lineItemKey) {
+            if (!$cart->has($lineItemKey)) {
+                continue;
+            }
+
+            $cart = $this->cartService->remove($cart, $lineItemKey, $context);
+        }
 
         return new JsonResponse($this->serialize($cart));
     }
@@ -327,6 +371,40 @@ class SalesChannelCartController extends AbstractController
 
             $lineItem->setCover($cover);
         }
+
+        if ($requestDataBag->get('priceDefinition') !== null) {
+            $priceDefinition = $requestDataBag->get('priceDefinition')->all();
+            $priceDefinitionType = $this->initPriceDefinition($context, $priceDefinition, $lineItem->getType());
+            $lineItem->setPriceDefinition($priceDefinitionType);
+
+            if ($lineItem->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE) {
+                $lineItem->addExtension(ProductCartProcessor::CUSTOM_PRICE, new ArrayEntity());
+            }
+        }
+    }
+
+    private function initPriceDefinition(Context $context, $priceDefinition, $lineItemType)
+    {
+        if (!isset($priceDefinition['type'])) {
+            throw new InvalidPriceFieldTypeException('none');
+        }
+
+        $priceDefinition['precision'] = $priceDefinition['precision'] ?? $context->getCurrencyPrecision();
+
+        switch ($priceDefinition['type']) {
+            case QuantityPriceDefinition::TYPE:
+                return QuantityPriceDefinition::fromArray($priceDefinition);
+            case AbsolutePriceDefinition::TYPE:
+                $rules = new LineItemOfTypeRule(Rule::OPERATOR_NEQ, $lineItemType);
+
+                return new AbsolutePriceDefinition($priceDefinition['price'], $priceDefinition['precision'], $rules);
+            case PercentagePriceDefinition::TYPE:
+                $rules = new LineItemOfTypeRule(Rule::OPERATOR_NEQ, $lineItemType);
+
+                return new PercentagePriceDefinition($priceDefinition['percentage'], $priceDefinition['precision'], $rules);
+        }
+
+        throw new InvalidPriceFieldTypeException($priceDefinition['type']);
     }
 
     private function serialize(Cart $data): array

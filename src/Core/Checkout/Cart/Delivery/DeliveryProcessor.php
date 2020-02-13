@@ -13,6 +13,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInterface
 {
+    public const SKIP_DELIVERY_RECALCULATION = 'skipDeliveryRecalculation';
+
     /**
      * @var DeliveryBuilder
      */
@@ -82,7 +84,7 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
 
     public function process(CartDataCollection $data, Cart $original, Cart $calculated, SalesChannelContext $context, CartBehavior $behavior): void
     {
-        if ($behavior->isRecalculation()) {
+        if ($behavior->hasPermission(self::SKIP_DELIVERY_RECALCULATION)) {
             $deliveries = $original->getDeliveries();
 
             $this->deliveryCalculator->calculate($data, $calculated, $deliveries, $context);

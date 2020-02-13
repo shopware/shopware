@@ -43,7 +43,11 @@ class ConfigurationServiceTest extends TestCase
             SwagExampleTest::PLUGIN_NAME
         );
 
-        static::assertSame($this->getConfigWithoutValues(), $actualConfig);
+        $expectedConfigWithoutValues = $this->getConfigWithoutValues();
+
+        static::assertEquals($expectedConfigWithoutValues, $actualConfig);
+        static::assertSame($expectedConfigWithoutValues[0]['elements'][0], $actualConfig[0]['elements'][0]);
+        static::assertSame($expectedConfigWithoutValues[0]['elements'][2], $actualConfig[0]['elements'][2]);
     }
 
     private function getConfigWithoutValues(): array
@@ -72,6 +76,11 @@ class ConfigurationServiceTest extends TestCase
                         ],
                     ],
                     1 => [
+                        'name' => 'SwagExampleTest.withoutAnyConfig',
+                        'type' => 'int',
+                        'config' => new \stdClass(),
+                    ],
+                    2 => [
                         'name' => 'SwagExampleTest.mailMethod',
                         'type' => 'single-select',
                         'config' => [

@@ -114,6 +114,8 @@ class CartSalesChannelService extends ApiService {
             type: item.type,
             description: item.description,
             priceDefinition: dummyPrice,
+            stackable: true,
+            removable: true,
             salesChannelId
         };
     }

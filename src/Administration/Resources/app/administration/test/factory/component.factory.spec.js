@@ -9,7 +9,9 @@ beforeEach(() => {
     ComponentFactory.getComponentRegistry().clear();
     ComponentFactory.getOverrideRegistry().clear();
     TemplateFactory.getTemplateRegistry().clear();
+    TemplateFactory.getNormalizedTemplateRegistry().clear();
     TemplateFactory.disableTwigCache();
+    ComponentFactory.markComponentTemplatesAsNotResolved();
 });
 
 describe('core/factory/component.factory.js', () => {
@@ -203,15 +205,11 @@ describe('core/factory/component.factory.js', () => {
                 template: '{% block content %}<div>This is a test template.</div>{% endblock %}'
             });
 
-            const renderedTemplate = ComponentFactory.getComponentTemplate('test-component');
-
             ComponentFactory.override('test-component', {
                 template: '{% block content %}<div>This is a template override.</div>{% endblock %}'
             });
 
             const overriddenTemplate = ComponentFactory.getComponentTemplate('test-component');
-
-            expect(renderedTemplate).toBe('<div>This is a test template.</div>');
             expect(overriddenTemplate).toBe('<div>This is a template override.</div>');
         }
     );
@@ -234,11 +232,11 @@ describe('core/factory/component.factory.js', () => {
 
     it('should be able to extend a component before itself was registered', () => {
         ComponentFactory.extend('test-component-extension', 'test-component', {
-            template: '<div>This is a template override.</div>'
+            template: '{% block base %}<div>This is a template override.</div>{% endblock %}'
         });
 
         ComponentFactory.register('test-component', {
-            template: '<div>This is a test template.</div>'
+            template: '{% block base %}<div>This is a test template.</div>{% endblock %}'
         });
 
         const renderedTemplate = ComponentFactory.getComponentTemplate('test-component');
@@ -273,9 +271,8 @@ describe('core/factory/component.factory.js', () => {
             template: '{% block content %}<div>This is a test template.</div>{% endblock %}'
         });
 
-        const overriddenTemplate = ComponentFactory.getComponentTemplate('test-component');
-
-        expect(overriddenTemplate).toBe('<div>This is a template override.</div>');
+        const template = ComponentFactory.getComponentTemplate('test-component');
+        expect(template).toBe('<div>This is a template override.</div>');
     });
 
     it('should ignore overrides if block does not exists', () => {
@@ -353,23 +350,21 @@ describe('core/factory/component.factory.js', () => {
             template: '{% block content %}<div>This is a test template.</div>{% endblock %}'
         });
 
-        const base = ComponentFactory.build('test-component');
-
         ComponentFactory.extend('test-component-child', 'test-component', {
             template: '{% block content %}<div>{% parent %}I am a child.</div>{% endblock %}'
         });
-
-        const child = ComponentFactory.build('test-component-child');
 
         ComponentFactory.extend('test-component-grandchild', 'test-component-child', {
             template: '{% block content %}<div>{% parent %}I am a grandchild.</div>{% endblock %}'
         });
 
+        const base = ComponentFactory.build('test-component');
+        const child = ComponentFactory.build('test-component-child');
         const grandchild = ComponentFactory.build('test-component-grandchild');
 
         expect(base.template).toBe('<div>This is a test template.</div>');
         expect(child.template).toBe('<div><div>This is a test template.</div>I am a child.</div>');
-        expect(grandchild.template).toBe('<div><div>This is a test template.</div>I am a grandchild.</div>');
+        expect(grandchild.template).toBe('<div><div><div>This is a test template.</div>I am a child.</div>I am a grandchild.</div>');
     });
 
     it('should build the final component structure with an override', () => {
@@ -469,6 +464,7 @@ describe('core/factory/component.factory.js', () => {
         });
 
         const componentAfterFirstOverride = ComponentFactory.build('test-component');
+        ComponentFactory.markComponentTemplatesAsNotResolved();
 
         ComponentFactory.override('test-component', {
             methods: {

@@ -5,14 +5,18 @@ namespace Shopware\Core\Checkout\Test\Cart;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
+use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -89,5 +93,35 @@ class ProcessorTest extends TestCase
         /** @var Delivery $delivery */
         $delivery = $calculated->getDeliveries()->first();
         static::assertTrue($delivery->getPositions()->getLineItems()->has($id));
+    }
+
+    public function testExtensionsAreMergedEarly(): void
+    {
+        $extension = new class() extends Struct {
+        };
+        $cart = new Cart('foo', 'bar');
+        $cart->addExtension('unit-test', $extension);
+
+        $processorProperty = ReflectionHelper::getProperty(Processor::class, 'processors');
+        $originalProcessors = $processorProperty->getValue($this->processor);
+
+        try {
+            $processorProperty->setValue($this->processor, [
+                new class() implements CartProcessorInterface {
+                    public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
+                    {
+                        TestCase::assertNotEmpty($original->getExtension('unit-test'));
+                        TestCase::assertNotEmpty($toCalculate->getExtension('unit-test'));
+                        TestCase::assertSame($original->getExtension('unit-test'), $toCalculate->getExtension('unit-test'));
+                    }
+                },
+            ]);
+
+            $newCart = $this->processor->process($cart, $this->context, new CartBehavior());
+
+            static::assertSame($extension, $newCart->getExtension('unit-test'));
+        } finally {
+            $processorProperty->setValue($this->processor, $originalProcessors);
+        }
     }
 }

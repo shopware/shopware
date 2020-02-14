@@ -2,35 +2,28 @@
 
 namespace Shopware\Storefront\Theme\Twig;
 
-use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
-use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\TemplateNamespaceHierarchyBuilderInterface;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Twig\Environment;
-use Twig\Loader\FilesystemLoader;
 
-/**
- * @deprecated tag:v6.3.0 will be removed, use ThemeNamespaceHierarchyBuilder instead
- */
-class ThemeTemplateFinder extends TemplateFinder implements EventSubscriberInterface
+class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterface, EventSubscriberInterface
 {
+    /**
+     * @var array
+     */
+    private $themes;
+
     /**
      * @var ThemeInheritanceBuilderInterface
      */
-    private $inheritanceBuilder;
+    private $themeInheritanceBuilder;
 
-    public function __construct(
-        Environment $twig,
-        FilesystemLoader $loader,
-        NamespaceHierarchyBuilder $hierarchyBuilder,
-        string $cacheDir,
-        ThemeInheritanceBuilderInterface $inheritanceBuilder
-    ) {
-        parent::__construct($twig, $loader, $hierarchyBuilder, $cacheDir);
-        $this->inheritanceBuilder = $inheritanceBuilder;
+    public function __construct(ThemeInheritanceBuilderInterface $themeInheritanceBuilder)
+    {
+        $this->themeInheritanceBuilder = $themeInheritanceBuilder;
     }
 
     public static function getSubscribedEvents()
@@ -44,13 +37,16 @@ class ThemeTemplateFinder extends TemplateFinder implements EventSubscriberInter
     {
         $request = $event->getRequest();
 
-        $themes = $this->detectedThemes($request);
+        $this->themes = $this->detectedThemes($request);
+    }
 
-        if (empty($themes)) {
-            return;
+    public function buildNamespaceHierarchy(array $namespaceHierarchy): array
+    {
+        if (empty($this->themes)) {
+            return $namespaceHierarchy;
         }
 
-        $this->bundles = $this->inheritanceBuilder->build($this->bundles, $themes);
+        return $this->themeInheritanceBuilder->build($namespaceHierarchy, $this->themes);
     }
 
     private function detectedThemes(Request $request): array

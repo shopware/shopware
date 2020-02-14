@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
+use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Bundle;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Twig\Cache\FilesystemCache;
@@ -24,6 +25,13 @@ class TemplateFinder implements TemplateFinderInterface
     /**
      * @var array
      */
+    protected $namespaceHierarchy;
+
+    /**
+     * @deprecated tag:v6.3.0 use NamespaceHierarchyBuilder instead
+     *
+     * @var array
+     */
     protected $bundles = [];
 
     /**
@@ -31,13 +39,26 @@ class TemplateFinder implements TemplateFinderInterface
      */
     protected $cacheDir;
 
-    public function __construct(Environment $twig, LoaderInterface $loader, string $cacheDir)
-    {
+    /**
+     * @var NamespaceHierarchyBuilder
+     */
+    private $namespaceHierarchyBuilder;
+
+    public function __construct(
+        Environment $twig,
+        LoaderInterface $loader,
+        NamespaceHierarchyBuilder $namespaceHierarchyBuilder,
+        string $cacheDir
+    ) {
         $this->twig = $twig;
         $this->loader = $loader;
         $this->cacheDir = $cacheDir . '/twig';
+        $this->namespaceHierarchyBuilder = $namespaceHierarchyBuilder;
     }
 
+    /**
+     * @deprecated tag:v6.3.0 use NamespaceHierarchyBuilder instead
+     */
     public function registerBundles(KernelInterface $kernel): void
     {
         foreach ($kernel->getBundles() as $bundle) {
@@ -70,7 +91,7 @@ class TemplateFinder implements TemplateFinderInterface
         $templatePath = $this->getTemplateName($template);
         $originalTemplate = $source ? null : $template;
 
-        $queue = $this->bundles;
+        $queue = $this->getNamespaceHierarchy();
 
         if ($source) {
             $index = array_search($source, $queue, true);
@@ -123,6 +144,18 @@ class TemplateFinder implements TemplateFinderInterface
         array_unshift($bundles, $bundle->getName());
 
         $this->bundles = array_values(array_unique($bundles));
+    }
+
+    private function getNamespaceHierarchy(): array
+    {
+        if ($this->namespaceHierarchy) {
+            return $this->namespaceHierarchy;
+        }
+
+        $namespaceHierarchy = array_unique(array_merge($this->bundles, $this->namespaceHierarchyBuilder->buildHierarchy()));
+        $this->defineCache($namespaceHierarchy);
+
+        return $this->namespaceHierarchy = $namespaceHierarchy;
     }
 
     private function defineCache(array $queue): void

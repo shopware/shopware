@@ -139,6 +139,7 @@
 
             <argument type="service" id="twig"/>
             <argument type="service" id="twig.loader"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder"/>
             <argument>%kernel.cache_dir%</argument>
             <argument type="service" id="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface"/>
 
@@ -147,6 +148,15 @@
             </call>
 
             <tag name="kernel.event_subscriber" />
+            <deprecated>tag:v6.3.0 the %service_id% service will be removed, use ThemeNamespaceHierarchyBuilder instead</deprecated>
+        </service>
+
+        <service id="Shopware\Storefront\Theme\Twig\ThemeNamespaceHierarchyBuilder">
+            <argument type="service" id="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface"/>
+
+            <tag name="kernel.event_subscriber" />
+            <!-- Make sure it runs after default `BundleHierarchyBuilder` -->
+            <tag name="shopware.twig.hierarchy_builder" priority="500"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\Subscriber\FirstRunWizardSubscriber">

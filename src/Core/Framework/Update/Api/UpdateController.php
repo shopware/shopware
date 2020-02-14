@@ -83,6 +83,11 @@ class UpdateController extends AbstractController
      */
     private $shopwareVersion;
 
+    /**
+     * @var bool
+     */
+    private $isUpdateTest;
+
     public function __construct(
         string $rootDir,
         ApiClient $apiClient,
@@ -91,7 +96,8 @@ class UpdateController extends AbstractController
         EventDispatcherInterface $eventDispatcher,
         SystemConfigService $systemConfig,
         PluginLifecycleService $pluginLifecycleService,
-        string $shopwareVersion
+        string $shopwareVersion,
+        bool $isUpdateTest = false
     ) {
         $this->rootDir = $rootDir;
         $this->apiClient = $apiClient;
@@ -101,6 +107,7 @@ class UpdateController extends AbstractController
         $this->systemConfig = $systemConfig;
         $this->pluginLifecycleService = $pluginLifecycleService;
         $this->shopwareVersion = $shopwareVersion;
+        $this->isUpdateTest = $isUpdateTest;
     }
 
     /**
@@ -108,7 +115,7 @@ class UpdateController extends AbstractController
      */
     public function updateApiCheck(): JsonResponse
     {
-        if ($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION) {
+        if ($this->isUpdateTest) {
             $version = VersionFactory::createTestVersion();
 
             return new JsonResponse($version);

@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Twig\Environment;
-use Twig\Loader\FilesystemLoader;
+use Twig\Loader\LoaderInterface;
 
 /**
  * @deprecated tag:v6.3.0 will be removed, use ThemeNamespaceHierarchyBuilder instead
@@ -24,7 +24,7 @@ class ThemeTemplateFinder extends TemplateFinder implements EventSubscriberInter
 
     public function __construct(
         Environment $twig,
-        FilesystemLoader $loader,
+        LoaderInterface $loader,
         NamespaceHierarchyBuilder $hierarchyBuilder,
         string $cacheDir,
         ThemeInheritanceBuilderInterface $inheritanceBuilder

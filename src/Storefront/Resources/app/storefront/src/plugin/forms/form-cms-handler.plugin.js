@@ -8,7 +8,7 @@ export default class FormCmsHandler extends Plugin {
         hiddenSubmitSelector: '.submit--hidden',
         formContentSelector: '.form-content',
         cmsBlock: '.cms-block',
-        contentType:  'application/x-www-form-urlencoded',
+        contentType:  'application/x-www-form-urlencoded'
     };
 
     init() {
@@ -105,7 +105,7 @@ export default class FormCmsHandler extends Plugin {
 
         this._block.scrollIntoView({
             behavior: 'smooth',
-            block: 'end',
+            block: 'end'
         });
     }
 }

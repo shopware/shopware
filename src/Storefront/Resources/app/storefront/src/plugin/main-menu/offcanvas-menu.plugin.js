@@ -27,7 +27,7 @@ export default class OffcanvasMenuPlugin extends Plugin {
         placeholderClass: '.navigation-offcanvas-placeholder',
 
         forwardAnimationType: 'forwards',
-        backwardAnimationType: 'backwards',
+        backwardAnimationType: 'backwards'
     };
 
     init() {

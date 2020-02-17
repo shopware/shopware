@@ -22,8 +22,8 @@ export default class ListingPlugin extends Plugin {
         resetAllFilterButtonSelector: '.filter-reset-all',
         loadingIndicatorClass: 'is-loading',
         snippets: {
-            resetAllButtonText: 'Reset all',
-        },
+            resetAllButtonText: 'Reset all'
+        }
     };
 
     init() {

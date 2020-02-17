@@ -20,7 +20,7 @@ export default class ScrollUpPlugin extends Plugin {
          * scroll up button visible at position
          */
         visiblePos: 250,
-        visibleCls: 'is-visible',
+        visibleCls: 'is-visible'
 
     };
 
@@ -70,7 +70,7 @@ export default class ScrollUpPlugin extends Plugin {
     _scrollToTop() {
         window.scrollTo({
             top: 0,
-            behavior: 'smooth',
+            behavior: 'smooth'
         });
 
         this.$emitter.publish('scrollToTop');

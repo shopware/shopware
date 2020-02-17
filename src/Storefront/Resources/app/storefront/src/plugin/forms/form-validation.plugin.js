@@ -51,7 +51,7 @@ export default class FormValidation extends Plugin {
         /**
          * Use an already visible text as a hint for the length-validation
          */
-        lengthTextAttr: 'data-form-validation-length-text',
+        lengthTextAttr: 'data-form-validation-length-text'
     };
 
     init() {

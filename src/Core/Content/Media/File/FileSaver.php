@@ -6,9 +6,11 @@ use League\Flysystem\FileExistsException;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
+use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Content\Media\Exception\CouldNotRenameFileException;
 use Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException;
 use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
+use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
 use Shopware\Core\Content\Media\Exception\MissingFileException;
@@ -27,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class FileSaver
@@ -76,6 +79,16 @@ class FileSaver
      */
     private $filesystemPrivate;
 
+    /**
+     * @var array
+     */
+    private $whitelist;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
     public function __construct(
         EntityRepositoryInterface $mediaRepository,
         FilesystemInterface $filesystemPublic,
@@ -84,7 +97,9 @@ class FileSaver
         ThumbnailService $thumbnailService,
         MetadataLoader $metadataLoader,
         TypeDetector $typeDetector,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
+        EventDispatcherInterface $eventDispatcher,
+        array $allowedExtensions
     ) {
         $this->mediaRepository = $mediaRepository;
         $this->filesystemPublic = $filesystemPublic;
@@ -95,6 +110,8 @@ class FileSaver
         $this->metadataLoader = $metadataLoader;
         $this->typeDetector = $typeDetector;
         $this->messageBus = $messageBus;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->whitelist = $allowedExtensions;
     }
 
     /**
@@ -102,6 +119,7 @@ class FileSaver
      * @throws EmptyMediaFilenameException
      * @throws IllegalFileNameException
      * @throws MediaNotFoundException
+     * @throws FileTypeNotSupportedException
      */
     public function persistFileToMedia(
         MediaFile $mediaFile,
@@ -118,6 +136,7 @@ class FileSaver
             $context
         );
 
+        $this->validateFileExtension($mediaFile, $mediaId);
         $this->removeOldMediaData($currentMedia, $context);
 
         $mediaType = $this->typeDetector->detect($mediaFile);
@@ -368,6 +387,23 @@ class FileSaver
         $this->fileNameValidator->validateFileName($destination);
 
         return $destination;
+    }
+
+    /**
+     * @throws FileTypeNotSupportedException
+     */
+    private function validateFileExtension(MediaFile $mediaFile, string $mediaId): void
+    {
+        $event = new MediaFileExtensionWhitelistEvent($this->whitelist);
+        $this->eventDispatcher->dispatch($event);
+
+        foreach ($event->getWhitelist() as $extension) {
+            if ($mediaFile->getFileExtension() === $extension) {
+                return;
+            }
+        }
+
+        throw new FileTypeNotSupportedException($mediaId);
     }
 
     /**

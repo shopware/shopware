@@ -26,6 +26,7 @@ describe('Media: Test crud operations', () => {
         page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
 
         cy.wait('@saveData').then((xhr) => {
+            cy.awaitAndCheckNotification('File has been saved.');
             expect(xhr).to.have.property('status', 204);
         });
         cy.get('.sw-media-base-item__name[title="sw-login-background.png"]')
@@ -50,6 +51,7 @@ describe('Media: Test crud operations', () => {
         page.uploadImageUsingUrl(`${Cypress.config('baseUrl')}/bundles/administration/static/img/sw-login-background.png`);
         cy.get('.sw-media-base-item__name[title="sw-login-background.png"]')
             .should('be.visible');
+        cy.awaitAndCheckNotification('File has been saved.');
         cy.get('.sw-media-base-item__name[title="sw-login-background.png"]')
             .first()
             .click();
@@ -76,8 +78,10 @@ describe('Media: Test crud operations', () => {
         }).as('deleteData');
 
         page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
+        cy.awaitAndCheckNotification('File has been saved.');
 
         // Delete image
+        cy.get(`${page.elements.mediaItem} ${page.elements.previewItem}`).should('be.visible');
         cy.get(`${page.elements.mediaItem} ${page.elements.previewItem}`).click();
         cy.get('li.quickaction--delete').click();
         cy.get(`${page.elements.modal}__body`).contains('Are you sure you want to delete "sw-login-background.png"?');

@@ -20,7 +20,7 @@ describe('CMS: Test crud operations of layouts', () => {
             });
     });
 
-    it.skip('@base @content: create, translate and read layout', () => {
+    it('@base @content: create, translate and read layout', () => {
         const page = new MediaPageObject();
 
         cy.server();

@@ -89,7 +89,7 @@ class ConfigReader extends XmlReader
     {
         foreach ($element->getElementsByTagName('name') as $name) {
             if ($name->parentNode->nodeName !== 'card') {
-                return null;
+                continue;
             }
 
             return $name->nodeValue;
@@ -103,29 +103,40 @@ class ConfigReader extends XmlReader
         $options = static::getAllChildren($element);
 
         if ($element->nodeName === 'component') {
-            $elementData = [
-                'componentName' => $element->getAttribute('name'),
-            ];
-
-            foreach ($options as $option) {
-                if ($this->isTranslateAbleOption($option)) {
-                    $elementData[$option->nodeName][$this->getLocaleCodeFromElement($option)] = $option->nodeValue;
-
-                    continue;
-                }
-
-                $elementData[$option->nodeName] = $option->nodeValue;
-            }
-
-            return $elementData;
+            return $this->getElementDataForComponent($element, $options);
         }
 
+        return $this->getElementDataForInputField($element, $options);
+    }
+
+    /**
+     * @param array<\DOMElement> $options
+     */
+    private function getElementDataForComponent(\DOMElement $element, array $options): array
+    {
+        $elementData = [
+            'componentName' => $element->getAttribute('name'),
+        ];
+
+        return $this->setOptionsToElementData($options, $elementData);
+    }
+
+    private function getElementDataForInputField(\DOMElement $element, array $options): array
+    {
         $swFieldType = $element->getAttribute('type') ?: 'text';
 
         $elementData = [
             'type' => $swFieldType,
         ];
 
+        return $this->setOptionsToElementData($options, $elementData);
+    }
+
+    /**
+     * @param array<\DOMElement> $options
+     */
+    private function setOptionsToElementData(array $options, array $elementData): array
+    {
         foreach ($options as $option) {
             if ($this->isTranslateAbleOption($option)) {
                 $elementData[$option->nodeName][$this->getLocaleCodeFromElement($option)] = $option->nodeValue;
@@ -156,6 +167,7 @@ class ConfigReader extends XmlReader
         $options = [];
 
         foreach ($element->getElementsByTagName('option') as $option) {
+            /* @var \DOMElement $option */
             $options[] = [
                 'id' => $option->getElementsByTagName('id')->item(0)->nodeValue,
                 'name' => $this->getOptionLabels($option),

@@ -60,7 +60,7 @@ class ConfigurationService
             foreach ($card['elements'] as $j => $field) {
                 $newField = ['name' => $domain . $field['name']];
 
-                if (array_key_exists('flag', $field)) {
+                if (\array_key_exists('flag', $field)) {
                     try {
                         if (!FeatureConfig::isActive($field['flag'])) {
                             continue;
@@ -75,6 +75,9 @@ class ConfigurationService
                 }
 
                 unset($field['type'], $field['name']);
+                if ($field === []) {
+                    $field = new \stdClass();
+                }
                 $newField['config'] = $field;
                 $card['elements'][$j] = $newField;
             }

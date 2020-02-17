@@ -30,5 +30,22 @@
             <placeholder>Choose your preferred transfer method</placeholder>
             <placeholder lang="de-DE">Bitte wähle dein bevorzugtes Versand Protokoll</placeholder>
         </input-field>
+
+        <component name="sw-select">
+            <name>mailMethodComponent</name>
+            <disabled>true</disabled>
+            <options>
+                <option>
+                    <id>smtp</id>
+                    <name>English smtp</name>
+                    <name lang="de-DE">German smtp</name>
+                </option>
+                <option>
+                    <id>pop3</id>
+                    <name>English pop3</name>
+                    <name lang="de-DE">German pop3</name>
+                </option>
+            </options>
+        </component>
     </card>
 </config>

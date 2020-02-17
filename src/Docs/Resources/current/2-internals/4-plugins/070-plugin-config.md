@@ -64,24 +64,33 @@ Your `<input-field>` can be of different types, this is managed via the `type` a
 Unless defined otherwise, your `<input-field>` will be a text field per default.
 Below you'll find a list of all available `<input-field type="?">`.
 
-| Type          | Options                                          | Renders           |
-|---------------|--------------------------------------------------|-------------------|
-| int           | disabled, label, helpText                        | Integer field     |
-| text          | copyable, disabled, label, placeholder, helpText | Text field        |
-| textarea      | copyable, disabled, label, placeholder, helpText | Textarea          |
-| single-select | options, disabled, label, placeholder, helpText  | Single-Select box |
-| multi-select  | options, disabled, label, placeholder, helpText  | Multi-Select box  |
-| password      | disabled, label, placeholder, helpText           | Password field    |
-| bool          | disabled, label, helpText                        | Switch            |
-| float         | disabled, label, helpText                        | Float field       |
-| datetime      | disabled, label, helpText                        | Date-time picker  |
+| Type          | Configuration options                                                  | Renders           |
+|---------------|------------------------------------------------------------------------|-------------------|
+| text          | [copyable](#copyable), [placeholder](#label-placeholder-and-help-text) | Text field        |
+| textarea      | [copyable](#copyable), [placeholder](#label-placeholder-and-help-text) | Textarea          |
+| url           | [copyable](#copyable), [placeholder](#label-placeholder-and-help-text) | URL field         |
+| password      | [placeholder](#label-placeholder-and-help-text)                        | Password field    |
+| int           |                                                                        | Integer field     |
+| float         |                                                                        | Float field       |
+| bool          |                                                                        | Switch            |
+| checkbox      |                                                                        | Checkbox          |
+| datetime      |                                                                        | Date-time picker  |
+| colorpicker   |                                                                        | Color picker      |
+| single-select | [options](#options), [placeholder](#label-placeholder-and-help-text)   | Single-Select box |
+| multi-select  | [options](#options), [placeholder](#label-placeholder-and-help-text)   | Multi-Select box  |
 
-
-## Options
+## Configuration options
 
 Options are used to configure your `<input-field>`.
 **Every `<input-field>` has to start with the `<name>` element.**
 After the `<name>` element you can configure any of the other options mentioned above.
+Beside these options, they have the followings in common: [label](#label-placeholder-and-help-text), [helpText](#label-placeholder-and-help-text), [defaultValue](#defaultvalue) and [disabled](#disabled).
+
+### Label, placeholder and help text
+
+The options `<label>`, `<placeholder>` and `<helpText>` are used to label and explain your `<input-field>` and are translatable.
+You define your `<label>`, `<placeholder>` and `<helpText>` the same way as the `<card><title>`, with the `lang` attribute.
+Please remember, that the `lang` attribute is set to `en-GB` per default.
 
 ### defaultValue
 
@@ -115,7 +124,7 @@ Below you'll find an example how to use this option.
 
 ### copyable
 
-You can add the `<copyable>` option to your `<input-field>` with the default type `text`.
+You can add the `<copyable>` option to your `<input-field>` with are of type `text` or extensions of it.
 This will add a button at the right, which on click copies the content of your `<input-field>` into the clipboard.
 
 Below you'll find an example how to use this option.
@@ -130,11 +139,10 @@ Below you'll find an example how to use this option.
 
 ### options
 
-You can use `<options>` to add options to a `<input-field>` of the types `single-select`, `multi-select` and `radio`.
-For the types `single-select` or `multi-select`, each `<option>` represents one option you can select.
-For the type `radio` each `<option>` represents one radio button.
+You can use `<options>` to add options to a `<input-field>` of the types `single-select` and `multi-select`.
+Each `<option>` represents one option you can select.
 
-Below you"ll find an example.
+Below you'll find an example.
 
 ```xml
 <input-field type="single-select">
@@ -157,12 +165,6 @@ Below you"ll find an example.
 Each `<options>` element must contain at least one `<option>` element.
 Each `<option>` element must contain at least one `<id>` and one `<name>` element.
 As you can see above, `<name>` elements are translatable via the `lang` attribute.
-
-### Label, placeholder and help text
-
-The options `<label>`, `<placeholder>` and `<helpText>` are used to label and explain your `<input-field>` and are translatable.
-You define your `<label>`, `<placeholder>` and `<helpText>` the same way as the `<card><title>`, with the `lang` attribute.
-Please remember, that the `lang` attribute is set to `en-GB` per default.
 
 Below you'll find an example.
 ```xml
@@ -215,6 +217,7 @@ Now all that's left to do is to present you a working example `config.xml` and s
                     <name lang="de-DE">German pop3</name>
                 </option>
             </options>
+            <defaultValue>smtp</defaultValue>
             <label>Mail method</label>
             <label lang="de-DE">Versand Protokoll</label>
         </input-field>
@@ -223,6 +226,7 @@ Now all that's left to do is to present you a working example `config.xml` and s
     <card>
         <title>Advanced Configuration</title>
         <title lang="de-DE">Erweiterte Einstellungen</title>
+
         <input-field type="password">
             <name>secret</name>
             <label>Secret token</label>
@@ -234,18 +238,19 @@ Now all that's left to do is to present you a working example `config.xml` and s
 </config>
 ```
 
+![Example plugin config](./img/plugin-config.png)
+
 ## Advanced custom input fields
 For more complex and advanced configurations it is possible to declare a `<component name="componentName">` element. 
-This element can render any admin component. It is also possible to render your own admin component which you could deliver 
-with your plugin. The name of the component has to match the components name in the administration, for example `sw-single-select`.
-The component also needs a `<name>` element first. All other elements within the component element will be passed to
-the rendered admin component as properties.
-It can render every component that works with v-model and uses simple data types for the values like
-strings, arrays or numbers. Storing entity collections which are needed for entity multi selects for example is not possible yet.
+This element can render many admin components.
+It is also possible to render your own admin component which you could deliver with your plugin.
+The name of the component has to match the components name in the administration, for example `sw-entity-single-select`.
+The component also needs a `<name>` element first.
+All other elements within the component element will be passed to the rendered admin component as properties.
 
 Here are some examples:
 
-### Render a product entity single select
+### Entity single select for products
 ```xml
 <component name="sw-entity-single-select">
     <name>exampleProduct</name>
@@ -253,16 +258,25 @@ Here are some examples:
     <title>Choose a product for the plugin configuration</title>
 </component>
 ```
+Stores the ID of the selected product into the system config.
 
-### Render a media field
+### Entity multi ID select for products
+```xml
+<component name="sw-entity-multi-id-select">
+    <name>exampleMultiProductIds</name>
+    <entity>product</entity>
+    <label>Choose multiple products IDs for the plugin configuration</label>
+</component>
+```
+Stores an array with IDs of the selected products into the system config.
+
+### Media selection
 ```xml
 <component name="sw-media-field">
     <name>pluginMedia</name>
     <label>Upload media or choose one from the media manager</label>
 </component>
 ```
-
-![Example plugin config](./img/plugin-config.png)
 
 There's a GitHub repository available, containing this example source.
 Check it out [here](https://github.com/shopware/swag-docs-plugin-config).

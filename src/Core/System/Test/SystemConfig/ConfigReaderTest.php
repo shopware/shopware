@@ -88,6 +88,27 @@ class ConfigReaderTest extends TestCase
                             'de-DE' => 'Bitte wähle dein bevorzugtes Versand Protokoll',
                         ],
                     ],
+                    2 => [
+                        'componentName' => 'sw-select',
+                        'name' => 'mailMethodComponent',
+                        'disabled' => true,
+                        'options' => [
+                            0 => [
+                                'id' => 'smtp',
+                                'name' => [
+                                    'en-GB' => 'English smtp',
+                                    'de-DE' => 'German smtp',
+                                ],
+                            ],
+                            1 => [
+                                'id' => 'pop3',
+                                'name' => [
+                                    'en-GB' => 'English pop3',
+                                    'de-DE' => 'German pop3',
+                                ],
+                            ],
+                        ],
+                    ],
                 ],
             ],
         ];

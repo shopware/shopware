@@ -44,16 +44,18 @@
     </xs:complexType>
     <xs:simpleType name="type">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="int"/>
             <xs:enumeration value="text"/>
-            <xs:enumeration value="bool"/>
-            <xs:enumeration value="float"/>
-            <xs:enumeration value="datetime"/>
+            <xs:enumeration value="textarea"/>
+            <xs:enumeration value="url"/>
             <xs:enumeration value="password"/>
+            <xs:enumeration value="int"/>
+            <xs:enumeration value="float"/>
+            <xs:enumeration value="bool"/>
+            <xs:enumeration value="checkbox"/>
+            <xs:enumeration value="datetime"/>
+            <xs:enumeration value="colorpicker"/>
             <xs:enumeration value="single-select"/>
             <xs:enumeration value="multi-select"/>
-            <xs:enumeration value="textarea"/>
-            <xs:enumeration value="entity-single-select"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="translatableString">

@@ -4,6 +4,8 @@ namespace Shopware\Core\Content\MailTemplate\Service;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
@@ -19,7 +21,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-class MailService
+class MailService implements MailServiceInterface
 {
     /**
      * @var DataValidator
@@ -32,12 +34,12 @@ class MailService
     private $templateRenderer;
 
     /**
-     * @var MessageFactory
+     * @var MessageFactoryInterface
      */
     private $messageFactory;
 
     /**
-     * @var MailSender
+     * @var MailSenderInterface
      */
     private $mailSender;
 
@@ -74,8 +76,8 @@ class MailService
     public function __construct(
         DataValidator $dataValidator,
         StringTemplateRenderer $templateRenderer,
-        MessageFactory $messageFactory,
-        MailSender $mailSender,
+        MessageFactoryInterface $messageFactory,
+        MailSenderInterface $mailSender,
         EntityRepositoryInterface $mediaRepository,
         SalesChannelDefinition $salesChannelDefinition,
         EntityRepositoryInterface $salesChannelRepository,
@@ -97,6 +99,9 @@ class MailService
 
     public function send(array $data, Context $context, array $templateData = []): ?\Swift_Message
     {
+        $mailSentEvent = new MailBeforeValidateEvent($data, $context, $templateData);
+        $this->eventDispatcher->dispatch($mailSentEvent);
+
         $definition = $this->getValidationDefinition($context);
         $this->dataValidator->validate($data, $definition);
 
@@ -169,6 +174,13 @@ class MailService
             $binAttachments
         );
 
+        $mailSentEvent = new MailBeforeSentEvent($data, $message, $context);
+        $this->eventDispatcher->dispatch($mailSentEvent);
+
+        if ($mailSentEvent->isPropagationStopped()) {
+            return null;
+        }
+
         $this->mailSender->send($message);
 
         $mailSentEvent = new MailSentEvent($data['subject'], $recipients, $contents, $context);
@@ -183,6 +195,10 @@ class MailService
      * @param array $data e.g. ['contentHtml' => 'foobar', 'contentPlain' => '<h1>foobar</h1>']
      *
      * @return array e.g. ['text/plain' => '{{foobar}}', 'text/html' => '<h1>{{foobar}}</h1>']
+     *
+     * @internal
+     *
+     * @deprecated tag:v6.3.0 will be private in 6.3.0
      */
     public function buildContents(array $data, ?SalesChannelEntity $salesChannel): array
     {

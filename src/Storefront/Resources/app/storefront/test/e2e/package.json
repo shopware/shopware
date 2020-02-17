@@ -26,7 +26,7 @@
     "lodash": "4.17.15",
     "lodash.sample": "4.2.1",
     "uuid": "3.3.3",
-    "@shopware-ag/e2e-testsuite-platform": "1.1.6",
+    "@shopware-ag/e2e-testsuite-platform": "1.2.0-beta.0",
     "cypress-multi-reporters": "^1.2.3",
     "mocha": "^7.0.0",
     "mocha-junit-reporter": "^1.23.1",

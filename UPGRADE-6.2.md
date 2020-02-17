@@ -42,7 +42,7 @@ Core
          `DeliveryProcessor::SKIP_DELIVERY_RECALCULATION`
          `PromotionCollector::SKIP_PROMOTION`
     * Define permissions for AdminOrders at class `SalesChannelProxyController` within the array constant `ADMIN_ORDER_PERMISSIONS`.
-    * Define permissions for the Recalculation at class `OrderConverter` within the array constant `ADMIN_ORDER_PERMISSIONS`.
+    * Define permissions for the Recalculation at class `OrderConverter` within the array constant `ADMIN_EDIT_ORDER_PERMISSIONS`.
     * Extended permissions with subscribe event `SalesChannelContextPermissionsChangedEvent`, see detail at class `SalesChannelContextFactory`
     
 * The usage of `$connection->executeQuery()` for write operations is deprecated, use 

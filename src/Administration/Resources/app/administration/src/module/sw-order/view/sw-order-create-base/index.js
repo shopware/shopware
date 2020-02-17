@@ -21,7 +21,9 @@ Component.register('sw-order-create-base', {
             showAddressModal: false,
             addAddressModalTitle: null,
             editAddressModalTitle: null,
-            promotionError: null
+            promotionError: null,
+            showPromotionModal: false,
+            disabledAutoPromotionChecked: false
         };
     },
 
@@ -100,6 +102,10 @@ Component.register('sw-order-create-base', {
             return this.cart.lineItems;
         },
 
+        cartAutomaticPromotionItems() {
+            return this.cartLineItems.filter(item => item.type === 'promotion' && item.payload.code === '');
+        },
+
         cartPrice() {
             return this.cart.price;
         },
@@ -156,12 +162,31 @@ Component.register('sw-order-create-base', {
             });
 
             return `${this.$tc('sw-order.createBase.tax')}<br>${decorateCalcTaxes.join('<br>')}`;
+        },
+
+        disabledAutoPromotionVisibility: {
+            get() {
+                return this.disabledAutoPromotionChecked;
+            },
+            set(visibility) {
+                this.switchAutomaticPromotions(visibility);
+            }
         }
     },
 
     methods: {
         async createCart(salesChannelId) {
             await State.dispatch('swOrder/createCart', { salesChannelId });
+        },
+
+        async loadCart() {
+            if (!this.cart.token || this.cart.lineItems.length === 0) return;
+            this.updateLoading(true);
+
+            State.dispatch('swOrder/getCart', {
+                salesChannelId: this.customer.salesChannelId,
+                contextToken: this.cart.token
+            }).finally(() => this.updateLoading(false));
         },
 
         async onSelectExistingCustomer(customerId) {
@@ -393,6 +418,33 @@ Component.register('sw-order-create-base', {
             }).finally(() => {
                 this.updateLoading(false);
             });
+        },
+
+        switchAutomaticPromotions(visibility) {
+            this.disabledAutoPromotionChecked = visibility;
+            this.showPromotionModal = visibility;
+            if (!this.showPromotionModal) {
+                this.enableAutomaticPromotions();
+            }
+        },
+
+        enableAutomaticPromotions() {
+            this.updateLoading(true);
+            Service('cartSalesChannelService').enableAutomaticPromotions(this.cart.token).then(() => {
+                this.loadCart();
+            });
+        },
+
+        onClosePromotionModal() {
+            this.showPromotionModal = false;
+            this.disabledAutoPromotionChecked = false;
+        },
+
+        onSavePromotionModal() {
+            this.showPromotionModal = false;
+            this.disabledAutoPromotionChecked = true;
+
+            this.loadCart();
         }
     }
 });

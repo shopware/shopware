@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
@@ -54,8 +55,8 @@ class SalesChannelProxyController extends AbstractController
     private const SALES_CHANNEL_ID = 'salesChannelId';
 
     private const ADMIN_ORDER_PERMISSIONS = [
-        ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES,
-        DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION,
+        ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true,
+        DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION => true,
     ];
 
     /**
@@ -204,6 +205,30 @@ class SalesChannelProxyController extends AbstractController
         $cart = $this->adminOrderCartService->updateShippingCosts($calculatedPrice, $salesChannelContext);
 
         return new JsonResponse(['data' => $cart]);
+    }
+
+    /**
+     * @Route("/api/v{version}/_proxy/disable-automatic-promotions", name="api.proxy.disable-automatic-promotions", methods={"PATCH"})
+     */
+    public function disableAutomaticPromotions(Request $request): JsonResponse
+    {
+        $contextToken = $this->getContextToken($request);
+
+        $this->adminOrderCartService->addPermission($contextToken, PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS);
+
+        return new JsonResponse();
+    }
+
+    /**
+     * @Route("/api/v{version}/_proxy/enable-automatic-promotions", name="api.proxy.enable-automatic-promotions", methods={"PATCH"})
+     */
+    public function enableAutomaticPromotions(Request $request): JsonResponse
+    {
+        $contextToken = $this->getContextToken($request);
+
+        $this->adminOrderCartService->deletePermission($contextToken, PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS);
+
+        return new JsonResponse();
     }
 
     private function wrapInSalesChannelApiRoute(Request $request, callable $call): Response

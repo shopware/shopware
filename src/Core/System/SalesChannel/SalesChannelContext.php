@@ -248,6 +248,6 @@ class SalesChannelContext extends Struct
             throw new ContextPermissionsLockedException();
         }
 
-        $this->permissions = array_filter(array_values($permissions));
+        $this->permissions = array_filter($permissions);
     }
 }

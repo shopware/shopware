@@ -1,0 +1,15 @@
+@import "~scss/variables";
+
+.sw-order-create-promotion-modal {
+    font-size: $font-size-small;
+    color: $color-darkgray-200;
+
+    &__promotion {
+        padding-top: 22px;
+
+        &-name {
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+    }
+}

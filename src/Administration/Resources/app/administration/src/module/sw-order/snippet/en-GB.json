@@ -122,6 +122,7 @@
         "cart": {
           "percentage": "{value}% discount on shopping cart",
           "absolute": "{value} discount on shopping cart",
+          "absoluteUpto": "Up to {value} discount. ({totalPrice} discount on this cart)",
           "fixed_unit": "Fixed {value} for each specific product in shopping cart"
         },
         "delivery": {
@@ -302,6 +303,11 @@
       "modalTitle": "Invalid promotion codes will be removed",
       "modalDescription": "The following invalid promotion codes will be removed",
       "buttonConfirm": "OK"
+    },
+    "promotionModal": {
+      "labelTitle": "Disable automatic promotions",
+      "message": "The following automatic promotions will be disabled",
+      "buttonDisable": "Disable"
     }
   }
 }

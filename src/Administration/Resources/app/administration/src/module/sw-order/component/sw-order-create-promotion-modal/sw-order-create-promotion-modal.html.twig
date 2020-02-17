@@ -1,0 +1,42 @@
+{% block sw_order_create_promotion_modal %}
+    <sw-modal :title="$tc('sw-order.promotionModal.labelTitle')"
+              @modal-close="onCancel"
+              class="sw-order-create-promotion-modal">
+        {% block sw_order_create_promotion_modal_body %}
+            {% block sw_order_create_promotion_modal_message %}
+                <p>{{ $tc('sw-order.promotionModal.message') }}</p>
+            {% endblock %}
+
+            {% block sw_order_create_promotion_modal_promotions %}
+                <div class="sw-order-create-promotion-modal__promotion" v-for="item in cartAutomaticPromotionItems">
+                    {% block sw_order_create_promotion_modal_promotion_name %}
+                        <div class="sw-order-create-promotion-modal__promotion-name">{{ item.label }}</div>
+                    {% endblock %}
+
+                    {% block sw_order_create_promotion_modal_promotion_description %}
+                        {{ getDescription(item) }}
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        {% endblock %}
+
+        {% block sw_order_create_promotion_modal_footer %}
+            <template #modal-footer>
+                {% block sw_order_create_promotion_modal_footer_button_cancel %}
+                    <sw-button @click="onCancel" size="small">
+                        {{ $tc('global.default.cancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_order_create_promotion_modal_footer_button_save %}
+                    <sw-button size="small"
+                               variant="primary"
+                               :isLoading="isLoading"
+                               @click="onSave">
+                        {{ $tc('sw-order.promotionModal.buttonDisable') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </sw-modal>
+{% endblock %}

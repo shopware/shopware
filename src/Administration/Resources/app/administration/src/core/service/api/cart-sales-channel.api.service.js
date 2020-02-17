@@ -169,6 +169,27 @@ class CartSalesChannelService extends ApiService {
 
         return this.httpClient.patch(route, { salesChannelId, shippingCosts }, { additionalParams, headers });
     }
+
+
+    disableAutomaticPromotions(contextToken, additionalParams = {}, additionalHeaders = {}) {
+        const route = '_proxy/disable-automatic-promotions';
+        const headers = {
+            ...this.getBasicHeaders(additionalHeaders),
+            'sw-context-token': contextToken
+        };
+
+        return this.httpClient.patch(route, {}, { additionalParams, headers });
+    }
+
+    enableAutomaticPromotions(contextToken, additionalParams = {}, additionalHeaders = {}) {
+        const route = '_proxy/enable-automatic-promotions';
+        const headers = {
+            ...this.getBasicHeaders(additionalHeaders),
+            'sw-context-token': contextToken
+        };
+
+        return this.httpClient.patch(route, {}, { additionalParams, headers });
+    }
 }
 
 export default CartSalesChannelService;

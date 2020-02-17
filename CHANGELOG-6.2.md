@@ -243,6 +243,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
       * Added possibility to add tabs to Theme Manager
       * Deprecated method `getFields`, use `getStructuredFields` instead
       * Added method `getStructuredFields` to themeApiService
+    * Added new component `sw-order-create-promotion-modal` which can be used to display the automatic promotions will be disabled before click to the button disable
 
     * Removed `v-fixed` directive in `sw-entity-single-select` of `sw-order-product-select`
     * The `fixed` directive is now deprecated and will be removed with version 6.4
@@ -271,7 +272,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
              `DeliveryProcessor::SKIP_DELIVERY_TAX_RECALCULATION`
              `PromotionCollector::SKIP_PROMOTION`
         * Define permissions for AdminOrders at class `SalesChannelProxyController` within the array constant `ADMIN_ORDER_PERMISSIONS`.
-        * Define permissions for the Recalculation at class `OrderConverter` within the array constant `ADMIN_ORDER_PERMISSIONS`.
+        * Define permissions for the Recalculation at class `OrderConverter` within the array constant `ADMIN_EDIT_ORDER_PERMISSIONS`.
         * Extended permissions with subscribe event `SalesChannelContextPermissionsChangedEvent`, see detail at class `SalesChannelContextFactory`
     * Added new `Shopware\Core\Checkout\Cart\Rule\LineItemIsNewRule` to check for newcomers in cart 
     * Added new `Shopware\Core\Checkout\Cart\Rule\LineItemOfManufacturerRule` to check the manufacturer of a product in the cart

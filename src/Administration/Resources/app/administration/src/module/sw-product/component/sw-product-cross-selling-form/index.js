@@ -3,7 +3,7 @@ import './sw-product-cross-selling-form.scss';
 
 const { Criteria } = Shopware.Data;
 const { Component, Context } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 Component.register('sw-product-cross-selling-form', {
     template,
@@ -29,7 +29,7 @@ Component.register('sw-product-cross-selling-form', {
     },
 
     computed: {
-        ...mapApiErrors('product.crossSelling', [
+        ...mapPropertyErrors('product.crossSelling', [
             'name',
             'displayType',
             'sortingType'

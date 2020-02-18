@@ -1,7 +1,7 @@
 import template from './sw-condition-line-item-total-price.html.twig';
 
 const { Component } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -30,7 +30,7 @@ Component.extend('sw-condition-line-item-total-price', 'sw-condition-base', {
             }
         },
 
-        ...mapApiErrors('condition', ['value.operator', 'value.amount']),
+        ...mapPropertyErrors('condition', ['value.operator', 'value.amount']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueAmountError;

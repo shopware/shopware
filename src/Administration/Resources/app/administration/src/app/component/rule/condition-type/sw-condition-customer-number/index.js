@@ -1,7 +1,7 @@
 import template from './sw-condition-billing-customer-number.html.twig';
 
 const { Component } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -30,7 +30,7 @@ Component.extend('sw-condition-customer-number', 'sw-condition-base', {
             }
         },
 
-        ...mapApiErrors('condition', ['value.operator', 'value.numbers']),
+        ...mapPropertyErrors('condition', ['value.operator', 'value.numbers']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueNumbersError;

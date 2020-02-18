@@ -1,7 +1,7 @@
 import template from './sw-condition-is-company.html.twig';
 
 const { Component } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -39,7 +39,7 @@ Component.extend('sw-condition-is-company', 'sw-condition-base', {
             }
         },
 
-        ...mapApiErrors('condition', ['value.isCompany']),
+        ...mapPropertyErrors('condition', ['value.isCompany']),
 
         currentError() {
             return this.conditionValueIsCompanyError;

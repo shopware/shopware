@@ -2,7 +2,7 @@ import template from './sw-condition-base.html.twig';
 import './sw-condition-base.scss';
 
 const { Component } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -38,7 +38,7 @@ Component.register('sw-condition-base', {
             };
         },
 
-        ...mapApiErrors('condition', ['type']),
+        ...mapPropertyErrors('condition', ['type']),
 
         currentError() {
             return this.conditionTypeError;

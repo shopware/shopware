@@ -1,7 +1,7 @@
 import template from './sw-condition-billing-country.html.twig';
 
 const { Component, Context } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
@@ -44,7 +44,7 @@ Component.extend('sw-condition-billing-country', 'sw-condition-base', {
             }
         },
 
-        ...mapApiErrors('condition', ['value.operator', 'value.countryIds']),
+        ...mapPropertyErrors('condition', ['value.operator', 'value.countryIds']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueCountryIdsError;

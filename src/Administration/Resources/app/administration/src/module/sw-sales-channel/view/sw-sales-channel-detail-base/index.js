@@ -7,7 +7,7 @@ const domUtils = Shopware.Utils.dom;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const utils = Shopware.Utils;
 
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 Component.register('sw-sales-channel-detail-base', {
     template,
@@ -267,7 +267,7 @@ Component.register('sw-sales-channel-detail-base', {
             }
         },
 
-        ...mapApiErrors('salesChannel',
+        ...mapPropertyErrors('salesChannel',
             [
                 'customerGroupId',
                 'navigationCategoryId'

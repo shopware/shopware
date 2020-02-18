@@ -4,7 +4,7 @@ import template from './sw-promotion-code-form.html.twig';
 import './sw-promotion-code-form.scss';
 
 const { Component, Mixin } = Shopware;
-const { mapApiErrors } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-promotion-code-form', {
     template,
@@ -88,7 +88,7 @@ Component.register('sw-promotion-code-form', {
             return '';
         },
 
-        ...mapApiErrors('promotion', ['code'])
+        ...mapPropertyErrors('promotion', ['code'])
 
     },
     methods: {

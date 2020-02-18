@@ -108,6 +108,10 @@ Administration
     * Removed Computed tagStore, use tagRepository instead
     * Removed Computed tagAssociationStore
 
+* Refactored mapErrorService
+    * Deprecated `mapApiErrors`, use `mapPropertyErrors`
+    * Added `mapCollectionPropertyErrors` to mapErrorService for Entity Collections
+
 Storefront
 ----------
 

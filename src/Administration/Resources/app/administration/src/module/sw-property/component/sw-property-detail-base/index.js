@@ -1,7 +1,7 @@
 import template from './sw-property-detail-base.html.twig';
 
 const { Component, Mixin } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 Component.register('sw-property-detail-base', {
     template,
@@ -40,7 +40,7 @@ Component.register('sw-property-detail-base', {
     },
 
     computed: {
-        ...mapApiErrors('propertyGroup', [
+        ...mapPropertyErrors('propertyGroup', [
             'name',
             'displayType',
             'sortingType'

@@ -1,5 +1,4 @@
 describe('Seo: Test crud operations on templates', () => {
-
     const routeNames = {
         'Product detail page': 'product',
         'Category page': 'category'
@@ -12,12 +11,11 @@ describe('Seo: Test crud operations on templates', () => {
             })
             .then(() => {
                 return cy.createCategoryFixture({
-                        "parent": {
-                            "name": "ParentCategory",
-                            "active": true
-                        }
+                    parent: {
+                        name: 'ParentCategory',
+                        active: true
                     }
-                );
+                });
             })
             .then(() => {
                 return cy.createProductFixture();
@@ -27,12 +25,12 @@ describe('Seo: Test crud operations on templates', () => {
                     name: 'Awesome product',
                     productNumber: 'RS-1337',
                     description: 'l33t',
-                    "price": [
+                    price: [
                         {
-                            "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
-                            "net": 24,
-                            "linked": false,
-                            "gross": 128
+                            currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                            net: 24,
+                            linked: false,
+                            gross: 128
                         }
                     ]
                 });
@@ -48,7 +46,7 @@ describe('Seo: Test crud operations on templates', () => {
             method: 'post'
         }).as('templateSaveCall');
 
-        cy.get('.sw-seo-url-template-card__seo-url').should("have.length", 2);
+        cy.get('.sw-seo-url-template-card__seo-url').should('have.length', 2);
 
         // for each card ...
         Object.keys(routeNames).forEach((routeName) => {
@@ -56,16 +54,16 @@ describe('Seo: Test crud operations on templates', () => {
                 cy.contains(routeName)
                     .parentsUntil('.sw-seo-url-template-card__seo-url')
                     .parent().within(($template) => {
-                    ///... assert tha the preview works correctly
-                    cy.get('.icon--default-basic-checkmark-line');
-                    // Seo Urls cannot contain spaces (as opposed to error messages)
-                    cy.get('.sw-seo-url-template-card__preview-item').contains(/[^\s]+/).should("have.length", 1);
+                    // /... assert tha the preview works correctly
+                        cy.get('.icon--default-basic-checkmark-line');
+                        // Seo Urls cannot contain spaces (as opposed to error messages)
+                        cy.get('.sw-seo-url-template-card__preview-item').contains(/[^\s]+/).should('have.length', 1);
 
-                    // Type the most simple url template, which prints the id
-                    cy.get('#sw-field--seo-url-template-undefined').clear().type(`{{${routeNames[routeName]}.id}}`, {parseSpecialCharSequences: false});
-                    // ids are 16 hex chars
-                    cy.get('.sw-seo-url-template-card__preview-item').contains(/[a-z0-9]{16}/)
-                });
+                        // Type the most simple url template, which prints the id
+                        cy.get('#sw-field--seo-url-template-undefined').clear().type(`{{${routeNames[routeName]}.id}}`, { parseSpecialCharSequences: false });
+                        // ids are 16 hex chars
+                        cy.get('.sw-seo-url-template-card__preview-item').contains(/[a-z0-9]{16}/);
+                    });
             });
         });
 
@@ -98,13 +96,13 @@ describe('Seo: Test crud operations on templates', () => {
                     .parentsUntil('.sw-seo-url-template-card__seo-url')
                     .parent().within(($template) => {
                     // ... check that the inheritance can be removed
-                    cy.get('.sw-inheritance-switch').click();
-                    cy.get('input').should('not.be.disabled');
-                    // ... and that the preview works
-                    cy.get('.icon--default-basic-checkmark-line');
-                    // Seo Urls cannot contain spaces (as opposed to error messages)
-                    cy.get('.sw-seo-url-template-card__preview-item').contains(/[^\s]+/).should("have.length", 1);
-                });
+                        cy.get('.sw-inheritance-switch').click();
+                        cy.get('input').should('not.be.disabled');
+                        // ... and that the preview works
+                        cy.get('.icon--default-basic-checkmark-line');
+                        // Seo Urls cannot contain spaces (as opposed to error messages)
+                        cy.get('.sw-seo-url-template-card__preview-item').contains(/[^\s]+/).should('have.length', 1);
+                    });
             });
         });
 
@@ -121,5 +119,47 @@ describe('Seo: Test crud operations on templates', () => {
             .typeSingleSelectAndCheck('Headless', '.sw-entity-single-select');
 
         cy.get('.sw-card__content').contains('SEO URLs cannot be assigned to headless sales channels.');
+    });
+
+    it('@base @settings: cannot save when the first template is empty', () => {
+        cy.route({
+            url: '/api/v1/_action/sync',
+            method: 'post'
+        }).as('templateSaveCall');
+
+        cy.get('.sw-block-field__block #sw-field--seo-url-template-undefined')
+            .eq(0)
+            .should('be.visible')
+            .clear()
+            .should('be.empty');
+
+        // check that the server throws an error
+        cy.get('.smart-bar__actions').contains('Save').click();
+        cy.wait('@templateSaveCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 400);
+            cy.awaitAndCheckNotification('Not all templates are valid.');
+            cy.get('.sw-field__error').contains('This value should not be blank');
+        });
+    });
+
+    it('@base @settings: cannot save when the second template is empty', () => {
+        cy.route({
+            url: '/api/v1/_action/sync',
+            method: 'post'
+        }).as('templateSaveCall');
+
+        cy.get('.sw-block-field__block #sw-field--seo-url-template-undefined')
+            .eq(1)
+            .should('be.visible')
+            .clear()
+            .should('be.empty');
+
+        // check that the server throws an error
+        cy.get('.smart-bar__actions').contains('Save').click();
+        cy.wait('@templateSaveCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 400);
+            cy.awaitAndCheckNotification('Not all templates are valid.');
+            cy.get('.sw-field__error').contains('This value should not be blank');
+        });
     });
 });

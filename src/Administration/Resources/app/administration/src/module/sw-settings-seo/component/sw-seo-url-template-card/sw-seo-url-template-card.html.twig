@@ -10,7 +10,7 @@
         </template>
         {% block sw_seo_url_template_card_entries %}
             <template v-if="!isLoading && !salesChannelIsHeadless">
-                <div v-for="seoUrlTemplate in getTemplatesForSalesChannel(salesChannelId)"
+                <div v-for="(seoUrlTemplate, index) in getTemplatesForSalesChannel(salesChannelId)"
                      class="sw-seo-url-template-card__seo-url">
                     <sw-container columns="3fr 1fr" gap="5px" >
                         {% block sw_seo_url_template_card_entries_input_wrapper %}
@@ -25,6 +25,7 @@
                                                        :value="props.currentValue"
                                                        @input="props.updateCurrentValue"
                                                        :disabled="props.isInherited"
+                                                       :error="seoUrlTemplatesTemplateError[index]"
                                                        :name="`sw-field--seo-url-template-${seoUrlTemplate.entity}`"
                                                        :label="getLabel(seoUrlTemplate)"
                                                        :placeholder="getPlaceholder(seoUrlTemplate)">

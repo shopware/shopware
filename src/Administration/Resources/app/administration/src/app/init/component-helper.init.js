@@ -1,13 +1,12 @@
 import { mapState, mapMutations, mapGetters, mapActions } from 'vuex';
-import { mapApiErrors, mapPageErrors } from 'src/app/service/map-errors.service';
+import * as mapErrors from 'src/app/service/map-errors.service';
 
 const componentHelper = {
     mapState,
     mapMutations,
     mapGetters,
     mapActions,
-    mapApiErrors,
-    mapPageErrors
+    ...mapErrors
 };
 
 // Register each component helper

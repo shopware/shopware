@@ -1,7 +1,7 @@
 import template from './sw-condition-different-addresses.html.twig';
 
 const { Component } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -37,7 +37,7 @@ Component.extend('sw-condition-different-addresses', 'sw-condition-base', {
             }
         },
 
-        ...mapApiErrors('condition', ['value.operator', 'value.isDifferent']),
+        ...mapPropertyErrors('condition', ['value.operator', 'value.isDifferent']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueIsDifferentError;

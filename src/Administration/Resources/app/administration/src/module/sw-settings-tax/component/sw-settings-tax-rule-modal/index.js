@@ -2,7 +2,7 @@ import template from './sw-settings-tax-rule-modal.html.twig';
 
 const { Component, Context } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapApiErrors } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-settings-tax-rule-modal', {
     template,
@@ -41,7 +41,7 @@ Component.register('sw-settings-tax-rule-modal', {
             return criteria;
         },
 
-        ...mapApiErrors('taxRule', ['taxRuleTypeId', 'countryId', 'taxRate'])
+        ...mapPropertyErrors('taxRule', ['taxRuleTypeId', 'countryId', 'taxRate'])
     },
 
     data() {

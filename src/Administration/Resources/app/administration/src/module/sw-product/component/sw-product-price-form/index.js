@@ -2,7 +2,7 @@ import template from './sw-product-price-form.html.twig';
 import './sw-product-price-form.scss';
 
 const { Component, Mixin } = Shopware;
-const { mapApiErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-price-form', {
     template,
@@ -32,7 +32,7 @@ Component.register('sw-product-price-form', {
             'currencies'
         ]),
 
-        ...mapApiErrors('product', ['taxId', 'price', 'purchasePrice'])
+        ...mapPropertyErrors('product', ['taxId', 'price', 'purchasePrice'])
     },
 
     methods: {

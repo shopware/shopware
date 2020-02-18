@@ -1,18 +1,61 @@
 const { string } = Shopware.Utils;
 
+/** @deprecated tag:v.6.4.0 use mapPropertyError instead */
 export function mapApiErrors(subject, properties = []) {
-    const map = {};
+    Shopware.Utils.debug.warn(
+        'mapApiErrors',
+        'The componentHelper "mapApiErrors" is deprecated and ' +
+        'will be removed in 6.4.0 - use "mapPropertyErrors" instead'
+    );
+
+    // Only for unit testing
+    if (process && process.env && process.env.NODE_ENV === 'test') {
+        return this.mapPropertyErrors(subject, properties);
+    }
+
+    /* istanbul ignore next */
+    return mapPropertyErrors(subject, properties);
+}
+
+export function mapPropertyErrors(entityName, properties = []) {
+    const computedValues = {};
+
     properties.forEach((property) => {
-        const getter = string.camelCase(`${subject}.${property}.error`);
-        map[getter] = function getterApiError() {
-            if (this[subject] && typeof this[subject].getEntityName === 'function') {
-                return Shopware.State.getters['error/getApiError'](this[subject], property);
+        const computedValueName = string.camelCase(`${entityName}.${property}.error`);
+
+        computedValues[computedValueName] = function getterPropertyError() {
+            const entity = this[entityName];
+
+            const isEntity = entity && typeof entity.getEntityName === 'function';
+            if (!isEntity) {
+                return null;
             }
-            return null;
+
+            return Shopware.State.getters['error/getApiError'](entity, property);
         };
     });
 
-    return map;
+    return computedValues;
+}
+
+export function mapCollectionPropertyErrors(entityCollectionName, properties = []) {
+    const computedValues = {};
+
+    properties.forEach((property) => {
+        const computedValueName = string.camelCase(`${entityCollectionName}.${property}.error`);
+
+        computedValues[computedValueName] = function getterCollectionError() {
+            const entityCollection = this[entityCollectionName];
+
+            if (!Array.isArray(entityCollection)) {
+                return null;
+            }
+
+            return entityCollection.map((entity) => Shopware.State.getters['error/getApiError'](entity, property));
+        };
+    });
+
+    return computedValues;
 }
 
 export function mapPageErrors(errorConfig) {

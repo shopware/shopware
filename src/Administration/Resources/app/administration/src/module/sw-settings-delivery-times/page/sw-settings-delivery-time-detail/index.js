@@ -2,7 +2,7 @@ import template from './sw-settings-delivery-time-detail.html.twig';
 
 const { Component, Mixin } = Shopware;
 const ShopwareError = Shopware.Classes.ShopwareError;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 Component.register('sw-settings-delivery-time-detail', {
     template,
@@ -92,7 +92,7 @@ Component.register('sw-settings-delivery-time-detail', {
     },
 
     computed: {
-        ...mapApiErrors('deliveryTime', [
+        ...mapPropertyErrors('deliveryTime', [
             'name',
             'min',
             'max',

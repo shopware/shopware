@@ -1,4 +1,4 @@
-import { mapApiErrors } from 'src/app/service/map-errors.service';
+import { mapPropertyErrors } from 'src/app/service/map-errors.service';
 import template from './sw-settings-rule-detail.html.twig';
 import './sw-settings-rule-detail.scss';
 
@@ -101,7 +101,7 @@ Component.register('sw-settings-rule-detail', {
             };
         },
 
-        ...mapApiErrors('rule', ['name', 'priority'])
+        ...mapPropertyErrors('rule', ['name', 'priority'])
     },
 
     watch: {

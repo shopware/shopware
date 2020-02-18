@@ -2,7 +2,7 @@ import template from './sw-promotion-basic-form.html.twig';
 import './sw-promotion-basic-form.scss';
 
 const { Component, Mixin } = Shopware;
-const { mapApiErrors } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { Criteria, EntityCollection } = Shopware.Data;
 const types = Shopware.Utils.types;
 
@@ -30,7 +30,7 @@ Component.register('sw-promotion-basic-form', {
     },
 
     computed: {
-        ...mapApiErrors('promotion', ['name', 'validUntil']),
+        ...mapPropertyErrors('promotion', ['name', 'validUntil']),
         exclusionCriteria() {
             const criteria = new Criteria();
             criteria.addFilter(Criteria.not('and', [Criteria.equals('id', this.promotion.id)]));

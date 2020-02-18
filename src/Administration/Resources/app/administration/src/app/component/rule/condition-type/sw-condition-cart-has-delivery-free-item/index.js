@@ -1,7 +1,7 @@
 import template from './sw-condition-cart-has-delivery-free-item.html.twig';
 
 const { Component } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 Component.extend('sw-condition-cart-has-delivery-free-item', 'sw-condition-base', {
     template,
@@ -28,7 +28,7 @@ Component.extend('sw-condition-cart-has-delivery-free-item', 'sw-condition-base'
             return [this.trueOption, this.falseOption];
         },
 
-        ...mapApiErrors('condition', ['value.allowed']),
+        ...mapPropertyErrors('condition', ['value.allowed']),
 
         currentError() {
             return this.conditionValueAllowedError;

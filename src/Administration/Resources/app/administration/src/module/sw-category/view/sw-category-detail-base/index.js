@@ -3,7 +3,7 @@ import './sw-category-detail-base.scss';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapState, mapApiErrors } = Shopware.Component.getComponentHelper();
+const { mapState, mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-category-detail-base', {
     template,
@@ -80,6 +80,6 @@ Component.register('sw-category-detail-base', {
             }
         }),
 
-        ...mapApiErrors('category', ['name'])
+        ...mapPropertyErrors('category', ['name'])
     }
 });

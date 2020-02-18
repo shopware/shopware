@@ -2,7 +2,7 @@ import template from './sw-condition-time-range.html.twig';
 import './sw-condition-time-range.scss';
 
 const { Component } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 const defaultTimeValue = '12:00';
 
 Component.extend('sw-condition-time-range', 'sw-condition-base', {
@@ -48,7 +48,7 @@ Component.extend('sw-condition-time-range', 'sw-condition-base', {
             }
         },
 
-        ...mapApiErrors('condition', ['value.fromTime', 'value.toTime']),
+        ...mapPropertyErrors('condition', ['value.fromTime', 'value.toTime']),
 
         currentError() {
             return this.conditionValueFromTimeError || this.conditionValueToTimeError;

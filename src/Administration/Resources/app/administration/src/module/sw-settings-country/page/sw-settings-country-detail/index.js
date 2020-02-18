@@ -1,7 +1,7 @@
 import template from './sw-settings-country-detail.html.twig';
 
 const { Component, Mixin } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 Component.register('sw-settings-country-detail', {
     template,
@@ -45,7 +45,7 @@ Component.register('sw-settings-country-detail', {
             return this.getStateColumns();
         },
 
-        ...mapApiErrors('country', ['name'])
+        ...mapPropertyErrors('country', ['name'])
     },
 
     created() {

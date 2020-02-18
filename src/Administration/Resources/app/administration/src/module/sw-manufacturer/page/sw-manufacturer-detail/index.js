@@ -5,7 +5,7 @@ const { Component, Mixin, Data: { Criteria } } = Shopware;
 
 /* @deprecated tag:v6.4.0 */
 const { StateDeprecated } = Shopware;
-const { mapApiErrors } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-manufacturer-detail', {
     template,
@@ -117,7 +117,7 @@ Component.register('sw-manufacturer-detail', {
             };
         },
 
-        ...mapApiErrors('manufacturer', ['name'])
+        ...mapPropertyErrors('manufacturer', ['name'])
     },
 
     watch: {

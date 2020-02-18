@@ -2,7 +2,7 @@ import template from './sw-condition-line-item-with-quantity.html.twig';
 import './sw-condition-line-item-with-quantity.scss';
 
 const { Component } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -54,7 +54,7 @@ Component.extend('sw-condition-line-item-with-quantity', 'sw-condition-base', {
             }
         },
 
-        ...mapApiErrors('condition', ['value.operator', 'value.quantity', 'value.id']),
+        ...mapPropertyErrors('condition', ['value.operator', 'value.quantity', 'value.id']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueQuantityError || this.conditionValueIdError;

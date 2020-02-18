@@ -101,6 +101,10 @@ Component.register('sw-order-line-items-grid-sales-channel', {
 
     methods: {
         onInlineEditSave(item) {
+            if (item.label === '') {
+                return;
+            }
+
             if (item._isNew && item.type === '') {
                 item.type = this.lineItemTypes.PRODUCT;
             }

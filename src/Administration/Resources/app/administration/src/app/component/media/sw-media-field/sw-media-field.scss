@@ -1,21 +1,21 @@
 @import "~scss/variables";
 
-$sw-media-field-font-size-label:                  $font-size-small;
-$sw-media-field-color-label:                      $color-kashmir;
-$sw-media-field-border-radius-input:              $border-radius-default;
-$sw-media-field-border-color-input:               $color-steam-cloud;
-$sw-media-field-border-color-input-active:        $color-shopware-blue;
-$sw-media-field-border-radius-picker:             $border-radius-default;
-$sw-media-field-border-color-picker:              $color-steam-cloud;
-$sw-media-field-background-color-picker:          $color-white;
+$sw-media-field-font-size-label: $font-size-small;
+$sw-media-field-color-label: $color-kashmir;
+$sw-media-field-border-radius-input: $border-radius-default;
+$sw-media-field-border-color-input: $color-steam-cloud;
+$sw-media-field-border-color-input-active: $color-shopware-blue;
+$sw-media-field-border-radius-picker: $border-radius-default;
+$sw-media-field-border-color-picker: $color-steam-cloud;
+$sw-media-field-background-color-picker: $color-white;
 $sw-media-field-background-color-list-item-hover: $color-cadet-blue;
-$sw-media-field-color-picker-toggle:              $color-shopware-blue;
-$sw-media-field-color-unlink:                     $color-crimson;
+$sw-media-field-color-picker-toggle: $color-shopware-blue;
+$sw-media-field-color-unlink: $color-crimson;
 
 .sw-media-field {
-  position: relative;
-  width: 100%;
-  margin-bottom: 22px;
+    position: relative;
+    width: 100%;
+    margin-bottom: 22px;
 
     .sw-media-field__label {
         display: block;
@@ -72,7 +72,6 @@ $sw-media-field-color-unlink:                     $color-crimson;
         border: 1px solid $sw-media-field-border-color-picker;
         border-radius: $sw-media-field-border-radius-picker;
 
-
         .sw-simple-search-field {
             margin-bottom: 8px;
         }
@@ -113,11 +112,11 @@ $sw-media-field-color-unlink:                     $color-crimson;
     }
 
     .sw-media-field__action-button {
-      border: none;
-      background: none;
-      padding: 0;
-      color: $sw-media-field-color-picker-toggle;
-      justify-self: start;
+        border: none;
+        background: none;
+        padding: 0;
+        color: $sw-media-field-color-picker-toggle;
+        justify-self: start;
 
         &.is--remove {
             color: $sw-media-field-color-unlink;

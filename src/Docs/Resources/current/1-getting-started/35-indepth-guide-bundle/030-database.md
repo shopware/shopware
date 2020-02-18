@@ -41,7 +41,7 @@ While the naming is up to you, we highly recommend you to prefix your tables wit
 If you don't do that, you're taking the risk of breaking with other plugins, that created the same table.
 By providing a unique table name, you prevent that possible issue.
 
-### Setting up a migration
+## Setting up a migration
 
 Shopware 6 uses a migration system to install and update a plugin's database setup.
 **Make sure to always use the migration system when setting up database tables or updating their structure!**

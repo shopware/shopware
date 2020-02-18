@@ -9,8 +9,10 @@ In this tutorial, you will create a plugin, which displays product bundles on a 
 Those bundles contain multiple products, which then can be put into the cart. The main advantage
 for the customer is the discount being granted upon those bundles.
 
-The shop manager will be able to create and manage bundles from the administration.
+* The shop manager will be able to create and manage bundles from the administration.
 
-This example represents a simplified version of our [Bundle plugin](https://store.shopware.com/swagbundle/bundle.html) in the store.
+* This example represents a simplified version of our [Bundle plugin](https://store.shopware.com/swagbundle/bundle.html) in the store.
+
+* There's a GitHub repository available, containing the full example source being used in this tutorial! Check it out [here](https://github.com/shopware/swag-docs-bundle-example).
 
 Head over to the [next step](./020-setup.md) to start setting up the plugin.

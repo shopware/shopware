@@ -11,13 +11,14 @@ class TwigLoaderConfigCompilerPass implements CompilerPassInterface
     {
         $fileSystemLoader = $container->findDefinition('twig.loader.native_filesystem');
 
-        foreach ($container->getParameter('kernel.bundles_metadata') as $bundle) {
+        foreach ($container->getParameter('kernel.bundles_metadata') as $name => $bundle) {
             $directory = $bundle['path'] . '/Resources/views';
             if (!file_exists($directory)) {
                 continue;
             }
 
             $fileSystemLoader->addMethodCall('addPath', [$directory]);
+            $fileSystemLoader->addMethodCall('addPath', [$directory, $name]);
         }
     }
 }

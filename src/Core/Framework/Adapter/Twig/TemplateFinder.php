@@ -40,15 +40,18 @@ class TemplateFinder implements TemplateFinderInterface
     protected $cacheDir;
 
     /**
-     * @var NamespaceHierarchyBuilder
+     * @var NamespaceHierarchyBuilder|null
      */
     private $namespaceHierarchyBuilder;
 
+    /**
+     * @param NamespaceHierarchyBuilder $namespaceHierarchyBuilder will be required in v6.3.0
+     */
     public function __construct(
         Environment $twig,
         LoaderInterface $loader,
-        NamespaceHierarchyBuilder $namespaceHierarchyBuilder,
-        string $cacheDir
+        string $cacheDir,
+        ?NamespaceHierarchyBuilder $namespaceHierarchyBuilder = null
     ) {
         $this->twig = $twig;
         $this->loader = $loader;
@@ -150,6 +153,10 @@ class TemplateFinder implements TemplateFinderInterface
     {
         if ($this->namespaceHierarchy) {
             return $this->namespaceHierarchy;
+        }
+
+        if (!$this->namespaceHierarchyBuilder) {
+            return $this->bundles;
         }
 
         $namespaceHierarchy = array_unique(array_merge($this->bundles, $this->namespaceHierarchyBuilder->buildHierarchy()));

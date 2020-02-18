@@ -25,11 +25,11 @@ class ThemeTemplateFinder extends TemplateFinder implements EventSubscriberInter
     public function __construct(
         Environment $twig,
         LoaderInterface $loader,
-        NamespaceHierarchyBuilder $hierarchyBuilder,
         string $cacheDir,
-        ThemeInheritanceBuilderInterface $inheritanceBuilder
+        ThemeInheritanceBuilderInterface $inheritanceBuilder,
+        ?NamespaceHierarchyBuilder $hierarchyBuilder = null
     ) {
-        parent::__construct($twig, $loader, $hierarchyBuilder, $cacheDir);
+        parent::__construct($twig, $loader, $cacheDir, $hierarchyBuilder);
         $this->inheritanceBuilder = $inheritanceBuilder;
     }
 

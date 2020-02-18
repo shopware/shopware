@@ -139,9 +139,9 @@
 
             <argument type="service" id="twig"/>
             <argument type="service" id="twig.loader"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder"/>
             <argument>%kernel.cache_dir%</argument>
             <argument type="service" id="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder"/>
 
             <call method="registerBundles">
                 <argument type="service" id="kernel" />

@@ -1,21 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test;
+namespace Shopware\Core\Framework\Test\Adapter\Twig;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\InheritanceExtension;
+use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Test\Adapter\Twig\fixtures\BundleFixture;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
-use Shopware\Storefront\Test\fixtures\BundleFixture;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
-/**
- * @deprecated tag:v6.3.0 can safely be removed, once we removed the `TemplateFinder::registerBundles()`
- */
-class TwigSwIncludeDeprecatedTest extends TestCase
+class TwigSwIncludeTest extends TestCase
 {
     use KernelTestBehaviour;
 
@@ -114,19 +112,17 @@ class TwigSwIncludeDeprecatedTest extends TestCase
 
         $twig = new Environment($loader, ['cache' => false]);
 
-        $templateFinder = new TemplateFinder(
-            $twig,
-            $loader,
-            $this->getContainer()->get(NamespaceHierarchyBuilder::class),
-            $this->getContainer()->getParameter('kernel.cache_dir') . '/' . microtime()
-        );
-
         $kernel = $this->createMock(Kernel::class);
         $kernel->expects(static::any())
             ->method('getBundles')
             ->willReturn($bundles);
 
-        $templateFinder->registerBundles($kernel);
+        $templateFinder = new TemplateFinder(
+            $twig,
+            $loader,
+            $this->getContainer()->getParameter('kernel.cache_dir') . '/' . microtime(),
+            new NamespaceHierarchyBuilder([new BundleHierarchyBuilder($kernel)])
+        );
 
         $twig->addExtension(new InheritanceExtension($templateFinder));
         $twig->getExtension(InheritanceExtension::class)->getFinder();

@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test;
+namespace Shopware\Core\Framework\Test\Adapter\Twig;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Test\Adapter\Twig\fixtures\BundleFixture;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
-use Shopware\Storefront\Test\fixtures\BundleFixture;
 
 class TwigCacheTest extends TestCase
 {
@@ -59,8 +59,8 @@ class TwigCacheTest extends TestCase
         $templateFinder = new TemplateFinder(
             $twig,
             $loader,
-            new NamespaceHierarchyBuilder([new BundleHierarchyBuilder($kernel)]),
-            $this->getKernel()->getCacheDir()
+            $this->getKernel()->getCacheDir(),
+            new NamespaceHierarchyBuilder([new BundleHierarchyBuilder($kernel)])
         );
 
         return [$twig, $templateFinder];

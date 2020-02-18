@@ -24,6 +24,11 @@ $sw-media-upload-caption-icon-color:           $color-steam-cloud;
         color: $color-kashmir;
         font-weight: normal;
         user-select: none;
+
+        .is--required::after {
+            content: "*";
+            color: $color-shopware-blue;
+        }
     }
 
     .sw-media-upload__switch-mode {

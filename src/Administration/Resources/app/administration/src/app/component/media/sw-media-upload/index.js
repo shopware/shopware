@@ -79,6 +79,20 @@ Component.register('sw-media-upload', {
             type: String,
             required: false,
             default: null
+        },
+
+        error: {
+            type: [Object],
+            required: false,
+            default() {
+                return null;
+            }
+        },
+
+        required: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -150,6 +164,12 @@ Component.register('sw-media-upload', {
 
         mediaFolderId() {
             return this.defaultFolderId || this.targetFolderId;
+        },
+
+        swMediaUploadLabelClasses() {
+            return {
+                'is--required': this.required
+            };
         }
     },
 
@@ -158,6 +178,15 @@ Component.register('sw-media-upload', {
             this.getDefaultFolderId().then((defaultFolderId) => {
                 this.defaultFolderId = defaultFolderId;
             });
+        },
+
+        'source.id'() {
+            if (this.error) {
+                Shopware.State.dispatch(
+                    'error/removeApiError',
+                    { expression: this.error.selfLink }
+                );
+            }
         }
     },
 

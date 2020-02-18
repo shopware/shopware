@@ -3,7 +3,11 @@
 namespace Shopware\Core\Framework\Update\Api;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
@@ -26,6 +30,7 @@ use Shopware\Core\Framework\Update\VersionFactory;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -88,6 +93,11 @@ class UpdateController extends AbstractController
      */
     private $isUpdateTest;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $userRepository;
+
     public function __construct(
         string $rootDir,
         ApiClient $apiClient,
@@ -96,6 +106,7 @@ class UpdateController extends AbstractController
         EventDispatcherInterface $eventDispatcher,
         SystemConfigService $systemConfig,
         PluginLifecycleService $pluginLifecycleService,
+        EntityRepositoryInterface $userRepository,
         string $shopwareVersion,
         bool $isUpdateTest = false
     ) {
@@ -108,6 +119,7 @@ class UpdateController extends AbstractController
         $this->pluginLifecycleService = $pluginLifecycleService;
         $this->shopwareVersion = $shopwareVersion;
         $this->isUpdateTest = $isUpdateTest;
+        $this->userRepository = $userRepository;
     }
 
     /**
@@ -184,7 +196,7 @@ class UpdateController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/update/unpack", name="api.custom.updateapi.unpack", methods={"GET"})
      */
-    public function unpack(Request $request): JsonResponse
+    public function unpack(Request $request, Context $context): JsonResponse
     {
         $update = $this->apiClient->checkForUpdates($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION);
 
@@ -220,8 +232,8 @@ class UpdateController extends AbstractController
 
             $payload = [
                 'clientIp' => $request->getClientIp(),
-                'locale' => 'en',
                 'version' => $update->version,
+                'locale' => $this->getUpdateLocale($context),
             ];
 
             $updateFilePath = $this->rootDir . '/files/update/update.json';
@@ -314,6 +326,29 @@ class UpdateController extends AbstractController
         );
 
         return $this->redirectToRoute('administration.index');
+    }
+
+    private function getUpdateLocale(Context $context): string
+    {
+        if (!$context->getSource() instanceof AdminApiSource) {
+            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
+        }
+
+        $userId = $context->getSource()->getUserId();
+
+        $criteria = new Criteria([$userId]);
+        $criteria->getAssociation('locale');
+
+        /** @var UserEntity|null $user */
+        $user = $this->userRepository->search($criteria, $context)->first();
+
+        if ($user && $user->getLocale()) {
+            $code = $user->getLocale()->getCode();
+
+            return mb_strtolower(explode('-', $code)[0]);
+        }
+
+        return 'en';
     }
 
     private function rebootKernelWithoutPlugins(): ContainerInterface

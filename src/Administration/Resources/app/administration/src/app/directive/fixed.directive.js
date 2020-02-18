@@ -30,6 +30,7 @@ function updateElement(el) {
 }
 
 /**
+ * @deprecated tag:v6.4.0
  * Directive for fixed
  *
  * Usage:

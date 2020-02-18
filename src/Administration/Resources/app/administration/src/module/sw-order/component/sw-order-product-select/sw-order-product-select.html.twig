@@ -11,7 +11,6 @@
         {% block sw_order_product_select_existing_product %}
             <sw-entity-single-select class="sw-order-product-select__single-select"
                                      v-else-if="item.type !== 'product'"
-                                     v-fixed
                                      v-model="product"
                                      entity="product"
                                      @change="onItemChanged"

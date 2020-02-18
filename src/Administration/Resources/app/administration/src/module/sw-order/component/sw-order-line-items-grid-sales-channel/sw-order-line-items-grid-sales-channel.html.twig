@@ -24,7 +24,7 @@
                                     <sw-button variant="ghost"
                                                size="small"
                                                @click="onInsertExistingItem"
-                                               :disabled="!isCustomerActive || isLoading">
+                                               :disabled="isAddNewItemButtonDisabled">
                                         {{ $tc('sw-order.createBase.buttonAddProduct') }}
                                     </sw-button>
                                 {% endblock %}
@@ -174,7 +174,7 @@
                                                 !itemCreatedFromProduct(item.id) &&
                                                 item.priceDefinition &&
                                                 item.priceDefinition.taxRules &&
-                                                !isCreditItem(item)" 
+                                                !isCreditItem(item)"
                                               v-model="item.priceDefinition.taxRules[0].taxRate"
                                               key="order-line-item-tax-edit-default"
                                               size="small"

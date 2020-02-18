@@ -62,6 +62,10 @@ Component.register('sw-order-create-details-footer', {
 
         defaultSalesChannel() {
             return State.get('swOrder').defaultSalesChannel;
+        },
+
+        isCartTokenAvailable() {
+            return State.getters['swOrder/isCartTokenAvailable'];
         }
     },
 
@@ -70,33 +74,22 @@ Component.register('sw-order-create-details-footer', {
             immediate: true,
             deep: true,
             handler() {
-                if (!this.customer) return;
+                if (!this.customer || !this.cart.token) {
+                    return;
+                }
 
                 this.updateContext();
 
-                State.dispatch('swOrder/updateOrderContext', {
-                    context: this.context,
-                    salesChannelId: this.customer.salesChannelId,
-                    contextToken: this.cart.token
-                }).then(() => {
-                    if (this.context.currencyId && this.currentCurrencyId !== this.context.currencyId) {
-                        this.currencyRepository
-                            .get(this.context.currencyId, Shopware.Context.api)
-                            .then((currency) => {
-                                State.commit('swOrder/setCurrency', currency);
-                            });
-                    }
+                this.updateOrderContext();
+            }
+        },
 
-                    if (!this.cart.token || this.cart.lineItems.length === 0) return;
-
-                    this.$emit('loading-change', true);
-
-                    State.dispatch('swOrder/getCart', {
-                        salesChannelId: this.customer.salesChannelId,
-                        contextToken: this.cart.token
-                    })
-                        .finally(() => this.$emit('loading-change', false));
-                });
+        isCartTokenAvailable: {
+            immediate: true,
+            handler() {
+                if (this.isCartTokenAvailable) {
+                    this.updateOrderContext();
+                }
             }
         }
     },
@@ -106,6 +99,51 @@ Component.register('sw-order-create-details-footer', {
             const contextKeys = ['currencyId', 'languageId', 'shippingMethodId', 'paymentMethodId'];
             contextKeys.forEach((key) => {
                 this.context[key] = this.context[key] || this.defaultSalesChannel[key];
+            });
+        },
+
+        updateOrderContext() {
+            State.dispatch('swOrder/updateOrderContext', {
+                context: this.context,
+                salesChannelId: this.customer.salesChannelId,
+                contextToken: this.cart.token
+            }).then(() => {
+                // Make sure updateCustomerContext() is run when updateOrderContext() completed
+                this.updateCustomerContext();
+
+                if (this.currentCurrencyId !== this.context.currencyId) {
+                    this.getCurrency();
+                }
+            });
+        },
+
+        updateCustomerContext() {
+            // We do getCart() only when user just changes the order context items. Otherwise, we do updateCustomerContext()
+            State.dispatch('swOrder/updateCustomerContext', {
+                customerId: this.customer.id,
+                salesChannelId: this.customer.salesChannelId,
+                contextToken: this.cart.token
+            }).then((response) => {
+                if (response.status === 200) {
+                    this.getCart();
+                }
+            });
+        },
+
+        getCart() {
+            this.$emit('loading-change', true);
+
+            State.dispatch('swOrder/getCart', {
+                salesChannelId: this.customer.salesChannelId,
+                contextToken: this.cart.token
+            }).finally(() => {
+                this.$emit('loading-change', false);
+            });
+        },
+
+        getCurrency() {
+            return this.currencyRepository.get(this.context.currencyId, Shopware.Context.api).then((currency) => {
+                State.commit('swOrder/setCurrency', currency);
             });
         }
     }

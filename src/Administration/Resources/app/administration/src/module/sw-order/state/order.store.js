@@ -70,8 +70,12 @@ export default {
             return get(state, 'customer.active', false);
         },
 
+        isCartTokenAvailable(state) {
+            return get(state, 'cart.token', null);
+        },
+
         currencyId(state) {
-            return get(state, 'currency.id', null);
+            return get(state, 'currency.id', '');
         }
     },
 
@@ -81,12 +85,11 @@ export default {
             commit('setDefaultSalesChannel', { ...get(customer, 'salesChannel', null) });
         },
 
-        createCart({ commit, dispatch }, { salesChannelId }) {
+        createCart({ commit }, { salesChannelId }) {
             return Service('cartSalesChannelService')
                 .createCart(salesChannelId)
                 .then(response => {
                     commit('setCartToken', response.data['sw-context-token']);
-                    dispatch('dispatchUpdateCustomerContext');
                 });
         },
 
@@ -99,12 +102,6 @@ export default {
         cancelCart(_, { salesChannelId, contextToken }) {
             return Service('cartSalesChannelService')
                 .cancelCart(salesChannelId, contextToken);
-        },
-
-        dispatchUpdateCustomerContext({ state }) {
-            const { customer, cart } = state;
-            return Service('salesChannelContextService')
-                .updateCustomerContext(customer.id, customer.salesChannelId, cart.token);
         },
 
         updateCustomerContext(_, { customerId, salesChannelId, contextToken }) {

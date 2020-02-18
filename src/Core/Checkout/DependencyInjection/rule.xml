@@ -120,18 +120,82 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemNoveltyRule">
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemIsNewRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemOfManufacturerRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemPurchasePriceRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemCreationDateRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemReleaseDateRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemClearanceSaleRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemTopsellerRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemInCategoryRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemTaxationRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemDimensionWidthRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemDimensionHeightRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemDimensionLengthRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemDimensionWeightRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemOfManufacturerRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemPurchasePriceRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemCreationDateRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemListPriceRule">
             <tag name="shopware.rule.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Rule\PaymentMethodRule">
             <tag name="shopware.rule.definition"/>
-            <tag name="shopware.feature" flag="next6013" />
+            <tag name="shopware.feature" flag="next6013"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Rule\ShippingMethodRule">
             <tag name="shopware.rule.definition"/>
-            <tag name="shopware.feature" flag="next6013" />
+            <tag name="shopware.feature" flag="next6013"/>
         </service>
 
     </services>

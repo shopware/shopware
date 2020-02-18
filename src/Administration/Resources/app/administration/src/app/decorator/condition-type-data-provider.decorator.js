@@ -168,9 +168,89 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.lineItemPropertyRule',
         scopes: ['lineItem']
     });
-    ruleConditionService.addCondition('cartLineItemNovelty', {
-        component: 'sw-condition-line-item-novelty',
-        label: 'global.sw-condition.condition.lineItemNoveltyRule',
+    ruleConditionService.addCondition('cartLineItemIsNew', {
+        component: 'sw-condition-line-item-is-new',
+        label: 'global.sw-condition.condition.lineItemIsNewRule',
+        scopes: ['lineItem']
+    });
+    ruleConditionService.addCondition('cartLineItemOfManufacturer', {
+        component: 'sw-condition-line-item-of-manufacturer',
+        label: 'global.sw-condition.condition.lineItemOfManufacturerRule',
+        scopes: ['lineItem']
+    });
+    ruleConditionService.addCondition('cartLineItemPurchasePrice', {
+        component: 'sw-condition-line-item-purchase-price',
+        label: 'global.sw-condition.condition.lineItemPurchasePriceRule',
+        scopes: ['lineItem']
+    });
+    ruleConditionService.addCondition('cartLineItemCreationDate', {
+        component: 'sw-condition-line-item-creation-date',
+        label: 'global.sw-condition.condition.lineItemCreationDateRule',
+        scopes: ['lineItem']
+    });
+    ruleConditionService.addCondition('cartLineItemReleaseDate', {
+        component: 'sw-condition-line-item-release-date',
+        label: 'global.sw-condition.condition.lineItemReleaseDateRule',
+        scopes: ['lineItem']
+    });
+    ruleConditionService.addCondition('cartLineItemClearanceSale', {
+        component: 'sw-condition-line-item-clearance-sale',
+        label: 'global.sw-condition.condition.lineItemClearanceSale',
+        scopes: ['lineItem']
+    });
+    ruleConditionService.addCondition('cartLineItemTopseller', {
+        component: 'sw-condition-line-item-topseller',
+        label: 'global.sw-condition.condition.lineItemTopsellerRule',
+        scopes: ['lineItem']
+    });
+    ruleConditionService.addCondition('cartLineItemInCategory', {
+        component: 'sw-condition-line-item-in-category',
+        label: 'global.sw-condition.condition.lineItemInCategoryRule',
+        scopes: ['lineItem']
+    });
+    ruleConditionService.addCondition('cartLineItemTaxation', {
+        component: 'sw-condition-line-item-taxation',
+        label: 'global.sw-condition.condition.lineItemTaxationRule',
+        scopes: ['lineItem']
+    });
+    ruleConditionService.addCondition('cartLineItemDimensionWidth', {
+        component: 'sw-condition-line-item-dimension-width',
+        label: 'global.sw-condition.condition.lineItemDimensionWidthRule',
+        scopes: ['lineItem']
+    });
+    ruleConditionService.addCondition('cartLineItemDimensionHeight', {
+        component: 'sw-condition-line-item-dimension-height',
+        label: 'global.sw-condition.condition.lineItemDimensionHeightRule',
+        scopes: ['lineItem']
+    });
+    ruleConditionService.addCondition('cartLineItemDimensionLength', {
+        component: 'sw-condition-line-item-dimension-length',
+        label: 'global.sw-condition.condition.lineItemDimensionLengthRule',
+        scopes: ['lineItem']
+    });
+    ruleConditionService.addCondition('cartLineItemDimensionWeight', {
+        component: 'sw-condition-line-item-dimension-weight',
+        label: 'global.sw-condition.condition.lineItemDimensionWeightRule',
+        scopes: ['lineItem']
+    });
+    ruleConditionService.addCondition('cartLineItemOfManufacturer', {
+        component: 'sw-condition-line-item-of-manufacturer',
+        label: 'global.sw-condition.condition.lineItemOfManufacturerRule',
+        scopes: ['lineItem']
+    });
+    ruleConditionService.addCondition('cartLineItemPurchasePrice', {
+        component: 'sw-condition-line-item-purchase-price',
+        label: 'global.sw-condition.condition.lineItemPurchasePriceRule',
+        scopes: ['lineItem']
+    });
+    ruleConditionService.addCondition('cartLineItemCreationDate', {
+        component: 'sw-condition-line-item-creation-date',
+        label: 'global.sw-condition.condition.lineItemCreationDateRule',
+        scopes: ['lineItem']
+    });
+    ruleConditionService.addCondition('cartLineItemListPrice', {
+        component: 'sw-condition-line-item-list-price',
+        label: 'global.sw-condition.condition.lineItemListPriceRule',
         scopes: ['lineItem']
     });
 

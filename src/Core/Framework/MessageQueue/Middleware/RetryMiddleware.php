@@ -12,6 +12,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\Stamp\DecryptedStamp;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
 use Symfony\Component\Messenger\Middleware\StackInterface;
 
@@ -37,22 +38,26 @@ class RetryMiddleware implements MiddlewareInterface
     {
         try {
             return $stack->next()->handle($envelope, $stack);
-        } catch (MessageFailedException $e) {
-            $deadMessage = null;
-            if ($envelope->getMessage() instanceof RetryMessage) {
-                /** @var DeadMessageEntity|null $deadMessage */
-                $deadMessage = $this->deadMessageRepository
-                    ->search(new Criteria([$envelope->getMessage()->getDeadMessageId()]), $this->context)
-                    ->get($envelope->getMessage()->getDeadMessageId());
+        } catch (HandlerFailedException $e) {
+            $deadMessage = $this->getExistingDeadMessage($envelope);
+
+            $unhandledExceptions = [];
+            foreach ($e->getNestedExceptions() as $nestedException) {
+                if (!($nestedException instanceof MessageFailedException)) {
+                    $unhandledExceptions[] = $nestedException;
+
+                    continue;
+                }
+                if ($deadMessage) {
+                    $this->handleExistingDeadMessage($deadMessage, $nestedException);
+                } else {
+                    $this->createDeadMessageFromEnvelope($envelope, $nestedException);
+                }
             }
 
-            if ($deadMessage) {
-                $this->handleExistingDeadMessage($deadMessage, $e);
-
-                return $envelope;
+            if (\count($unhandledExceptions) > 0) {
+                throw new HandlerFailedException($envelope, $unhandledExceptions);
             }
-
-            $this->createDeadMessageFromEnvelope($envelope, $e);
         }
 
         return $envelope;
@@ -142,5 +147,18 @@ class RetryMiddleware implements MiddlewareInterface
                 ],
             ], $this->context);
         });
+    }
+
+    private function getExistingDeadMessage(Envelope $envelope): ?DeadMessageEntity
+    {
+        if (!($envelope->getMessage() instanceof RetryMessage)) {
+            return null;
+        }
+        /** @var DeadMessageEntity|null $deadMessage */
+        $deadMessage = $this->deadMessageRepository
+            ->search(new Criteria([$envelope->getMessage()->getDeadMessageId()]), $this->context)
+            ->get($envelope->getMessage()->getDeadMessageId());
+
+        return $deadMessage;
     }
 }

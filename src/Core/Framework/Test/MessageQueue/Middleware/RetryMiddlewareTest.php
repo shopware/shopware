@@ -13,9 +13,12 @@ use Shopware\Core\Framework\MessageQueue\Middleware\RetryMiddleware;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\Stamp\DecryptedStamp;
+use Shopware\Core\Framework\Test\MessageQueue\fixtures\DummyHandler;
+use Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\Test\Middleware\MiddlewareTestCase;
 
 class RetryMiddlewareTest extends MiddlewareTestCase
@@ -46,7 +49,7 @@ class RetryMiddlewareTest extends MiddlewareTestCase
 
     public function testMiddlewareOnSuccess(): void
     {
-        $message = new RetryMessage(Uuid::randomHex());
+        $message = new TestMessage(Uuid::randomHex());
         $envelope = new Envelope($message);
 
         $stack = $this->getStackMock();
@@ -60,14 +63,64 @@ class RetryMiddlewareTest extends MiddlewareTestCase
 
     public function testMiddlewareOnFirstError(): void
     {
-        $message = new RetryMessage(Uuid::randomHex());
+        $message = new TestMessage(Uuid::randomHex());
         $envelope = new Envelope($message);
 
         $e = new \Exception('exception');
-        $messageFailedException = new MessageFailedException($message, RetryMessageHandler::class, $e);
+        $messageFailedException = $this->getMessageFailedException($envelope, $message, $e);
         $stack = $this->getThrowingStackMock($messageFailedException);
 
         $this->retryMiddleware->handle($envelope, $stack);
+
+        $deadMessages = $this->deadMessageRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $deadMessages);
+        /** @var DeadMessageEntity $deadMessage */
+        $deadMessage = $deadMessages->first();
+        $this->assertDeadMessageCombinesExceptionAndMessage($deadMessage, $e, $message, 1);
+    }
+
+    public function testMiddlewareMultipleFailedHandlers(): void
+    {
+        $message = new TestMessage(Uuid::randomHex());
+        $envelope = new Envelope($message);
+
+        $e = new \Exception('exception');
+        $messageFailedException = $this->getMultiMessageFailedException($envelope, $message, $e);
+        $stack = $this->getThrowingStackMock($messageFailedException);
+
+        $this->retryMiddleware->handle($envelope, $stack);
+
+        $deadMessages = $this->deadMessageRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(2, $deadMessages);
+        /** @var DeadMessageEntity $deadMessage */
+        $deadMessage = $deadMessages->first();
+        $this->assertDeadMessageCombinesExceptionAndMessage($deadMessage, $e, $message, 1);
+    }
+
+    public function testMixedExceptions(): void
+    {
+        $message = new TestMessage(Uuid::randomHex());
+        $envelope = new Envelope($message);
+
+        $e = new \Exception('exception');
+        $exception1 = new MessageFailedException($message, RetryMessageHandler::class, $e);
+        $exception2 = new \Exception('exception2');
+
+        $messageFailedException = new HandlerFailedException($envelope, [$exception1, $exception2]);
+        $stack = $this->getThrowingStackMock($messageFailedException);
+
+        $thrown = false;
+
+        try {
+            $this->retryMiddleware->handle($envelope, $stack);
+        } catch (HandlerFailedException $err) {
+            $thrown = true;
+            static::assertCount(1, $err->getNestedExceptions());
+            static::assertEquals($exception2, $err->getNestedExceptions()[0]);
+        }
+        static::assertTrue($thrown);
 
         $deadMessages = $this->deadMessageRepository->search(new Criteria(), $this->context)->getEntities();
 
@@ -97,7 +150,7 @@ class RetryMiddlewareTest extends MiddlewareTestCase
         ], $this->context);
 
         $e = new \Exception('exception');
-        $messageFailedException = new MessageFailedException($message, RetryMessageHandler::class, $e);
+        $messageFailedException = $this->getMessageFailedException($envelope, $message, $e);
         $stack = $this->getThrowingStackMock($messageFailedException);
 
         $this->retryMiddleware->handle($envelope, $stack);
@@ -113,11 +166,11 @@ class RetryMiddlewareTest extends MiddlewareTestCase
 
     public function testMiddlewareWithEncryptedMessage(): void
     {
-        $message = new RetryMessage(Uuid::randomHex());
+        $message = new TestMessage(Uuid::randomHex());
         $envelope = new Envelope($message, [new DecryptedStamp()]);
 
         $e = new \Exception('exception');
-        $messageFailedException = new MessageFailedException($message, RetryMessageHandler::class, $e);
+        $messageFailedException = $this->getMessageFailedException($envelope, $message, $e);
         $stack = $this->getThrowingStackMock($messageFailedException);
 
         $this->retryMiddleware->handle($envelope, $stack);
@@ -138,7 +191,7 @@ class RetryMiddlewareTest extends MiddlewareTestCase
         $envelope = new Envelope($message);
 
         $e = new \Exception('exception');
-        $messageFailedException = new MessageFailedException($message, RetryMessageHandler::class, $e);
+        $messageFailedException = $this->getMessageFailedException($envelope, $message, $e);
         $stack = $this->getThrowingStackMock($messageFailedException);
 
         $this->insertDeadMessage($deadMessageId, $envelope, $e);
@@ -164,7 +217,7 @@ class RetryMiddlewareTest extends MiddlewareTestCase
         $previousException = new \Exception('exception');
 
         $newException = new \RuntimeException('runtime exception');
-        $messageFailedException = new MessageFailedException($message, RetryMessageHandler::class, $newException);
+        $messageFailedException = $this->getMessageFailedException($envelope, $message, $newException);
         $stack = $this->getThrowingStackMock($messageFailedException);
 
         $this->insertDeadMessage($deadMessageId, $envelope, $previousException);
@@ -216,5 +269,20 @@ class RetryMiddlewareTest extends MiddlewareTestCase
                 'exceptionLine' => $e->getLine(),
             ],
         ], $this->context);
+    }
+
+    private function getMessageFailedException(Envelope $env, $message, \Exception $e): HandlerFailedException
+    {
+        $exception = new MessageFailedException($message, RetryMessageHandler::class, $e);
+
+        return new HandlerFailedException($env, [$exception]);
+    }
+
+    private function getMultiMessageFailedException(Envelope $env, $message, \Exception $e): HandlerFailedException
+    {
+        $exception1 = new MessageFailedException($message, RetryMessageHandler::class, $e);
+        $exception2 = new MessageFailedException($message, DummyHandler::class, $e);
+
+        return new HandlerFailedException($env, [$exception1, $exception2]);
     }
 }

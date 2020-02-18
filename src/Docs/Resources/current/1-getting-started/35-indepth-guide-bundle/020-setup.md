@@ -1,6 +1,6 @@
 [titleEn]: <>(Step 2: The plugin setup)
 
-### Basic structure
+## Basic structure
 
 Let's start with creating the plugin.
 Head over to the directory `<shopware root>/custom/plugins`.
@@ -13,7 +13,7 @@ in your plugin's `composer.json` as well.
 
 Create this file inside your new directory `SwagBundleExample` and head over to the next step.
 
-### Filling the composer.json
+## Filling the composer.json
 
 So what do you need in your plugin's meta information?
 Each composer package comes with a technical [name](https://getcomposer.org/doc/04-schema.md#name) as its unique identifier if you were to publish your plugin using composer.
@@ -83,7 +83,7 @@ After having a look at the [composer schema](https://getcomposer.org/doc/04-sche
 All of those values being used in the example are mostly used by composer.
 Yet, there are plenty more values, that are required by Shopware 6, so let's have a look at them as well.
 
-#### type
+### type
 
 First of all you can define a [type](https://getcomposer.org/doc/04-schema.md#type), which has to be `shopware-platform-plugin` here.
 ```json
@@ -94,7 +94,7 @@ First of all you can define a [type](https://getcomposer.org/doc/04-schema.md#ty
 ```
 Your plugin won't be considered to be a valid plugin if you do not set this value.
 
-#### autoload
+### autoload
 
 The next value would be the [autoload](https://getcomposer.org/doc/04-schema.md#autoload) property, which works exactly like described
 on the documentation linked above.
@@ -118,7 +118,7 @@ While you're free to structure your plugin in whichever way you want, we recomme
 Also required is the related namespace you want to use in your plugin.
 Usually you'd want it to look something like this: `YourVendorPrefix\YourPluginName`
 
-#### extra
+### extra
 
 Last but not least is the [extra](https://getcomposer.org/doc/04-schema.md#extra) property, which can fit ANY value.
 Shopware 6 is using it for fetching a few more meta information, such as a `copyright`, a `label` and a `plugin-icon` path. 
@@ -172,7 +172,7 @@ Here's what the final `composer.json` looks like once all values described were 
 }
 ```
 
-### Plugin base class
+## Plugin base class
 
 In order to get a fully functional plugin running, we still need the plugin's base class.
 As you probably noticed from the `composer.json`, our main source is going to be in a `src` directory with the namespace `Swag\BundleExample`.
@@ -195,7 +195,7 @@ Your plugin base class **always** has to extend from `Shopware\Core\Framework\Pl
 The namespace and class name are set as defined in the composer.json. That's it for now, the plugin would already be recognized
 by Shopware 6 and is installable.
 
-### Installing the plugin
+## Installing the plugin
 
 Now it's time to check if everything was done correctly until this point. First you have to refresh the plugins.
 

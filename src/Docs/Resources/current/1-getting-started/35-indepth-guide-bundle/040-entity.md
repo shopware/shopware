@@ -75,7 +75,7 @@ The next two items are a `StringField` for the discount type and a `FloatField` 
 Both are defined as `Required`, so you can make sure those values are always set and you don't have to take care
 of any kind of default value. Also, a bundle without a discount would make no sense.
 
-#### Setting up the entity and collection
+## Setting up the entity and collection
 
 When fetching for your bundle data now, you'd get an `EntityCollection` of `Entity` classes now,
 each one representing a configured bundle. Both the `EntityCollection` as well as the `Entity` class are generic classes,
@@ -209,7 +209,7 @@ class BundleCollection extends EntityCollection
 
 The class documentation is just another helper to have a proper auto-completion when working with your `BundleCollection`.
 
-### Registering the custom definition
+## Registering the custom definition
 
 You've got a `BundleDefinition`, which also knows your `BundleCollection` as well as the `BundleEntity`, so everything is perfectly set up.
 

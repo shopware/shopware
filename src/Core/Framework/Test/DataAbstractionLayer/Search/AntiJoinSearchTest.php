@@ -349,6 +349,42 @@ class AntiJoinSearchTest extends TestCase
         static::assertCount(1, $ids);
     }
 
+    public function testManyToManyWithNegatedFilter(): void
+    {
+        $withoutTagId = Uuid::randomHex();
+        $withTagId = Uuid::randomHex();
+
+        $products = [
+            $this->getTaggedProduct($withoutTagId, 'not-green hasNoTags'),
+            $this->getTaggedProduct($withTagId, 'green', ['green']),
+        ];
+
+        /** @var EntityRepositoryInterface $productRepository */
+        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository->create($products, Context::createDefaultContext());
+
+        $tagsNullFilters = new EqualsFilter('product.tags.id', null);
+        $result = $productRepository->searchIds((new Criteria())->addFilter($tagsNullFilters), Context::createDefaultContext())->getIds();
+
+        static::assertContains($withoutTagId, $result);
+        static::assertNotContains($withTagId, $result);
+        static::assertCount(1, $result);
+
+        $notTagsNullFilters = new NotFilter('AND', [$tagsNullFilters]);
+        $result = $productRepository->searchIds((new Criteria())->addFilter($notTagsNullFilters), Context::createDefaultContext())->getIds();
+
+        static::assertContains($withTagId, $result);
+        static::assertNotContains($withoutTagId, $result);
+        static::assertCount(1, $result);
+
+        $notNotTagsNullFilters = new NotFilter('AND', [$notTagsNullFilters]);
+        $result = $productRepository->searchIds((new Criteria())->addFilter($notNotTagsNullFilters), Context::createDefaultContext())->getIds();
+
+        static::assertContains($withoutTagId, $result);
+        static::assertNotContains($withTagId, $result);
+        static::assertCount(1, $result);
+    }
+
     private function getTaggedProduct(string $id, string $name, array $tags = []): array
     {
         return [

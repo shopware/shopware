@@ -146,8 +146,6 @@
     }
   },
   "sw-plugin-config": {
-    "buttonSave": "Save",
-    "buttonCancel": "Abort",
     "titleSaveSuccess": "Success",
     "messageSaveSuccess": "Configuration has been saved.",
     "titleSaveError": "Unable to save the configuration.",

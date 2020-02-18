@@ -95,17 +95,7 @@ Component.register('sw-form-field-renderer', {
         return {
             currentComponentName: '',
             swFieldConfig: {},
-            currentValue: this.value,
-            translatedFields: {
-                'sw-field': ['label', 'placeholder', 'helpText'],
-                'sw-text-editor': ['label', 'placeholder', 'helpText'],
-                'sw-media-field': ['label'],
-                'sw-select': ['label', 'placeholder', 'helpText'],
-                'sw-single-select': ['label', 'placeholder', 'helpText'],
-                'sw-multi-select': ['label', 'placeholder', 'helpText'],
-                'sw-entity-single-select': ['label', 'placeholder', 'helpText'],
-                'sw-entity-multi-id-select': ['label', 'placeholder', 'helpText']
-            }
+            currentValue: this.value
         };
     },
 
@@ -168,6 +158,14 @@ Component.register('sw-form-field-renderer', {
                 return { type: 'date', dateType: 'datetime' };
             }
 
+            if (this.type === 'date') {
+                return { type: 'date', dateType: 'date' };
+            }
+
+            if (this.type === 'time') {
+                return { type: 'date', dateType: 'time' };
+            }
+
             return { type: this.type };
         },
 
@@ -227,7 +225,7 @@ Component.register('sw-form-field-renderer', {
     },
 
     methods: {
-        getTranslations(componentName, config = this.config, translatableFields = this.translatedFields[componentName]) {
+        getTranslations(componentName, config = this.config, translatableFields = ['label', 'placeholder', 'helpText']) {
             if (!translatableFields) {
                 return {};
             }
@@ -249,14 +247,6 @@ Component.register('sw-form-field-renderer', {
 
             if (this.type === 'multi-select') {
                 return 'sw-multi-select';
-            }
-
-            if (this.type === 'media') {
-                return 'sw-media-field';
-            }
-
-            if (this.type === 'entity-single-select') {
-                return 'sw-entity-single-select';
             }
 
             return 'sw-field';

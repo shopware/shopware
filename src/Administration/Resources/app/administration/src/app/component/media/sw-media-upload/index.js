@@ -170,7 +170,7 @@ Component.register('sw-media-upload', {
                     'showUrlInput is deprecated and will be removed in 6.4.0. Use isFileUpload or isUrlUpload instead'
                 );
 
-                return this.isUrlUpload();
+                return this.isUrlUpload;
             },
 
             set(value) {
@@ -313,7 +313,7 @@ Component.register('sw-media-upload', {
                 'toggleShowUrlFields is deprecated and will be removed in 6.4.0. Use useUrlUpload or useFileUpload instead'
             );
 
-            if (this.isUrlUpload()) {
+            if (this.isUrlUpload) {
                 return this.useFileUpload();
             }
 
@@ -409,8 +409,8 @@ Component.register('sw-media-upload', {
                 if (items.length !== 1) {
                     return null;
                 }
-                const defaultFolder = items[0];
-                return defaultFolder.folder.id;
+
+                return items[0].folder.id;
             });
         },
 

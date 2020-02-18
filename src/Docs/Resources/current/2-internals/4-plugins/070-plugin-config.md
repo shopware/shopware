@@ -67,7 +67,7 @@ Below you'll find a list of all available `<input-field type="?">`.
 | Type          | Configuration options                                                  | Renders           |
 |---------------|------------------------------------------------------------------------|-------------------|
 | text          | [copyable](#copyable), [placeholder](#label-placeholder-and-help-text) | Text field        |
-| textarea      | [copyable](#copyable), [placeholder](#label-placeholder-and-help-text) | Textarea          |
+| textarea      | [copyable](#copyable), [placeholder](#label-placeholder-and-help-text) | Text area          |
 | url           | [copyable](#copyable), [placeholder](#label-placeholder-and-help-text) | URL field         |
 | password      | [placeholder](#label-placeholder-and-help-text)                        | Password field    |
 | int           |                                                                        | Integer field     |
@@ -75,6 +75,8 @@ Below you'll find a list of all available `<input-field type="?">`.
 | bool          |                                                                        | Switch            |
 | checkbox      |                                                                        | Checkbox          |
 | datetime      |                                                                        | Date-time picker  |
+| date          |                                                                        | Date picker       |
+| time          |                                                                        | Time picker       |
 | colorpicker   |                                                                        | Color picker      |
 | single-select | [options](#options), [placeholder](#label-placeholder-and-help-text)   | Single-Select box |
 | multi-select  | [options](#options), [placeholder](#label-placeholder-and-help-text)   | Multi-Select box  |
@@ -247,6 +249,7 @@ It is also possible to render your own admin component which you could deliver w
 The name of the component has to match the components name in the administration, for example `sw-entity-single-select`.
 The component also needs a `<name>` element first.
 All other elements within the component element will be passed to the rendered admin component as properties.
+For some components you could also use [`label` and `placeholder`](#label-placeholder-and-help-text).
 
 Here are some examples:
 
@@ -275,6 +278,14 @@ Stores an array with IDs of the selected products into the system config.
 <component name="sw-media-field">
     <name>pluginMedia</name>
     <label>Upload media or choose one from the media manager</label>
+</component>
+```
+
+### Text editor
+```xml
+<component name="sw-text-editor">
+    <name>textEditor</name>
+    <label>Write some nice text with WYSIWYG editor</label>
 </component>
 ```
 

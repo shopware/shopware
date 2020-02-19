@@ -99,6 +99,7 @@ class JsonSalesChannelEntityEncoderTest extends TestCase
 
         $encoder = $this->getContainer()->get(JsonEntityEncoder::class);
         $actual = $encoder->encode(new Criteria(), $extendableDefinition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
+        unset($actual['apiAlias']);
 
         static::assertEquals($fixture->getSalesChannelJsonFixtures(), $actual);
     }
@@ -118,6 +119,7 @@ class JsonSalesChannelEntityEncoderTest extends TestCase
 
         $encoder = $this->getContainer()->get(JsonEntityEncoder::class);
         $actual = $encoder->encode(new Criteria(), $extendableDefinition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
+        unset($actual['apiAlias']);
 
         static::assertEquals($fixture->getSalesChannelJsonFixtures(), $actual);
     }

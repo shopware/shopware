@@ -14,42 +14,43 @@ class TestEncodeWithSourceFields
 {
     public function getEntity(): ProductEntity
     {
-        return (new ProductEntity())->assign([
-            '_uniqueIdentifier' => Uuid::randomHex(),
-            'id' => Uuid::randomHex(),
-            'name' => 'name',
-            'description' => 'description',
-            'taxId' => Uuid::randomHex(),
-            'tax' => (new TaxEntity())->assign([
+        return (new ProductEntity())
+            ->assign([
                 '_uniqueIdentifier' => Uuid::randomHex(),
                 'id' => Uuid::randomHex(),
                 'name' => 'name',
-                'taxRate' => 19,
-            ]),
-            'manufacturer' => (new ProductManufacturerEntity())->assign([
-                '_uniqueIdentifier' => Uuid::randomHex(),
-                'id' => Uuid::randomHex(),
-                'name' => 'name',
-            ]),
-            'prices' => new ProductPriceCollection([
-                (new ProductPriceEntity())->assign([
+                'description' => 'description',
+                'taxId' => Uuid::randomHex(),
+                'tax' => (new TaxEntity())->assign([
                     '_uniqueIdentifier' => Uuid::randomHex(),
-                    'productId' => Uuid::randomHex(),
-                    'quantityStart' => 1,
-                    'quantityEnd' => 10,
-                    'price' => 100,
-                    'ruleId' => Uuid::randomHex(),
-                ]),
-                (new ProductPriceEntity())->assign([
+                    'id' => Uuid::randomHex(),
+                    'name' => 'name',
+                    'taxRate' => 19,
+                ])->internalSetEntityName('tax'),
+                'manufacturer' => (new ProductManufacturerEntity())->assign([
                     '_uniqueIdentifier' => Uuid::randomHex(),
-                    'productId' => Uuid::randomHex(),
-                    'quantityStart' => 11,
-                    'quantityEnd' => null,
-                    'price' => 100,
-                    'ruleId' => Uuid::randomHex(),
+                    'id' => Uuid::randomHex(),
+                    'name' => 'name',
+                ])->internalSetEntityName('product_manufacturer'),
+                'prices' => new ProductPriceCollection([
+                    (new ProductPriceEntity())->assign([
+                        '_uniqueIdentifier' => Uuid::randomHex(),
+                        'productId' => Uuid::randomHex(),
+                        'quantityStart' => 1,
+                        'quantityEnd' => 10,
+                        'price' => 100,
+                        'ruleId' => Uuid::randomHex(),
+                    ])->internalSetEntityName('product_price'),
+                    (new ProductPriceEntity())->assign([
+                        '_uniqueIdentifier' => Uuid::randomHex(),
+                        'productId' => Uuid::randomHex(),
+                        'quantityStart' => 11,
+                        'quantityEnd' => null,
+                        'price' => 100,
+                        'ruleId' => Uuid::randomHex(),
+                    ])->internalSetEntityName('product_price'),
                 ]),
-            ]),
-        ]);
+            ])->internalSetEntityName('product');
     }
 
     public function getCriteria(): Criteria

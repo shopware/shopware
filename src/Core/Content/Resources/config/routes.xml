@@ -12,4 +12,5 @@
     <import resource="../../Newsletter/**/*Controller.php" type="annotation" />
     <import resource="../../ProductExport/**/*Controller.php" type="annotation" />
     <import resource="../../Seo/Api/**/*Controller.php" type="annotation" />
+    <import resource="../../Category/SalesChannel/**/*Route.php" type="annotation" />
 </routes>

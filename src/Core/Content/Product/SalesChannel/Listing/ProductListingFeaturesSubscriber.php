@@ -420,6 +420,10 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     private function getManufacturerIds(Request $request): array
     {
         $ids = $request->query->get('manufacturer', '');
+        if ($request->isMethod(Request::METHOD_POST)) {
+            $ids = $request->request->get('manufacturer', '');
+        }
+
         $ids = explode('|', $ids);
 
         return array_filter($ids);
@@ -428,6 +432,10 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     private function getPropertyIds(Request $request): array
     {
         $ids = $request->query->get('properties', '');
+        if ($request->isMethod(Request::METHOD_POST)) {
+            $ids = $request->request->get('properties', '');
+        }
+
         $ids = explode('|', $ids);
 
         return array_filter($ids);

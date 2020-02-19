@@ -32,6 +32,11 @@ class Entity extends Struct
      */
     protected $updatedAt;
 
+    /**
+     * @var string|null
+     */
+    protected $_entityName;
+
     public function setUniqueIdentifier(string $identifier): void
     {
         $this->_uniqueIdentifier = $identifier;
@@ -122,6 +127,8 @@ class Entity extends Struct
     {
         $data = parent::jsonSerialize();
 
+        unset($data['_entityName']);
+
         if (!$this->hasExtension('foreignKeys')) {
             return $data;
         }
@@ -140,5 +147,20 @@ class Entity extends Struct
         }
 
         return $data;
+    }
+
+    public function getApiAlias(): string
+    {
+        return $this->_entityName;
+    }
+
+    /**
+     * @internal
+     */
+    public function internalSetEntityName(string $entityName): self
+    {
+        $this->_entityName = $entityName;
+
+        return $this;
     }
 }

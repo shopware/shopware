@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -60,7 +61,7 @@ class EntityHydratorTest extends TestCase
         static::assertTrue($first->hasExtension(EntityReader::FOREIGN_KEYS));
         $foreignKeys = $first->getExtension(EntityReader::FOREIGN_KEYS);
 
-        static::assertInstanceOf(ArrayEntity::class, $foreignKeys);
+        static::assertInstanceOf(ArrayStruct::class, $foreignKeys);
 
         /** @var ArrayEntity $foreignKeys */
         static::assertTrue($foreignKeys->has('extendedFk'));

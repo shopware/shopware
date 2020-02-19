@@ -23,6 +23,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
         $user->setAdmin(true);
         $user->setEmail('user1@shop.de');
         $user->setCreatedAt(new \DateTime('2018-01-15T08:01:16+00:00'));
+        $user->internalSetEntityName('user');
 
         $media1 = new MediaEntity();
         $media1->setId('3e352be2d85846dd97529c0f6b544870');
@@ -34,6 +35,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
         $media1->setCreatedAt(new \DateTime('2012-08-15T00:00:00+00:00'));
         $media1->setUpdatedAt(new \DateTime('2017-11-21T11:25:34+00:00'));
         $media1->setTitle('Lagerkorn-5,0klein');
+        $media1->internalSetEntityName('media');
 
         $media2 = new MediaEntity();
         $media2->setId('f1ad1d0c02454a40abf250f764d16248');
@@ -45,6 +47,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
         $media2->setCreatedAt(new \DateTime('2012-08-17T00:00:00+00:00'));
         $media2->setUpdatedAt(new \DateTime('2017-11-21T11:25:34+00:00'));
         $media2->setTitle('Jasmine-Lotus-Cover');
+        $media2->internalSetEntityName('media');
 
         $mediaCollection->add($media1);
         $mediaCollection->add($media2);
@@ -479,6 +482,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                     'extensions' => [],
                     'admin' => true,
                     'aclRoles' => null,
+                    'apiAlias' => 'user',
                 ],
                 'translations' => null,
                 'categories' => null,
@@ -509,6 +513,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                 'createdAt' => '2012-08-15T00:00:00+00:00',
                 'updatedAt' => '2017-11-21T11:25:34+00:00',
                 'extensions' => [],
+                'apiAlias' => 'media',
             ], [
                 'id' => 'f1ad1d0c02454a40abf250f764d16248',
                 'userId' => '6f51622eb3814c75ae0263cece27ce72',
@@ -547,6 +552,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                     'extensions' => [],
                     'admin' => true,
                     'aclRoles' => null,
+                    'apiAlias' => 'user',
                 ],
                 'translations' => null,
                 'categories' => null,
@@ -577,6 +583,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                 'createdAt' => '2012-08-17T00:00:00+00:00',
                 'updatedAt' => '2017-11-21T11:25:34+00:00',
                 'extensions' => [],
+                'apiAlias' => 'media',
             ],
         ];
     }

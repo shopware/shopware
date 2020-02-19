@@ -95,4 +95,9 @@ class CalculatedPrice extends Struct
     {
         return $this->listPrice;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'calculated_price';
+    }
 }

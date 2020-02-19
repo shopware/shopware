@@ -98,6 +98,25 @@ class EntitySearchResult extends EntityCollection
         $this->entities->add($entity);
     }
 
+    public function jsonSerialize(): array
+    {
+        $vars = get_object_vars($this);
+
+        unset($vars['criteria']);
+        unset($vars['context']);
+        unset($vars['entities']);
+
+        foreach ($vars as $property => $value) {
+            if ($value instanceof \DateTimeInterface) {
+                $value = $value->format(\DateTime::ATOM);
+            }
+
+            $vars[$property] = $value;
+        }
+
+        return $vars;
+    }
+
     protected function createNew(iterable $elements = [])
     {
         return new static(

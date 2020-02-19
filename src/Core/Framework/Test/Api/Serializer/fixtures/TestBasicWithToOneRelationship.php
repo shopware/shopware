@@ -21,6 +21,7 @@ class TestBasicWithToOneRelationship extends SerializationFixture
         $user->setAdmin(true);
         $user->setEmail('user1@shop.de');
         $user->setCreatedAt(new \DateTime('2018-01-15T08:01:16+00:00'));
+        $user->internalSetEntityName('user');
 
         $media = new MediaEntity();
         $media->setId('548faa1f7846436c85944f4aea792d96');
@@ -32,6 +33,7 @@ class TestBasicWithToOneRelationship extends SerializationFixture
         $media->setCreatedAt(new \DateTime('2012-08-31T00:00:00+00:00'));
         $media->setUpdatedAt(new \DateTime('2017-11-21T11:25:34+00:00'));
         $media->setUser($user);
+        $media->internalSetEntityName('media');
 
         return $media;
     }
@@ -308,6 +310,7 @@ class TestBasicWithToOneRelationship extends SerializationFixture
                 'extensions' => [],
                 'admin' => true,
                 'aclRoles' => null,
+                'apiAlias' => 'user',
             ],
             'translations' => null,
             'categories' => null,
@@ -338,6 +341,7 @@ class TestBasicWithToOneRelationship extends SerializationFixture
             'createdAt' => '2012-08-31T00:00:00+00:00',
             'updatedAt' => '2017-11-21T11:25:34+00:00',
             'extensions' => [],
+            'apiAlias' => 'media',
         ];
     }
 

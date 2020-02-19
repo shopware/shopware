@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 
 class JsonApiEncoder
 {
@@ -59,12 +60,14 @@ class JsonApiEncoder
             $source = $this->buildSource($criteria->getSource());
         }
 
-        $this->encodeData($source, $definition, $data, $result);
+        $fields = new ResponseFields($criteria->getIncludes());
+
+        $this->encodeData($source, $fields, $definition, $data, $result);
 
         return $this->formatToJson($result);
     }
 
-    protected function serializeEntity(?array $source, Entity $entity, EntityDefinition $definition, JsonApiEncodingResult $result, bool $isRelationship = false): void
+    protected function serializeEntity(?array $source, ResponseFields $fields, Entity $entity, EntityDefinition $definition, JsonApiEncodingResult $result, bool $isRelationship = false): void
     {
         if ($result->containsInData($entity->getUniqueIdentifier(), $definition->getEntityName())
             || ($isRelationship && $result->containsInIncluded($entity->getUniqueIdentifier(), $definition->getEntityName()))
@@ -74,14 +77,14 @@ class JsonApiEncoder
 
         $self = $result->getBaseUrl() . '/' . $this->camelCaseToSnailCase($definition->getEntityName()) . '/' . $entity->getUniqueIdentifier();
 
-        $serialized = clone $this->createSerializedEntity($source, $definition, $result);
+        $serialized = clone $this->createSerializedEntity($source, $fields, $definition, $result);
         $serialized->addLink('self', $self);
         $serialized->merge($entity);
 
         // add included entities
-        $this->serializeRelationships($source, $serialized, $entity, $result);
+        $this->serializeRelationships($source, $fields, $serialized, $entity, $result);
 
-        $this->addExtensions($source, $serialized, $entity, $result);
+        $this->addExtensions($source, $fields, $serialized, $entity, $result);
 
         if ($isRelationship) {
             $result->addIncluded($serialized);
@@ -90,7 +93,7 @@ class JsonApiEncoder
         }
     }
 
-    protected function serializeRelationships(?array $source, Record $record, Entity $entity, JsonApiEncodingResult $result): void
+    protected function serializeRelationships(?array $source, ResponseFields $fields, Record $record, Entity $entity, JsonApiEncodingResult $result): void
     {
         $relationships = $record->getRelationships();
 
@@ -113,13 +116,13 @@ class JsonApiEncoder
             if ($relationData instanceof EntityCollection) {
                 /** @var Entity $sub */
                 foreach ($relationData as $sub) {
-                    $this->serializeEntity($nestedSource, $sub, $relationship['tmp']['definition'], $result, true);
+                    $this->serializeEntity($nestedSource, $fields, $sub, $relationship['tmp']['definition'], $result, true);
                 }
 
                 continue;
             }
 
-            $this->serializeEntity($nestedSource, $relationData, $relationship['tmp']['definition'], $result, true);
+            $this->serializeEntity($nestedSource, $fields, $relationData, $relationship['tmp']['definition'], $result, true);
         }
 
         $record->setRelationships($relationships);
@@ -178,7 +181,7 @@ class JsonApiEncoder
     /**
      * @param Entity|EntityCollection|null $data
      */
-    private function encodeData(?array $source, EntityDefinition $definition, $data, JsonApiEncodingResult $result): void
+    private function encodeData(?array $source, ResponseFields $fields, EntityDefinition $definition, $data, JsonApiEncodingResult $result): void
     {
         if ($data === null) {
             return;
@@ -191,11 +194,11 @@ class JsonApiEncoder
 
         // collection of entities
         foreach ($data as $entity) {
-            $this->serializeEntity($source, $entity, $definition, $result);
+            $this->serializeEntity($source, $fields, $entity, $definition, $result);
         }
     }
 
-    private function createSerializedEntity(?array $source, EntityDefinition $definition, JsonApiEncodingResult $result): Record
+    private function createSerializedEntity(?array $source, ResponseFields $fields, EntityDefinition $definition, JsonApiEncodingResult $result): Record
     {
         if (isset($this->serializeCache[$definition->getClass()])) {
             return clone $this->serializeCache[$definition->getClass()];
@@ -210,6 +213,10 @@ class JsonApiEncoder
             }
 
             if (!empty($source) && !isset($source[$propertyName])) {
+                continue;
+            }
+
+            if (!$fields->isAllowed($definition->getEntityName(), $propertyName)) {
                 continue;
             }
 
@@ -272,7 +279,7 @@ class JsonApiEncoder
         return json_encode($result, JSON_PRESERVE_ZERO_FRACTION);
     }
 
-    private function addExtensions(?array $source, Record $serialized, Entity $entity, JsonApiEncodingResult $result): void
+    private function addExtensions(?array $source, ResponseFields $fields, Record $serialized, Entity $entity, JsonApiEncodingResult $result): void
     {
         if (empty($serialized->getExtensions())) {
             return;
@@ -313,7 +320,7 @@ class JsonApiEncoder
                         'type' => $definition->getEntityName(),
                         'id' => $association->getUniqueIdentifier(),
                     ];
-                    $this->serializeEntity($nestedSource, $association, $definition, $result, true);
+                    $this->serializeEntity($nestedSource, $fields, $association, $definition, $result, true);
                 }
             } else {
                 $relationship = [
@@ -329,7 +336,7 @@ class JsonApiEncoder
                             'type' => $definition->getEntityName(),
                             'id' => $sub->getUniqueIdentifier(),
                         ];
-                        $this->serializeEntity($nestedSource, $sub, $definition, $result, true);
+                        $this->serializeEntity($nestedSource, $fields, $sub, $definition, $result, true);
                     }
                 }
             }

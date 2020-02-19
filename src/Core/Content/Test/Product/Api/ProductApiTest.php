@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
@@ -189,5 +190,92 @@ class ProductApiTest extends TestCase
         static::assertNotEmpty($product);
         static::assertArrayHasKey('data', $product);
         static::assertSame($description, $product['data']['description']);
+    }
+
+    public function testIncludesWithJsonApi(): void
+    {
+        $ids = new TestDataCollection(Context::createDefaultContext());
+
+        $data = [
+            'id' => $ids->create('product'),
+            'name' => 'test',
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 10,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+            ],
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create([$data], Context::createDefaultContext());
+
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/product', [
+            'includes' => [
+                'product' => ['id', 'name'],
+            ],
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $products = json_decode($response->getContent(), true);
+
+        $product = $products['data'][0];
+
+        static::assertArrayHasKey('attributes', $product);
+        static::assertArrayHasKey('name', $product['attributes']);
+        static::assertArrayNotHasKey('translated', $product['attributes']);
+        static::assertArrayNotHasKey('manufacturerId', $product['attributes']);
+        static::assertArrayNotHasKey('parentId', $product['attributes']);
+        static::assertEmpty($product['relationships']);
+
+        static::assertEmpty($products['included']);
+    }
+
+    public function testIncludesWithRelationships(): void
+    {
+        $ids = new TestDataCollection(Context::createDefaultContext());
+
+        $data = [
+            'id' => $ids->create('product'),
+            'name' => 'test',
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 10,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+            ],
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create([$data], Context::createDefaultContext());
+
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/product', [
+            'includes' => [
+                'product' => ['id', 'name', 'tax'],
+                'tax' => ['id', 'name'],
+            ],
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $products = json_decode($response->getContent(), true);
+
+        $product = $products['data'][0];
+
+        static::assertArrayHasKey('attributes', $product);
+        static::assertArrayHasKey('name', $product['attributes']);
+        static::assertArrayNotHasKey('translated', $product['attributes']);
+        static::assertArrayNotHasKey('manufacturerId', $product['attributes']);
+        static::assertArrayNotHasKey('parentId', $product['attributes']);
+        static::assertCount(1, $product['relationships']);
+        static::assertArrayHasKey('tax', $product['relationships']);
+
+        static::assertCount(1, $products['included']);
+        static::assertEquals('tax', $products['included'][0]['type']);
     }
 }

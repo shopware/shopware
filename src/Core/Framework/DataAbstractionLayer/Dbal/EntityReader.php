@@ -680,7 +680,7 @@ class EntityReader implements EntityReaderInterface
                 str_replace(
                     array_keys($params),
                     array_values($params),
-                    'counter_table.#source_column# = #table#.#source_column# AND 
+                    'counter_table.#source_column# = #table#.#source_column# AND
                      counter_table.#reference_column# = #table#.#reference_column# AND
                      counter_table.id_count <= :limit'
                 )

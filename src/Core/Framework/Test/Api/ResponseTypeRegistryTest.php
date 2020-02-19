@@ -230,6 +230,7 @@ class ResponseTypeRegistryTest extends TestCase
         $category = new CategoryEntity();
         $category->setId($id);
         $category->setName($id);
+        $category->internalSetEntityName('category');
 
         return $category;
     }

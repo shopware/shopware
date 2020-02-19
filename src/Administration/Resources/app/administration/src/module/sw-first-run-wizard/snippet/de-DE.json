@@ -19,7 +19,16 @@
       "switchLanguageModalTitle": "Wähle die Sprache der Benutzeroberfläche",
       "confirmLanguageSwitch": "Sprache wechseln",
       "cancelLanguageSwitch": "Abbrechen",
-      "switchLanguageMessage": "Das Sprach-Plugin \"{pluginName}\" wurde erfolgreich installiert. Möchtest Du die Sprache der Benutzeroberfläche ändern?"
+      "switchLanguageMessage": "Das Sprach-Plugin \"{pluginName}\" wurde erfolgreich installiert. Möchtest Du die Sprache der Benutzeroberfläche ändern?",
+      "pluginsInstalled": "Sprachplugin{plural} Installiert",
+      "pluginsInstalledMessage": "Sprachplugin installiert: | Sprachplugins für folgende Sprachen wurden installiert: ",
+      "pluginNotFoundMessageP": "Das Sprach-Plugin für {languageName} wurde nicht gefunden.",
+      "pluginInstallationFailedMessage": "Plugin konnte nicht installiert werden: ",
+      "pluginActivationFailedMessage": "Plugin konnte nicht aktiviert werden: ",
+      "tryAgainLater": "Bitte versuche es später erneut.",
+      "success": "Erfolg",
+      "error": "Fehler",
+      "noConnectionMessage": "Verbindungsprobleme, die gewünschte Sprache kann derzeit nicht installiert werden."
     },
     "dataImport": {
       "modalTitle": "Dein Start mit Shopware 6",

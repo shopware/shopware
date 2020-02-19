@@ -1,8 +1,8 @@
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-sidebar-media-item.html.twig';
 import './sw-sidebar-media-item.scss';
 
-const { Component, StateDeprecated } = Shopware;
+const { Component, Context } = Shopware;
+const { Criteria } = Shopware.Data;
 
 /**
  * @status ready
@@ -22,6 +22,8 @@ const { Component, StateDeprecated } = Shopware;
  */
 Component.register('sw-sidebar-media-item', {
     template,
+
+    inject: ['repositoryFactory'],
 
     props: {
         initialFolderId: {
@@ -55,12 +57,12 @@ Component.register('sw-sidebar-media-item', {
     },
 
     computed: {
-        mediaStore() {
-            return StateDeprecated.getStore('media');
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
         },
 
-        mediaFolderStore() {
-            return StateDeprecated.getStore('media_folder');
+        mediaFolderRepository() {
+            return this.repositoryFactory.create('media_folder');
         },
 
         showMore() {
@@ -112,14 +114,13 @@ Component.register('sw-sidebar-media-item', {
             this.getList();
         },
 
-        getSubFolders() {
-            return this.mediaFolderStore.getList({
-                page: 1,
-                limit: 50,
-                criteria: CriteriaFactory.equals('parentId', this.mediaFolderId)
-            }).then((response) => {
-                this.subFolders = response.items;
-            });
+        async getSubFolders() {
+            const criteria = new Criteria(1, 50);
+            criteria.addFilter(Criteria.equals('parentId', this.mediaFolderId));
+
+            const folder = await this.mediaFolderRepository.search(criteria, Context.api);
+            this.subFolders = folder;
+            return folder;
         },
 
         handleFolderGridItemDelete() {
@@ -142,55 +143,47 @@ Component.register('sw-sidebar-media-item', {
             this.extendList();
         },
 
-        extendList() {
-            const params = this.getListingParams();
+        async extendList() {
+            const criteria = this.getListingCriteria();
 
-            return this.mediaStore.getList(params).then((response) => {
-                this.mediaItems = this.mediaItems.concat(response.items);
-                return this.mediaItems;
-            });
+            const searchResult = await this.mediaRepository.search(criteria, Context.api);
+            this.mediaItems = this.mediaItems.concat(searchResult);
+
+            return this.mediaItems;
         },
 
-        getList() {
+        async getList() {
             if (this.isParentLoading === true) {
                 return null;
             }
 
             this.isLoading = true;
 
-            const params = this.getListingParams();
+            const criteria = this.getListingCriteria();
 
-            return this.mediaStore.getList(params).then((response) => {
-                this.mediaItems = response.items;
-                this.total = response.total;
-                this.isLoading = false;
+            this.mediaItems = await this.mediaRepository.search(criteria, Context.api);
+            this.total = this.mediaItems.total;
+            this.isLoading = false;
 
-                return this.mediaItems;
-            });
+            return this.mediaItems;
         },
 
-        getListingParams() {
-            const searchCriteria = [];
+        getListingCriteria() {
+            const criteria = new Criteria(this.page, this.limit);
 
             if (!this.term.length) {
-                searchCriteria.push(CriteriaFactory.equals('mediaFolderId', this.mediaFolderId));
+                criteria.addFilter(Criteria.equals('mediaFolderId', this.mediaFolderId));
             }
 
             if (this.additionalSearchCriteria) {
-                searchCriteria.push(this.additionalSearchCriteria);
+                criteria.addFilter(this.additionalSearchCriteria);
             }
-
-            const params = {
-                limit: this.limit,
-                page: this.page,
-                criteria: CriteriaFactory.multi('and', ...searchCriteria)
-            };
 
             if (this.term) {
-                params.term = this.term;
+                criteria.term = this.term;
             }
 
-            return params;
+            return criteria;
         },
 
         openContent() {

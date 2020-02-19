@@ -1,10 +1,12 @@
 import template from './sw-media-index.html.twig';
 import './sw-media-index.scss';
 
-const { Component, StateDeprecated } = Shopware;
+const { Component, Context } = Shopware;
 
 Component.register('sw-media-index', {
     template,
+
+    inject: ['repositoryFactory', 'mediaService'],
 
     props: {
         routeFolderId: {
@@ -19,7 +21,9 @@ Component.register('sw-media-index', {
             selectedItems: [],
             uploads: [],
             term: this.$route.query ? this.$route.query.term : '',
-            uploadTag: 'upload-tag-sw-media-index'
+            uploadTag: 'upload-tag-sw-media-index',
+            parentFolder: null,
+            currentFolder: null
         };
     },
 
@@ -29,54 +33,29 @@ Component.register('sw-media-index', {
         };
     },
 
+    watch: {
+        routeFolderId() {
+            this.updateFolder();
+        }
+    },
 
     computed: {
-        mediaItemStore() {
-            return StateDeprecated.getStore('media');
+        mediaFolderRepository() {
+            return this.repositoryFactory.create('media_folder');
         },
-
-        mediaFolderStore() {
-            return StateDeprecated.getStore('media_folder');
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
         },
-
-        uploadStore() {
-            return StateDeprecated.getStore('upload');
-        },
-
-        currentFolder() {
-            if (this.routeFolderId) {
-                return this.mediaFolderStore.getById(this.routeFolderId);
-            }
-
-            return null;
-        },
-
-        parentFolder() {
-            if (!this.currentFolder) {
-                return null;
-            }
-
-            if (!this.currentFolder.parentId) {
-                return this.rootFolder;
-            }
-
-            return this.mediaFolderStore.getById(this.currentFolder.parentId);
-        },
-
-        parentFolderName() {
-            return this.parentFolder ? this.parentFolder.name : this.$tc('sw-media.index.rootFolderName');
-        },
-
-        currentFolderName() {
-            return this.currentFolder ? this.currentFolder.name : this.$tc('sw-media.index.rootFolderName');
-        },
-
         rootFolder() {
-            const root = new this.mediaFolderStore.EntityClass(this.mediaFolderStore.getEntityName(), null, null, null);
+            const root = this.mediaFolderRepository.create(Context.api);
             root.name = this.$tc('sw-media.index.rootFolderName');
-
+            root.id = null;
             return root;
         }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     destroyed() {
@@ -84,26 +63,37 @@ Component.register('sw-media-index', {
     },
 
     methods: {
+        createdComponent() {
+            this.updateFolder();
+        },
+
+        async updateFolder() {
+            if (!this.routeFolderId) {
+                this.currentFolder = this.rootFolder;
+                this.parentFolder = null;
+            } else {
+                this.currentFolder = await this.mediaFolderRepository.get(this.routeFolderId, Context.api);
+
+                if (this.currentFolder && this.currentFolder.parentId) {
+                    this.parentFolder = await this.mediaFolderRepository.get(this.currentFolder.parentId, Context.api);
+                } else {
+                    this.parentFolder = this.rootFolder;
+                }
+            }
+        },
+
         destroyedComponent() {
             this.$root.$off('search', this.onSearch);
         },
 
-        onUploadsAdded({ data }) {
-            data.forEach((upload) => {
-                const loadedEntity = this.mediaItemStore.getById(upload.targetId);
-                this.uploads.push(loadedEntity);
-            });
-
-            this.uploadStore.runUploads(this.uploadTag);
+        async onUploadsAdded() {
+            await this.mediaService.runUploads(this.uploadTag);
+            this.reloadList();
         },
 
         onUploadFinished({ targetId }) {
             this.uploads = this.uploads.filter((upload) => {
                 return upload.id !== targetId;
-            });
-
-            this.mediaItemStore.getByIdAsync(targetId).then((updatedItem) => {
-                this.$refs.mediaLibrary.injectItem(updatedItem);
             });
         },
 
@@ -143,7 +133,7 @@ Component.register('sw-media-index', {
                 return;
             }
 
-            this.$refs.mediaLibrary.refreshList();
+            this.reloadList();
         },
 
         reloadList() {

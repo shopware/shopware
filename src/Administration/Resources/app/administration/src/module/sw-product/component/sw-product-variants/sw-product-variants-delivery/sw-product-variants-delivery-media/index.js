@@ -1,10 +1,12 @@
 import template from './sw-product-variants-delivery-media.html.twig';
 import './sw-product-variants-delivery-media.scss';
 
-const { Component, StateDeprecated } = Shopware;
+const { Component } = Shopware;
 
 Component.register('sw-product-variants-delivery-media', {
     template,
+
+    inject: ['repositoryFactory', 'mediaService'],
 
     props: {
         product: {
@@ -27,14 +29,6 @@ Component.register('sw-product-variants-delivery-media', {
     },
 
     computed: {
-        mediaStore() {
-            return StateDeprecated.getStore('media');
-        },
-
-        uploadStore() {
-            return StateDeprecated.getStore('upload');
-        },
-
         selectedGroupsSorted() {
             // prepare group sorting
             let sortedGroups = [];
@@ -111,7 +105,7 @@ Component.register('sw-product-variants-delivery-media', {
     },
 
     methods: {
-        onUploadsAdded({ data }) {
+        async onUploadsAdded({ data }) {
             if (data.length === 0) {
                 return;
             }
@@ -119,20 +113,19 @@ Component.register('sw-product-variants-delivery-media', {
             const uploadData = data[0];
             const relatedOption = this.activeOptions.find((option) => option.id === uploadData.uploadTag);
 
-            relatedOption.isLoading = true;
-            this.mediaStore.sync().then(() => {
-                data.forEach((upload) => {
-                    relatedOption.mediaId = upload.targetId;
-                });
-                relatedOption.isLoading = false;
-                this.uploadStore.runUploads(relatedOption.id);
+            this.isLoading = true;
+
+            data.forEach((upload) => {
+                relatedOption.mediaId = upload.targetId;
             });
+
+            await this.mediaService.runUploads(uploadData.uploadTag);
         },
 
-        successfulUpload({ targetId }) {
-            this.mediaStore.getByIdAsync(targetId).then(() => {
-                this.$forceUpdate();
-            });
+        async successfulUpload() {
+            this.isLoading = false;
+
+            this.$forceUpdate();
         },
 
         removeMedia(option) {

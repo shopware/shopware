@@ -2,7 +2,6 @@ import template from './sw-media-quickinfo-multiple.html.twig';
 import './sw-media-quickinfo-multiple.scss';
 
 const { Component, Mixin } = Shopware;
-const format = Shopware.Utils.format;
 
 Component.register('sw-media-quickinfo-multiple', {
     template,
@@ -31,10 +30,10 @@ Component.register('sw-media-quickinfo-multiple', {
 
         getFileSize() {
             const sizeInByte = this.items.reduce((value, items) => {
-                return value + items.fileSize;
+                return value + (items.fileSize || 0);
             }, 0);
 
-            return format.fileSize(sizeInByte);
+            return Shopware.Utils.format.fileSize(sizeInByte);
         },
 
         getFileSizeLabel() {

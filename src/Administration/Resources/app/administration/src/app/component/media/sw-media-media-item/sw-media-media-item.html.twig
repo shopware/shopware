@@ -6,11 +6,11 @@
 
         {% block sw_media_media_item_preview %}
             <template #preview="{ item }">
-                <sw-media-preview
+                <sw-media-new-preview
                     :source="item.id"
                     @media-preview-play="emitPlayEvent($event, item)"
                     :mediaIsPrivate="item.private">
-                </sw-media-preview>
+                </sw-media-new-preview>
             </template>
         {% endblock %}
 
@@ -93,6 +93,7 @@
                 <sw-media-modal-replace
                     v-if="showModalReplace"
                     :itemToReplace="item"
+                    @media-replace-modal-item-replaced="emitRefreshMediaLibrary"
                     @media-replace-modal-close="closeModalReplace">
                 </sw-media-modal-replace>
             {% endblock %}

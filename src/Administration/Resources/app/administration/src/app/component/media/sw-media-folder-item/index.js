@@ -1,10 +1,13 @@
 import template from './sw-media-folder-item.html.twig';
 import './sw-media-folder-item.scss';
 
-const { Component, Application, Mixin, StateDeprecated } = Shopware;
+const { Component, Application, Mixin, Context } = Shopware;
 
 Component.register('sw-media-folder-item', {
     template,
+
+    inject: ['repositoryFactory'],
+
     inheritAttrs: false,
 
     mixins: [
@@ -34,50 +37,69 @@ Component.register('sw-media-folder-item', {
     },
 
     computed: {
-        mediaDefaultFolderStore() {
-            return StateDeprecated.getStore('media_default_folder');
+        mediaFolderRepository() {
+            return this.repositoryFactory.create('media_folder');
         },
-
+        mediaDefaultFolderRepository() {
+            return this.repositoryFactory.create('media_default_folder');
+        },
         moduleFactory() {
             return Application.getContainer('factory').module;
+        },
+        mediaFolder() {
+            return this.$attrs.item;
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
-        getIconConfigFromFolder(mediaFolder) {
+        createdComponent() {
+            this.getIconConfigFromFolder();
+        },
+
+        async getIconConfigFromFolder() {
+            const { mediaFolder } = this;
+
             if (mediaFolder.defaultFolderId === this.lastDefaultFolderId) {
-                return this.iconConfig;
+                return;
             }
 
             this.lastDefaultFolderId = mediaFolder.defaultFolderId;
-            this.mediaDefaultFolderStore.getByIdAsync(mediaFolder.defaultFolderId)
-                .then((defaultFolder) => {
-                    if (!defaultFolder) {
-                        return;
-                    }
+            const defaultFolder = await this.mediaDefaultFolderRepository.get(mediaFolder.defaultFolderId, Context.api);
 
-                    const module = this.moduleFactory.getModuleByEntityName(defaultFolder.entity);
-                    if (module) {
-                        this.iconConfig.name = module.manifest.icon;
-                        this.iconConfig.color = module.manifest.color;
-                    }
-                });
+            if (!defaultFolder) {
+                return;
+            }
 
-            return this.iconConfig;
+            const module = this.moduleFactory.getModuleByEntityName(defaultFolder.entity);
+            this.iconConfig.name = module.manifest.icon;
+            this.iconConfig.color = module.manifest.color;
         },
 
-        onChangeName(updatedName, item, endInlineEdit) {
-            if (!updatedName || updatedName.trim() === '') {
+        async onChangeName(updatedName, item, endInlineEdit) {
+            if (!updatedName || !updatedName.trim()) {
                 this.rejectRenaming(item, 'empty-name', endInlineEdit);
                 return;
             }
 
+            if (updatedName.includes('<')) {
+                this.rejectRenaming(item, 'invalid-name', endInlineEdit);
+                return;
+            }
+
             item.name = updatedName;
-            item.save().then(() => {
-                endInlineEdit();
-            }).catch((error) => {
+
+            try {
+                await this.mediaFolderRepository.save(item, Context.api);
+                item._isNew = false;
+            } catch (error) {
                 this.rejectRenaming(item, error, endInlineEdit);
-            });
+            } finally {
+                endInlineEdit();
+            }
         },
 
         onBlur(event, item, endInlineEdit) {
@@ -102,6 +124,9 @@ Component.register('sw-media-folder-item', {
                 if (cause === 'empty-name') {
                     title = this.$tc('global.default.error');
                     message = this.$tc('global.sw-media-folder-item.notification.errorBlankItemName.message');
+                } else if (cause === 'invalid-name') {
+                    title = this.$tc('global.default.error');
+                    message = this.$tc('global.sw-media-folder-item.notification.errorInvalidItemName.message');
                 }
 
                 this.createNotificationError({
@@ -110,10 +135,8 @@ Component.register('sw-media-folder-item', {
                 });
             }
 
-            if (item.isLocal === true) {
-                item.delete(true).then(() => {
-                    this.$emit('media-folder-remove', [item.id]);
-                });
+            if (item.isNew() === true) {
+                this.$emit('media-folder-remove', [item.id]);
             }
             endInlineEdit();
         },
@@ -151,23 +174,26 @@ Component.register('sw-media-folder-item', {
             this.showDeleteModal = false;
         },
 
-        emitItemDeleted(deletePromise) {
+        emitItemDeleted(ids) {
             this.closeDeleteModal();
-            deletePromise.then((ids) => {
+
+            this.$nextTick(() => {
                 this.$emit('media-folder-delete', ids.folderIds);
             });
         },
 
-        onFolderDissolved(dissolvePromise) {
+        onFolderDissolved(ids) {
             this.closeDissolveModal();
-            dissolvePromise.then((ids) => {
+
+            this.$nextTick(() => {
                 this.$emit('media-folder-dissolve', ids);
             });
         },
 
-        onFolderMoved(movePromise) {
+        onFolderMoved(ids) {
             this.closeMoveModal();
-            movePromise.then((ids) => {
+
+            this.$nextTick(() => {
                 this.$emit('media-folder-move', ids);
             });
         },
@@ -178,6 +204,11 @@ Component.register('sw-media-folder-item', {
 
         closeMoveModal() {
             this.showMoveModal = false;
+        },
+
+        async refreshIconConfig() {
+            await this.getIconConfigFromFolder();
+            this.closeSettings();
         }
     }
 });

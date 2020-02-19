@@ -4,12 +4,18 @@ import './sw-media-list-selection-item.scss';
 const { Component } = Shopware;
 
 /**
+ * @deprecated tag:v6.4.0
  * @private
  * @description Component which renders an image.
  * @status ready
  */
 Component.register('sw-media-list-selection-item', {
     template,
+
+    deprecated: {
+        version: '6.4.0',
+        comment: 'Use sw-media-new-list-selection-item instead'
+    },
 
     props: {
         item: {

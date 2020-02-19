@@ -25,18 +25,18 @@
         {% endblock %}
 
         {% block sw_property_option_detail_media %}
-            <sw-upload-store-listener
+            <sw-upload-listener
                     :uploadTag="currentOption.id"
                     autoUpload
                     @media-upload-finish="successfulUpload">
-            </sw-upload-store-listener>
-            <sw-media-compact-upload
+            </sw-upload-listener>
+            <sw-media-new-compact-upload
                 defaultFolder="product"
                 :source="currentOption.mediaId"
                 :uploadTag="currentOption.id"
                 @media-upload-remove-image="removeMedia"
                 @selection-change="setMedia">
-            </sw-media-compact-upload>
+            </sw-media-new-compact-upload>
         {% endblock %}
 
         {% block sw_property_option_detail_footer %}

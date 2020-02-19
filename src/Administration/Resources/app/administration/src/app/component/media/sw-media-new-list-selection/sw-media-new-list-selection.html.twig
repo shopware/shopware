@@ -1,0 +1,33 @@
+{% block sw_media_list_selection %}
+    <div class="sw-media-new-list-selection">
+
+        {% block sw_media_list_selection_upload %}
+            <sw-upload-listener
+                :uploadTag="uploadId"
+                @media-upload-add="onUploadsAdded"
+                @media-upload-finish="successfulUpload"
+                @media-upload-fail="onUploadFailed">
+            </sw-upload-listener>
+
+            <sw-media-new-upload
+                    :uploadTag="uploadId"
+                    variant="regular"
+                    :defaultFolder="defaultFolderName"
+                    @media-upload-sidebar-open="onMediaUploadButtonOpenSidebar">
+            </sw-media-new-upload>
+        {% endblock %}
+
+        {% block sw_media_list_selection_grid %}
+            <div class="sw-media-new-list-selection__grid" ref="grid" :style="gridAutoRows">
+                <sw-loader v-if="entity.isLoading"></sw-loader>
+                {%  block sw_media_list_selection_grid_items %}
+                    <sw-media-new-list-selection-item v-for="(mediaItem, i) in mediaItems"
+                            @item-remove="removeItem(mediaItem, i)"
+                            :key="i"
+                            :item="mediaItem">
+                    </sw-media-new-list-selection-item>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

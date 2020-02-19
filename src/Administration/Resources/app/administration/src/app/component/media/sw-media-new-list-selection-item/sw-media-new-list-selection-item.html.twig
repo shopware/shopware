@@ -1,0 +1,38 @@
+{% block sw_media_list_selection_item %}
+    <div class="sw-media-new-list-selection-item" :class="productImageClasses">
+
+        {% block sw_media_list_selection_item_preview %}
+            <template v-if="!isPlaceholder">
+
+                {% block sw_media_list_selection_item_preview_media %}
+                    <sw-media-new-preview
+                        class="sw-media-new-list-selection-item__image"
+                        :source="sourceId"
+                        @click="$emit('click')"
+                        :hideTooltip="hideTooltip">
+                    </sw-media-new-preview>
+                {% endblock %}
+
+                {% block sw_media_list_selection_item_preview_actions %}
+                    <sw-context-button v-if="!hideActions" class="sw-media-new-list-selection-item__context-button">
+                        {% block sw_media_list_selection_item_context %}
+                            {% block sw_media_list_selection_item_context_delete_action %}
+                                <sw-context-menu-item variant="danger" @click="$emit('item-remove')">{{ $tc('global.sw-media-new-list-selection-item.buttonRemove') }}</sw-context-menu-item>
+                            {% endblock %}
+                        {% endblock %}
+                    </sw-context-button>
+                {% endblock %}
+            </template>
+
+        {% endblock %}
+
+        {% block sw_media_list_selection_item_placeholder %}
+            <template v-else>
+                {% block sw_media_list_selection_item_placeholder %}
+                    <sw-icon class="sw-media-new-list-selection-item__placeholder-icon" :name="'default-object-image'" :small="true"></sw-icon>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+    </div>
+{% endblock %}

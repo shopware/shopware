@@ -1,10 +1,14 @@
 import template from './sw-media-compact-upload.html.twig';
 import './sw-media-compact-upload.scss';
 
-const { Component } = Shopware;
-
-Component.extend('sw-media-compact-upload', 'sw-media-upload', {
+/** @deprecated tag:v6.4.0 */
+Shopware.Component.extend('sw-media-compact-upload', 'sw-media-upload', {
     template,
+
+    deprecated: {
+        version: '6.4.0',
+        comment: 'Use sw-media-new-compact-upload instead'
+    },
 
     data() {
         return {

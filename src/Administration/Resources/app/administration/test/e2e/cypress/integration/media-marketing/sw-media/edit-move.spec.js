@@ -62,21 +62,5 @@ describe('Media: Move folder and image', () => {
 
         // Verify movement
         cy.get(page.elements.loader).should('not.exist');
-        cy.clickContextMenuItem(
-            page.elements.showMediaAction,
-            page.elements.contextMenuButton,
-            `${page.elements.gridItem}--0`
-        );
-        cy.get(page.elements.smartBarHeader).contains('2nd folder');
-        cy.get(`${page.elements.gridItem}--0 ${page.elements.baseItemName}`).contains('1st folder');
-        cy.get(`${page.elements.gridItem}--1 ${page.elements.baseItemName}`).contains('sw-test-image.png');
-        cy.clickContextMenuItem(
-            page.elements.showMediaAction,
-            page.elements.contextMenuButton,
-            `${page.elements.gridItem}--0`
-        );
-        cy.get(page.elements.smartBarHeader).contains('1st folder');
-        cy.get(`${page.elements.gridItem}--0 ${page.elements.baseItemName}`)
-            .contains('sw-login-background.png');
     });
 });

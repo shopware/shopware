@@ -1,0 +1,187 @@
+@import "~scss/variables";
+
+$sw-media-new-upload-border-color:                 $color-steam-cloud;
+$sw-media-new-upload-color-highlighted:            $color-shopware-blue;
+$sw-media-new-upload-color-switch-mode:            $color-shopware-blue;
+$sw-media-new-upload-border-radius:                $border-radius-default;
+$sw-media-new-upload-upload-background-color:      $color-light-gray;
+$sw-media-new-upload-background-color-highlighted: $color-cadet-blue;
+$sw-media-new-upload-caption-font-size:            $font-size-large;
+$sw-media-new-upload-caption-icon-color:           $color-steam-cloud;
+
+.sw-media-new-upload {
+    .sw-media-new-upload__file-input {
+        display: none;
+    }
+
+    .sw-media-new-upload__header {
+        display: flex;
+        flex-direction: row;
+        line-height: 16px;
+        min-height: 16px;
+        font-size: 14px;
+        margin-bottom: 8px;
+        color: $color-kashmir;
+        font-weight: normal;
+        user-select: none;
+    }
+
+    .sw-media-new-upload__switch-mode {
+        color: $sw-media-new-upload-color-switch-mode;
+        margin-left: auto;
+        cursor: pointer;
+    }
+
+    .sw-media-new-upload__help-text {
+        align-self: center;
+        margin-left: 8px;
+    }
+
+    .sw-media-new-upload__dropzone {
+        padding: 24px;
+        min-height: 148px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        border: 2px dashed $sw-media-new-upload-border-color;
+        border-radius: $sw-media-new-upload-border-radius;
+        background-color: $sw-media-new-upload-upload-background-color;
+        position: relative;
+
+        &.is--multi {
+            flex-direction: column;
+            justify-items: center;
+            padding: 36px 24px;
+
+            .sw-media-new-upload__actions {
+                margin-top: 12px;
+                margin-left: unset;
+                flex-direction: row;
+                padding-left: unset;
+
+                .sw-media-new-upload__button {
+                    margin: 0 8px;
+                }
+            }
+        }
+
+        &.is--active {
+            border-color: $sw-media-new-upload-color-highlighted;
+            background-color: $sw-media-new-upload-background-color-highlighted;
+            color: $sw-media-new-upload-color-highlighted;
+
+            .sw-media-new-upload__upload-caption {
+                .sw-icon {
+                    color: $sw-media-new-upload-color-highlighted;
+                }
+            }
+        }
+
+        .sw-media-new-upload__upload-caption {
+            font-size: $sw-media-new-upload-caption-font-size;
+            text-align: center;
+
+            .sw-icon {
+                margin-right: 8px;
+                color: $sw-media-new-upload-caption-icon-color;
+            }
+        }
+    }
+
+    .sw-media-new-upload__actions {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: center;
+        overflow: hidden;
+        width: 100%;
+
+        &.has--source {
+            .sw-media-new-upload__file-info {
+                width: 100%;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                font-size: 14px;
+            }
+        }
+
+        .sw-media-new-upload__file-info {
+            width: 100%;
+        }
+
+        .sw-media-new-upload__file-headline {
+            word-break: break-word;
+            padding-right: 16px;
+        }
+
+        .sw-media-new-upload__remove-icon {
+            flex-shrink: 0;
+            margin-left: auto;
+            cursor: pointer;
+        }
+    }
+
+    .sw-media-new-upload__url-form {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        width: 100%;
+
+        .sw-media-url-form__url-input {
+            margin-bottom: 12px;
+        }
+    }
+
+    .sw-media-new-upload__button-compact-upload {
+        margin-right: 0 !important;
+    }
+
+    .sw-media-new-upload__file-form {
+        display: grid;
+        grid-template-columns: auto auto;
+        grid-column-gap: 8px;
+        align-items: center;
+        justify-content: center;
+        justify-items: start;
+
+        &.has--preview {
+            grid-column-gap: 55px;
+        }
+    }
+
+    .sw-media-new-upload__preview {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        flex-shrink: 0;
+        margin-right: 16px;
+        width: 96px;
+        height: 96px;
+        border: 2px solid $sw-media-new-upload-border-color;
+        border-radius: $sw-media-new-upload-border-radius;
+
+        &.is--fallback {
+            border: 2px dashed $sw-media-new-upload-border-color;
+        }
+    }
+
+    .sw-media-new-upload__fallback-icon {
+        color: $color-steam-cloud;
+    }
+
+    .sw-media-new-upload__button {
+        min-width: 144px;
+        margin: 8px 0;
+    }
+
+    .sw-media-new-preview {
+        border: none;
+
+        .sw-media-new-preview__item {
+            max-height: 100%;
+            max-width: 100%;
+        }
+    }
+}

@@ -155,7 +155,7 @@ Component.register('sw-cms-list', {
 
             return this.defaultFolderRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
                 const defaultFolder = searchResult.first();
-                if (defaultFolder.folder.id) {
+                if (defaultFolder.folder && defaultFolder.folder.id) {
                     return defaultFolder.folder.id;
                 }
 

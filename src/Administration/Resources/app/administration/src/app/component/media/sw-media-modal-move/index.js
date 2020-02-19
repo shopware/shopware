@@ -1,7 +1,7 @@
 import template from './sw-media-modal-move.html.twig';
 import './sw-media-modal-move.scss';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin, Context } = Shopware;
 
 /**
  * @status ready
@@ -14,7 +14,7 @@ const { Component, Mixin, StateDeprecated } = Shopware;
 Component.register('sw-media-modal-move', {
     template,
 
-    inject: ['mediaFolderService'],
+    inject: ['repositoryFactory'],
 
     provide() {
         return {
@@ -46,20 +46,20 @@ Component.register('sw-media-modal-move', {
     },
 
     computed: {
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
+        },
+
+        mediaFolderRepository() {
+            return this.repositoryFactory.create('media_folder');
+        },
+
         mediaNameFilter() {
             return (media) => {
                 return media.getEntityName() === 'media' ?
                     `${media.fileName}.${media.fileExtension}` :
                     media.name;
             };
-        },
-
-        mediaFolderStore() {
-            return StateDeprecated.getStore('media_folder');
-        },
-
-        mediaStore() {
-            return StateDeprecated.getStore('media');
         },
 
         targetFolderId() {
@@ -96,15 +96,14 @@ Component.register('sw-media-modal-move', {
     },
 
     methods: {
-        mountedComponent() {
+        async mountedComponent() {
             this.displayFolder = { id: null, name: this.rootFolderName };
             this.targetFolder = { id: null, name: this.rootFolderName };
 
             if (this.startFolderId) {
-                this.mediaFolderStore.getByIdAsync(this.startFolderId).then((folder) => {
-                    this.displayFolder = folder;
-                    this.targetFolder = folder;
-                });
+                const folder = await this.mediaFolderRepository.get(this.startFolderId, Context.api);
+                this.displayFolder = folder;
+                this.targetFolder = folder;
             }
         },
 
@@ -118,15 +117,13 @@ Component.register('sw-media-modal-move', {
             });
         },
 
-        updateParentFolder(child) {
+        async updateParentFolder(child) {
             if (child.id === null) {
                 this.parentFolder = null;
             } else if (child.parentId === null) {
                 this.parentFolder = { id: null, name: this.rootFolderName };
             } else {
-                this.mediaFolderStore.getByIdAsync(child.parentId).then((parent) => {
-                    this.parentFolder = parent;
-                });
+                this.parentFolder = await this.mediaFolderRepository.get(child.parentId, Context.api);
             }
         },
 
@@ -145,62 +142,76 @@ Component.register('sw-media-modal-move', {
             }
         },
 
-        moveSelection() {
-            const movePromises = [];
+        async _moveSelection(item) {
+            item.isLoading = true;
+            item.parentId = this.targetFolder.id || null;
 
-            this.itemsToMove.filter((item) => {
-                return item.getEntityName() === 'media_folder';
-            }).forEach((item) => {
-                item.isLoading = true;
-                item.parentId = this.targetFolder.id || null;
-                movePromises.push(
-                    item.save().then(() => {
-                        item.isLoading = false;
-                        this.createNotificationSuccess({
-                            title: this.$root.$tc('global.default.success'),
-                            message: this.$root.$tc(
-                                'global.sw-media-modal-move.notification.successSingle.message',
-                                1,
-                                { mediaName: this.mediaNameFilter(item) }
-                            )
-                        });
-                        return item.id;
-                    }).catch(() => {
-                        item.isLoading = false;
-                        this.createNotificationError({
-                            title: this.$root.$tc('global.default.error'),
-                            message: this.$root.$tc(
-                                'global.sw-media-modal-move.notification.errorSingle.message',
-                                1,
-                                { mediaName: this.mediaNameFilter(item) }
-                            )
-                        });
-                    })
+            try {
+                await this.mediaFolderRepository.save(item, Context.api);
+
+                this.createNotificationSuccess({
+                    title: this.$root.$tc('global.default.success'),
+                    message: this.$root.$tc(
+                        'global.sw-media-modal-move.notification.successSingle.message',
+                        1,
+                        { mediaName: this.mediaNameFilter(item) }
+                    )
+                });
+
+                return item.id;
+            } catch {
+                this.createNotificationError({
+                    title: this.$root.$tc('global.default.error'),
+                    message: this.$root.$tc(
+                        'global.sw-media-modal-move.notification.errorSingle.message',
+                        1,
+                        { mediaName: this.mediaNameFilter(item) }
+                    )
+                });
+
+                return null;
+            } finally {
+                item.isLoading = false;
+            }
+        },
+
+        async moveSelection() {
+            const movedIds = [];
+
+            try {
+                const folders = this.itemsToMove.filter((item) => {
+                    return item.getEntityName() === 'media_folder';
+                });
+
+                const media = this.itemsToMove.filter((item) => {
+                    return item.getEntityName() === 'media';
+                });
+
+                await Promise.all(folders.map(async (folder) => {
+                    await this._moveSelection(folder);
+                }));
+
+                await Promise.all(media.map(async (mediaItem) => {
+                    const item = mediaItem;
+                    item.mediaFolderId = this.targetFolder.id || null;
+                    movedIds.push(await this.mediaRepository.save(item, Context.api));
+                }));
+
+                this.createNotificationSuccess({
+                    title: this.$root.$tc('global.default.success'),
+                    message: this.$root.$tc('global.sw-media-modal-move.notification.successOverall.message')
+                });
+
+                this.$emit(
+                    'media-move-modal-items-move',
+                    movedIds
                 );
-            });
-
-            this.itemsToMove.filter((item) => {
-                return item.getEntityName() === 'media';
-            }).forEach((item) => {
-                item.mediaFolderId = this.targetFolder.id || null;
-            });
-            movePromises.push(this.mediaStore.sync());
-
-            this.$emit(
-                'media-move-modal-items-move',
-                Promise.all(movePromises).then((ids) => {
-                    this.createNotificationSuccess({
-                        title: this.$root.$tc('global.default.success'),
-                        message: this.$root.$tc('global.sw-media-modal-move.notification.successOverall.message')
-                    });
-                    return ids;
-                }).catch(() => {
-                    this.createNotificationError({
-                        title: this.$root.$tc('global.default.error'),
-                        message: this.$root.$tc('global.sw-media-modal-move.notification.errorOverall.message')
-                    });
-                })
-            );
+            } catch {
+                this.createNotificationError({
+                    title: this.$root.$tc('global.default.error'),
+                    message: this.$root.$tc('global.sw-media-modal-move.notification.errorOverall.message')
+                });
+            }
         }
     }
 });

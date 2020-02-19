@@ -90,12 +90,12 @@
                                 {% endblock %}
 
                                 {% block sw_settings_payment_detail_base_content_media_upload %}
-                                <sw-upload-store-listener
+                                <sw-upload-listener
                                     :uploadTag="uploadTag"
                                     autoUpload
                                     @media-upload-finish="setMediaItem">
-                                </sw-upload-store-listener>
-                                <sw-media-upload
+                                </sw-upload-listener>
+                                <sw-media-new-upload
                                     :uploadTag="uploadTag"
                                     :source="mediaItem"
                                     class="sw-settings-payment-detail__logo-image-upload"
@@ -106,7 +106,7 @@
                                     @media-drop="onDropMedia"
                                     @media-upload-sidebar-open="openMediaSidebar"
                                     @media-upload-remove-image="onUnlinkLogo">
-                                </sw-media-upload>
+                                </sw-media-new-upload>
                                 {% endblock %}
                             </sw-container>
 

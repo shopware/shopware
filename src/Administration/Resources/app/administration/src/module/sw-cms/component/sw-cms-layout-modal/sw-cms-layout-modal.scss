@@ -46,11 +46,11 @@
         }
     }
 
-    &.sw-modal.sw-modal--default {
-        .sw-modal__dialog {
+    &.sw-media-new-modal.sw-media-new-modal--default {
+        .sw-media-new-modal__dialog {
             max-width: 960px;
         }
-        .sw-modal__body {
+        .sw-media-new-modal__body {
             padding: 0;
             display: flex;
             flex-direction: column;

@@ -79,11 +79,11 @@
                             {% endblock %}
 
                             {% block sw_settings_shipping_detail_base_content_media_upload %}
-                                <sw-upload-store-listener :uploadTag="uploadTag"
+                                <sw-upload-listener :uploadTag="uploadTag"
                                                           autoUpload
                                                           @media-upload-finish="setMediaItem">
-                                </sw-upload-store-listener>
-                                <sw-media-upload v-if="!isLoading"
+                                </sw-upload-listener>
+                                <sw-media-new-upload v-if="!isLoading"
                                                  :uploadTag="uploadTag"
                                                  :source="logoMediaItem"
                                                  class="sw-settings-shipping-detail__logo-image-upload"
@@ -94,7 +94,7 @@
                                                  @media-drop="onDropMedia"
                                                  @media-upload-sidebar-open="openMediaSidebar"
                                                  @media-upload-remove-image="onUnlinkLogo">
-                                </sw-media-upload>
+                                </sw-media-new-upload>
                             {% endblock %}
                         </sw-container>
 

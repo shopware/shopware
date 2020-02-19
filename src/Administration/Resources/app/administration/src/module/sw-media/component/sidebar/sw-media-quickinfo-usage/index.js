@@ -1,7 +1,7 @@
 import template from './sw-media-quickinfo-usage.html.twig';
 import './sw-media-quickinfo-usage.scss';
 
-const { Application, Component, StateDeprecated } = Shopware;
+const { Application, Component } = Shopware;
 
 Component.register('sw-media-quickinfo-usage', {
     template,
@@ -11,7 +11,7 @@ Component.register('sw-media-quickinfo-usage', {
             required: true,
             type: Object,
             validator(value) {
-                return value.type === 'media';
+                return value.getEntityName() === 'media';
             }
         }
     },
@@ -26,9 +26,6 @@ Component.register('sw-media-quickinfo-usage', {
     },
 
     computed: {
-        productStore() {
-            return StateDeprecated.getStore('product');
-        },
 
         moduleFactory() {
             return Application.getContainer('factory').module;
@@ -54,58 +51,33 @@ Component.register('sw-media-quickinfo-usage', {
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     watch: {
         item() {
             this.createdComponent();
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
         createdComponent() {
-            this.isLoading = true;
             this.loadProductAssociations();
             this.loadCategoryAssociations();
             this.loadManufacturerAssociations();
         },
 
         loadProductAssociations() {
-            this.products = [];
-            this.item.getAssociation('productMedia').getList({
-                page: 1,
-                limit: 50,
-                associations: {
-                    product: {}
-                }
-            }).then((response) => {
-                this.products = response.items.map((productMedia) => {
-                    return productMedia.product;
-                });
-                this.isLoading = false;
-            });
+            this.products = this.item.productMedia;
         },
 
         loadCategoryAssociations() {
-            this.item.getAssociation('categories').getList({
-                page: 1,
-                limit: 50
-            }).then((response) => {
-                this.categories = response.items;
-                this.isLoading = false;
-            });
+            this.categories = this.item.categories;
         },
 
         loadManufacturerAssociations() {
-            this.item.getAssociation('productManufacturers').getList({
-                page: 1,
-                limit: 50
-            }).then((response) => {
-                this.manufacturers = response.items;
-                this.isLoading = false;
-            });
+            this.manufacturers = this.item.productManufacturers;
         },
 
         getProductUsage(product) {

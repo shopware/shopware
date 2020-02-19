@@ -1,9 +1,7 @@
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-media-entity-mapper', {
+Shopware.Component.register('sw-media-entity-mapper', {
     functional: true,
 
     render(createElement, context) {

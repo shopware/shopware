@@ -5,6 +5,7 @@ const { Component, StateDeprecated, Filter } = Shopware;
 const { fileReader } = Shopware.Utils;
 
 /**
+ * @deprecated tag:v6.4.0
  * @status ready
  * @description The <u>sw-media-preview</u> component is used to show a preview of media objects.
  * @example-type code-only
@@ -14,6 +15,11 @@ const { fileReader } = Shopware.Utils;
  */
 Component.register('sw-media-preview', {
     template,
+
+    deprecated: {
+        version: '6.4.0',
+        comment: 'Use sw-media-new-preview instead'
+    },
 
     playableVideoFormats: [
         'video/mp4',

@@ -30,7 +30,7 @@
         {% endblock %}
 
         {% block sw_media_base_item_metadata_container %}
-            <div v-if="isList" class="sw-media-base-item__metadata-container">
+            <div v-if="isList && showContextMenuButton" class="sw-media-base-item__metadata-container">
                 {% block sw_media_base_item_metadata %}
                     <slot name="metadata" v-bind="{ item }">
                         {% block sw_media_base_item_slot_media_item_metadata %}{% endblock %}

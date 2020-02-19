@@ -28,7 +28,6 @@ $sw-media-base-item-preview-background:      $color-white;
         background-color: $sw-media-base-item-color-hover;
 
         .sw-media-base-item__selected-indicator {
-
             &.selected-indicator--is-allowed {
                 visibility: visible;
             }
@@ -105,7 +104,7 @@ $sw-media-base-item-preview-background:      $color-white;
         border-radius: $sw-media-base-item-border-radius;
         background-color: $sw-media-base-item-preview-background;
 
-        &:after {
+        &::after {
             content: "";
             display: block;
             padding-bottom: 75%;
@@ -120,6 +119,7 @@ $sw-media-base-item-preview-background:      $color-white;
 
         .sw-media-base-item__name {
             @include truncate();
+
             border: 1px solid transparent;
             line-height: 27px;
             direction: rtl;
@@ -127,6 +127,7 @@ $sw-media-base-item-preview-background:      $color-white;
 
         .sw-media-base-item__name-field {
             margin: 0;
+
             input {
                 text-align: center;
                 color: $sw-media-base-item-color-input;
@@ -152,7 +153,7 @@ $sw-media-base-item-preview-background:      $color-white;
 
     @keyframes sw-media-loader-rotation {
         from { transform: rotate(0deg); }
-        to { transform: rotate(180deg)}
+        to { transform: rotate(180deg); }
     }
 
     &.is--list {
@@ -166,10 +167,13 @@ $sw-media-base-item-preview-background:      $color-white;
         border: 1px solid $sw-media-base-item-color-border;
         border-radius: $sw-media-base-item-border-radius;
 
+        &:not(.sw-media-library__parent-folder) .sw-media-base-item__preview-container {
+            grid-row: 1 / span 2;
+        }
+
         .sw-media-base-item__preview-container {
             width: 40px;
             height: 40px;
-            grid-row:  1 / span 2;
             overflow: hidden;
             border: none !important;
 
@@ -177,7 +181,7 @@ $sw-media-base-item-preview-background:      $color-white;
                 content: none;
             }
 
-            .sw-media-preview__item {
+            .sw-media-new-preview__item {
                 min-width: 100%;
                 max-width: none;
                 max-height: 100%;
@@ -234,7 +238,7 @@ $sw-media-base-item-preview-background:      $color-white;
 
     &.is--selected {
         .sw-media-base-item__preview-container {
-            border: 1px solid $sw-media-base-item-color-selected
+            border: 1px solid $sw-media-base-item-color-selected;
         }
     }
 

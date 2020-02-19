@@ -159,6 +159,29 @@ export default class Repository {
     }
 
     /**
+     * Detects changes of the provided entity and resets its first-level attributes to its origin state
+     *
+     * @param {Object} entity
+     */
+    discard(entity) {
+        if (!entity) {
+            return;
+        }
+
+        const { changes } = this.changesetGenerator.generate(entity);
+
+        if (!changes) {
+            return;
+        }
+
+        const origin = entity.getOrigin();
+
+        Object.keys(changes).forEach((changedField) => {
+            entity[changedField] = origin[changedField];
+        });
+    }
+
+    /**
      * @private
      * @param changeset
      * @param failOnError

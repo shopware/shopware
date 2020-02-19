@@ -4,7 +4,10 @@
                            :expandOnLoading="true">
             {% block sw_media_tag_input %}
                 <template slot="content">
-                    <sw-tag-field :entity="media" @input="onChange"></sw-tag-field>
+                    <sw-entity-tag-select
+                        v-model="media.tags"
+                        @change="handleChange"
+                    ></sw-entity-tag-select>
                 </template>
             {% endblock %}
         </sw-media-collapse>

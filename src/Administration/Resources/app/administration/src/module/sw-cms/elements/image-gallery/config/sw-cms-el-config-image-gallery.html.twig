@@ -23,7 +23,7 @@
                     {% block sw_cms_element_image_gallery_config_content %}
                         <sw-container v-if="active === 'content'" class="sw-cms-el-config-image-gallery__tab-content">
                             {% block sw_cms_element_image_gallery_config_media_selection %}
-                                <sw-media-list-selection
+                                <sw-media-new-list-selection
                                     :entityMediaItems="mediaItems"
                                     :entity="enitiy"
                                     :uploadTag="uploadTag"
@@ -31,11 +31,11 @@
                                     @upload-finish="onImageUpload"
                                     @item-remove="onItemRemove"
                                     @open-sidebar="onOpenMediaModal">
-                                </sw-media-list-selection>
+                                </sw-media-new-list-selection>
                             {% endblock %}
 
                             {% block sw_cms_element_image_gallery_config_media_modal %}
-                                <sw-media-modal
+                                <sw-media-new-modal
                                     variant="regular"
                                     v-if="mediaModalIsOpen"
                                     :caption="$tc('sw-cms.elements.general.config.caption.mediaUpload')"
@@ -44,7 +44,7 @@
                                     @media-upload-remove-image="onItemRemove"
                                     @media-modal-selection-change="onMediaSelectionChange"
                                     @modal-close="onCloseMediaModal">
-                                </sw-media-modal>
+                                </sw-media-new-modal>
                             {% endblock %}
                         </sw-container>
                     {% endblock %}

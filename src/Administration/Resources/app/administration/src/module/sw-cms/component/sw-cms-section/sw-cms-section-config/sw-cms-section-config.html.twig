@@ -61,7 +61,7 @@
                 {% endblock %}
 
                 {% block sw_cms_section_config_background_image_field %}
-                    <sw-media-compact-upload
+                    <sw-media-new-compact-upload
                         :source="section && section.backgroundMedia && section.backgroundMedia.id ? section.backgroundMedia : null"
                         :uploadTag="uploadTag"
                         :label="$tc('sw-cms.detail.label.backgroundMediaLabel')"
@@ -69,12 +69,12 @@
                         :allowMultiSelect="false"
                         @media-upload-remove-image="removeMedia"
                         @selection-change="onSetBackgroundMedia">
-                    </sw-media-compact-upload>
-                    <sw-upload-store-listener
+                    </sw-media-new-compact-upload>
+                    <sw-upload-listener
                         :uploadTag="uploadTag"
                         autoUpload
                         @media-upload-finish="successfulUpload">
-                    </sw-upload-store-listener>
+                    </sw-upload-listener>
 
                     {% block sw_cms_section_config_background_image_position_field %}
                         <sw-select-field :label="$tc('sw-cms.detail.label.backgroundMediaMode')"

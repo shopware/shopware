@@ -1,5 +1,3 @@
-const { Component } = Shopware;
-
 /**
  * @public
  * @status ready
@@ -10,7 +8,7 @@ const { Component } = Shopware;
  * <sw-media-replace itemToReplace="mediaItem" variant="regular">
  * </sw-media-replace>
  */
-Component.extend('sw-media-replace', 'sw-media-upload', {
+Shopware.Component.extend('sw-media-replace', 'sw-media-new-upload', {
     props: {
         itemToReplace: {
             type: Object,

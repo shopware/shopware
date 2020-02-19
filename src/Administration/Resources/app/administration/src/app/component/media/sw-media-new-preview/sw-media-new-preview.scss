@@ -1,0 +1,72 @@
+@import "~scss/variables";
+
+$sw-media-new-preview-play-button-size: 50%;
+$sw-media-new-preview-play-button-z-index: 5;
+$sw-media-new-preview-locked-icon-z-index: 5;
+
+.sw-media-new-preview {
+    &.is--icon {
+        .sw-media-new-preview__item {
+            transform: translate(-50%, -50%) scale(0.7);
+        }
+    }
+
+    &.is--no-media {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $color-steam-cloud;
+    }
+
+    .sw-media-new-preview__item {
+        max-width: 100%;
+        max-height: 100%;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+
+        &.shows--transparency {
+            background: $transparent-background-url;
+        }
+
+        &.sw-media-new-preview__item--audio {
+            top: 100%;
+            transform: translate(-50%, -100%);
+            padding-bottom: 5px;
+        }
+    }
+
+    .sw-media-new-preview__item.sw-icon {
+        height: 100%;
+        width: 100%;
+        max-height: 100px !important;
+    }
+
+    .sw-media-new-preview__play-button {
+        position: absolute;
+        visibility: hidden;
+        z-index: $sw-media-new-preview-play-button-z-index;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        cursor: pointer;
+    }
+
+    .sw-media-new-preview__play-icon {
+        visibility: visible;
+        height: $sw-media-new-preview-play-button-size;
+        width: $sw-media-new-preview-play-button-size;
+    }
+
+    .sw-media-new-preview__placeholder {
+        padding: 0;
+    }
+
+    .sw-media-new-preview__locked-icon {
+        position: absolute;
+        top: 2px;
+        left: 16px;
+        z-index: $sw-media-new-preview-locked-icon-z-index;
+    }
+}

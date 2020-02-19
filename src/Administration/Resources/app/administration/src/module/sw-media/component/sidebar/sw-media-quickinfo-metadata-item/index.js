@@ -1,8 +1,6 @@
 import './sw-media-quickinfo-metadata-item.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-media-quickinfo-metadata-item', {
+Shopware.Component.register('sw-media-quickinfo-metadata-item', {
     functional: true,
 
     props: {

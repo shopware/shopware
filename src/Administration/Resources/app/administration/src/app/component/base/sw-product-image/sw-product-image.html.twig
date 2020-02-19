@@ -2,10 +2,10 @@
 <div class="sw-product-image" :class="productImageClasses">
     <template v-if="!isPlaceholder">
         {% block sw_product_image_preview %}
-            <sw-media-preview class="sw-product-image__image"
+            <sw-media-new-preview class="sw-product-image__image"
                               :source="mediaId"
                               :hideTooltip="false">
-            </sw-media-preview>
+            </sw-media-new-preview>
             <sw-label
                 v-if="isCover"
                 class="sw-product-image__cover-label"

@@ -153,6 +153,9 @@
         },
         "renamingError": {
           "message": "Error saving folder."
+        },
+        "errorInvalidItemName": {
+          "message": "Folder could not be saved: Please enter a valid name."
         }
       }
     },
@@ -241,6 +244,19 @@
       "labelOldFile": "Existing file",
       "labelNewFile": "Uploaded file"
     },
+    "sw-new-duplicated-media": {
+      "titleModal": "File already exists",
+      "description": "A file with the name \"{fileName}\" already exists.",
+      "buttonReplace": "Replace file",
+      "buttonRename": "Rename file",
+      "buttonSkip": "Skip file",
+      "labelSaveSelection": "Save selection and apply to {count} more.",
+      "labelOptionReplace": "Upload and replace",
+      "labelOptionRename": "Upload and rename",
+      "labelOptionSkip": "Skip file",
+      "labelOldFile": "Existing file",
+      "labelNewFile": "Uploaded file"
+    },
     "sw-media-modal-move": {
       "titleModal": "Move \"{mediaName}\" | Move {count} items",
       "buttonMove": "Move",
@@ -270,7 +286,33 @@
       "fallbackAudioTagSupport": "Your browser does not support the audio tag",
       "textNoMedia": "No media available"
     },
+    "sw-media-new-preview": {
+      "fallbackVideoTagSupport": "Your browser does not support the video tag",
+      "fallbackAudioTagSupport": "Your browser does not support the audio tag",
+      "textNoMedia": "No media available"
+    },
     "sw-media-upload": {
+      "buttonFileUpload": "Upload file",
+      "buttonUrlUpload": "Upload file from URL",
+      "buttonSwitchToFileUpload": "Upload file from your computer",
+      "buttonSwitchToUrlUpload": "Upload file from url",
+      "buttonOpenMedia": "Open media",
+      "notification": {
+        "success": {
+          "title": "Media upload",
+          "message": "No file has been saved. | File has been saved. | {count} / {total} files have been saved."
+        },
+        "failure": {
+          "message": "Error while uploading file."
+        },
+        "illegalFilename": {
+          "title": "Invalid Filename",
+          "message": "The filename \"{fileName}\" contains invalid characters."
+        }
+      },
+      "caption": "Drag files here to upload"
+    },
+    "sw-media-new-upload": {
       "buttonFileUpload": "Upload file",
       "buttonUrlUpload": "Upload file from URL",
       "buttonSwitchToFileUpload": "Upload file from your computer",
@@ -329,6 +371,9 @@
       "labelLoadMore": "Load more items"
     },
     "sw-media-list-selection-item": {
+      "buttonRemove": "Remove"
+    },
+    "sw-media-new-list-selection-item": {
       "buttonRemove": "Remove"
     },
     "sw-select": {

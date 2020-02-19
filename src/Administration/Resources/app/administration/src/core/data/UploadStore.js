@@ -1,7 +1,3 @@
-/**
- * @module core/data/UploadStore
- * @deprecated 6.1
- */
 import UploadTask from 'src/core/helper/upload-task.helper';
 import { fileReader, array } from 'src/core/service/util.service';
 
@@ -11,6 +7,10 @@ const UploadEvents = {
     UPLOAD_FAILED: 'media-upload-fail'
 };
 
+/**
+ * @module core/data/UploadStore
+ * @deprecated tag:v6.2.0
+ */
 class UploadStore {
     constructor(mediaService) {
         this.uploads = [];

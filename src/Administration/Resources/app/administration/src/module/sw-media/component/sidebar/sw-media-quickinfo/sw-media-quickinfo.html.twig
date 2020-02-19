@@ -79,8 +79,8 @@
                     <template #content>
                         <div>
                             {% block sw_media_quickinfo_preview_item %}
-                                <sw-media-preview class="sw-media-quickinfo__media-preview" :source="item.id" :showControls="true" :useThumbnails="false">
-                                </sw-media-preview>
+                                <sw-media-new-preview class="sw-media-quickinfo__media-preview" :source="item.id" :showControls="true" :useThumbnails="false">
+                                </sw-media-new-preview>
                             {% endblock %}
                         </div>
                     </template>
@@ -214,6 +214,7 @@
             <sw-media-modal-replace
                 v-if="showModalReplace"
                 :itemToReplace="item"
+                @media-replace-modal-item-replaced="emitRefreshMediaLibrary"
                 @media-replace-modal-close="closeModalReplace">
             </sw-media-modal-replace>
         {% endblock %}

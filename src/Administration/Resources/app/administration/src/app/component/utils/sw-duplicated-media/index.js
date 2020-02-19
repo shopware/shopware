@@ -5,6 +5,7 @@ import './sw-duplicated-media.scss';
 const { Component, StateDeprecated, Filter } = Shopware;
 
 /**
+ * @deprecated tag:v6.4.0
  * @private
  */
 

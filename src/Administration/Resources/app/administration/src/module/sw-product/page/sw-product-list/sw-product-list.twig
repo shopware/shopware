@@ -63,7 +63,7 @@
                             {% block sw_product_list_grid_columns %}
                                 {% block sw_product_list_grid_columns_name_preview %}
                                     <template #preview-name="{ item }">
-                                        <sw-media-preview :source="item.cover ? item.cover.media : null"></sw-media-preview>
+                                        <sw-media-new-preview :source="item.cover ? item.cover.media : null"></sw-media-new-preview>
                                     </template>
                                 {% endblock %}
 

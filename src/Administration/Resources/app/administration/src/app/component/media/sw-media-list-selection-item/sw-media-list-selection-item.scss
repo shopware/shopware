@@ -38,7 +38,7 @@ $sw-media-list-selection-item-placeholder-color: lighten($color-steam-cloud, 5%)
 
     &:hover {
         background-color: $sw-media-list-selection-item-color-hover;
-        
+
         .sw-media-list-selection-item__image {
             opacity: 0.7;
         }

@@ -46,14 +46,14 @@ Component.register('sw-cms-el-config-image', {
             this.initElementConfig('image');
         },
 
-        onImageUpload({ targetId }) {
-            this.mediaRepository.get(targetId, Shopware.Context.api).then((mediaEntity) => {
-                this.element.config.media.value = mediaEntity.id;
+        async onImageUpload({ targetId }) {
+            const mediaEntity = await this.mediaRepository.get(targetId, Shopware.Context.api);
 
-                this.updateElementData(mediaEntity);
+            this.element.config.media.value = mediaEntity.id;
 
-                this.$emit('element-update', this.element);
-            });
+            this.updateElementData(mediaEntity);
+
+            this.$emit('element-update', this.element);
         },
 
         onImageRemove() {

@@ -8,11 +8,12 @@
                 @media-upload-finish="successfulUpload"
                 @media-upload-fail="onUploadFailed">
             </sw-upload-store-listener>
+
             <sw-media-upload
-                    :uploadTag="uploadId"
-                    variant="regular"
-                    :defaultFolder="defaultFolderName"
-                    @media-upload-sidebar-open="onMediaUploadButtonOpenSidebar">
+                :uploadTag="uploadId"
+                variant="regular"
+                :defaultFolder="defaultFolderName"
+                @media-upload-sidebar-open="onMediaUploadButtonOpenSidebar">
             </sw-media-upload>
         {% endblock %}
 
@@ -21,9 +22,9 @@
                 <sw-loader v-if="entity.isLoading"></sw-loader>
                 {%  block sw_media_list_selection_grid_items %}
                     <sw-media-list-selection-item v-for="mediaItem in mediaItems"
-                            @item-remove="removeItem(mediaItem)"
-                            :key="mediaItem.id"
-                            :item="mediaItem">
+                                                  @item-remove="removeItem(mediaItem)"
+                                                  :key="mediaItem.id"
+                                                  :item="mediaItem">
                     </sw-media-list-selection-item>
                 {% endblock %}
             </div>

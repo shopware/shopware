@@ -49,7 +49,7 @@
             grid-gap: 8px;
 
             .sw-cms-el-image-gallery__item-placeholder,
-            .sw-media-list-selection-item {
+            .sw-media-new-list-selection-item {
                 border-radius: $border-radius-default;
                 border: 1px solid #d1d9e0;
                 height: 64px;
@@ -66,7 +66,7 @@
                 width: 100%;
             }
 
-            .sw-media-list-selection-item {
+            .sw-media-new-list-selection-item {
                 cursor: pointer;
 
                 &:hover,
@@ -75,11 +75,11 @@
                     background: none;
                 }
 
-                .sw-media-list-selection-item__image {
+                .sw-media-new-list-selection-item__image {
                     display: flex;
                     align-items: center;
 
-                    .sw-media-preview__item {
+                    .sw-media-new-preview__item {
                         padding: 4px;
                         height: auto;
                         object-fit: cover;

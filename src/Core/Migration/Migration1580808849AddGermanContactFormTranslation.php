@@ -36,7 +36,7 @@ class Migration1580808849AddGermanContactFormTranslation extends MigrationStep
             ]
         );
 
-        if ($germanTranslation === null) {
+        if ($germanTranslation) {
             return;
         }
 
@@ -62,9 +62,11 @@ class Migration1580808849AddGermanContactFormTranslation extends MigrationStep
 
     private function getGermanLanguageId(Connection $connection): ?string
     {
-        return $connection->fetchColumn('
+        $result = $connection->fetchColumn('
             SELECT `id` FROM `language` WHERE LOWER(`name`) = \'deutsch\'
         ');
+
+        return $result === false ? null : (string) $result;
     }
 
     private function getContactMailTemplateId(Connection $connection): ?string
@@ -76,10 +78,12 @@ class Migration1580808849AddGermanContactFormTranslation extends MigrationStep
     AND `system_default` = 1
 SQL;
 
-        return $connection->executeQuery(
+        $result = $connection->executeQuery(
             $sql,
             ['technical_name' => MailTemplateTypes::MAILTYPE_CONTACT_FORM]
         )->fetchColumn();
+
+        return $result === false ? null : (string) $result;
     }
 
     private function getContactFormHtmlTemplateDe(): string

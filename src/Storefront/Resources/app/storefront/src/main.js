@@ -72,6 +72,7 @@ import FormCmsHandlerPlugin from 'src/plugin/forms/form-cms-handler.plugin';
 import CrossSellingPlugin from 'src/plugin/cross-selling/cross-selling.plugin';
 import CountryStateSelectPlugin from 'src/plugin/forms/form-country-state-select.plugin';
 import EllipsisPlugin from 'src/plugin/ellipsis/ellipsis.plugin';
+import GoogleAnalyticsPlugin from 'src/plugin/google-analytics/google-analytics.plugin';
 
 window.eventEmitter = new NativeEventEmitter();
 
@@ -137,6 +138,11 @@ PluginManager.register('Ellipsis', EllipsisPlugin, '[data-ellipsis]');
 
 if (window.csrf.enabled && window.csrf.mode === 'ajax') {
     PluginManager.register('FormCsrfHandler', FormCsrfHandlerPlugin, '[data-form-csrf-handler]');
+}
+
+
+if (window.gtagActive) {
+    PluginManager.register('GoogleAnalytics', GoogleAnalyticsPlugin, document);
 }
 
 /*

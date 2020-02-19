@@ -1,0 +1,14 @@
+{% block component_hidden_line_items_information %}
+    <div class="d-none">
+        {% for lineItem in lineItems  %}
+            {% block component_hidden_line_item_information %}
+                <span class="hidden-line-item"
+                      data-id="{{ lineItem.id }}"
+                      data-name="{{ lineItem.label }}"
+                      data-quantity="{{ lineItem.quantity }}"
+                      data-price="{{ lineItem.priceDefinition.price }}">
+                </span>
+            {% endblock %}
+        {% endfor %}
+    </div>
+{% endblock %}

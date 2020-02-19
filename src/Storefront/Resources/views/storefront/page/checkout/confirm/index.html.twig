@@ -1,5 +1,9 @@
 {% sw_extends '@Storefront/storefront/page/checkout/_page.html.twig' %}
 
+{% block base_head %}
+    {% sw_include '@Storefront/storefront/page/checkout/confirm/meta.html.twig' %}
+{% endblock %}
+
 {% block base_header %}
     {% sw_include '@Storefront/storefront/layout/header/header-minimal.html.twig' %}
 {% endblock %}
@@ -134,6 +138,12 @@
                     </div>
                 {% endblock %}
             </div>
+        {% endblock %}
+
+        {% block page_checkout_confirm_hidden_line_items_information %}
+            {% sw_include '@Storefront/storefront/component/checkout/hidden-line-items-information.html.twig' with {
+                lineItems: page.cart.lineItems
+            } %}
         {% endblock %}
     {% endblock %}
 {% endblock %}

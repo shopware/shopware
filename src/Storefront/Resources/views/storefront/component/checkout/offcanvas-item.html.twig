@@ -171,7 +171,8 @@
                                     {% block component_offcanvas_product_remove_submit %}
                                         <button type="submit"
                                                 title="{{ "checkout.removeLineItem"|trans|striptags }}"
-                                                class="btn btn-light">
+                                                data-product-id="{{ lineItem.id }}"
+                                                class="btn btn-light cart-item-remove-button">
                                             {% sw_icon 'x' style { 'size': 'sm' } %}
                                         </button>
                                     {% endblock %}

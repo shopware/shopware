@@ -98,7 +98,7 @@ export default class SearchWidgetPlugin extends Plugin {
 
         this._suggest(value);
 
-        this.$emitter.publish('handleInputEvent');
+        this.$emitter.publish('handleInputEvent', { value });
     }
 
     /**

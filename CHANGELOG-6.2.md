@@ -137,6 +137,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Please beware that this option is only available for the `style` section.
         * You can only use either `@StorefrontBootstrap` or `@Storefront`. They should not be used at the same time. The `@Storefront` bundle includes the Bootstrap SCSS already.
     * We changed the storefront ESLint rule `comma-dangle` to `never`, so that trailing commas won't be forcefully added anymore
+    * Added JS plugin to add a Google Analytics integration: `google-analytics.plugin.js` 
+    * Added additional data to the JS plugin events `SearchWidget::handleInputEvent`, `FormValidation::onFormSubmit` and `AddToCart::beforeFormSubmit`
 
 **Removals**
 

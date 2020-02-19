@@ -112,6 +112,8 @@
         {% endblock %}
 
         {# Block for tracking scripts which are required to include in the `head` section of the document #}
-        {% block layout_head_javascript_tracking %}{% endblock %}
+        {% block layout_head_javascript_tracking %}
+            {% sw_include "@Storefront/storefront/component/analytics.html.twig" %}
+        {% endblock %}
     </head>
 {% endblock %}

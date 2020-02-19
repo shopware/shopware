@@ -10,6 +10,9 @@ module.exports = {
         'node': true,
         'es6': true,
     },
+    'globals': {
+        'gtag': true
+    },
     'parserOptions': {
         'ecmaVersion': 6,
         'sourceType': 'module',

@@ -44,7 +44,6 @@ describe('Sales Channel: Test saving and loading the analytics tab', () => {
 
         cy.get('input[name=analyticsId]').typeAndCheck('Example analytics ID');
         cy.get('input[name=analyticsActive]').click();
-        cy.get('input[name=metaTag]').typeAndCheck('Example meta tag');
 
         cy.get(page.elements.salesChannelSaveAction).click();
         cy.wait('@saveData').then((xhr) => {
@@ -52,6 +51,5 @@ describe('Sales Channel: Test saving and loading the analytics tab', () => {
         });
 
         cy.get('input[name=analyticsId]').should('have.value', 'Example analytics ID');
-        cy.get('input[name=metaTag]').should('have.value', 'Example meta tag');
     });
 });

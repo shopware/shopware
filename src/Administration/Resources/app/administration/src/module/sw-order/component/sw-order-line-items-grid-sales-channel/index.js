@@ -224,13 +224,6 @@ Component.register('sw-order-line-items-grid-sales-channel', {
             return 0;
         },
 
-        getMaxItemPrice(item) {
-            if (this.isCreditItem(item)) {
-                return 0;
-            }
-            return null;
-        },
-
         isNotPromotion(item) {
             return item.type !== 'promotion';
         },
@@ -242,6 +235,15 @@ Component.register('sw-order-line-items-grid-sales-channel', {
                 }
             }
             return true;
+        },
+
+        checkItemPrice(price, item) {
+            if (this.isCreditItem(item)) {
+                item.priceDefinition.price = Math.abs(price) * -1;
+                return;
+            }
+
+            item.priceDefinition.price = price;
         }
     }
 });

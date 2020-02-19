@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\Category\Event;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Event\NavigationLoadedEvent;
 use Shopware\Core\Content\Category\Service\NavigationLoader;
+use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -16,7 +17,7 @@ class NavigationLoadedEventTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var NavigationLoader
+     * @var NavigationLoaderInterface
      */
     protected $loader;
 

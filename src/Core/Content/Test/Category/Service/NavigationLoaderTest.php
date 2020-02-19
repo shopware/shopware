@@ -30,7 +30,7 @@ class NavigationLoaderTest extends TestCase
     private $repository;
 
     /**
-     * @var NavigationLoader
+     * @var NavigationLoaderInterface
      */
     private $navigationLoader;
 

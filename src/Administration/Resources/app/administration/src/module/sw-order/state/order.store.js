@@ -148,6 +148,12 @@ export default {
             return Service('cartSalesChannelService')
                 .addPromotionCode(salesChannelId, contextToken, code)
                 .then(response => commit('setCart', response.data.data));
+        },
+
+        modifyShippingCosts({ commit }, { salesChannelId, contextToken, shippingCosts }) {
+            return Service('cartSalesChannelService')
+                .modifyShippingCosts(salesChannelId, contextToken, shippingCosts)
+                .then(response => commit('setCart', response.data.data));
         }
     }
 };

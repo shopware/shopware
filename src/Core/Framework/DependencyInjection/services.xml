@@ -309,6 +309,10 @@
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
         </service>
 
+        <service id="Shopware\Administration\Service\AdminOrderCartService">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Api\Controller\SalesChannelProxyController" public="true">
             <argument type="service" id="kernel"/>
             <argument type="service" id="sales_channel.repository"/>
@@ -318,6 +322,7 @@
             <argument type="service" id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Administration\Service\AdminOrderCartService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

@@ -1,6 +1,6 @@
 {% block sw_order_saveable_field %}
     <sw-container v-if="isEditing"
-                  columns="1fr 25px 25px"
+                  columns="1fr 20px 25px"
                   gap="0px 10px"
                   class="sw-order-saveable-field">
         {% block sw_order_saveable_field_input %}
@@ -13,19 +13,19 @@
             {% endblock %}
         {% endblock %}
         {% block sw_order_saveable_field_actions %}
+            {% block sw_order_saveable_field_cancel_button %}
+                <sw-button size="x-small"
+                    square
+                    @click="onCancelButtonClicked">
+                    <sw-icon name="small-default-x-line-small" small></sw-icon>
+                </sw-button>
+            {%  endblock %}
             {%  block sw_order_saveable_field_save_button %}
-                <sw-button size="small"
+                <sw-button size="x-small"
                     variant="primary"
                     square
                     @click="onSaveButtonClicked">
-                    <sw-icon name = "small-default-checkmark-line-small"></sw-icon>
-                </sw-button>
-            {%  endblock %}
-            {% block sw_order_saveable_field_cancel_button %}
-                <sw-button size="small"
-                    square
-                    @click="onCancelButtonClicked">
-                    <sw-icon name="small-default-x-line-small"></sw-icon>
+                    <sw-icon name="small-default-checkmark-line-small" small></sw-icon>
                 </sw-button>
             {%  endblock %}
         {% endblock %}

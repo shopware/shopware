@@ -165,7 +165,10 @@
       "labelSameDeliveryAndBillingAddress" : "Rechnungs- und Lieferadresse sind identisch",
       "tax": "Enthaltene Steuern:",
       "shippingCostsTax": "{taxRate}%: {tax}",
-      "placeholderTagSelect": "Tags durchsuchen..."
+      "placeholderTagSelect": "Tags durchsuchen...",
+      "placeholderTrackingCodeSelect": "Tracking-Code hinzufügen ...",
+      "addTrackingCode": "Zum Hinzufügen hier klicken",
+      "enterValidTrackingCode": "Tracking-Code eingeben"
     },
     "addressSelection": {
       "modalTitleEditAddress": "Adressen",

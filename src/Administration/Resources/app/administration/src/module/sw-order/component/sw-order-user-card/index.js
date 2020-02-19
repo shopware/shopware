@@ -214,6 +214,12 @@ Component.register('sw-order-user-card', {
             this.OrderTagRepository.delete(item.id, Shopware.Context.api).then(() => {
                 this.emitChange();
             });
+        },
+
+        renderTrackingUrl(trackingCode, shippingMethod) {
+            const urlTemplate = shippingMethod ? shippingMethod.trackingUrl : null;
+
+            return urlTemplate ? urlTemplate.replace('%s', encodeURIComponent(trackingCode)) : '';
         }
     }
 

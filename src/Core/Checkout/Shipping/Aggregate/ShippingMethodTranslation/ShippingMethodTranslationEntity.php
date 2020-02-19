@@ -23,6 +23,11 @@ class ShippingMethodTranslationEntity extends TranslationEntity
     protected $description;
 
     /**
+     * @var string|null
+     */
+    protected $trackingUrl;
+
+    /**
      * @var ShippingMethodEntity|null
      */
     protected $shippingMethod;
@@ -60,6 +65,16 @@ class ShippingMethodTranslationEntity extends TranslationEntity
     public function setDescription(?string $description): void
     {
         $this->description = $description;
+    }
+
+    public function getTrackingUrl(): ?string
+    {
+        return $this->trackingUrl;
+    }
+
+    public function setTrackingUrl(?string $trackingUrl): void
+    {
+        $this->trackingUrl = $trackingUrl;
     }
 
     public function getShippingMethod(): ?ShippingMethodEntity

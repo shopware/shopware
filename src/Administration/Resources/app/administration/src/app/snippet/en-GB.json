@@ -344,6 +344,14 @@
     "sw-multi-select": {
       "messageNoResults": "No results found for \"{term}\"."
     },
+    "sw-multi-tag-select": {
+      "enterValidData": "Please enter a valid value",
+      "addData": "Add new entry"
+    },
+    "sw-multi-tag-ip-select": {
+      "enterValidIp": "Please enter a valid IPv4 or IPv6 address",
+      "addIpAdress": "Add IP address"
+    },
     "sw-multi-ip-select": {
       "enterValidIp": "Please enter a valid IPv4 or IPv6 address",
       "addIpAdress": "Add IP address"

@@ -6,7 +6,8 @@ const { get, string } = Shopware.Utils;
 
 /**
  * @public
- * @status ready
+ * @deprecated tag:v6.4.0
+ * @status deprecated
  * @description Renders a multi select field for IP v4 and v6 selection. This component uses the sw-field base
  * components. This adds the base properties such as <code>helpText</code>, <code>error</code>, <code>disabled</code> etc.
  * @example-type code-only
@@ -18,6 +19,15 @@ const { get, string } = Shopware.Utils;
  */
 Component.register('sw-multi-ip-select', {
     template,
+
+    deprecated: {
+        version: '6.4.0',
+        comment: [
+            'This component will be replaced by a more generic implementation of',
+            'a tagged multi select field "sw-multi-tag-select". The direct replacement for',
+            'this component is the "sw-multi-tag-ip-select"-component.'
+        ].join(' ')
+    },
 
     inheritAttrs: false,
 

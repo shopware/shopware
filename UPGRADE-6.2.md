@@ -111,6 +111,7 @@ Administration
 * Refactored mapErrorService
     * Deprecated `mapApiErrors`, use `mapPropertyErrors`
     * Added `mapCollectionPropertyErrors` to mapErrorService for Entity Collections
+* Deprecated `sw-multi-ip-select` with version 6.4, use the `sw-multi-tag-ip-select`-component instead
 
 Storefront
 ----------

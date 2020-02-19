@@ -110,6 +110,15 @@
                             </sw-select>
                         {% endblock %}
 
+                        {% block sw_settings_shipping_detail_base_content_tracking_url_field %}
+                            <sw-field type="text"
+                                      :label="$tc('sw-settings-shipping.detail.labelTrackingUrl')"
+                                      :placeholder="placeholder(shippingMethod, 'trackingUrl', $tc('sw-settings-shipping.detail.placeholderTrackingUrl'))"
+                                      :helpText="$tc('sw-settings-shipping.detail.helpTextTrackingUrl')"
+                                      v-model="shippingMethod.trackingUrl">
+                            </sw-field>
+                        {% endblock %}
+
                         {% block sw_settings_shipping_detail_base_content_tags_field %}
                             <sw-tag-field :entity="shippingMethod"></sw-tag-field>
                         {% endblock %}

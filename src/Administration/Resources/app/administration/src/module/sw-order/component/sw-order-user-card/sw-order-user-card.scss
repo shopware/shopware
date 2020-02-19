@@ -75,11 +75,18 @@ $sw-order-user-card-link: $color-shopware-blue;
         }
     }
 
-    .sw-order-user-card__tag-select {
-        &.is--disabled {
-            .sw-select__selection-indicators {
-                display: none;
-            }
+    .sw-order-user-card__tag-select.is--disabled,
+    .sw-order-user-card__tracking-code-select {
+        .sw-select__selection-indicators {
+            display: none;
         }
+    }
+
+    .sw-order-user-card__tracking-code-link {
+        &:not(:last-child) {
+            margin-right: 0.25rem;
+        }
+
+        margin-bottom: 0.25rem;
     }
 }

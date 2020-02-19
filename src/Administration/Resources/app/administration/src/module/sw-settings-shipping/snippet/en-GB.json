@@ -44,7 +44,10 @@
       "labelBasicInfo": "Basic information",
       "topRule": "Availability",
       "placeholderTopRule": "Search or create availability rule...",
-      "labelLogoUpload": "Upload logo"
+      "labelLogoUpload": "Upload logo",
+      "labelTrackingUrl": "Tracking URL",
+      "placeholderTrackingUrl": "Enter URL...",
+      "helpTextTrackingUrl": "You may enter the shipping provider's tracking URL here. Just replace the actual shipping code with '%s' as a placeholder, Shopware will then insert the correct code for each order automatically, given one is provided in the order details."
     },
     "constants": {
       "weight": "Weight",

@@ -62,6 +62,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Added `mapCollectionPropertyErrors` to mapErrorService for Entity Collections
     * Fix that user can delete SEO templates accidentally with an empty string in the template text field
 
+    * Added `sw-multi-tag-select` component which can now be used to allow users to enter data into a tagged input field
+    * Added `sw-multi-tag-ip-select` as an extension which includes IP-validation
+    * The `sw-multi-ip-select`-component is now deprecated and will be removed with version 6.4
+    
 * Core    
     * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.
     * The usage of `entity` in the `shopware.entity.definition` tag is deprecated and will be removed with 6.4. 
@@ -117,6 +121,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * `sw-text-editor`
         * `sw-media-field`
 
+    * Added `trackingUrl` property to the `Shopware\Core\Checkout\Shipping\ShippingMethodEntity.php`
+        
 * Storefront	
     * The `theme.json` now supports a new option for the `style` files. The placeholder `@StorefrontBootstrap` gives you the ability to use the Bootstrap SCSS without the Shopware Storefront "skin":
         ```json

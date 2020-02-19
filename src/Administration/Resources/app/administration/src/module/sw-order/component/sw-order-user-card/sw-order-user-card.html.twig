@@ -234,8 +234,67 @@
                                         {% endblock %}
 
                                         {% block sw_order_detail_base_secondary_info_tracking_codes %}
-                                            <dt>{{ $tc('sw-order.detailBase.labelTrackingCodes') }}</dt>
-                                            <dd>{{ hasDeliveryTrackingCode ? delivery.trackingCodes.join(', ') :$tc('sw-order.detailBase.labelNoDeliveryTrackingCodeYet') }}</dd>
+                                            <template v-if="isEditing && delivery">
+                                                {% block sw_order_detail_base_secondary_info_tracking_codes_input %}
+                                                    <dt>
+                                                        {% block sw_order_detail_base_secondary_info_tracking_codes_input_label %}
+                                                            {{ $tc('sw-order.detailBase.labelTrackingCodes') }}
+                                                        {% endblock %}
+                                                    </dt>
+                                                    <dd>
+                                                        {% block sw_order_detail_base_secondary_info_tracking_codes_input_content %}
+                                                            <sw-multi-tag-select
+                                                                class="sw-order-user-card__tracking-code-select"
+                                                                v-model="delivery.trackingCodes"
+                                                                @change="emitChange"
+                                                                :placeholder="$tc('sw-order.detailBase.placeholderTrackingCodeSelect')"
+                                                            >
+                                                                <template #message-add-data>
+                                                                    <span>{{ $tc('sw-order.detailBase.addTrackingCode') }}</span>
+                                                                </template>
+                                                                <template #message-enter-valid-data>
+                                                                    <span>{{ $tc('sw-order.detailBase.enterValidTrackingCode') }}</span>
+                                                                </template>
+                                                            </sw-multi-tag-select>
+                                                        {% endblock %}
+                                                    </dd>
+                                                {% endblock %}
+                                            </template>
+                                            <template v-else-if="delivery">
+                                                {% block sw_order_detail_base_secondary_info_tracking_codes_display %}
+                                                    <dt>
+                                                        {% block sw_order_detail_base_secondary_info_tracking_codes_display_label %}
+                                                            {{ $tc('sw-order.detailBase.labelTrackingCodes') }}
+                                                        {% endblock %}
+                                                    </dt>
+                                                    <dd>
+                                                        {% block sw_order_detail_base_secondary_info_tracking_codes_display_content %}
+                                                            <sw-button
+                                                                class="sw-order-user-card__tracking-code-link"
+                                                                v-for="trackingCode in delivery.trackingCodes"
+                                                                :key="trackingCode"
+                                                                size="x-small"
+                                                                :link="renderTrackingUrl(trackingCode, delivery.shippingMethod)"
+                                                                :disabled="!renderTrackingUrl(trackingCode, delivery.shippingMethod)"
+                                                            >{{ trackingCode }}</sw-button>
+                                                        {% endblock %}
+                                                    </dd>
+                                                {% endblock %}
+                                            </template>
+                                            <template v-else>
+                                                {% block sw_order_detail_base_secondary_info_tracking_codes_empty %}
+                                                    <dt>
+                                                        {% block sw_order_detail_base_secondary_info_tracking_codes_empty_label %}
+                                                            {{ $tc('sw-order.detailBase.labelTrackingCodes') }}
+                                                        {% endblock %}
+                                                    </dt>
+                                                    <dd>
+                                                        {% block sw_order_detail_base_secondary_info_tracking_codes_empty_content %}
+                                                            <span>-</span>
+                                                        {% endblock %}
+                                                    </dd>
+                                                {% endblock %}
+                                            </template>
                                         {% endblock %}
 
                                         {% block sw_order_detail_base_secondary_info_campaign %}

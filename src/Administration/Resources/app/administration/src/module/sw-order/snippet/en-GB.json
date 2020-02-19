@@ -165,7 +165,10 @@
       "buttonContinueOnVersionedOrder" : "Load",
       "tax": "Included taxes:",
       "shippingCostsTax": "{taxRate}%: {tax}",
-      "placeholderTagSelect": "Search tags..."
+      "placeholderTagSelect": "Search tags...",
+      "placeholderTrackingCodeSelect": "Add tracking codes...",
+      "addTrackingCode": "Click here to add code",
+      "enterValidTrackingCode": "Enter tracking code"
     },
     "detailDeliveries": {
       "cardTitleItems": "Shipment {count}",

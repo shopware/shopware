@@ -502,13 +502,13 @@
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_maintenance_ipwhitelist %}
-                    <sw-multi-ip-select
+                    <sw-multi-tag-ip-select
                         :isLoading="isLoading"
                         class="sw-order-user-card__tag-select"
                         :label="$tc('sw-sales-channel.detail.ipAddressWhitleList')"
                         :helpText="$tc('sw-sales-channel.detail.ipAddressWhitleListHelpText')"
                         v-model="salesChannel.maintenanceIpWhitelist">
-                    </sw-multi-ip-select>
+                    </sw-multi-tag-ip-select>
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_settings_link %}

@@ -146,7 +146,7 @@ class OrderStateChangeEventListener
         $orderCriteria->addAssociation('orderCustomer.salutation');
         $orderCriteria->addAssociation('stateMachineState');
         $orderCriteria->addAssociation('transactions');
-        $orderCriteria->addAssociation('deliveries');
+        $orderCriteria->addAssociation('deliveries.shippingMethod');
         $orderCriteria->addAssociation('salesChannel');
 
         return $orderCriteria;

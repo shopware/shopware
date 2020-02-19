@@ -295,12 +295,15 @@ Component.register('sw-order-detail-base', {
             this.$emit('loading-change', true);
             this.$emit('editing-change', false);
 
-            this.orderRepository.mergeVersion(this.versionContext.versionId, this.versionContext).catch((error) => {
-                this.$emit('error', error);
-            }).finally(() => {
-                this.versionContext.versionId = Shopware.Context.api.liveVersionId;
-                this.reloadEntityData();
-            });
+            this.orderRepository.save(this.order, this.versionContext)
+                .then(() => {
+                    return this.orderRepository.mergeVersion(this.versionContext.versionId, this.versionContext);
+                }).catch((error) => {
+                    this.$emit('error', error);
+                }).finally(() => {
+                    this.versionContext.versionId = Shopware.Context.api.liveVersionId;
+                    this.reloadEntityData();
+                });
         },
 
         onCancelEditing() {

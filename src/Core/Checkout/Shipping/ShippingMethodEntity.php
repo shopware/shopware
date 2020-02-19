@@ -33,6 +33,11 @@ class ShippingMethodEntity extends Entity
     protected $description;
 
     /**
+     * @var string|null
+     */
+    protected $trackingUrl;
+
+    /**
      * @var string
      */
     protected $deliveryTimeId;
@@ -130,6 +135,16 @@ class ShippingMethodEntity extends Entity
     public function setDescription(?string $description): void
     {
         $this->description = $description;
+    }
+
+    public function getTrackingUrl(): ?string
+    {
+        return $this->trackingUrl;
+    }
+
+    public function setTrackingUrl(?string $trackingUrl): void
+    {
+        $this->trackingUrl = $trackingUrl;
     }
 
     public function getDeliveryTimeId(): string

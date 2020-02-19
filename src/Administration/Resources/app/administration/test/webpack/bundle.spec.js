@@ -6,6 +6,8 @@ const exec = util.promisify(require('child_process').exec);
 const rootPath = `${__dirname}/../../../../../../../../`;
 const readdir = util.promisify(fs.readdir);
 
+jest.spyOn(global.console, 'info').mockImplementation(() => jest.fn());
+
 describe('webpack/bundle', () => {
     beforeEach(async () => {
         // Increase default timeout for the webpack build

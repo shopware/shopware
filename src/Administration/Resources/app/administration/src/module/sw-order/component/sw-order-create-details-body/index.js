@@ -85,10 +85,6 @@ Component.register('sw-order-create-details-body', {
 
         onEditShippingAddress() {
             this.$emit('on-edit-shipping-address');
-        },
-
-        onAddNewAddress() {
-            // ToDo NEXT-6455: Handle adding new address
         }
     }
 });

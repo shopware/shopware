@@ -87,7 +87,7 @@ Component.register('sw-order-create-details-footer', {
         isCartTokenAvailable: {
             immediate: true,
             handler() {
-                if (this.isCartTokenAvailable) {
+                if (this.isCartTokenAvailable && this.customer) {
                     this.updateOrderContext();
                 }
             }

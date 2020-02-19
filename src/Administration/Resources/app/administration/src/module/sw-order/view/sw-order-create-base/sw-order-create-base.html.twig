@@ -3,18 +3,20 @@
         {% block sw_order_create_address_modal %}
             <sw-order-create-address-modal
                 v-if="showAddressModal"
-                :customer="customer"
                 :address="address"
+                :addAddressModalTitle="addAddressModalTitle"
+                :editAddressModalTitle="editAddressModalTitle"
+                :customer="customer"
                 :cart="cart"
-                @set-customer-address="setCustomerAddress"
-                @reset="reset"
-                @save="save">
+                @close-modal="closeModal"
+                @set-customer-address="setCustomerAddress">
             </sw-order-create-address-modal>
         {% endblock %}
 
         {% block sw_order_create_details %}
             <sw-card
                 :title="$tc('sw-order.createBase.labelDetailsCard')"
+                :isLoading="isLoadingDetail"
                 class="sw-order-create__card">
                 <template #grid>
                     <sw-container type="row" class="sw-order-user-card">

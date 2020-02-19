@@ -1,1 +1,85 @@
-@import "../sw-order-address-modal/sw-order-address-modal";
+@import "~scss/variables";
+
+$sw-order-address-modal-highlight: #edf8ff;
+$sw-order-address-modal-link: $color-shopware-blue;
+
+.sw-order-create-address-modal {
+    &__card {
+        text-align: left;
+        font-weight: normal;
+        line-height: 22px;
+        padding: 15px;
+        border: none;
+        font-size: $font-size-small;
+        display: flex;
+
+        &:hover {
+            background-color: $sw-order-address-modal-highlight;
+            color: $sw-order-address-modal-link;
+
+            .sw-address {
+                &__body {
+                    color: $color-shopware-brand-500;
+                }
+            }
+        }
+
+        &.is--selected {
+            border: 1px solid $color-gray-300;
+            border-radius: $border-radius-default;
+        }
+
+        &.is--empty {
+            position: relative;
+            width: 100%;
+            min-height: 180px;
+        }
+    }
+
+    &__card-label {
+        color: $color-darkgray-300;
+        font-weight: 600;
+        font-size: $font-size-default;
+    }
+
+    &__card-body {
+        flex: 1;
+    }
+
+    &__edit-btn {
+        display: inline-block;
+        position: relative;
+        margin: 0;
+        line-height: $font-size-large;
+        color: $color-shopware-brand-500;
+        cursor: pointer;
+
+        &:hover {
+            text-decoration: none;
+        }
+    }
+
+    &__select-btn {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    .sw-modal__body {
+        padding: unset !important;
+    }
+
+    .sw-card.sw-card--grid {
+        .sw-card__toolbar {
+            input {
+                padding: 4px 12px !important;
+            }
+        }
+
+        .sw-card__content {
+            padding: 20px;
+            border: unset;
+        }
+    }
+}

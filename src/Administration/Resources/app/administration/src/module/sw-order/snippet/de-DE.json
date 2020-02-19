@@ -54,9 +54,10 @@
       "textNewOrder": "Neue Bestellung",
       "buttonSaveOrder": "Bestellung speichern",
       "buttonCancelOrder": "Abbrechen",
-      "titleSaveError": "Error",
-      "titleFetchError": "Error",
-      "messageSaveError": "Order could not be saved.",
+      "titleSaveError": "Fehler",
+      "titleFetchError": "Fehler",
+      "messageSaveError": "Bestellung konnte nicht gespeichert werden",
+      "messageSwitchCustomerError": "Beim Kundenwechsel ist ein Fehler aufgetreten",
       "messageFetchCustomerAddressesError": "An error occurred during fetching customer addresses"
     },
     "createBase": {
@@ -200,8 +201,17 @@
     },
     "addressSelection": {
       "modalTitleEditAddress": "Adressen",
+      "modalTitleSelectAddress": "Adresse ändern",
+      "modalTitleAddBillingAddress": "Neue Rechnungsadresse hinzufügen",
+      "modalTitleEditBillingAddress": "Rechnungsadresse ändern",
+      "modalTitleAddShippingAddress": "Neue Lieferadresse hinzufügen",
+      "modalTitleEditShippingAddress": "Lieferadresse ändern",
       "headlineTabEditAddress" : "Adresse bearbeiten",
-      "headlineTabSelectAddress" :"Adresse auswählen"
+      "headlineTabSelectAddress" :"Adresse auswählen",
+      "headlineTabCreateAddress" :"Adresse erstellen",
+      "currentlySelected": "Aktuelle Auswahl",
+      "searchAddressToolbarPlaceholder": "Adressen suchen...",
+      "emptySearchResults": "Keine Adressen gefunden."
     },
     "leavePageModal" : {
       "headline" : "Warnung",

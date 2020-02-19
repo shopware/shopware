@@ -148,7 +148,7 @@
   "sw-plugin-config": {
     "titleSaveSuccess": "Konfiguration gespeichert",
     "messageSaveSuccess": "Die Konfiguration wurde erfolgreich gespeichert.",
-    "titleSaveError": "Fehler beim Speichern der Konfiguration",
+    "titleSaveError": "Fehler beim Speichern der Konfiguration"
   },
   "sw-plugin-description": {
     "buttonBack": "Zurück"

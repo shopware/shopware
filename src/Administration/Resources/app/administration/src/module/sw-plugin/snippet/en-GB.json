@@ -148,7 +148,7 @@
   "sw-plugin-config": {
     "titleSaveSuccess": "Success",
     "messageSaveSuccess": "Configuration has been saved.",
-    "titleSaveError": "Unable to save the configuration.",
+    "titleSaveError": "Unable to save the configuration."
   },
   "sw-plugin-description": {
     "buttonBack": "Back"

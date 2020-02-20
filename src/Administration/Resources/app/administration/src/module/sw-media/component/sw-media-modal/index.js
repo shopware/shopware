@@ -14,7 +14,7 @@ Component.register('sw-media-modal', {
 
     deprecated: {
         version: '6.4.0',
-        comment: 'Use sw-media-modal-v1 instead'
+        comment: 'Use sw-media-modal-v2 instead'
     },
 
     props: {

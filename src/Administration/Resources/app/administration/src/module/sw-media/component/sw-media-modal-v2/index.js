@@ -1,5 +1,5 @@
-import template from './sw-media-modal-v1.html.twig';
-import './sw-media-modal-v1.scss';
+import template from './sw-media-modal-v2.html.twig';
+import './sw-media-modal-v2.scss';
 
 const { Component, Context, Utils } = Shopware;
 
@@ -7,7 +7,7 @@ const { Component, Context, Utils } = Shopware;
  * @event media-modal-selection-change EntityProxy[]
  * @event closeModal (void)
  */
-Component.register('sw-media-modal-v1', {
+Component.register('sw-media-modal-v2', {
     template,
 
     inject: ['repositoryFactory', 'mediaService'],
@@ -75,7 +75,7 @@ Component.register('sw-media-modal-v1', {
         },
 
         uploadTag() {
-            return `sw-media-modal-v1--${this.id}`;
+            return `sw-media-modal-v2--${this.id}`;
         }
     },
 

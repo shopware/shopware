@@ -1,7 +1,7 @@
-import template from './sw-media-compact-upload-v1.html.twig';
-import './sw-media-compact-upload-v1.scss';
+import template from './sw-media-compact-upload-v2.html.twig';
+import './sw-media-compact-upload-v2.scss';
 
-Shopware.Component.extend('sw-media-compact-upload-v1', 'sw-media-upload-v1', {
+Shopware.Component.extend('sw-media-compact-upload-v2', 'sw-media-upload-v2', {
     template,
 
     data() {

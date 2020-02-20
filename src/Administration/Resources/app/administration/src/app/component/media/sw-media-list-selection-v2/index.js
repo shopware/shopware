@@ -1,9 +1,9 @@
-import template from './sw-media-list-selection-v1.html.twig';
-import './sw-media-list-selection-v1.scss';
+import template from './sw-media-list-selection-v2.html.twig';
+import './sw-media-list-selection-v2.scss';
 
 const { Component, Mixin, Context } = Shopware;
 
-Component.register('sw-media-list-selection-v1', {
+Component.register('sw-media-list-selection-v2', {
     template,
 
     inject: ['repositoryFactory', 'mediaService'],

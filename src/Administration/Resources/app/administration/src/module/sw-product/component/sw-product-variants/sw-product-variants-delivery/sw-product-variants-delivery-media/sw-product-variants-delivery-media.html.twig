@@ -51,13 +51,13 @@
                                 {% endblock %}
 
                                 {% block sw_product_variants_delivery_media_data_grid_column_option_media_upload %}
-                                    <sw-media-compact-upload-v1
+                                    <sw-media-compact-upload-v2
                                             :source="item.mediaId"
                                             :uploadTag="item.id"
                                             :defaultFolder="product.getEntityName()"
                                             @media-upload-remove-image="removeMedia(item)"
                                             @selection-change="setMedia">
-                                    </sw-media-compact-upload-v1>
+                                    </sw-media-compact-upload-v2>
                                 {% endblock %}
                             </template>
                         {% endblock %}

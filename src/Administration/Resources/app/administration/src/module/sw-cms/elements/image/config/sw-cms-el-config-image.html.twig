@@ -2,7 +2,7 @@
     <div class="sw-cms-el-config-image">
         {% block sw_cms_element_image_config_media_upload %}
             <sw-cms-mapping-field :label="$tc('sw-cms.elements.image.label')" valueTypes="entity" entity="media" v-model="element.config.media">
-                <sw-media-upload-v1 variant="regular"
+                <sw-media-upload-v2 variant="regular"
                                  :uploadTag="uploadTag"
                                  :source="previewSource"
                                  :allowMultiSelect="false"
@@ -10,7 +10,7 @@
                                  :caption="$tc('sw-cms.elements.general.config.caption.mediaUpload')"
                                  @media-upload-sidebar-open="onOpenMediaModal"
                                  @media-upload-remove-image="onImageRemove">
-                </sw-media-upload-v1>
+                </sw-media-upload-v2>
 
                 <div class="sw-cms-el-config-image__mapping-preview" slot="preview" slot-scope="{ demoValue }">
                     <img :src="demoValue.url" v-if="demoValue.url">
@@ -75,7 +75,7 @@
         {% endblock %}
 
         {% block sw_cms_element_image_config_media_modal %}
-            <sw-media-modal-v1
+            <sw-media-modal-v2
                 variant="regular"
                 v-if="mediaModalIsOpen"
                 :caption="$tc('sw-cms.elements.general.config.caption.mediaUpload')"
@@ -85,7 +85,7 @@
                 @media-upload-remove-image="onImageRemove"
                 @media-modal-selection-change="onSelectionChanges"
                 @modal-close="onCloseModal">
-            </sw-media-modal-v1>
+            </sw-media-modal-v2>
         {% endblock %}
     </div>
 {% endblock %}

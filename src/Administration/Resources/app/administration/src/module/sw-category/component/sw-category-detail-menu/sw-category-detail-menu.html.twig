@@ -15,7 +15,7 @@
                     @media-upload-finish="onSetMediaItem"
                     autoUpload>
             </sw-upload-listener>
-            <sw-media-upload-v1
+            <sw-media-upload-v2
                     :label="$tc('sw-category.base.menu.imageLabel')"
                     variant="regular"
                     :source="mediaItem"
@@ -25,7 +25,7 @@
                     @media-drop="onMediaDropped"
                     @media-upload-sidebar-open="openMediaSidebar"
                     @media-upload-remove-image="onRemoveMediaItem">
-            </sw-media-upload-v1>
+            </sw-media-upload-v2>
         {% endblock %}
 
         {% block sw_category_detail_menu_description %}

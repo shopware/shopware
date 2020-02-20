@@ -67,14 +67,14 @@
                                                     @media-upload-finish="onUploadFinished"
                                                     @media-upload-fail="onUploadFailed">
                                                 </sw-upload-listener>
-                                                <sw-media-upload-v1
+                                                <sw-media-upload-v2
                                                     class="sw-media-modal__upload-container"
                                                     variant="regular"
                                                     :uploadTag="uploadTag"
                                                     :defaultFolder="entityContext"
                                                     :targetFolder="folderId"
                                                     :allowMultiSelect="allowMultiSelect">
-                                                </sw-media-upload-v1>
+                                                </sw-media-upload-v2>
                                             {% endblock %}
 
                                             {% block sw_media_modal_uploaded_items %}

@@ -23,7 +23,7 @@
                     {% block sw_cms_element_image_slider_config_content %}
                         <sw-container v-if="active === 'content'" class="sw-cms-el-config-image-slider__tab-content">
                             {% block sw_cms_element_image_slider_config_media_selection %}
-                                <sw-media-list-selection-v1
+                                <sw-media-list-selection-v2
                                         :entityMediaItems="mediaItems"
                                         :entity="entity"
                                         :uploadTag="uploadTag"
@@ -31,11 +31,11 @@
                                         @upload-finish="onImageUpload"
                                         @item-remove="onItemRemove"
                                         @open-sidebar="onOpenMediaModal">
-                                </sw-media-list-selection-v1>
+                                </sw-media-list-selection-v2>
                             {% endblock %}
 
                             {% block sw_cms_element_image_slider_config_media_modal %}
-                                <sw-media-modal-v1
+                                <sw-media-modal-v2
                                         variant="regular"
                                         v-if="mediaModalIsOpen"
                                         :caption="$tc('sw-cms.elements.general.config.caption.mediaUpload')"
@@ -44,7 +44,7 @@
                                         @media-upload-remove-image="onItemRemove"
                                         @media-modal-selection-change="onMediaSelectionChange"
                                         @modal-close="onCloseMediaModal">
-                                </sw-media-modal-v1>
+                                </sw-media-modal-v2>
                             {% endblock %}
                         </sw-container>
                     {% endblock %}

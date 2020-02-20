@@ -8,7 +8,7 @@
  * <sw-media-replace itemToReplace="mediaItem" variant="regular">
  * </sw-media-replace>
  */
-Shopware.Component.extend('sw-media-replace', 'sw-media-upload-v1', {
+Shopware.Component.extend('sw-media-replace', 'sw-media-upload-v2', {
     props: {
         itemToReplace: {
             type: Object,

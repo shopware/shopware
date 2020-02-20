@@ -57,12 +57,12 @@
                                 autoUpload
                                 @media-upload-finish="exposeNewId">
                         </sw-upload-listener>
-                        <sw-media-upload-v1
+                        <sw-media-upload-v2
                             v-if="showUploadField"
                             variant="regular"
                             :allowMultiSelect="false"
                             :uploadTag="uploadTag">
-                        </sw-media-upload-v1>
+                        </sw-media-upload-v2>
                     {% endblock %}
 
                     <div v-else class="sw-media-field__media-selection">

@@ -139,7 +139,7 @@ describe('CMS: Check usage and editing of image elements', () => {
                 }
             );
         });
-        cy.get('.sw-media-preview-v1__item[alt="sw-login-background"]').should('be.visible');
+        cy.get('.sw-media-preview-v2__item[alt="sw-login-background"]').should('be.visible');
         cy.awaitAndCheckNotification('File has been saved.');
 
         cy.fixture('img/sw-test-image.png').then(fileContent => {
@@ -153,7 +153,7 @@ describe('CMS: Check usage and editing of image elements', () => {
                 }
             );
         });
-        cy.get('.sw-media-preview-v1__item[alt="sw-test-image"]').should('be.visible');
+        cy.get('.sw-media-preview-v2__item[alt="sw-test-image"]').should('be.visible');
         cy.awaitAndCheckNotification('File has been saved.');
 
         cy.fixture('img/sw-storefront-en.jpg').then(fileContent => {
@@ -167,7 +167,7 @@ describe('CMS: Check usage and editing of image elements', () => {
                 }
             );
         });
-        cy.get('.sw-media-preview-v1__item[alt="sw-storefront-en"]').should('be.visible');
+        cy.get('.sw-media-preview-v2__item[alt="sw-storefront-en"]').should('be.visible');
 
         cy.awaitAndCheckNotification('File has been saved.');
         cy.get('.sw-modal__footer .sw-button--primary').click();

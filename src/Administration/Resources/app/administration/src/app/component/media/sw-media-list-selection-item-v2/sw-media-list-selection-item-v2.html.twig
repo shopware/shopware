@@ -1,0 +1,38 @@
+{% block sw_media_list_selection_item_v2 %}
+    <div class="sw-media-list-selection-item-v2" :class="productImageClasses">
+
+        {% block sw_media_list_selection_item_v2_preview %}
+            <template v-if="!isPlaceholder">
+
+                {% block sw_media_list_selection_item_v2_preview_media %}
+                    <sw-media-preview-v2
+                        class="sw-media-list-selection-item-v2__image"
+                        :source="sourceId"
+                        @click="$emit('click')"
+                        :hideTooltip="hideTooltip">
+                    </sw-media-preview-v2>
+                {% endblock %}
+
+                {% block sw_media_list_selection_item_v2_preview_actions %}
+                    <sw-context-button v-if="!hideActions" class="sw-media-list-selection-item-v2__context-button">
+                        {% block sw_media_list_selection_item_v2_context %}
+                            {% block sw_media_list_selection_item_v2_context_delete_action %}
+                                <sw-context-menu-item variant="danger" @click="$emit('item-remove')">{{ $tc('global.sw-media-list-selection-item-v2.buttonRemove') }}</sw-context-menu-item>
+                            {% endblock %}
+                        {% endblock %}
+                    </sw-context-button>
+                {% endblock %}
+            </template>
+
+        {% endblock %}
+
+        {% block sw_media_list_selection_item_v2_placeholder %}
+            <template v-else>
+                {% block sw_media_list_selection_item_v2_placeholder %}
+                    <sw-icon class="sw-media-list-selection-item-v2__placeholder-icon" :name="'default-object-image'" :small="true"></sw-icon>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+    </div>
+{% endblock %}

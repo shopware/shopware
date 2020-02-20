@@ -75,11 +75,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Added method `widthInputCHanged`
         * Added method `heightInputChanged`
         * Added method `inputChanged`
-      * sw-media-field
-        * Added injection of `repositoryFactory`
-        * Replaced computed property `mediaStore` with `mediaRepository`
-        * Method `fetchItem` is now async
-        * Method `fetchSuggestions` is now async
+      * sw-media-field is deprecated and replaced by sw-media-field-v2
       * sw-media-folder-content
         * Added injection of `repositoryFactory`
         * Replaced computed property `mediaFolderStore` with `mediaFolderRepository`
@@ -96,12 +92,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Added async method `refreshIconConfig`
         * Method `getIconConfigFromFolder` is now async
         * Method `onChangeName` is now async
-      * sw-media-list-selection
-        * Added injection of `repositoryFactory`
-        * Added injection of `mediaService`
-        * Replaced computed property `mediaStore` with `mediaRepository`
-        * Method `onUploadsAdded` is now async
-        * Method `successfulUpload` is now async
+      * sw-media-list-selection is deprecated and replaced by sw-media-list-selection-v2 
       * sw-media-media-item
         * Method `onChangeName` is now async
         * Method `emitItemDeleted` is now async
@@ -148,21 +139,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Added injection of `repositoryFactory`
         * Method `replaceMediaItem` is now async
         * Added event `media-replace-modal-item-replaced`
-      * sw-media-preview
-        * Added injection of `repositoryFactory`
-        * Replaced computed property `mediaStore` with `mediaRepository`
-        * Method `fetchSourceIfNecessary` is now async
-        * Method `getDataUrlFromFile` is now async
-      * sw-media-upload
-        * Added injection of `repositoryFactory`
-        * Added injection of `mediaService`
-        * Replaced computed property `defaultFolderStore` with `defaultFolderRepository`
-        * Watcher of prop `defaultFolder` is now async
-        * Method `createdComponent` is now async
-        * Method `onUrlUpload` is now async
-        * Method `handleUpload` is now async
-        * Method `getDefaultFolderId` is now async
-        * Replaced method `handleUploadStoreEvent` with `handleMediaServiceUploadEvent`
+      * sw-media-preview is deprecated and replaced by sw-media-preview-v2 
+      * sw-media-upload is deprecated and replaced by sw-media-upload-v2
+      * sw-media-compact-upload is deprecated and replaced by sw-media-compact-upload-v2
       * sw-sidebar-media-item
         * Added injection of `repositoryFactory`
         * Replaced computed property `mediaStore` with `mediaRepository`
@@ -174,14 +153,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
       * sw-admin
         * Added injection of `loginService`
         * Added computed property `isAuthenticated`
-      * sw-duplicated-media
-        * Added injection of `repositoryFactory`
-        * Replaced computed property `mediaStore` with `mediaRepository`
-        * Replaced method `handleUploadStoreEvent` with `handleMediaServiceUploadEvent`
-        * Method `updatePreviewData` is now async
-        * Method `renameFile` is now async
-        * Method `skipFile` is now async
-        * Method `replaceFile` is now async
+      * sw-duplicated-media is deprecated and replaced sw-duplicated-media-v2
       * sw-media-folder-info
         * Method `onChangeFolderName` is now async
         * Added event `media-folder-renamed`
@@ -223,14 +195,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Method `nextFolders` is now async
         * Method `fetchAssociatedFolders` is now async
         * Method `createFolder` is now async
-      * sw-media-modal
-        * Added injection of `repositoryFactory`
-        * Added injection of `mediaService`
-        * Replaced computed property `mediaStore` with `mediaRepository`
-        * Replaced computed property `mediaFolderStore` with `mediaFolderRepository`
-        * Method `fetchCurrentFolder` is now async
-        * Method `onUploadsAdded` is now async
-        * Method `onUploadsFinished` is now async
+      * sw-media-modal is deprecated and replaced by sw-media-modal-v2
       * sw-media-index
         * Added injection of `repositoryFactory`
         * Added injection of `mediaService`
@@ -252,11 +217,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
       * `sw-property-option-detail
         * Added injection of `repositoryFactory`
         * Method `successfulUpload` is now async  
-      * sw-upload-store-listener 
-        * Added injection of `repositoryFactory`
-        * Added injection of `mediaService`
-        * Added computed property `mediaRepository`
-        * Method `handleError` is now async
+      * sw-upload-store-listener  is deprecated and replaced by sw-upload-listener
       * sw-cms/elements/image-gallery/config/index.js
         * Method `createdComponent` is now async
       * sw-cms/elements/image-slider/config/index.js

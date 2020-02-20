@@ -244,7 +244,7 @@
       "labelOldFile": "Bereits existierende Datei",
       "labelNewFile": "Hochzuladende Datei"
     },
-    "sw-duplicated-media-v1": {
+    "sw-duplicated-media-v2": {
       "titleModal": "Datei existiert bereits",
       "description": "Es existiert bereits eine Datei mit dem Namen \"{fileName}\".",
       "buttonReplace": "Datei ersetzen",
@@ -286,7 +286,7 @@
       "fallbackAudioTagSupport": "Ihr Browser unterstützt diesen Audio-Tag nicht",
       "textNoMedia": "Kein Medium verfügbar"
     },
-    "sw-media-preview-v1": {
+    "sw-media-preview-v2": {
       "fallbackVideoTagSupport": "Ihr Browser unterstützt diesen Video-Tag nicht",
       "fallbackAudioTagSupport": "Ihr Browser unterstützt diesen Audio-Tag nicht",
       "textNoMedia": "Kein Medium verfügbar"
@@ -312,7 +312,7 @@
       },
       "caption": "Dateien zum Hochladen hierhin ziehen"
     },
-    "sw-media-upload-v1": {
+    "sw-media-upload-v2": {
       "buttonFileUpload": "Dateien hochladen",
       "buttonUrlUpload": "Über URL hochladen",
       "buttonSwitchToFileUpload": "Datei von Deinem Computer hochladen",
@@ -373,7 +373,7 @@
     "sw-media-list-selection-item": {
       "buttonRemove": "Entfernen"
     },
-    "sw-media-list-selection-item-v1": {
+    "sw-media-list-selection-item-v2": {
       "buttonRemove": "Entfernen"
     },
     "sw-select": {

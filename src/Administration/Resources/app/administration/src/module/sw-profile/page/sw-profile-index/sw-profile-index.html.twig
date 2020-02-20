@@ -91,7 +91,7 @@
                                     autoUpload
                                     @media-upload-finish="setMediaItem">
                                 </sw-upload-listener>
-                                <sw-media-upload-v1
+                                <sw-media-upload-v2
                                     variant="regular"
                                     class="sw-profile-index__user-image-upload"
                                     :uploadTag="uploadTag"
@@ -103,7 +103,7 @@
                                     @media-drop="onDropMedia"
                                     @media-upload-sidebar-open="openMediaSidebar"
                                     @media-upload-remove-image="onUnlinkAvatar">
-                                </sw-media-upload-v1>
+                                </sw-media-upload-v2>
                             {% endblock %}
                         </sw-card>
                     {% endblock %}

@@ -60,15 +60,12 @@ class PluginManagementService
         $this->cacheClearer = $cacheClearer;
     }
 
-    /**
-     * @deprecated tag:v6.3.0 - Will be private
-     */
-    public function extractPluginZip(string $file): void
+    public function extractPluginZip(string $file, bool $delete = true): void
     {
         $archive = ZipUtils::openZip($file);
 
         if ($this->pluginZipDetector->isPlugin($archive)) {
-            $this->pluginExtractor->extract($archive);
+            $this->pluginExtractor->extract($archive, $delete);
         } else {
             throw new NoPluginFoundInZipException($file);
         }

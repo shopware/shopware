@@ -33,7 +33,7 @@ class IncrementSqlStorage implements IncrementStorageInterface
                 'value' => $configuration->getStart(),
                 'id' => Uuid::fromHexToBytes($configuration->getId()),
                 'stateId' => $stateId,
-                'createdAt' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 

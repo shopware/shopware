@@ -61,3 +61,7 @@ services:
         class: Shopware\Development\Analyze\PHPStan\Rules\Decoratable\DecoratableNotDirectlyDependetRule
         tags:
             - phpstan.rules.rule
+    -
+        class: Shopware\Development\Analyze\PHPStan\Rules\Decoratable\DecoratableNotInstantiatedRule
+        tags:
+            - phpstan.rules.rule

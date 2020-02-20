@@ -2,23 +2,8 @@
 
 namespace Shopware\Storefront\Pagelet\Footer;
 
-use Shopware\Core\Content\Category\Tree\Tree;
-use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Storefront\Pagelet\NavigationPagelet;
 
-class FooterPagelet extends Struct
+class FooterPagelet extends NavigationPagelet
 {
-    /**
-     * @var Tree|null
-     */
-    protected $navigation;
-
-    public function __construct(?Tree $navigation)
-    {
-        $this->navigation = $navigation;
-    }
-
-    public function getNavigation(): ?Tree
-    {
-        return $this->navigation;
-    }
 }

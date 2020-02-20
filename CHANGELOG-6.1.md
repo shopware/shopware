@@ -7,11 +7,24 @@ in 6.1 minor versions.
 To get the diff for a specific change, go to https://github.com/shopware/platform/commit/XXX where XXX is the change hash
 To get the diff between two versions, go to https://github.com/shopware/platform/compare/v6.1.0-rc1...v6.1.0-rc2
 
+
+### 6.1.2
+
+**Addition / Changes**
+
+* Core
+    * Fixed a seo indexing bug where all navigations were reindexed on product update 
+    * Added const for custom field type select to `\Shopware\Core\System\CustomField\CustomFieldTypes`
+    * Added `Shopware\Core\Migration\Test\DateTimeTest` to ensure usage of (new \DateTime())->format(STORAGE_DATE_TIME_FORMAT) instead of date(Defaults::STORAGE_DATE_TIME_FORMAT) since date only supports seconds and no milliseconds.
+    * Added `Core/Framework/Test/CustomField/CustomFieldEntityRepositoryTest.php` to ensure the DAL for custom Field updates via repositories is working correctly.
+    * Added file extension whitelist for media manager file upload. Can be configured in the `shopware.yaml`or with the `MediaFileExtensionWhitelistEvent`event
+
 ### 6.1.1
 
 **Addition / Changes**
 
 * Administration
+    * Added an `sw_product_list_grid_loader` block to sw-product-list which includes the sw-loader component
     * Refactored tooltip directive to automatically change the position if it does not fit in the screen on the desired position.
     * Added possibility to show a tooltip also on disabled input fields with the option `showOnDisabledElements`. This will generate a wrapper element around the original element.
     * Prevent adding a product comparison sales channel if there are no product streams available
@@ -65,6 +78,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Additionally you can now change the default behaviour to remove api errors in your custom components. This can be done by overriding the `$apiErrorHandler` custom option for components that include the `remove-api-error` mixin.
     * Added new slot for `sw-data-grid` column headers
     * Added new component `sw-list-price-field`
+    * Fix empty labels in product stream rule conditions
+    * Fix content-type of Sitemap controller response
+    * Fix sitemap unlocking after generation
 * Core
     * Added a check for the author role in plugin composer.json files. If one or more authors have the role `Manufacturer`, only these will be written to the database.
     * Added new `searchMedia` twig function to resolve media ids to media objects.
@@ -74,16 +90,20 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * The `\Shopware\Storefront\Page\Product\Review\ProductReviewLoader::load` returns now the reviews of all variants.
     * The `\Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField` can now contains a `listPrice`
     * `\Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice` supports now list prices.
+    * Fix mail sending via sendmail transport
+    * You can now opt-out of removing your plugin migrations on uninstall by calling `\Shopware\Core\Framework\Plugin\Context\UninstallContext::enableKeepMigrations`
+    * Added `\Shopware\Core\Framework\Plugin::removeMigrations` to remove plugin migration entries.
+    * Fix cache warmup during cache clearing to fix template inheritance problems
+    * Missing migration files will be now ignored
+    * Added new env variable `SHOPWARE_UPDATE_TEST` to trigger auto update test mode.
 * Storefront
     * Fixed the cookie privacy hint to use the correct link `privacyPage` instead of `shippingPaymentInfoPage`
     * Added the parameter `useBackdrop` to the `page-loading-indicator.utils.js` `remove` and `create` methods. Defaults to `true`
     * The `CountryStateController` returns country states now sorted by their position/name.
+    * You can now change your addresses during checkout
 
 * Recovery
     * The database connection now supports sockets
-    
-* Storefront
-    * You can now change your addresses during checkout
 
 ### 6.1.0
 

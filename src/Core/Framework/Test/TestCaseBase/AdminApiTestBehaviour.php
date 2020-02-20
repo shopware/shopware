@@ -70,7 +70,8 @@ trait AdminApiTestBehaviour
 
     public function createClient(
         ?KernelInterface $kernel = null,
-        bool $enableReboot = false
+        bool $enableReboot = false,
+        bool $authorized = true
     ): KernelBrowser {
         if (!$kernel) {
             $kernel = $this->getKernel();
@@ -84,7 +85,9 @@ trait AdminApiTestBehaviour
             'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
         ]);
 
-        $this->authorizeBrowser($apiBrowser);
+        if ($authorized) {
+            $this->authorizeBrowser($apiBrowser);
+        }
 
         return $this->kernelBrowser = $apiBrowser;
     }
@@ -216,13 +219,17 @@ trait AdminApiTestBehaviour
 
     abstract protected function getKernel(): KernelInterface;
 
-    protected function getBrowser(): KernelBrowser
+    protected function getBrowser(bool $authorized = true): KernelBrowser
     {
         if ($this->kernelBrowser) {
             return $this->kernelBrowser;
         }
 
-        return $this->kernelBrowser = $this->createClient();
+        return $this->kernelBrowser = $this->createClient(
+            null,
+            false,
+            $authorized
+        );
     }
 
     protected function getBrowserAuthenticatedWithIntegration(): KernelBrowser

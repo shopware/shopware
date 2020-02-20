@@ -627,7 +627,7 @@ column property looking at the example.
 {
     property: 'name',
     dataIndex: 'name',
-    label: this.$t('swag-bundle.list.columnName'),
+    label: this.$tc('swag-bundle.list.columnName'),
     routerLink: 'swag.bundle.detail',
     inlineEdit: 'string',
     allowResize: true,
@@ -664,7 +664,7 @@ There can and will be a difference between the value being shown and the one bei
 <dl>
     <dt>label</dt>
     <dd>
-        Quite self-explaining, this is the label of the column. `this.$t()` basically loads the given translation. This does not exist yet,
+        Quite self-explaining, this is the label of the column. `this.$tc()` basically loads the given translation. This does not exist yet,
         but you should know by now where to add this translation.
     </dd>
     
@@ -703,7 +703,7 @@ computed: {
         return [{
             property: 'name',
             dataIndex: 'name',
-            label: this.$t('swag-bundle.list.columnName'),
+            label: this.$tc('swag-bundle.list.columnName'),
             routerLink: 'swag.bundle.detail',
             inlineEdit: 'string',
             allowResize: true,
@@ -711,13 +711,13 @@ computed: {
         }, {
             property: 'discount',
             dataIndex: 'discount',
-            label: this.$t('swag-bundle.list.columnDiscount'),
+            label: this.$tc('swag-bundle.list.columnDiscount'),
             inlineEdit: 'number',
             allowResize: true
         }, {
             property: 'discountType',
             dataIndex: 'discountType',
-            label: this.$t('swag-bundle.list.columnDiscountType'),
+            label: this.$tc('swag-bundle.list.columnDiscountType'),
             allowResize: true
         }];
     }
@@ -769,7 +769,7 @@ Component.register('swag-bundle-list', {
             return [{
                 property: 'name',
                 dataIndex: 'name',
-                label: this.$t('swag-bundle.list.columnName'),
+                label: this.$tc('swag-bundle.list.columnName'),
                 routerLink: 'swag.bundle.detail',
                 inlineEdit: 'string',
                 allowResize: true,
@@ -777,13 +777,13 @@ Component.register('swag-bundle-list', {
             }, {
                 property: 'discount',
                 dataIndex: 'discount',
-                label: this.$t('swag-bundle.list.columnDiscount'),
+                label: this.$tc('swag-bundle.list.columnDiscount'),
                 inlineEdit: 'number',
                 allowResize: true
             }, {
                 property: 'discountType',
                 dataIndex: 'discountType',
-                label: this.$t('swag-bundle.list.columnDiscountType'),
+                label: this.$tc('swag-bundle.list.columnDiscountType'),
                 allowResize: true
             }];
         }
@@ -1214,7 +1214,7 @@ onClickSave() {
         }).catch((exception) => {
             this.isLoading = false;
             this.createNotificationError({
-                title: this.$t('swag-bundle.detail.errorTitle'),
+                title: this.$tc('swag-bundle.detail.errorTitle'),
                 message: exception
             });
         });
@@ -1270,8 +1270,8 @@ as a computed property in your component.
 computed: {
     options() {
         return [
-            { value: 'absolute', name: this.$t('swag-bundle.detail.absoluteText') },
-            { value: 'percentage', name: this.$t('swag-bundle.detail.percentageText') }
+            { value: 'absolute', name: this.$tc('swag-bundle.detail.absoluteText') },
+            { value: 'percentage', name: this.$tc('swag-bundle.detail.percentageText') }
         ];
     }
 },
@@ -1318,8 +1318,8 @@ Component.register('swag-bundle-detail', {
     computed: {
         options() {
             return [
-                { value: 'absolute', name: this.$t('swag-bundle.detail.absoluteText') },
-                { value: 'percentage', name: this.$t('swag-bundle.detail.percentageText') }
+                { value: 'absolute', name: this.$tc('swag-bundle.detail.absoluteText') },
+                { value: 'percentage', name: this.$tc('swag-bundle.detail.percentageText') }
             ];
         }
     },
@@ -1350,7 +1350,7 @@ Component.register('swag-bundle-detail', {
                 }).catch((exception) => {
                     this.isLoading = false;
                     this.createNotificationError({
-                        title: this.$t('swag-bundle.detail.errorTitle'),
+                        title: this.$tc('swag-bundle.detail.errorTitle'),
                         message: exception
                     });
                 });
@@ -1414,7 +1414,7 @@ onClickSave() {
             this.isLoading = false;
 
             this.createNotificationError({
-                title: this.$t('swag-bundle.detail.errorTitle'),
+                title: this.$tc('swag-bundle.detail.errorTitle'),
                 message: exception
             });
         });
@@ -1446,7 +1446,7 @@ Shopware.Component.extend('swag-bundle-create', 'swag-bundle-detail', {
                     this.isLoading = false;
 
                     this.createNotificationError({
-                        title: this.$t('swag-bundle.detail.errorTitle'),
+                        title: this.$tc('swag-bundle.detail.errorTitle'),
                         message: exception
                     });
                 });

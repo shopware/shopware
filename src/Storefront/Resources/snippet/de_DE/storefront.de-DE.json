@@ -341,7 +341,7 @@
         "filterTitleText": "Filter",
         "showResults": "Ergebnisse anzeigen",
         "boxUnitLabel": "Inhalt:",
-        "boxLabelTopseller": "Tipp!",
+        "boxLabelTopseller": "Tipp",
         "boxLabelNew": "Neu",
         "listingTextSite": "Seite",
         "listingTextFrom": "von",
@@ -476,5 +476,9 @@
         "groupRequiredDescription": "Diese Cookies sind für die Grundfunktionen des Shops notwendig.",
         "groupRequiredSession": "Session",
         "groupRequiredTimezone": "Zeitzone"
-    }
+    },
+  "ellipsis": {
+    "expandLabel": "mehr anzeigen",
+    "shrinkLabel": "weniger anzeigen"
+  }
 }

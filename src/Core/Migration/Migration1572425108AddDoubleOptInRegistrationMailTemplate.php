@@ -56,7 +56,7 @@ class Migration1572425108AddDoubleOptInRegistrationMailTemplate extends Migratio
                 'id' => $templateTypeId,
                 'technical_name' => 'customer_register.double_opt_in',
                 'available_entities' => $this->getAvailableEntities(),
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -72,7 +72,7 @@ class Migration1572425108AddDoubleOptInRegistrationMailTemplate extends Migratio
                     'mail_template_type_id' => $templateTypeId,
                     'language_id' => $defaultLanguageId,
                     'name' => 'Double opt in registration',
-                    'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );
         }
@@ -84,7 +84,7 @@ class Migration1572425108AddDoubleOptInRegistrationMailTemplate extends Migratio
                     'mail_template_type_id' => $templateTypeId,
                     'language_id' => $englishLanguageId,
                     'name' => 'Double opt in registration',
-                    'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );
         }
@@ -96,7 +96,7 @@ class Migration1572425108AddDoubleOptInRegistrationMailTemplate extends Migratio
                     'mail_template_type_id' => $templateTypeId,
                     'language_id' => $germanLanguageId,
                     'name' => 'Double-Opt-In-Registrierung',
-                    'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );
         }
@@ -110,7 +110,7 @@ class Migration1572425108AddDoubleOptInRegistrationMailTemplate extends Migratio
                 'id' => $templateId,
                 'mail_template_type_id' => $templateTypeId,
                 'system_default' => 1,
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -128,7 +128,7 @@ class Migration1572425108AddDoubleOptInRegistrationMailTemplate extends Migratio
                     'sender_name' => '{{ salesChannel.name }}',
                     'content_html' => $this->getHtmlTemplateEn(),
                     'content_plain' => $this->getPlainTemplateEn(),
-                    'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                     'mail_template_id' => $templateId,
                     'language_id' => $defaultLanguageId,
                 ]
@@ -144,7 +144,7 @@ class Migration1572425108AddDoubleOptInRegistrationMailTemplate extends Migratio
                     'sender_name' => '{{ salesChannel.name }}',
                     'content_html' => $this->getHtmlTemplateEn(),
                     'content_plain' => $this->getPlainTemplateEn(),
-                    'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                     'mail_template_id' => $templateId,
                     'language_id' => $englishLanguageId,
                 ]
@@ -160,7 +160,7 @@ class Migration1572425108AddDoubleOptInRegistrationMailTemplate extends Migratio
                     'sender_name' => '{{ salesChannel.name }}',
                     'content_html' => $this->getHtmlTemplateDe(),
                     'content_plain' => $this->getPlainTemplateDe(),
-                    'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                     'mail_template_id' => $templateId,
                     'language_id' => $germanLanguageId,
                 ]
@@ -179,7 +179,7 @@ class Migration1572425108AddDoubleOptInRegistrationMailTemplate extends Migratio
                 'config' => json_encode([
                     'mail_template_type_id' => Uuid::fromBytesToHex($templateTypeId),
                 ]),
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
     }

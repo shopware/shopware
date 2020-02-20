@@ -14,19 +14,19 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Storefront\Pagelet\Footer\FooterPageletLoader;
-use Shopware\Storefront\Pagelet\Header\HeaderPageletLoader;
+use Shopware\Storefront\Pagelet\Footer\FooterPageletLoaderInterface;
+use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class GenericPageLoader
 {
     /**
-     * @var HeaderPageletLoader
+     * @var HeaderPageletLoaderInterface
      */
     private $headerLoader;
 
     /**
-     * @var FooterPageletLoader
+     * @var FooterPageletLoaderInterface
      */
     private $footerLoader;
 
@@ -46,8 +46,8 @@ class GenericPageLoader
     private $systemConfigService;
 
     public function __construct(
-        HeaderPageletLoader $headerLoader,
-        FooterPageletLoader $footerLoader,
+        HeaderPageletLoaderInterface $headerLoader,
+        FooterPageletLoaderInterface $footerLoader,
         SalesChannelRepositoryInterface $shippingMethodsRepository,
         SalesChannelRepositoryInterface $paymentMethodsRepository,
         SystemConfigService $systemConfigService

@@ -4,19 +4,14 @@ namespace Shopware\Storefront\Pagelet\Header;
 
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\Tree\Tree;
-use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Storefront\Pagelet\NavigationPagelet;
 
-class HeaderPagelet extends Struct
+class HeaderPagelet extends NavigationPagelet
 {
-    /**
-     * @var Tree
-     */
-    protected $navigation;
-
     /**
      * @var LanguageCollection
      */
@@ -50,17 +45,13 @@ class HeaderPagelet extends Struct
         CurrencyEntity $activeCurrency,
         CategoryCollection $serviceMenu
     ) {
-        $this->navigation = $navigation;
         $this->languages = $languages;
         $this->currencies = $currencies;
         $this->activeLanguage = $activeLanguage;
         $this->activeCurrency = $activeCurrency;
         $this->serviceMenu = $serviceMenu;
-    }
 
-    public function getNavigation(): Tree
-    {
-        return $this->navigation;
+        parent::__construct($navigation);
     }
 
     public function getLanguages(): LanguageCollection

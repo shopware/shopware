@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Page;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -25,6 +26,9 @@ abstract class PageLoadedEvent extends NestedEvent
         $this->request = $request;
     }
 
+    /**
+     * @return Page|Struct
+     */
     abstract public function getPage();
 
     public function getSalesChannelContext(): SalesChannelContext

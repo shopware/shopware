@@ -270,7 +270,7 @@
         "cartHeader": "Shopping cart",
         "cartUpdateSuccess": "Shopping cart updated",
         "continueShopping": "Continue shopping",
-        "emptyCart": "Your shopping cart empty",
+        "emptyCart": "Your shopping cart is empty",
         "proceedToCart": "Go to shopping cart",
         "proceedToCheckout": "Proceed to checkout",
         "quantityTimes": "x",
@@ -341,7 +341,7 @@
         "filterTitleText": "Filter",
         "showResults": "Show results",
         "boxUnitLabel": "Content:",
-        "boxLabelTopseller": "Tip!",
+        "boxLabelTopseller": "Tip",
         "boxLabelNew": "New",
         "listingTextSite": "Page",
         "listingTextFrom": "from",
@@ -476,5 +476,9 @@
         "groupRequiredDescription": "These cookies are required by the shops core functionality.",
         "groupRequiredSession": "Session",
         "groupRequiredTimezone": "Timezone"
-    }
+    },
+  "ellipsis": {
+    "expandLabel": "show more",
+    "shrinkLabel": "show less"
+  }
 }

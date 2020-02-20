@@ -187,6 +187,12 @@ Component.register('sw-product-stream-value', {
             set(value) {
                 this.actualCondition.value = value.toString();
             }
+        },
+
+        context() {
+            const context = { ...Shopware.Context.api, inheritance: true };
+
+            return context;
         }
     },
 

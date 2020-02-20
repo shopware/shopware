@@ -602,7 +602,9 @@ class VersionManager
             return;
         }
 
-        $this->entityWriteGateway->execute($commands, $writeContext);
+        $writeContext->scope(Context::SYSTEM_SCOPE, function () use ($commands, $writeContext): void {
+            $this->entityWriteGateway->execute($commands, $writeContext);
+        });
     }
 
     private function addVersionToPayload(array $payload, EntityDefinition $definition, string $versionId): array

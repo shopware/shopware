@@ -40,6 +40,8 @@ class OpenApiLoader
         ];
         $openApi = scan($pathsToScan, ['analysis' => new DeactivateValidationAnalysis()]);
 
+        $allUndefined = true;
+        $calculatedPaths = [];
         foreach ($openApi->paths as $pathItem) {
             foreach (self::OPERATION_KEYS as $key) {
                 /** @var Operation $operation */
@@ -47,8 +49,14 @@ class OpenApiLoader
                 if ($operation instanceof Operation && !in_array($this->getTagForApi($forSalesChannel), $operation->tags, true)) {
                     $pathItem->$key = UNDEFINED;
                 }
+                $allUndefined = ($pathItem->$key === UNDEFINED && $allUndefined === true);
+            }
+
+            if (!$allUndefined) {
+                $calculatedPaths[] = $pathItem;
             }
         }
+        $openApi->paths = $calculatedPaths;
 
         return $openApi;
     }

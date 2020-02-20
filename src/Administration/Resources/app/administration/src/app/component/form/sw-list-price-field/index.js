@@ -78,6 +78,11 @@ Component.register('sw-list-price-field', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        hideListPrices: {
+            required: false,
+            default: false
         }
     },
 

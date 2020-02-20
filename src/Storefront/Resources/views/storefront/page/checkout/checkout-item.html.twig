@@ -130,7 +130,7 @@
                                                 {% endblock %}
 
                                                 {% block page_checkout_item_delivery_date %}
-                                                    {% if deliveryPosition and deliveryPosition.deliveryDate %}
+                                                    {% if deliveryPosition and deliveryPosition.deliveryDate and shopware.config.core.cart.showDeliveryTime %}
                                                         <div class="cart-item-delivery-date">
                                                             {{ "checkout.lineItemDeliveryDate"|trans({
                                                                 '%earliest%': deliveryPosition.deliveryDate.earliest|format_date('short', locale=app.request.locale),

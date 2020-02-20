@@ -36,7 +36,7 @@ class Migration1573049297AddReopenTransitionToDeliveryStates extends MigrationSt
             $stateIds[$row['technical_name']] = $row['id'];
         }
 
-        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'reopen', 'from_state_id' => $stateIds['cancelled'], 'to_state_id' => $stateIds['open'], 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'reopen', 'from_state_id' => $stateIds['cancelled'], 'to_state_id' => $stateIds['open'], 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
     }
 
     public function updateDestructive(Connection $connection): void

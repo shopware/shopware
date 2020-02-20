@@ -3,9 +3,14 @@
 namespace Shopware\Core\Framework\Test\Migration;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Statement;
+use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
+use Shopware\Core\Framework\Migration\MigrationRuntime;
+use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class MigrationCollectionRuntimeTest extends TestCase
@@ -253,6 +258,40 @@ class MigrationCollectionRuntimeTest extends TestCase
         static::assertNull($migrations[2]['update_destructive']);
         static::assertNull($migrations[3]['update_destructive']);
         static::assertSame('update', $migrations[3]['message']);
+    }
+
+    public function testIgnoreingInvalidMigrations(): void
+    {
+        $logger = $this->createMock(Logger::class);
+        $logger
+            ->expects(static::once())
+            ->method('notice')
+            ->willReturn(null);
+
+        $connection = $this->createMock(Connection::class);
+
+        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder->method('select')->willReturn($queryBuilder);
+        $queryBuilder->method('from')->willReturn($queryBuilder);
+        $queryBuilder->method('orderBy')->willReturn($queryBuilder);
+        $queryBuilder->method('where')->willReturn($queryBuilder);
+        $queryBuilder->method('andWhere')->willReturn($queryBuilder);
+
+        $statement = $this->createMock(Statement::class);
+        $statement->method('fetchAll')->willReturn(['WrongClass']);
+
+        $queryBuilder->method('execute')->willReturn($statement);
+
+        $connection
+            ->method('createQueryBuilder')
+            ->willReturn($queryBuilder);
+
+        $runtime = new MigrationRuntime($connection, $logger);
+
+        /** @var MigrationSource $source */
+        $source = $this->getContainer()->get(MigrationSource::class . '.core');
+
+        iterator_to_array($runtime->migrate($source), true);
     }
 
     private function getMigrations(): array

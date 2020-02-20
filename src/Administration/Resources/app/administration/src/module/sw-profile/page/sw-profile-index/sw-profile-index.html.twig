@@ -69,9 +69,13 @@
                             </sw-container>
 
                             {% block sw_profile_index_info_card_email_field %}
-                                <sw-text-field v-model="user.email"
-                                               validation="email"
-                                               :label="$tc('sw-profile.index.labelEmailField')">
+                                <sw-text-field
+                                    v-model="user.email"
+                                    validation="email"
+                                    required
+                                    name="sw-field--email"
+                                    :error="userEmailError"
+                                    :label="$tc('sw-profile.index.labelEmailField')">
                                 </sw-text-field>
                             {% endblock %}
                         </sw-card>

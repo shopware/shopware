@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
+use Shopware\Core\Kernel;
 use Symfony\Component\Routing\RouteCollectionBuilder;
 
 abstract class Plugin extends Bundle
@@ -93,6 +94,17 @@ abstract class Plugin extends Bundle
     public function getAdditionalBundles(AdditionalBundleParameters $parameters): array
     {
         return [];
+    }
+
+    final public function removeMigrations(): void
+    {
+        // namespace should not start with `shopware`
+        if (mb_stripos($this->getMigrationNamespace(), 'shopware') === 0) {
+            throw new \RuntimeException('Deleting Shopware migrations is not allowed');
+        }
+
+        $class = addcslashes($this->getMigrationNamespace(), '\\_%') . '%';
+        Kernel::getConnection()->executeQuery('DELETE FROM migration WHERE class LIKE :class', ['class' => $class]);
     }
 
     public function getBasePath(): string

@@ -9,7 +9,7 @@
                     <div class="sw-field__radio-option group-bordered" v-for="(option, index) in options">
                         <div class="sw-field__radio-input">
                             <input type="radio"
-                                :name="`${identification}`"
+                                :name="identification"
                                 :id="`${identification}-${index}`"
                                 :value="index"
                                 :disabled="disabled"

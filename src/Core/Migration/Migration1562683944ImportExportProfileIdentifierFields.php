@@ -35,7 +35,7 @@ class Migration1562683944ImportExportProfileIdentifierFields extends MigrationSt
                 'import_export_profile',
                 [
                     'mapping' => json_encode($mapping),
-                    'updated_at' => date(Defaults::STORAGE_DATE_FORMAT),
+                    'updated_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ],
                 [
                     'id' => $profile['id'],

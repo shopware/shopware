@@ -69,7 +69,7 @@ class Migration1563180880AddDefaultThumbnailSizes extends MigrationStep
                 'id' => $id,
                 'width' => $thumbnailSize['width'],
                 'height' => $thumbnailSize['height'],
-                'createdAt' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
 
             $thumbnailSizes[$i]['id'] = $id;

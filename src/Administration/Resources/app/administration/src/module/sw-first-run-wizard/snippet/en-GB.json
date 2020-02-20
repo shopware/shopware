@@ -46,6 +46,9 @@
     "mailerSmtp": {
       "headline": "SMTP server"
     },
+    "mailerLocal": {
+      "headline": "Local email agent"
+    },
     "paypalInfo": {
       "modalTitle": "Setup PayPal",
       "headline": "Now pre-integrated in Shopware with even easier and faster activation of the most popular payment methods*",

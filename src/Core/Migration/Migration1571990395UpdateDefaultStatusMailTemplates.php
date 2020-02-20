@@ -332,7 +332,7 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
                     'id' => $newTemplateId,
                     'mail_template_type_id' => $templateTypeId,
                     'system_default' => true,
-                    'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );
         }
@@ -363,7 +363,7 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
                     'sender_name' => '{{ salesChannel.name }}',
                     'content_html' => $contentHtmlEn,
                     'content_plain' => $contentPlainEn,
-                    'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );
         } else {
@@ -408,7 +408,7 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
                     'description' => $descriptionDe,
                     'content_html' => $contentHtmlDe,
                     'content_plain' => $contentPlainDe,
-                    'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );
         } else {

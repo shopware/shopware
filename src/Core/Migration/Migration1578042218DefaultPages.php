@@ -58,7 +58,7 @@ class Migration1578042218DefaultPages extends MigrationStep
                 'id' => Uuid::randomBytes(),
                 'configuration_key' => $page['key'],
                 'configuration_value' => sprintf('{"_value": "%s"}', Uuid::fromBytesToHex($id)),
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
         }
     }
@@ -84,7 +84,7 @@ class Migration1578042218DefaultPages extends MigrationStep
             'preview_media_id' => null,
             'locked' => 0,
             'config' => null,
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('cms_page_translation', [
@@ -92,7 +92,7 @@ class Migration1578042218DefaultPages extends MigrationStep
             'language_id' => $languageIdEn,
             'name' => $titleEn,
             'custom_fields' => null,
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('cms_page_translation', [
@@ -100,7 +100,7 @@ class Migration1578042218DefaultPages extends MigrationStep
             'language_id' => $languageIdDe,
             'name' => $titleDe,
             'custom_fields' => null,
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('cms_section', [
@@ -112,7 +112,7 @@ class Migration1578042218DefaultPages extends MigrationStep
             'locked' => 0,
             'sizing_mode' => 'boxed',
             'mobile_behavior' => 'wrap',
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('cms_block', [
@@ -127,7 +127,7 @@ class Migration1578042218DefaultPages extends MigrationStep
             'margin_left' => '20px',
             'margin_right' => '20px',
             'background_media_mode' => 'cover',
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('cms_slot', [
@@ -137,7 +137,7 @@ class Migration1578042218DefaultPages extends MigrationStep
             'type' => 'text',
             'slot' => 'content',
             'locked' => 0,
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $contentEn = [
@@ -167,7 +167,7 @@ class Migration1578042218DefaultPages extends MigrationStep
             'cms_slot_version_id' => $versionId,
             'language_id' => $languageIdEn,
             'config' => json_encode($contentEn),
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('cms_slot_translation', [
@@ -175,7 +175,7 @@ class Migration1578042218DefaultPages extends MigrationStep
             'cms_slot_version_id' => $versionId,
             'language_id' => $languageIdDe,
             'config' => json_encode($contentDe),
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         return $id;
@@ -194,7 +194,7 @@ class Migration1578042218DefaultPages extends MigrationStep
                 'id' => Uuid::randomBytes(),
                 'configuration_key' => 'core.basicInformation.contactPage',
                 'configuration_value' => sprintf('{"_value": "%s"}', Uuid::fromBytesToHex($id)),
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
         }
     }

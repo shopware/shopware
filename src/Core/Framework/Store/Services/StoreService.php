@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Store\Exception\StoreSignatureValidationException;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
-final class StoreService
+class StoreService
 {
     public const CONFIG_KEY_STORE_LICENSE_DOMAIN = 'core.store.licenseHost';
     public const CONFIG_KEY_STORE_LICENSE_EDITION = 'core.store.licenseEdition';
@@ -40,7 +40,7 @@ final class StoreService
      */
     private $instanceId;
 
-    public function __construct(SystemConfigService $configService, OpenSSLVerifier $openSSLVerifier, string $shopwareVersion, ?string $instanceId)
+    final public function __construct(SystemConfigService $configService, OpenSSLVerifier $openSSLVerifier, string $shopwareVersion, ?string $instanceId)
     {
         $this->configService = $configService;
         $this->openSSLVerifier = $openSSLVerifier;

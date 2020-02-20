@@ -36,10 +36,14 @@ const modules = {
                 },
                 {
                     loader: 'css-loader',
+                    options: {
+                        sourceMap: true,
+                    },
                 },
                 {
                     loader: 'postcss-loader', // needs to be AFTER css/style-loader and BEFORE sass-loader
                     options: {
+                        sourceMap: true,
                         config: {
                             path: join(__dirname, '..'),
                         },
@@ -47,6 +51,9 @@ const modules = {
                 },
                 {
                     loader: 'sass-loader',
+                    options: {
+                        sourceMap: true,
+                    },
                 },
             ],
         },

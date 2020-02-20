@@ -64,13 +64,21 @@
 
                         <div class="sw-settings-mailer__radio-selection">
                             {% block sw_settings_mailer_agent_options %}
+                                <sw-select-field v-model="mailerSettings['core.mailerSettings.emailAgent']">
+                                    <option value="local">{{ $tc('sw-settings-mailer.mailer-configuration.local-agent') }}</option>
+                                    <option value="smtp">{{ $tc('sw-settings-mailer.mailer-configuration.smtp-server') }}</option>
+                                    <option value="">{{ $tc('sw-settings-mailer.mailer-configuration.env-file') }}</option>
+                                </sw-select-field>
+
                                 <sw-field type="radio"
-                                          :options="emailAgentOptions"
-                                          v-model="mailerSettings['core.mailerSettings.emailAgent']">
+                                          v-if="mailerSettings['core.mailerSettings.emailAgent'] === 'local'"
+                                          :options="emailSendmailOptions"
+                                          v-model="mailerSettings['core.mailerSettings.sendMailOptions']">
                                 </sw-field>
                             {% endblock %}
                         </div>
 
+                        <p v-html="$tc('sw-settings-mailer.helpText')"></p>
                     </sw-card>
 
                     {% block sw_settings_mailer_smtp %}

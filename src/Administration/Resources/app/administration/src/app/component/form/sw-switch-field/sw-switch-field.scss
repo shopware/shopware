@@ -1,3 +1,4 @@
+
 @import "~scss/variables";
 
 $sw-field--switch-color-border: $color-steam-cloud;
@@ -20,14 +21,19 @@ $sw-field--switch-color-error: $color-crimson;
 
     .sw-field__label {
         margin-bottom: 0;
-        margin-left: 10px;
+
+        label {
+            cursor: pointer;
+            flex-grow: initial;
+            margin-right: auto;
+            padding: 15px 10px;
+        }
     }
 
     .sw-field--switch__content {
         display: grid;
         grid-template-columns: 24px 1fr auto;
         align-items: center;
-        grid-column-gap: 10px;
         background: $sw-field--switch-color-background;
         color: $sw-field--switch-color-text;
     }
@@ -35,14 +41,14 @@ $sw-field--switch-color-error: $color-crimson;
     &.sw-field--switch-bordered .sw-field--switch__content {
         border-radius: 4px;
         border: 1px solid $sw-field--switch-color-border;
-        padding: 12px 16px;
+        padding: 0 16px;
     }
 
     .sw-field--switch__input {
         position: relative;
-        padding-top: 3px;
+        padding: 15px 0;
         width: 24px;
-        height: 22px;
+        height: 100%;
 
         input[type="checkbox"] {
             opacity: 0;
@@ -55,8 +61,8 @@ $sw-field--switch-color-error: $color-crimson;
             border: 0 none;
             background: none;
             -webkit-appearance: none;
-            cursor: pointer;
             z-index: 2;
+            cursor: pointer;
 
             &:disabled {
                 cursor: auto;
@@ -94,11 +100,11 @@ $sw-field--switch-color-error: $color-crimson;
 
             .sw-field__switch-state-knob {
                 transition: all 0.3s ease-in-out;
-                width: 12px;
-                height: 12px;
+                width: 10px;
+                height: 10px;
                 position: absolute;
-                top: 2px;
-                left: 2px;
+                top: 3px;
+                left: 3px;
                 background: $sw-field--switch-color-background;
                 border-radius: 7px;
             }
@@ -106,14 +112,22 @@ $sw-field--switch-color-error: $color-crimson;
     }
 
     &.sw-field--small.sw-field--switch-bordered {
-        .sw-field--switch__content {
-            padding: 4px 16px;
+        label {
+            padding: 8px 10px;
+        }
+
+        .sw-field--switch__input {
+            padding: 8px 0;
         }
     }
 
     &.sw-field--medium.sw-field--switch-bordered {
-        .sw-field--switch__content {
-            padding: 8px 16px;
+        label {
+            padding: 11px 10px;
+        }
+
+        .sw-field--switch__input {
+            padding: 11px 0;
         }
     }
 

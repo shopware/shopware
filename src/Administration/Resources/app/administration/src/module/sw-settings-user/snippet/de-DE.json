@@ -94,7 +94,8 @@
         "saveSuccess": {
           "title": "Erfolg",
           "message": "Der Benutzer \"{name}\" wurde erfolgreich gespeichert."
-        }
+        },
+        "notificationInvalidEmailErrorMessage": "Bitte gib eine valide E-Mail Adresse ein."
       }
     }
   }

@@ -54,7 +54,7 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
             'locked' => 1,
             'type' => 'sidebar-filter',
             'name' => 'Filter',
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
         $connection->insert('cms_block', $filterBlock);
 
@@ -67,7 +67,7 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
             'cms_block_id' => $filterBlock['id'],
             'type' => 'sidebar-filter',
             'slot' => 'content',
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'version_id' => $versionId,
         ];
 
@@ -75,7 +75,7 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
             'cms_slot_id' => $filterSlot['id'],
             'cms_slot_version_id' => $versionId,
             'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'config' => null,
         ];
 
@@ -109,19 +109,19 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
             'id' => Uuid::randomBytes(),
             'type' => 'product_list',
             'locked' => 1,
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
         $pageEng = [
             'cms_page_id' => $page['id'],
             'language_id' => $languageEn,
             'name' => 'Default category layout with sidebar',
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
         $pageDeu = [
             'cms_page_id' => $page['id'],
             'language_id' => $languageDe,
             'name' => 'Standard Kategorie-Layout mit Sidebar',
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
         $connection->insert('cms_page', $page);
@@ -135,14 +135,14 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
             'cms_page_id' => $page['id'],
             'position' => 0,
             'type' => 'default',
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
         $sidebarSection = [
             'id' => Uuid::randomBytes(),
             'cms_page_id' => $page['id'],
             'position' => 1,
             'type' => 'sidebar',
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
         $connection->insert('cms_section', $topSection);
@@ -152,7 +152,7 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
         $blocks = [
             [
                 'id' => Uuid::randomBytes(),
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'cms_section_id' => $topSection['id'],
                 'locked' => 1,
                 'position' => 0,
@@ -166,7 +166,7 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
             ],
             [
                 'id' => Uuid::randomBytes(),
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'cms_section_id' => $sidebarSection['id'],
                 'section_position' => 'sidebar',
                 'locked' => 1,
@@ -178,7 +178,7 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
             ],
             [
                 'id' => Uuid::randomBytes(),
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'cms_section_id' => $sidebarSection['id'],
                 'section_position' => 'sidebar',
                 'locked' => 1,
@@ -189,7 +189,7 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
             ],
             [
                 'id' => Uuid::randomBytes(),
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'cms_section_id' => $sidebarSection['id'],
                 'section_position' => 'main',
                 'locked' => 1,
@@ -210,15 +210,15 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
 
         // cms slots
         $slots = [
-            ['id' => Uuid::randomBytes(), 'locked' => 1, 'cms_block_id' => $blocks[0]['id'], 'type' => 'image', 'slot' => 'left', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT), 'version_id' => $versionId],
-            ['id' => Uuid::randomBytes(), 'locked' => 1, 'cms_block_id' => $blocks[0]['id'], 'type' => 'text', 'slot' => 'right', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT), 'version_id' => $versionId],
+            ['id' => Uuid::randomBytes(), 'locked' => 1, 'cms_block_id' => $blocks[0]['id'], 'type' => 'image', 'slot' => 'left', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT), 'version_id' => $versionId],
+            ['id' => Uuid::randomBytes(), 'locked' => 1, 'cms_block_id' => $blocks[0]['id'], 'type' => 'text', 'slot' => 'right', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT), 'version_id' => $versionId],
 
-            ['id' => Uuid::randomBytes(), 'locked' => 1, 'cms_block_id' => $blocks[1]['id'], 'type' => 'category-navigation', 'slot' => 'content', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT), 'version_id' => $versionId],
+            ['id' => Uuid::randomBytes(), 'locked' => 1, 'cms_block_id' => $blocks[1]['id'], 'type' => 'category-navigation', 'slot' => 'content', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT), 'version_id' => $versionId],
 
-            ['id' => Uuid::randomBytes(), 'locked' => 1, 'cms_block_id' => $blocks[2]['id'], 'type' => 'sidebar-filter', 'slot' => 'content', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT), 'version_id' => $versionId],
+            ['id' => Uuid::randomBytes(), 'locked' => 1, 'cms_block_id' => $blocks[2]['id'], 'type' => 'sidebar-filter', 'slot' => 'content', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT), 'version_id' => $versionId],
 
-            ['id' => Uuid::randomBytes(), 'locked' => 1, 'cms_block_id' => $blocks[2]['id'], 'type' => 'sidebar-filter', 'slot' => 'content', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT), 'version_id' => $versionId],
-            ['id' => Uuid::randomBytes(), 'locked' => 1, 'cms_block_id' => $blocks[3]['id'], 'type' => 'product-listing', 'slot' => 'content', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT), 'version_id' => $versionId],
+            ['id' => Uuid::randomBytes(), 'locked' => 1, 'cms_block_id' => $blocks[2]['id'], 'type' => 'sidebar-filter', 'slot' => 'content', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT), 'version_id' => $versionId],
+            ['id' => Uuid::randomBytes(), 'locked' => 1, 'cms_block_id' => $blocks[3]['id'], 'type' => 'product-listing', 'slot' => 'content', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT), 'version_id' => $versionId],
         ];
 
         $slotTranslationData = [
@@ -226,7 +226,7 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
                 'cms_slot_id' => $slots[0]['id'],
                 'cms_slot_version_id' => $versionId,
                 'language_id' => $languageEn,
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'config' => json_encode([
                     'media' => ['source' => 'mapped', 'value' => 'category.media'],
                     'displayMode' => ['source' => 'static', 'value' => 'cover'],
@@ -239,7 +239,7 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
                 'cms_slot_id' => $slots[1]['id'],
                 'cms_slot_version_id' => $versionId,
                 'language_id' => $languageEn,
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'config' => json_encode([
                     'content' => ['source' => 'mapped', 'value' => 'category.description'],
                 ]),
@@ -248,14 +248,14 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
                 'cms_slot_id' => $slots[2]['id'],
                 'cms_slot_version_id' => $versionId,
                 'language_id' => $languageEn,
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'config' => null,
             ],
             [
                 'cms_slot_id' => $slots[3]['id'],
                 'cms_slot_version_id' => $versionId,
                 'language_id' => $languageEn,
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'config' => json_encode([
                     'boxLayout' => ['source' => 'static', 'value' => 'standard'],
                 ]),

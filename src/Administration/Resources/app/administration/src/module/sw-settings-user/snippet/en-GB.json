@@ -94,7 +94,8 @@
         "saveSuccess": {
           "title": "Success",
           "message": "User \"{name}\" has been saved."
-        }
+        },
+        "notificationInvalidEmailErrorMessage": "Please enter a valid email address."
       }
     }
   }

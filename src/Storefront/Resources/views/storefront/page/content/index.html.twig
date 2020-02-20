@@ -3,7 +3,8 @@
 {% block base_main_inner %}
     <div class="container-main">
         {% block page_content %}
-            <div class="breadcrumb cms-breadcrump container">
+            {# @deprecated tag:v6.4.0 class `cms-breadcrump` use `cms-breadcrumb` instead #}
+            <div class="breadcrumb cms-breadcrumb cms-breadcrump container">
                 {% block cms_breadcrumb %}
                     {% sw_include '@Storefront/storefront/component/listing/breadcrumb.html.twig' with {
                         navigationTree: page.header.navigation.tree,

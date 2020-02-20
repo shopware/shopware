@@ -15,10 +15,6 @@ Shopware.Component.register('sw-first-run-wizard-mailer-selection', {
 
     computed: {
         nextLabel() {
-            if (this.mailAgent === 'smtp') {
-                return this.$tc('sw-first-run-wizard.mailerSelection.buttonConfigure');
-            }
-
             return this.$tc('sw-first-run-wizard.general.buttonNext');
         },
 
@@ -87,16 +83,9 @@ Shopware.Component.register('sw-first-run-wizard-mailer-selection', {
 
             // when user has local selected
             if (this.mailAgent === 'local') {
-                await this.saveMailAgent().catch(() => {
-                    this.isLoading = false;
-                });
-
-                this.$emit('frw-redirect', 'sw.first.run.wizard.index.paypal.info');
+                this.$emit('frw-redirect', 'sw.first.run.wizard.index.mailer.local');
+                this.isLoading = false;
             }
-        },
-
-        saveMailAgent() {
-            return this.systemConfigApiService.saveValues({ 'core.mailerSettings.emailAgent': this.mailAgent });
         },
 
         setMailAgent(name) {

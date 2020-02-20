@@ -133,7 +133,7 @@ class ExamplePayment implements AsynchronousPaymentHandlerInterface
             $this->transactionStateHandler->pay($transaction->getOrderTransaction()->getId(), $context);
         } else {
             // Payment not completed, set transaction status to "open"
-            $this->transactionStateHandler->open($transaction->getOrderTransaction()->getId(), $context);
+            $this->transactionStateHandler->reopen($transaction->getOrderTransaction()->getId(), $context);
         }
     }
 

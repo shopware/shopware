@@ -139,6 +139,8 @@
             <argument type="service" id="Shopware\Core\Content\Media\Metadata\MetadataLoader"/>
             <argument type="service" id="Shopware\Core\Content\Media\TypeDetector\TypeDetector"/>
             <argument type="service" id="messenger.bus.shopware" />
+            <argument type="service" id="event_dispatcher" />
+            <argument>%shopware.filesystem.allowed_extensions%</argument>
         </service>
 
         <service id="Shopware\Core\Content\Media\File\FileLoader">

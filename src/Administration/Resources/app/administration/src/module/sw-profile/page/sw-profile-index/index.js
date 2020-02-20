@@ -4,6 +4,7 @@ import template from './sw-profile-index.html.twig';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+const { mapApiErrors } = Component.getComponentHelper();
 const types = Shopware.Utils.types;
 
 Component.register('sw-profile-index', {
@@ -38,6 +39,10 @@ Component.register('sw-profile-index', {
     },
 
     computed: {
+        ...mapApiErrors('user', [
+            'email'
+        ]),
+
         isDisabled() {
             return true; // TODO use ACL here with NEXT-1653
         },
@@ -192,12 +197,11 @@ Component.register('sw-profile-index', {
         },
 
         checkEmail() {
-            if (!email(this.user.email)) {
+            if (this.user.email && !email(this.user.email)) {
                 this.createErrorMessage(this.$tc('sw-profile.index.notificationInvalidEmailErrorMessage'));
 
                 return false;
             }
-
             return true;
         },
 
@@ -256,6 +260,10 @@ Component.register('sw-profile-index', {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
             }).catch(() => {
+                this.createNotificationError({
+                    title: this.$tc('sw-profile.index.notificationPasswordErrorTitle'),
+                    message: this.$tc('sw-profile.index.notificationSaveErrorMessage')
+                });
                 this.isLoading = false;
             });
         },

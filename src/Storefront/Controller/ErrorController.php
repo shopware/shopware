@@ -6,7 +6,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Twig\ErrorTemplateResolver;
 use Shopware\Storefront\Page\Navigation\Error\ErrorPageLoader;
-use Shopware\Storefront\Pagelet\Header\HeaderPageletLoader;
+use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
@@ -25,7 +25,7 @@ class ErrorController extends StorefrontController
     private $flashBag;
 
     /**
-     * @var HeaderPageletLoader
+     * @var HeaderPageletLoaderInterface
      */
     private $headerPageletLoader;
 
@@ -42,7 +42,7 @@ class ErrorController extends StorefrontController
     public function __construct(
         ErrorTemplateResolver $errorTemplateResolver,
         FlashBagInterface $flashBag,
-        HeaderPageletLoader $headerPageletLoader,
+        HeaderPageletLoaderInterface $headerPageletLoader,
         SystemConfigService $systemConfigService,
         ErrorPageLoader $errorPageLoader
     ) {

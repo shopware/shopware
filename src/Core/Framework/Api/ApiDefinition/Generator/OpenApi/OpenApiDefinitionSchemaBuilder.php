@@ -56,7 +56,7 @@ class OpenApiDefinitionSchemaBuilder
 
         $uuid = Uuid::randomHex();
         $schemaName = $definition->getEntityName();
-        $detailPath = $path . '/' . $uuid;
+        $exampleDetailPath = $path . '/' . $uuid;
 
         $extensions = [];
         $extensionRelationships = [];
@@ -78,13 +78,13 @@ class OpenApiDefinitionSchemaBuilder
             }
 
             if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
-                $relationships[$field->getPropertyName()] = $this->createToOneLinkage($field, $detailPath);
+                $relationships[] = $this->createToOneLinkage($field, $exampleDetailPath);
 
                 continue;
             }
 
             if ($field instanceof AssociationField) {
-                $relationships[$field->getPropertyName()] = $this->createToManyLinkage($field, $detailPath);
+                $relationships[] = $this->createToManyLinkage($field, $exampleDetailPath);
 
                 continue;
             }
@@ -94,7 +94,7 @@ class OpenApiDefinitionSchemaBuilder
             }
 
             if ($field instanceof JsonField) {
-                $attributes[$field->getPropertyName()] = $this->resolveJsonField($field, $version);
+                $attributes[] = $this->resolveJsonField($field, $version);
 
                 continue;
             }
@@ -109,15 +109,14 @@ class OpenApiDefinitionSchemaBuilder
                 $attr->deprecated = true;
             }
 
-            $attributes[$field->getPropertyName()] = $attr;
+            $attributes[] = $attr;
         }
 
-        $extensionAttributes = $this->getExtensions($extensions, $detailPath, $version);
+        $extensionAttributes = $this->getExtensions($extensions, $exampleDetailPath, $version);
 
         if (!empty($extensionAttributes)) {
             $attributes['extensions'] = new Property([
                 'type' => 'object',
-                'property' => 'extensions',
                 'properties' => $extensionAttributes,
             ]);
 
@@ -126,7 +125,7 @@ class OpenApiDefinitionSchemaBuilder
                     continue;
                 }
 
-                $extensionRelationships[$extension->getPropertyName()] = $extensionAttributes[$extension->getPropertyName()];
+                $extensionRelationships[] = $extensionAttributes[$extension->getPropertyName()];
             }
         }
 
@@ -142,6 +141,8 @@ class OpenApiDefinitionSchemaBuilder
             }
         }
 
+        $attributes = array_merge([new Property(['property' => 'id', 'type' => 'string', 'format' => 'uuid'])], $attributes);
+
         if (!$onlyFlat) {
             /* @var Schema[] $schema */
             $schema[$schemaName] = new Schema([
@@ -150,49 +151,30 @@ class OpenApiDefinitionSchemaBuilder
                     new Schema(['ref' => '#/components/schemas/resource']),
                     new Schema([
                         'type' => 'object',
-                        'schema' => $schemaName,
-                        'properties' => [
-                            'type' => ['example' => $definition->getEntityName()],
-                            'id' => ['example' => $uuid],
-                            'attributes' => [
-                                'type' => 'object',
-                                'required' => array_unique($requiredAttributes),
-                                'properties' => $attributes,
-                            ],
-                            'links' => [
-                                'properties' => [
-                                    'self' => [
-                                        'type' => 'string',
-                                        'format' => 'uri-reference',
-                                        'example' => $detailPath,
-                                    ],
-                                ],
-                            ],
-                        ],
+                        'required' => array_unique($requiredAttributes),
+                        'properties' => $attributes,
                     ]),
                 ],
             ]);
 
             if (\count($relationships)) {
-                $schema[$schemaName]->allOf[1]->properties['relationships'] = new Property([
+                $schema[$schemaName]->allOf[1]->properties[] = new Property([
                     'property' => 'relationships',
                     'properties' => $relationships,
                 ]);
             }
         }
 
-        $attributes = array_merge(['id' => new Property(['type' => 'string', 'property' => 'id', 'format' => 'uuid'])], $attributes);
-
-        foreach ($relationships as $property => $relationship) {
+        foreach ($relationships as $relationship) {
             $entity = $this->getRelationShipEntity($relationship);
-            $attributes[$property] = new Property(['ref' => '#/components/schemas/' . $entity . '_flat', 'property' => $property]);
+            $attributes[] = new Property(['property' => $relationship->property, 'ref' => '#/components/schemas/' . $entity . '_flat']);
         }
 
         if (!empty($extensionRelationships)) {
             $attributes['extensions'] = clone $attributes['extensions'];
             foreach ($extensionRelationships as $property => $relationship) {
                 $entity = $this->getRelationShipEntity($relationship);
-                $attributes['extensions']->properties[$property] = new Property(['ref' => '#/components/schemas/' . $entity . '_flat', 'property' => $property]);
+                $attributes['extensions']->properties[$property] = new Property(['ref' => '#/components/schemas/' . $entity . '_flat']);
             }
         }
 
@@ -238,7 +220,6 @@ class OpenApiDefinitionSchemaBuilder
             'properties' => [
                 'links' => [
                     'type' => 'object',
-                    'property' => 'links',
                     'properties' => [
                         'related' => [
                             'type' => 'string',
@@ -249,7 +230,6 @@ class OpenApiDefinitionSchemaBuilder
                 ],
                 'data' => [
                     'type' => 'object',
-                    'property' => 'data',
                     'properties' => [
                         'type' => [
                             'type' => 'string',
@@ -282,7 +262,6 @@ class OpenApiDefinitionSchemaBuilder
             'property' => $field->getPropertyName(),
             'properties' => [
                 'links' => [
-                    'property' => 'links',
                     'type' => 'object',
                     'properties' => [
                         'related' => [
@@ -294,19 +273,15 @@ class OpenApiDefinitionSchemaBuilder
                 ],
                 'data' => [
                     'type' => 'array',
-                    'property' => 'data',
                     'items' => [
                         'type' => 'object',
-                        'property' => 'items',
                         'properties' => [
                             'type' => [
                                 'type' => 'string',
-                                'property' => 'type',
                                 'example' => $associationEntityName,
                             ],
                             'id' => [
                                 'type' => 'string',
-                                'property' => 'id',
                                 'example' => Uuid::randomHex(),
                             ],
                         ],
@@ -364,7 +339,7 @@ class OpenApiDefinitionSchemaBuilder
             $definition = new Property([
                 'type' => 'array',
                 'property' => $jsonField->getPropertyName(),
-                'items' => $jsonField->getFieldType() ? $this->getPropertyByField($jsonField->getFieldType(), $jsonField->getPropertyName()) : [],
+                'items' => $this->getPropertyAssocsByField($jsonField->getFieldType()),
             ]);
         } else {
             $definition = new Property([
@@ -381,7 +356,7 @@ class OpenApiDefinitionSchemaBuilder
 
         foreach ($jsonField->getPropertyMapping() as $field) {
             if ($field instanceof JsonField) {
-                $definition->properties[$field->getPropertyName()] = $this->resolveJsonField($field, $version);
+                $definition->properties[] = $this->resolveJsonField($field, $version);
 
                 continue;
             }
@@ -390,7 +365,7 @@ class OpenApiDefinitionSchemaBuilder
                 $required[] = $field->getPropertyName();
             }
 
-            $definition->properties[$field->getPropertyName()] = $this->getPropertyByField(\get_class($field), $field->getPropertyName());
+            $definition->properties[] = $this->getPropertyByField(\get_class($field), $field->getPropertyName());
         }
 
         if (\count($required)) {
@@ -413,6 +388,34 @@ class OpenApiDefinitionSchemaBuilder
             'type' => $this->getType($fieldClass),
             'property' => $propertyName,
         ]);
+
+        if (\is_a($fieldClass, DateTimeField::class, true)) {
+            $property->format = 'date-time';
+        }
+        if (\is_a($fieldClass, FloatField::class, true)) {
+            $property->format = 'float';
+        }
+        if (\is_a($fieldClass, IntField::class, true)) {
+            $property->format = 'int64';
+        }
+        if (\is_a($fieldClass, IdField::class, true) || \is_a($fieldClass, FkField::class, true)) {
+            $property->type = 'string';
+            $property->format = 'uuid';
+        }
+
+        return $property;
+    }
+
+    private function getPropertyAssocsByField(?string $fieldClass): Object
+    {
+        $property = new \stdClass();
+        if ($fieldClass === null) {
+            $property->additionalProperties = false;
+
+            return $property;
+        }
+
+        $property->type = $this->getType($fieldClass);
 
         if (\is_a($fieldClass, DateTimeField::class, true)) {
             $property->format = 'date-time';
@@ -488,5 +491,19 @@ class OpenApiDefinitionSchemaBuilder
         }
 
         return $entity;
+    }
+
+    private function convertToOperationId(string $name): string
+    {
+        $name = ucfirst($this->convertToHumanReadable($name));
+
+        return str_replace(' ', '', $name);
+    }
+
+    private function convertToHumanReadable(string $name): string
+    {
+        $nameParts = array_map('ucfirst', explode('_', $name));
+
+        return implode(' ', $nameParts);
     }
 }

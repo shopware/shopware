@@ -3,7 +3,9 @@
 namespace Shopware\Core\Checkout\Test\Rule\Rule\LineItem;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -19,6 +21,13 @@ class LineItemOfTypeRuleTest extends TestCase
         static::assertTrue(
             $rule->match(new LineItemScope(new LineItem('A', 'product'), $context))
         );
+
+        $cart = new Cart('test', 'test');
+        $cart->add(new LineItem('A', 'product'));
+
+        static::assertTrue(
+            $rule->match(new CartRuleScope($cart, $context))
+        );
     }
 
     public function testRuleWithProductTypeNotMatch(): void
@@ -30,5 +39,12 @@ class LineItemOfTypeRuleTest extends TestCase
         static::assertFalse(
             $rule->match(new LineItemScope(new LineItem('A', 'product'), $context))
         );
+
+        $cart = new Cart('test', 'test');
+        $cart->add(new LineItem('A', 'product'));
+
+        $scope = new CartRuleScope($cart, $context);
+
+        static::assertFalse($rule->match($scope));
     }
 }

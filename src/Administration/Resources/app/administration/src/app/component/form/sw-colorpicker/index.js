@@ -58,6 +58,12 @@ Component.register('sw-colorpicker', {
             default: false
         },
 
+        readonly: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
         colorLabels: {
             type: Boolean,
             required: false,
@@ -757,6 +763,14 @@ Component.register('sw-colorpicker', {
             }
 
             return hslValue;
+        },
+
+        onClickInput() {
+            if (!this.readonly) {
+                return;
+            }
+
+            this.toggleColorPicker();
         }
     }
 });

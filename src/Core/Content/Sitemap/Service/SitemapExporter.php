@@ -106,7 +106,7 @@ class SitemapExporter implements SitemapExporterInterface
 
         $finish = $lastProvider === null;
         if ($finish) {
-            $this->lock($salesChannelContext);
+            $this->unlock($salesChannelContext);
         }
 
         return new SitemapGenerationResult(
@@ -180,6 +180,11 @@ class SitemapExporter implements SitemapExporterInterface
             ->expiresAfter($lifeTime);
 
         return $this->cache->save($lock);
+    }
+
+    private function unlock(SalesChannelContext $salesChannelContext): void
+    {
+        $this->cache->deleteItem($this->generateCacheKeyForSalesChannel($salesChannelContext));
     }
 
     private function isLocked(SalesChannelContext $salesChannelContext): bool

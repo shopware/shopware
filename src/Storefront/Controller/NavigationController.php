@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoader;
-use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoader;
+use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoaderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -22,12 +22,14 @@ class NavigationController extends StorefrontController
     private $navigationPageLoader;
 
     /**
-     * @var MenuOffcanvasPageletLoader
+     * @var MenuOffcanvasPageletLoaderInterface
      */
     private $offcanvasLoader;
 
-    public function __construct(NavigationPageLoader $navigationPageLoader, MenuOffcanvasPageletLoader $offcanvasLoader)
-    {
+    public function __construct(
+        NavigationPageLoader $navigationPageLoader,
+        MenuOffcanvasPageletLoaderInterface $offcanvasLoader
+    ) {
         $this->navigationPageLoader = $navigationPageLoader;
         $this->offcanvasLoader = $offcanvasLoader;
     }
@@ -62,6 +64,9 @@ class NavigationController extends StorefrontController
     {
         $page = $this->offcanvasLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/storefront/layout/navigation/offcanvas/navigation-pagelet.html.twig', ['page' => $page]);
+        return $this->renderStorefront(
+            '@Storefront/storefront/layout/navigation/offcanvas/navigation-pagelet.html.twig',
+            ['page' => $page]
+        );
     }
 }

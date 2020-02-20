@@ -25,6 +25,11 @@ Component.register('sw-maintain-currencies-modal', {
         taxRate: {
             type: Object,
             required: true
+        },
+
+        hideListPrices: {
+            required: false,
+            default: false
         }
     },
 

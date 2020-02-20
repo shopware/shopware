@@ -280,6 +280,11 @@
             <argument type="service" id="twig"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Twig\TemplateIterator" decorates="twig.template_iterator">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateIterator.inner"/>
+            <argument>%kernel.bundles%</argument>
+        </service>
+
         <service id="Shopware\Core\Framework\Routing\ApiRequestContextResolver">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>

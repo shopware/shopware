@@ -20,7 +20,7 @@ class Migration1563288227MarkAsNewConfig extends MigrationStep
             'id' => Uuid::randomBytes(),
             'configuration_key' => 'core.listing.markAsNew',
             'configuration_value' => '{"_value": "30"}',
-            'created_at' => \date(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
 

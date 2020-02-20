@@ -34,6 +34,23 @@ class ContextTest extends TestCase
         static::assertEquals(Context::SYSTEM_SCOPE, $context->getScope());
     }
 
+    public function testNestedDisableCache(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $context->disableCache(function (Context $level1): void {
+            static::assertFalse($level1->getUseCache());
+
+            $level1->disableCache(function (Context $level2): void {
+                static::assertFalse($level2->getUseCache());
+            });
+
+            static::assertFalse($level1->getUseCache());
+        });
+
+        static::assertTrue($context->getUseCache());
+    }
+
     public function testVersionChange(): void
     {
         $versionId = Uuid::randomHex();

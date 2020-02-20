@@ -19,10 +19,8 @@ class FooterPageletLoader implements FooterPageletLoaderInterface
      */
     private $navigationLoader;
 
-    public function __construct(
-        NavigationLoader $navigationLoader,
-        EventDispatcherInterface $eventDispatcher
-    ) {
+    public function __construct(NavigationLoader $navigationLoader, EventDispatcherInterface $eventDispatcher)
+    {
         $this->navigationLoader = $navigationLoader;
         $this->eventDispatcher = $eventDispatcher;
     }
@@ -38,12 +36,12 @@ class FooterPageletLoader implements FooterPageletLoaderInterface
             $tree = $this->navigationLoader->load($navigationId, $salesChannelContext, $footerId);
         }
 
-        $page = new FooterPagelet($tree);
+        $pagelet = new FooterPagelet($tree);
 
         $this->eventDispatcher->dispatch(
-            new FooterPageletLoadedEvent($page, $salesChannelContext, $request)
+            new FooterPageletLoadedEvent($pagelet, $salesChannelContext, $request)
         );
 
-        return $page;
+        return $pagelet;
     }
 }

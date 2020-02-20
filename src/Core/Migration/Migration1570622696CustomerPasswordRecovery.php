@@ -67,21 +67,21 @@ SQL;
             'id' => Uuid::fromHexToBytes($mailTemplateTypeId),
             'technical_name' => 'customer.recovery.request',
             'available_entities' => json_encode(['customerRecovery' => 'customer_recovery']),
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('mail_template_type_translation', [
             'mail_template_type_id' => Uuid::fromHexToBytes($mailTemplateTypeId),
             'language_id' => $this->getLanguageIdByLocale($connection, 'en-GB'),
             'name' => 'Customer password recovery',
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('mail_template_type_translation', [
             'mail_template_type_id' => Uuid::fromHexToBytes($mailTemplateTypeId),
             'language_id' => $this->getLanguageIdByLocale($connection, 'de-DE'),
             'name' => 'Benutzer Passwort Wiederherstellung',
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         return $mailTemplateTypeId;
@@ -95,7 +95,7 @@ SQL;
             'id' => Uuid::fromHexToBytes($mailTemplateId),
             'mail_template_type_id' => Uuid::fromHexToBytes($mailTemplateTypeId),
             'system_default' => true,
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('mail_template_translation', [
@@ -106,7 +106,7 @@ SQL;
             'description' => '',
             'content_html' => $this->getContentHtmlDe(),
             'content_plain' => $this->getContentPlainDe(),
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('mail_template_translation', [
@@ -117,7 +117,7 @@ SQL;
             'description' => '',
             'content_html' => $this->getContentHtmlEn(),
             'content_plain' => $this->getContentPlainEn(),
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $this->addTemplateToSalesChannels($connection, $mailTemplateTypeId, $mailTemplateId);
@@ -133,7 +133,7 @@ SQL;
                 'mail_template_id' => Uuid::fromHexToBytes($mailTemplateId),
                 'mail_template_type_id' => Uuid::fromHexToBytes($mailTemplateTypeId),
                 'sales_channel_id' => $salesChannel['id'],
-                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ];
 
             $connection->insert('mail_template_sales_channel', $mailTemplateSalesChannel);
@@ -147,7 +147,7 @@ SQL;
             'event_name' => 'customer.recovery.request',
             'action_name' => 'action.mail.send',
             'config' => json_encode(['mail_template_type_id' => $mailTemplateTypeId]),
-            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
 

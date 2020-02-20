@@ -112,6 +112,14 @@ class PluginLifecycleServiceTest extends TestCase
         $this->getContainer()
             ->get(Connection::class)
             ->rollBack();
+
+        if (isset($_SERVER['FAKE_MIGRATION_NAMESPACE'])) {
+            unset($_SERVER['FAKE_MIGRATION_NAMESPACE']);
+        }
+
+        if (isset($_SERVER['TEST_KEEP_MIGRATIONS'])) {
+            unset($_SERVER['TEST_KEEP_MIGRATIONS']);
+        }
     }
 
     public function testInstallPlugin(): void
@@ -316,6 +324,88 @@ class PluginLifecycleServiceTest extends TestCase
         $this->expectException(PluginNotActivatedException::class);
         $this->expectExceptionMessage(sprintf('Plugin "%s" is not activated.', self::PLUGIN_NAME));
         $this->pluginLifecycleService->deactivatePlugin($pluginInstalled, $this->context);
+    }
+
+    public function testRemoveMigrations(): void
+    {
+        $this->pluginService->refreshPlugins($this->context, new NullIO());
+
+        $plugin = $this->getTestPlugin();
+
+        $overAllCount = $this->getMigrationCount('');
+
+        $this->pluginLifecycleService->installPlugin($plugin, $this->context);
+
+        $swagTestCount = $this->getMigrationCount('SwagTest\\Migration\\');
+        static::assertEquals(1, $swagTestCount);
+
+        $this->pluginLifecycleService->uninstallPlugin($plugin, $this->context);
+
+        $swagTestCount = $this->getMigrationCount('SwagTest\\Migration\\');
+        static::assertEquals(0, $swagTestCount);
+
+        $newOverAllCount = $this->getMigrationCount('');
+        static::assertEquals($overAllCount, $newOverAllCount);
+    }
+
+    public function testDontRemoveMigrations(): void
+    {
+        $_SERVER['TEST_KEEP_MIGRATIONS'] = true;
+
+        $this->pluginService->refreshPlugins($this->context, new NullIO());
+
+        $plugin = $this->getTestPlugin();
+
+        $overAllCount = $this->getMigrationCount('');
+
+        $this->pluginLifecycleService->installPlugin($plugin, $this->context);
+
+        $swagTestCount = $this->getMigrationCount('SwagTest\\Migration\\');
+        static::assertEquals(1, $swagTestCount);
+
+        $this->pluginLifecycleService->uninstallPlugin($plugin, $this->context);
+
+        $swagTestCount = $this->getMigrationCount('SwagTest\\Migration\\');
+        static::assertEquals(1, $swagTestCount);
+
+        $newOverAllCount = $this->getMigrationCount('');
+        static::assertEquals($overAllCount + $swagTestCount, $newOverAllCount);
+    }
+
+    public function testRemoveMigrationsCannotRemoveShopwareMigrations(): void
+    {
+        $this->pluginService->refreshPlugins($this->context, new NullIO());
+
+        $overAllCount = $this->getMigrationCount('');
+
+        $swagTest = new SwagTest(true, '', '');
+
+        $_SERVER['FAKE_MIGRATION_NAMESPACE'] = 'Shopware\\Core';
+
+        $exception = null;
+
+        try {
+            $swagTest->removeMigrations();
+        } catch (\Exception $e) {
+            $exception = $e;
+        }
+
+        $newOverAllCount = $this->getMigrationCount('');
+
+        static::assertEquals($overAllCount, $newOverAllCount);
+
+        static::assertNotNull($exception, 'Expected exception to be thrown');
+    }
+
+    private function getMigrationCount(string $namespacePrefix): int
+    {
+        $result = $this->connection->executeQuery(
+            'SELECT COUNT(*) FROM migration WHERE class LIKE :class',
+            ['class' => addcslashes($namespacePrefix, '\\_%') . '%']
+        )
+            ->fetchColumn();
+
+        return (int) $result;
     }
 
     private function createPluginLifecycleService(): PluginLifecycleService

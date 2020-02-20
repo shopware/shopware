@@ -21,7 +21,6 @@ class Migration1578650334AddGoogleAnalyticsTable extends MigrationStep
                 `tracking_id` VARCHAR(50) NOT NULL,
                 `active` TINYINT(1) NOT NULL DEFAULT '0',
                 `track_orders` TINYINT(1) NOT NULL DEFAULT '0',
-                `meta_tag` VARCHAR(255) NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
                 PRIMARY KEY (`id`)

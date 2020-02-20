@@ -26,11 +26,6 @@ class SalesChannelAnalyticsEntity extends Entity
     protected $trackOrders;
 
     /**
-     * @var string
-     */
-    protected $metaTag;
-
-    /**
      * @var SalesChannelEntity
      */
     protected $salesChannel;
@@ -63,16 +58,6 @@ class SalesChannelAnalyticsEntity extends Entity
     public function setTrackOrders(bool $trackOrders): void
     {
         $this->trackOrders = $trackOrders;
-    }
-
-    public function getMetaTag(): string
-    {
-        return $this->metaTag;
-    }
-
-    public function setMetaTag(string $metaTag): void
-    {
-        $this->metaTag = $metaTag;
     }
 
     public function getSalesChannel(): SalesChannelEntity

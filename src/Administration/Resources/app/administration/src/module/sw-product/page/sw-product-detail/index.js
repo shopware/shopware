@@ -121,6 +121,8 @@ Component.register('sw-product-detail', {
             criteria.getAssociation('seoUrls')
                 .addFilter(Criteria.equals('isCanonical', true));
 
+            criteria.getAssociation('crossSellings')
+                .addSorting(Criteria.sort('position', 'ASC'));
             criteria.getAssociation('crossSellings.assignedProduct')
                 .addSorting(Criteria.sort('position', 'ASC'));
             criteria.getAssociation('crossSellings.assignedProduct.product');

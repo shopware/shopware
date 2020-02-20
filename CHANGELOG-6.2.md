@@ -343,6 +343,11 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `\Shopware\Storefront\Theme\Twig\ThemeTemplateFinder` use `TemplateNamespaceHierarchyBuilderInterface` instead
     * Added JS plugin to add a Google Analytics integration: `google-analytics.plugin.js` 
     * Added additional data to the JS plugin events `SearchWidget::handleInputEvent`, `FormValidation::onFormSubmit` and `AddToCart::beforeFormSubmit`
+    * Added `\Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory` and deprecated the factory methods of `\Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration` in favor of the new factory class
+    * Added `\Shopware\Storefront\Theme\StorefrontPluginRegistryInterface`
+    * Added `\Shopware\Storefront\Theme\ThemeFileImporterInterface` which is used by ThemeCompiler to import theme files
+    * Added `\Shopware\Storefront\Theme\ThemeLifecycleHandler` to handle theme lifecycle.
+    * `\Shopware\Storefront\Theme\Subscriber\PluginLifecycleSubscriber` now uses `\Shopware\Storefront\Theme\ThemeLifecycleHandler`, constructor arguments changed because of that.
 
 **Removals**
 
@@ -436,4 +441,4 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     *
 
 * Storefront
-    *
+    * Removed duplicated `StorefrontPluginRegistryInterface` param from `\Shopware\Storefront\Theme\ThemeService`s constructor.

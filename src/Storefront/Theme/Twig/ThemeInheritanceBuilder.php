@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Theme\Twig;
 
 use Shopware\Storefront\Framework\ThemeInterface;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
+use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -14,9 +15,15 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
      */
     private $kernel;
 
-    public function __construct(KernelInterface $kernel)
+    /**
+     * @var StorefrontPluginRegistryInterface|null
+     */
+    private $themeRegistry;
+
+    public function __construct(KernelInterface $kernel, ?StorefrontPluginRegistryInterface $themeRegistry = null)
     {
         $this->kernel = $kernel;
+        $this->themeRegistry = $themeRegistry;
     }
 
     /**
@@ -83,18 +90,30 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
             return null;
         }
 
-        // try to load inheritance from theme.json file
-        $file = $bundle->getPath() . '/Resources/theme.json';
-        if (!file_exists($file)) {
-            return $default;
-        }
+        if ($this->themeRegistry) {
+            $themeConfig = $this->themeRegistry
+                ->getConfigurations()
+                ->getByTechnicalName($theme);
 
-        $config = json_decode(file_get_contents($file), true);
-        if (!isset($config['views'])) {
-            return $default;
-        }
+            if (!$themeConfig) {
+                return $default;
+            }
 
-        $inheritance = $config['views'];
+            $inheritance = $themeConfig->getViewInheritance();
+        } else {
+            // try to load inheritance from theme.json file
+            $file = $bundle->getPath() . '/Resources/theme.json';
+            if (!file_exists($file)) {
+                return $default;
+            }
+
+            $config = json_decode(file_get_contents($file), true);
+            if (!isset($config['views'])) {
+                return $default;
+            }
+
+            $inheritance = $config['views'];
+        }
 
         if (empty($inheritance)) {
             return $default;
@@ -118,21 +137,40 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
         $filtered = [];
 
         foreach ($bundles as $bundle) {
-            $bundleClass = $this->getBundle($bundle);
+            if ($this->themeRegistry) {
+                $themeConfig = $this->themeRegistry->getConfigurations()->getByTechnicalName($bundle);
 
-            if (
-                $bundleClass === null
+                if (
+                    $themeConfig === null
 
-                // add all plugins
-                || !($bundleClass instanceof ThemeInterface)
+                    // add all plugins
+                    || !$themeConfig->getIsTheme()
 
-                // always add storefront for new routes and templates fallback
-                || $bundle === StorefrontPluginRegistry::BASE_THEME_NAME
+                    // always add storefront for new routes and templates fallback
+                    || $bundle === StorefrontPluginRegistry::BASE_THEME_NAME
 
-                // filter all none active themes
-                || isset($themes[$bundle])
-            ) {
-                $filtered[] = $bundle;
+                    // filter all none active themes
+                    || isset($themes[$bundle])
+                ) {
+                    $filtered[] = $bundle;
+                }
+            } else {
+                $bundleClass = $this->getBundle($bundle);
+
+                if (
+                    $bundleClass === null
+
+                    // add all plugins
+                    || !($bundleClass instanceof ThemeInterface)
+
+                    // always add storefront for new routes and templates fallback
+                    || $bundle === StorefrontPluginRegistry::BASE_THEME_NAME
+
+                    // filter all none active themes
+                    || isset($themes[$bundle])
+                ) {
+                    $filtered[] = $bundle;
+                }
             }
         }
 

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Storefront\Theme\StorefrontPluginRegistry;
+use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\Console\Command\Command;
@@ -29,7 +29,7 @@ class ThemeChangeCommand extends Command
     private $themeService;
 
     /**
-     * @var StorefrontPluginRegistry
+     * @var StorefrontPluginRegistryInterface
      */
     private $pluginRegistry;
 
@@ -60,7 +60,7 @@ class ThemeChangeCommand extends Command
 
     public function __construct(
         ThemeService $themeService,
-        StorefrontPluginRegistry $pluginRegistry,
+        StorefrontPluginRegistryInterface $pluginRegistry,
         EntityRepositoryInterface $salesChannelRepository,
         EntityRepositoryInterface $themeRepository,
         EntityRepositoryInterface $themeSalesChannelRepository

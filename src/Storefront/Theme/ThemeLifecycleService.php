@@ -16,7 +16,7 @@ use function GuzzleHttp\Psr7\mimetype_from_filename;
 class ThemeLifecycleService
 {
     /**
-     * @var StorefrontPluginRegistry
+     * @var StorefrontPluginRegistryInterface
      */
     private $pluginRegistry;
 
@@ -46,7 +46,7 @@ class ThemeLifecycleService
     private $fileSaver;
 
     public function __construct(
-        StorefrontPluginRegistry $pluginRegistry,
+        StorefrontPluginRegistryInterface $pluginRegistry,
         EntityRepositoryInterface $themeRepository,
         EntityRepositoryInterface $mediaRepository,
         EntityRepositoryInterface $mediaFolderRepository,

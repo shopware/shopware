@@ -37,15 +37,25 @@ class ThemeCompiler
      */
     private $themeFileResolver;
 
+    /**
+     * @var ThemeFileImporterInterface|null
+     */
+    private $themeFileImporter;
+
+    /**
+     * @param ThemeFileImporterInterface|null $themeFileImporter will be required in v6.3.0
+     */
     public function __construct(
         FilesystemInterface $publicFilesystem,
         ThemeFileResolver $themeFileResolver,
         string $cacheDir,
-        bool $debug
+        bool $debug,
+        ?ThemeFileImporterInterface $themeFileImporter = null
     ) {
         $this->publicFilesystem = $publicFilesystem;
         $this->themeFileResolver = $themeFileResolver;
         $this->cacheDir = $cacheDir;
+        $this->themeFileImporter = $themeFileImporter;
 
         $this->scssCompiler = new Compiler();
         $this->scssCompiler->setImportPaths('');
@@ -63,7 +73,7 @@ class ThemeCompiler
         $themePrefix = self::getThemePrefix($salesChannelId, $themeId);
         $outputPath = 'theme' . DIRECTORY_SEPARATOR . $themePrefix;
 
-        if ($withAssets && is_dir('theme' . DIRECTORY_SEPARATOR . $themePrefix)) {
+        if ($withAssets && $this->publicFilesystem->has($outputPath)) {
             $this->publicFilesystem->deleteDir($outputPath);
         }
 
@@ -73,7 +83,11 @@ class ThemeCompiler
 
         $concatenatedStyles = '';
         foreach ($styleFiles as $file) {
-            $concatenatedStyles .= '@import \'' . $file->getFilepath() . '\';' . PHP_EOL;
+            if ($this->themeFileImporter) {
+                $concatenatedStyles .= $this->themeFileImporter->getConcatenableStylePath($file, $themeConfig);
+            } else {
+                $concatenatedStyles .= '@import \'' . $file->getFilepath() . '\';' . PHP_EOL;
+            }
         }
         $compiled = $this->compileStyles($concatenatedStyles, $themeConfig, $styleFiles->getResolveMappings());
         $cssFilepath = $outputPath . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 'all.css';
@@ -82,8 +96,12 @@ class ThemeCompiler
         /** @var FileCollection $scriptFiles */
         $scriptFiles = $resolvedFiles[ThemeFileResolver::SCRIPT_FILES];
         $concatenatedScripts = '';
-        foreach ($scriptFiles->getFilepaths() as $scriptPath) {
-            $concatenatedScripts .= file_get_contents($scriptPath) . PHP_EOL;
+        foreach ($scriptFiles as $file) {
+            if ($this->themeFileImporter) {
+                $concatenatedScripts .= $this->themeFileImporter->getConcatenableScriptPath($file, $themeConfig);
+            } else {
+                $concatenatedScripts .= file_get_contents($file->getFilepath()) . PHP_EOL;
+            }
         }
 
         $scriptFilepath = $outputPath . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'all.js';
@@ -122,28 +140,10 @@ class ThemeCompiler
                 continue;
             }
 
-            if (!is_dir($asset)) {
-                throw new ThemeCompileException(
-                    $configuration->getTechnicalName(),
-                    sprintf('Unable to find asset. Path: "%s"', $asset)
-                );
-            }
-
-            $finder = new Finder();
-            $files = $finder->files()->in($asset);
-            $assets = [];
-
-            foreach ($files as $file) {
-                $relativePathname = $file->getRelativePathname();
-                $assetDir = basename($asset);
-
-                $assets[] = new CopyBatchInput(
-                    $asset . DIRECTORY_SEPARATOR . $relativePathname,
-                    [
-                        'bundles' . DIRECTORY_SEPARATOR . mb_strtolower($configuration->getTechnicalName()) . DIRECTORY_SEPARATOR . $assetDir . DIRECTORY_SEPARATOR . $relativePathname,
-                        $outputPath . DIRECTORY_SEPARATOR . $assetDir . DIRECTORY_SEPARATOR . $relativePathname,
-                    ]
-                );
+            if ($this->themeFileImporter) {
+                $assets = $this->themeFileImporter->getCopyBatchInputsForAssets($asset, $outputPath, $configuration);
+            } else {
+                $assets = $this->getCopyBatchInputsForAssets($configuration, $outputPath, $asset);
             }
 
             // method copyBatch is provided by copyBatch filesystem plugin
@@ -224,5 +224,37 @@ class ThemeCompiler
 #variables#
 
 PHP_EOL;
+    }
+
+    /**
+     * @deprecated tag:v6.3.0 can safely be removed once the themeFileImporter prop is required
+     */
+    private function getCopyBatchInputsForAssets(StorefrontPluginConfiguration $configuration, string $outputPath, $asset): array
+    {
+        if (!is_dir($asset)) {
+            throw new ThemeCompileException(
+                $configuration->getTechnicalName(),
+                sprintf('Unable to find asset. Path: "%s"', $asset)
+            );
+        }
+
+        $finder = new Finder();
+        $files = $finder->files()->in($asset);
+        $assets = [];
+
+        foreach ($files as $file) {
+            $relativePathname = $file->getRelativePathname();
+            $assetDir = basename($asset);
+
+            $assets[] = new CopyBatchInput(
+                $asset . DIRECTORY_SEPARATOR . $relativePathname,
+                [
+                    'bundles' . DIRECTORY_SEPARATOR . mb_strtolower($configuration->getTechnicalName()) . DIRECTORY_SEPARATOR . $assetDir . DIRECTORY_SEPARATOR . $relativePathname,
+                    $outputPath . DIRECTORY_SEPARATOR . $assetDir . DIRECTORY_SEPARATOR . $relativePathname,
+                ]
+            );
+        }
+
+        return $assets;
     }
 }

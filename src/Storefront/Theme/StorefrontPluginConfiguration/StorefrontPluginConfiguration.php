@@ -66,9 +66,16 @@ class StorefrontPluginConfiguration
     private $assetPaths = [];
 
     /**
+     * @deprecated tag:v6.3.0 will be removed
+     *
      * @var string
      */
     private $themeVariableFile;
+
+    /**
+     * @var string[]
+     */
+    private $viewInheritance = [];
 
     public function getTechnicalName(): ?string
     {
@@ -170,11 +177,17 @@ class StorefrontPluginConfiguration
         $this->themeConfig = $themeConfig;
     }
 
+    /**
+     * @deprecated tag:v6.3.0 will be removed
+     */
     public function getThemeVariableFile(): string
     {
         return $this->themeVariableFile;
     }
 
+    /**
+     * @deprecated tag:v6.3.0 will be removed
+     */
     public function setThemeVariableFile(string $themeVariableFile): void
     {
         $this->themeVariableFile = $themeVariableFile;
@@ -190,6 +203,30 @@ class StorefrontPluginConfiguration
         $this->previewMedia = $previewMedia;
     }
 
+    /**
+     * @return string[]
+     */
+    public function getViewInheritance(): array
+    {
+        return $this->viewInheritance;
+    }
+
+    /**
+     * @param string[] $viewInheritance
+     */
+    public function setViewInheritance(array $viewInheritance): void
+    {
+        $this->viewInheritance = $viewInheritance;
+    }
+
+    public function hasFilesToCompile(): bool
+    {
+        return count($this->getStyleFiles()) !== 0 || count($this->getScriptFiles()) !== 0;
+    }
+
+    /**
+     * @deprecated tag:v6.3.0 use StorefrontPluginConfigurationFactory instead
+     */
     public static function createFromBundle(Bundle $bundle): self
     {
         $config = new self();
@@ -207,6 +244,9 @@ class StorefrontPluginConfiguration
         return $config;
     }
 
+    /**
+     * @deprecated tag:v6.3.0 use StorefrontPluginConfigurationFactory instead
+     */
     public static function createFromConfigFile(Bundle $bundle): self
     {
         if (!($bundle instanceof ThemeInterface)) {
@@ -278,6 +318,10 @@ class StorefrontPluginConfiguration
 
             if (array_key_exists('config', $data)) {
                 $config->setThemeConfig($data['config']);
+            }
+
+            if (array_key_exists('views', $data)) {
+                $config->setViewInheritance($data['views']);
             }
         } catch (ThemeCompileException $e) {
             throw $e;

@@ -25,7 +25,11 @@ class CopyBatch implements PluginInterface
     public function handle(CopyBatchInput ...$files): void
     {
         foreach ($files as $batchInput) {
-            $handle = fopen($batchInput->getSourceFile(), 'rb');
+            if (is_resource($batchInput->getSourceFile())) {
+                $handle = $batchInput->getSourceFile();
+            } else {
+                $handle = fopen($batchInput->getSourceFile(), 'rb');
+            }
 
             foreach ($batchInput->getTargetFiles() as $targetFile) {
                 $this->filesystem->putStream($targetFile, $handle);

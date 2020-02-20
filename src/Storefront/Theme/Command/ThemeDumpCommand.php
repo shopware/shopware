@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Storefront\Theme\StorefrontPluginRegistry;
+use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeFileResolver;
 use Symfony\Component\Console\Command\Command;
@@ -20,7 +20,7 @@ class ThemeDumpCommand extends Command
     protected static $defaultName = 'theme:dump';
 
     /**
-     * @var StorefrontPluginRegistry
+     * @var StorefrontPluginRegistryInterface
      */
     private $pluginRegistry;
 
@@ -50,7 +50,7 @@ class ThemeDumpCommand extends Command
     private $io;
 
     public function __construct(
-        StorefrontPluginRegistry $pluginRegistry,
+        StorefrontPluginRegistryInterface $pluginRegistry,
         ThemeFileResolver $themeFileResolver,
         EntityRepositoryInterface $themeRepository,
         string $cacheDir

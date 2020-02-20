@@ -7,7 +7,7 @@ Shopware.Component.extend('sw-media-compact-upload', 'sw-media-upload', {
 
     deprecated: {
         version: '6.4.0',
-        comment: 'Use sw-media-new-compact-upload instead'
+        comment: 'Use sw-media-compact-upload-v1 instead'
     },
 
     data() {

@@ -1,12 +1,12 @@
-import template from './sw-media-new-list-selection-item.html.twig';
-import './sw-media-new-list-selection-item.scss';
+import template from './sw-media-list-selection-item-v1.html.twig';
+import './sw-media-list-selection-item-v1.scss';
 
 /**
  * @private
  * @description Component which renders an image.
  * @status ready
  */
-Shopware.Component.register('sw-media-new-list-selection-item', {
+Shopware.Component.register('sw-media-list-selection-item-v1', {
     template,
 
     props: {

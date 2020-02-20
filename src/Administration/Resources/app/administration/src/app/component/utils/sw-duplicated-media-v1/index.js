@@ -1,5 +1,5 @@
-import template from './sw-new-duplicated-media.html.twig';
-import './sw-new-duplicated-media.scss';
+import template from './sw-duplicated-media-v1.html.twig';
+import './sw-duplicated-media-v1.scss';
 
 const { Component, Context, Filter } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -11,7 +11,7 @@ const { Criteria } = Shopware.Data;
 const LOCAL_STORAGE_KEY_OPTION = 'sw-duplicate-media-resolve-option';
 const LOCAL_STORAGE_SAVE_SELECTION = 'sw-duplicate-media-resolve-save-selection';
 
-Component.register('sw-new-duplicated-media', {
+Component.register('sw-duplicated-media-v1', {
     template,
 
     inject: ['repositoryFactory', 'mediaService'],
@@ -47,7 +47,7 @@ Component.register('sw-new-duplicated-media', {
         },
 
         buttonLabel() {
-            return this.$tc(`global.sw-new-duplicated-media.button${this.selectedOption}`);
+            return this.$tc(`global.sw-duplicated-media-v1.button${this.selectedOption}`);
         },
 
         dateFilter() {
@@ -85,15 +85,15 @@ Component.register('sw-new-duplicated-media', {
             return [
                 {
                     value: 'Replace',
-                    name: this.$tc('global.sw-new-duplicated-media.labelOptionReplace')
+                    name: this.$tc('global.sw-duplicated-media-v1.labelOptionReplace')
                 },
                 {
                     value: 'Rename',
-                    name: this.$tc('global.sw-new-duplicated-media.labelOptionRename')
+                    name: this.$tc('global.sw-duplicated-media-v1.labelOptionRename')
                 },
                 {
                     value: 'Skip',
-                    name: this.$tc('global.sw-new-duplicated-media.labelOptionSkip')
+                    name: this.$tc('global.sw-duplicated-media-v1.labelOptionSkip')
                 }
             ];
         }

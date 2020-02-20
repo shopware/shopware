@@ -79,8 +79,8 @@
                     <template #content>
                         <div>
                             {% block sw_media_quickinfo_preview_item %}
-                                <sw-media-new-preview class="sw-media-quickinfo__media-preview" :source="item.id" :showControls="true" :useThumbnails="false">
-                                </sw-media-new-preview>
+                                <sw-media-preview-v1 class="sw-media-quickinfo__media-preview" :source="item.id" :showControls="true" :useThumbnails="false">
+                                </sw-media-preview-v1>
                             {% endblock %}
                         </div>
                     </template>

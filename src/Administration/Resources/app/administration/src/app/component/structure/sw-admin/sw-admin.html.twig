@@ -2,7 +2,7 @@
     <div id="app">
         <sw-notifications ref="notifications"></sw-notifications>
         <sw-duplicated-media v-if="isLoggedIn"></sw-duplicated-media> {# @deprecated tag:v6.4.0 #}
-        <sw-new-duplicated-media v-if="isLoggedIn"></sw-new-duplicated-media>
+        <sw-duplicated-media-v1 v-if="isLoggedIn"></sw-duplicated-media-v1>
         <router-view></router-view>
         <sw-license-violation></sw-license-violation>
         <sw-settings-cache-modal v-if="isLoggedIn"></sw-settings-cache-modal>

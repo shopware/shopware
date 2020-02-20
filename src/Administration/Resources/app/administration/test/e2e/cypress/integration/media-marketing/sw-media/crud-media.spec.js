@@ -45,8 +45,8 @@ describe('Media: Test crud operations', () => {
 
         // Upload medium
         cy.clickContextMenuItem(
-            '.sw-media-new-upload__button-url-upload',
-            '.sw-media-new-upload__button-context-menu'
+            '.sw-media-upload-v1__button-url-upload',
+            '.sw-media-upload-v1__button-context-menu'
         );
         page.uploadImageUsingUrl(`${Cypress.config('baseUrl')}/bundles/administration/static/img/sw-login-background.png`);
         cy.get('.sw-media-base-item__name[title="sw-login-background.png"]')

@@ -1,36 +1,36 @@
-{% block sw_media_new_upload %}
-    <div class="sw-media-new-upload sw-media-new-compact-upload">
-        {% block sw_media_new_upload_compact %}
-            {% block sw_media_new_upload_compact_label %}
-                <label v-if="label" class="sw-media-new-compact-upload__label">
+{% block sw_media_upload_v1 %}
+    <div class="sw-media-upload-v1 sw-media-compact-upload-v1">
+        {% block sw_media_upload_v1_compact %}
+            {% block sw_media_upload_v1_compact_label %}
+                <label v-if="label" class="sw-media-compact-upload-v1__label">
                     {{ label }}
                 </label>
             {% endblock %}
 
-            <div v-if="variant == 'compact'" class="sw-media-new-upload__content">
+            <div v-if="variant == 'compact'" class="sw-media-upload-v1__content">
                 <sw-button-group splitButton>
-                    {% block sw_media_new_upload_compact_button_file_upload %}
-                        <sw-button class="sw-media-new-upload__button-compact-upload" variant="primary" @click="onClickUpload">
-                            {{ $tc('global.sw-media-new-upload.buttonFileUpload') }}
+                    {% block sw_media_upload_v1_compact_button_file_upload %}
+                        <sw-button class="sw-media-upload-v1__button-compact-upload" variant="primary" @click="onClickUpload">
+                            {{ $tc('global.sw-media-upload-v1.buttonFileUpload') }}
                         </sw-button>
                     {% endblock %}
 
-                    {% block sw_media_new_upload_compact_button_context_menu %}
+                    {% block sw_media_upload_v1_compact_button_context_menu %}
                         <sw-context-button>
                             <template slot="button">
-                                <sw-button square variant="primary" class="sw-media-new-upload__button-context-menu">
+                                <sw-button square variant="primary" class="sw-media-upload-v1__button-context-menu">
                                     <sw-icon name="small-arrow-medium-down" size="16"></sw-icon>
                                 </sw-button>
                             </template>
 
-                            <sw-context-menu-item @click="openUrlModal" class="sw-media-new-upload__button-url-upload">
-                                {{ $tc('global.sw-media-new-upload.buttonUrlUpload') }}
+                            <sw-context-menu-item @click="openUrlModal" class="sw-media-upload-v1__button-url-upload">
+                                {{ $tc('global.sw-media-upload-v1.buttonUrlUpload') }}
                             </sw-context-menu-item>
                         </sw-context-button>
                     {% endblock %}
                 </sw-button-group>
 
-                {% block sw_media_new_upload_compact_url_form %}
+                {% block sw_media_upload_v1_compact_url_form %}
                     <sw-media-url-form
                             v-if="showUrlInput"
                             variant="modal"
@@ -41,38 +41,38 @@
             </div>
         {% endblock %}
 
-        {% block sw_media_new_upload_regular %}
-            <div v-if="variant == 'regular'" class="sw-media-new-upload__content">
-                {% block sw_media_new_upload_regular_header %}
+        {% block sw_media_upload_v1_regular %}
+            <div v-if="variant == 'regular'" class="sw-media-upload-v1__content">
+                {% block sw_media_upload_v1_regular_header %}
                 {% endblock %}
 
-                {% block sw_media_new_upload_regular_drop_zone %}
-                    <div class="sw-media-new-upload__dropzone" ref="dropzone" :class="isDragActiveClass">
+                {% block sw_media_upload_v1_regular_drop_zone %}
+                    <div class="sw-media-upload-v1__dropzone" ref="dropzone" :class="isDragActiveClass">
 
-                        {% block sw_media_new_upload_preview %}
+                        {% block sw_media_upload_v1_preview %}
                             <template v-if="showPreview">
-                                {% block sw_media_new_upload_regular_preview_file %}
-                                    <sw-media-new-preview
+                                {% block sw_media_upload_v1_regular_preview_file %}
+                                    <sw-media-preview-v1
                                             v-if="source || preview"
-                                            class="sw-media-new-upload__preview"
+                                            class="sw-media-upload-v1__preview"
                                             :source="source || preview">
-                                    </sw-media-new-preview>
+                                    </sw-media-preview-v1>
                                 {% endblock %}
-                                {% block sw_media_new_upload_regular_preview_fallback %}
-                                    <div v-else class="sw-media-new-upload__preview is--fallback">
-                                        <sw-icon class="sw-media-new-upload__fallback-icon" name="default-object-image"></sw-icon>
+                                {% block sw_media_upload_v1_regular_preview_fallback %}
+                                    <div v-else class="sw-media-upload-v1__preview is--fallback">
+                                        <sw-icon class="sw-media-upload-v1__fallback-icon" name="default-object-image"></sw-icon>
                                     </div>
                                 {% endblock %}
                             </template>
                         {% endblock %}
 
-                        {% block sw_media_new_upload_actions %}
-                        <div class="sw-media-new-upload__actions" :class="{ 'has--source': source }">
-                            <div class="sw-media-new-upload__file-info" v-if="source">
-                                <div class="sw-media-new-upload__file-headline">
+                        {% block sw_media_upload_v1_actions %}
+                        <div class="sw-media-upload-v1__actions" :class="{ 'has--source': source }">
+                            <div class="sw-media-upload-v1__file-info" v-if="source">
+                                <div class="sw-media-upload-v1__file-headline">
                                     {{ source | mediaName }}
                                 </div>
-                                <sw-icon class="sw-media-new-upload__remove-icon"
+                                <sw-icon class="sw-media-upload-v1__remove-icon"
                                          name="small-default-x-line-small"
                                          @click="onRemoveMediaItem"
                                          small>
@@ -80,41 +80,41 @@
                             </div>
 
                             <template v-else>
-                                {% block sw_media_new_upload_regular_actions_url %}
+                                {% block sw_media_upload_v1_regular_actions_url %}
                                     <sw-media-url-form
-                                            class="sw-media-new-upload__url-form"
+                                            class="sw-media-upload-v1__url-form"
                                             v-if="showUrlInput"
                                             variant="inline"
                                             @media-url-form-submit="onUrlUpload">
                                     </sw-media-url-form>
                                 {% endblock %}
 
-                                {% block sw_media_new_upload_regular_actions_add %}
+                                {% block sw_media_upload_v1_regular_actions_add %}
                                     <template v-if="!showUrlInput">
-                                        {% block sw_media_new_upload_regular_upload_button %}
-                                            <sw-button class="sw-media-new-upload__button upload"
+                                        {% block sw_media_upload_v1_regular_upload_button %}
+                                            <sw-button class="sw-media-upload-v1__button upload"
                                                        variant="ghost"
                                                        size="small"
                                                        @click="onClickUpload">
-                                                {{ $tc('global.sw-media-new-upload.buttonFileUpload') }}
+                                                {{ $tc('global.sw-media-upload-v1.buttonFileUpload') }}
                                             </sw-button>
                                         {% endblock %}
 
                                         <sw-button variant="primary"
-                                                   class="sw-media-new-compact-upload__browse-button"
+                                                   class="sw-media-compact-upload-v1__browse-button"
                                                    @click="mediaModalIsOpen = true">
-                                            <sw-icon class="sw-media-new-compact-upload__browse-icon"
+                                            <sw-icon class="sw-media-compact-upload-v1__browse-icon"
                                                      name="default-object-image"></sw-icon>
                                         </sw-button>
 
-                                        <sw-media-new-modal
+                                        <sw-media-modal-v1
                                             v-if="mediaModalIsOpen"
                                             @modal-close="mediaModalIsOpen = false"
                                             @media-modal-selection-change="onModalClosed"
                                             :allowMultiSelect="false"
-                                        ></sw-media-new-modal>
+                                        ></sw-media-modal-v1>
 
-                                        {% block sw_media_new_upload_regular_media_sidebar_button %}{% endblock %}
+                                        {% block sw_media_upload_v1_regular_media_sidebar_button %}{% endblock %}
                                     </template>
                                 {% endblock %}
                             </template>
@@ -125,9 +125,9 @@
             </div>
         {% endblock %}
 
-        {% block sw_media_new_upload_file_input %}
-            <form class="sw-media-new-upload__form" ref="fileForm">
-                <input class="sw-media-new-upload__file-input"
+        {% block sw_media_upload_v1_file_input %}
+            <form class="sw-media-upload-v1__form" ref="fileForm">
+                <input class="sw-media-upload-v1__file-input"
                        type="file"
                        id="files"
                        ref="fileInput"

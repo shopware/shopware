@@ -1,18 +1,18 @@
-import template from './sw-media-new-preview.html.twig';
-import './sw-media-new-preview.scss';
+import template from './sw-media-preview-v1.html.twig';
+import './sw-media-preview-v1.scss';
 
 const { Component, Context, Filter } = Shopware;
 const { fileReader } = Shopware.Utils;
 
 /**
  * @status ready
- * @description The <u>sw-media-new-preview</u> component is used to show a preview of media objects.
+ * @description The <u>sw-media-preview-v1</u> component is used to show a preview of media objects.
  * @example-type code-only
  * @component-example
- * <sw-media-new-preview :item="item" :showControls="true" :autoplay="false" :useThumbnails="false">
- * </sw-media-new-preview>
+ * <sw-media-preview-v1 :item="item" :showControls="true" :autoplay="false" :useThumbnails="false">
+ * </sw-media-preview-v1>
  */
-Component.register('sw-media-new-preview', {
+Component.register('sw-media-preview-v1', {
     template,
 
     inject: ['repositoryFactory'],
@@ -202,7 +202,7 @@ Component.register('sw-media-new-preview', {
 
         mediaName() {
             if (!this.trueSource) {
-                return this.$tc('global.sw-media-new-preview.textNoMedia');
+                return this.$tc('global.sw-media-preview-v1.textNoMedia');
             }
 
             return this.mediaNameFilter(this.trueSource, this.trueSource.fileName);

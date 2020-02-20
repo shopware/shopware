@@ -14,7 +14,7 @@ Component.register('sw-media-list-selection-item', {
 
     deprecated: {
         version: '6.4.0',
-        comment: 'Use sw-media-new-list-selection-item instead'
+        comment: 'Use sw-media-list-selection-item-v1 instead'
     },
 
     props: {

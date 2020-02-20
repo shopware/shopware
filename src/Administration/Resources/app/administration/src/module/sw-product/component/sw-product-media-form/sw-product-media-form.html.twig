@@ -8,7 +8,7 @@
                 @media-upload-finish="successfulUpload"
                 @media-upload-fail="onUploadFailed">
             </sw-upload-listener>
-            <sw-media-new-upload
+            <sw-media-upload-v1
                     v-if="!isLoading"
                     :uploadTag="product.id"
                     variant="regular"
@@ -16,7 +16,7 @@
                     :defaultFolder="product.getEntityName()"
                     @media-drop="$emit('media-drop', $event)"
                     @media-upload-sidebar-open="onMediaUploadButtonOpenSidebar">
-            </sw-media-new-upload>
+            </sw-media-upload-v1>
         {% endblock %}
 
         {% block sw_product_media_form_grid %}
@@ -26,10 +26,10 @@
                         <div v-if="cover" class="sw-product-media-form__preview-cover">
                                 <div class="preview-cover">
                                     {% block sw_product_media_form_cover_image %}
-                                        <sw-media-new-preview
+                                        <sw-media-preview-v1
                                             class="sw-product-media-form__cover-image"
                                             :source="cover.mediaId">
-                                        </sw-media-new-preview>
+                                        </sw-media-preview-v1>
                                     {% endblock %}
                                     <span>{{ $tc('sw-product.mediaForm.coverSubline') }}</span>
                                 </div>

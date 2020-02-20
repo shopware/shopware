@@ -9,8 +9,8 @@ export default class MediaPageObject extends GeneralPageObject {
             ...this.elements,
             ...{
                 uploadInput: '#files',
-                previewItem: '.sw-media-new-preview__item',
-                previewPlaceholder: '.sw-media-new-preview__placeholder',
+                previewItem: '.sw-media-preview-v1__item',
+                previewPlaceholder: '.sw-media-preview-v1__placeholder',
                 folderPreviewItem: '.sw-media-base-item__preview-container',
                 baseItem: '.sw-media-base-item',
                 baseItemName: '.sw-media-base-item__name',
@@ -35,10 +35,10 @@ export default class MediaPageObject extends GeneralPageObject {
             .type(path);
         cy.get('.sw-media-url-form__submit-button').click();
 
-        cy.get('.sw-media-new-preview__placeholder').should('be.visible');
-        cy.get('.sw-media-new-preview__placeholder').should('not.exist');
+        cy.get('.sw-media-preview-v1__placeholder').should('be.visible');
+        cy.get('.sw-media-preview-v1__placeholder').should('not.exist');
 
-        cy.get('.sw-media-new-preview__item').should('be.visible');
+        cy.get('.sw-media-preview-v1__item').should('be.visible');
         return this;
     }
 
@@ -54,9 +54,9 @@ export default class MediaPageObject extends GeneralPageObject {
                 }
             );
         });
-        cy.get('.sw-media-new-preview__placeholder').should('be.visible');
-        cy.get('.sw-media-new-preview__placeholder').should('not.exist');
-        cy.get('.sw-media-new-preview__item').should('be.visible');
+        cy.get('.sw-media-preview-v1__placeholder').should('be.visible');
+        cy.get('.sw-media-preview-v1__placeholder').should('not.exist');
+        cy.get('.sw-media-preview-v1__item').should('be.visible');
 
         return this;
     }

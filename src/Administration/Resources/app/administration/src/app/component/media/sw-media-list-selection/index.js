@@ -9,7 +9,7 @@ Component.register('sw-media-list-selection', {
 
     deprecated: {
         version: '6.4.0',
-        comment: 'Use sw-media-new-list-selection instead'
+        comment: 'Use sw-media-list-selection-v1 instead'
     },
 
     mixins: [

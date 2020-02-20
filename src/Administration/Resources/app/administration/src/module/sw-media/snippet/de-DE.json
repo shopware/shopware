@@ -86,7 +86,7 @@
       "labelButtonCancel": "Abbrechen",
       "labelButtonSaveSelection": "Medien hinzufügen"
     },
-    "sw-media-new-modal": {
+    "sw-media-modal-v1": {
       "titleModal": "Medien auswählen",
       "labelTabItemLibrary": "Bibliothek",
       "labelTabItemUpload": "Dateien hochladen",

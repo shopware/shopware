@@ -88,7 +88,7 @@
                                     autoUpload
                                     @media-upload-finish="setMediaItem">
                                 </sw-upload-listener>
-                                <sw-media-new-upload
+                                <sw-media-upload-v1
                                     class="sw-manufacturer-detail__logo-upload"
                                     :source="manufacturer.mediaId"
                                     :allowMultiSelect="false"
@@ -96,10 +96,10 @@
                                     :uploadTag="mediaUploadTag"
                                     :label="$tc('sw-manufacturer.detail.labelLogo')"
                                     :defaultFolder="manufacturerRepository.entityName"
-                                    @sw-media-new-upload-media-upload-success="setMediaItem"
+                                    @sw-media-upload-v1-media-upload-success="setMediaItem"
                                     @media-drop="onDropMedia"
                                     @media-upload-remove-image="onUnlinkLogo">
-                                </sw-media-new-upload>
+                                </sw-media-upload-v1>
                             {% endblock %}
                         </sw-container>
 

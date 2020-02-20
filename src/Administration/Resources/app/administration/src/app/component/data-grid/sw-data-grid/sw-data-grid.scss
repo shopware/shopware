@@ -353,7 +353,7 @@
         }
     }
 
-    .sw-media-new-preview,
+    .sw-media-preview-v1,
     .sw-media-preview {
         position: relative;
         width: 48px;
@@ -364,7 +364,7 @@
         margin-right: 15px;
         flex-shrink: 0;
 
-        .sw-media-new-preview__item,
+        .sw-media-preview-v1__item,
         .sw-media-preview__item {
             max-width: calc(100% - 5px);
             max-height: calc(100% - 5px);
@@ -428,7 +428,7 @@
             height: 42px;
         }
 
-        .sw-media-new-preview {
+        .sw-media-preview-v1 {
             width: 32px;
             height: 32px;
         }

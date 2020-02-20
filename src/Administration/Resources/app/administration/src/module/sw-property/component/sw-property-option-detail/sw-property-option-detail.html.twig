@@ -30,13 +30,13 @@
                     autoUpload
                     @media-upload-finish="successfulUpload">
             </sw-upload-listener>
-            <sw-media-new-compact-upload
+            <sw-media-compact-upload-v1
                 defaultFolder="product"
                 :source="currentOption.mediaId"
                 :uploadTag="currentOption.id"
                 @media-upload-remove-image="removeMedia"
                 @selection-change="setMedia">
-            </sw-media-new-compact-upload>
+            </sw-media-compact-upload-v1>
         {% endblock %}
 
         {% block sw_property_option_detail_footer %}

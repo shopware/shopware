@@ -95,7 +95,7 @@
                                     autoUpload
                                     @media-upload-finish="setMediaItem">
                                 </sw-upload-listener>
-                                <sw-media-new-upload
+                                <sw-media-upload-v1
                                     :uploadTag="uploadTag"
                                     :source="mediaItem"
                                     class="sw-settings-payment-detail__logo-image-upload"
@@ -106,7 +106,7 @@
                                     @media-drop="onDropMedia"
                                     @media-upload-sidebar-open="openMediaSidebar"
                                     @media-upload-remove-image="onUnlinkLogo">
-                                </sw-media-new-upload>
+                                </sw-media-upload-v1>
                                 {% endblock %}
                             </sw-container>
 

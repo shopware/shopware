@@ -83,7 +83,7 @@
                                                           autoUpload
                                                           @media-upload-finish="setMediaItem">
                                 </sw-upload-listener>
-                                <sw-media-new-upload v-if="!isLoading"
+                                <sw-media-upload-v1 v-if="!isLoading"
                                                  :uploadTag="uploadTag"
                                                  :source="logoMediaItem"
                                                  class="sw-settings-shipping-detail__logo-image-upload"
@@ -94,7 +94,7 @@
                                                  @media-drop="onDropMedia"
                                                  @media-upload-sidebar-open="openMediaSidebar"
                                                  @media-upload-remove-image="onUnlinkLogo">
-                                </sw-media-new-upload>
+                                </sw-media-upload-v1>
                             {% endblock %}
                         </sw-container>
 

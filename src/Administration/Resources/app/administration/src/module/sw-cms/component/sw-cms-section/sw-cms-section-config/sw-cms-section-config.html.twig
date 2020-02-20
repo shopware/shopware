@@ -61,7 +61,7 @@
                 {% endblock %}
 
                 {% block sw_cms_section_config_background_image_field %}
-                    <sw-media-new-compact-upload
+                    <sw-media-compact-upload-v1
                         :source="section && section.backgroundMedia && section.backgroundMedia.id ? section.backgroundMedia : null"
                         :uploadTag="uploadTag"
                         :label="$tc('sw-cms.detail.label.backgroundMediaLabel')"
@@ -69,7 +69,7 @@
                         :allowMultiSelect="false"
                         @media-upload-remove-image="removeMedia"
                         @selection-change="onSetBackgroundMedia">
-                    </sw-media-new-compact-upload>
+                    </sw-media-compact-upload-v1>
                     <sw-upload-listener
                         :uploadTag="uploadTag"
                         autoUpload

@@ -7,7 +7,7 @@
                 <template v-if="element.data && element.data.sliderItems && element.data.sliderItems.length">
                     <div class="sw-cms-el-image-gallery__item-holder">
                         {% block sw_cms_element_image_gallery_selection %}
-                            <sw-media-new-list-selection-item
+                            <sw-media-list-selection-item-v1
                                 v-for="(sliderItem, index) in element.data.sliderItems"
                                 v-if="index < galleryLimit"
                                 :key="index"
@@ -16,7 +16,7 @@
                                 @click="onChangeGalleryImage(sliderItem.media, index)"
                                 hideActions
                                 hideTooltip>
-                            </sw-media-new-list-selection-item>
+                            </sw-media-list-selection-item-v1>
                         {% endblock %}
                     </div>
                 </template>

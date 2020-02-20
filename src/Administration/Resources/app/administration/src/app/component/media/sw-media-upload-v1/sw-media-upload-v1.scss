@@ -1,20 +1,20 @@
 @import "~scss/variables";
 
-$sw-media-new-upload-border-color:                 $color-steam-cloud;
-$sw-media-new-upload-color-highlighted:            $color-shopware-blue;
-$sw-media-new-upload-color-switch-mode:            $color-shopware-blue;
-$sw-media-new-upload-border-radius:                $border-radius-default;
-$sw-media-new-upload-upload-background-color:      $color-light-gray;
-$sw-media-new-upload-background-color-highlighted: $color-cadet-blue;
-$sw-media-new-upload-caption-font-size:            $font-size-large;
-$sw-media-new-upload-caption-icon-color:           $color-steam-cloud;
+$sw-media-upload-v1-border-color:                 $color-steam-cloud;
+$sw-media-upload-v1-color-highlighted:            $color-shopware-blue;
+$sw-media-upload-v1-color-switch-mode:            $color-shopware-blue;
+$sw-media-upload-v1-border-radius:                $border-radius-default;
+$sw-media-upload-v1-upload-background-color:      $color-light-gray;
+$sw-media-upload-v1-background-color-highlighted: $color-cadet-blue;
+$sw-media-upload-v1-caption-font-size:            $font-size-large;
+$sw-media-upload-v1-caption-icon-color:           $color-steam-cloud;
 
-.sw-media-new-upload {
-    .sw-media-new-upload__file-input {
+.sw-media-upload-v1 {
+    .sw-media-upload-v1__file-input {
         display: none;
     }
 
-    .sw-media-new-upload__header {
+    .sw-media-upload-v1__header {
         display: flex;
         flex-direction: row;
         line-height: 16px;
@@ -26,26 +26,26 @@ $sw-media-new-upload-caption-icon-color:           $color-steam-cloud;
         user-select: none;
     }
 
-    .sw-media-new-upload__switch-mode {
-        color: $sw-media-new-upload-color-switch-mode;
+    .sw-media-upload-v1__switch-mode {
+        color: $sw-media-upload-v1-color-switch-mode;
         margin-left: auto;
         cursor: pointer;
     }
 
-    .sw-media-new-upload__help-text {
+    .sw-media-upload-v1__help-text {
         align-self: center;
         margin-left: 8px;
     }
 
-    .sw-media-new-upload__dropzone {
+    .sw-media-upload-v1__dropzone {
         padding: 24px;
         min-height: 148px;
         display: flex;
         flex-direction: row;
         align-items: center;
-        border: 2px dashed $sw-media-new-upload-border-color;
-        border-radius: $sw-media-new-upload-border-radius;
-        background-color: $sw-media-new-upload-upload-background-color;
+        border: 2px dashed $sw-media-upload-v1-border-color;
+        border-radius: $sw-media-upload-v1-border-radius;
+        background-color: $sw-media-upload-v1-upload-background-color;
         position: relative;
 
         &.is--multi {
@@ -53,42 +53,42 @@ $sw-media-new-upload-caption-icon-color:           $color-steam-cloud;
             justify-items: center;
             padding: 36px 24px;
 
-            .sw-media-new-upload__actions {
+            .sw-media-upload-v1__actions {
                 margin-top: 12px;
                 margin-left: unset;
                 flex-direction: row;
                 padding-left: unset;
 
-                .sw-media-new-upload__button {
+                .sw-media-upload-v1__button {
                     margin: 0 8px;
                 }
             }
         }
 
         &.is--active {
-            border-color: $sw-media-new-upload-color-highlighted;
-            background-color: $sw-media-new-upload-background-color-highlighted;
-            color: $sw-media-new-upload-color-highlighted;
+            border-color: $sw-media-upload-v1-color-highlighted;
+            background-color: $sw-media-upload-v1-background-color-highlighted;
+            color: $sw-media-upload-v1-color-highlighted;
 
-            .sw-media-new-upload__upload-caption {
+            .sw-media-upload-v1__upload-caption {
                 .sw-icon {
-                    color: $sw-media-new-upload-color-highlighted;
+                    color: $sw-media-upload-v1-color-highlighted;
                 }
             }
         }
 
-        .sw-media-new-upload__upload-caption {
-            font-size: $sw-media-new-upload-caption-font-size;
+        .sw-media-upload-v1__upload-caption {
+            font-size: $sw-media-upload-v1-caption-font-size;
             text-align: center;
 
             .sw-icon {
                 margin-right: 8px;
-                color: $sw-media-new-upload-caption-icon-color;
+                color: $sw-media-upload-v1-caption-icon-color;
             }
         }
     }
 
-    .sw-media-new-upload__actions {
+    .sw-media-upload-v1__actions {
         display: flex;
         flex-direction: column;
         align-items: flex-end;
@@ -97,7 +97,7 @@ $sw-media-new-upload-caption-icon-color:           $color-steam-cloud;
         width: 100%;
 
         &.has--source {
-            .sw-media-new-upload__file-info {
+            .sw-media-upload-v1__file-info {
                 width: 100%;
                 display: flex;
                 flex-direction: row;
@@ -106,23 +106,23 @@ $sw-media-new-upload-caption-icon-color:           $color-steam-cloud;
             }
         }
 
-        .sw-media-new-upload__file-info {
+        .sw-media-upload-v1__file-info {
             width: 100%;
         }
 
-        .sw-media-new-upload__file-headline {
+        .sw-media-upload-v1__file-headline {
             word-break: break-word;
             padding-right: 16px;
         }
 
-        .sw-media-new-upload__remove-icon {
+        .sw-media-upload-v1__remove-icon {
             flex-shrink: 0;
             margin-left: auto;
             cursor: pointer;
         }
     }
 
-    .sw-media-new-upload__url-form {
+    .sw-media-upload-v1__url-form {
         display: flex;
         flex-direction: column;
         align-items: flex-end;
@@ -133,11 +133,11 @@ $sw-media-new-upload-caption-icon-color:           $color-steam-cloud;
         }
     }
 
-    .sw-media-new-upload__button-compact-upload {
+    .sw-media-upload-v1__button-compact-upload {
         margin-right: 0 !important;
     }
 
-    .sw-media-new-upload__file-form {
+    .sw-media-upload-v1__file-form {
         display: grid;
         grid-template-columns: auto auto;
         grid-column-gap: 8px;
@@ -150,7 +150,7 @@ $sw-media-new-upload-caption-icon-color:           $color-steam-cloud;
         }
     }
 
-    .sw-media-new-upload__preview {
+    .sw-media-upload-v1__preview {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -159,27 +159,27 @@ $sw-media-new-upload-caption-icon-color:           $color-steam-cloud;
         margin-right: 16px;
         width: 96px;
         height: 96px;
-        border: 2px solid $sw-media-new-upload-border-color;
-        border-radius: $sw-media-new-upload-border-radius;
+        border: 2px solid $sw-media-upload-v1-border-color;
+        border-radius: $sw-media-upload-v1-border-radius;
 
         &.is--fallback {
-            border: 2px dashed $sw-media-new-upload-border-color;
+            border: 2px dashed $sw-media-upload-v1-border-color;
         }
     }
 
-    .sw-media-new-upload__fallback-icon {
+    .sw-media-upload-v1__fallback-icon {
         color: $color-steam-cloud;
     }
 
-    .sw-media-new-upload__button {
+    .sw-media-upload-v1__button {
         min-width: 144px;
         margin: 8px 0;
     }
 
-    .sw-media-new-preview {
+    .sw-media-preview-v1 {
         border: none;
 
-        .sw-media-new-preview__item {
+        .sw-media-preview-v1__item {
             max-height: 100%;
             max-width: 100%;
         }

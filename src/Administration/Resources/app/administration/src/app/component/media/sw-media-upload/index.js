@@ -28,7 +28,7 @@ Component.register('sw-media-upload', {
 
     deprecated: {
         version: '6.4.0',
-        comment: 'Use sw-media-new-upload instead'
+        comment: 'Use sw-media-upload-v1 instead'
     },
 
     mixins: [

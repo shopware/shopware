@@ -1,17 +1,17 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
-$sw-new-duplicated-media-separator-color: $color-steam-cloud;
-$sw-new-duplicated-media-font-size-preview: $font-size-small;
+$sw-duplicated-media-v1-separator-color: $color-steam-cloud;
+$sw-duplicated-media-v1-font-size-preview: $font-size-small;
 
 
-.sw-new-duplicated-media {
-    .sw-new-duplicated-media__description {
+.sw-duplicated-media-v1 {
+    .sw-duplicated-media-v1__description {
         font-size: 14px;
         margin-bottom: 10px;
     }
 
-    .sw-new-duplicated-media__preview {
+    .sw-duplicated-media-v1__preview {
         margin-bottom: 35px;
     }
 
@@ -19,12 +19,12 @@ $sw-new-duplicated-media-font-size-preview: $font-size-small;
         margin-bottom: 0;
     }
 
-    .sw-new-duplicated-media__preview-separator {
+    .sw-duplicated-media-v1__preview-separator {
         justify-self: center;
-        color: $sw-new-duplicated-media-separator-color;
+        color: $sw-duplicated-media-v1-separator-color;
     }
 
-    .sw-new-duplicated-media__options {
+    .sw-duplicated-media-v1__options {
         font-size: 14px;
         margin-bottom: 0;
     }
@@ -37,11 +37,11 @@ $sw-new-duplicated-media-font-size-preview: $font-size-small;
         grid-auto-columns: max-content;
     }
 
-    .sw-new-duplicated-media__additional-error-count {
+    .sw-duplicated-media-v1__additional-error-count {
         width: max-content;
     }
 
-    .sw-new-duplicated-media__target-upload {
+    .sw-duplicated-media-v1__target-upload {
         display: grid;
         grid-template-columns: auto 1fr;
         grid-column-gap: 10px;
@@ -50,26 +50,26 @@ $sw-new-duplicated-media-font-size-preview: $font-size-small;
         padding: 8px;
     }
 
-    .sw-new-duplicated-media__target-preview {
+    .sw-duplicated-media-v1__target-preview {
         position: relative;
         width: 40px;
         height: 40px;
         grid-row: 1 / span 2;
         overflow: hidden;
 
-        .sw-media-new-preview__item {
+        .sw-media-preview-v1__item {
             min-width: 100%;
             max-width: none;
             max-height: 100%;
         }
     }
 
-    .sw-new-duplicated-media__target-label {
+    .sw-duplicated-media-v1__target-label {
         @include truncate();
-        font-size: $sw-new-duplicated-media-font-size-preview;
+        font-size: $sw-duplicated-media-v1-font-size-preview;
     }
 
-    .sw-new-duplicated-media__target-details {
+    .sw-duplicated-media-v1__target-details {
         font-size: $font-size-small;
         color: $color-steam-cloud;
     }

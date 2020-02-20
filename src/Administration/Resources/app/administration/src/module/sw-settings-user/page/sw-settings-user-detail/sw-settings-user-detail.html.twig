@@ -87,7 +87,7 @@
                                             autoUpload
                                             @media-upload-finish="setMediaItem">
                                         </sw-upload-listener>
-                                        <sw-media-new-upload
+                                        <sw-media-upload-v1
                                             class="sw-settings-user-detail__grid-profile-picture"
                                             :source="avatarMedia"
                                             :label="$tc('sw-settings-user.user-detail.labelProfilePicture')"
@@ -97,7 +97,7 @@
                                             variant="regular"
                                             defaultFolder="user"
                                             @media-upload-remove-image="onUnlinkLogo">
-                                        </sw-media-new-upload>
+                                        </sw-media-upload-v1>
                                     {% endblock %}
 
                                     {% block sw_settings_user_detail_content_password %}

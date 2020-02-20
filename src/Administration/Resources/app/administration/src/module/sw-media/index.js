@@ -14,7 +14,7 @@ import './component/sw-media-display-options';
 import './component/sw-media-breadcrumbs';
 import './component/sw-media-library';
 import './component/sw-media-modal';
-import './component/sw-media-new-modal';
+import './component/sw-media-modal-v1';
 
 const { Module } = Shopware;
 

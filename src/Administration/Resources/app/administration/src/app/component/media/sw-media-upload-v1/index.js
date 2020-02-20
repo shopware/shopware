@@ -1,5 +1,5 @@
-import template from './sw-media-new-upload.html.twig';
-import './sw-media-new-upload.scss';
+import template from './sw-media-upload-v1.html.twig';
+import './sw-media-upload-v1.scss';
 
 const { Component, Mixin, Context } = Shopware;
 const { fileReader, debug } = Shopware.Utils;
@@ -9,20 +9,20 @@ const INPUT_TYPE_URL_UPLOAD = 'url-upload';
 
 /**
  * @status ready
- * @description The <u>sw-media-new-upload</u> component is used wherever an upload is needed. It supports drag & drop-,
+ * @description The <u>sw-media-upload-v1</u> component is used wherever an upload is needed. It supports drag & drop-,
  * file- and url-upload and comes in various forms.
  * @example-type code-only
  * @component-example
- * <sw-media-new-upload
+ * <sw-media-upload-v1
  *     uploadTag="my-upload-tag"
  *     variant="regular"
  *     allowMultiSelect="false"
  *     variant="regular"
  *     autoUpload="true"
  *     label="My image-upload">
- * </sw-media-new-upload>
+ * </sw-media-upload-v1>
  */
-Component.register('sw-media-new-upload', {
+Component.register('sw-media-upload-v1', {
     template,
 
     inject: ['repositoryFactory', 'mediaService'],
@@ -152,7 +152,7 @@ Component.register('sw-media-new-upload', {
         showUrlInput: {
             get() {
                 debug.warn(
-                    'sw-media-new-upload',
+                    'sw-media-upload-v1',
                     'showUrlInput is deprecated and will be removed in 6.4.0. Use isFileUpload or isUrlUpload instead'
                 );
 
@@ -161,7 +161,7 @@ Component.register('sw-media-new-upload', {
 
             set(value) {
                 debug.warn(
-                    'sw-media-new-upload',
+                    'sw-media-upload-v1',
                     'showUrlInput is deprecated and will be removed in 6.4.0. Use useFileUpload or useUrlUpload instead'
                 );
 
@@ -271,7 +271,7 @@ Component.register('sw-media-new-upload', {
         // @deprecated tag:v6.4.0
         closeUrlModal() {
             debug.warn(
-                'sw-media-new-upload',
+                'sw-media-upload-v1',
                 'closeUrlModal is deprecated and will be removed in 6.4.0. Use useUrlUpload instead'
             );
 
@@ -281,7 +281,7 @@ Component.register('sw-media-new-upload', {
         // @deprecated tag:v6.4.0
         openUrlModal() {
             debug.warn(
-                'sw-media-new-upload',
+                'sw-media-upload-v1',
                 'openUrlModal is deprecated and will be removed in 6.4.0. Use useFileUpload instead'
             );
 
@@ -291,7 +291,7 @@ Component.register('sw-media-new-upload', {
         // @deprecated tag:v6.4.0
         toggleShowUrlFields() {
             debug.warn(
-                'sw-media-new-upload',
+                'sw-media-upload-v1',
                 'toggleShowUrlFields is deprecated and will be removed in 6.4.0. Use useUrlUpload or useFileUpload instead'
             );
 

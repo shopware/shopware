@@ -1,7 +1,7 @@
-{% block sw_media_list_selection %}
-    <div class="sw-media-new-list-selection">
+{% block sw_media_list_selection_v1 %}
+    <div class="sw-media-list-selection-v1">
 
-        {% block sw_media_list_selection_upload %}
+        {% block sw_media_list_selection_v1_upload %}
             <sw-upload-listener
                 :uploadTag="uploadId"
                 @media-upload-add="onUploadsAdded"
@@ -9,23 +9,23 @@
                 @media-upload-fail="onUploadFailed">
             </sw-upload-listener>
 
-            <sw-media-new-upload
+            <sw-media-upload-v1
                     :uploadTag="uploadId"
                     variant="regular"
                     :defaultFolder="defaultFolderName"
                     @media-upload-sidebar-open="onMediaUploadButtonOpenSidebar">
-            </sw-media-new-upload>
+            </sw-media-upload-v1>
         {% endblock %}
 
-        {% block sw_media_list_selection_grid %}
-            <div class="sw-media-new-list-selection__grid" ref="grid" :style="gridAutoRows">
+        {% block sw_media_list_selection_v1_grid %}
+            <div class="sw-media-list-selection-v1__grid" ref="grid" :style="gridAutoRows">
                 <sw-loader v-if="entity.isLoading"></sw-loader>
-                {%  block sw_media_list_selection_grid_items %}
-                    <sw-media-new-list-selection-item v-for="(mediaItem, i) in mediaItems"
+                {%  block sw_media_list_selection_v1_grid_items %}
+                    <sw-media-list-selection-item-v1 v-for="(mediaItem, i) in mediaItems"
                             @item-remove="removeItem(mediaItem, i)"
                             :key="i"
                             :item="mediaItem">
-                    </sw-media-new-list-selection-item>
+                    </sw-media-list-selection-item-v1>
                 {% endblock %}
             </div>
         {% endblock %}

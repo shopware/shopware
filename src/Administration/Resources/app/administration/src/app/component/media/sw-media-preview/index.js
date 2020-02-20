@@ -18,7 +18,7 @@ Component.register('sw-media-preview', {
 
     deprecated: {
         version: '6.4.0',
-        comment: 'Use sw-media-new-preview instead'
+        comment: 'Use sw-media-preview-v1 instead'
     },
 
     playableVideoFormats: [

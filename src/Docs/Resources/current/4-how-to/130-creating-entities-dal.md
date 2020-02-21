@@ -79,7 +79,7 @@ $taxRepository->upsert(
 /** @var EntityRepositoryInterface $taxRepository */
 $taxRepository = $this->container->get('tax.repository');
 
-$taXepository->upsert(
+$taxRepository->upsert(
     [
         [ 'id' => 'e163778197a24b61bd2ae72d006a6d3c', 'name' => 'I will have an updated name' ],
         [ 'name' => 'I am a new record' ],

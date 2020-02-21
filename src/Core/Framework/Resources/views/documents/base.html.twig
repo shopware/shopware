@@ -129,7 +129,9 @@
                             {{ config.companyAddress }}<br><br>
                         {% endblock %}
                     </span>
-                    {# todo support companys #}
+                    {% if billingAddress.company %}
+                        {{ billingAddress.company }}<br>
+                    {% endif %}
                     {{ customer.salutation.letterName }} {{ customer.firstName }} {{ customer.lastName }}<br>
                     {{ billingAddress.street }}<br>
                     {{ billingAddress.zipcode }} {{ billingAddress.city }}<br>

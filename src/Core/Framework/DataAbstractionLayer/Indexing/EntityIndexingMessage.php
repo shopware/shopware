@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing;
+namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 class EntityIndexingMessage
 {

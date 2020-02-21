@@ -6,7 +6,6 @@ imports:
     - { resource: '%vendor_dir%/symplify/easy-coding-standard/config/set/common/strict.yaml' }
 
 services:
-    PhpCsFixer\Fixer\Alias\MbStrFunctionsFixer: ~
     PhpCsFixer\Fixer\CastNotation\ModernizeTypesCastingFixer: ~
     PhpCsFixer\Fixer\ClassNotation\ClassAttributesSeparationFixer:
         elements: ['property', 'method']
@@ -38,6 +37,8 @@ services:
     PhpCsFixerCustomFixers\Fixer\SingleSpaceAfterStatementFixer: ~
 
 parameters:
+    cache_directory: 'var/cache/cs_fixer'
+    cache_namespace: 'platform'
     exclude_files:
         - 'src/Recovery/*'
     skip:

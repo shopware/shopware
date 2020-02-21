@@ -14,10 +14,6 @@
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\VariantListingIndexer">
             <tag name="shopware.dal_indexing.indexer"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductExceptionHandler">
@@ -323,7 +319,12 @@
             <argument type="service" id="product.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
-            <argument type="tagged" tag="shopware.entity_indexer" />
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater"/>
+            <tag name="shopware.entity_indexer" />
+        </service>
+
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
     </services>
 </container>

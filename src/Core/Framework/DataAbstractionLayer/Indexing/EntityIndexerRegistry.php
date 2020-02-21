@@ -4,9 +4,10 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-class EntityIndexerRegistry extends AbstractMessageHandler
+class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubscriberInterface
 {
     /**
      * @var EntityIndexerInterface[]
@@ -33,6 +34,15 @@ class EntityIndexerRegistry extends AbstractMessageHandler
         $this->indexer = $indexer;
         $this->messageBus = $messageBus;
         $this->useQueue = $useQueue;
+    }
+
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            EntityWrittenContainerEvent::class => [
+                ['refresh', 1000],
+            ],
+        ];
     }
 
     public function index(): void

@@ -639,6 +639,7 @@
             <argument type="service" id="messenger.bus.shopware"/>
             <argument>%shopware.dal.indexing_worker%</argument>
             <tag name="messenger.message_handler" />
+            <tag name="kernel.event_subscriber" />
         </service>
 
     </services>

@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -34,16 +35,23 @@ class ProductIndexer implements EntityIndexerInterface
      */
     private $cacheClearer;
 
+    /**
+     * @var VariantListingUpdater
+     */
+    private $variantListingUpdater;
+
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
         Connection $connection,
-        CacheClearer $cacheClearer
+        CacheClearer $cacheClearer,
+        VariantListingUpdater $variantListingUpdater
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
         $this->connection = $connection;
         $this->cacheClearer = $cacheClearer;
+        $this->variantListingUpdater = $variantListingUpdater;
     }
 
     public function getName(): string
@@ -83,8 +91,6 @@ class ProductIndexer implements EntityIndexerInterface
             return;
         }
 
-        $this->connection->beginTransaction();
-
         $parentIds = $this->connection->fetchAll(
             'SELECT DISTINCT LOWER(HEX(IFNULL(product.parent_id, id))) as id FROM product WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
@@ -94,7 +100,9 @@ class ProductIndexer implements EntityIndexerInterface
 
         $all = array_unique(array_filter(array_merge($ids, $parentIds)));
 
-        $this->connection->commit();
+        $context = Context::createDefaultContext();
+
+        $this->variantListingUpdater->update($parentIds, $context);
 
         $this->cacheClearer->invalidateIds($all, ProductDefinition::ENTITY_NAME);
 

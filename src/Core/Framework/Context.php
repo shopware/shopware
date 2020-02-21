@@ -245,6 +245,16 @@ class Context extends Struct
         $this->ruleIds = array_filter(array_values($ruleIds));
     }
 
+    public function enableCache(callable $function)
+    {
+        $previous = $this->useCache;
+        $this->useCache = true;
+        $result = $function($this);
+        $this->useCache = $previous;
+
+        return $result;
+    }
+
     public function getApiAlias(): string
     {
         return 'context';

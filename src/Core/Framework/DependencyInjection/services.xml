@@ -393,6 +393,7 @@
             <argument type="service" id="filesystem"/>
             <argument>%kernel.cache_dir%</argument>
             <argument>%kernel.environment%</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
         </service>
 
         <!-- Util -->

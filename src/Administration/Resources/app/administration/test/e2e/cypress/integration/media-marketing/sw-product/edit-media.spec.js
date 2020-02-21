@@ -225,9 +225,6 @@ describe('Product: Edit product media', () => {
 
         // Save product
         cy.get(page.elements.productSaveAction).click();
-        cy.wait('@saveProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
 
         // Verify removal
         cy.wait('@removeProductMedia').then((xhr) => {

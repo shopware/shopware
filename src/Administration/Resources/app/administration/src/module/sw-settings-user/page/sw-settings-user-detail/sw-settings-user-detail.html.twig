@@ -82,12 +82,12 @@
                                     {% endblock %}
 
                                     {% block sw_settings_user_detail_content_media_upload %}
-                                        <sw-upload-store-listener
+                                        <sw-upload-listener
                                             :uploadTag="user.id"
                                             autoUpload
                                             @media-upload-finish="setMediaItem">
-                                        </sw-upload-store-listener>
-                                        <sw-media-upload
+                                        </sw-upload-listener>
+                                        <sw-media-upload-v2
                                             class="sw-settings-user-detail__grid-profile-picture"
                                             :source="avatarMedia"
                                             :label="$tc('sw-settings-user.user-detail.labelProfilePicture')"
@@ -97,7 +97,7 @@
                                             variant="regular"
                                             defaultFolder="user"
                                             @media-upload-remove-image="onUnlinkLogo">
-                                        </sw-media-upload>
+                                        </sw-media-upload-v2>
                                     {% endblock %}
 
                                     {% block sw_settings_user_detail_content_password %}

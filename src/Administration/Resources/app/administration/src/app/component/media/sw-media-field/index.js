@@ -1,9 +1,8 @@
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-media-field.html.twig';
 import './sw-media-field.scss';
 
-const { Component, StateDeprecated } = Shopware;
-const utils = Shopware.Utils;
+const { Component, Context, Utils } = Shopware;
+const { Criteria } = Shopware.Data;
 
 /**
  * @status ready
@@ -14,6 +13,8 @@ const utils = Shopware.Utils;
  */
 Component.register('sw-media-field', {
     template,
+
+    inject: ['repositoryFactory'],
 
     model: {
         prop: 'mediaId',
@@ -41,12 +42,8 @@ Component.register('sw-media-field', {
             suggestedItems: [],
             isLoadingSuggestions: false,
             pickerClasses: {},
-            uploadTag: utils.createId()
+            uploadTag: Utils.createId()
         };
-    },
-
-    created() {
-        this.createdComponent();
     },
 
     watch: {
@@ -61,10 +58,9 @@ Component.register('sw-media-field', {
     },
 
     computed: {
-        mediaStore() {
-            return StateDeprecated.getStore('media');
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
         },
-
         mediaFieldClasses() {
             return {
                 'is--active': this.showPicker
@@ -78,44 +74,49 @@ Component.register('sw-media-field', {
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
         createdComponent() {
             this.fetchItem();
         },
 
-        fetchItem(id = this.mediaId) {
+        async fetchItem(id = this.mediaId) {
             if (!id) {
                 this.mediaEntity = null;
                 return;
             }
-            this.mediaStore.getByIdAsync(id).then((updatedEntity) => {
-                this.mediaEntity = updatedEntity;
-            });
+            this.mediaEntity = await this.mediaRepository.get(id, Context.api);
         },
 
-        fetchSuggestions() {
+        async fetchSuggestions() {
             this.isLoadingSuggestions = true;
-            const searchCriteria = [
-                CriteriaFactory.not('and', CriteriaFactory.equals('uploadedAt', null))
-            ];
+            const criteria = new Criteria(1, 5);
+
+            criteria.addFilter(Criteria.not(
+                'AND',
+                [Criteria.equals('uploadedAt', null)]
+            ));
 
             if (this.searchTerm) {
-                searchCriteria.push(
-                    CriteriaFactory.multi('or',
-                        CriteriaFactory.contains('fileName', this.searchTerm),
-                        CriteriaFactory.contains('fileExtension', this.searchTerm))
-                );
+                criteria.addFilter(Criteria.multi(
+                    'OR',
+                    [
+                        Criteria.contains('fileName', this.searchTerm),
+                        Criteria.contains('fileExtension', this.searchTerm)
+                    ]
+                ));
             }
 
-            this.mediaStore.getList({
-                limit: 5,
-                offset: 0,
-                criteria: CriteriaFactory.multi('and', ...searchCriteria)
-            }).then((response) => {
-                this.suggestedItems = response.items;
-            }).finally(() => {
+            try {
+                this.suggestedItems = await this.mediaRepository.search(criteria, Context.api);
+            } catch (e) {
+                throw new Error(e);
+            } finally {
                 this.isLoadingSuggestions = false;
-            });
+            }
         },
 
         onTogglePicker() {

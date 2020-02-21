@@ -6,6 +6,7 @@ const extractLifecycleHooks = require('./extractLifecycleHooks');
 const extractMethods = require('./extractMethods');
 const extractMixins = require('./extractMixins');
 const extractProps = require('./extractProps');
+const extractDeprecations = require('./extractDeprecations');
 const extractWatcher = require('./extractWatcher');
 const parseSource = require('./parseSource');
 const extractBlockComment = require('./extractBlockComment');
@@ -19,6 +20,7 @@ module.exports = {
     extractMethods,
     extractMixins,
     extractProps,
+    extractDeprecations,
     extractWatcher,
     parseSource,
     extractBlockComment

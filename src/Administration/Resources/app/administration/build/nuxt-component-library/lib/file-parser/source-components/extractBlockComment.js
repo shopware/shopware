@@ -15,7 +15,8 @@ module.exports = (ast) => {
             description: docblockParser.multilineTilTag,
             'example-type': docblockParser.singleParameterTag,
             'component-example': docblockParser.multilineTilTag,
-            status: docblockParser.singleParameterTag
+            status: docblockParser.singleParameterTag,
+            deprecated: docblockParser.singleParameterTag,
         }
     }).parse(comment);
 
@@ -25,6 +26,7 @@ module.exports = (ast) => {
         example: result.tags['component-example'] || '',
         exampleType: result.tags['example-type'] || 'none',
         status: result.tags.status || 'n/a',
-        description: result.tags.description || ''
+        description: result.tags.description || '',
+        deprecated: ((result.tags || {}).deprecated || '').replace('tag:v', '') || '',
     };
 };

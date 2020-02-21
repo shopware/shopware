@@ -50,23 +50,20 @@ Component.register('sw-cms-el-config-image-gallery', {
     },
 
     methods: {
-        createdComponent() {
+        async createdComponent() {
             this.initElementConfig('image-gallery');
 
             if (this.element.config.sliderItems.value.length > 0) {
-                const mediaIds = [];
-
-                this.element.config.sliderItems.value.forEach((item) => {
-                    mediaIds.push(item.mediaId);
+                const mediaIds = this.element.config.sliderItems.value.map((configElement) => {
+                    return configElement.mediaId;
                 });
 
                 const criteria = new Criteria();
-                criteria.addFilter(
-                    Criteria.equalsAny('id', mediaIds)
-                );
+                criteria.setIds(mediaIds);
 
-                this.mediaRepository.search(criteria, Shopware.Context.api).then((response) => {
-                    this.mediaItems = response;
+                const searchResult = await this.mediaRepository.search(criteria, Shopware.Context.api);
+                this.mediaItems = mediaIds.map((mediaId) => {
+                    return searchResult.get(mediaId);
                 });
             }
         },
@@ -92,15 +89,15 @@ Component.register('sw-cms-el-config-image-gallery', {
             this.emitUpdateEl();
         },
 
-        onItemRemove(mediaItem) {
+        onItemRemove(mediaItem, index) {
             const key = mediaItem.id;
             this.element.config.sliderItems.value =
                 this.element.config.sliderItems.value.filter(
-                    (item) => item.mediaId !== key
+                    (item, i) => (item.mediaId !== key || i !== index)
                 );
 
             this.mediaItems = this.mediaItems.filter(
-                (item) => item.id !== key
+                (item, i) => (item.id !== key || i !== index)
             );
 
             this.updateMediaDataValue();
@@ -133,7 +130,6 @@ Component.register('sw-cms-el-config-image-gallery', {
                         }
                     });
                 });
-
                 this.$set(this.element.data, 'sliderItems', sliderItems);
             }
         },

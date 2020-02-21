@@ -66,6 +66,7 @@
                                     :isList="showItemsAsList"
                                     :editable="editable"
                                     :allowMultiSelect="allowMultiSelect"
+                                    @media-item-replaced="refreshList"
                                     @media-item-delete="refreshList"
                                     @media-folder-delete="refreshList"
                                     @media-folder-remove="removeNewFolder"

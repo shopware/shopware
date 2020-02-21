@@ -3,7 +3,7 @@ const esprima = require('espree');
 module.exports = (source) => {
     return esprima.parse(source, {
         comment: true,
-        ecmaVersion: 2018,
+        ecmaVersion: 2019,
         sourceType: 'module'
     });
 };

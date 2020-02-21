@@ -1,6 +1,4 @@
-const { Mixin } = Shopware;
-
-Mixin.register('media-sidebar-modal-mixin', {
+Shopware.Mixin.register('media-sidebar-modal-mixin', {
 
     data() {
         return {
@@ -53,37 +51,26 @@ Mixin.register('media-sidebar-modal-mixin', {
             this.showModalMove = false;
         },
 
-        deleteSelectedItems(deletePromise) {
+        deleteSelectedItems(ids) {
             this.closeModalDelete();
-            deletePromise.then((ids) => {
+
+            this.$nextTick(() => {
                 this.$emit('media-sidebar-items-delete', ids);
             });
         },
 
-        hideSelectedItems(deletePromise) {
-            this.closeModalHide();
-            deletePromise.then((ids) => {
-                this.$emit('media-sidebar-items-hide', ids);
-            });
-        },
-
-        unhideSelectedItems(deletePromise) {
-            this.closeModalUnhide();
-            deletePromise.then((ids) => {
-                this.$emit('media-sidebar-items-unhide', ids);
-            });
-        },
-
-        onFolderDissolved(dissolvePromise) {
+        onFolderDissolved(ids) {
             this.closeFolderDissolve();
-            dissolvePromise.then((ids) => {
+
+            this.$nextTick(() => {
                 this.$emit('media-sidebar-folder-items-dissolve', ids);
             });
         },
 
-        onFolderMoved(movePromise) {
+        onFolderMoved(ids) {
             this.closeModalMove();
-            movePromise.then((ids) => {
+
+            this.$nextTick(() => {
                 this.$emit('media-sidebar-items-move', ids);
             });
         }

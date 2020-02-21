@@ -18,7 +18,9 @@
         {% endblock %}
 
         {% block sw_media_breadcrumbs_current_folder %}
-            <span class="sw-media-breadcrumbs__entry sw-media-breadcrumbs__current-folder">
+            <span
+                v-if="currentFolder"
+                class="sw-media-breadcrumbs__entry sw-media-breadcrumbs__current-folder">
                 <sw-icon class="sw-media-breadcrumbs__arrow-separator" name="small-arrow-small-right" :small="small"></sw-icon>
                 {{ currentFolder.name }}
             </span>

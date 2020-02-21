@@ -16,9 +16,7 @@ Component.register('sw-admin', {
 
     computed: {
         isLoggedIn() {
-            const loginService = Shopware.Service('loginService');
-
-            return loginService.isLoggedIn();
+            return Shopware.Service('loginService').isLoggedIn();
         }
     }
 });

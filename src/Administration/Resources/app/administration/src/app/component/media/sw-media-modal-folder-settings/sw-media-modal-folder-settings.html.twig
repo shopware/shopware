@@ -34,25 +34,32 @@
                             {% endblock %}
 
                             {% block sw_media_modal_folder_settings_default_folder %}
-                                <sw-select id="defaultFolder"
-                                           class="sw-media-folder-settings-modal__default-folder-select"
-                                           :value="folder.defaultFolderId ? folder.defaultFolderId : ''"
-                                           :store="mediaDefaultFolderStore"
-                                           :label="$tc('global.sw-media-modal-folder-settings.labelDefaultFolder')"
-                                           @input="onInputDefaultFolder"
-                                           displayName="entity">
-                                    <template slot="selected_option" slot-scope="{ item }">
+                                <sw-entity-single-select
+                                    id="defaultFolder"
+                                    entity="media_default_folder"
+                                    :value="folder.defaultFolderId ? folder.defaultFolderId : ''"
+                                    :label="$tc('global.sw-media-modal-folder-settings.labelDefaultFolder')"
+                                    @change="onInputDefaultFolder">
+
+                                    <template #selection-label-property="{ item: item }">
                                         {{ getItemName(item) }}
                                     </template>
 
-                                    <template slot="result_items" slot-scope="{ item, index }">
-                                        <sw-select-option
-                                                :index="index"
-                                                :item="item">
-                                            {{ getItemName(item) }}
-                                        </sw-select-option>
+                                    <template #result-item="{ isSelected, setValue, item, index, searchTerm, highlightSearchTerm }">
+                                        <li is="sw-select-result"
+                                            :selected="isSelected(item)"
+                                            @item-select="setValue"
+                                            v-bind="{ item, index }">
+                                            <sw-highlight-text v-if="highlightSearchTerm"
+                                                               :text="getItemName(item)"
+                                                               :searchTerm="searchTerm">
+                                            </sw-highlight-text>
+                                            <template v-else>
+                                                {{ getItemName(item) }}
+                                            </template>
+                                        </li>
                                     </template>
-                                </sw-select>
+                                </sw-entity-single-select>
                             {% endblock %}
                         </sw-container>
                     {% endblock %}
@@ -158,7 +165,12 @@
                                             {% endblock %}
 
                                             {% block sw_media_modal_folder_settings_add_thumbnail_size_form %}
-                                                <sw-media-add-thumbnail-form v-if="!notEditable && isEditThumbnails" @thumbnail-form-size-add="addThumbnail"></sw-media-add-thumbnail-form>
+                                                <sw-media-add-thumbnail-form
+                                                    v-if="!notEditable && isEditThumbnails"
+                                                    :disabled="disabled"
+                                                    @on-input="checkIfThumbnailExists"
+                                                    @thumbnail-form-size-add="addThumbnail"
+                                                ></sw-media-add-thumbnail-form>
                                             {% endblock %}
                                         </div>
                                     {% endblock %}

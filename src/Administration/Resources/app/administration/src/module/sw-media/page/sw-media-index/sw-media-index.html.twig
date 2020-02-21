@@ -28,8 +28,8 @@
 
                             {% block sw_media_index_bread_crumb_navigation_parent%}
                                 <router-link class="sw-media-index__navigation-label"
-                                             :to="{ name: 'sw.media.index', params: { folderId: currentFolder.parentId } }">
-                                    {{ parentFolderName }}
+                                             :to="{ name: 'sw.media.index', params: { folderId: parentFolder.id } }">
+                                    {{ parentFolder.name }}
                                 </router-link>
                             {% endblock %}
                         </template>
@@ -38,10 +38,10 @@
             {% endblock %}
 
             {% block sw_media_index_smart_bar_header %}
-                <template slot="smart-bar-header">
+                <template slot="smart-bar-header" v-if="currentFolder">
                     <h2>
                         {% block sw_media_index_smart_bar_heading %}
-                            {{ currentFolderName }}
+                            {{ currentFolder.name }}
                         {% endblock %}
                     </h2>
                 </template>
@@ -49,11 +49,11 @@
 
             <template slot="smart-bar-actions">
                 {% block sw_media_index_smart_bar_media_upload %}
-                    <sw-media-upload
+                    <sw-media-upload-v2
                         variant="compact"
                         :targetFolderId="routeFolderId"
                         :uploadTag="uploadTag">
-                    </sw-media-upload>
+                    </sw-media-upload-v2>
                 {% endblock %}
             </template>
         {% endblock %}
@@ -68,12 +68,12 @@
             <template slot="content">
                 <div class="sw-media-index__page-content">
                     {% block sw_media_index_listing_grid %}
-                        <sw-upload-store-listener
+                        <sw-upload-listener
                             :uploadTag="uploadTag"
                             @media-upload-add="onUploadsAdded"
                             @media-upload-finish="onUploadFinished"
                             @media-upload-fail="onUploadFailed">
-                        </sw-upload-store-listener>
+                        </sw-upload-listener>
                         <sw-media-library
                             class="sw-media-index__media-library"
                             :folderId="routeFolderId"
@@ -91,9 +91,11 @@
                             :items="selectedItems"
                             :currentFolderId="routeFolderId"
                             editable
+                            @media-sidebar-folder-renamed="updateFolder"
                             @media-sidebar-items-delete="onItemsDeleted"
                             @media-sidebar-folder-items-dissolve="onMediaFoldersDissolved"
                             @media-sidebar-items-move="reloadList"
+                            @media-item-replaced="reloadList"
                             @media-item-selection-remove="onMediaUnselect">
                         </sw-media-sidebar>
                     {% endblock %}

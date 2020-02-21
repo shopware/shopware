@@ -1,8 +1,8 @@
 import template from './sw-product-media-form.html.twig';
 import './sw-product-media-form.scss';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
-const { mapGetters } = Shopware.Component.getComponentHelper();
+const { Component, Mixin } = Shopware;
+const { mapGetters } = Component.getComponentHelper();
 
 Component.register('sw-product-media-form', {
     template,
@@ -87,10 +87,6 @@ Component.register('sw-product-media-form', {
 
         productMediaStore() {
             return this.product.getAssociation('media');
-        },
-
-        uploadStore() {
-            return StateDeprecated.getStore('upload');
         },
 
         gridAutoRows() {
@@ -211,12 +207,6 @@ Component.register('sw-product-media-form', {
 
         removeCover() {
             this.product.coverId = null;
-
-            // if another media exists
-            if (this.productFromStore.media.length > 0) {
-                // set first media item as cover
-                this.productFromStore.coverId = this.productFromStore.media[0].id;
-            }
         },
 
         isCover(productMedia) {
@@ -233,12 +223,15 @@ Component.register('sw-product-media-form', {
                 this.product.coverId = null;
             }
 
+            if (this.product.coverId === null && this.product.media.length > 0) {
+                this.product.coverId = this.product.media.first().id;
+            }
+
             this.product.media.remove(productMedia.id);
         },
 
         markMediaAsCover(productMedia) {
-            this.product.coverId = (productMedia.productMediaId || productMedia.id);
-            this.productFromStore.coverId = (productMedia.productMediaId || productMedia.id);
+            this.product.coverId = productMedia.id;
         },
 
         onDropMedia(dragData) {

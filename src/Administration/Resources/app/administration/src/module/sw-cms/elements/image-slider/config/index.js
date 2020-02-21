@@ -50,22 +50,20 @@ Component.register('sw-cms-el-config-image-slider', {
     },
 
     methods: {
-        createdComponent() {
+        async createdComponent() {
             this.initElementConfig('image-slider');
 
             if (this.element.config.sliderItems.value.length > 0) {
-                const mediaIds = [];
-                this.element.config.sliderItems.value.forEach((item) => {
-                    mediaIds.push(item.mediaId);
+                const mediaIds = this.element.config.sliderItems.value.map((configElement) => {
+                    return configElement.mediaId;
                 });
 
                 const criteria = new Criteria();
-                criteria.addFilter(
-                    Criteria.equalsAny('id', mediaIds)
-                );
+                criteria.setIds(mediaIds);
 
-                this.mediaRepository.search(criteria, Shopware.Context.api).then((response) => {
-                    this.mediaItems = response;
+                const searchResult = await this.mediaRepository.search(criteria, Shopware.Context.api);
+                this.mediaItems = mediaIds.map((mediaId) => {
+                    return searchResult.get(mediaId);
                 });
             }
         },
@@ -84,14 +82,20 @@ Component.register('sw-cms-el-config-image-slider', {
             this.emitUpdateEl();
         },
 
-        onItemRemove(mediaItem) {
+        onItemRemove(mediaItem, index) {
             const key = mediaItem.id;
-            this.element.config.sliderItems.value = this.element.config.sliderItems.value.filter(
-                (item) => item.mediaId !== key
+            const { value } = this.element.config.sliderItems;
+
+            this.element.config.sliderItems.value = value.filter(
+                (item, i) => {
+                    return (item.mediaId !== key || i !== index);
+                }
             );
 
             this.mediaItems = this.mediaItems.filter(
-                (item) => item.id !== key
+                (item, i) => {
+                    return (item.id !== key || i !== index);
+                }
             );
 
             this.updateMediaDataValue();

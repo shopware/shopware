@@ -1,10 +1,10 @@
 import template from './sw-media-tag.html.twig';
 import './sw-media-tag.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-media-tag', {
+Shopware.Component.register('sw-media-tag', {
     template,
+
+    inject: ['repositoryFactory'],
 
     props: {
         media: {
@@ -13,9 +13,14 @@ Component.register('sw-media-tag', {
         }
     },
 
+    computed: {
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
+        }
+    },
     methods: {
-        onChange() {
-            this.media.save();
+        handleChange() {
+            this.mediaRepository.save(this.media, Shopware.Context.api);
         }
     }
 });

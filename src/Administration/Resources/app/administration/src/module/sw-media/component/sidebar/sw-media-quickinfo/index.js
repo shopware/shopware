@@ -1,14 +1,14 @@
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-media-quickinfo.html.twig';
 import './sw-media-quickinfo.scss';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
-const { domUtils, format } = Shopware.Utils;
+const { Component, Mixin, Context, Utils, Data } = Shopware;
+const { dom, format } = Utils;
+const { Criteria } = Data;
 
 Component.register('sw-media-quickinfo', {
     template,
 
-    inject: ['mediaService'],
+    inject: ['mediaService', 'repositoryFactory'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -42,10 +42,13 @@ Component.register('sw-media-quickinfo', {
     },
 
     computed: {
-        mediaStore() {
-            return StateDeprecated.getStore('media');
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
         },
 
+        customFieldSetRepository() {
+            return this.repositoryFactory.create('custom_field_set');
+        },
         isMediaObject() {
             return this.item.type === 'media';
         },
@@ -57,9 +60,6 @@ Component.register('sw-media-quickinfo', {
         createdAt() {
             const date = this.item.uploadedAt || this.item.createdAt;
             return format.date(date);
-        },
-        customFieldSetStore() {
-            return StateDeprecated.getStore('custom_field_set');
         }
     },
 
@@ -69,28 +69,28 @@ Component.register('sw-media-quickinfo', {
 
     methods: {
         createdComponent() {
-            this.customFieldSetStore.getList({
-                page: 1,
-                limit: 100,
-                criteria: CriteriaFactory.equals('relations.entityName', 'media'),
-                associations: {
-                    customFields: {
-                        limit: 100,
-                        sort: 'config.customFieldPosition'
-                    }
-                }
-            }, true).then(({ items }) => {
-                this.customFieldSets = items.filter(set => set.customFields.length > 0);
-            });
+            this.getCustomFieldSets();
         },
 
-        onSaveCustomFields(item) {
+        async getCustomFieldSets() {
+            const criteria = new Criteria(1, 100)
+                .addFilter(Criteria.equals('relations.entityName', 'media'))
+                .addAssociation('customFields')
+                .addSorting(Criteria.sort('config.customFieldPosition'))
+                .setLimit(100);
+
+            const searchResult = await this.customFieldSetRepository.search(criteria, Shopware.Context.api);
+            this.customFieldSets = searchResult.filter(set => set.customFields.length > 0);
+        },
+
+        async onSaveCustomFields(item) {
             this.isSaveSuccessful = false;
             this.isLoading = true;
-            item.save().then(() => {
-                this.isSaveSuccessful = true;
-                this.isLoading = false;
-            });
+
+            await this.mediaRepository.save(item, Context.api);
+
+            this.isSaveSuccessful = true;
+            this.isLoading = false;
         },
 
         saveFinish() {
@@ -99,7 +99,7 @@ Component.register('sw-media-quickinfo', {
 
         copyLinkToClipboard() {
             if (this.item) {
-                domUtils.copyToClipboard(this.item.url);
+                dom.copyToClipboard(this.item.url);
                 this.createNotificationSuccess({
                     title: this.$tc('sw-media.general.notification.urlCopied.title'),
                     message: this.$tc('sw-media.general.notification.urlCopied.message')
@@ -107,32 +107,47 @@ Component.register('sw-media-quickinfo', {
             }
         },
 
-        onSubmitTitle(value) {
+        async onSubmitTitle(value) {
             this.item.title = value;
-            this.item.save().catch(() => {
+
+            try {
+                await this.mediaRepository.save(this.item, Context.api);
+            } catch {
                 this.$refs.inlineEditFieldTitle.cancelSubmit();
-            });
+            }
         },
 
-        onSubmitAltText(value) {
+        async onSubmitAltText(value) {
             this.item.alt = value;
-            this.item.save().catch(() => {
+
+            try {
+                await this.mediaRepository.save(this.item, Context.api);
+            } catch {
                 this.$refs.inlineEditFieldAlt.cancelSubmit();
-            });
+            }
         },
 
-        onChangeFileName(value) {
-            this.item.isLoading = true;
-            const oldFileName = this.item.fileName;
+        async onChangeFileName(value) {
+            const { item } = this;
+            item.isLoading = true;
 
-            return this.mediaService.renameMedia(this.item.id, value).then(() => {
-                this.mediaStore.getByIdAsync(this.item.id);
-            }).catch(() => {
-                this.item.fileName = oldFileName;
-                this.item.isLoading = false;
-                this.$refs.inlineEditFieldName.cancelSubmit();
-                this.createNotificationError({ message: 'Could not rename FileName' });
-            });
+            try {
+                await this.mediaService.renameMedia(item.id, value);
+                item.fileName = value;
+
+                this.createNotificationSuccess({
+                    title: this.$tc('global.default.success'),
+                    message: this.$tc('global.sw-media-media-item.notification.renamingSuccess.message')
+                });
+                this.$emit('media-item-rename-success', item);
+            } catch {
+                this.createNotificationError({
+                    title: this.$tc('global.default.error'),
+                    message: this.$tc('global.sw-media-media-item.notification.renamingError.message')
+                });
+            } finally {
+                item.isLoading = false;
+            }
         },
 
         openModalReplace() {
@@ -141,6 +156,14 @@ Component.register('sw-media-quickinfo', {
 
         closeModalReplace() {
             this.showModalReplace = false;
+        },
+
+        emitRefreshMediaLibrary() {
+            this.closeModalReplace();
+
+            this.$nextTick(() => {
+                this.$emit('media-item-replaced');
+            });
         }
     }
 });

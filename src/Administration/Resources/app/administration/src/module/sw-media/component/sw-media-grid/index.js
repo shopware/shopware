@@ -1,12 +1,10 @@
 import template from './sw-media-grid.html.twig';
 import './sw-media-grid.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-media-grid', {
+Shopware.Component.register('sw-media-grid', {
     template,
 
     props: {

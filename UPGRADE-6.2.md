@@ -112,6 +112,55 @@ Administration
     * Deprecated `mapApiErrors`, use `mapPropertyErrors`
     * Added `mapCollectionPropertyErrors` to mapErrorService for Entity Collections
 * Deprecated `sw-multi-ip-select` with version 6.4, use the `sw-multi-tag-ip-select`-component instead
+* Replaced Store based datahandling with repository based datahandling in media specific components and modules, including the following changes
+    * sw-media-field is deprecated and replaced by sw-media-field-v2
+        * Added injection of `repositoryFactory`
+        * Replaced computed property `mediaStore` with `mediaRepository`
+        * Method `fetchItem` is now async
+        * Method `fetchSuggestions` is now async
+    * sw-media-list-selection is deprecated and replaced by sw-media-list-selection-v2
+        * Added injection of `repositoryFactory`
+        * Added injection of `mediaService`
+        * Replaced computed property `mediaStore` with `mediaRepository`
+        * Method `onUploadsAdded` is now async
+        * Method `successfulUpload` is now async
+    * sw-media-preview is deprecated and replaced by sw-media-preview-v2
+        * Added injection of `repositoryFactory`
+        * Replaced computed property `mediaStore` with `mediaRepository`
+        * Method `fetchSourceIfNecessary` is now async
+        * Method `getDataUrlFromFile` is now async
+    * sw-media-upload is deprecated and replaced sw-media-upload-v2
+        * Added injection of `repositoryFactory`
+        * Added injection of `mediaService`
+        * Replaced computed property `defaultFolderStore` with `defaultFolderRepository`
+        * Watcher of prop `defaultFolder` is now async
+        * Method `createdComponent` is now async
+        * Method `onUrlUpload` is now async
+        * Method `handleUpload` is now async
+        * Method `getDefaultFolderId` is now async
+        * Replaced method `handleUploadStoreEvent` with `handleMediaServiceUploadEvent`
+    * sw-duplicated-media is deprecated and replaced sw-duplicated-media-v2 
+        * Added injection of `repositoryFactory`
+        * Replaced computed property `mediaStore` with `mediaRepository`
+        * Replaced method `handleUploadStoreEvent` with `handleMediaServiceUploadEvent`
+        * Method `updatePreviewData` is now async
+        * Method `renameFile` is now async
+        * Method `skipFile` is now async
+        * Method `replaceFile` is now async
+    * sw-media-modal is deprecated and replaced by sw-media-modal-v2
+        * Added injection of `repositoryFactory`
+        * Added injection of `mediaService`
+        * Replaced computed property `mediaStore` with `mediaRepository`
+        * Replaced computed property `mediaFolderStore` with `mediaFolderRepository`
+        * Method `fetchCurrentFolder` is now async
+        * Method `onUploadsAdded` is now async
+        * Method `onUploadsFinished` is now async
+    * sw-upload-store-listener  is deprecated and replaced by sw-upload-listener
+        * Added injection of `repositoryFactory`
+        * Added injection of `mediaService`
+        * Added computed property `mediaRepository`
+        * Method `handleError` is now async
+    * sw-media-compact-upload is deprecated and replaced by sw-media-compact-upload-v2
 
 Storefront
 ----------

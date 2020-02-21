@@ -6,6 +6,7 @@
                 :label="showLabel ? $tc('global.sw-tag-field.title') : ''"
                 :placeholder="disabled ? null : $tc('global.sw-tag-field.placeholder')"
                 :associationStore="associationStore"
+                :associationRepository="associationRepository"
                 :store="tagStore"
                 :possibleMinPosition="-1"
                 :highlightSearchTerm="true"

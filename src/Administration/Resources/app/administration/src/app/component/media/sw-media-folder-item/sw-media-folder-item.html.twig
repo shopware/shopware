@@ -22,12 +22,12 @@
                         <sw-icon name="default-folder-thumbnail"
                                  size="90%"
                                  class="sw-media-folder-item__folder-thumbnails"
-                                 v-bind="getIconConfigFromFolder(item)">
+                                 v-bind="iconConfig">
                         </sw-icon>
                         <sw-icon v-if="iconConfig.name"
                                  size="45%"
                                  class="sw-media-folder-item__folder-thumbnails is--inner"
-                                 v-bind="getIconConfigFromFolder(item)">
+                                 v-bind="iconConfig">
                         </sw-icon>
                     </span>
                 {% endblock %}
@@ -47,7 +47,7 @@
         {% block sw_media_folder_name %}
             <template #name="{ item, isInlineEdit, startInlineEdit, endInlineEdit }">
                 {% block sw_media_base_item_name %}
-                    <sw-field v-if="!isParent && (isInlineEdit || item.isLocal)"
+                    <sw-field v-if="!isParent && (isInlineEdit || item.isNew())"
                               class="sw-media-base-item__name-field"
                               :value="item.name"
                               name="media-item-name"
@@ -127,7 +127,7 @@
                     <sw-media-modal-folder-settings
                             v-if="showSettings"
                             :folder="item"
-                            @media-settings-modal-save="closeSettings"
+                            @media-settings-modal-save="refreshIconConfig"
                             @media-settings-modal-close="closeSettings">
                     </sw-media-modal-folder-settings>
                 {% endblock %}

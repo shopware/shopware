@@ -1,6 +1,6 @@
 import template from './sw-media-modal-delete.html.twig';
 
-const { Component, Mixin, Filter } = Shopware;
+const { Component, Context, Mixin, Filter } = Shopware;
 
 /**
  * @status ready
@@ -12,6 +12,8 @@ const { Component, Mixin, Filter } = Shopware;
  */
 Component.register('sw-media-modal-delete', {
     template,
+
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -36,6 +38,12 @@ Component.register('sw-media-modal-delete', {
     },
 
     computed: {
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
+        },
+        mediaFolderRepository() {
+            return this.repositoryFactory.create('media_folder');
+        },
         mediaNameFilter() {
             return Filter.getByName('mediaName');
         },
@@ -109,66 +117,79 @@ Component.register('sw-media-modal-delete', {
             this.$emit('media-delete-modal-close', { originalDomEvent });
         },
 
-        deleteSelection() {
-            const deletePromises = [];
+        getEntityRepository(entityName) {
+            if (entityName === 'media') {
+                return this.mediaRepository;
+            }
 
-            const totalAmount = this.itemsToDelete.length;
-            let successAmount = 0;
-            let failureAmount = 0;
-            this.itemsToDelete.forEach((item) => {
-                item.isLoading = true;
+            if (entityName === 'media_folder') {
+                return this.mediaFolderRepository;
+            }
 
-                deletePromises.push(
-                    item.delete(true).then(() => {
-                        item.isLoading = false;
-                        successAmount += 1;
-                        this.updateSuccessNotification(successAmount, failureAmount, totalAmount);
-                    }).catch(() => {
-                        item.isLoading = false;
-                        failureAmount += 1;
-                        if (successAmount + failureAmount === totalAmount &&
-                            totalAmount !== failureAmount) {
-                            this.updateSuccessNotification(successAmount, failureAmount, totalAmount);
-                        }
+            return null;
+        },
 
-                        this.createNotificationError({
-                            title: this.$root.$tc('global.default.error'),
-                            message: item.getEntityName() === 'media' ?
-                                this.$root.$tc(
-                                    'global.sw-media-modal-delete.notification.errorSingle.message.media',
-                                    1,
-                                    { name: this.mediaNameFilter(item) }
-                                ) :
-                                this.$root.$tc(
-                                    'global.sw-media-modal-delete.notification.errorSingle.message.folder',
-                                    1,
-                                    { name: item.name }
-                                )
-                        });
-                    })
-                );
+        _deleteSelection(item) {
+            const entityName = item.getEntityName();
+            const repository = this.getEntityRepository(entityName);
+
+            item.isLoading = true;
+
+            return repository.delete(item.id, Context.api)
+                .then(() => {
+                    return true;
+                })
+                .catch(() => {
+                    const isMedia = item.getEntityName() === 'media';
+                    const errorSnippet = 'global.sw-media-modal-delete.notification.errorSingle.message';
+
+                    const message = isMedia ?
+                        this.$tc(`${errorSnippet}.media`, 1, { name: this.mediaNameFilter(item) }) :
+                        this.$tc(`${errorSnippet}.folder`, 1, { name: item.name });
+
+                    this.createNotificationError({
+                        title: this.$tc('global.default.error'),
+                        message
+                    });
+
+                    return false;
+                })
+                .finally(() => {
+                    item.isLoading = false;
+                });
+        },
+
+        async deleteSelection() {
+            const deleteSelections = this.itemsToDelete.map((item) => {
+                return this._deleteSelection(item).catch(() => false);
             });
+
+            const deletions = await Promise.all(deleteSelections);
+
+            const amounts = deletions.reduce((acc, isSuccess) => {
+                acc.success = isSuccess ? acc.success += 1 : acc.success;
+                acc.failure = isSuccess ? acc.failure : acc.failure += 1;
+
+                return acc;
+            }, { success: 0, failure: 0 });
+
+            if (amounts.success > 0) {
+                this.updateSuccessNotification(amounts.success, amounts.failure, deletions.length);
+            }
 
             this.$emit(
                 'media-delete-modal-items-delete',
-                Promise.all(deletePromises).then(() => {
-                    return {
-                        mediaIds: this.mediaItems.map((media) => { return media.id; }),
-                        folderIds: this.folders.map((folder) => { return folder.id; })
-                    };
-                }).catch(() => {
-                    this.createNotificationError({
-                        title: this.$root.$tc('global.default.error'),
-                        message: this.snippets.errorOverall
-                    });
-                })
+                {
+                    mediaIds: this.mediaItems.map((media) => { return media.id; }),
+                    folderIds: this.folders.map((folder) => { return folder.id; })
+                }
             );
         },
 
-        updateSuccessNotification(successAmount, failureAmount, totalAmount) {
+        async updateSuccessNotification(successAmount, failureAmount, totalAmount) {
             const notification = {
-                title: this.$root.$tc('global.default.success'),
-                message: this.$root.$tc(
+                title: this.$tc('global.default.success'),
+                message: this.$tc(
                     this.snippets.successOverall,
                     successAmount,
                     {
@@ -180,25 +201,26 @@ Component.register('sw-media-modal-delete', {
             };
 
             if (this.notificationId !== null) {
-                Shopware.State.dispatch('notification/updateNotification', {
+                await Shopware.State.dispatch('notification/updateNotification', {
                     uuid: this.notificationId,
                     ...notification
-                }).then(() => {
-                    if (successAmount + failureAmount === totalAmount) {
-                        this.notificationId = null;
-                    }
                 });
+
+                if (successAmount + failureAmount === totalAmount) {
+                    this.notificationId = null;
+                }
+
                 return;
             }
 
-            Shopware.State.dispatch('notification/createNotification', {
+            const newNotificationId = await Shopware.State.dispatch('notification/createNotification', {
                 variant: 'success',
                 ...notification
-            }).then((newNotificationId) => {
-                if (successAmount + failureAmount < totalAmount) {
-                    this.notificationId = newNotificationId;
-                }
             });
+
+            if (successAmount + failureAmount < totalAmount) {
+                this.notificationId = newNotificationId;
+            }
         }
     }
 });

@@ -1,14 +1,15 @@
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-media-folder-content.html.twig';
 import './sw-media-folder-content.scss';
 
-const { Component, StateDeprecated } = Shopware;
+const { Component, Context } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-media-folder-content', {
     template,
 
     inject: [
-        'filterItems'
+        'filterItems',
+        'repositoryFactory'
     ],
 
     props: {
@@ -31,16 +32,16 @@ Component.register('sw-media-folder-content', {
         };
     },
 
-    computed: {
-        mediaFolderStore() {
-            return StateDeprecated.getStore('media_folder');
-        }
-    },
-
     watch: {
         startFolderId() {
             this.getSubFolders(this.startFolderId);
             this.fetchParentFolder(this.startFolderId);
+        }
+    },
+
+    computed: {
+        mediaFolderRepository() {
+            return this.repositoryFactory.create('media_folder');
         }
     },
 
@@ -54,45 +55,36 @@ Component.register('sw-media-folder-content', {
             this.fetchParentFolder(this.startFolderId);
         },
 
-        getSubFolders(parentId) {
-            this.mediaFolderStore.getList({
-                limit: 50,
-                sortBy: 'name',
-                criteria: CriteriaFactory.equals('media_folder.parentId', parentId),
-                associations: {
-                    children: {
-                        page: 1,
-                        limit: 50
-                    }
-                }
-            }, true).then((response) => {
-                this.subFolders = response.items.filter(this.filterItems);
-            });
+        async getSubFolders(parentId) {
+            const criteria = new Criteria(1, 50)
+                .addFilter(Criteria.equals('parentId', parentId))
+                .addAssociation('children')
+                .addSorting(Criteria.sort('name', 'asc'));
+
+            const searchResult = await this.mediaFolderRepository.search(criteria, Context.api);
+            this.subFolders = searchResult.filter(this.filterItems);
         },
 
         getChildCount(folder) {
             return folder.children.filter(this.filterItems).length;
         },
 
-        fetchParentFolder(folderId) {
+        async fetchParentFolder(folderId) {
             if (folderId !== null) {
-                this.mediaFolderStore.getByIdAsync(folderId).then((folder) => {
-                    this.updateParentFolder(folder);
-                });
+                const folder = await this.mediaFolderRepository.get(folderId, Context.api);
+                this.updateParentFolder(folder);
             } else {
                 this.parentFolder = null;
             }
         },
 
-        updateParentFolder(child) {
+        async updateParentFolder(child) {
             if (child.id === null) {
                 this.parentFolder = null;
             } else if (child.parentId === null) {
                 this.parentFolder = { id: null, name: this.$tc('sw-media.index.rootFolderName') };
             } else {
-                this.mediaFolderStore.getByIdAsync(child.parentId).then((parent) => {
-                    this.parentFolder = parent;
-                });
+                this.parentFolder = await this.mediaFolderRepository.get(child.parentId, Context.api);
             }
         },
 

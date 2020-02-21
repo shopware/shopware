@@ -1,0 +1,117 @@
+{% block sw_duplicated_media_v2 %}
+    <sw-modal v-if="showModal"
+              class="sw-duplicated-media-v2"
+              @modal-close="skipAll"
+              :title="$tc('global.sw-duplicated-media-v2.titleModal')">
+        {% block sw_duplicated_media_v2_body %}
+            {% block sw_duplicated_media_v2_body_description %}
+                <p class="sw-duplicated-media-v2__description">
+                    {{ $tc('global.sw-duplicated-media-v2.description', 1, { fileName: `${currentTask.fileName}.${currentTask.extension}` }) }}
+                </p>
+            {% endblock %}
+
+            {% block sw_duplicated_media_v2_body_preview %}
+                <sw-container class="sw-duplicated-media-v2__preview"
+                              rows="20px 1fr"
+                              columns="1fr 100px 1fr"
+                              align="center">
+
+                    {% block sw_duplicated_media_v2_body_preview_label_old_file %}
+                        <label class="sw-duplicated-media-v2__preview_label">
+                            {{ $tc('global.sw-duplicated-media-v2.labelNewFile') }}
+                        </label>
+                    {%  endblock %}
+
+                    <div class="sw-duplicated-media-v2__spacer"></div>
+
+                    {% block sw_duplicated_media_v2_body_preview_label_new_file %}
+                        <label class="sw-duplicated-media-v2__preview_label">
+                            {{ $tc('global.sw-duplicated-media-v2.labelOldFile') }}
+                        </label>
+                    {%  endblock %}
+
+                    {% block sw_duplicated_media_v2_body_preview_new_media %}
+                        <div class="sw-duplicated-media-v2__target-upload">
+                            {% block sw_media_duplicated_media_target_preview %}
+                                <div class="sw-duplicated-media-v2__target-preview">
+                                    <sw-media-preview-v2 :source="currentTask.src"></sw-media-preview-v2>
+                                </div>
+                            {% endblock %}
+
+                            {% block sw_media_duplicated_media_target_name %}
+                                <span v-if="selectedOption !== 'Rename'"
+                                      key="sw-duplicated-media-v2__target-label"
+                                      class="sw-duplicated-media-v2__target-label">
+                                    {{ `${currentTask.fileName}.${currentTask.extension}` }}
+                                </span>
+                                <span v-else
+                                      key="sw-duplicated-media-v2__target-label"
+                                      class="sw-duplicated-media-v2__target-label">
+                                    {{ `${suggestedName}.${currentTask.extension}` }}
+                                </span>
+                            {% endblock %}
+
+                            {% block sw_media_duplicated_media_target_details %}
+                                <span class="sw-duplicated-media-v2__target-details">{{ currentTaskDetails }}</span>
+                            {% endblock %}
+                        </div>
+                    {%  endblock %}
+
+                    {% block sw_duplicated_media_v2_body_preview_separator %}
+                        <sw-icon class="sw-duplicated-media-v2__preview-separator"
+                                 name="default-arrow-simple-right">
+                        </sw-icon>
+                    {%  endblock %}
+
+                    {% block sw_duplicated_media_v2_body_preview_old_media %}
+                        <sw-media-media-item v-if="existingMedia"
+                                             :item="existingMedia"
+                                             :selected="false"
+                                             :showSelectionIndicator="false"
+                                             :isList="true"
+                                             :editable="false"
+                                             :showContextMenuButton="false">
+                        </sw-media-media-item>
+                    {% endblock %}
+                </sw-container>
+            {% endblock %}
+
+            {% block sw_duplicated_media_v2_body_options %}
+                <sw-field class="sw-duplicated-media-v2__options"
+                          type="radio"
+                          :options="options"
+                          v-model="selectedOption">
+                </sw-field>
+            {% endblock %}
+        {% endblock %}
+
+        {% block sw_duplicated_media_v2_footer %}
+            <template slot="modal-footer">
+                {% block sw_duplicated_media_v2_save_selection %}
+                    <sw-field v-if="!isLoading && hasAdditionalErrors"
+                              class="sw-duplicated-media-v2__additional-error-count"
+                              type="checkbox"
+                              v-model="shouldSaveSelection"
+                              :label="$tc('global.sw-duplicated-media-v2.labelSaveSelection', additionalErrorCount)">
+                    </sw-field>
+                {% endblock %}
+
+                {% block sw_duplicated_media_v2_cancel_button %}
+                    <sw-button @click="skipCurrentFile" size="small" :disabled="isLoading">
+                        {{ $tc('global.default.cancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_duplicated_media_v2_upload_button %}
+                    <sw-button class="sw-duplicated-media-v2__upload"
+                               @click="solveDuplicate"
+                               :disabled="isLoading"
+                               size="small"
+                               variant="primary">
+                    {{ buttonLabel }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </sw-modal>
+{% endblock %}

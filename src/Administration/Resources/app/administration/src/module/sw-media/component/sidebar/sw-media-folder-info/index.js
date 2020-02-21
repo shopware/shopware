@@ -1,10 +1,11 @@
 import template from './sw-media-folder-info.html.twig';
 
-const { Component, Mixin } = Shopware;
-const format = Shopware.Utils.format;
+const { Component, Mixin, Context } = Shopware;
 
 Component.register('sw-media-folder-info', {
     template,
+
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('media-sidebar-modal-mixin')
@@ -27,15 +28,21 @@ Component.register('sw-media-folder-info', {
     },
 
     computed: {
+
+        mediaFolderRepository() {
+            return this.repositoryFactory.create('media_folder');
+        },
+
         createdAt() {
-            return format.date(this.mediaFolder.createdAt);
+            return Shopware.Utils.format.date(this.mediaFolder.createdAt);
         }
     },
 
     methods: {
-        onChangeFolderName(newName) {
+        async onChangeFolderName(newName) {
             this.mediaFolder.name = newName;
-            this.mediaFolder.save();
+            await this.mediaFolderRepository.save(this.mediaFolder, Context.api);
+            this.$emit('media-folder-renamed');
         }
     }
 });

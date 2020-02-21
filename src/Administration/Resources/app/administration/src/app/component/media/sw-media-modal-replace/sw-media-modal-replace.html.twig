@@ -4,10 +4,10 @@
               :title="$tc('global.sw-media-modal-replace.titleModal')"
               @modal-close="emitCloseReplaceModal">
 
-        <sw-upload-store-listener
+        <sw-upload-listener
             :uploadTag="itemToReplace.id"
             @media-upload-add="onNewUpload">
-        </sw-upload-store-listener>
+        </sw-upload-listener>
 
         <sw-media-replace
             class="sw-media-modal-replace__upload"

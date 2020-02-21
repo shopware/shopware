@@ -83,12 +83,12 @@
                             </div>
 
                             {% block sw_manufacturer_detail_logo_upload %}
-                                <sw-upload-store-listener
+                                <sw-upload-listener
                                     :uploadTag="mediaUploadTag"
                                     autoUpload
                                     @media-upload-finish="setMediaItem">
-                                </sw-upload-store-listener>
-                                <sw-media-upload
+                                </sw-upload-listener>
+                                <sw-media-upload-v2
                                     class="sw-manufacturer-detail__logo-upload"
                                     :source="manufacturer.mediaId"
                                     :allowMultiSelect="false"
@@ -96,10 +96,10 @@
                                     :uploadTag="mediaUploadTag"
                                     :label="$tc('sw-manufacturer.detail.labelLogo')"
                                     :defaultFolder="manufacturerRepository.entityName"
-                                    @sw-media-upload-media-upload-success="setMediaItem"
+                                    @sw-media-upload-v2-media-upload-success="setMediaItem"
                                     @media-drop="onDropMedia"
                                     @media-upload-remove-image="onUnlinkLogo">
-                                </sw-media-upload>
+                                </sw-media-upload-v2>
                             {% endblock %}
                         </sw-container>
 

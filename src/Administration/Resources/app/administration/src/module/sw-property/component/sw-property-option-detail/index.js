@@ -1,13 +1,9 @@
 import template from './sw-property-option-detail.html.twig';
 
-const { Component, StateDeprecated } = Shopware;
-
-Component.register('sw-property-option-detail', {
+Shopware.Component.register('sw-property-option-detail', {
     template,
 
-    inject: [
-        'repositoryFactory'
-    ],
+    inject: ['repositoryFactory'],
 
     props: {
         currentOption: {
@@ -19,16 +15,8 @@ Component.register('sw-property-option-detail', {
     },
 
     computed: {
-        mediaStore() {
-            return StateDeprecated.getStore('media');
-        },
-
         mediaRepository() {
             return this.repositoryFactory.create('media');
-        },
-
-        uploadStore() {
-            return StateDeprecated.getStore('upload');
         }
     },
 
@@ -41,10 +29,9 @@ Component.register('sw-property-option-detail', {
             this.$emit('save-option-edit', this.currentOption);
         },
 
-        successfulUpload({ targetId }) {
+        async successfulUpload({ targetId }) {
             this.currentOption.mediaId = targetId;
-            return this.mediaRepository.get(targetId, Shopware.Context.api)
-                .then((media) => { return media; });
+            await this.mediaRepository.get(targetId, Shopware.Context.api);
         },
 
         removeMedia() {

@@ -66,6 +66,181 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `sw-multi-tag-ip-select` as an extension which includes IP-validation
     * The `sw-multi-ip-select`-component is now deprecated and will be removed with version 6.4
     
+    * Replaced Store based datahandling with repository based datahandling in media specific components and modules, including the following changes
+      * sw-tag-field
+        * Added injection of `repositoryFactory`
+        * Added async computed property associationRepository
+      * sw-media-add-thumbnail-form
+        * Added prop `disabled`
+        * Added method `widthInputCHanged`
+        * Added method `heightInputChanged`
+        * Added method `inputChanged`
+      * sw-media-field is deprecated and replaced by sw-media-field-v2
+      * sw-media-folder-content
+        * Added injection of `repositoryFactory`
+        * Replaced computed property `mediaFolderStore` with `mediaFolderRepository`
+        * Method `getSubFolders` is now async
+        * Method `fetchParentFolder` is now async
+        * Method `updateParentFolder` is now async
+      * sw-media-folder-item
+        * Added injection of `repositoryFactory`
+        * Added computed property `mediaFolderRepository`
+        * Added computed property `mediaFolder`
+        * Replaced computed property `mediaDefaultFolderStore` with `mediaDefaultFolderRepository`
+        * Added `created` hook
+        * Added method `createdComponent`
+        * Added async method `refreshIconConfig`
+        * Method `getIconConfigFromFolder` is now async
+        * Method `onChangeName` is now async
+      * sw-media-list-selection is deprecated and replaced by sw-media-list-selection-v2 
+      * sw-media-media-item
+        * Method `onChangeName` is now async
+        * Method `emitItemDeleted` is now async
+        * Method `onMediaItemMoved` is now async
+        * Added method `emitRefreshLibrary`
+      * sw-media-modal-delete
+        * Added injection of `repositoryFactory`
+        * Added computed property `mediaRepository`
+        * Added computed property `mediaFolderRepository`
+        * Added method `_deleteSelection`
+        * Added method `getEntityRepository`
+        * Method `deleteSelection` is now async
+        * Method `updateSuccessNotification` is now async
+      * sw-media-modal-folder-dissolve
+        * Method `dissolveSelection` is now async
+        * Added async method `_dissolveSelection`
+      * sw-media-modal-folder-settings
+        * Added injection of `repositoryFactory`
+        * Added data property `mediaFolderConfigurationThumbnailSizeRepository`
+        * Added data property `deselectedMediaThumbnailSizes`
+        * Added data property `disabled`
+        * Replaced computed property `mediaFolderStore` with `mediaFolderRepository`
+        * Replaced computed property `mediaThumbnailSizeStore` with `mediaThumbnailSizeRepository`
+        * Replaced computed property `mediaDefaultFolderStore` with `mediaDefaultFolderRepository`
+        * Replaced computed property `mediaFolderConfigurationStore` with `mediaFolderConfigurationRepository`
+        * Method `createdComponent` is now async
+        * Method `getThumbnailSizes` is now async
+        * Method `addThumbnail` is now async
+        * Method `deleteThumbnail` is now async
+        * Method `onChangeInheritance` is now async
+        * Method `onClickSave` is now async
+        * Method `ensureUniqueDefaultFolder` is now async
+        * Added method `checkIfThumbnailExists`
+        * Replaced component `sw-select` with `sw-entity-single-select` 
+      * sw-media-modal-move
+        * Added injection of `repositoryFactory`
+        * Replaced computed property `mediaFolderStore` with `mediaFolderRepository`
+        * Replaced computed property `mediaStore` with `mediaRepository`
+        * Method `mountedComponent` is now async
+        * Method `updateParentFolder` is now async
+        * Method `moveSelection` is now async
+        * Added async method `_moveSelection`
+      * sw-media-modal-replace
+        * Added injection of `repositoryFactory`
+        * Method `replaceMediaItem` is now async
+        * Added event `media-replace-modal-item-replaced`
+      * sw-media-preview is deprecated and replaced by sw-media-preview-v2 
+      * sw-media-upload is deprecated and replaced by sw-media-upload-v2
+      * sw-media-compact-upload is deprecated and replaced by sw-media-compact-upload-v2
+      * sw-sidebar-media-item
+        * Added injection of `repositoryFactory`
+        * Replaced computed property `mediaStore` with `mediaRepository`
+        * Replaced computed property `mediaFolderStore` with `mediaFolderRepository`
+        * Method `getSubFolders` is now async
+        * Method `extendList` is now async
+        * Method `getList` is now async
+        * Replaced method `getListingParams` with `getListingCriteria`
+      * sw-admin
+        * Added injection of `loginService`
+        * Added computed property `isAuthenticated`
+      * sw-duplicated-media is deprecated and replaced sw-duplicated-media-v2
+      * sw-media-folder-info
+        * Method `onChangeFolderName` is now async
+        * Added event `media-folder-renamed`
+      * sw-media-quickinfo
+        * Added injection of `repositoryFactory`
+        * Replaced computed property `mediaStore` with `mediaRepository`
+        * Replaced computed property `customFieldSetStore` with `customFieldSetRepository`
+        * Added async method `getCustomFieldSets`
+        * Added method `emitRefreshMediaLibrary`
+        * Method `onSaveCustomFields` is now async
+        * Method `onSubmitTitle` is now async
+        * Method `onSubmitAltText` is now async
+        * Method `onChangeFileName` is now async
+        * Added event `media-item-replaced`
+      * sw-media-sidebar
+        * Added injection of `repositoryFactory`
+        * Replaced computed property `mediaFolderStore` with `mediaFolderRepository`
+        * Method `fetchCurrentFolder` is now async
+        * Added method `onMediaFolderRenamed`
+        * Added event `media-sidebar-folder-renamed`
+      * sw-media-tag
+        * Added injection of `repositoryFactory`
+        * Added computed property `mediaRepository`
+        * Renamed method `onChange` to `handleChange`
+        * Replaced component `sw-tag-field` with `sw-entity-tag-select`
+      * sw-media-breadcrumbs
+        * Added injection of `repositoryFactory`
+        * Added data property `parentFolder`
+        * Replaced computed property `mediaFolderStore` with `mediaFolderRepository`
+        * Method `updateFolder` is now async
+      * sw-media-library
+        * Added injection of `repositoryFactory`
+        * Replaced computed property `mediaStore` with `mediaRepository`
+        * Replaced computed property `mediaFolderStore` with `mediaFolderRepository`
+        * Replaced computed property `mediaFolderConfigurationStore` with `mediaFolderConfigurationRepository`
+        * Added method `isLoaderDone`
+        * Method `refreshList` is now async
+        * Method `loadItems` is now async
+        * Method `nextFolders` is now async
+        * Method `fetchAssociatedFolders` is now async
+        * Method `createFolder` is now async
+      * sw-media-modal is deprecated and replaced by sw-media-modal-v2
+      * sw-media-index
+        * Added injection of `repositoryFactory`
+        * Added injection of `mediaService`
+        * Added data property `parentFolder`
+        * Added data property `currentFolder`
+        * Added watcher for `routeFolderId`
+        * Replaced computed property `mediaStore` with `mediaRepository`
+        * Replaced computed property `mediaFolderStore` with `mediaFolderRepository`
+        * Added `created` hook
+        * Added method `createdComponent`
+        * Added async method `updateFolder`
+        * Method `onUploadsAdded` is now async
+      * sw-product-variants-delivery-media
+        * Added injection of `repositoryFactory`
+        * Added injection of `mediaService`
+        * Replaced computed property `mediaStore` with `mediaRepository`
+        * Method `onUploadsAdded` is now async
+        * Method `successfulUpload` is now async
+      * `sw-property-option-detail
+        * Added injection of `repositoryFactory`
+        * Method `successfulUpload` is now async  
+      * sw-upload-store-listener  is deprecated and replaced by sw-upload-listener
+      * sw-cms/elements/image-gallery/config/index.js
+        * Method `createdComponent` is now async
+      * sw-cms/elements/image-slider/config/index.js
+        * Method `createdComponent` is now async
+      * sw-cms/elements/image/config/index.js
+        * Method `onImageUpload` is now async
+      * repository.data
+        * Added method `discard`  
+      * media.api.service
+        * Added method `hasListeners`
+        * Added method `hasDefaultListeners`
+        * Added method `addListener`
+        * Added method `removeListener`
+        * Added method `removeDefaultListener`
+        * Added method `addDefaultListener`
+        * Added method `getListenerForTag`
+        * Added method `_createUploadEvent`
+        * Added method `addUpload`
+        * Added method `addUploads`
+        * Added method `removeByTag`
+        * Added method `runUploads`
+        * Added method `_startUpload`
+
 * Core    
     * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.
     * The usage of `entity` in the `shopware.entity.definition` tag is deprecated and will be removed with 6.4. 
@@ -195,6 +370,39 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Removed method `configHasSaleschannel`
         * Removed method `selectHasSaleschannel`
         * Removed method `undeleteSaleschannel`
+    * Removed watcher on `width` from component `sw-media-add-thumbnail-form`
+    * Removed computed property `uploadStore` from component `sw-media-list-selection` 
+    * Removed computed property `mediaStore` from component `sw-media-media-item` 
+    * Removed computed property `mediaFolderConfigurationThumbnailSizeStore` from component `sw-media-modal-folder-settings`
+    * Removed injection of `mediaFolderService` from `sw-media-modal-move`
+    * Removed computed property `uploadStore` from component `sw-media-modal-replace` 
+    * Removed computed property `mediaItemStore` from component `sw-media-modal-replace` 
+    * Removed computed property `uploadStore` from component `sw-media-upload` 
+    * Removed computed property `mediaItemStore` from component `sw-media-upload` 
+    * Removed computed property `folderStore` from component `sw-media-upload` 
+    * Removed computed property `folderConfigurationStore` from component `sw-media-upload` 
+    * Removed computed property `thumbnailSizesStore` from component `sw-media-upload` 
+    * Removed computed property `uploadStore` from component `sw-duplicated-media` 
+    * Removed computed property `uploadStore` from component `sw-upload-store-listener` 
+    * Removed computed property `mediaStore` from component `sw-upload-store-listener` 
+    * Removed computed property `productStore` from component `sw-media-quickinfo-usage` 
+    * Removed computed property `parentFolder` from component `sw-media-breadcrumbs` 
+    * Removed data property `done` from component `sw-media-library`
+    * Removed computed property `folderLoader` from component `sw-media-library`
+    * Removed computed property `mediaLoader` from component `sw-media-library`
+    * Removed computed property `uploadStore` from component `sw-media-modal`
+    * Removed method `hideSelectedItems` from component `sw-media-modal`
+    * Removed method `unhideSelectedItems` from component `sw-media-modal`
+    * Removed computed property `mediaItemStore` from component `sw-media-index` 
+    * Removed computed property `uploadStore` from component `sw-media-index` 
+    * Removed computed property `currentFolder` from component `sw-media-index` 
+    * Removed computed property `currentFolderName` from component `sw-media-index` 
+    * Removed computed property `parentFolder` from component `sw-media-index` 
+    * Removed computed property `parentFolderName` from component `sw-media-index` 
+    * Removed computed property `uploadStore` from component `sw-product-media-form` 
+    * Removed computed property `uploadStore` from component `sw-product-variants-delivery-media` 
+    * Removed computed property `uploadStore` from component `sw-property-option-detail` 
+    * Removed computed property `mediaStore` from component `sw-property-option-detail` 
 
 * Core
     *

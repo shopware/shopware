@@ -52,17 +52,17 @@
                 {% endblock %}
 
                     {% block sw_media_field_upload_component %}
-                        <sw-upload-store-listener
+                        <sw-upload-listener
                                 :uploadTag="uploadTag"
                                 autoUpload
                                 @media-upload-finish="exposeNewId">
-                        </sw-upload-store-listener>
-                        <sw-media-upload
+                        </sw-upload-listener>
+                        <sw-media-upload-v2
                             v-if="showUploadField"
                             variant="regular"
                             :allowMultiSelect="false"
                             :uploadTag="uploadTag">
-                        </sw-media-upload>
+                        </sw-media-upload-v2>
                     {% endblock %}
 
                     <div v-else class="sw-media-field__media-selection">

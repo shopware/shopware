@@ -1,8 +1,8 @@
 import template from './sw-media-media-item.html.twig';
 import './sw-media-media-item.scss';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
-const domUtils = Shopware.Utils.dom;
+const { Component, Mixin } = Shopware;
+const { dom } = Shopware.Utils;
 
 /**
  * @status ready
@@ -50,39 +50,36 @@ Component.register('sw-media-media-item', {
             return {
                 'sw-context-menu__group': this.$slots.default
             };
-        },
-
-        mediaStore() {
-            return StateDeprecated.getStore('media');
         }
     },
 
     methods: {
-        onChangeName(updatedName, item, endInlineEdit) {
+        async onChangeName(updatedName, item, endInlineEdit) {
             if (!updatedName || !updatedName.trim()) {
                 this.rejectRenaming(endInlineEdit);
                 return;
             }
 
             item.isLoading = true;
-            this.mediaService.renameMedia(item.id, updatedName).then(() => {
-                this.mediaStore.getByIdAsync(item.id).then(() => {
-                    this.createNotificationSuccess({
-                        title: this.$tc('global.default.success'),
-                        message: this.$tc('global.sw-media-media-item.notification.renamingSuccess.message')
-                    });
-                });
 
-                endInlineEdit();
-                this.$emit('media-item-rename-success', item);
-            }).catch(() => {
+            try {
+                await this.mediaService.renameMedia(item.id, updatedName);
+                item.fileName = updatedName;
                 item.isLoading = false;
-                endInlineEdit();
+                this.createNotificationSuccess({
+                    title: this.$tc('global.default.success'),
+                    message: this.$tc('global.sw-media-media-item.notification.renamingSuccess.message')
+                });
+                this.$emit('media-item-rename-success', item);
+            } catch {
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
                     message: this.$tc('global.sw-media-media-item.notification.renamingError.message')
                 });
-            });
+            } finally {
+                item.isLoading = false;
+                endInlineEdit();
+            }
         },
 
         rejectRenaming(endInlineEdit) {
@@ -96,6 +93,7 @@ Component.register('sw-media-media-item', {
 
         onBlur(event, item, endInlineEdit) {
             const input = event.target.value;
+
             if (input !== item.fileName) {
                 return;
             }
@@ -121,7 +119,7 @@ Component.register('sw-media-media-item', {
         },
 
         copyItemLink(item) {
-            domUtils.copyToClipboard(item.url);
+            dom.copyToClipboard(item.url);
             this.createNotificationSuccess({
                 title: this.$tc('sw-media.general.notification.urlCopied.title'),
                 message: this.$tc('sw-media.general.notification.urlCopied.message')
@@ -136,11 +134,10 @@ Component.register('sw-media-media-item', {
             this.showModalDelete = false;
         },
 
-        emitItemDeleted(deletePromise) {
+        async emitItemDeleted(deletePromise) {
             this.closeModalDelete();
-            deletePromise.then((ids) => {
-                this.$emit('media-item-delete', ids.mediaIds);
-            });
+            const ids = await deletePromise;
+            this.$emit('media-item-delete', ids.mediaIds);
         },
 
         openModalReplace() {
@@ -159,10 +156,17 @@ Component.register('sw-media-media-item', {
             this.showModalMove = false;
         },
 
-        onMediaItemMoved(movePromise) {
+        async onMediaItemMoved(movePromise) {
             this.closeModalMove();
-            movePromise.then((ids) => {
-                this.$emit('media-folder-move', ids);
+            const ids = await movePromise;
+            this.$emit('media-folder-move', ids);
+        },
+
+        emitRefreshMediaLibrary() {
+            this.closeModalReplace();
+
+            this.$nextTick(() => {
+                this.$emit('media-item-replaced');
             });
         }
     }

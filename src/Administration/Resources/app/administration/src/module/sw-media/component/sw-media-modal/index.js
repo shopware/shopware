@@ -5,11 +5,17 @@ const { Component, StateDeprecated } = Shopware;
 const utils = Shopware.Utils;
 
 /**
+ * @deprecated tag:v6.4.0
  * @event media-modal-selection-change EntityProxy[]
  * @event closeModal (void)
  */
 Component.register('sw-media-modal', {
     template,
+
+    deprecated: {
+        version: '6.4.0',
+        comment: 'Use sw-media-modal-v2 instead'
+    },
 
     props: {
         initialFolderId: {

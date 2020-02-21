@@ -8,6 +8,7 @@ const INPUT_TYPE_FILE_UPLOAD = 'file-upload';
 const INPUT_TYPE_URL_UPLOAD = 'url-upload';
 
 /**
+ * @deprecated tag:v6.4.0
  * @status ready
  * @description The <u>sw-media-upload</u> component is used wherever an upload is needed. It supports drag & drop-,
  * file- and url-upload and comes in various forms.
@@ -24,6 +25,11 @@ const INPUT_TYPE_URL_UPLOAD = 'url-upload';
  */
 Component.register('sw-media-upload', {
     template,
+
+    deprecated: {
+        version: '6.4.0',
+        comment: 'Use sw-media-upload-v2 instead'
+    },
 
     mixins: [
         Mixin.getByName('notification')
@@ -180,9 +186,9 @@ Component.register('sw-media-upload', {
                 );
 
                 if (value) {
-                    this.useUrlUpload();
+                    this.useUrlUpload = value;
                 } else {
-                    this.useFileUpload();
+                    this.useFileUpload = value;
                 }
             }
         }

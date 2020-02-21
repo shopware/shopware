@@ -7,6 +7,7 @@ const {
     extractMethods,
     extractMixins,
     extractProps,
+    extractDeprecations,
     extractWatcher,
     parseSource,
     extractBlockComment
@@ -38,6 +39,8 @@ module.exports = (file, globalVariables) => {
     const props = extractProps(definition);
     const computed = extractComputed(definition);
 
+    const deprecations = extractDeprecations(definition);
+
     const methods = extractMethods(definition);
     const watcher = extractWatcher(definition);
 
@@ -51,6 +54,7 @@ module.exports = (file, globalVariables) => {
     return {
         imports,
         props,
+        deprecations,
         computed,
         methods,
         watcher,

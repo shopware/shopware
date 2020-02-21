@@ -69,7 +69,10 @@ Component.register('sw-settings-currency-detail', {
             };
         },
 
-        ...mapPropertyErrors('currency', ['name', 'isoCode', 'shortName', 'symbol', 'isDefault', 'decimalPrecision', 'factor'])
+        ...mapPropertyErrors(
+            'currency',
+            ['name', 'isoCode', 'shortName', 'symbol', 'isDefault', 'decimalPrecision', 'factor']
+        )
     },
 
     watch: {

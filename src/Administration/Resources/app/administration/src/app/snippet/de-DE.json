@@ -153,6 +153,9 @@
         },
         "renamingError": {
           "message": "Fehler beim Speichern des Ordners."
+        },
+        "errorInvalidItemName": {
+          "message": "Der Ordner konnte nicht gespeichert werden. Bitte gib einen validen Ordnernamen ein."
         }
       }
     },
@@ -241,6 +244,19 @@
       "labelOldFile": "Bereits existierende Datei",
       "labelNewFile": "Hochzuladende Datei"
     },
+    "sw-duplicated-media-v2": {
+      "titleModal": "Datei existiert bereits",
+      "description": "Es existiert bereits eine Datei mit dem Namen \"{fileName}\".",
+      "buttonReplace": "Datei ersetzen",
+      "buttonRename": "Datei umbennen",
+      "buttonSkip": "Datei überspringen",
+      "labelSaveSelection": "Auswahl merken und für {count} weitere anwenden",
+      "labelOptionReplace": "Hochladen und ersetzen",
+      "labelOptionRename": "Hochladen und umbenennen",
+      "labelOptionSkip": "Datei überspringen",
+      "labelOldFile": "Bereits existierende Datei",
+      "labelNewFile": "Hochzuladende Datei"
+    },
     "sw-media-modal-move": {
       "titleModal": "\"{mediaName}\" verschieben | {count} Objekte verschieben",
       "buttonMove": "Verschieben",
@@ -270,7 +286,33 @@
       "fallbackAudioTagSupport": "Ihr Browser unterstützt diesen Audio-Tag nicht",
       "textNoMedia": "Kein Medium verfügbar"
     },
+    "sw-media-preview-v2": {
+      "fallbackVideoTagSupport": "Ihr Browser unterstützt diesen Video-Tag nicht",
+      "fallbackAudioTagSupport": "Ihr Browser unterstützt diesen Audio-Tag nicht",
+      "textNoMedia": "Kein Medium verfügbar"
+    },
     "sw-media-upload": {
+      "buttonFileUpload": "Dateien hochladen",
+      "buttonUrlUpload": "Über URL hochladen",
+      "buttonSwitchToFileUpload": "Datei von Deinem Computer hochladen",
+      "buttonSwitchToUrlUpload": "Datei von URL hochladen",
+      "buttonOpenMedia": "Medien öffnen",
+      "notification": {
+        "success": {
+          "title": "Medienupload",
+          "message": "Keine Datei erfolgreich gespeichert | Eine Datei erfolgreich gespeichert | {count} / {total} Dateien erfolgreich gespeichert."
+        },
+        "failure": {
+          "message": "Fehler beim Hochladen."
+        },
+        "illegalFilename": {
+          "title": "Ungültiger Dateiname",
+          "message": "Der Dateiname \"{fileName}\" enthält ungültige Sonderzeichen."
+        }
+      },
+      "caption": "Dateien zum Hochladen hierhin ziehen"
+    },
+    "sw-media-upload-v2": {
       "buttonFileUpload": "Dateien hochladen",
       "buttonUrlUpload": "Über URL hochladen",
       "buttonSwitchToFileUpload": "Datei von Deinem Computer hochladen",
@@ -329,6 +371,9 @@
       "labelLoadMore": "Mehr laden"
     },
     "sw-media-list-selection-item": {
+      "buttonRemove": "Entfernen"
+    },
+    "sw-media-list-selection-item-v2": {
       "buttonRemove": "Entfernen"
     },
     "sw-select": {

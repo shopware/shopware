@@ -57,7 +57,7 @@
 
                             {%  block sw_manufacturer_list_grid_columns_name_preview   %}
                                 <template #preview-name="{ item }" >
-                                    <sw-media-preview :source="item.mediaId"></sw-media-preview>
+                                    <sw-media-preview-v2 :source="item.mediaId"></sw-media-preview-v2>
                                 </template>
                             {% endblock %}
                         </sw-entity-listing>

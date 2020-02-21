@@ -12,6 +12,8 @@ const { CriteriaFactory } = Shopware.DataDeprecated;
 Component.register('sw-tag-field', {
     template,
 
+    inject: ['repositoryFactory'],
+
     props: {
         entity: {
             type: Object,
@@ -50,7 +52,24 @@ Component.register('sw-tag-field', {
         },
 
         associationStore() {
-            return this.entity.getAssociation('tags');
+            if (this.entity.getEntityName() !== 'media') {
+                return this.entity.getAssociation('tags');
+            }
+            return null;
+        },
+
+        async associationRepository() {
+            if (this.entity.getEntityName() !== 'media') {
+                return null;
+            }
+
+            this.entityRepository = await this.repositoryFactory.create(this.entity.getEntityName());
+            const entity = await this.entityRepository.get(this.entity.id, Shopware.Context.api);
+
+            return this.repositoryFactory.create(
+                entity.tags.entity,
+                entity.tags.source
+            );
         }
     },
 
@@ -70,7 +89,11 @@ Component.register('sw-tag-field', {
         },
 
         onClickAdd(event) {
-            this.onEnter(event.item.index);
+            if (event.item.index) {
+                this.onEnter(event.item.index);
+            } else {
+                this.onEnter(event.item.id);
+            }
         },
 
         onEnter(index) {

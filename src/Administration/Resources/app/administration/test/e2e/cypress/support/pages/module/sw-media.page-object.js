@@ -9,7 +9,8 @@ export default class MediaPageObject extends GeneralPageObject {
             ...this.elements,
             ...{
                 uploadInput: '#files',
-                previewItem: '.sw-media-preview__item',
+                previewItem: '.sw-media-preview-v2__item',
+                previewPlaceholder: '.sw-media-preview-v2__placeholder',
                 folderPreviewItem: '.sw-media-base-item__preview-container',
                 baseItem: '.sw-media-base-item',
                 baseItemName: '.sw-media-base-item__name',
@@ -34,10 +35,10 @@ export default class MediaPageObject extends GeneralPageObject {
             .type(path);
         cy.get('.sw-media-url-form__submit-button').click();
 
-        cy.get('.sw-media-preview__placeholder').should('be.visible');
-        cy.get('.sw-media-preview__placeholder').should('not.exist');
+        cy.get('.sw-media-preview-v2__placeholder').should('be.visible');
+        cy.get('.sw-media-preview-v2__placeholder').should('not.exist');
 
-        cy.get('.sw-media-preview__item').should('be.visible');
+        cy.get('.sw-media-preview-v2__item').should('be.visible');
         return this;
     }
 
@@ -53,9 +54,9 @@ export default class MediaPageObject extends GeneralPageObject {
                 }
             );
         });
-        cy.get('.sw-media-preview__placeholder').should('be.visible');
-        cy.get('.sw-media-preview__placeholder').should('not.exist');
-        cy.get('.sw-media-preview__item').should('be.visible');
+        cy.get('.sw-media-preview-v2__placeholder').should('be.visible');
+        cy.get('.sw-media-preview-v2__placeholder').should('not.exist');
+        cy.get('.sw-media-preview-v2__item').should('be.visible');
 
         return this;
     }
@@ -99,6 +100,7 @@ export default class MediaPageObject extends GeneralPageObject {
 
         if (size.height) {
             cy.get('.sw-media-add-thumbnail-form__lock').click();
+            cy.get('input[name=sw-field--height]').clear();
             cy.get('input[name=sw-field--height]').clear();
             cy.get('input[name=sw-field--height]').type(size.height);
             cy.get('input[name=sw-field--height]').type('{enter}');

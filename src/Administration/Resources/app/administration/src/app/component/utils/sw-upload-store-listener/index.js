@@ -20,6 +20,7 @@ function isDuplicationException(error) {
 }
 
 /**
+ * @deprecated tag:v6.4.0
  * @public
  * @description
  * component that listens to mutations of the upload store and transforms them back into the vue.js event system.
@@ -34,6 +35,11 @@ function isDuplicationException(error) {
 Component.register('sw-upload-store-listener', {
     render() {
         return document.createComment('');
+    },
+
+    deprecated: {
+        version: '6.4.0',
+        comment: 'Use sw-upload-listener instead'
     },
 
     mixins: [

@@ -43,21 +43,21 @@
                         {% block sw_product_variants_delivery_media_data_grid_column_option_media %}
                             <template slot="column-option.media" slot-scope="{ item, isInlineEdit, compact }">
                                 {% block sw_product_variants_delivery_media_data_grid_column_option_media_listener %}
-                                    <sw-upload-store-listener
+                                    <sw-upload-listener
                                             :uploadTag="item.id"
                                             @media-upload-add="onUploadsAdded"
                                             @media-upload-finish="successfulUpload">
-                                    </sw-upload-store-listener>
+                                    </sw-upload-listener>
                                 {% endblock %}
 
                                 {% block sw_product_variants_delivery_media_data_grid_column_option_media_upload %}
-                                    <sw-media-compact-upload
+                                    <sw-media-compact-upload-v2
                                             :source="item.mediaId"
                                             :uploadTag="item.id"
                                             :defaultFolder="product.getEntityName()"
                                             @media-upload-remove-image="removeMedia(item)"
                                             @selection-change="setMedia">
-                                    </sw-media-compact-upload>
+                                    </sw-media-compact-upload-v2>
                                 {% endblock %}
                             </template>
                         {% endblock %}

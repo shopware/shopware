@@ -3,18 +3,18 @@
 .sw-media-media-item {
     position: relative;
 
-    .sw-media-preview .sw-media-preview__item {
+    .sw-media-preview-v2 .sw-media-preview-v2__item {
         max-width: calc(100% - 32px);
         max-height: calc(100% - 32px);
     }
 
-    .sw-media-base-item.is--list .sw-media-preview {
+    .sw-media-base-item.is--list .sw-media-preview-v2 {
         width: 40px;
         height: 40px;
         grid-row: 1 / span 2;
         overflow: hidden;
 
-        .sw-media-preview__item {
+        .sw-media-preview-v2__item {
             padding: 0;
             height: 100%;
             width: 100%;

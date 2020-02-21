@@ -1,9 +1,7 @@
 import template from './sw-media-display-options.html.twig';
 import './sw-media-display-options.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-media-display-options', {
+Shopware.Component.register('sw-media-display-options', {
     template,
 
     props: {
@@ -43,11 +41,11 @@ Component.register('sw-media-display-options', {
         sortOptions() {
             return [
                 { value: 'createdAt:asc', name: this.$tc('sw-media.sorting.labelSortByCreatedAsc') },
-                { value: 'createdAt:dsc', name: this.$tc('sw-media.sorting.labelSortByCreatedDsc') },
+                { value: 'createdAt:desc', name: this.$tc('sw-media.sorting.labelSortByCreatedDsc') },
                 { value: 'fileName:asc', name: this.$tc('sw-media.sorting.labelSortByNameAsc') },
-                { value: 'fileName:dsc', name: this.$tc('sw-media.sorting.labelSortByNameDsc') },
+                { value: 'fileName:desc', name: this.$tc('sw-media.sorting.labelSortByNameDsc') },
                 { value: 'fileSize:asc', name: this.$tc('sw-media.sorting.labelSortBySizeAsc') },
-                { value: 'fileSize:dsc', name: this.$tc('sw-media.sorting.labelSortBySizeDsc') }
+                { value: 'fileSize:desc', name: this.$tc('sw-media.sorting.labelSortBySizeDsc') }
             ];
         },
 

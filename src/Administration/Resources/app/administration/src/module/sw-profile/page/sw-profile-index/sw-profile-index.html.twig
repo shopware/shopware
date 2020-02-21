@@ -86,12 +86,12 @@
                                  :title="$tc('sw-profile.index.titleImageCard')"
                                  :isLoading="isUserLoading || !languageId">
                             {% block sw_profile_index_image_card_image %}
-                                <sw-upload-store-listener
+                                <sw-upload-listener
                                     :uploadTag="uploadTag"
                                     autoUpload
                                     @media-upload-finish="setMediaItem">
-                                </sw-upload-store-listener>
-                                <sw-media-upload
+                                </sw-upload-listener>
+                                <sw-media-upload-v2
                                     variant="regular"
                                     class="sw-profile-index__user-image-upload"
                                     :uploadTag="uploadTag"
@@ -103,7 +103,7 @@
                                     @media-drop="onDropMedia"
                                     @media-upload-sidebar-open="openMediaSidebar"
                                     @media-upload-remove-image="onUnlinkAvatar">
-                                </sw-media-upload>
+                                </sw-media-upload-v2>
                             {% endblock %}
                         </sw-card>
                     {% endblock %}

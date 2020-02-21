@@ -85,6 +85,13 @@
       "labelTabItemUpload": "Upload files",
       "labelButtonCancel": "Cancel",
       "labelButtonSaveSelection": "Add media"
+    },
+    "sw-media-modal-v2": {
+      "titleModal": "Choose media",
+      "labelTabItemLibrary": "Media Library",
+      "labelTabItemUpload": "Upload files",
+      "labelButtonCancel": "Cancel",
+      "labelButtonSaveSelection": "Add media"
     }
   }
 }

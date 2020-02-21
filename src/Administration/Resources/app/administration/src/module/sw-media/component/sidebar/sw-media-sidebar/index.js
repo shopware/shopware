@@ -1,11 +1,11 @@
 import template from './sw-media-sidebar.html.twig';
 import './sw-media-sidebar.scss';
 
-const { Component, Filter, StateDeprecated } = Shopware;
+const { Component, Filter, Context } = Shopware;
 
 Component.register('sw-media-sidebar', {
     template,
-
+    inject: ['repositoryFactory'],
     props: {
         items: {
             required: true,
@@ -38,8 +38,8 @@ Component.register('sw-media-sidebar', {
     },
 
     computed: {
-        mediaFolderStore() {
-            return StateDeprecated.getStore('media_folder');
+        mediaFolderRepository() {
+            return this.repositoryFactory.create('media_folder');
         },
 
         mediaNameFilter() {
@@ -103,13 +103,17 @@ Component.register('sw-media-sidebar', {
             this.fetchCurrentFolder();
         },
 
-        fetchCurrentFolder() {
+        async fetchCurrentFolder() {
             if (!this.currentFolderId) {
                 this.currentFolder = null;
                 return;
             }
 
-            this.currentFolder = this.mediaFolderStore.getById(this.currentFolderId);
+            this.currentFolder = await this.mediaFolderRepository.get(this.currentFolderId, Context.api);
+        },
+
+        onMediaFolderRenamed() {
+            this.$emit('media-sidebar-folder-renamed');
         }
     }
 });

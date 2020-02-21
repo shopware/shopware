@@ -1,10 +1,12 @@
 import template from './sw-media-breadcrumbs.html.twig';
 import './sw-media-breadcrumbs.scss';
 
-const { Component, StateDeprecated } = Shopware;
+const { Component, Context } = Shopware;
 
 Component.register('sw-media-breadcrumbs', {
     template,
+
+    inject: ['repositoryFactory'],
 
     model: {
         prop: 'currentFolderId',
@@ -27,32 +29,20 @@ Component.register('sw-media-breadcrumbs', {
 
     data() {
         return {
-            currentFolder: null
+            currentFolder: null,
+            parentFolder: null
         };
     },
 
     computed: {
-        mediaFolderStore() {
-            return StateDeprecated.getStore('media_folder');
+        mediaFolderRepository() {
+            return this.repositoryFactory.create('media_folder');
         },
-
         rootFolder() {
-            const root = new this.mediaFolderStore.EntityClass(this.mediaFolderStore.getEntityName(), null, null, null);
+            const root = this.mediaFolderRepository.create(Context.api);
             root.name = this.$tc('sw-media.index.rootFolderName');
-
+            root.id = null;
             return root;
-        },
-
-        parentFolder() {
-            if (!this.currentFolder || this.currentFolder === this.rootFolder) {
-                return null;
-            }
-
-            if (!this.currentFolder.parentId) {
-                return this.rootFolder;
-            }
-
-            return this.mediaFolderStore.getById(this.currentFolder.parentId);
         },
 
         swMediaBreadcrumbsClasses() {
@@ -77,12 +67,19 @@ Component.register('sw-media-breadcrumbs', {
             this.updateFolder();
         },
 
-        updateFolder() {
+        async updateFolder() {
             if (!this.currentFolderId) {
                 this.currentFolder = this.rootFolder;
-                return;
+                this.parentFolder = null;
+            } else {
+                this.currentFolder = await this.mediaFolderRepository.get(this.currentFolderId, Context.api);
+
+                if (this.currentFolder && this.currentFolder.parentId) {
+                    this.parentFolder = await this.mediaFolderRepository.get(this.currentFolder.parentId, Context.api);
+                } else {
+                    this.parentFolder = this.rootFolder;
+                }
             }
-            this.currentFolder = this.mediaFolderStore.getById(this.currentFolderId);
         },
 
         onBreadcrumbsItemClicked(id) {

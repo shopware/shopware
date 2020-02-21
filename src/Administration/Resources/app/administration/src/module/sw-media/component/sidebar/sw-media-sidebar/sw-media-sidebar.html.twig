@@ -31,6 +31,7 @@
                     v-else-if="currentFolder"
                     :mediaFolder="currentFolder"
                     :editable="editable"
+                    @media-folder-renamed="onMediaFolderRenamed"
                     v-on="$listeners">
                 </sw-media-folder-info>
 

@@ -59,8 +59,8 @@ describe('Media: Replace media', () => {
         });
 
         // Verify image is about to be replaced
-        cy.get('.sw-media-modal-replace .sw-media-upload__fallback-icon').should('not.exist');
-        cy.get('.sw-media-modal-replace .sw-media-preview__item').should('be.visible');
+        cy.get('.sw-media-modal-replace .sw-media-upload-v2__fallback-icon').should('not.exist');
+        cy.get('.sw-media-modal-replace .sw-media-preview-v2__item').should('be.visible');
 
         // Click replace button and upload new image
         cy.get('.sw-media-modal-replace .sw-media-replace__replace-media-action').click();
@@ -117,8 +117,8 @@ describe('Media: Replace media', () => {
         });
 
         // Verify image is about to be replaced
-        cy.get('.sw-media-modal-replace .sw-media-upload__fallback-icon').should('not.exist');
-        cy.get('.sw-media-modal-replace .sw-media-preview__item').should('be.visible');
+        cy.get('.sw-media-modal-replace .sw-media-upload-v2__fallback-icon').should('not.exist');
+        cy.get('.sw-media-modal-replace .sw-media-preview-v2__item').should('be.visible');
 
         // Verify warning for different file extension is shown
         cy.get('.sw-media-modal-replace .sw-media-modal-replace__file-extension-warning').contains('(jpg)');

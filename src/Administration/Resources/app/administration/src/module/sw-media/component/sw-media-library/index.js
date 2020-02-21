@@ -1,12 +1,13 @@
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-media-library.html.twig';
 import './sw-media-library.scss';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
-const ItemLoader = Shopware.Helper.InfiniteScrollingHelper;
+const { Component, Mixin, Context } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-media-library', {
     template,
+
+    inject: ['repositoryFactory'],
 
     model: {
         prop: 'selection',
@@ -76,32 +77,31 @@ Component.register('sw-media-library', {
         return {
             isLoading: false,
             selectedItems: this.selection,
+            pageItem: 0,
+            pageFolder: 0,
+            itemLoaderDone: false,
+            folderLoaderDone: false,
             items: [],
             subFolders: [],
             currentFolder: null,
             parentFolder: null,
             presentation: 'medium-preview',
             sorting: { sortBy: 'fileName', sortDirection: 'asc' },
-            folderSorting: { sortBy: 'name', sortDirection: 'asc' },
-            done: false
+            folderSorting: { sortBy: 'name', sortDirection: 'asc' }
         };
     },
 
     computed: {
-        mediaFolderStore() {
-            return StateDeprecated.getStore('media_folder');
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
         },
 
-        mediaFolderConfigurationStore() {
-            return StateDeprecated.getStore('media_folder_configuration');
+        mediaFolderRepository() {
+            return this.repositoryFactory.create('media_folder');
         },
 
-        folderLoader() {
-            return new ItemLoader('media_folder', this.limit);
-        },
-
-        mediaLoader() {
-            return new ItemLoader('media', this.limit);
+        mediaFolderConfigurationRepository() {
+            return this.repositoryFactory.create('media_folder_configuration');
         },
 
         selectableItems() {
@@ -109,7 +109,8 @@ Component.register('sw-media-library', {
         },
 
         rootFolder() {
-            const root = new this.mediaFolderStore.EntityClass(this.mediaFolderStore.getEntityName(), null, null, null);
+            const root = this.mediaFolderRepository.create(Context.api);
+            root.id = '';
             root.name = this.$tc('sw-media.index.rootFolderName');
 
             return root;
@@ -128,7 +129,7 @@ Component.register('sw-media-library', {
         },
 
         showLoadMoreButton() {
-            return !this.isLoading && !this.done;
+            return !this.isLoading && (!this.itemLoaderDone || !this.folderLoaderDone);
         }
     },
 
@@ -180,19 +181,21 @@ Component.register('sw-media-library', {
         /*
          * Object fetching
          */
-        refreshList() {
+        async refreshList() {
             if (this.isLoading === true) {
                 return;
             }
             this.isLoading = true;
 
             this.clearSelection();
-            this.done = false;
-            this.fetchAssociatedFolders();
-            this.folderLoader.reset();
+            await this.fetchAssociatedFolders();
             this.subFolders = [];
-            this.mediaLoader.reset();
             this.items = [];
+
+            this.pageItem = 0;
+            this.pageFolder = 0;
+            this.itemLoaderDone = false;
+            this.folderLoaderDone = false;
 
             this.loadItems();
         },
@@ -213,27 +216,31 @@ Component.register('sw-media-library', {
             }
         },
 
-        loadItems() {
+        isLoaderDone(criteria, data) {
+            return criteria.limit >= data.total || criteria.limit > data.length;
+        },
+
+        async loadItems() {
             this.isLoading = true;
-            this.nextFolders().then((doneLoadFolders) => {
-                if (doneLoadFolders) {
-                    const criteria = {
-                        criteria: CriteriaFactory.equals('mediaFolderId', this.folderId),
-                        term: this.term
-                    };
+            await this.nextFolders();
 
-                    return this.mediaLoader.next(Object.assign({}, this.sorting, criteria)).then((items) => {
-                        this.items.push(...items);
-                        this.done = this.mediaLoader.done;
-                    });
-                }
+            if (this.folderLoaderDone) {
+                this.pageItem += 1;
 
-                return Promise.resolve();
-            }).then(() => {
-                this.isLoading = false;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+                const criteria = new Criteria(this.pageItem, this.limit);
+                criteria
+                    .addFilter(Criteria.equals('mediaFolderId', this.folderId))
+                    .addAssociation('tags')
+                    .addSorting(Criteria.sort(this.sorting.sortBy, this.sorting.sortDirection))
+                    .setTerm(this.term);
+
+                const items = await this.mediaRepository.search(criteria, Context.api);
+
+                this.items.push(...items);
+                this.itemLoaderDone = this.isLoaderDone(criteria, items);
+            }
+
+            this.isLoading = false;
         },
 
         loadNextItems() {
@@ -244,43 +251,38 @@ Component.register('sw-media-library', {
             this.loadItems();
         },
 
-        nextFolders() {
-            if (this.folderLoader.done) {
-                return Promise.resolve(true);
+        async nextFolders() {
+            if (this.folderLoaderDone) {
+                return;
             }
 
-            const criteria = {
-                criteria: CriteriaFactory.equals('parentId', this.folderId),
-                term: this.term,
-                associations: {
-                    defaultFolder: {}
-                }
-            };
+            this.pageFolder += 1;
 
-            return this.folderLoader.next(Object.assign({}, this.folderSorting, criteria), true).then((items) => {
-                this.subFolders.push(...items);
-                return this.folderLoader.done;
-            });
+            const criteria = new Criteria(this.pageFolder)
+                .addFilter(Criteria.equals('parentId', this.folderId))
+                .addSorting(Criteria.sort(this.folderSorting.sortBy, this.folderSorting.sortDirection))
+                .setTerm(this.term);
+
+            const subFolders = await this.mediaFolderRepository.search(criteria, Context.api);
+            this.subFolders.push(...subFolders);
+
+            this.folderLoaderDone = this.isLoaderDone(criteria, subFolders);
         },
 
-        fetchAssociatedFolders() {
+        async fetchAssociatedFolders() {
             if (this.folderId === null) {
                 this.currentFolder = null;
                 this.parentFolder = null;
                 return;
             }
 
-            this.mediaFolderStore.getByIdAsync(this.folderId).then((currentFolder) => {
-                this.currentFolder = currentFolder;
-                if (this.currentFolder.parentId) {
-                    this.mediaFolderStore.getByIdAsync(currentFolder.parentId).then((parentFolder) => {
-                        this.parentFolder = parentFolder;
-                    });
-                    return;
-                }
+            this.currentFolder = await this.mediaFolderRepository.get(this.folderId, Context.api);
 
+            if (this.currentFolder && this.currentFolder.parentId) {
+                this.parentFolder = await this.mediaFolderRepository.get(this.currentFolder.parentId, Context.api);
+            } else {
                 this.parentFolder = this.rootFolder;
-            });
+            }
         },
 
         goToParentFolder() {
@@ -313,22 +315,26 @@ Component.register('sw-media-library', {
             }
         },
 
-        createFolder() {
-            const newFolder = this.mediaFolderStore.create();
-
-            newFolder.name = '';
+        async createFolder() {
+            const newFolder = this.mediaFolderRepository.create(Context.api);
             newFolder.parentId = this.folderId;
+            newFolder.name = '';
+
             if (this.folderId !== null) {
                 newFolder.configurationId = this.currentFolder.configurationId;
                 newFolder.useParentConfiguration = true;
             } else {
-                const configuration = this.mediaFolderConfigurationStore.create();
+                const configuration = this.mediaFolderConfigurationRepository.create(Context.api);
                 configuration.createThumbnails = true;
                 configuration.keepProportions = true;
                 configuration.thumbnailQuality = 80;
-                newFolder.configuration = configuration;
+
+                await this.mediaFolderConfigurationRepository.save(configuration, Context.api);
+
+                newFolder.configurationId = configuration.id;
                 newFolder.useParentConfiguration = false;
             }
+
             this.subFolders.unshift(newFolder);
         },
 

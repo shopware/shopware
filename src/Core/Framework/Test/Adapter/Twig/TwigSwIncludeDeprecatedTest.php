@@ -1,17 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test;
+namespace Shopware\Core\Framework\Test\Adapter\Twig;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\InheritanceExtension;
+use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Test\Adapter\Twig\fixtures\BundleFixture;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
-use Shopware\Storefront\Test\fixtures\BundleFixture;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
-class TwigSwIncludeTest extends TestCase
+/**
+ * @deprecated tag:v6.3.0 can safely be removed, once we removed the `TemplateFinder::registerBundles()`
+ */
+class TwigSwIncludeDeprecatedTest extends TestCase
 {
     use KernelTestBehaviour;
 
@@ -101,9 +105,21 @@ class TwigSwIncludeTest extends TestCase
     {
         $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
 
+        /** @var BundleFixture $bundle */
+        foreach ($bundles as $bundle) {
+            $directory = $bundle->getPath() . '/Resources/views';
+            $loader->addPath($directory);
+            $loader->addPath($directory, $bundle->getName());
+        }
+
         $twig = new Environment($loader, ['cache' => false]);
 
-        $templateFinder = new TemplateFinder($twig, $loader, $this->getContainer()->getParameter('kernel.cache_dir') . '/' . microtime());
+        $templateFinder = new TemplateFinder(
+            $twig,
+            $loader,
+            $this->getContainer()->getParameter('kernel.cache_dir') . '/' . microtime(),
+            $this->getContainer()->get(NamespaceHierarchyBuilder::class)
+        );
 
         $kernel = $this->createMock(Kernel::class);
         $kernel->expects(static::any())

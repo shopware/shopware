@@ -1,13 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test;
+namespace Shopware\Core\Framework\Test\Adapter\Twig;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\InheritanceExtension;
+use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
+use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Test\Adapter\Twig\fixtures\BundleFixture;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
-use Shopware\Storefront\Test\fixtures\BundleFixture;
 use Symfony\Component\Filesystem\Filesystem;
 use Twig\Cache\CacheInterface;
 use Twig\Cache\FilesystemCache;
@@ -118,16 +120,26 @@ class TwigSwExtendsTest extends TestCase
     {
         $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
 
-        $twig = new Environment($loader, ['cache' => $this->cache]);
+        /** @var BundleFixture $bundle */
+        foreach ($bundles as $bundle) {
+            $directory = $bundle->getPath() . '/Resources/views';
+            $loader->addPath($directory);
+            $loader->addPath($directory, $bundle->getName());
+        }
 
-        $templateFinder = new TemplateFinder($twig, $loader, $this->cacheDir);
+        $twig = new Environment($loader, ['cache' => $this->cache]);
 
         $kernel = $this->createMock(Kernel::class);
         $kernel->expects(static::any())
             ->method('getBundles')
             ->willReturn($bundles);
 
-        $templateFinder->registerBundles($kernel);
+        $templateFinder = new TemplateFinder(
+            $twig,
+            $loader,
+            $this->cacheDir,
+            new NamespaceHierarchyBuilder([new BundleHierarchyBuilder($kernel)])
+        );
 
         $twig->addExtension(new InheritanceExtension($templateFinder));
         $twig->getExtension(InheritanceExtension::class)->getFinder();

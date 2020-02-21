@@ -7,6 +7,16 @@ in 6.1 minor versions.
 To get the diff for a specific change, go to https://github.com/shopware/platform/commit/XXX where XXX is the change hash
 To get the diff between two versions, go to https://github.com/shopware/platform/compare/v6.1.0-rc1...v6.1.0-rc2
 
+### 6.1.3
+
+**Addition / Changes**
+
+* Core 
+    * Added `\Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder` and `\Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\TemplateNamespaceHierarchyBuilderInterface`, that allows to modify twig namespace inheritance
+    * Deprecated `\Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface::registerBundles` use `TemplateNamespaceHierarchyBuilderInterface` to modify twig namespace hierarchy.
+    
+* Storefront
+    * Deprecated `\Shopware\Storefront\Theme\Twig\ThemeTemplateFinder` use `TemplateNamespaceHierarchyBuilderInterface` instead
 
 ### 6.1.2
 
@@ -18,6 +28,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `Shopware\Core\Migration\Test\DateTimeTest` to ensure usage of (new \DateTime())->format(STORAGE_DATE_TIME_FORMAT) instead of date(Defaults::STORAGE_DATE_TIME_FORMAT) since date only supports seconds and no milliseconds.
     * Added `Core/Framework/Test/CustomField/CustomFieldEntityRepositoryTest.php` to ensure the DAL for custom Field updates via repositories is working correctly.
     * Added file extension whitelist for media manager file upload. Can be configured in the `shopware.yaml`or with the `MediaFileExtensionWhitelistEvent`event
+
+    * Added `Shopware\Core\Migration\Test\DateTimeTest` to ensure usage of (new \DateTime())->format(STORAGE_DATE_TIME_FORMAT) instead of date(Defaults::STORAGE_DATE_TIME_FORMAT) since date only supports seconds and no milliseconds.
+    * Added `Core/Framework/Test/CustomField/CustomFieldEntityRepositoryTest.php` to ensure the DAL for custom Field updates via repositories is working correctly.
 
 ### 6.1.1
 

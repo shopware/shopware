@@ -245,9 +245,20 @@
             <argument type="service" id="twig"/>
             <argument type="service" id="twig.loader"/>
             <argument>%kernel.cache_dir%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder"/>
             <call method="registerBundles">
                 <argument type="service" id="kernel" />
             </call>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder">
+            <argument type="tagged" tag="shopware.twig.hierarchy_builder"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder">
+            <argument type="service" id="kernel"/>
+
+            <tag name="shopware.twig.hierarchy_builder" priority="1000"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\InheritanceExtension">

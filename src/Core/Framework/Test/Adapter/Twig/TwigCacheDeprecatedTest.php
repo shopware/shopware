@@ -1,18 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test;
+namespace Shopware\Core\Framework\Test\Adapter\Twig;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Test\Adapter\Twig\fixtures\BundleFixture;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
-use Shopware\Storefront\Test\fixtures\BundleFixture;
 
-class TwigCacheTest extends TestCase
+/**
+ * @deprecated tag:v6.3.0 can safely be removed, once we removed the `TemplateFinder::registerBundles()`
+ */
+class TwigCacheDeprecatedTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    public function testChangeCacehOndifferentPlugins(): void
+    public function testChangeCacheOnDifferentPlugins12(): void
     {
         [$twig, $templateFinder] = $this->createFinder([
             new BundleFixture('Storefront', __DIR__ . '/fixtures/Storefront/'),
@@ -42,6 +45,14 @@ class TwigCacheTest extends TestCase
         $twig = $this->getContainer()->get('twig');
 
         $templateFinder = $this->getContainer()->get(TemplateFinder::class);
+
+        $loader = $this->getContainer()->get('twig.loader.native_filesystem');
+        /** @var BundleFixture $bundle */
+        foreach ($bundles as $bundle) {
+            $directory = $bundle->getPath() . '/Resources/views';
+            $loader->addPath($directory);
+            $loader->addPath($directory, $bundle->getName());
+        }
 
         $kernel = $this->createMock(Kernel::class);
         $kernel->expects(static::any())

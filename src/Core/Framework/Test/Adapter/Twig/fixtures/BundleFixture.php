@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\fixtures;
+namespace Shopware\Core\Framework\Test\Adapter\Twig\fixtures;
 
 use Shopware\Core\Framework\Bundle;
 

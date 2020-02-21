@@ -68,8 +68,6 @@ Mixin.register('position', {
          * @returns {EntityCollection}
          */
         changePosition(collection, selectedItem, field = 'position', direction = 'ASC') {
-            console.log('collection: ', collection);
-
             if (collection.length < 2) {
                 return collection;
             }

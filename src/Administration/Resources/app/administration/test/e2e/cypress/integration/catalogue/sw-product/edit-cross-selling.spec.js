@@ -96,7 +96,6 @@ describe('Product: Check cross selling integration', () => {
 
         // Fill in cross selling form
         cy.get('#sw-field--crossSelling-name').typeAndCheck('Kunden kauften auch');
-        cy.get('#sw-field--crossSelling-position').typeAndCheck('1');
         cy.get('#sw-field--crossSelling-product-group')
             .typeSingleSelectAndCheck(
                 '1st Productstream',
@@ -124,5 +123,97 @@ describe('Product: Check cross selling integration', () => {
             .should('be.visible');
         cy.get('.product-slider-item .product-name[title="Third product"]')
             .should('be.visible');
+    });
+
+    it('@catalogue: add manual cross selling to product', () => {
+        const page = new ProductStreamObject();
+
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: '/api/v1/product/*',
+            method: 'patch'
+        }).as('saveData');
+        cy.route({
+            url: '/api/v1/search/product-stream',
+            method: 'post'
+        }).as('saveStream');
+        cy.route({
+            url: '/api/v1/search/product-cross-selling/**/assigned-products',
+            method: 'post'
+        }).as('assignProduct');
+
+        // Open product and add cross selling
+        cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.contains('Original product').click();
+
+        cy.get('.sw-product-detail__tab-cross-selling').click();
+        cy.get(page.elements.loader).should('not.exist');
+
+        cy.contains(
+            `.sw-product-detail-cross-selling__empty-state ${page.elements.ghostButton}`,
+            'Add new cross selling'
+        ).should('be.visible').click();
+        cy.get('.product-detail-cross-selling-form').should('be.visible');
+
+        // Fill in cross selling form
+        cy.get('#sw-field--crossSelling-name').typeAndCheck('Kunden kauften auch');
+        cy.get('#sw-field--crossSelling-type').select('Manual selection');
+        cy.get('#sw-field--crossSelling-active').click();
+
+        // Save and verify cross selling stream
+        cy.get(page.elements.primaryButton).click();
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+        });
+
+        // Add products to cross selling
+        cy.get('.sw-select__selection > input').type('Second');
+        cy.get('.sw-select-result').should('be.visible');
+        cy.contains('.sw-select-result', 'Second product').click();
+        cy.get('.sw-card__title').click();
+        cy.wait('@assignProduct').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+            cy.get(page.elements.loader).should('not.exist');
+            cy.get('.sw-data-grid__cell--product-name').contains('Second product');
+        });
+
+        // Add more products to cross selling
+        cy.get('.sw-select__selection > input').type('Third');
+        cy.get('.sw-select-result').should('be.visible');
+        cy.contains('.sw-select-result', 'Third product').click();
+        cy.get('.sw-card__title').click();
+        cy.wait('@assignProduct').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+            cy.get(page.elements.loader).should('not.exist');
+            cy.get('.sw-data-grid__cell--product-name').contains('Third product');
+        });
+
+        // Swap positions
+        cy.get('.sw-data-grid__row--1 .sw-data-grid-column-position__arrow.arrow_up').should('be.visible');
+        cy.get('.sw-data-grid__row--1 .sw-data-grid-column-position__arrow.arrow_up').should('not.be.disabled');
+        cy.get('.sw-data-grid__row--1 .sw-data-grid-column-position__arrow.arrow_up').click();
+        cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-data-grid__row--0').contains('Third product');
+        cy.get('.sw-data-grid__row--1').contains('Second product');
+
+        // Save and verify cross selling stream
+        cy.get(page.elements.primaryButton).click();
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+        });
+
+        // Verify in storefront
+        cy.visit('/');
+        cy.contains('Original product').click();
+        cy.get('.product-detail-content').should('be.visible');
+        cy.get('.product-detail-name').contains('Original product');
+
+        cy.get('.product-cross-selling-tab-navigation')
+            .scrollIntoView()
+            .should('be.visible');
+        cy.get('.product-detail-tab-navigation-link.active').contains('Kunden kauften auch');
+        cy.get('#tns1-item1 .product-name').contains('Second product');
+        cy.get('#tns1-item0 .product-name').contains('Third product');
     });
 });

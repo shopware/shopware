@@ -1,4 +1,5 @@
 {% sw_extends '@Storefront/storefront/base.html.twig' %}
+
 {% block base_head %}
     {% sw_include '@Storefront/storefront/page/product-detail/meta.html.twig' %}
 {% endblock %}
@@ -14,12 +15,11 @@
                     <div class="product-detail-content">
                         {% block page_product_detail_breadcrumb %}
                             <div class="breadcrumb product-breadcrumb container">
-{#                                {% sw_include '@Storefront/storefront/component/product/breadcrumb.html.twig' with {#}
-{#                                    navigationTree: page.header.navigation.tree,#}
-{#                                    categoryTree: page.product.categoryTree|last,#}
-{#                                    product: page.product#}
-{#                                } only %}#}
-                                {{ dump() }}
+                                {% sw_include '@Storefront/storefront/component/product/breadcrumb.html.twig' with {
+                                    navigationTree: page.header.navigation.tree,
+                                    categoryTree: page.product.categoryTree|last,
+                                    product: page.product
+                                } only %}
                             </div>
                         {% endblock %}
                         {% block page_product_detail_headline %}

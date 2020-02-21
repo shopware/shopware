@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts;
 
-
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -13,10 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 
 class ProductCrossSellingAssignedProductsDefinition extends EntityDefinition
 {
@@ -25,6 +22,16 @@ class ProductCrossSellingAssignedProductsDefinition extends EntityDefinition
     public function getEntityName(): string
     {
         return self::ENTITY_NAME;
+    }
+
+    public function getEntityClass(): string
+    {
+        return ProductCrossSellingAssignedProductsEntity::class;
+    }
+
+    public function getCollectionClass(): string
+    {
+        return ProductCrossSellingAssignedProductsCollection::class;
     }
 
     protected function defineFields(): FieldCollection
@@ -37,17 +44,7 @@ class ProductCrossSellingAssignedProductsDefinition extends EntityDefinition
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class),
             new ManyToOneAssociationField('crossSelling', 'cross_selling_id', ProductCrossSellingDefinition::class),
             new IntField('position', 'position'),
-            new CreatedAtField()
+            new CreatedAtField(),
         ]);
-    }
-
-    public function getEntityClass(): string
-    {
-        return ProductCrossSellingAssignedProductsEntity::class;
-    }
-
-    public function getCollectionClass(): string
-    {
-        return ProductCrossSellingAssignedProductsCollection::class;
     }
 }

@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
@@ -391,6 +392,11 @@ class ProductEntity extends Entity
      * @var ProductCrossSellingCollection|null
      */
     protected $crossSellings;
+
+    /**
+     * @var ProductCrossSellingAssignedProductsCollection|null
+     */
+    protected $crossSellingAssignedProducts;
 
     public function __construct()
     {
@@ -1156,5 +1162,15 @@ class ProductEntity extends Entity
     public function setCrossSellings(ProductCrossSellingCollection $crossSellings): void
     {
         $this->crossSellings = $crossSellings;
+    }
+
+    public function getCrossSellingAssignedProducts(): ?ProductCrossSellingAssignedProductsCollection
+    {
+        return $this->crossSellingAssignedProducts;
+    }
+
+    public function setCrossSellingAssignedProducts(ProductCrossSellingAssignedProductsCollection $crossSellingAssignedProducts): void
+    {
+        $this->crossSellingAssignedProducts = $crossSellingAssignedProducts;
     }
 }

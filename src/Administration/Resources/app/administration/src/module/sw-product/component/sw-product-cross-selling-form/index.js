@@ -3,7 +3,7 @@ import './sw-product-cross-selling-form.scss';
 
 const { Criteria } = Shopware.Data;
 const { Component, Context } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
+const { mapPropertyErrors, mapGetters } = Component.getComponentHelper();
 
 Component.register('sw-product-cross-selling-form', {
     template,
@@ -24,9 +24,11 @@ Component.register('sw-product-cross-selling-form', {
             productStream: null,
             productStreamFilter: [],
             optionSearchTerm: '',
+            isLoadingCrossSelling: this.isLoading,
             useManualAssignment: false,
             sortBy: 'name',
-            sortDirection: 'ASC'
+            sortDirection: 'ASC',
+            assignmentKey: 0
         };
     },
 
@@ -35,6 +37,10 @@ Component.register('sw-product-cross-selling-form', {
             'name',
             'displayType',
             'sortingType'
+        ]),
+
+        ...mapGetters('swProductDetail', [
+            'isLoading'
         ]),
 
         productCrossSellingRepository() {
@@ -118,14 +124,13 @@ Component.register('sw-product-cross-selling-form', {
     },
 
     created() {
-        console.log('crossselling', this.crossSelling)
         this.createdComponent();
     },
 
     methods: {
         createdComponent() {
             this.useManualAssignment = this.crossSelling.type === 'productList';
-            if (!this.useManualAssignment && this.productStream !== null) {
+            if (!this.useManualAssignment && this.crossSelling.productStreamId !== null) {
                 this.loadStreamPreview();
             }
         },
@@ -185,7 +190,7 @@ Component.register('sw-product-cross-selling-form', {
             this.useManualAssignment = value === 'productList';
         },
 
-        getAssignedProductColumns() {
+        getAssignedProductsColumns() {
             return [{
                 property: 'product.name',
                 label: this.$tc('sw-product.list.columnName'),
@@ -206,7 +211,7 @@ Component.register('sw-product-cross-selling-form', {
         },
 
         productCriteria() {
-            return new Criteria(1, 10);
+            return (new Criteria(1, 500));
         }
     }
 });

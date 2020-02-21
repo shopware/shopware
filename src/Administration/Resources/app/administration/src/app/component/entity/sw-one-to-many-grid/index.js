@@ -20,28 +20,23 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
         dataSource: {
             type: [Array, Object],
             required: false
+        },
+        limit: {
+            type: Number,
+            default: 25
         }
     },
 
     data() {
         return {
             page: 1,
-            limit: 25,
             total: 0
         };
-    },
-
-    watch: {
-        collection() {
-            console.log('watch grid collection', this.collection);
-        }
     },
 
     methods: {
         createdComponent() {
             this.$super('createdComponent');
-
-            // this.collection.criteria.addAssociation('product');
 
             // assign collection as records for the sw-data-grid
             this.applyResult(this.collection);

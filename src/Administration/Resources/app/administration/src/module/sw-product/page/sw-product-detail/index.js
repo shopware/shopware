@@ -123,9 +123,11 @@ Component.register('sw-product-detail', {
 
             criteria.getAssociation('crossSellings')
                 .addSorting(Criteria.sort('position', 'ASC'));
-            criteria.getAssociation('crossSellings.assignedProduct')
+
+            criteria.getAssociation('crossSellings.assignedProducts')
                 .addSorting(Criteria.sort('position', 'ASC'));
-            criteria.getAssociation('crossSellings.assignedProduct.product');
+
+            criteria.getAssociation('crossSellings.assignedProducts.product');
 
             criteria
                 .addAssociation('categories')
@@ -204,6 +206,11 @@ Component.register('sw-product-detail', {
             // initialize default state
             this.initState();
 
+            this.$root.$on('assignment-changed', () => {
+                this.loadAll().then(() => {
+                    this.$root.$emit('product-saved');
+                });
+            });
             this.$root.$on('sidebar-toggle-open', this.openMediaSidebar);
             this.$root.$on('media-remove', (mediaId) => {
                 this.removeMediaItem(mediaId);
@@ -214,6 +221,8 @@ Component.register('sw-product-detail', {
         },
 
         destroyedComponent() {
+            this.$root.$off('assignment-changed');
+            this.$root.$off('product-saved');
             this.$root.$off('sidebar-toggle-open');
             this.$root.$off('media-remove');
             this.$root.$off('product-reload');
@@ -470,6 +479,8 @@ Component.register('sw-product-detail', {
                 this.productRepository.save(this.product, Shopware.Context.api).then(() => {
                     this.loadAll().then(() => {
                         Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
+
+                        this.$root.$emit('product-saved');
                         resolve('success');
                     });
                 }).catch((response) => {

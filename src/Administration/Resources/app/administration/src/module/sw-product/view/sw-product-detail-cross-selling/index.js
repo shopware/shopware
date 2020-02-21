@@ -2,7 +2,7 @@ import template from './sw-product-detail-cross-selling.html.twig';
 import './sw-product-detail-cross-selling.scss';
 
 const { Component } = Shopware;
-const { mapState } = Shopware.Component.getComponentHelper();
+const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-detail-cross-selling', {
     template,
@@ -18,6 +18,10 @@ Component.register('sw-product-detail-cross-selling', {
     computed: {
         ...mapState('swProductDetail', [
             'product'
+        ]),
+
+        ...mapGetters('swProductDetail', [
+            'isLoading'
         ]),
 
         crossSellings: {

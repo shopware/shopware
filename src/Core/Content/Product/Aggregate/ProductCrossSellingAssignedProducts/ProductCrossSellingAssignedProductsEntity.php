@@ -1,15 +1,16 @@
-<?php
-
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts;
-
 
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class ProductCrossSellingAssignedProductsEntity extends Entity
 {
+    use EntityIdTrait;
+
     /**
      * @var string
      */
@@ -84,5 +85,4 @@ class ProductCrossSellingAssignedProductsEntity extends Entity
     {
         $this->position = $position;
     }
-
 }

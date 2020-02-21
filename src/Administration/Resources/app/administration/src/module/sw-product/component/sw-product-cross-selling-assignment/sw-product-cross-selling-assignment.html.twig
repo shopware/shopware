@@ -85,21 +85,23 @@
             {% block sw_product_cross_selling_assignment_option_grid %}
                 <sw-one-to-many-grid
                     v-if="total"
-                    :collection="gridData"
+                    :collection="currentAssignedProducts"
+                    :key="assignmentGridKey"
                     sortBy="position"
                     sortDirection="ASC"
                     :localMode="localMode"
                     :columns="columns"
+                    :limit="limit"
+                    :isLoading="isDataLoading"
                     :showSelection="false"
                     :allowInlineEdit="false"
-                    ref="optionGrid">
+                    ref="assignmentGrid">
                         {% block sw_product_cross_selling_assignment_option_grid_column_position %}
                             <template #column-position="{ item }">
                                 <sw-data-grid-column-position
                                     ref="columnPosition"
-                                    v-model="gridData"
-                                    :key="positionColumnKey"
-                                    :showValue="true"
+                                    v-model="currentAssignedProducts"
+                                    :showValue="false"
                                     :item="item">
                                 </sw-data-grid-column-position>
                             </template>
@@ -109,19 +111,15 @@
                                 <sw-context-menu-item
                                     variant="danger"
                                     @click="removeFromGrid(item)">
-                                        {{ $tc('global.entity-components.labelRemoveAssociation') }}
+                                        {{ $tc('sw-product.crossselling.deleteButtonDelete') }}
                                 </sw-context-menu-item>
                             </template>
                         {% endblock %}
-{#                    <template #pagination>#}
-{#                        <template v-if="!localMode">#}
-{#                            <sw-pagination#}
-{#                                v-if="total > 0"#}
-{#                                v-bind="{ limit, page, total }"#}
-{#                                @page-change="paginateGrid">#}
-{#                            </sw-pagination>#}
-{#                        </template>#}
-{#                    </template>#}
+                        <template #pagination>
+                            {% block sw_order_list_grid_pagination_placeholder %}
+                                <div class="sw-product-cross-selling-assignment__pagination-placeholder"></div>
+                            {% endblock %}
+                        </template>
                 </sw-one-to-many-grid>
             {% endblock %}
             {% block sw_product_cross_selling_assignment_option_empty_state %}

@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductCrossSelling;
 
+use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationCollection;
-use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
@@ -71,9 +70,9 @@ class ProductCrossSellingEntity extends Entity
     protected $type;
 
     /**
-     * @var ProductCollection
+     * @var ProductCrossSellingAssignedProductsCollection|null
      */
-    protected $assignedProduct;
+    protected $assignedProducts;
 
     /**
      * @var ProductCrossSellingTranslationCollection|null
@@ -205,15 +204,13 @@ class ProductCrossSellingEntity extends Entity
         $this->type = $type;
     }
 
-    public function getAssignedProduct(): ?EntityCollection
+    public function getAssignedProducts(): ?ProductCrossSellingAssignedProductsCollection
     {
-//        dd($this->assignedProduct);
-        return $this->assignedProduct;
+        return $this->assignedProducts;
     }
 
-
-    public function setAssignedProduct(EntityCollection $assignedProduct): void
+    public function setAssignedProducts(ProductCrossSellingAssignedProductsCollection $assignedProducts): void
     {
-        $this->assignedProduct = $assignedProduct;
+        $this->assignedProducts = $assignedProducts;
     }
 }

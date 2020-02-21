@@ -6,13 +6,11 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsEntity;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -88,9 +86,9 @@ class CrossSellingLoader
     {
         if ($crossSelling->getType() === 'productStream') {
             return $this->loadCrossSellingProductStream($crossSelling, $context);
-        } else {
-            return $this->loadCrossSellingProductList($crossSelling, $context);
         }
+
+        return $this->loadCrossSellingProductList($crossSelling, $context);
     }
 
     private function loadCrossSellingProductStream(ProductCrossSellingEntity $crossSelling, SalesChannelContext $context): CrossSellingElement
@@ -122,12 +120,12 @@ class CrossSellingLoader
     private function loadCrossSellingProductList(ProductCrossSellingEntity $crossSelling, SalesChannelContext $context): ?CrossSellingElement
     {
         $criteria = new Criteria([$crossSelling->getId()]);
-        $criteria->addAssociation('assignedProduct');
+        $criteria->addAssociation('assignedProducts');
 
         /** @var ProductCrossSellingEntity $crossSelling */
         $crossSelling = $this->crossSellingRepository->search($criteria, $context->getContext())->getEntities()->first();
 
-        $crossSelling->getAssignedProduct()->sort(function (
+        $crossSelling->getAssignedProducts()->sort(function (
             ProductCrossSellingAssignedProductsEntity $a,
             ProductCrossSellingAssignedProductsEntity $b
         ) {
@@ -136,19 +134,18 @@ class CrossSellingLoader
 
         $assignedProductsIds = array_values(array_map(function (ProductCrossSellingAssignedProductsEntity $entity) {
             return $entity->getProductId();
-        }, $crossSelling->getAssignedProduct()->getElements()));
+        }, $crossSelling->getAssignedProducts()->getElements()));
 
         $criteria = new Criteria($assignedProductsIds);
 
-        if(!count($assignedProductsIds)) {
+        if (!count($assignedProductsIds)) {
             return null;
         }
 
         $searchResult = $this->productRepository->search($criteria, $context);
 
         $products = new ProductCollection();
-        /** @var ProductCrossSellingAssignedProductsEntity $element */
-        foreach ($crossSelling->getAssignedProduct()->getElements() as $element) {
+        foreach ($crossSelling->getAssignedProducts()->getElements() as $element) {
             $products->add($searchResult->get($element->getProductId()));
         }
 
@@ -156,7 +153,7 @@ class CrossSellingLoader
         $element->setCrossSelling($crossSelling);
         $element->setProducts($products);
 
-        $element->setTotal($crossSelling->getAssignedProduct()->count());
+        $element->setTotal($crossSelling->getAssignedProducts()->count());
 
         return $element;
     }

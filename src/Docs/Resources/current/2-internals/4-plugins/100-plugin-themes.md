@@ -296,12 +296,13 @@ The following parameters can be defined for a config field item:
 | Name         | Meaning                                                                                          |
 |------------- |--------------------------------------------------------------------------------------------------|
 | label        | Array of translations with locale code as key                                                    |
-| type         | Type of the config. Possible values: color, text, number, fontFamily, media, checkbox and switch |                                                       |
+| type         | Type of the config. Possible values: color, text, number, fontFamily, media, checkbox and switch |
 | editable     | If set to false, the config option will not be displayed (e.g. in the administration)            |
 | tab          | Name of a tab to organize the config options                                                     |
 | block        | Name of a block to organize the config options                                                   |
 | section      | Name of a section to organize the config options                                                 |
 | custom       | The defined data will not be processed but is available via API                                  |
+| scss         | If set to false, the config option will not be injected as a SCSS variable                       |
 
 ### Field types
 You can use different field types in your theme manager:

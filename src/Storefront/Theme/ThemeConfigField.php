@@ -76,6 +76,11 @@ class ThemeConfigField extends Struct
      */
     protected $custom;
 
+    /**
+     * @var bool|null
+     */
+    protected $scss;
+
     public function getName(): string
     {
         return $this->name;
@@ -214,5 +219,15 @@ class ThemeConfigField extends Struct
     public function setCustom(?array $custom): void
     {
         $this->custom = $custom;
+    }
+
+    public function getScss(): ?bool
+    {
+        return $this->scss;
+    }
+
+    public function setScss(?bool $scss): void
+    {
+        $this->scss = $scss;
     }
 }

@@ -8,11 +8,13 @@ use ScssPhp\ScssPhp\Compiler;
 use ScssPhp\ScssPhp\Formatter\Crunched;
 use ScssPhp\ScssPhp\Formatter\Expanded;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
+use Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\Finder;
 
 class ThemeCompiler
@@ -43,16 +45,29 @@ class ThemeCompiler
     private $themeFileImporter;
 
     /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
+     * @var FilesystemInterface
+     */
+    private $cacheFilesystem;
+
+    /**
      * @param ThemeFileImporterInterface|null $themeFileImporter will be required in v6.3.0
      */
     public function __construct(
         FilesystemInterface $publicFilesystem,
+        FilesystemInterface $cacheFilesystem,
         ThemeFileResolver $themeFileResolver,
         string $cacheDir,
         bool $debug,
+        EventDispatcherInterface $eventDispatcher,
         ?ThemeFileImporterInterface $themeFileImporter = null
     ) {
         $this->publicFilesystem = $publicFilesystem;
+        $this->cacheFilesystem = $cacheFilesystem;
         $this->themeFileResolver = $themeFileResolver;
         $this->cacheDir = $cacheDir;
         $this->themeFileImporter = $themeFileImporter;
@@ -61,6 +76,7 @@ class ThemeCompiler
         $this->scssCompiler->setImportPaths('');
 
         $this->scssCompiler->setFormatter($debug ? Expanded::class : Crunched::class);
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function compileTheme(
@@ -89,7 +105,7 @@ class ThemeCompiler
                 $concatenatedStyles .= '@import \'' . $file->getFilepath() . '\';' . PHP_EOL;
             }
         }
-        $compiled = $this->compileStyles($concatenatedStyles, $themeConfig, $styleFiles->getResolveMappings());
+        $compiled = $this->compileStyles($concatenatedStyles, $themeConfig, $styleFiles->getResolveMappings(), $salesChannelId);
         $cssFilepath = $outputPath . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 'all.css';
         $this->publicFilesystem->put($cssFilepath, $compiled);
 
@@ -154,7 +170,8 @@ class ThemeCompiler
     private function compileStyles(
         string $concatenatedStyles,
         StorefrontPluginConfiguration $configuration,
-        array $resolveMappings
+        array $resolveMappings,
+        string $salesChannelId
     ): string {
         $this->scssCompiler->addImportPath(function ($originalPath) use ($resolveMappings) {
             foreach ($resolveMappings as $resolve => $resolvePath) {
@@ -178,7 +195,7 @@ class ThemeCompiler
             return null;
         });
 
-        $variables = $this->dumpVariables($configuration->getThemeConfig());
+        $variables = $this->dumpVariables($configuration->getThemeConfig(), $salesChannelId);
 
         try {
             $cssOutput = $this->scssCompiler->compile($variables . $concatenatedStyles);
@@ -193,7 +210,14 @@ class ThemeCompiler
         return $autoPreFixer->compile();
     }
 
-    private function dumpVariables(array $config): string
+    private function formatVariables(array $variables): array
+    {
+        return array_map(function ($value, $key) {
+            return sprintf('$%s: %s;', $key, $value);
+        }, $variables, array_keys($variables));
+    }
+
+    private function dumpVariables(array $config, string $salesChannelId): string
     {
         if (!array_key_exists('fields', $config)) {
             return '';
@@ -202,24 +226,29 @@ class ThemeCompiler
         $variables = [];
         foreach ($config['fields'] as $key => $data) {
             if (array_key_exists('value', $data) && $data['value']) {
+                // Do not include fields which have the scss option set to false
+                if (array_key_exists('scss', $data) && $data['scss'] === false) {
+                    continue;
+                }
+
                 if ($data['type'] === 'media') {
-                    $variables[] = sprintf('$%s: \'%s\';', $key, $data['value']);
+                    $variables[$key] = '\'' . $data['value'] . '\'';
                 } else {
-                    $variables[] = sprintf('$%s: %s;', $key, $data['value']);
+                    $variables[$key] = $data['value'];
                 }
             }
         }
 
+        $themeVariablesEvent = new ThemeCompilerEnrichScssVariablesEvent($variables, $salesChannelId);
+        $this->eventDispatcher->dispatch($themeVariablesEvent);
+
         $dump = str_replace(
             ['#class#', '#variables#'],
-            [self::class, implode(PHP_EOL, $variables)],
+            [self::class, implode(PHP_EOL, $this->formatVariables($themeVariablesEvent->getVariables()))],
             $this->getVariableDumpTemplate()
         );
 
-        file_put_contents(
-            $this->cacheDir . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'theme-variables.scss',
-            $dump
-        );
+        $this->cacheFilesystem->put('theme-variables.scss', $dump);
 
         return $dump;
     }

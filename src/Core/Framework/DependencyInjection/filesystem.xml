@@ -21,6 +21,11 @@
             <argument>%shopware.filesystem.private%</argument>
         </service>
 
+        <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.cache">
+            <factory service="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory" method="factory"/>
+            <argument>%shopware.filesystem.cache%</argument>
+        </service>
+
         <service class="Shopware\Core\Framework\Adapter\Filesystem\Adapter\LocalFactory" id="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory.local">
             <tag name="shopware.filesystem.factory"/>
         </service>

@@ -13,6 +13,7 @@
         <ignoreFiles>
             <directory name="vendor"/>
             <directory name="platform/src/Recovery" />
+            <file name="vendor/shopware/platform/src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php" />
         </ignoreFiles>
     </projectFiles>
 

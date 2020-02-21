@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Query\QueryBuilder as DbalQueryBuilderAlias;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStorageFieldException;
@@ -100,7 +101,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 }
 
                 try {
-                    $this->executeCommand($command);
+                    RetryableQuery::retryable(function () use ($command): void {
+                        $this->executeCommand($command);
+                    });
                 } catch (\Exception $e) {
                     $innerException = $this->exceptionHandlerRegistry->matchException($e, $command);
                     if ($innerException instanceof \Exception) {

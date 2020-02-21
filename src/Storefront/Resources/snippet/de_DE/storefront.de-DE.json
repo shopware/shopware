@@ -5,7 +5,7 @@
         "star": "*",
         "grossTaxInformation": "inkl. MwSt. zzgl. Versandkosten",
         "netTaxInformation": "exkl. MwSt. zzgl. Versandkosten",
-        "deliveryShippingFree": "Versandkostenfreie Lieferung!",
+        "deliveryShippingFree": "Versandkostenfreie Lieferung!TEST",
         "deliveryNotAvailable": "Diese Auswahl steht nicht zur Verfügung!",
         "deliveryShipping": "Dieses Produkt erscheint am",
         "deliveryPartialStock": "Nur %inStock% von %quantity% ab Lager lieferbar",
@@ -393,7 +393,7 @@
         "success": "Wir haben Ihre Kontaktanfrage erhalten und werden diese schnellstmöglich bearbeiten."
     },
     "search": {
-      "headline": "Zu \"%searchTerm%\" wurden %totalCount% Produkt(e) gefunden"
+        "headline": "Zu \"%searchTerm%\" wurden %totalCount% Produkt(e) gefunden"
     },
     "detail": {
         "ordernumberLabel": "Produkt-Nr.:",
@@ -438,16 +438,16 @@
         "reviewExistsTeaserText": "Sie können hier Ihre bestehende Bewertung anpassen.",
         "reviewExistsTeaserButton": "Bewertung bearbeiten",
         "reviewLanguageFilterLabel": "Bewertungen nur in aktueller Sprache anzeigen.",
-        "reviewSortLabel" : "Sortiert nach",
-        "reviewSortTopRatedLabel" : "Am besten bewertet",
-        "reviewSortNewLabel" : "Neueste Bewertung",
+        "reviewSortLabel": "Sortiert nach",
+        "reviewSortTopRatedLabel": "Am besten bewertet",
+        "reviewSortNewLabel": "Neueste Bewertung",
         "reviewCountAfter": "{1} Bewertung|]1,Inf[ Bewertungen",
         "reviewCountBefore": "von",
         "reviewListEmpty": "Keine Bewertungen gefunden. Seien Sie der Erste und teilen Sie Ihre Gedanken anderen mit.",
         "reviewLoginHeader": "Anmelden",
         "reviewLoginDescription": "Bewertungen können nur von angemeldeten Benutzern abgegeben werden. Bitte geben Sie Ihre Login-Daten ein, um sich einzuloggen, oder erstellen Sie einen neuen Account.",
         "reviewRegisterLink": "Neuer Kunde?",
-        "reviewLoginSignupLink" : "Klicken Sie hier, um sich anzumelden.",
+        "reviewLoginSignupLink": "Klicken Sie hier, um sich anzumelden.",
         "reviewLoginCancelButton": "Abbrechen",
         "reviewAvgRate": "von",
         "reviewAvgRateElements": "Sternen"
@@ -477,8 +477,8 @@
         "groupRequiredSession": "Session",
         "groupRequiredTimezone": "Zeitzone"
     },
-  "ellipsis": {
-    "expandLabel": "mehr anzeigen",
-    "shrinkLabel": "weniger anzeigen"
-  }
+    "ellipsis": {
+        "expandLabel": "mehr anzeigen",
+        "shrinkLabel": "weniger anzeigen"
+    }
 }

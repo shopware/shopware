@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,10 +21,16 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
      */
     private $indexer;
 
-    public function __construct(IndexerRegistryInterface $indexer)
+    /**
+     * @var EntityIndexerRegistry
+     */
+    private $entityIndexerRegistry;
+
+    public function __construct(IndexerRegistryInterface $indexer, EntityIndexerRegistry $entityIndexerRegistry)
     {
         parent::__construct();
         $this->indexer = $indexer;
+        $this->entityIndexerRegistry = $entityIndexerRegistry;
     }
 
     /**
@@ -40,6 +47,8 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
         $this->io = new ShopwareStyle($input, $output);
 
         $this->indexer->index(new \DateTime());
+
+        $this->entityIndexerRegistry->index();
 
         return 0;
     }

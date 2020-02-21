@@ -312,6 +312,7 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\RefreshIndexCommand">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
 
             <tag name="kernel.event_subscriber"/>
             <tag name="console.command"/>

@@ -18,6 +18,14 @@ class CollectionTest extends TestCase
         static::assertEquals($elements, $collection->getElements());
     }
 
+    public function testConstructorKeepingKeys(): void
+    {
+        $elements = ['z' => 'a', 'y' => 'b'];
+        $collection = new TestCollection($elements);
+
+        static::assertEquals($elements, $collection->getElements());
+    }
+
     public function testClear(): void
     {
         $collection = new TestCollection();

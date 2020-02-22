@@ -15,7 +15,7 @@ class ApiRouteScope extends AbstractRouteScope implements ApiContextRouteScopeDe
     /**
      * @var string[]
      */
-    protected $allowedPaths = ['api'];
+    protected $allowedPaths = ['api', 'sw-domain-hash.html'];
 
     public function isAllowed(Request $request): bool
     {

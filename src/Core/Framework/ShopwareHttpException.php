@@ -3,8 +3,9 @@
 namespace Shopware\Core\Framework;
 
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
-abstract class ShopwareHttpException extends \Exception implements ShopwareException
+abstract class ShopwareHttpException extends HttpException implements ShopwareException
 {
     /**
      * @var array
@@ -16,7 +17,7 @@ abstract class ShopwareHttpException extends \Exception implements ShopwareExcep
         $this->parameters = $parameters;
         $message = $this->parse($message, $parameters);
 
-        parent::__construct($message, 0, $e);
+        parent::__construct($this->getStatusCode(), $message, $e);
     }
 
     public function getStatusCode(): int

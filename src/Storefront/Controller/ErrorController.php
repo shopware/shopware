@@ -63,6 +63,8 @@ class ErrorController extends StorefrontController
                 $this->flashBag->add('danger', $this->trans('error.message-default'));
             }
 
+            $request->attributes->set('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
+
             $salesChannelId = $context->getSalesChannel()->getId();
             $cmsErrorLayoutId = $this->systemConfigService->get('core.basicInformation.404Page', $salesChannelId);
             if ($cmsErrorLayoutId && $is404StatusCode) {

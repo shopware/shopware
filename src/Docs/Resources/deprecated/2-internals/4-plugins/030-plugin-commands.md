@@ -15,6 +15,7 @@ Below you'll find a list of each command and its usage.
 | plugin:update     | plugins   | clearCache                      | Updates one or multiple plugins                                        |
 | plugin:list       | N/A       | filter                          | Prints a list of all available plugins filtering with the given filter |
 | plugin:refresh    | N/A       | skipPluginList                  | Refreshes the plugin list                                              |
+| plugin:zip-import | zip-file  | no-refresh                      | Import plugin zip file                                                 |
 
 *List of all plugin commands*
 
@@ -103,3 +104,33 @@ $ ./bin/console plugin:activate YourPluginWithNamespace ThirdPartyPluginWithName
 $ ./bin/console plugin:deactivate YourPluginWithNamespace ThirdPartyPluginWithNamespace
 ```
 *Plugin de-, activate command*
+
+### Importing plugins
+
+There are multiple way to import a plugin that is already existing on the filesystem.
+You can either make a composer repository and use composer require:
+
+```js
+{
+    /* ... */
+    "repositories": [
+        {
+            "type": "path",
+            "url": "YourPluginDirectory",
+            "options": {
+                "symlink": true
+            }
+        }
+    ]
+}
+```
+```
+$ composer require your-plugin-technical-name
+$ ./bin/console plugin:refresh
+```
+
+Or you can provide a pre-packaged plugin file like they are distributed at the [community store](https://store.shopware.com).
+
+```
+$ ./bin/console plugin:zip-import YourPluginFile.zip
+```

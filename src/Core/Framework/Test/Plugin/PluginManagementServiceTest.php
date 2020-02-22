@@ -67,6 +67,30 @@ class PluginManagementServiceTest extends TestCase
         static::assertFileExists(self::PLUGIN_FASHION_THEME_PATH . '/SwagFashionTheme.php');
     }
 
+    public function testExtractPluginZip(): void
+    {
+        $this->getPluginManagementService()->extractPluginZip(__DIR__ . '/_fixture/SwagFashionTheme.zip', true);
+
+        $extractedPlugin = $this->filesystem->exists(__DIR__ . '/_fixture/plugins/SwagFashionTheme');
+        $extractedPluginBaseClass = $this->filesystem->exists(__DIR__ . '/_fixture/plugins/SwagFashionTheme/SwagFashionTheme.php');
+        $pluginZipExists = $this->filesystem->exists(__DIR__ . '/_fixture/SwagFashionTheme.zip');
+        static::assertTrue($extractedPlugin);
+        static::assertTrue($extractedPluginBaseClass);
+        static::assertFalse($pluginZipExists);
+    }
+
+    public function testExtractPluginZipWithoutDeletion(): void
+    {
+        $this->getPluginManagementService()->extractPluginZip(__DIR__ . '/_fixture/SwagFashionTheme.zip', false);
+
+        $extractedPlugin = $this->filesystem->exists(__DIR__ . '/_fixture/plugins/SwagFashionTheme');
+        $extractedPluginBaseClass = $this->filesystem->exists(__DIR__ . '/_fixture/plugins/SwagFashionTheme/SwagFashionTheme.php');
+        $pluginZipExists = $this->filesystem->exists(__DIR__ . '/_fixture/SwagFashionTheme.zip');
+        static::assertTrue($extractedPlugin);
+        static::assertTrue($extractedPluginBaseClass);
+        static::assertTrue($pluginZipExists);
+    }
+
     private function createTestCacheDirectory(): string
     {
         $kernelClass = KernelLifecycleManager::getKernelClass();

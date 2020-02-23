@@ -1,5 +1,6 @@
 import { ifNext6997, next6997 } from 'src/flag/feature_next6997';
 
+import ProductLinkLoader from '../../helper/sw-products-link-loader';
 import template from './sw-product-detail.html.twig';
 import swProductDetailState from './state';
 import errorConfiguration from './error.cfg.json';
@@ -42,7 +43,8 @@ Component.register('sw-product-detail', {
         return {
             productNumberPreview: '',
             isSaveSuccessful: false,
-            cloning: false
+            cloning: false,
+            productLinks: null
         };
     },
 
@@ -279,12 +281,29 @@ Component.register('sw-product-detail', {
             return this.loadAll();
         },
 
+        loadProductLinks() {
+            this.productLinks = null;
+            let result = Promise.resolve([]);
+
+            if (this.productId && this.productId.length) {
+                result = (new ProductLinkLoader())
+                    .loadLinks(this.productId)
+                    .then(data => {
+                        this.productLinks = data;
+                        return data;
+                    });
+            }
+
+            return result;
+        },
+
         loadAll() {
             return Promise.all([
                 this.loadProduct(),
                 this.loadCurrencies(),
                 this.loadTaxes(),
-                this.loadAttributeSet()
+                this.loadAttributeSet(),
+                this.loadProductLinks()
             ]);
         },
 
@@ -637,6 +656,12 @@ Component.register('sw-product-detail', {
         onDuplicateFinish(duplicate) {
             this.cloning = false;
             this.$router.push({ name: 'sw.product.detail', params: { id: duplicate.id } });
+        },
+
+        onSaveAndOpen(publicUrl) {
+            this.onSave().then(() => {
+                window.open(publicUrl, '_blank');
+            });
         }
     }
 });

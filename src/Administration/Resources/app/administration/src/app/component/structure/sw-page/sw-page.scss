@@ -130,6 +130,18 @@ $sw-page-smart-bar-headline-font-weight: 600;
         .sw-context-button__menu-position {
             margin-right: 0;
         }
+
+        > .sw-context-button {
+            margin-right: 8px;
+
+            &:last-child {
+                margin-right: 0;
+            }
+
+            > .sw-button {
+                margin-right: 0;
+            }
+        }
     }
 
     .sw-page__smart-bar-amount {

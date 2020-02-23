@@ -187,6 +187,7 @@
       "buttonSave": "Save",
       "buttonSaveDuplicate": "Save and duplicate",
       "buttonSaveAndNew": "Save and create new",
+      "buttonSaveAndOpenStorefrontLink": "Save and open in {salesChannelName} ({salesChannelDomain})",
       "tabGeneral": "General",
       "tabAdvancedPrices": "Advanced pricing",
       "tabVariation": "Variants",

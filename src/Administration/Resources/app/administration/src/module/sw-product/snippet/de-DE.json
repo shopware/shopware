@@ -187,6 +187,7 @@
       "buttonSave": "Speichern",
       "buttonSaveDuplicate": "Speichern und duplizieren",
       "buttonSaveAndNew": "Speichern und neues erstellen",
+      "buttonSaveAndOpenStorefrontLink": "Speichern und öffnen in {salesChannelName} ({salesChannelDomain})",
       "tabGeneral": "Allgemein",
       "tabAdvancedPrices": "Erweiterte Preise",
       "tabProperties": "Eigenschaften zuweisen",

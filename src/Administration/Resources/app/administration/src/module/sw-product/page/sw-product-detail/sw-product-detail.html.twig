@@ -39,7 +39,9 @@
                     {% endblock %}
 
                     {% block sw_product_detail_actions_save_context_menu %}
-                        <sw-context-button>
+                        <sw-context-button
+                            :menuWidth="450"
+                        >
                             <template slot="button">
                                 <sw-button
                                     class="sw-product-detail__button-context-menu"
@@ -62,6 +64,18 @@
                                     }"
                                     @click="onDuplicate">
                                     {{ $tc('sw-product.detail.buttonSaveDuplicate') }}
+                                </sw-context-menu-item>
+                            {% endblock %}
+
+                            {% block sw_product_detail_actions_open_storefront_links %}
+                                <sw-context-menu-item
+                                    v-for="productLink of productLinks"
+                                    icon="default-action-external"
+                                    target="_blank"
+                                    :key="productLink.salesChannelDomain + productLink.path"
+                                    @click.prevent="onSaveAndOpen(productLink.salesChannelDomain + productLink.path)"
+                                >
+                                    {{ $t('sw-product.detail.buttonSaveAndOpenStorefrontLink', productLink) }}
                                 </sw-context-menu-item>
                             {% endblock %}
                         {% endblock %}

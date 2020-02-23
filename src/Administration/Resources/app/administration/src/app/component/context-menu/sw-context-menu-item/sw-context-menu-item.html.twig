@@ -24,6 +24,29 @@
         </router-link>
     {% endblock %}
 
+    {% block sw_context_menu_item_link %}
+        <div v-else-if="href && href.length"
+             class="sw-context-menu-item"
+             :class="contextMenuItemStyles">
+            {% block sw_context_menu_item_icon %}
+                <slot name="icon">
+                    {% block sw_context_menu_item_slot_icon %}
+                        <sw-icon :name="icon" small v-if="icon"></sw-icon>
+                    {% endblock %}
+                </slot>
+            {% endblock %}
+
+            {% block sw_context_menu_item_text %}
+                <a class="sw-context-menu-item__text"
+                   :class="{ 'is--disabled': disabled }"
+                   :href="href"
+                   :target="target">
+                    <slot>{% block sw_context_menu_item_slot_default %}{% endblock %}</slot>
+                </a>
+            {% endblock %}
+        </div>
+    {% endblock %}
+
     {% block sw_context_menu_item_entry %}
         <div v-else
              class="sw-context-menu-item"

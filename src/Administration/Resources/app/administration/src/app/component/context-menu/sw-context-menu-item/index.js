@@ -26,6 +26,12 @@ Component.register('sw-context-menu-item', {
             required: false
         },
 
+        href: {
+            type: String,
+            required: false,
+            default: null
+        },
+
         target: {
             type: String,
             required: false,

@@ -3,8 +3,10 @@
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 use Composer\Autoload\ClassLoader;
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Test\Filesystem\Adapter\MemoryAdapterFactory;
+use Shopware\Core\Profiling\Doctrine\DebugStack;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Contracts\Service\ResetInterface;
@@ -76,6 +78,7 @@ class KernelLifecycleManager
 
         static::$kernel = static::createKernel();
         static::$kernel->boot();
+        static::$kernel->getContainer()->get(Connection::class)->getConfiguration()->setSQLLogger(new DebugStack());
         MemoryAdapterFactory::resetInstances();
 
         return static::$kernel;

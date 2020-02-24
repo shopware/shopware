@@ -18,6 +18,7 @@
                 :mailTemplatesExist="mailTemplatesExist"
                 :technicalName="technicalName"
                 :order="order"
+                @on-no-mail-confirm="onNoMailConfirm"
                 @on-assigned-mail-template="onAssignMailTemplate"
                 @on-create-mail-template="onCancel">
             </sw-order-state-change-modal-assign-mail-template>

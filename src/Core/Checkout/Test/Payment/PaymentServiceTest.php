@@ -20,6 +20,8 @@ use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Checkout\Test\Payment\Handler\AsyncTestPaymentHandler;
 use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
+use Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler as AsyncTestPaymentHandlerV630;
+use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler as SyncTestPaymentHandlerV630;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -96,6 +98,7 @@ class PaymentServiceTest extends TestCase
         $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
     }
 
+    /** @deprecated tag:v6.3.0 will be removed in v6.3.0 */
     public function testHandlePaymentByOrderSyncPayment(): void
     {
         $paymentMethodId = $this->createPaymentMethod($this->context, SyncTestPaymentHandler::class);
@@ -108,6 +111,19 @@ class PaymentServiceTest extends TestCase
         static::assertNull($this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext));
     }
 
+    public function testHandlePaymentByOrderSyncPaymentV630(): void
+    {
+        $paymentMethodId = $this->createPaymentMethodV630($this->context, SyncTestPaymentHandlerV630::class);
+        $customerId = $this->createCustomer($this->context);
+        $orderId = $this->createOrder($customerId, $paymentMethodId, $this->context);
+        $this->createTransaction($orderId, $paymentMethodId, $this->context);
+
+        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
+
+        static::assertNull($this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext));
+    }
+
+    /** @deprecated tag:v6.3.0 will be removed in v6.3.0 */
     public function testHandlePaymentByOrderAsyncPayment(): void
     {
         $paymentMethodId = $this->createPaymentMethod($this->context);
@@ -122,6 +138,53 @@ class PaymentServiceTest extends TestCase
         static::assertEquals(AsyncTestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
     }
 
+    public function testHandlePaymentByOrderAsyncPaymentV630(): void
+    {
+        $paymentMethodId = $this->createPaymentMethodV630($this->context);
+        $customerId = $this->createCustomer($this->context);
+        $orderId = $this->createOrder($customerId, $paymentMethodId, $this->context);
+        $this->createTransaction($orderId, $paymentMethodId, $this->context);
+
+        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
+
+        $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
+
+        static::assertEquals(AsyncTestPaymentHandlerV630::REDIRECT_URL, $response->getTargetUrl());
+    }
+
+    public function testHandlePaymentByOrderAsyncPaymentWithFinalizeV630(): void
+    {
+        $paymentMethodId = $this->createPaymentMethodV630($this->context);
+        $customerId = $this->createCustomer($this->context);
+        $orderId = $this->createOrder($customerId, $paymentMethodId, $this->context);
+        $transactionId = $this->createTransaction($orderId, $paymentMethodId, $this->context);
+
+        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
+
+        $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
+
+        static::assertEquals(AsyncTestPaymentHandlerV630::REDIRECT_URL, $response->getTargetUrl());
+
+        $transaction = JWTFactoryTest::createTransaction();
+        $transaction->setId($transactionId);
+        $transaction->setPaymentMethodId($paymentMethodId);
+        $transaction->setOrderId($orderId);
+
+        $token = $this->tokenFactory->generateToken($transaction, 'testFinishUrl');
+        $request = new Request();
+        $tokenStruct = $this->paymentService->finalizeTransaction($token, $request, $salesChannelContext);
+
+        static::assertSame('testFinishUrl', $tokenStruct->getFinishUrl());
+        $criteria = new Criteria([$transactionId]);
+        $criteria->addAssociation('stateMachineState');
+        $transactionEntity = $this->orderTransactionRepository->search($criteria, $this->context)->first();
+        static::assertSame(
+            OrderTransactionStates::STATE_PAID,
+            $transactionEntity->getStateMachineState()->getTechnicalName()
+        );
+    }
+
+    /** @deprecated tag:v6.3.0 will be removed in v6.3.0 */
     public function testHandlePaymentByOrderAsyncPaymentWithFinalize(): void
     {
         $paymentMethodId = $this->createPaymentMethod($this->context);
@@ -154,9 +217,22 @@ class PaymentServiceTest extends TestCase
         );
     }
 
+    /** @deprecated tag:v6.3.0 will be removed in v6.3.0 */
     public function testHandlePaymentByOrderDefaultPayment(): void
     {
         $paymentMethodId = $this->createPaymentMethod($this->context, DefaultPayment::class);
+        $customerId = $this->createCustomer($this->context);
+        $orderId = $this->createOrder($customerId, $paymentMethodId, $this->context);
+        $this->createTransaction($orderId, $paymentMethodId, $this->context);
+
+        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
+
+        static::assertNull($this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext));
+    }
+
+    public function testHandlePaymentByOrderDefaultPaymentV630(): void
+    {
+        $paymentMethodId = $this->createPaymentMethodV630($this->context, DefaultPayment::class);
         $customerId = $this->createCustomer($this->context);
         $orderId = $this->createOrder($customerId, $paymentMethodId, $this->context);
         $this->createTransaction($orderId, $paymentMethodId, $this->context);
@@ -185,6 +261,7 @@ class PaymentServiceTest extends TestCase
         $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext('paymentMethodId'));
     }
 
+    /** @deprecated tag:v6.3.0 will be removed in v6.3.0 */
     public function testFinalizeTransactionCustomerCanceled(): void
     {
         $paymentMethodId = $this->createPaymentMethod($this->context);
@@ -218,7 +295,105 @@ class PaymentServiceTest extends TestCase
         $transactionEntity = $this->orderTransactionRepository->search($criteria, $this->context)->first();
 
         static::assertSame(
-            OrderStates::STATE_CANCELLED,
+            OrderTransactionStates::STATE_FAILED,
+            $transactionEntity->getStateMachineState()->getTechnicalName()
+        );
+
+        //can fail again
+        try {
+            $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
+            static::fail('exception should be thrown');
+        } catch (CustomerCanceledAsyncPaymentException $e) {
+        }
+        $criteria = new Criteria([$transactionId]);
+        $criteria->addAssociation('stateMachineState');
+
+        $transactionEntity = $this->orderTransactionRepository->search($criteria, $this->context)->first();
+
+        static::assertSame(
+            OrderTransactionStates::STATE_FAILED,
+            $transactionEntity->getStateMachineState()->getTechnicalName()
+        );
+
+        //can success after fail
+        $request->query->set('cancel', false);
+        $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
+
+        $criteria = new Criteria([$transactionId]);
+        $criteria->addAssociation('stateMachineState');
+
+        $transactionEntity = $this->orderTransactionRepository->search($criteria, $this->context)->first();
+
+        static::assertSame(
+            OrderTransactionStates::STATE_PAID,
+            $transactionEntity->getStateMachineState()->getTechnicalName()
+        );
+    }
+
+    public function testFinalizeTransactionCustomerCanceledV630(): void
+    {
+        $paymentMethodId = $this->createPaymentMethodV630($this->context);
+        $customerId = $this->createCustomer($this->context);
+        $orderId = $this->createOrder($customerId, $paymentMethodId, $this->context);
+        $transactionId = $this->createTransaction($orderId, $paymentMethodId, $this->context);
+
+        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
+
+        $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
+
+        static::assertEquals(AsyncTestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
+
+        $transaction = JWTFactoryTest::createTransaction();
+        $transaction->setId($transactionId);
+        $transaction->setPaymentMethodId($paymentMethodId);
+        $transaction->setOrderId($orderId);
+
+        $token = $this->tokenFactory->generateToken($transaction, 'testFinishUrl');
+        $request = new Request();
+        $request->query->set('cancel', true);
+
+        try {
+            $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
+            static::fail('exception should be thrown');
+        } catch (CustomerCanceledAsyncPaymentException $e) {
+        }
+        $criteria = new Criteria([$transactionId]);
+        $criteria->addAssociation('stateMachineState');
+
+        $transactionEntity = $this->orderTransactionRepository->search($criteria, $this->context)->first();
+
+        static::assertSame(
+            OrderTransactionStates::STATE_FAILED,
+            $transactionEntity->getStateMachineState()->getTechnicalName()
+        );
+
+        //can fail again
+        try {
+            $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
+            static::fail('exception should be thrown');
+        } catch (CustomerCanceledAsyncPaymentException $e) {
+        }
+        $criteria = new Criteria([$transactionId]);
+        $criteria->addAssociation('stateMachineState');
+
+        $transactionEntity = $this->orderTransactionRepository->search($criteria, $this->context)->first();
+
+        static::assertSame(
+            OrderTransactionStates::STATE_FAILED,
+            $transactionEntity->getStateMachineState()->getTechnicalName()
+        );
+
+        //can success after fail
+        $request->query->set('cancel', false);
+        $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
+
+        $criteria = new Criteria([$transactionId]);
+        $criteria->addAssociation('stateMachineState');
+
+        $transactionEntity = $this->orderTransactionRepository->search($criteria, $this->context)->first();
+
+        static::assertSame(
+            OrderTransactionStates::STATE_PAID,
             $transactionEntity->getStateMachineState()->getTechnicalName()
         );
     }
@@ -347,9 +522,28 @@ class PaymentServiceTest extends TestCase
         return $customerId;
     }
 
+    /** @deprecated tag:v6.3.0 will be removed in v6.3.0 */
     private function createPaymentMethod(
         Context $context,
         string $handlerIdentifier = AsyncTestPaymentHandler::class
+    ): string {
+        $id = Uuid::randomHex();
+        $payment = [
+            'id' => $id,
+            'handlerIdentifier' => $handlerIdentifier,
+            'name' => 'Test Payment',
+            'description' => 'Test payment handler',
+            'active' => true,
+        ];
+
+        $this->paymentMethodRepository->upsert([$payment], $context);
+
+        return $id;
+    }
+
+    private function createPaymentMethodV630(
+        Context $context,
+        string $handlerIdentifier = AsyncTestPaymentHandlerV630::class
     ): string {
         $id = Uuid::randomHex();
         $payment = [

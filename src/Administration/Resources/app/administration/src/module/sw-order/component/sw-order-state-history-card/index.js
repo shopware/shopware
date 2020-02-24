@@ -277,12 +277,11 @@ Component.register('sw-order-state-history-card', {
                 const transitionToState = possibleTransitions.filter((transition) => {
                     return transition.toStateName === option.stateName;
                 });
-                if (transitionToState.length === 1) {
+                if (transitionToState.length >= 1) {
                     option.disabled = false;
                     option.id = transitionToState[0].actionName;
                 }
             });
-
             return options;
         },
 

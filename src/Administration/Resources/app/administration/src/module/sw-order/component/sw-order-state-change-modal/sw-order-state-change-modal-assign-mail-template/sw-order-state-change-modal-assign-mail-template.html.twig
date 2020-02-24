@@ -81,10 +81,19 @@
                         </sw-entity-listing>
                     {% endblock %}
                 </sw-card>
-               {% endblock %}
+                {% endblock %}
 
                 {% block sw_order_state_change_modal_assign_mail_template_button_wrapper %}
                     <div class="sw-order-state-change-modal-assign-mail-template__button-wrapper">
+
+                        {% block sw_order_state_change_modal_assign_no_mail_template_button_assign_mail_template %}
+                            <sw-button class="sw-order-state-change-modal-assign-no-mail-template__button"
+                                       variant="ghost"
+                                       size="small"
+                                       @click="onConfirmNoMail">
+                                {{ $tc('sw-order.assignMailTemplateCard.buttonNotAssignMailTemplate') }}
+                            </sw-button>
+                        {% endblock %}
 
                         {% block sw_order_state_change_modal_assign_mail_template_button_assign_mail_template %}
                             <sw-button class="sw-order-state-change-modal-assign-mail-template__button"

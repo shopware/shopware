@@ -18,6 +18,7 @@ return [
     'forward' => 'Další',
     'start' => 'Spustit',
     'start_installation' => 'Spustit instalaci',
+
     'select_language_de' => 'Německy',
     'select_language_en' => 'Anglicky',
     'select_language_nl' => 'Holandsky',
@@ -26,8 +27,9 @@ return [
     'select_language_es' => 'Španělsky',
     'select_language_pt' => 'Portugalsky',
     'select_language_pl' => 'Polsky',
-    'select_language_cz' => 'český',
+    'select_language_cs' => 'český',
     'select_language_sv' => 'švédský',
+
     'language-selection_welcome_title' => 'Vítejte v aplikaci Shopware 6',
     'language-selection_select_language' => 'Jazyk průvodce instalací',
     'language-selection_header' => 'Vaše instalace softwaru Shopware',

@@ -24,7 +24,7 @@ echo $renderer->fetch('_header.php', ['tab' => 'start']); ?>
                     <?= $language['select_language_en']; ?>
                 </option>
                 <option value="cz"<?php if ($selectedLanguage === 'cz') : ?> selected="selected"<?php endif; ?>>
-                    <?= $language['select_language_cz']; ?>
+                    <?= $language['select_language_cs']; ?>
                 </option>
                 <option value="es"<?php if ($selectedLanguage === 'es') : ?> selected="selected"<?php endif; ?>>
                     <?= $language['select_language_es']; ?>

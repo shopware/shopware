@@ -18,6 +18,7 @@ return [
     'forward' => 'Verder',
     'start' => 'Starten',
     'start_installation' => 'Installatie starten',
+
     'select_language_de' => 'Duits',
     'select_language_en' => 'Engels',
     'select_language_nl' => 'Nederlands',
@@ -26,8 +27,9 @@ return [
     'select_language_es' => 'Spaans',
     'select_language_pt' => 'Portugees',
     'select_language_pl' => 'Pools',
-    'select_language_cz' => 'Czech',
-    'select_language_sv' => 'Swedish',
+    'select_language_cs' => 'Tsjechisch',
+    'select_language_sv' => 'Zweeds',
+
     'language-selection_welcome_title' => 'Welkom bij Shopware 6',
     'language-selection_select_language' => 'Taal van de installatie-assistent',
     'language-selection_header' => 'Je Shopware-installatie',

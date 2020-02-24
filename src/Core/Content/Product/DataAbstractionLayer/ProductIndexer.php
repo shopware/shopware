@@ -43,6 +43,11 @@ class ProductIndexer implements EntityIndexerInterface
     private $variantListingUpdater;
 
     /**
+     * @var ProductCategoryDenormalizer
+     */
+    private $categoryDenormalizer;
+
+    /**
      * @var ListingPriceUpdater
      */
     private $listingPriceUpdater;
@@ -58,6 +63,7 @@ class ProductIndexer implements EntityIndexerInterface
         Connection $connection,
         CacheClearer $cacheClearer,
         VariantListingUpdater $variantListingUpdater,
+        ProductCategoryDenormalizer $categoryDenormalizer,
         ListingPriceUpdater $listingPriceUpdater,
         InheritanceUpdater $inheritanceUpdater
     ) {
@@ -66,6 +72,7 @@ class ProductIndexer implements EntityIndexerInterface
         $this->connection = $connection;
         $this->cacheClearer = $cacheClearer;
         $this->variantListingUpdater = $variantListingUpdater;
+        $this->categoryDenormalizer = $categoryDenormalizer;
         $this->listingPriceUpdater = $listingPriceUpdater;
         $this->inheritanceUpdater = $inheritanceUpdater;
     }
@@ -123,6 +130,8 @@ class ProductIndexer implements EntityIndexerInterface
         $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, $all, $context);
 
         $this->variantListingUpdater->update($parentIds, $context);
+
+        $this->categoryDenormalizer->update($ids, $context);
 
         $this->listingPriceUpdater->update($ids, $context);
 

@@ -320,11 +320,17 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater"/>
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ListingPriceUpdater"/>
             <tag name="shopware.entity_indexer" />
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ListingPriceUpdater">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceRounding"/>
         </service>
     </services>
 </container>

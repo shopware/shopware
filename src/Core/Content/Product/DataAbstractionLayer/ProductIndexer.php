@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ListingPriceUpdater;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
@@ -40,18 +41,25 @@ class ProductIndexer implements EntityIndexerInterface
      */
     private $variantListingUpdater;
 
+    /**
+     * @var ListingPriceUpdater
+     */
+    private $listingPriceUpdater;
+
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
         Connection $connection,
         CacheClearer $cacheClearer,
-        VariantListingUpdater $variantListingUpdater
+        VariantListingUpdater $variantListingUpdater,
+        ListingPriceUpdater $listingPriceUpdater
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
         $this->connection = $connection;
         $this->cacheClearer = $cacheClearer;
         $this->variantListingUpdater = $variantListingUpdater;
+        $this->listingPriceUpdater = $listingPriceUpdater;
     }
 
     public function getName(): string
@@ -103,6 +111,8 @@ class ProductIndexer implements EntityIndexerInterface
         $context = Context::createDefaultContext();
 
         $this->variantListingUpdater->update($parentIds, $context);
+
+        $this->listingPriceUpdater->update($ids, $context);
 
         $this->cacheClearer->invalidateIds($all, ProductDefinition::ENTITY_NAME);
 

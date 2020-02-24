@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AntiJoinFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -368,6 +369,7 @@ trait CriteriaQueryHelper
                 $field = @current($fields);
                 if ($childFilter instanceof MultiFilter
                     || count($fields) !== 1
+                    || ($childFilter instanceof EqualsFilter && $childFilter->getValue() === null)
                     || !$this->isAssociationPath($definition, $field)
                 ) {
                     $normalFilters[] = $childFilter;

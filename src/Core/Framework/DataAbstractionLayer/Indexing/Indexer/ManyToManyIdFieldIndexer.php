@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -66,6 +67,9 @@ class ManyToManyIdFieldIndexer implements IndexerInterface
             if ($fields->count() <= 0) {
                 continue;
             }
+            if ($definition->getClass() === ProductDefinition::class) {
+                continue;
+            }
 
             $iterator = $this->iteratorFactory->createIterator($definition);
 
@@ -108,6 +112,10 @@ class ManyToManyIdFieldIndexer implements IndexerInterface
         $definitions = array_values(array_filter(
             $this->registry->getDefinitions(),
             function (EntityDefinition $definition) {
+                if ($definition->getClass() === ProductDefinition::class) {
+                    return false;
+                }
+
                 return $definition->getFields()->filterInstance(ManyToManyIdField::class)->count() > 0;
             }
         ));
@@ -161,6 +169,9 @@ class ManyToManyIdFieldIndexer implements IndexerInterface
     private function update(EntityDefinition $definition, array $ids, Context $context): void
     {
         if (empty($ids)) {
+            return;
+        }
+        if ($definition->getClass() === ProductDefinition::class) {
             return;
         }
 

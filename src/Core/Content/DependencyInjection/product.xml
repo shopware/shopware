@@ -325,8 +325,9 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\RatingAverageUpdater"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater"/>
-            <tag name="shopware.entity_indexer" />
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater"/>
+            <tag name="shopware.entity_indexer" />
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater">

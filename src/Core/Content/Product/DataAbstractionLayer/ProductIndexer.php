@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class ProductIndexer implements EntityIndexerInterface
@@ -73,6 +74,11 @@ class ProductIndexer implements EntityIndexerInterface
      */
     private $childCountUpdater;
 
+    /**
+     * @var ManyToManyIdFieldUpdater
+     */
+    private $manyToManyIdFieldUpdater;
+
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
@@ -84,7 +90,8 @@ class ProductIndexer implements EntityIndexerInterface
         InheritanceUpdater $inheritanceUpdater,
         RatingAverageUpdater $ratingAverageUpdater,
         SearchKeywordUpdater $searchKeywordUpdater,
-        ChildCountUpdater $childCountUpdater
+        ChildCountUpdater $childCountUpdater,
+        ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
@@ -97,6 +104,7 @@ class ProductIndexer implements EntityIndexerInterface
         $this->inheritanceUpdater = $inheritanceUpdater;
         $this->ratingAverageUpdater = $ratingAverageUpdater;
         $this->childCountUpdater = $childCountUpdater;
+        $this->manyToManyIdFieldUpdater = $manyToManyIdFieldUpdater;
     }
 
     public function getName(): string
@@ -153,6 +161,8 @@ class ProductIndexer implements EntityIndexerInterface
         $this->variantListingUpdater->update($parentIds, $context);
 
         $this->childCountUpdater->update(ProductDefinition::ENTITY_NAME, $parentIds, $context);
+
+        $this->manyToManyIdFieldUpdater->update(ProductDefinition::ENTITY_NAME, $ids, $context);
 
         $this->categoryDenormalizer->update($ids, $context);
 

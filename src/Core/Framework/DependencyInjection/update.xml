@@ -15,6 +15,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService"/>
+            <argument type="service" id="user.repository"/>
             <argument>%kernel.shopware_version%</argument>
             <argument>%env(bool:SHOPWARE_UPDATE_TEST)%</argument>
             <call method="setContainer">

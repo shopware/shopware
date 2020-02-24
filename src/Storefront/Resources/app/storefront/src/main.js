@@ -142,7 +142,7 @@ if (window.csrf.enabled && window.csrf.mode === 'ajax') {
 
 
 if (window.gtagActive) {
-    PluginManager.register('GoogleAnalytics', GoogleAnalyticsPlugin, document);
+    PluginManager.register('GoogleAnalytics', GoogleAnalyticsPlugin);
 }
 
 /*

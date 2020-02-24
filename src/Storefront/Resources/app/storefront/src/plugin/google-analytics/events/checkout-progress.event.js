@@ -8,6 +8,10 @@ export default class CheckoutProgressEvent extends AnalyticsEvent
     }
 
     execute() {
+        if (!this.active) {
+            return;
+        }
+
         gtag('event', 'checkout_progress', {
             'items': LineItemHelper.getLineItems()
         });

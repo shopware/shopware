@@ -8,6 +8,10 @@ export default class ViewItemEvent extends AnalyticsEvent
     }
 
     execute() {
+        if (!this.active) {
+            return;
+        }
+
         const form = DomAccessHelper.querySelector(document, '#productDetailPageBuyProductForm');
         const productId = this.findProductId(DomAccessHelper.querySelectorAll(form, 'input'));
         const productName = DomAccessHelper.querySelector(form, 'input[name=product-name]').value;

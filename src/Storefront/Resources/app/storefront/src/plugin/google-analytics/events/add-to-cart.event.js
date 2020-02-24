@@ -12,11 +12,15 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
 
     getEvents() {
         return {
-            'beforeFormSubmit':  this._beforeFormSubmit
+            'beforeFormSubmit':  this._beforeFormSubmit.bind(this)
         };
     }
 
     _beforeFormSubmit(event) {
+        if (!this.active) {
+            return;
+        }
+
         const formData = event.detail;
         let productId = null;
 

@@ -12,11 +12,15 @@ export default class SearchAjaxEvent extends EventAwareAnalyticsEvent
 
     getEvents() {
         return {
-            'handleInputEvent':  this._onSearch
+            'handleInputEvent':  this._onSearch.bind(this)
         };
     }
 
     _onSearch(event) {
+        if (!this.active) {
+            return;
+        }
+
         gtag('event', 'search', {
             'search_term': event.detail.value
         });

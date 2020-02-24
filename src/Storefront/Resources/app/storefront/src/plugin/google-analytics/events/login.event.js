@@ -15,11 +15,15 @@ export default class LoginEvent extends EventAwareAnalyticsEvent
 
     getEvents() {
         return {
-            'onFormSubmit': this._onFormSubmit
+            'onFormSubmit': this._onFormSubmit.bind(this)
         };
     }
 
     _onFormSubmit(event) {
+        if (!this.active) {
+            return;
+        }
+
         const target = event.target;
 
         if (!target.classList.contains('login-form') || !event.detail.validity) {

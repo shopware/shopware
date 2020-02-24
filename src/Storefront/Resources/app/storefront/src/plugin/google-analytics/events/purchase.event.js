@@ -11,15 +11,21 @@ export default class PurchaseEvent extends AnalyticsEvent
     execute() {
         const tosInput = DomAccessHelper.querySelector(document, '#tos');
 
-        DomAccessHelper.querySelector(document, '#confirmFormSubmit').addEventListener('click', () => {
-            if (!tosInput.checked) {
-                return;
-            }
+        DomAccessHelper.querySelector(document, '#confirmFormSubmit').addEventListener('click', this._onConfirm.bind(this, tosInput));
+    }
 
-            gtag('event', 'purchase', {
-                'transaction_id': window.contextToken,
-                'items':  LineItemHelper.getLineItems()
-            });
+    _onConfirm(tosInput) {
+        if (!this.active) {
+            return;
+        }
+
+        if (!tosInput.checked) {
+            return;
+        }
+
+        gtag('event', 'purchase', {
+            'transaction_id': window.contextToken,
+            'items':  LineItemHelper.getLineItems()
         });
     }
 }

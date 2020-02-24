@@ -8,17 +8,23 @@ export default class RemoveFromCart extends AnalyticsEvent
     }
 
     execute() {
-        document.addEventListener('click', event => {
-            const closest = event.target.closest('.cart-item-remove-button');
-            if (!closest) {
-                return;
-            }
+        document.addEventListener('click', this._onRemoveFromCart.bind(this));
+    }
 
-            gtag('event', 'remove_from_cart', {
-                'items': [{
-                    'id': DomAccessHelper.getDataAttribute(closest, 'product-id')
-                }]
-            });
+    _onRemoveFromCart(event) {
+        if (!this.active) {
+            return;
+        }
+
+        const closest = event.target.closest('.cart-item-remove-button');
+        if (!closest) {
+            return;
+        }
+
+        gtag('event', 'remove_from_cart', {
+            'items': [{
+                'id': DomAccessHelper.getDataAttribute(closest, 'product-id')
+            }]
         });
     }
 }

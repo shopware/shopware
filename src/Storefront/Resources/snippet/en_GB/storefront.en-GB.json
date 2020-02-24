@@ -475,7 +475,10 @@
         "groupRequired": "Technically required",
         "groupRequiredDescription": "These cookies are required by the shops core functionality.",
         "groupRequiredSession": "Session",
-        "groupRequiredTimezone": "Timezone"
+        "groupRequiredTimezone": "Timezone",
+        "groupStatistical": "Statistic",
+        "groupStatisticalDescription": "These cookies are used for statistics and shop performance metrics.",
+        "groupStatisticalGoogleAnalytics": "Google Analytics"
     },
   "ellipsis": {
     "expandLabel": "show more",

@@ -168,3 +168,23 @@ Cypress.Commands.add('typeAndSelect', {
 }, (subject, value) => {
     cy.wrap(subject).select(value);
 });
+
+Cypress.Commands.add('addAnalyticsFixtureToSalesChannel', () => {
+    return cy.searchViaAdminApi({
+        endpoint: 'sales-channel',
+        data: {
+            field: 'name',
+            value: 'Storefront'
+        }
+    }).then((result) => {
+        return cy.updateViaAdminApi('sales-channel', result.id, {
+            data: {
+                analytics: {
+                    trackingId: 'UA-000000000-0',
+                    active: true,
+                    trackOrders: true
+                }
+            }
+        })
+    });
+});
